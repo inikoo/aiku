@@ -69,10 +69,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $logo_id
  * @property Carbon|null $launched_at
  * @property Carbon|null $closed_at
- * @property Carbon|null $fetched_at
- * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $cloudflare_id
@@ -129,6 +129,7 @@ class Website extends Model implements Auditable, HasMedia
         'closed_at'         => 'datetime',
         'fetched_at'        => 'datetime',
         'last_fetched_at'   => 'datetime',
+
     ];
 
     protected $attributes = [

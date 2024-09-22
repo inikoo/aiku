@@ -8,8 +8,12 @@
 namespace App\Actions\Web\Webpage;
 
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebpages;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateUniversalSearch;
+use App\Actions\Web\Webpage\Hydrators\WebpageHydrateWebpages;
+use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
 use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
@@ -32,6 +36,16 @@ class UpdateWebpage extends OrgAction
     {
         $webpage = $this->update($webpage, $modelData, ['data', 'settings']);
 
+        if ($webpage->wasChanged('state')) {
+            GroupHydrateWebpages::dispatch($webpage->group)->delay($this->hydratorsDelay);
+            OrganisationHydrateWebpages::dispatch($webpage->organisation)->delay($this->hydratorsDelay);
+            WebsiteHydrateWebpages::dispatch($webpage->website)->delay($this->hydratorsDelay);
+            if ($webpage->parent_id) {
+                WebpageHydrateWebpages::dispatch($webpage->parent)->delay($this->hydratorsDelay);
+            }
+        }
+
+
         WebpageHydrateUniversalSearch::run($webpage);
 
         return $webpage;
@@ -50,8 +64,8 @@ class UpdateWebpage extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'url' => [
+        $rules = [
+            'url'           => [
                 'sometimes',
                 'required',
                 'ascii',
@@ -73,7 +87,7 @@ class UpdateWebpage extends OrgAction
                     ]
                 ),
             ],
-            'code' => [
+            'code'          => [
                 'sometimes',
                 'required',
                 'ascii',
@@ -101,12 +115,23 @@ class UpdateWebpage extends OrgAction
             'ready_at'      => ['sometimes', 'date'],
             'live_at'       => ['sometimes', 'date'],
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(Webpage $webpage, $modelData): Webpage
+    public function action(Webpage $webpage, array $modelData, int $hydratorsDelay = 0, $strict = true, bool $audit = true): Webpage
     {
-        $this->asAction = true;
-        $this->webpage  = $webpage;
+        if (!$audit) {
+            Webpage::disableAuditing();
+        }
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->asAction       = true;
+        $this->webpage        = $webpage;
 
         $this->initialisation($webpage->organisation, $modelData);
 
@@ -133,8 +158,8 @@ class UpdateWebpage extends OrgAction
             data_set(
                 $modelData,
                 match ($key) {
-                    'google_search'  => 'data',
-                    default          => $key
+                    'google_search' => 'data',
+                    default         => $key
                 },
                 $value
             );

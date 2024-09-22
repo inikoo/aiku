@@ -88,15 +88,11 @@ class StoreWebsite extends OrgAction
         $website->webStats()->create();
         //AddWebsiteToCloudflare::run($website);
 
-        GroupHydrateWebsites::dispatch($shop->group);
-        OrganisationHydrateWebsites::dispatch($shop->organisation);
+        GroupHydrateWebsites::dispatch($shop->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateWebsites::dispatch($shop->organisation)->delay($this->hydratorsDelay);
         WebsiteRecordSearch::dispatch($website);
 
-        $website = SeedWebsiteFixedWebpages::run($website);
-
-
-
-        return $website;
+        return SeedWebsiteFixedWebpages::run($website);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -116,7 +112,7 @@ class StoreWebsite extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'domain'      => [
                 'required',
                 'string',
@@ -152,13 +148,21 @@ class StoreWebsite extends OrgAction
                 ),
             ],
             'name'        => ['required', 'string', 'max:255'],
-            'source_id'   => ['sometimes', 'string'],
-            'created_at'  => ['sometimes', 'date'],
-            'launched_at' => ['sometimes', 'date'],
             'state'       => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
             'status'      => ['sometimes', 'boolean'],
-            'fetched_at'  => ['sometimes', 'date'],
         ];
+
+        if (!$this->strict) {
+
+            $rules['fetched_at']  = ['sometimes', 'date'];
+            $rules['source_id']   = ['sometimes', 'string'];
+            $rules['created_at']  = ['sometimes', 'nullable', 'date'];
+            $rules['launched_at'] = ['sometimes', 'nullable', 'date'];
+
+        }
+
+        return $rules;
+
     }
 
     public function prepareForValidation(): void
@@ -210,10 +214,12 @@ class StoreWebsite extends OrgAction
         return $this->handle($fulfilment->shop, $this->validatedData);
     }
 
-    public function action(Shop $shop, array $modelData): Website
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Website
     {
-        $this->asAction = true;
-        $this->shop     = $shop;
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->shop           = $shop;
         $this->initialisation($shop->organisation, $modelData);
 
         return $this->handle($shop, $this->validatedData);
@@ -226,6 +232,7 @@ class StoreWebsite extends OrgAction
         $this->asAction = true;
 
         try {
+            /** @var Shop $shop */
             $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
         } catch (Exception) {
             $command->error('Shop not found');
@@ -234,7 +241,7 @@ class StoreWebsite extends OrgAction
         }
         $this->organisation = $shop->organisation;
         $this->shop         = $shop;
-        if ($shop->type === 'fulfilment') {
+        if ($shop->type == ShopTypeEnum::FULFILMENT) {
             $this->parent = $shop->fulfilment;
         } else {
             $this->parent = $shop;

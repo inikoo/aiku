@@ -9,6 +9,7 @@ namespace App\Actions\Web\Webpage;
 
 use App\Actions\Helpers\Snapshot\StoreWebpageSnapshot;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebpages;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateUniversalSearch;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateWebpages;
@@ -71,13 +72,12 @@ class StoreWebpage extends OrgAction
         );
 
 
-
         WebpageHydrateUniversalSearch::dispatch($webpage);
-        OrganisationHydrateWebpages::dispatch($webpage->organisation);
-
-        WebsiteHydrateWebpages::dispatch($webpage->website);
+        GroupHydrateWebpages::dispatch($webpage->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateWebpages::dispatch($webpage->organisation)->delay($this->hydratorsDelay);
+        WebsiteHydrateWebpages::dispatch($webpage->website)->delay($this->hydratorsDelay);
         if ($webpage->parent_id) {
-            WebpageHydrateWebpages::dispatch($webpage->parent);
+            WebpageHydrateWebpages::dispatch($webpage->parent)->delay($this->hydratorsDelay);
         }
 
         return $webpage;
@@ -124,13 +124,10 @@ class StoreWebpage extends OrgAction
                     ]
                 ),
             ],
-            'source_id' => ['sometimes', 'string'],
             'purpose'   => ['required', Rule::enum(WebpagePurposeEnum::class)],
             'type'      => ['required', Rule::enum(WebpageTypeEnum::class)],
             'state'     => ['sometimes', Rule::enum(WebpageStateEnum::class)],
             'is_fixed'  => ['sometimes', 'boolean'],
-            'ready_at'  => ['sometimes', 'date'],
-            'live_at'   => ['sometimes', 'date'],
         ];
 
         if ($this->parent instanceof Webpage) {
@@ -152,15 +149,25 @@ class StoreWebpage extends OrgAction
             ];
         }
 
+        if (!$this->strict) {
+            $rules['source_id']  = ['sometimes', 'string'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['ready_at']   = ['sometimes', 'date'];
+            $rules['live_at']    = ['sometimes', 'date'];
+
+        }
+
         return $rules;
     }
 
 
-    public function action(Website|Webpage $parent, array $modelData): Webpage
+    public function action(Website|Webpage $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Webpage
     {
-        $this->asAction = true;
-        $this->parent   = $parent;
-        $this->website  = $parent instanceof Website ? $parent : $parent->website;
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->parent         = $parent;
+        $this->website        = $parent instanceof Website ? $parent : $parent->website;
         $this->initialisationFromShop($this->website->shop, $modelData);
 
         return $this->handle($parent, $this->validatedData);

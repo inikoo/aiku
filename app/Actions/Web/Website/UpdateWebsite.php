@@ -38,8 +38,8 @@ class UpdateWebsite extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'domain'          => [
+        $rules = [
+            'domain'      => [
                 'sometimes',
                 'required',
                 'ascii',
@@ -65,7 +65,7 @@ class UpdateWebsite extends OrgAction
                     ]
                 ) : null,
             ],
-            'code'            => [
+            'code'        => [
                 'sometimes',
                 'required',
                 'ascii',
@@ -86,22 +86,28 @@ class UpdateWebsite extends OrgAction
                 ),
 
             ],
-            'name'            => ['sometimes', 'required', 'string', 'max:255'],
-            'launched_at'     => ['sometimes', 'date'],
-            'state'           => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
-            'status'          => ['sometimes', 'boolean'],
-            'last_fetched_at' => ['sometimes', 'date'],
+            'name'        => ['sometimes', 'required', 'string', 'max:255'],
+            'launched_at' => ['sometimes', 'date'],
+            'state'       => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
+            'status'      => ['sometimes', 'boolean'],
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(Website $website, array $modelData, bool $strict = true, bool $audit = true): Website
+    public function action(Website $website, array $modelData, int $hydratorsDelay = 0, $strict = true, bool $audit = true): Website
     {
         if (!$audit) {
             Website::disableAuditing();
         }
-        $this->strict   = $strict;
-        $this->asAction = true;
-        $this->website  = $website;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->asAction       = true;
+        $this->website        = $website;
 
         $this->initialisation($website->organisation, $modelData);
 

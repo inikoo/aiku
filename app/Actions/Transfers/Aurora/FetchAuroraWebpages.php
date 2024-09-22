@@ -22,22 +22,26 @@ class FetchAuroraWebpages extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Webpage
     {
         if ($webpageData = $organisationSource->fetchWebpage($organisationSourceId)) {
-
-            if(empty($webpageData['webpage'])) {
+            if (empty($webpageData['webpage'])) {
                 return null;
             }
 
             if ($webpage = Webpage::where('source_id', $webpageData['webpage']['source_id'])
                 ->first()) {
-                $webpage = UpdateWebpage::run(
+                $webpage = UpdateWebpage::make()->action(
                     webpage: $webpage,
-                    modelData: $webpageData['webpage']
+                    modelData: $webpageData['webpage'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
                 );
             } else {
                 data_set($modelData, 'parent_id', $webpageData['website']->storefront->id, overwrite: false);
                 $webpage = StoreWebpage::make()->action(
                     parent: $webpageData['website'],
                     modelData: $webpageData['webpage'],
+                    hydratorsDelay: 60,
+                    strict: false
                 );
             }
 
@@ -54,7 +58,7 @@ class FetchAuroraWebpages extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        $query= DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Page Store Dimension')
             ->join('Website Dimension', 'Website Dimension.Website Key', '=', 'Page Store Dimension.Webpage Website Key')
             ->join('Webpage Type Dimension', 'Webpage Type Dimension.Webpage Type Key', '=', 'Page Store Dimension.Webpage Type Key')
@@ -78,16 +82,14 @@ class FetchAuroraWebpages extends FetchAuroraAction
         }
 
         return $query;
-
     }
 
     public function count(): ?int
     {
-        $query= DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Page Store Dimension')
             ->join('Website Dimension', 'Website Dimension.Website Key', '=', 'Page Store Dimension.Webpage Website Key')
             ->join('Webpage Type Dimension', 'Webpage Type Dimension.Webpage Type Key', '=', 'Page Store Dimension.Webpage Type Key')
-
             ->where('aiku_ignore', 'No');
         if ($this->onlyNew) {
             $query->whereNull('Page Store Dimension.aiku_id');
@@ -103,6 +105,7 @@ class FetchAuroraWebpages extends FetchAuroraAction
             $sourceData = explode(':', $this->shop->source_id);
             $query->where('Webpage Store Key', $sourceData[1]);
         }
+
         return $query->count();
     }
 

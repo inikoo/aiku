@@ -29,13 +29,16 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 $website = UpdateWebsite::make()->action(
                     website: $website,
                     modelData: $websiteData['website'],
-                    strict:false,
-                    audit:false
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
                 );
             } else {
                 $website = StoreWebsite::make()->action(
                     shop: $websiteData['shop'],
                     modelData: $websiteData['website'],
+                    hydratorsDelay: 60,
+                    strict: false
                 );
 
 

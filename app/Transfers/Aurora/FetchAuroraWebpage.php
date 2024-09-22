@@ -108,16 +108,14 @@ class FetchAuroraWebpage extends FetchAurora
 
         $this->parsedData['webpage'] =
             [
-
-
-                'code'    => $url,
-                'url'     => strtolower($url),
-                'state'   => $status,
-                'purpose' => $purpose,
-                'type'    => $type,
-
-
-                'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Page Key'},
+                'code'            => $url,
+                'url'             => strtolower($url),
+                'state'           => $status,
+                'purpose'         => $purpose,
+                'type'            => $type,
+                'fetched_at'      => now(),
+                'last_fetched_at' => now(),
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Page Key'},
 
             ];
         if ($createdAt = $this->parseDate($this->auroraModelData->{'Webpage Creation Date'})) {

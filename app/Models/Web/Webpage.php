@@ -61,10 +61,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $is_dirty
  * @property array $data
  * @property array $settings
- * @property string|null $fetched_at
- * @property string|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
@@ -101,15 +101,17 @@ class Webpage extends Model implements Auditable
     use HasHistory;
 
     protected $casts = [
-        'data'             => 'array',
-        'settings'         => 'array',
-        'published_layout' => 'array',
-        'state'            => WebpageStateEnum::class,
-        'purpose'          => WebpagePurposeEnum::class,
-        'type'             => WebpageTypeEnum::class,
-        'ready_at'         => 'datetime',
-        'live_at'          => 'datetime',
-        'closed_at'        => 'datetime'
+        'data'                   => 'array',
+        'settings'               => 'array',
+        'published_layout'       => 'array',
+        'state'                  => WebpageStateEnum::class,
+        'purpose'                => WebpagePurposeEnum::class,
+        'type'                   => WebpageTypeEnum::class,
+        'ready_at'               => 'datetime',
+        'live_at'                => 'datetime',
+        'closed_at'              => 'datetime',
+        'fetched_at'             => 'datetime',
+        'last_fetched_at'        => 'datetime'
     ];
 
     protected $attributes = [

@@ -45,9 +45,9 @@ return new class () extends Migration {
             $table->boolean('is_dirty')->index()->default(false);
             $table->jsonb('data');
             $table->jsonb('settings');
+            $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->timestampsTz();
             $table=$this->softDeletes($table);
 
             $table->string('source_id')->nullable()->unique();

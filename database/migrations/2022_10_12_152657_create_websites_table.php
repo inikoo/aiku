@@ -48,9 +48,9 @@ return new class () extends Migration {
 
             $table->timestampTz('launched_at')->nullable();
             $table->timestampTz('closed_at')->nullable();
+            $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->timestampsTz();
             $table=$this->softDeletes($table);
             $table->string('cloudflare_id')->index()->nullable();
             $table->string('cloudflare_status')->nullable()->default(WebsiteCloudflareStatusEnum::NOT_SET->value);
