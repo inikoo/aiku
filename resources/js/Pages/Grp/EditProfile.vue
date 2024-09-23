@@ -27,9 +27,7 @@ onMounted(async () => {
 </script>
 
 <template>
-    <Editmodel v-if="dataEditProfile" v-bind="dataEditProfile">
-    
-    </Editmodel>
+    <Editmodel v-if="dataEditProfile" v-bind="dataEditProfile"/>
 
     <div v-else class="h-full flex flex-col gap-y-2 items-center justify-center">
         <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin' size="2x" fixed-width aria-hidden='true' />
