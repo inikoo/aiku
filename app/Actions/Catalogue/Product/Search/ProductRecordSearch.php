@@ -47,6 +47,7 @@ class ProductRecordSearch
                 ],
                 'container'     => [
                     'label'   => $product->shop->name,
+                    'tooltip'   => __('Shop')
                 ],
                 'title'         => $product->name,
                 'afterTitle'    => [
@@ -71,7 +72,7 @@ class ProductRecordSearch
                     [
                         'key'        => 'price',
                         'type'       => 'currency',
-                        'code'       => 'usd',     // TODO: pass correct currency code
+                        'code'       => $product->currency->code,     // TODO: pass correct currency code
                         'amount'     => $product->price,
                         'tooltip'    => __('Price')
                     ],
