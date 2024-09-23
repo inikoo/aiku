@@ -45,7 +45,7 @@ function dropshipRoute(customer: FulfilmentCustomer) {
     switch (route().current()) {
         case "grp.org.shops.show.crm.customers.show.portfolios.index":
             return route(
-                "grp.org.shops.show.catalogue.products.show",
+                "grp.org.shops.show.catalogue.products.all_products.show",
                 [route().params['organisation'], route().params['shop'], customer.slug])
         default:
             return route(

@@ -23,7 +23,7 @@ function productRoute(product) {
         case 'grp.org.shops.show.ordering.orders.show':
             if(product.product_slug) {
                 return route(
-                    'grp.org.shops.show.catalogue.products.show',
+                    'grp.org.shops.show.catalogue.products.all_products.show',
                     [route().params['organisation'], route().params['shop'], product.product_slug])
             }
             return ''

@@ -277,6 +277,20 @@ class ShowOrder extends OrgAction
                 default => []
             };
         }
+        $deliveryNoteRoute = null;
+        $deliveryNoteResource = null;
+        if ($order->deliveryNotes()->first())
+        {
+            $deliveryNoteRoute = [
+                        'name'        => 'grp.org.shops.show.ordering.orders.show.delivery-note',
+                        'parameters' => array_merge($request->route()->originalParameters(), [
+                            'deliveryNote' => $order->deliveryNotes()->first()->slug
+                        ])
+            ];
+            
+            $deliveryNoteResource = DeliveryNotesResource::make($order->deliveryNotes()->first());
+
+        }
 
         return Inertia::render(
             'Org/Ordering/Order',
@@ -319,12 +333,7 @@ class ShowOrder extends OrgAction
                             'scope' => $order->slug
                         ]
                     ],
-                    'delivery_note' => [
-                        'name'        => 'grp.org.shops.show.ordering.orders.show.delivery-note',
-                         'parameters' => array_merge($request->route()->originalParameters(), [
-                            'deliveryNote' => $order->deliveryNotes()->slug
-                        ])
-                    ]
+                    'delivery_note' => $deliveryNoteRoute
                 ],
                 // 'alert'   => [  // TODO
                 //     'status'        => 'danger',
@@ -438,7 +447,7 @@ class ShowOrder extends OrgAction
                 ],
                 'currency'       => CurrencyResource::make($order->currency)->toArray(request()),
                 'data'           => OrderResource::make($order),
-                'delivery_note'  => DeliveryNotesResource::make($order->deliveryNotes()),
+                'delivery_note'  => $deliveryNoteResource,
                 // 'nonProductItems' => $nonProductItems,
                 // 'showcase'=> GetOrderShowcase::run($order),
 
