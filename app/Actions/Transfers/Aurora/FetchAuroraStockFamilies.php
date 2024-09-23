@@ -40,7 +40,7 @@ class FetchAuroraStockFamilies extends FetchAuroraAction
 
             $organisation = $organisationSource->getOrganisation();
 
-            $effectiveStockFamily=    $stockFamily ?? $baseStockFamily;
+            $effectiveStockFamily =    $stockFamily ?? $baseStockFamily;
 
             if (!$effectiveStockFamily->orgStockFamilies()->where('organisation_id', $organisation->id)->first()) {
                 StoreOrgStockFamily::run($organisation, $effectiveStockFamily, [

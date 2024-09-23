@@ -36,7 +36,7 @@ class RentalAgreementHydrateClauses
             'number_rental_agreement_clauses' => $rentalAgreement->clauses()->count()
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'rental_agreement_clauses',
             field: 'type',
             enum: RentalAgreementClauseTypeEnum::class,

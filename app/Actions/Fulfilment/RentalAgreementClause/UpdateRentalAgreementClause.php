@@ -28,7 +28,7 @@ class UpdateRentalAgreementClause extends OrgAction
         );
         $rentalAgreementClause->delete();
 
-        $updatedModel=StoreRentalAgreementClause::run(
+        $updatedModel = StoreRentalAgreementClause::run(
             $rentalAgreementClause->rentalAgreement,
             [
             'asset_id'       => $rentalAgreementClause->asset_id,

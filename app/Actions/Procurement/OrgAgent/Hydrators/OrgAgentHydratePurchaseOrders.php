@@ -39,7 +39,7 @@ class OrgAgentHydratePurchaseOrders
             'number_purchase_orders' => $orgAgent->purchaseOrders()->count(),
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'purchase_orders',
             field: 'state',
             enum: PurchaseOrderStateEnum::class,
@@ -49,7 +49,7 @@ class OrgAgentHydratePurchaseOrders
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'purchase_orders',
             field: 'status',
             enum: PurchaseOrderStatusEnum::class,

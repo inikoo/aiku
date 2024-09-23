@@ -21,10 +21,10 @@ class DeleteCustomerClient
 
     public string $commandSignature = 'delete:customer-client {slug}';
 
-    public function handle(CustomerClient $customerClient, array $deletedData=[], bool $skipHydrate = false): CustomerClient
+    public function handle(CustomerClient $customerClient, array $deletedData = [], bool $skipHydrate = false): CustomerClient
     {
         $customerClient->delete();
-        $customerClient=$this->update($customerClient, $deletedData, ['data']);
+        $customerClient = $this->update($customerClient, $deletedData, ['data']);
         if (!$skipHydrate) {
             CustomerHydrateClients::dispatch($customerClient->customer);
         }

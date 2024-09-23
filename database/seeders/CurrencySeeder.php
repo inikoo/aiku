@@ -80,8 +80,8 @@ class CurrencySeeder extends Seeder
                 $_country = $countryRepository->get($countryCode);
 
 
-                if ($currency=Currency::where('code', $_country->getCurrencyCode())->first()) {
-                    $country->currency_id=$currency->id;
+                if ($currency = Currency::where('code', $_country->getCurrencyCode())->first()) {
+                    $country->currency_id = $currency->id;
                     $country->save();
                 } else {
                     print "Currency not found : {$_country->getCurrencyCode()} for country $countryCode\n";

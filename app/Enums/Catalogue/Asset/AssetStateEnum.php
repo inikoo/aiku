@@ -79,7 +79,7 @@ enum AssetStateEnum: string
 
     public static function count(Shop|Organisation|ProductCategory|Collection $parent): array
     {
-        $stats=$parent->stats;
+        $stats = $parent->stats;
         return [
             'in-process'                  => $stats->number_products_state_in_process,
             'active'                      => $stats->number_products_state_active,

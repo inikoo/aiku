@@ -29,7 +29,7 @@ class PalletResource extends JsonResource
     public function toArray($request): array
     {
         /** @var Pallet $pallet */
-        $pallet=$this;
+        $pallet = $this;
 
         $timeline = [];
         foreach (PalletStateEnum::cases() as $state) {

@@ -31,7 +31,7 @@ use Symfony\Component\HttpFoundation\Response;
 class StoreRentalAgreement extends OrgAction
 {
     private FulfilmentCustomer $fulfilmentCustomer;
-    private bool $sendEmail=true;
+    private bool $sendEmail = true;
 
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
@@ -69,10 +69,10 @@ class StoreRentalAgreement extends OrgAction
             }
         }
 
-        $password= null;
+        $password = null;
         if (
             $this->shop->website and
-            $this->fulfilmentCustomer->customer->webUsers()->count()==0) {
+            $this->fulfilmentCustomer->customer->webUsers()->count() == 0) {
             $password = Str::random(8);
 
             $webUser = StoreWebUser::make()->action($fulfilmentCustomer->customer, [
@@ -82,7 +82,7 @@ class StoreRentalAgreement extends OrgAction
                 'is_root'  => true
             ]);
         } else {
-            $webUser=$this->fulfilmentCustomer->customer->webUsers()->first();
+            $webUser = $this->fulfilmentCustomer->customer->webUsers()->first();
         }
 
         if ($this->sendEmail) {
@@ -99,7 +99,7 @@ class StoreRentalAgreement extends OrgAction
 
     public function rules(): array
     {
-        $rules= [
+        $rules = [
             'billing_cycle'                           => ['required', Rule::enum(RentalAgreementBillingCycleEnum::class)],
             'pallets_limit'                           => ['nullable', 'integer', 'min:1', 'max:10000'],
             'clauses'                                 => ['sometimes', 'array'],
@@ -128,10 +128,10 @@ class StoreRentalAgreement extends OrgAction
 
         if (
             $this->shop->website and
-            $this->fulfilmentCustomer->customer->webUsers()->count()==0) {
+            $this->fulfilmentCustomer->customer->webUsers()->count() == 0) {
 
 
-            $rules['username']=[
+            $rules['username'] = [
                 'required',
                 'string',
                 'max:255',
@@ -139,11 +139,11 @@ class StoreRentalAgreement extends OrgAction
                     table: 'web_users',
                     extraConditions: [
                         ['column' => 'website_id', 'value' => $this->shop->website->id],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
                     ]
                 ),
             ];
-            $rules['email']=[
+            $rules['email'] = [
                 'nullable',
                 'email',
                 'max:255',
@@ -151,7 +151,7 @@ class StoreRentalAgreement extends OrgAction
                     table: 'web_users',
                     extraConditions: [
                         ['column' => 'website_id', 'value' => $this->shop->website->id],
-                        ['column' => 'deleted_at', 'operator'=>'notNull'],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
                     ]
                 ),
             ];
@@ -175,10 +175,10 @@ class StoreRentalAgreement extends OrgAction
         $this->set('clauses', $clauses);
     }
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData, bool $sendEmail=false): RentalAgreement
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData, bool $sendEmail = false): RentalAgreement
     {
         $this->asAction           = true;
-        $this->sendEmail          =$sendEmail;
+        $this->sendEmail          = $sendEmail;
         $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);
 

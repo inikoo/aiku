@@ -33,8 +33,8 @@ class JobPositionHydrateGuests
     public function handle(JobPosition $jobPosition): void
     {
 
-        $numberGuests        =$jobPosition->guests()->count();
-        $numberGuestsWorkTime=$jobPosition->employees()->sum('share');
+        $numberGuests        = $jobPosition->guests()->count();
+        $numberGuestsWorkTime = $jobPosition->employees()->sum('share');
 
         $jobPosition->stats()->update(
             [

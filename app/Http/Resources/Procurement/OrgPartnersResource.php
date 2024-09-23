@@ -14,7 +14,7 @@ class OrgPartnersResource extends JsonResource
     public function toArray($request): array
     {
         /** @var OrgPartner $orgPartner */
-        $orgPartner=$this;
+        $orgPartner = $this;
 
         return [
             'id'                       => $orgPartner->id,

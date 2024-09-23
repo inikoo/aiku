@@ -100,7 +100,7 @@ class EditWarehouseArea extends InertiaAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.warehouse-area.update',
-                            'parameters'=> $warehouseArea->id
+                            'parameters' => $warehouseArea->id
 
                         ],
                     ]

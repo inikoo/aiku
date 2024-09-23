@@ -20,9 +20,9 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('shop_id');
             $table->foreign('shop_id')->references('id')->on('shops')->onUpdate('cascade')->onDelete('cascade');
-            $table=$this->outboxesStats($table);
-            $table=$this->mailshotsStats($table);
-            $table=$this->dispatchedEmailStats($table);
+            $table = $this->outboxesStats($table);
+            $table = $this->mailshotsStats($table);
+            $table = $this->dispatchedEmailStats($table);
 
             $table->timestampsTz();
         });

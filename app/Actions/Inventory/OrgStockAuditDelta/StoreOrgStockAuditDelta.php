@@ -42,7 +42,7 @@ class StoreOrgStockAuditDelta extends OrgAction
         if ($parent instanceof OrgStockAudit) {
             $orgStockAuditDelta = $parent->orgStockAuditDeltas()->create($modelData);
         } else {
-            $orgStockAuditDelta=OrgStockAuditDelta::create($modelData);
+            $orgStockAuditDelta = OrgStockAuditDelta::create($modelData);
         }
 
         return $orgStockAuditDelta;

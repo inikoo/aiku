@@ -17,12 +17,12 @@ class FetchAuroraAdjustment extends FetchAurora
     {
 
 
-        if ($this->auroraModelData->{'Order Store Key'}!='') {
+        if ($this->auroraModelData->{'Order Store Key'} != '') {
             $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Order Store Key'});
             $date                     = $this->parseDateTime($this->auroraModelData->{'Order Date'});
         } else {
             $date           = $this->parseDateTime($this->auroraModelData->{'Invoice Date'});
-            $dataWithInvoice=DB::connection('aurora')
+            $dataWithInvoice = DB::connection('aurora')
                 ->table('Order No Product Transaction Fact')
                 ->leftJoin('Invoice Dimension', 'Order No Product Transaction Fact.Invoice Key', '=', 'Invoice Dimension.Invoice Key')
                 ->where('Order No Product Transaction Fact Key', $this->auroraModelData->{'Order No Product Transaction Fact Key'})->first();

@@ -14,11 +14,11 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasDateIntervalsStats
 {
-    public function dateIntervals(Blueprint $table, array $subjects=[]): Blueprint
+    public function dateIntervals(Blueprint $table, array $subjects = []): Blueprint
     {
 
         foreach ($subjects as $subject) {
-            $subject=$subject ? $subject.'_' : '';
+            $subject = $subject ? $subject.'_' : '';
 
             foreach (DateIntervalEnum::values() as $col) {
                 $table->decimal($subject.$col, 16)->default(0);

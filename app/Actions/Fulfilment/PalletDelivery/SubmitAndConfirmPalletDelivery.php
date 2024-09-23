@@ -26,7 +26,7 @@ class SubmitAndConfirmPalletDelivery extends OrgAction
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
 
-        $palletDelivery=SubmitPalletDelivery::make()->action($palletDelivery);
+        $palletDelivery = SubmitPalletDelivery::make()->action($palletDelivery);
         return ConfirmPalletDelivery::make()->action($palletDelivery);
     }
 

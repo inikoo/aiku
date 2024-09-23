@@ -51,7 +51,7 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
 
         $recurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill;
         if (!$recurringBill) {
-            $recurringBill=StoreRecurringBill::make()->action($palletDelivery->fulfilmentCustomer->rentalAgreement, [
+            $recurringBill = StoreRecurringBill::make()->action($palletDelivery->fulfilmentCustomer->rentalAgreement, [
                 'start_date' => now(),
                 'end_date'   => now()->addMonth(),
                 'status'     => 'active'
@@ -118,7 +118,7 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
 
     public function prepareForValidation(): void
     {
-        if ($this->palletDelivery->pallets()->whereNotIn('state', [PalletStateEnum::BOOKED_IN,PalletStateEnum::NOT_RECEIVED])->count()>0) {
+        if ($this->palletDelivery->pallets()->whereNotIn('state', [PalletStateEnum::BOOKED_IN,PalletStateEnum::NOT_RECEIVED])->count() > 0) {
             abort(400, 'One or more pallets are not in a state that can be booked in.');
         }
     }

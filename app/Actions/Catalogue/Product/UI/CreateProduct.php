@@ -126,8 +126,8 @@ class CreateProduct extends OrgAction
             [
                 [
                     'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __('Creating product'),
+                    'creatingModel' => [
+                        'label' => __('Creating product'),
                     ]
                 ]
             ]

@@ -23,12 +23,12 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
-            $table=$this->salesStatsFields($table);
-            $table=$this->getWebUsersStatsFields($table);
+            $table = $this->salesStatsFields($table);
+            $table = $this->getWebUsersStatsFields($table);
             $table->unsignedInteger('number_clients')->default(0);
             $table->unsignedInteger('number_current_clients')->default(0);
-            $table=$this->getCreditTransactionsStats($table);
-            $table=$this->getTopUpsStats($table);
+            $table = $this->getCreditTransactionsStats($table);
+            $table = $this->getTopUpsStats($table);
 
             $table->timestampsTz();
         });

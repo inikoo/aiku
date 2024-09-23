@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('web_user_id')->index();
             $table->foreign('web_user_id')->references('id')->on('web_users');
-            $table=$this->userStats($table);
+            $table = $this->userStats($table);
             $table->timestampsTz();
         });
     }

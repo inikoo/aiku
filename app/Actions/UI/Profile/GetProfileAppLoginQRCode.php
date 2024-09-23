@@ -23,7 +23,7 @@ class GetProfileAppLoginQRCode
     public function handle(User $user): array
     {
 
-        $code=$this->getCode();
+        $code = $this->getCode();
         Cache::put('profile-app-qr-code:'.$code, $user->id, 120);
 
         return [
@@ -40,7 +40,7 @@ class GetProfileAppLoginQRCode
     {
         $this->validateAttributes();
 
-        $caca=$this->handle($request->user());
+        $caca = $this->handle($request->user());
 
         return $caca;
     }

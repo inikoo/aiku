@@ -19,7 +19,7 @@ class AuditWebsiteResolver implements Resolver
             return $auditable->website_id;
         }
 
-        if (class_basename($auditable)=='Website') {
+        if (class_basename($auditable) == 'Website') {
             return $auditable->id;
         }
 

@@ -82,7 +82,7 @@ class UserHydrateAuthorisedModels
             $user->revokePermissionTo('websites-view.'.$organisation->id);
         }
 
-        $directPermissions=[];
+        $directPermissions = [];
         foreach ($authorisedShops as $shop) {
             $directPermissions['shops-view.'.$shop['org_id']]    = true;
             $directPermissions['websites-view.'.$shop['org_id']] = true;

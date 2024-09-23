@@ -38,7 +38,7 @@ class OrganisationHydratePallets
             'number_pallets' => Pallet::where('organisation_id', $organisation->id)->count()
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'pallets',
             field: 'state',
             enum: PalletStateEnum::class,
@@ -48,7 +48,7 @@ class OrganisationHydratePallets
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'pallets',
             field: 'status',
             enum: PalletStatusEnum::class,
@@ -58,7 +58,7 @@ class OrganisationHydratePallets
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'pallets',
             field: 'type',
             enum: PalletTypeEnum::class,

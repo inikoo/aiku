@@ -59,7 +59,7 @@ class RemoveWarehouse extends InertiaAction
                             'title' => __('warehouse')
                         ],
                     'title'  => $warehouse->slug,
-                    'actions'=> [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',

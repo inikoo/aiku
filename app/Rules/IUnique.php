@@ -46,7 +46,7 @@ class IUnique implements ValidationRule
                 }
 
                 if (empty($columnCollection['operator'])) {
-                    $columnCollection['operator']='=';
+                    $columnCollection['operator'] = '=';
                 }
 
                 if ($columnCollection['operator'] === 'null') {

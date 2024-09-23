@@ -80,7 +80,7 @@ class ShowCharge extends OrgAction
                             // ] : false
                         ]
                     ],
-                    'tabs'=> [
+                    'tabs' => [
                         'current'    => $this->tab,
                         'navigation' => ChargeTabsEnum::navigation()
 

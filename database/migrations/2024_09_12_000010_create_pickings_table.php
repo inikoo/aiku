@@ -18,7 +18,7 @@ return new class () extends Migration {
     {
         Schema::create('pickings', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('delivery_note_id')->index();

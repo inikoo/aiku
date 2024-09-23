@@ -102,7 +102,7 @@ class DispatchedEmail extends Model
 
         if ($this->recipient) {
             /** @var Prospect|Customer $recipient */
-            $recipient=$this->recipient;
+            $recipient = $this->recipient;
             return $recipient->name;
         }
         return '';

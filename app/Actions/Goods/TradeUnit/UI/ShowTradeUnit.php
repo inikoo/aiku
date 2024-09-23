@@ -34,7 +34,7 @@ class ShowTradeUnit extends GrpAction
 
     public function asController(TradeUnit $tradeUnit, ActionRequest $request): TradeUnit
     {
-        $this->parent=group();
+        $this->parent = group();
         $this->initialisation($this->parent, $request)->withTab(TradeUnitTabsEnum::values());
         return $this->handle($tradeUnit);
     }
@@ -81,7 +81,7 @@ class ShowTradeUnit extends GrpAction
                             // ] : false
                         ]
                     ],
-                    'tabs'=> [
+                    'tabs' => [
                         'current'    => $this->tab,
                         'navigation' => TradeUnitTabsEnum::navigation()
 

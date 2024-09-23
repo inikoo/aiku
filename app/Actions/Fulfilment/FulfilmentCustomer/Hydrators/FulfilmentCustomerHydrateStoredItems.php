@@ -25,7 +25,7 @@ class FulfilmentCustomerHydrateStoredItems
             'number_stored_items'        => $fulfilmentCustomer->storedItems()->count(),
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'stored_items',
             field: 'state',
             enum: StoredItemStateEnum::class,

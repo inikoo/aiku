@@ -44,7 +44,7 @@ class ShowPurchaseOrder extends OrgAction
 
     public function maya(Organisation $organisation, PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
     {
-        $this->maya   =true;
+        $this->maya   = true;
         $this->initialisation($organisation, $request)->withTab(PurchaseOrderTabsEnum::values());
         return $this->handle($purchaseOrder);
     }

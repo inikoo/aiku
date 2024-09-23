@@ -21,12 +21,12 @@ class StoreOrgPaymentServiceProvider extends OrgAction
     public function handle(PaymentServiceProvider $paymentServiceProvider, Organisation $organisation, array $modelData): OrgPaymentServiceProvider
     {
 
-        $modelData=array_merge(
+        $modelData = array_merge(
             $modelData,
             [
                 'group_id'                   => $organisation->group_id,
                 'organisation_id'            => $organisation->id,
-                'payment_service_provider_id'=> $paymentServiceProvider->id,
+                'payment_service_provider_id' => $paymentServiceProvider->id,
                 'type'                       => $paymentServiceProvider->type,
             ]
         );

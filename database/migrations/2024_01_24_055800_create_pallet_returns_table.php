@@ -44,8 +44,8 @@ return new class () extends Migration {
                 $table->unsignedInteger('collection_address_id')->index()->nullable();
                 $table->foreign('collection_address_id')->references('id')->on('addresses');
 
-                $table=$this->currencyFields($table);
-                $table=$this->orderTotalAmounts($table);
+                $table = $this->currencyFields($table);
+                $table = $this->orderTotalAmounts($table);
 
                 $table->timestampsTz();
                 $this->softDeletes($table);

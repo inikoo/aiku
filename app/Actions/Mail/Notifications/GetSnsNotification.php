@@ -29,16 +29,16 @@ class GetSnsNotification
             } elseif ($message['Type'] === 'Notification') {
                 $messageData = json_decode($message['Message'], true);
 
-                $type=Arr::get($messageData, 'notificationType');
-                if ($type=='notificationType') {
+                $type = Arr::get($messageData, 'notificationType');
+                if ($type == 'notificationType') {
                     return 'ok';
                 }
 
-                if ($messageId=Arr::get($messageData, 'mail.messageId')) {
+                if ($messageId = Arr::get($messageData, 'mail.messageId')) {
 
-                    $sesNotification=SesNotification::create(
+                    $sesNotification = SesNotification::create(
                         [
-                            'message_id'=> $messageId,
+                            'message_id' => $messageId,
                             'data'      => $messageData
                         ]
                     );

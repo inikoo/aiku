@@ -139,7 +139,7 @@ class StoreClocking extends OrgAction
     public function han(Employee $employee, ActionRequest $request): Clocking
     {
 
-        $this->han=true;
+        $this->han = true;
 
 
         if ($request->user()->organisation_id !== $employee->organisation_id) {

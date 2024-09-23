@@ -18,7 +18,7 @@ class StoreWebBlockTypeCategory
     public function handle(Group $group, array $modelData): WebBlockTypeCategory
     {
         /** @var WebBlockTypeCategory $webBlockTypeCategory */
-        $webBlockTypeCategory =$group->webBlockTypeCategories()->create($modelData);
+        $webBlockTypeCategory = $group->webBlockTypeCategories()->create($modelData);
         $webBlockTypeCategory->stats()->create();
 
         return $webBlockTypeCategory;

@@ -48,7 +48,7 @@ class DeletePalletInDelivery extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
 
-        if (!($this->pallet->state==PalletStateEnum::IN_PROCESS or $this->pallet->state==PalletStateEnum::SUBMITTED)) {
+        if (!($this->pallet->state == PalletStateEnum::IN_PROCESS or $this->pallet->state == PalletStateEnum::SUBMITTED)) {
             return false;
         }
 
@@ -57,7 +57,7 @@ class DeletePalletInDelivery extends OrgAction
         }
 
         if ($request->user() instanceof WebUser) {
-            if (!$this->pallet->state==PalletStateEnum::IN_PROCESS) {
+            if (!$this->pallet->state == PalletStateEnum::IN_PROCESS) {
                 return false;
             }
 

@@ -21,11 +21,11 @@ trait HasOrderAmountTotals
         $table->decimal('goods_amount', 16)->default(0);
         $table->decimal('services_amount', 16)->default(0);
 
-        if ($table->getTable()=='recurring_bills' or $table->getTable()=='invoices') {
+        if ($table->getTable() == 'recurring_bills' or $table->getTable() == 'invoices') {
             $table->decimal('rental_amount', 16)->default(0);
         }
 
-        if ($table->getTable()=='orders' or $table->getTable()=='invoices') {
+        if ($table->getTable() == 'orders' or $table->getTable() == 'invoices') {
             $table->decimal('charges_amount', 16)->default(0);
             $table->decimal('shipping_amount', 16)->default(0)->nullable();
             $table->decimal('insurance_amount', 16)->default(0)->nullable();
@@ -40,7 +40,7 @@ trait HasOrderAmountTotals
         $table->decimal('tax_amount', 16)->default(0);
         $table->decimal('total_amount', 16)->default(0);
 
-        if ($table->getTable()!='recurring_bills') {
+        if ($table->getTable() != 'recurring_bills') {
             $table->decimal('payment_amount', 16)->default(0);
         }
 

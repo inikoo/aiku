@@ -67,7 +67,7 @@ class UpdatePurchaseOrder extends OrgAction
         ];
     }
 
-    public function action(PurchaseOrder $purchaseOrder, array $modelData, bool $strict = true, bool $audit=true): PurchaseOrder
+    public function action(PurchaseOrder $purchaseOrder, array $modelData, bool $strict = true, bool $audit = true): PurchaseOrder
     {
         if (!$audit) {
             PurchaseOrder::disableAuditing();

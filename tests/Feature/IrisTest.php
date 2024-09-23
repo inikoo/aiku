@@ -38,7 +38,7 @@ beforeEach(function () {
 
 test('test iris fulfilment website not launched', function () {
 
-    $website= $this->fulfilmentWebsite;
+    $website = $this->fulfilmentWebsite;
 
     Config::set('inertia.testing.page_paths', [resource_path('js/Pages/Iris')]);
     DetectWebsiteFromDomain::shouldRun()->with('localhost')->andReturn($website);

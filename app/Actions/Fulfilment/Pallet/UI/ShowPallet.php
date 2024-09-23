@@ -335,11 +335,11 @@ class ShowPallet extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.pallets.show'=> [
-                'label'=> $pallet->slug,
-                'route'=> [
+            'grp.org.fulfilments.show.crm.customers.show.pallets.show' => [
+                'label' => $pallet->slug,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'organisation'       => $pallet->organisation->slug,
                         'fulfilment'         => $pallet->fulfilment->slug,
                         'fulfilmentCustomer' => $pallet->fulfilmentCustomer->slug,
@@ -347,11 +347,11 @@ class ShowPallet extends OrgAction
                     ]
                 ]
             ],
-            'grp.org.warehouses.show.inventory.pallets.current.show'=> [
-                'label'=> $pallet->slug,
-                'route'=> [
+            'grp.org.warehouses.show.inventory.pallets.current.show' => [
+                'label' => $pallet->slug,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'organisation'       => $pallet->organisation->slug,
                         'warehouse'          => $pallet->warehouse->slug,
                         'pallet'             => $pallet->slug
@@ -359,12 +359,12 @@ class ShowPallet extends OrgAction
                 ]
             ],
 
-            'grp.org.fulfilments.show.operations.pallets.current.show'=> [
-                'label'=> $pallet->reference,
-                'route'=> [
+            'grp.org.fulfilments.show.operations.pallets.current.show' => [
+                'label' => $pallet->reference,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'organisation'=> $pallet->organisation->slug,
+                    'parameters' => [
+                        'organisation' => $pallet->organisation->slug,
                         'fulfilment'  => $pallet->fulfilment->slug,
                         'pallet'      => $pallet->slug
                     ]

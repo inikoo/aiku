@@ -33,7 +33,7 @@ class ShowSysAdminDashboard
 
     public function htmlResponse(): Response
     {
-        $group=app('group');
+        $group = app('group');
 
         return Inertia::render(
             'SysAdmin/SysAdminDashboard',
@@ -51,12 +51,12 @@ class ShowSysAdminDashboard
                     [
                         'name' => __('users'),
                         'stat' => $group->sysadminStats->number_users_status_active,
-                        'href' => ['name'=>'grp.sysadmin.users.index']
+                        'href' => ['name' => 'grp.sysadmin.users.index']
                     ],
                     [
                         'name' => __('guests'),
                         'stat' => $group->sysadminStats->number_guests_status_active,
-                        'href' => ['name'=>'grp.sysadmin.guests.index']
+                        'href' => ['name' => 'grp.sysadmin.guests.index']
                     ]
                 ]
 

@@ -244,8 +244,8 @@ class IndexFamilies extends OrgAction
             'icon'  => ['fal', 'fa-folder'],
             'title' => __('family')
         ];
-        $afterTitle=null;
-        $iconRight =null;
+        $afterTitle = null;
+        $iconRight = null;
 
         if ($this->parent instanceof ProductCategory) {
             if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
@@ -255,10 +255,10 @@ class IndexFamilies extends OrgAction
                     'icon'  => ['fal', 'fa-folder-tree'],
                     'title' => __('department')
                 ];
-                $iconRight    =[
+                $iconRight    = [
                     'icon' => 'fal fa-folder',
                 ];
-                $afterTitle= [
+                $afterTitle = [
 
                     'label'     => __('Families')
                 ];
@@ -270,10 +270,10 @@ class IndexFamilies extends OrgAction
                 'icon'  => ['fal', 'fa-cube'],
                 'title' => __('collection')
             ];
-            $iconRight    =[
+            $iconRight    = [
                 'icon' => 'fal fa-folder',
             ];
-            $afterTitle= [
+            $afterTitle = [
                 'label'     => __('Families')
             ];
         }

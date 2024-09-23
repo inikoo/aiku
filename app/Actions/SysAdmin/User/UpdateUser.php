@@ -37,7 +37,7 @@ class UpdateUser extends GrpAction
         }
 
 
-        $user= $this->update($user, $modelData, ['profile', 'settings']);
+        $user = $this->update($user, $modelData, ['profile', 'settings']);
 
         if ($user->wasChanged('status')) {
             GroupHydrateUsers::run($user->group);
@@ -105,14 +105,14 @@ class UpdateUser extends GrpAction
 
     public function asController(User $user, ActionRequest $request): User
     {
-        $this->user=$user;
+        $this->user = $user;
         $this->initialisation($user->group, $request);
         return $this->handle($user, $this->validatedData);
     }
 
     public function action(User $user, array $modelData, bool $strict = true): User
     {
-        $this->user     =$user;
+        $this->user     = $user;
         $this->asAction = true;
         $this->strict   = $strict;
         $this->initialisation($user->group, $modelData);

@@ -110,7 +110,7 @@ class ShowOutbox extends OrgAction
                         ],
                 'actions' => $actions,
                 ],
-                'tabs'=> [
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => OutboxTabsEnum::navigation()
                 ],
@@ -200,11 +200,11 @@ class ShowOutbox extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.shops.show.mail.outboxes.show'=> [
-                'label'=> $outbox->name,
-                'route'=> [
+            'grp.org.shops.show.mail.outboxes.show' => [
+                'label' => $outbox->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'organisation'   => $this->organisation->slug,
                         'shop'           => $outbox->shop->slug,
                         'outbox'         => $outbox->slug
@@ -212,11 +212,11 @@ class ShowOutbox extends OrgAction
 
                 ]
             ],
-            'grp.org.shops.show.web.websites.outboxes.show'=> [
-                'label'=> $outbox->name,
-                'route'=> [
+            'grp.org.shops.show.web.websites.outboxes.show' => [
+                'label' => $outbox->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'organisation'   => $this->organisation->slug,
                         'shop'           => $outbox->shop->slug,
                         'website'        => $outbox->website->slug,

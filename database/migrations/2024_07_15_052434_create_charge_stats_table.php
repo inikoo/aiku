@@ -22,7 +22,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('number_historic_assets')->default(0);
 
-            $table=$this->usageStats($table);
+            $table = $this->usageStats($table);
             $table->timestampsTz();
         });
     }

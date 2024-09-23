@@ -32,7 +32,7 @@ class IndexOutboxes extends OrgAction
 {
     private Shop|Organisation|PostRoom|Website|Fulfilment $parent;
 
-    public function handle(Shop|Organisation|PostRoom|Website|Fulfilment $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Shop|Organisation|PostRoom|Website|Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -46,7 +46,7 @@ class IndexOutboxes extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Outbox::class);
+        $queryBuilder = QueryBuilder::for(Outbox::class);
 
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('outboxes.shop_id', $parent->id);
@@ -71,7 +71,7 @@ class IndexOutboxes extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, $prefix=null): Closure
+    public function tableStructure($parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
 

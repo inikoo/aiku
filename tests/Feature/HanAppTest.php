@@ -135,7 +135,7 @@ test('can not find employees from another organisation', function () {
     Sanctum::actingAs($this->clockingMachine);
 
     $otherOrganisation        = StoreOrganisation::make()->action($this->organisation->group, Organisation::factory()->definition());
-    $employeeOtherOrganisation=StoreEmployee::make()->action($otherOrganisation, Employee::factory()->definition());
+    $employeeOtherOrganisation = StoreEmployee::make()->action($otherOrganisation, Employee::factory()->definition());
     expect($otherOrganisation)->toBeInstanceOf(Organisation::class)
         ->and($otherOrganisation->id)->not->toBe($this->organisation->id)
         ->and($employeeOtherOrganisation)->toBeInstanceOf(Employee::class);
@@ -147,7 +147,7 @@ test('can not find employees from another organisation', function () {
 test('find employee fail if employee status is left', function () {
     Sanctum::actingAs($this->clockingMachine);
 
-    UpdateEmployee::make()->action($this->employee, ['state' =>EmployeeStateEnum::LEFT]);
+    UpdateEmployee::make()->action($this->employee, ['state' => EmployeeStateEnum::LEFT]);
     $this->employee->refresh();
     $response = $this->getJson(route('han.employee.show', ['employee' => $this->employee->pin]));
     $response->assertStatus(405);

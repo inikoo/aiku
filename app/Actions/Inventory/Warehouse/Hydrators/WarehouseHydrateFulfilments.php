@@ -31,7 +31,7 @@ class WarehouseHydrateFulfilments
     {
         $warehouse->stats()->update(
             [
-                'number_fulfilments'=> $warehouse->fulfilments()->count()
+                'number_fulfilments' => $warehouse->fulfilments()->count()
 
             ]
         );

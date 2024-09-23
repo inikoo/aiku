@@ -45,7 +45,7 @@ class IndexPickings extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $query=QueryBuilder::for(Picking::class);
+        $query = QueryBuilder::for(Picking::class);
 
         $query->where('pickings.delivery_note_id', $parent->id);
 
@@ -128,8 +128,8 @@ class IndexPickings extends OrgAction
             'icon'  => ['fal', 'fa-shopping-cart'],
             'title' => __('pickings')
         ];
-        $afterTitle=null;
-        $iconRight =null;
+        $afterTitle = null;
+        $iconRight = null;
         $actions   = null;
         return Inertia::render(
             'Ordering/Orders',

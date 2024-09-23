@@ -56,7 +56,7 @@ class IndexModuleHistory
             ->withQueryString();
     }
 
-    public function tableStructure($prefix=null, ?array $exportLinks = null): Closure
+    public function tableStructure($prefix = null, ?array $exportLinks = null): Closure
     {
         return function (InertiaTable $table) use ($prefix, $exportLinks) {
 

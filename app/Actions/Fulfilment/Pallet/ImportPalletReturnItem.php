@@ -54,7 +54,7 @@ class ImportPalletReturnItem
 
     public function authorize(ActionRequest $request): bool
     {
-        $userable=$request->user();
+        $userable = $request->user();
         if ($userable instanceof WebUser) {
             return true;
         }

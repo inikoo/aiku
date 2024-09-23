@@ -22,7 +22,7 @@ class AuditGroupResolver implements Resolver
             return $auditable->group_id;
         }
 
-        if (class_basename($auditable)=='Group') {
+        if (class_basename($auditable) == 'Group') {
             return $auditable->id;
         }
 

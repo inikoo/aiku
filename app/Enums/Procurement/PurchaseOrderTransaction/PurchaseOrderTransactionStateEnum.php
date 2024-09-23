@@ -16,7 +16,7 @@ enum PurchaseOrderTransactionStateEnum: string
     case CREATING         = 'creating';
     case SUBMITTED        = 'submitted';
     case CONFIRMED        = 'confirmed';
-    case MANUFACTURED     ='manufactured';
+    case MANUFACTURED     = 'manufactured';
     case DISPATCHED       = 'dispatched';
     case PROCESSING       = 'processing';
     case SETTLED          = 'settled';

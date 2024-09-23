@@ -36,7 +36,7 @@ trait WithUpdateModelImage
 
 
         if (!$extension) {
-            $extension=pathinfo($imagePath, PATHINFO_EXTENSION);
+            $extension = pathinfo($imagePath, PATHINFO_EXTENSION);
         }
 
 

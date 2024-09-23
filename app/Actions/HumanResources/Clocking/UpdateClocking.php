@@ -44,7 +44,7 @@ class UpdateClocking extends OrgAction
     }
     public function action(Clocking $clocking, array $modelData): Clocking
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 

@@ -137,7 +137,7 @@ class StoreWebUser extends OrgAction
 
         if (!$this->customer->hasUsers()) {
             $this->fill(['is_root' => true]);
-        } elseif ($this->get('is_root')==null) {
+        } elseif ($this->get('is_root') == null) {
             $this->fill(['is_root' => false]);
 
         }
@@ -159,7 +159,7 @@ class StoreWebUser extends OrgAction
         return $this->handle($customer, $this->validatedData);
     }
 
-    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict=true): Webuser
+    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Webuser
     {
         $this->asAction       = true;
         $this->customer       = $customer;

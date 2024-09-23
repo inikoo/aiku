@@ -34,7 +34,7 @@ class NotReceivedPalletDelivery extends OrgAction
         $modelData['not_received_at'] = now();
         $modelData['state']           = PalletDeliveryStateEnum::NOT_RECEIVED;
 
-        $palletDelivery= $this->update($palletDelivery, $modelData);
+        $palletDelivery = $this->update($palletDelivery, $modelData);
 
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
         OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);

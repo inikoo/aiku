@@ -27,7 +27,7 @@ class PalletDeliveryRecordSearch
             return;
         }
 
-        $result=  [
+        $result =  [
             'route'     => [
                 'name'          => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.show',
                 'parameters'    => [

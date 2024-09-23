@@ -60,7 +60,7 @@ class RemoveWorkplace extends OrgAction
                             'title' => __('working place')
                         ],
                     'title'  => $workplace->slug,
-                    'actions'=> [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',

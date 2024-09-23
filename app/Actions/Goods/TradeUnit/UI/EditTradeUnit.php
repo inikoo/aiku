@@ -28,7 +28,7 @@ class EditTradeUnit extends GrpAction
 
     public function asController(TradeUnit $tradeUnit, ActionRequest $request): TradeUnit
     {
-        $this->parent=group();
+        $this->parent = group();
         $this->initialisation($this->parent, $request);
         return $this->handle($tradeUnit);
     }

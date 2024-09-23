@@ -24,13 +24,13 @@ class UpdateWebpageContent extends OrgAction
     {
         $snapshot = $webpage->unpublishedSnapshot;
 
-        $layout  =[];
+        $layout  = [];
         foreach ($webpage->webBlocks as $webBlock) {
-            $layout['web_blocks'][]=
+            $layout['web_blocks'][] =
                 [
                     'id'       => $webBlock->pivot->id,
                     'type'     => $webBlock->webBlockType->code,
-                    'web_block'=> WebBlockResource::make($webBlock)->getArray()
+                    'web_block' => WebBlockResource::make($webBlock)->getArray()
                 ];
 
         }

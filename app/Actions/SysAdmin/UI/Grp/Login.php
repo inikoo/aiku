@@ -39,13 +39,13 @@ class Login
         $this->ensureIsNotRateLimited($request);
 
 
-        $authorised=false;
-        $processed =false;
+        $authorised = false;
+        $processed = false;
         if (config('app.with_user_legacy_passwords')) {
-            $user=User::where('username', Arr::get($request->validated(), 'username'))->first();
-            if ($user and $user->auth_type==UserAuthTypeEnum::AURORA) {
-                $processed =true;
-                $authorised=AuthoriseUserWithLegacyPassword::run($user, $request->validated());
+            $user = User::where('username', Arr::get($request->validated(), 'username'))->first();
+            if ($user and $user->auth_type == UserAuthTypeEnum::AURORA) {
+                $processed = true;
+                $authorised = AuthoriseUserWithLegacyPassword::run($user, $request->validated());
                 if ($authorised) {
                     Auth::login($user, $request->boolean('remember'));
                 }
@@ -56,7 +56,7 @@ class Login
 
 
         if (!$processed) {
-            $authorised=Auth::guard($this->gate)->attempt(array_merge($request->validated(), ['status' => true]), $request->boolean('remember'));
+            $authorised = Auth::guard($this->gate)->attempt(array_merge($request->validated(), ['status' => true]), $request->boolean('remember'));
         }
 
 

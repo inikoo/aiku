@@ -142,7 +142,7 @@ class IndexDepartments extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit=false): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
@@ -237,8 +237,8 @@ class IndexDepartments extends OrgAction
             'icon'  => ['fal', 'fa-folder-tree'],
             'title' => __('departments')
         ];
-        $afterTitle=null;
-        $iconRight =null;
+        $afterTitle = null;
+        $iconRight = null;
 
         if ($this->parent instanceof Collection) {
             $title = $this->parent->name;
@@ -247,10 +247,10 @@ class IndexDepartments extends OrgAction
                 'icon'  => ['fal', 'fa-cube'],
                 'title' => __('collection')
             ];
-            $iconRight    =[
+            $iconRight    = [
                 'icon' => 'fal fa-folder-tree',
             ];
-            $afterTitle= [
+            $afterTitle = [
                 'label'     => __('Departments')
             ];
         }

@@ -32,7 +32,7 @@ class AgentHydrateSupplierProducts
 
     public function handle(Agent $agent): void
     {
-        $stats=$this->getSupplierProductsStats($agent);
+        $stats = $this->getSupplierProductsStats($agent);
         $agent->stats()->update($stats);
     }
 

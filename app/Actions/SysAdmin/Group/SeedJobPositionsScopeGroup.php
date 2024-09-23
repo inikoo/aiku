@@ -28,7 +28,7 @@ class SeedJobPositionsScopeGroup
 
         foreach ($jobPositions as $jobPositionData) {
 
-            if ($jobPositionData['scope']== JobPositionScopeEnum::GROUP) {
+            if ($jobPositionData['scope'] == JobPositionScopeEnum::GROUP) {
 
                 $this->processJobPosition($group, $jobPositionData);
 
@@ -53,11 +53,11 @@ class SeedJobPositionsScopeGroup
                 ]
             );
         } else {
-            $jobPositionCategory= $group->jobPositionCategories()->where('code', $jobPositionData['code'])->first();
+            $jobPositionCategory = $group->jobPositionCategories()->where('code', $jobPositionData['code'])->first();
             $jobPosition        = StoreJobPositionScopeGroup::make()->action(
                 $group,
                 [
-                    'group_job_position_id'=> $jobPositionCategory->id,
+                    'group_job_position_id' => $jobPositionCategory->id,
                     'code'                 => $jobPositionData['code'],
                     'name'                 => $jobPositionData['name'],
                     'department'           => Arr::get($jobPositionData, 'department'),

@@ -65,7 +65,7 @@ beforeEach(function () {
             modelData: $modelData
         );
     }
-    $this->agent=$agent;
+    $this->agent = $agent;
 
 });
 
@@ -106,7 +106,7 @@ test('create supplier product', function ($supplier) {
         'code'    => 'ABC',
         'name'    => 'ABC Asset',
         'cost'    => 200,
-        'stock_id'=> $this->stocks[0]->id
+        'stock_id' => $this->stocks[0]->id
     ];
 
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, $arrayData);
@@ -154,9 +154,9 @@ test('create purchase order independent supplier', function (OrgSupplierProduct 
 test('add item to purchase order', function (PurchaseOrder $purchaseOrder, OrgSupplierProduct $orgSupplierProduct) {
 
 
-    $purchaseOrderTransactionData=PurchaseOrderTransaction::factory()->definition();
+    $purchaseOrderTransactionData = PurchaseOrderTransaction::factory()->definition();
 
-    $purchaseOrderTransaction=StorePurchaseOrderTransaction::make()->action(
+    $purchaseOrderTransaction = StorePurchaseOrderTransaction::make()->action(
         $purchaseOrder,
         $orgSupplierProduct->supplierProduct->historicSupplierProduct,
         $purchaseOrderTransactionData
@@ -175,27 +175,27 @@ test('add more items to purchase order', function (PurchaseOrder $purchaseOrder)
 
 
     /** @var OrgSupplier $orgSupplier */
-    $orgSupplier=$purchaseOrder->parent;
+    $orgSupplier = $purchaseOrder->parent;
 
     $supplierProduct = StoreSupplierProduct::make()->action($orgSupplier->supplier, [
         'code'    => 'product-2',
         'name'    => 'Product 2',
         'cost'    => 100,
-        'stock_id'=> $this->stocks[1]->id
+        'stock_id' => $this->stocks[1]->id
     ]);
     StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
 
 
-    $purchaseOrderTransaction2=StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, PurchaseOrderTransaction::factory()->definition());
+    $purchaseOrderTransaction2 = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, PurchaseOrderTransaction::factory()->definition());
 
     $supplierProduct = StoreSupplierProduct::make()->action($orgSupplier->supplier, [
         'code'    => 'product-3',
         'name'    => 'Product 3',
         'cost'    => 150,
-        'stock_id'=> $this->stocks[2]->id
+        'stock_id' => $this->stocks[2]->id
     ]);
     StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
-    $purchaseOrderTransaction3=StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, PurchaseOrderTransaction::factory()->definition());
+    $purchaseOrderTransaction3 = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, PurchaseOrderTransaction::factory()->definition());
 
 
     expect($purchaseOrderTransaction2)->toBeInstanceOf(PurchaseOrderTransaction::class)
@@ -213,7 +213,7 @@ test('delete purchase order', function () {
     );
     $orgSupplier     = StoreOrgSupplier::make()->action($this->organisation, $supplier);
 
-    $supplierProductData= SupplierProduct::factory()->definition();
+    $supplierProductData = SupplierProduct::factory()->definition();
     data_set($supplierProductData, 'stock_id', $this->stocks[0]->id);
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, $supplierProductData);
     StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);

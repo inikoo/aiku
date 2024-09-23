@@ -16,7 +16,7 @@ class UpdateDispatchedEmail
 {
     use WithActionUpdate;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
 
     public function handle(DispatchedEmail $dispatchedEmail, array $modelData): DispatchedEmail
     {
@@ -38,7 +38,7 @@ class UpdateDispatchedEmail
     }
     public function action(DispatchedEmail $dispatchedEmail, array $modelData): DispatchedEmail
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 

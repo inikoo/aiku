@@ -200,7 +200,7 @@ class IndexReturnedPallets extends OrgAction
 
         return match ($routeName) {
 
-            'grp.org.fulfilments.show.operations.pallets.returned.index'=>
+            'grp.org.fulfilments.show.operations.pallets.returned.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 [

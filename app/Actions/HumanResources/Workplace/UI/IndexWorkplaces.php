@@ -28,7 +28,7 @@ class IndexWorkplaces extends OrgAction
     private array $originalParameters;
 
 
-    public function handle($prefix=null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -41,7 +41,7 @@ class IndexWorkplaces extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Workplace::class);
+        $queryBuilder = QueryBuilder::for(Workplace::class);
 
         $queryBuilder->where('organisation_id', $this->organisation->id);
 
@@ -128,7 +128,7 @@ class IndexWorkplaces extends OrgAction
                 'pageHead'    => [
                     'icon'   => ['fal', 'building'],
                     'title'  => __('Working places'),
-                    'actions'=> [
+                    'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'create',

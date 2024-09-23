@@ -113,21 +113,21 @@ class IndexStoredItems extends OrgAction
     public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
         // dd($this->parent);
-        $subNavigation=[];
+        $subNavigation = [];
 
-        $icon      =['fal', 'fa-narwhal'];
-        $title     =__('stored items');
-        $afterTitle=null;
-        $iconRight =null;
+        $icon      = ['fal', 'fa-narwhal'];
+        $title     = __('stored items');
+        $afterTitle = null;
+        $iconRight = null;
 
         if ($this->parent instanceof  FulfilmentCustomer) {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $icon         =['fal', 'fa-user'];
-            $title        =$this->parent->customer->name;
-            $iconRight    =[
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         = ['fal', 'fa-user'];
+            $title        = $this->parent->customer->name;
+            $iconRight    = [
                 'icon' => 'fal fa-narwhal',
             ];
-            $afterTitle= [
+            $afterTitle = [
 
                 'label'     => __('stored items')
             ];

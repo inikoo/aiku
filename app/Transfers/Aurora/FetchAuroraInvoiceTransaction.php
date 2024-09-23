@@ -40,7 +40,7 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
             }
 
 
-            $taxCategory=$this->parseTaxCategory($this->auroraModelData->{'Order Transaction Tax Category Key'});
+            $taxCategory = $this->parseTaxCategory($this->auroraModelData->{'Order Transaction Tax Category Key'});
 
             $this->parsedData['transaction'] = [
                 'order_id'        => $orderId,

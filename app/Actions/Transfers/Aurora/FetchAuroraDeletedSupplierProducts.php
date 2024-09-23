@@ -39,8 +39,8 @@ class FetchAuroraDeletedSupplierProducts extends FetchAuroraAction
                         hydratorsDelay: $this->hydrateDelay,
                         strict: false
                     );
-                    $historicSupplierProduct=FetchAuroraHistoricSupplierProducts::run($organisationSource->getOrganisation()->id, $supplierDeletedProductData['historicSupplierProductSourceID']);
-                    $supplierProduct->updateQuietly(['current_historic_supplier_product_id'=>$historicSupplierProduct->id]);
+                    $historicSupplierProduct = FetchAuroraHistoricSupplierProducts::run($organisationSource->getOrganisation()->id, $supplierDeletedProductData['historicSupplierProductSourceID']);
+                    $supplierProduct->updateQuietly(['current_historic_supplier_product_id' => $historicSupplierProduct->id]);
 
                 }
 

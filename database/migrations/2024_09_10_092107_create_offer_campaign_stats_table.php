@@ -22,7 +22,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('offer_campaign_id')->index();
             $table->foreign('offer_campaign_id')->references('id')->on('offer_campaigns');
 
-            $table=$this->offersStats($table);
+            $table = $this->offersStats($table);
 
             $table = $this->usageStats($table);
             $table->timestampsTz();

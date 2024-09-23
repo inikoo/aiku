@@ -17,7 +17,7 @@ return new class () extends Migration {
     {
         Schema::create('location_org_stocks', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('warehouse_id')->index();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->unsignedSmallInteger('warehouse_area_id')->nullable()->index();

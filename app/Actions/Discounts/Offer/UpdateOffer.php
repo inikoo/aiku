@@ -27,7 +27,7 @@ class UpdateOffer extends OrgAction
 
     public function handle(Offer $offer, array $modelData): Offer
     {
-        $offer= $this->update($offer, $modelData);
+        $offer = $this->update($offer, $modelData);
 
         if ($offer->wasChanged(['state','status'])) {
             GroupHydrateOffers::dispatch($offer->group)->delay($this->hydratorsDelay);

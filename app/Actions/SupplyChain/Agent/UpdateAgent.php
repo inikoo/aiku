@@ -94,7 +94,7 @@ class UpdateAgent extends GrpAction
         ];
     }
 
-    public function action(Agent $agent, array $modelData, bool $audit=true): Agent
+    public function action(Agent $agent, array $modelData, bool $audit = true): Agent
     {
         if (!$audit) {
             Agent::disableAuditing();

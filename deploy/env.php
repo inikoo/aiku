@@ -14,8 +14,8 @@ require __DIR__ . '/../vendor/autoload.php';
 desc('Inject all necessary .env variables inside deployer config');
 task('install:env', function () {
 
-    $environment=currentHost()->get('environment');
-    if ($environment=='production') {
+    $environment = currentHost()->get('environment');
+    if ($environment == 'production') {
         $dotenv = Dotenv::createImmutable(__DIR__, '../.env.aiku.production.deploy');
     } else {
         $dotenv = Dotenv::createImmutable(__DIR__, '../.env.aiku.staging.deploy');

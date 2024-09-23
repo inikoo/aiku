@@ -16,15 +16,15 @@ trait WithEnumStats
         string $field,
         $enum,
         $models,
-        $where=false
+        $where = false
     ): array {
         $stats = [];
 
-        $applyWhere=false;
+        $applyWhere = false;
         if ($this->is_closure($where)) {
-            $applyWhere=true;
+            $applyWhere = true;
         } else {
-            $where=function ($q) {};
+            $where = function ($q) {};
         }
 
 

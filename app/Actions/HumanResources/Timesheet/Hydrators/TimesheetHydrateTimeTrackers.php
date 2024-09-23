@@ -65,7 +65,7 @@ class TimesheetHydrateTimeTrackers
 
         }
 
-        $stats['number_open_time_trackers'] = $stats['number_time_trackers']-$numberClosedTimeTrackers;
+        $stats['number_open_time_trackers'] = $stats['number_time_trackers'] - $numberClosedTimeTrackers;
 
         if ($timesheet->end_at) {
             $stats['total_duration'] = $timesheet->start_at->diffInSeconds($timesheet->end_at);

@@ -157,7 +157,7 @@ class EditLocation extends OrgAction
 
     public function getPrevious(Location $location, ActionRequest $request): ?array
     {
-        $previous=Location::where('slug', '<', $location->slug)->when(true, function ($query) use ($location, $request) {
+        $previous = Location::where('slug', '<', $location->slug)->when(true, function ($query) use ($location, $request) {
             switch ($request->route()->getName()) {
                 case 'grp.org.warehouses.show.infrastructure.locations.edit':
                     $query->where('locations.warehouse_id', $location->warehouse_id);
@@ -198,32 +198,32 @@ class EditLocation extends OrgAction
             return null;
         }
         return match ($routeName) {
-            'grp.org.warehouses.show.inventory.locations.edit'=> [
-                'label'=> $location->slug,
-                'route'=> [
+            'grp.org.warehouses.show.inventory.locations.edit' => [
+                'label' => $location->slug,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'location'  => $location->slug
                     ]
 
                 ]
             ],
             'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.edit' => [
-                'label'=> $location->slug,
-                'route'=> [
+                'label' => $location->slug,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'warehouseArea' => $location->warehouseArea->slug,
                         'location'      => $location->slug
                     ]
 
                 ]
             ],
-            'grp.org.warehouses.show.infrastructure.locations.edit'=> [
-                'label'=> $location->slug,
-                'route'=> [
+            'grp.org.warehouses.show.infrastructure.locations.edit' => [
+                'label' => $location->slug,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'organisation' => $location->organisation->slug,
                         'warehouse'    => $location->warehouse->slug,
                         'location'     => $location->slug
@@ -232,10 +232,10 @@ class EditLocation extends OrgAction
                 ]
             ],
             'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.edit' => [
-                'label'=> $location->slug,
-                'route'=> [
+                'label' => $location->slug,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'organisation'  => $location->organisation->slug,
                         'warehouse'     => $location->warehouse->slug,
                         'warehouseArea' => $location->warehouseArea->slug,

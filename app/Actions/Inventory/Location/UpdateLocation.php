@@ -54,7 +54,7 @@ class UpdateLocation extends OrgAction
 
     public function rules(): array
     {
-        $rules= [
+        $rules = [
             'code' => [
                 'sometimes',
                 'required',
@@ -90,7 +90,7 @@ class UpdateLocation extends OrgAction
 
     }
 
-    public function action(Location $location, array $modelData, int $hydratorsDelay =0, bool $strict=true, bool $audit=true): Location
+    public function action(Location $location, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Location
     {
         $this->strict = $strict;
         if (!$audit) {

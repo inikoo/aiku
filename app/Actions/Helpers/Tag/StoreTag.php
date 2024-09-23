@@ -30,15 +30,15 @@ class StoreTag extends OrgAction
     public function handle(array $modelData): Tag
     {
         /** @var Tag $tag */
-        $tag=  Tag::findOrCreate($modelData['name'], $modelData['type']);
+        $tag =  Tag::findOrCreate($modelData['name'], $modelData['type']);
         $tag->update(
             [
-                'label'=> $tag->name
+                'label' => $tag->name
             ]
         );
         $tag->generateTagSlug();
         $tag->saveQuietly();
-        if ($tag->type=='crm') {
+        if ($tag->type == 'crm') {
             if (!$tag->crmStats) {
                 $tag->crmStats()->create();
                 OrganisationHydrateCrmTags::dispatch();

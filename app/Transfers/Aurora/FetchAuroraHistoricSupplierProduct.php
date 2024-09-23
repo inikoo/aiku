@@ -18,7 +18,7 @@ class FetchAuroraHistoricSupplierProduct extends FetchAurora
         if (!$supplierProduct) {
             return;
         }
-        $this->parsedData['supplier_product']=$supplierProduct;
+        $this->parsedData['supplier_product'] = $supplierProduct;
 
         $status = 0;
         if (DB::connection('aurora')->table('Supplier Part Dimension')->where('Supplier Part Historic Key', '=', $this->auroraModelData->{'Supplier Part Historic Key'})->exists()) {

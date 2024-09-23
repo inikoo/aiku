@@ -22,7 +22,7 @@ class GetWebsiteWorkshopLayout
         if ($scope instanceof Fulfilment) {
 
 
-            $workshopRoutes=[
+            $workshopRoutes = [
                 'routeList' => [
                     'headerRoute' => [
                         'name'       => 'grp.org.fulfilments.show.web.websites.workshop.header',
@@ -57,7 +57,7 @@ class GetWebsiteWorkshopLayout
                 ],
             ];
         } else {
-            $workshopRoutes=[
+            $workshopRoutes = [
                 'routeList' => [
                     'headerRoute' => [
                         'name'       => 'grp.org.shops.show.web.websites.workshop.header',

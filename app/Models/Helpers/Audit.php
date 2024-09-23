@@ -44,9 +44,9 @@ class Audit extends \OwenIt\Auditing\Models\Audit
         static::creating(
             function (Audit $audit) {
                 if ($audit->tags) {
-                    $audit->tags=json_encode(explode(",", $audit->tags));
+                    $audit->tags = json_encode(explode(",", $audit->tags));
                 } else {
-                    $audit->tags='[]';
+                    $audit->tags = '[]';
                 }
             }
         );

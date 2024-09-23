@@ -60,7 +60,7 @@ class RemoveJobPosition extends OrgAction
                             'title' => __('job position')
                         ],
                     'title'  => $jobPosition->slug,
-                    'actions'=> [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',

@@ -48,12 +48,12 @@ class SyncGuestJobPositions
             }
 
             foreach ($removeJobPositions as $jobPositionId) {
-                $jobPosition=JobPosition::find($jobPositionId);
+                $jobPosition = JobPosition::find($jobPositionId);
                 JobPositionHydrateGuests::dispatch($jobPosition);
             }
 
             foreach ($newJobPositionsIds as $jobPositionId) {
-                $jobPosition=JobPosition::find($jobPositionId);
+                $jobPosition = JobPosition::find($jobPositionId);
                 JobPositionHydrateGuests::dispatch($jobPosition);
             }
 

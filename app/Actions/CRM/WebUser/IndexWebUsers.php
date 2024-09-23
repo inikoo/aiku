@@ -94,45 +94,45 @@ class IndexWebUsers extends OrgAction
     public function htmlResponse(LengthAwarePaginator $webUsers, ActionRequest $request): Response
     {
 
-        $subNavigation=[];
+        $subNavigation = [];
 
-        $icon      =['fal', 'fa-terminal'];
-        $title     =__('web users');
-        $afterTitle=null;
-        $iconRight =null;
+        $icon      = ['fal', 'fa-terminal'];
+        $title     = __('web users');
+        $afterTitle = null;
+        $iconRight = null;
 
 
         if ($this->parent instanceof FulfilmentCustomer) {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $icon         =['fal', 'fa-user'];
-            $title        =$this->parent->customer->name;
-            $iconRight    =[
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         = ['fal', 'fa-user'];
+            $title        = $this->parent->customer->name;
+            $iconRight    = [
                 'icon' => 'fal fa-terminal',
             ];
-            $afterTitle= [
+            $afterTitle = [
 
                 'label'     => __('Web users')
             ];
         } elseif ($this->parent instanceof Customer) {
             if ($this->parent->is_dropshipping == true) {
-                $subNavigation=$this->getCustomerDropshippingSubNavigation($this->parent, $request);
-                $icon         =['fal', 'fa-user'];
-                $title        =$this->parent->name;
-                $iconRight    =[
+                $subNavigation = $this->getCustomerDropshippingSubNavigation($this->parent, $request);
+                $icon         = ['fal', 'fa-user'];
+                $title        = $this->parent->name;
+                $iconRight    = [
                     'icon' => 'fal fa-terminal',
                 ];
-                $afterTitle= [
+                $afterTitle = [
 
                     'label'     => __('Web users')
                 ];
             } else {
-                $subNavigation=$this->getCustomerSubNavigation($this->parent, $request);
-                $icon         =['fal', 'fa-user'];
-                $title        =$this->parent->name;
-                $iconRight    =[
+                $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
+                $icon         = ['fal', 'fa-user'];
+                $title        = $this->parent->name;
+                $iconRight    = [
                     'icon' => 'fal fa-terminal',
                 ];
-                $afterTitle= [
+                $afterTitle = [
 
                     'label'     => __('Web users')
                 ];
@@ -153,7 +153,7 @@ class IndexWebUsers extends OrgAction
                     'afterTitle'   => $afterTitle,
                     'iconRight'    => $iconRight,
                     'icon'         => $icon,
-                    'subNavigation'=> $subNavigation,
+                    'subNavigation' => $subNavigation,
                     'actions'      => [
                         ($this->canEdit &&  ($this->parent instanceof Customer || $this->parent instanceof  FulfilmentCustomer)) ? [
                             'type'  => 'button',
@@ -172,7 +172,7 @@ class IndexWebUsers extends OrgAction
         )->table($this->tableStructure($this->parent));
     }
 
-    public function tableStructure(Shop|Organisation|Customer|FulfilmentCustomer|Website $parent, ?array $modelOperations = null, $prefix = null, $canEdit=false): Closure
+    public function tableStructure(Shop|Organisation|Customer|FulfilmentCustomer|Website $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix, $parent, $canEdit) {
 

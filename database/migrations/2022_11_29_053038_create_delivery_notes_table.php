@@ -17,7 +17,7 @@ return new class () extends Migration {
     {
         Schema::create('delivery_notes', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedSmallInteger('warehouse_id')->index();
             $table->foreign('warehouse_id')->references('id')->on('warehouses');

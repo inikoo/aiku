@@ -49,7 +49,7 @@ class CreateStoredItemAudit extends OrgAction
                                     'type'    => 'input',
                                     'label'   => __('reference'),
                                     'value'   => '',
-                                    'required'=> true
+                                    'required' => true
                                 ],
                             ]
                         ]

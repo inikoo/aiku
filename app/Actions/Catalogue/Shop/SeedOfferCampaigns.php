@@ -23,12 +23,12 @@ class SeedOfferCampaigns extends GrpAction
     public function handle(Shop $shop): void
     {
 
-        if ($shop->type!=ShopTypeEnum::B2B) {
+        if ($shop->type != ShopTypeEnum::B2B) {
             return;
         }
 
         foreach (OfferCampaignTypeEnum::cases() as $case) {
-            $code =$case->codes()[$case->value];
+            $code = $case->codes()[$case->value];
 
             if ($shop->offerCampaigns()->where('code', $code)->exists()) {
                 continue;

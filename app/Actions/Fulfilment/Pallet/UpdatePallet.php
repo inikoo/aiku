@@ -150,7 +150,7 @@ class UpdatePallet extends OrgAction
         return $this->handle($pallet, $this->validatedData);
     }
 
-    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0, bool $audit =true): Pallet
+    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0, bool $audit = true): Pallet
     {
         if (!$audit) {
             Pallet::disableAuditing();

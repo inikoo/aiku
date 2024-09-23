@@ -99,8 +99,8 @@ class CreateCollection extends OrgAction
             [
                 [
                     'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __('Creating collection'),
+                    'creatingModel' => [
+                        'label' => __('Creating collection'),
                     ]
                 ]
             ]

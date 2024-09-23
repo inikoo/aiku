@@ -37,7 +37,7 @@ class AssetHydrateSales
 
         $queryBase = InvoiceTransaction::where('asset_id', $asset->id)->selectRaw('sum(grp_net_amount) as  sum_group  , sum(grp_net_amount) as  sum_org , sum(net) as  sum_shop  ');
 
-        $stats=array_merge($stats, $this->processIntervalShopAssetsStats($queryBase));
+        $stats = array_merge($stats, $this->processIntervalShopAssetsStats($queryBase));
 
         $asset->salesIntervals()->update($stats);
     }

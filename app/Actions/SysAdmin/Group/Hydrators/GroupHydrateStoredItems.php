@@ -36,7 +36,7 @@ class GroupHydrateStoredItems
             'number_stored_items' => StoredItem::where('group_id', $group->id)->count()
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'stored_items',
             field: 'state',
             enum: StoredItemStateEnum::class,

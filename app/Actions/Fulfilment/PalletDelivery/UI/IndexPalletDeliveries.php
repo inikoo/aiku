@@ -228,22 +228,22 @@ class IndexPalletDeliveries extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
-        $subNavigation=[];
+        $subNavigation = [];
 
-        $icon      =['fal', 'fa-truck-couch'];
-        $title     =__('fulfilment deliveries');
-        $afterTitle=null;
-        $iconRight =null;
+        $icon      = ['fal', 'fa-truck-couch'];
+        $title     = __('fulfilment deliveries');
+        $afterTitle = null;
+        $iconRight = null;
         $model     = null;
 
         if ($this->parent instanceof FulfilmentCustomer) {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $icon         =['fal', 'fa-user'];
-            $title        =$this->parent->customer->name;
-            $iconRight    =[
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         = ['fal', 'fa-user'];
+            $title        = $this->parent->customer->name;
+            $iconRight    = [
                 'icon' => 'fal fa-truck-couch',
             ];
-            $afterTitle= [
+            $afterTitle = [
 
                 'label'     => __('Deliveries')
             ];
@@ -252,7 +252,7 @@ class IndexPalletDeliveries extends OrgAction
         }
 
         if ($this->parent instanceof  FulfilmentCustomer) {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
             $action       = [
                 [
                     'type'    => 'button',

@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('product_id')->index();
             $table->foreign('product_id')->references('id')->on('products');
-            $table=$this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
+            $table = $this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
             $table->timestampsTz();
         });
     }

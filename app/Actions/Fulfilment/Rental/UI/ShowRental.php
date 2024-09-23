@@ -52,21 +52,21 @@ class ShowRental extends OrgAction
 
     public function inOrganisation(Organisation $organisation, Rental $rental, ActionRequest $request): Rental
     {
-        $this->parent= $organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(FulfilmentRentalTabsEnum::values());
         return $this->handle($rental);
     }
 
     public function asController(Organisation $organisation, Shop $shop, Rental $rental, ActionRequest $request): Rental
     {
-        $this->parent= $shop;
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(FulfilmentRentalTabsEnum::values());
         return $this->handle($rental);
     }
 
     public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Rental $rental, ActionRequest $request): Rental
     {
-        $this->parent= $department;
+        $this->parent = $department;
         $this->initialisationFromShop($shop, $request)->withTab(FulfilmentRentalTabsEnum::values());
 
         return $this->handle($rental);
@@ -74,7 +74,7 @@ class ShowRental extends OrgAction
 
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Rental
     {
-        $this->parent= $fulfilment;
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentRentalTabsEnum::values());
         return $this->handle($rental);
     }
@@ -120,7 +120,7 @@ class ShowRental extends OrgAction
                         ] : false
                     ]
                 ],
-                'tabs'=> [
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => FulfilmentRentalTabsEnum::navigation()
                 ],

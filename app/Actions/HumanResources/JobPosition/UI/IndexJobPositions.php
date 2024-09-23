@@ -125,7 +125,7 @@ class IndexJobPositions extends OrgAction
     public function htmlResponse(LengthAwarePaginator $jobPositions, ActionRequest $request): Response
     {
 
-        $subNavigation=[];
+        $subNavigation = [];
 
         if ($this->parent instanceof Employee) {
             $subNavigation = $this->getEmployeeSubNavigation($this->parent, $request);
@@ -155,7 +155,7 @@ class IndexJobPositions extends OrgAction
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request);
         return $this->handle($organisation);
     }
@@ -163,7 +163,7 @@ class IndexJobPositions extends OrgAction
 
     public function inEmployee(Organisation $organisation, Employee $employee, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$employee;
+        $this->parent = $employee;
         $this->initialisation($organisation, $request);
         return $this->handle($employee);
     }

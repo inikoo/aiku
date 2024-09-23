@@ -80,7 +80,7 @@ class ShowOrgPartner extends OrgAction
                         'index' => [
                             'route' => [
                                 'name'      => 'grp.org.procurement.org_partners.index',
-                                'parameters'=> Arr::only($routeParameters, 'organisation')
+                                'parameters' => Arr::only($routeParameters, 'organisation')
 
                             ],
                             'label' => __('Partners')

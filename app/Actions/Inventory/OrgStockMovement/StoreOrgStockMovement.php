@@ -35,9 +35,9 @@ class StoreOrgStockMovement extends OrgAction
 
         data_set($modelData, 'group_amount', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($orgStock->organisation->currency, $orgStock->group->currency), overwrite: false);
 
-        $class=OrgStockMovementClassEnum::MOVEMENT;
+        $class = OrgStockMovementClassEnum::MOVEMENT;
         if (in_array($modelData['type'], [OrgStockMovementTypeEnum::ASSOCIATE,OrgStockMovementTypeEnum::DISASSOCIATE])) {
-            $class=OrgStockMovementClassEnum::HELPER;
+            $class = OrgStockMovementClassEnum::HELPER;
         }
 
         data_set($modelData, 'class', $class);

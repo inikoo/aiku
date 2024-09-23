@@ -17,7 +17,7 @@ return new class () extends Migration {
     {
         Schema::create('warehouses', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('name');

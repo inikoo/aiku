@@ -23,7 +23,7 @@ class InertiaAction
     protected array $elementGroups      = [];
 
     protected bool $canEdit  = false;
-    protected bool $canDelete= false;
+    protected bool $canDelete = false;
 
     protected int $perPage = 50;
     private array $rawInputs;

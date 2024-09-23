@@ -18,7 +18,7 @@ class StoreCurrencyExchange
     public function handle(Currency $currency, $modelData): CurrencyExchange
     {
         /** @var CurrencyExchange $currencyExchange */
-        $currencyExchange= $currency->exchanges()->create($modelData);
+        $currencyExchange = $currency->exchanges()->create($modelData);
         return  $currencyExchange;
     }
 }

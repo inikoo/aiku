@@ -83,19 +83,19 @@ class EditPallet extends OrgAction
                                     'type'    => 'input',
                                     'label'   => __('reference'),
                                     'value'   => $pallet->reference,
-                                    'required'=> true
+                                    'required' => true
                                 ],
                                 'customer_reference' => [
                                     'type'    => 'input',
                                     'label'   => __('customer_reference'),
                                     'value'   => $pallet->customer_reference,
-                                    'required'=> true
+                                    'required' => true
                                 ],
                                 'notes' => [
                                     'type'    => 'input',
                                     'label'   => __('notes'),
                                     'value'   => $pallet->notes,
-                                    'required'=> true
+                                    'required' => true
                                 ],
                                 // 'type' => [
                                 //     'type'    => 'select',

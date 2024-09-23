@@ -33,21 +33,21 @@ class StoreFulfilment extends OrgAction
 
         data_set($modelData, 'settings', [
 
-            'rental_agreement_cut_off'=> [
-                RentalAgreementBillingCycleEnum::WEEKLY->value=> [
-                    'type'=> RentalAgreementBillingCycleEnum::WEEKLY->value,
+            'rental_agreement_cut_off' => [
+                RentalAgreementBillingCycleEnum::WEEKLY->value => [
+                    'type' => RentalAgreementBillingCycleEnum::WEEKLY->value,
                     'day' => 'Friday'
                 ],
-                RentalAgreementBillingCycleEnum::MONTHLY->value=> [
+                RentalAgreementBillingCycleEnum::MONTHLY->value => [
                     'type'    => RentalAgreementBillingCycleEnum::MONTHLY->value,
                     'day'     => 20,
-                    'workdays'=> false
+                    'workdays' => false
                 ]
             ]
 
         ]);
 
-        $warehouses= $modelData['warehouses'];
+        $warehouses = $modelData['warehouses'];
         Arr::forget($modelData, 'warehouses');
 
         /** @var Fulfilment $fulfilment */

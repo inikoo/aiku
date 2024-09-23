@@ -77,8 +77,8 @@ class StoreProspect extends OrgAction
 
         $prospect->updateQuietly(
             [
-                'can_contact_by_email'=> $this->canContactByEmail($prospect),
-                'can_contact_by_phone'=> $this->canContactByPhone($prospect)
+                'can_contact_by_email' => $this->canContactByEmail($prospect),
+                'can_contact_by_phone' => $this->canContactByPhone($prospect)
             ]
         );
 

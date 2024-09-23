@@ -37,7 +37,7 @@ class MarketplaceSupplierResource extends JsonResource
             'number_suppliers_deliveries'   => $this->number_suppliers_deliveries,
             'number_supplier_products'      => $this->number_supplier_products,
             'number_purchase_orders'        => $this->number_purchase_orders,
-            'adoption'                      => $this->adoption??'available'
+            'adoption'                      => $this->adoption ?? 'available'
 
         ];
     }

@@ -64,7 +64,7 @@ class OrgStockFamilyHydrateOrgStocks
             ]
         );
 
-        $stats['number_current_org_stocks']=Arr::get($stats, 'number_org_stocks_state_active', 0) + Arr::get($stats, 'number_org_stocks_state_discontinuing', 0);
+        $stats['number_current_org_stocks'] = Arr::get($stats, 'number_org_stocks_state_active', 0) + Arr::get($stats, 'number_org_stocks_state_discontinuing', 0);
         $orgStockFamily->stats()->update($stats);
     }
 
@@ -74,15 +74,15 @@ class OrgStockFamilyHydrateOrgStocks
             return OrgStockFamilyStateEnum::IN_PROCESS;
         }
 
-        if (Arr::get($stats, 'number_org_stocks_state_active', 0)>0) {
+        if (Arr::get($stats, 'number_org_stocks_state_active', 0) > 0) {
             return OrgStockFamilyStateEnum::ACTIVE;
         }
 
-        if (Arr::get($stats, 'number_org_stocks_state_discontinuing', 0)>0) {
+        if (Arr::get($stats, 'number_org_stocks_state_discontinuing', 0) > 0) {
             return OrgStockFamilyStateEnum::DISCONTINUING;
         }
 
-        if (Arr::get($stats, 'number_org_stocks_state_in_process', 0)>0) {
+        if (Arr::get($stats, 'number_org_stocks_state_in_process', 0) > 0) {
             return OrgStockFamilyStateEnum::IN_PROCESS;
         }
 

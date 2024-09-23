@@ -58,7 +58,7 @@ class PublishWebpage extends OrgAction
             ]
         );
 
-        $deployment=StoreDeployment::run(
+        $deployment = StoreDeployment::run(
             $webpage,
             [
                 'snapshot_id'    => $snapshot->id,

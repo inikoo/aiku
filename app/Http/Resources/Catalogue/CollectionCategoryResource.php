@@ -16,7 +16,7 @@ class CollectionCategoryResource extends JsonResource
     {
 
         /** @var CollectionCategory $collectionCategory */
-        $collectionCategory=$this;
+        $collectionCategory = $this;
 
         return [
             'slug'              => $collectionCategory->slug,

@@ -42,7 +42,7 @@ class DeleteProductCategory extends OrgAction
 
     public function asController(ProductCategory $productCategory, ActionRequest $request): ProductCategory
     {
-        $this->productCategory=$productCategory;
+        $this->productCategory = $productCategory;
         $this->initialisationFromShop($productCategory->shop, $request);
 
         return $this->handle($productCategory);

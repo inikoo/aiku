@@ -36,7 +36,7 @@ class ShopHydrateInvoices
     public function handle(Shop $shop): void
     {
 
-        $stats=$this->getInvoicesStats($shop);
+        $stats = $this->getInvoicesStats($shop);
 
         $stats = array_merge(
             $stats,

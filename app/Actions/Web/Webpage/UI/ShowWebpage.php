@@ -222,7 +222,7 @@ class ShowWebpage extends OrgAction
             match ($routeName) {
                 'grp.org.shops.show.web.webpages.show',
                 'grp.org.shops.show.web.webpages.edit',
-                'grp.org.shops.show.web.webpages.workshop'=>
+                'grp.org.shops.show.web.webpages.workshop' =>
                 array_merge(
                     ShowWebsite::make()->getBreadcrumbs(
                         'Shop',
@@ -246,7 +246,7 @@ class ShowWebpage extends OrgAction
 
                 'grp.org.fulfilments.show.web.webpages.show',
                 'grp.org.fulfilments.show.web.webpages.edit',
-                'grp.org.fulfilments.show.web.webpages.workshop'=>
+                'grp.org.fulfilments.show.web.webpages.workshop' =>
                 array_merge(
                     ShowWebsite::make()->getBreadcrumbs(
                         'Fulfilment',

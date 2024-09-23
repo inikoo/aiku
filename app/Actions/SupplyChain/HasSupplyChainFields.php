@@ -26,20 +26,20 @@ trait HasSupplyChainFields
                         'type'    => 'input',
                         'label'   => __('code '),
                         'value'   => '',
-                        'required'=> true
+                        'required' => true
                     ],
                     'company_name' => [
                         'type'    => 'input',
                         'label'   => __('company'),
                         'value'   => '',
-                        'required'=> true
+                        'required' => true
                     ],
 
                     'contact_name' => [
                         'type'    => 'input',
                         'label'   => __('contact name'),
                         'value'   => '',
-                        'required'=> true
+                        'required' => true
                     ],
 
                     'email' => [

@@ -56,21 +56,21 @@ class ShowService extends OrgAction
 
     public function inOrganisation(Organisation $organisation, Service $service, ActionRequest $request): Service
     {
-        $this->parent= $organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(FulfilmentServiceTabsEnum::values());
         return $this->handle($service);
     }
 
     public function asController(Organisation $organisation, Shop $shop, Service $service, ActionRequest $request): Service
     {
-        $this->parent= $shop;
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(FulfilmentServiceTabsEnum::values());
         return $this->handle($service);
     }
 
     public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Service $service, ActionRequest $request): Service
     {
-        $this->parent= $department;
+        $this->parent = $department;
         $this->initialisationFromShop($shop, $request)->withTab(FulfilmentServiceTabsEnum::values());
 
         return $this->handle($service);
@@ -78,7 +78,7 @@ class ShowService extends OrgAction
 
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Service $service, ActionRequest $request): Service
     {
-        $this->parent= $fulfilment;
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(ProductTabsEnum::values());
         return $this->handle($service);
     }
@@ -124,7 +124,7 @@ class ShowService extends OrgAction
                         ] : false
                     ]
                 ],
-                'tabs'=> [
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => FulfilmentServiceTabsEnum::navigation()
                 ],
@@ -166,7 +166,7 @@ class ShowService extends OrgAction
             ];
         };
 
-        $service=Service::where('slug', $routeParameters['service'])->first();
+        $service = Service::where('slug', $routeParameters['service'])->first();
 
         return match ($routeName) {
             'shops.products.show' =>

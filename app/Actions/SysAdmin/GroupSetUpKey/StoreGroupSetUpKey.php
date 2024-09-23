@@ -26,7 +26,7 @@ class StoreGroupSetUpKey
         data_set($modelData, 'expires_at', now()->addHours(24));
 
         /** @var GroupSetUpKey $groupSetUpKey */
-        $groupSetUpKey= GroupSetUpKey::create($modelData);
+        $groupSetUpKey = GroupSetUpKey::create($modelData);
         return $groupSetUpKey;
 
     }
@@ -39,9 +39,9 @@ class StoreGroupSetUpKey
     public function asCommand(Command $command): int
     {
 
-        $modelData=[
-            'limits'=> [
-                'organisations'=> $command->option('organisations'),
+        $modelData = [
+            'limits' => [
+                'organisations' => $command->option('organisations'),
                 'shops'        => $command->option('shops'),
                 'warehouses'   => $command->option('warehouses'),
                 'manufactures' => $command->option('manufactures'),
@@ -49,7 +49,7 @@ class StoreGroupSetUpKey
             ]
         ];
 
-        $groupSetUpKey=$this->handle($modelData);
+        $groupSetUpKey = $this->handle($modelData);
 
         $command->info('Set up key created:  '.config('app.url').'/setup/'.$groupSetUpKey->key);
         $command->info('Expires at: '.$groupSetUpKey->expires_at);

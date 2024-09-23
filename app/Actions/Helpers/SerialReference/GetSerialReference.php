@@ -27,7 +27,7 @@ class GetSerialReference
         /** @var SerialReference $serialReference */
         $serialReference = $container->serialReferences()->where('model', $modelType)->firstOrFail();
 
-        $serial=DB::transaction(function () use ($serialReference) {
+        $serial = DB::transaction(function () use ($serialReference) {
             $res = DB::table('serial_references')->select('serial')
                 ->where('id', $serialReference->id)->first();
 

@@ -33,8 +33,8 @@ class OrgPaymentServiceProviderHydratePaymentAccounts
 
     public function handle(OrgPaymentServiceProvider $orgPaymentServiceProvider): void
     {
-        $stats=[
-            'number_payment_accounts'=> $orgPaymentServiceProvider->accounts()->count()
+        $stats = [
+            'number_payment_accounts' => $orgPaymentServiceProvider->accounts()->count()
         ];
         $stats = array_merge(
             $stats,

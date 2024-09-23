@@ -57,12 +57,12 @@ class UpdateUnpublishedBannerSnapshot
             }
         }
 
-        $slidesULIDs=collect($slides)->keys();
+        $slidesULIDs = collect($slides)->keys();
 
 
-        $olsULIDs=$snapshot->slides()->pluck('ulid');
+        $olsULIDs = $snapshot->slides()->pluck('ulid');
         $olsULIDs->diff($slidesULIDs)->each(function (string $ulid) {
-            $slideToDelete=Slide::firstWhere('ulid', $ulid);
+            $slideToDelete = Slide::firstWhere('ulid', $ulid);
             $slideToDelete?->delete();
         });
 

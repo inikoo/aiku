@@ -36,7 +36,7 @@ class PlatformHydrateModels
     }
     public function handle(Platform $platform): void
     {
-        $stats= [
+        $stats = [
             'number_customers' => $platform->customers()->count(),
             'number_orders'    => $platform->orders()->count(),
             'number_products'  => $platform->products()->count(),

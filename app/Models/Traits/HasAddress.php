@@ -30,7 +30,7 @@ trait HasAddress
     public function getAddress($scope): ?Address
     {
         /** @var Address $address */
-        $address= $this->addresses()->where('scope', '=', $scope)->first();
+        $address = $this->addresses()->where('scope', '=', $scope)->first();
         return $address;
     }
 }

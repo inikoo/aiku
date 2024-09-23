@@ -20,9 +20,9 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('post_room_id')->nullable();
             $table->foreign('post_room_id')->references('id')->on('post_rooms');
-            $table=$this->outboxesStats($table);
-            $table=$this->mailshotsStats($table);
-            $table=$this->dispatchedEmailStats($table);
+            $table = $this->outboxesStats($table);
+            $table = $this->mailshotsStats($table);
+            $table = $this->dispatchedEmailStats($table);
             $table->timestampsTz();
         });
     }

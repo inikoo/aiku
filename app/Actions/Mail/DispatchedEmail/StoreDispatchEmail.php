@@ -20,18 +20,18 @@ class StoreDispatchEmail
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
 
     public function handle(Outbox|Mailshot $parent, string $email, array $modelData): DispatchedEmail
     {
-        if (class_basename($parent)=='Mailshot') {
-            $modelData['outbox_id']=$parent->outbox_id;
+        if (class_basename($parent) == 'Mailshot') {
+            $modelData['outbox_id'] = $parent->outbox_id;
         }
 
-        $emailAddress                 =GetEmailAddress::run($email);
-        $modelData['email_address_id']=$emailAddress->id;
+        $emailAddress                 = GetEmailAddress::run($email);
+        $modelData['email_address_id'] = $emailAddress->id;
         /** @var DispatchedEmail $dispatchedEmail */
-        $dispatchedEmail= $parent->dispatchedEmails()->create($modelData);
+        $dispatchedEmail = $parent->dispatchedEmails()->create($modelData);
         return $dispatchedEmail;
     }
 
@@ -50,7 +50,7 @@ class StoreDispatchEmail
 
     public function action(Outbox|Mailshot $parent, string $email, array $modelData): DispatchedEmail
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 

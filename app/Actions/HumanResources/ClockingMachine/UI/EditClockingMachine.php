@@ -100,7 +100,7 @@ class EditClockingMachine extends OrgAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.clocking_machine..update',
-                            'parameters'=> $clockingMachine->id
+                            'parameters' => $clockingMachine->id
 
                         ],
                     ]

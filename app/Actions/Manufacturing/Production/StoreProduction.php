@@ -124,21 +124,21 @@ class StoreProduction extends OrgAction
         setPermissionsTeamId($organisation->group->id);
 
 
-        $modelData=[
+        $modelData = [
             'code' => $command->argument('code'),
             'name' => $command->argument('name'),
         ];
 
         if ($command->option('state')) {
-            $modelData['state']=$command->option('state');
+            $modelData['state'] = $command->option('state');
         }
 
         if ($command->option('source_id')) {
-            $modelData['source_id']=$command->option('source_id');
+            $modelData['source_id'] = $command->option('source_id');
         }
 
         if ($command->option('created_at')) {
-            $modelData['created_at']=$command->option('created_at');
+            $modelData['created_at'] = $command->option('created_at');
         }
 
         $this->setRawAttributes($modelData);

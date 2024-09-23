@@ -25,7 +25,7 @@ class UpdateFcmTokenUser extends GrpAction
     public function handle(User $user, $modelData): User
     {
         $token = FcmToken::firstOrNew([
-            'token_id'=> $user->currentAccessToken()->token,
+            'token_id' => $user->currentAccessToken()->token,
         ]);
 
         $token->fcm_token = Arr::get($modelData, 'firebase_token');
@@ -54,7 +54,7 @@ class UpdateFcmTokenUser extends GrpAction
 
     public function asController(ActionRequest $request): User
     {
-        $this->user=$request->user();
+        $this->user = $request->user();
         $this->initialisation($this->user->group, $request);
 
         return $this->handle($this->user, $this->validatedData);
@@ -62,7 +62,7 @@ class UpdateFcmTokenUser extends GrpAction
 
     public function action(User $user, $modelData): User
     {
-        $this->user     =$user;
+        $this->user     = $user;
         $this->asAction = true;
         $this->initialisation($user->group, $modelData);
 

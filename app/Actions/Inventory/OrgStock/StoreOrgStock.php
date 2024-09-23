@@ -99,7 +99,7 @@ class StoreOrgStock extends OrgAction
         $this->set('state', $state);
     }
 
-    public function action(Organisation|OrgStockFamily $parent, Stock $stock, $modelData=[], $hydratorDelay = 0): OrgStock
+    public function action(Organisation|OrgStockFamily $parent, Stock $stock, $modelData = [], $hydratorDelay = 0): OrgStock
     {
 
         if ($parent instanceof Organisation) {

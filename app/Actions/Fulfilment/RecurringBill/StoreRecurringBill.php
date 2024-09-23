@@ -53,7 +53,7 @@ class StoreRecurringBill extends OrgAction
             if (!$modelData['start_date'] instanceof Carbon) {
                 $modelData['start_date'] = Carbon::parse($modelData['start_date']);
             }
-            $endDate= $this->getEndDate(
+            $endDate = $this->getEndDate(
                 $modelData['start_date']->copy(),
                 Arr::get(
                     $rentalAgreement->fulfilment->settings,

@@ -20,7 +20,7 @@ class UpdateProspectEmailSoftBounced
     public function handle(Prospect $prospect, Carbon $date): void
     {
         $dataToUpdate = [
-            'last_soft_bounced_at'=> $date
+            'last_soft_bounced_at' => $date
         ];
 
 
@@ -28,7 +28,7 @@ class UpdateProspectEmailSoftBounced
 
             $dataToUpdate['state']       = ProspectStateEnum::CONTACTED;
 
-            if ($prospect->contacted_state== ProspectContactedStateEnum::NA) {
+            if ($prospect->contacted_state == ProspectContactedStateEnum::NA) {
                 $dataToUpdate['contacted_state'] = ProspectContactedStateEnum::SOFT_BOUNCED;
             }
 

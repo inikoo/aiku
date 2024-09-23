@@ -24,9 +24,9 @@ class UploadImagesToModelHasWebBlocks extends OrgAction
     public function asController(ModelHasWebBlocks $modelHasWebBlocks, ActionRequest $request): Collection
     {
 
-        $webpage=$modelHasWebBlocks->webpage;
+        $webpage = $modelHasWebBlocks->webpage;
 
-        if ($webpage->shop->type==ShopTypeEnum::FULFILMENT) {
+        if ($webpage->shop->type == ShopTypeEnum::FULFILMENT) {
             $this->scope = $webpage->shop->fulfilment;
             $this->initialisationFromFulfilment($this->scope, $request);
 

@@ -31,11 +31,11 @@ class DeleteStoredItem extends OrgAction
             PalletHydrateStoredItems::run($pallet);
         }
 
-        $group             =$storedItem->group;
-        $organisation      =$storedItem->organisation;
-        $fulfilment        =$storedItem->fulfilment;
-        $fulfilmentCustomer=$storedItem->fulfilmentCustomer;
-        $warehouse         =$storedItem->warehouse;
+        $group             = $storedItem->group;
+        $organisation      = $storedItem->organisation;
+        $fulfilment        = $storedItem->fulfilment;
+        $fulfilmentCustomer = $storedItem->fulfilmentCustomer;
+        $warehouse         = $storedItem->warehouse;
 
         $storedItem->delete();
 

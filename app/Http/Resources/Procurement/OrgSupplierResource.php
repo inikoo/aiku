@@ -15,7 +15,7 @@ class OrgSupplierResource extends JsonResource
     public function toArray($request): array
     {
         /** @var OrgSupplier $orgSupplier */
-        $orgSupplier=$this;
+        $orgSupplier = $this;
 
         return [
             'code'                     => $orgSupplier->supplier->code,

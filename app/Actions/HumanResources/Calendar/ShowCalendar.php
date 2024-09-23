@@ -137,12 +137,12 @@ class ShowCalendar extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'grp.org.hr.employees.show'=> [
-                'label'=> $employee->contact_name,
-                'route'=> [
+            'grp.org.hr.employees.show' => [
+                'label' => $employee->contact_name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'employee'=> $employee->slug
+                    'parameters' => [
+                        'employee' => $employee->slug
                     ]
 
                 ]

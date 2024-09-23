@@ -23,7 +23,7 @@ class UpdateHistoricSupplierProduct extends GrpAction
 
     public function rules(): array
     {
-        $rules= [
+        $rules = [
         ];
 
 
@@ -35,7 +35,7 @@ class UpdateHistoricSupplierProduct extends GrpAction
         return $rules;
     }
 
-    public function action(HistoricSupplierProduct $historicSupplierProduct, array $modelData, int $hydratorsDelay = 0, bool $strict=true): HistoricSupplierProduct
+    public function action(HistoricSupplierProduct $historicSupplierProduct, array $modelData, int $hydratorsDelay = 0, bool $strict = true): HistoricSupplierProduct
     {
         $this->strict          = $strict;
         $this->asAction        = true;

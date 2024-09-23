@@ -24,7 +24,7 @@ class FetchAuroraWebUsers extends FetchAuroraAction
     {
         if ($webUserData = $organisationSource->fetchWebUser($organisationSourceId)) {
 
-            $customer=$webUserData['customer'];
+            $customer = $webUserData['customer'];
 
             if ($customer and !$customer->trashed()) {
                 if ($webUser = WebUser::withTrashed()->where('source_id', $webUserData['webUser']['source_id'])

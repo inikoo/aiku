@@ -32,7 +32,7 @@ class FulfilmentHydrateWarehouses
     {
         $fulfilment->update(
             [
-                'number_warehouses'=> $fulfilment->warehouses()->count()
+                'number_warehouses' => $fulfilment->warehouses()->count()
 
             ]
         );

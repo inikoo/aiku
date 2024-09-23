@@ -57,7 +57,7 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
     private function setAttachments($stockDelivery): void
     {
         if (in_array('attachments', $this->with)) {
-            $sourceData= explode(':', $stockDelivery->source_id);
+            $sourceData = explode(':', $stockDelivery->source_id);
             foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
 
                 SaveModelAttachment::run(

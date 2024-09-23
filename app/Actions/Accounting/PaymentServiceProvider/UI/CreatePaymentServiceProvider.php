@@ -95,8 +95,8 @@ class CreatePaymentServiceProvider extends InertiaAction
             [
                 [
                     'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __('Creating payment service provider'),
+                    'creatingModel' => [
+                        'label' => __('Creating payment service provider'),
                     ]
                 ]
             ]

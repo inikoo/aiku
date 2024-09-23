@@ -76,7 +76,7 @@ class EditStockDelivery extends InertiaAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.supplier-delivery.update',
-                            'parameters'=> $stockDelivery->slug
+                            'parameters' => $stockDelivery->slug
 
                         ],
                     ]
@@ -104,12 +104,12 @@ class EditStockDelivery extends InertiaAction
             return null;
         }
         return match ($routeName) {
-            'grp.org.procurement.stock_deliveries.edit'=> [
-                'label'=> $stockDelivery->reference,
-                'route'=> [
+            'grp.org.procurement.stock_deliveries.edit' => [
+                'label' => $stockDelivery->reference,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'employee'=> $stockDelivery->number
+                    'parameters' => [
+                        'employee' => $stockDelivery->number
                     ]
 
                 ]

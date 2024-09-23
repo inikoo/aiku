@@ -28,7 +28,7 @@ class ReturnPalletToCustomer extends OrgAction
 
     public function handle(Pallet $pallet): Pallet
     {
-        $pallet= $this->update($pallet, [
+        $pallet = $this->update($pallet, [
             'location_id' => null,
             'state'       => PalletStateEnum::DISPATCHED,
             'status'      => PalletStatusEnum::RETURNED

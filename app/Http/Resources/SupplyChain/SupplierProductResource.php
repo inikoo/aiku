@@ -15,7 +15,7 @@ class SupplierProductResource extends JsonResource
     public function toArray($request): array
     {
         /** @var SupplierProduct $supplierProduct */
-        $supplierProduct=$this;
+        $supplierProduct = $this;
 
         return [
             'code'          => $supplierProduct->code,

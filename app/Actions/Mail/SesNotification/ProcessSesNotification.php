@@ -137,7 +137,7 @@ class ProcessSesNotification
 
 
 
-                if (Arr::get($data, 'userAgent')=="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246 Mozilla/5.0"
+                if (Arr::get($data, 'userAgent') == "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246 Mozilla/5.0"
                     and IsGoogleIp::run(Arr::get($data, 'ipAddress'))
                 ) {
                     $sesNotification->delete();

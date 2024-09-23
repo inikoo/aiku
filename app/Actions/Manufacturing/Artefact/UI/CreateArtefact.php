@@ -125,8 +125,8 @@ class CreateArtefact extends OrgAction
             [
                 [
                     'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __('Creating Artefact'),
+                    'creatingModel' => [
+                        'label' => __('Creating Artefact'),
                     ]
                 ]
             ]

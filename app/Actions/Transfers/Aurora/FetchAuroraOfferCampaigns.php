@@ -21,10 +21,10 @@ class FetchAuroraOfferCampaigns extends FetchAuroraAction
     {
         if ($offerCampaignData = $organisationSource->fetchOfferCampaign($organisationSourceId)) {
 
-            $shop         =$offerCampaignData['shop'];
-            $offerCampaign=$shop->offerCampaigns()->where('source_id', $offerCampaignData['offer-campaign']['source_id'])->first();
+            $shop         = $offerCampaignData['shop'];
+            $offerCampaign = $shop->offerCampaigns()->where('source_id', $offerCampaignData['offer-campaign']['source_id'])->first();
             if (!$offerCampaign) {
-                $offerCampaign=$shop->offerCampaigns()->where('type', $offerCampaignData['type'])->first();
+                $offerCampaign = $shop->offerCampaigns()->where('type', $offerCampaignData['type'])->first();
                 unset($offerCampaignData['offer-campaign']['last_fetched_at']);
             } else {
                 unset($offerCampaignData['offer-campaign']['fetched_at']);

@@ -17,28 +17,28 @@ class UpdateIsAnimatedMedia
 {
     use AsAction;
 
-    public function handle(Media $media, ?string $imagePath=null): Media
+    public function handle(Media $media, ?string $imagePath = null): Media
     {
 
-        $animated=false;
-        if ($media->mime_type=='image/gif') {
+        $animated = false;
+        if ($media->mime_type == 'image/gif') {
 
             if ($imagePath) {
-                $fileHandler=fopen($imagePath, 'r');
+                $fileHandler = fopen($imagePath, 'r');
             } else {
-                $content     =Storage::disk(config('media-library.disk_name'))->get($media->getPath());
+                $content     = Storage::disk(config('media-library.disk_name'))->get($media->getPath());
                 $fileHandler = tmpfile();
                 fwrite($fileHandler, $content);
                 fseek($fileHandler, 0);
             }
 
-            $animated=$this->isGifAnimated($fileHandler);
+            $animated = $this->isGifAnimated($fileHandler);
 
 
 
         }
 
-        $media->update(['is_animated'=>$animated]);
+        $media->update(['is_animated' => $animated]);
         return $media;
 
     }
@@ -97,12 +97,12 @@ class UpdateIsAnimatedMedia
 
     private function processMedia(Media $media, Command $command): void
     {
-        $isAnimated=$media->is_animated;
+        $isAnimated = $media->is_animated;
         $this->handle($media);
 
-        $label=$media->is_animated ? "true" : "false";
+        $label = $media->is_animated ? "true" : "false";
 
-        if ($isAnimated!==$media->is_animated) {
+        if ($isAnimated !== $media->is_animated) {
 
             $command->line("Studio $media->slug is_animated updated from $isAnimated to $label");
         } else {

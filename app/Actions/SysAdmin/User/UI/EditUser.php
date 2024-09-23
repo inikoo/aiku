@@ -54,7 +54,7 @@ class EditUser extends InertiaAction
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
 
-        $orgTypeShop=[];
+        $orgTypeShop = [];
 
         $roles       = collect(RolesEnum::cases());
         $permissions = $roles->map(function ($role) {

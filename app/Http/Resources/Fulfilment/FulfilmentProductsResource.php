@@ -25,7 +25,7 @@ class FulfilmentProductsResource extends JsonResource
     public function toArray($request): array
     {
         /** @var Asset $product */
-        $product= $this;
+        $product = $this;
 
         return [
             'slug'               => $this->slug,

@@ -115,7 +115,7 @@ class FetchAuroraService extends FetchAurora
             $this->parsedData['service']['auto_assign_asset_type'] = $autoAssignAssetType;
         } else {
 
-            $serviceAutomationData=$this->getAutomationData();
+            $serviceAutomationData = $this->getAutomationData();
             if ($serviceAutomationData['is_auto_assign']) {
                 $this->parsedData['service']['is_auto_assign']           = $serviceAutomationData['is_auto_assign'];
                 $this->parsedData['service']['auto_assign_trigger']      = $serviceAutomationData['auto_assign_trigger'];
@@ -135,7 +135,7 @@ class FetchAuroraService extends FetchAurora
             'is_auto_assign'        => false,
         ];
 
-        if ($this->auroraModelData->{'Product Code'}=='AWSF-04') {
+        if ($this->auroraModelData->{'Product Code'} == 'AWSF-04') {
             $automationData['is_auto_assign']           = true;
             $automationData['auto_assign_trigger']      = 'PalletDelivery';
             $automationData['auto_assign_subject']      = 'Pallet';
@@ -143,7 +143,7 @@ class FetchAuroraService extends FetchAurora
             $automationData['auto_assign_status']       = true;
         }
 
-        if ($this->auroraModelData->{'Product Code'}=='AWSF-05') {
+        if ($this->auroraModelData->{'Product Code'} == 'AWSF-05') {
             $automationData['is_auto_assign']           = true;
             $automationData['auto_assign_trigger']      = 'PalletReturn';
             $automationData['auto_assign_subject']      = 'Pallet';
@@ -151,7 +151,7 @@ class FetchAuroraService extends FetchAurora
             $automationData['auto_assign_status']       = true;
         }
 
-        if ($this->auroraModelData->{'Product Code'}=='AWSF-06') {
+        if ($this->auroraModelData->{'Product Code'} == 'AWSF-06') {
             $automationData['is_auto_assign']           = true;
             $automationData['auto_assign_trigger']      = 'PalletDelivery';
             $automationData['auto_assign_subject']      = 'Pallet';
@@ -159,7 +159,7 @@ class FetchAuroraService extends FetchAurora
             $automationData['auto_assign_status']       = true;
         }
 
-        if ($this->auroraModelData->{'Product Code'}=='AWSF-07') {
+        if ($this->auroraModelData->{'Product Code'} == 'AWSF-07') {
             $automationData['is_auto_assign']           = true;
             $automationData['auto_assign_trigger']      = 'PalletReturn';
             $automationData['auto_assign_subject']      = 'Pallet';

@@ -65,7 +65,7 @@ enum ServiceStateEnum: string
 
     public static function count(Shop $parent): array
     {
-        $stats=$parent->stats;
+        $stats = $parent->stats;
         return [
             'in-process'                  => $stats->number_services_state_in_process,
             'active'                      => $stats->number_services_state_active,

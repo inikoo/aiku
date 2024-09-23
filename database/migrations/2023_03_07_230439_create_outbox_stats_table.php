@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->foreign('outbox_id')->references('id')->on('outboxes');
 
             $table->unsignedSmallInteger('number_mailshots')->default(0);
-            $table=$this->dispatchedEmailStats($table);
+            $table = $this->dispatchedEmailStats($table);
 
             $table->timestampsTz();
         });

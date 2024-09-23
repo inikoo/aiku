@@ -15,7 +15,7 @@ class FulfilmentResource extends JsonResource
     public function toArray($request): array
     {
         /** @var Fulfilment $fulfilment */
-        $fulfilment=$this;
+        $fulfilment = $this;
         return [
             'id'      => $fulfilment->id,
             'slug'    => $fulfilment->slug,

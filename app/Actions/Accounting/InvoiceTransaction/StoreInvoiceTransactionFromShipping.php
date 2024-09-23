@@ -21,7 +21,7 @@ class StoreInvoiceTransactionFromShipping extends OrgAction
 
     public function handle(Invoice $invoice, array $modelData): InvoiceTransaction
     {
-        $modelData=$this->prepareShippingTransaction($modelData);
+        $modelData = $this->prepareShippingTransaction($modelData);
 
         return $this->processInvoiceTransaction($invoice, $modelData);
     }

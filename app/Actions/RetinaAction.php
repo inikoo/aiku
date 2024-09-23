@@ -32,8 +32,8 @@ class RetinaAction
 
     public function initialisation(ActionRequest $request): static
     {
-        $this->customer      =$request->user()->customer;
-        $this->website       =$request->get('website');
+        $this->customer      = $request->user()->customer;
+        $this->website       = $request->get('website');
         $this->fillFromRequest($request);
         $this->validatedData = $this->validateAttributes();
 

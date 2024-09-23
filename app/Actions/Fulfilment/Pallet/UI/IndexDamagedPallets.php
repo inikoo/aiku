@@ -201,7 +201,7 @@ class IndexDamagedPallets extends OrgAction
     {
         return match ($routeName) {
 
-            'grp.org.fulfilments.show.operations.pallets.damaged.index'=>
+            'grp.org.fulfilments.show.operations.pallets.damaged.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 [

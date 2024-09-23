@@ -82,7 +82,7 @@ class EditPaymentServiceProvider extends OrgAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.payment-service-provider.update',
-                            'parameters'=> $paymentServiceProvider->id
+                            'parameters' => $paymentServiceProvider->id
 
                         ],
                     ]

@@ -45,7 +45,7 @@ class IndexDeliveryNoteItems extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $query=QueryBuilder::for(DeliveryNoteItem::class);
+        $query = QueryBuilder::for(DeliveryNoteItem::class);
 
         $query->where('delivery_note_items.delivery_note_id', $parent->id);
 
@@ -120,8 +120,8 @@ class IndexDeliveryNoteItems extends OrgAction
             'icon'  => ['fal', 'fa-shopping-cart'],
             'title' => __('delivery note items')
         ];
-        $afterTitle=null;
-        $iconRight =null;
+        $afterTitle = null;
+        $iconRight = null;
         $actions   = null;
         return Inertia::render(
             'Ordering/Orders',

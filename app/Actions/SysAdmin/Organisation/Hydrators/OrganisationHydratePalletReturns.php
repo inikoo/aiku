@@ -36,7 +36,7 @@ class OrganisationHydratePalletReturns
             'number_pallet_returns' => PalletReturn::where('organisation_id', $organisation->id)->count()
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'pallet_returns',
             field: 'state',
             enum: PalletReturnStateEnum::class,

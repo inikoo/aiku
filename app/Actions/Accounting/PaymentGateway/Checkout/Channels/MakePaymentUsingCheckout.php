@@ -25,7 +25,7 @@ class MakePaymentUsingCheckout
     use WithAttributes;
     use AsCommand;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
 
     public string $commandSignature = 'payment:checkout {payment}';
 

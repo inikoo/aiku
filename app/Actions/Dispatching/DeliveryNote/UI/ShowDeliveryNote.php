@@ -500,32 +500,32 @@ class ShowDeliveryNote extends OrgAction
 
         return match ($routeName) {
             'delivery-notes.show' ,
-            'shops.delivery-notes.show'=> [
-                'label'=> $deliveryNote->reference,
-                'route'=> [
+            'shops.delivery-notes.show' => [
+                'label' => $deliveryNote->reference,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'deliveryNote'=> $deliveryNote->slug
+                    'parameters' => [
+                        'deliveryNote' => $deliveryNote->slug
                     ]
 
                 ]
             ],
-            'shops.show.delivery-notes.show'=> [
-                'label'=> $deliveryNote->reference,
-                'route'=> [
+            'shops.show.delivery-notes.show' => [
+                'label' => $deliveryNote->reference,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'shop'        => $deliveryNote->shop->slug,
-                        'deliveryNote'=> $deliveryNote->slug
+                        'deliveryNote' => $deliveryNote->slug
                     ]
 
                 ]
             ],
-            'grp.org.warehouses.show.dispatching.delivery-notes.show'=> [
-                'label'=> $deliveryNote->reference,
-                'route'=> [
+            'grp.org.warehouses.show.dispatching.delivery-notes.show' => [
+                'label' => $deliveryNote->reference,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'organisation'  => $deliveryNote->organisation->slug,
                         'warehouse'     => $deliveryNote->warehouse->slug,
                         'deliveryNote'  => $deliveryNote->slug
@@ -533,19 +533,19 @@ class ShowDeliveryNote extends OrgAction
 
                 ]
                     ],
-            'grp.org.shops.show.ordering.orders.show.delivery-note'=> [
-                'label'=> $deliveryNote->reference,
-                'route'=> [
+            'grp.org.shops.show.ordering.orders.show.delivery-note' => [
+                'label' => $deliveryNote->reference,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> Arr::only($routeParameters, ['organisation', 'shop', 'order', 'deliveryNote'])
+                    'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'order', 'deliveryNote'])
 
                 ]
             ],
-            'grp.org.shops.show.crm.customers.show.delivery_notes.show'=> [
-                'label'=> $deliveryNote->reference,
-                'route'=> [
+            'grp.org.shops.show.crm.customers.show.delivery_notes.show' => [
+                'label' => $deliveryNote->reference,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> Arr::only($routeParameters, ['organisation', 'shop', 'customer', 'deliveryNote'])
+                    'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'customer', 'deliveryNote'])
 
                 ]
             ]

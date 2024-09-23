@@ -19,7 +19,7 @@ class GetCustomerClientShowcase
     {
         return [
 
-               'data'=> CustomerClientResource::make($customerClient)->getArray()
+               'data' => CustomerClientResource::make($customerClient)->getArray()
 
 
         ];

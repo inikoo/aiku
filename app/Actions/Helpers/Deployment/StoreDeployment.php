@@ -23,10 +23,10 @@ class StoreDeployment
     {
 
         /** @var Deployment $deployment */
-        $deployment=$model->deployments()->create($modelData);
+        $deployment = $model->deployments()->create($modelData);
         $deployment->saveQuietly();
 
-        if ($deployment->model_type=='Webpage') {
+        if ($deployment->model_type == 'Webpage') {
             WebpageHydrateDeployments::dispatch($model);
         }
 

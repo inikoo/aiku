@@ -40,7 +40,7 @@ return new class () extends Migration {
 
             $table->decimal('quantity', 10, 3, );
 
-            $table= $this->orderMoneyFields($table);
+            $table = $this->orderMoneyFields($table);
             $table->boolean('is_auto_assign')->default(false)->index();
 
             $table->jsonb('data');

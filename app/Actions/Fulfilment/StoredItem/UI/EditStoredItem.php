@@ -88,7 +88,7 @@ class EditStoredItem extends OrgAction
                                     'type'    => 'input',
                                     'label'   => __('reference'),
                                     'value'   => $storedItem->reference,
-                                    'required'=> true
+                                    'required' => true
                                 ],
                             ]
                         ]

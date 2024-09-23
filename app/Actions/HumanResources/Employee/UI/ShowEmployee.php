@@ -197,7 +197,7 @@ class ShowEmployee extends OrgAction
 
     public function han(Employee $employee, ActionRequest $request): Employee
     {
-        $this->han=true;
+        $this->han = true;
 
         if ($request->user()->organisation_id !== $employee->organisation_id) {
             abort(404);

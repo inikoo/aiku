@@ -15,7 +15,7 @@ class FetchAuroraMailshot extends FetchAurora
     protected function parseModel(): void
     {
         $state = match ($this->auroraModelData->{'Email Campaign State'}) {
-            default=> Str::kebab($this->auroraModelData->{'Email Campaign State'})
+            default => Str::kebab($this->auroraModelData->{'Email Campaign State'})
         };
 
         $this->parsedData['outbox']   = $this->parseOutbox($this->auroraModelData->{'Email Campaign Email Template Type Key'});

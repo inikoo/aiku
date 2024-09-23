@@ -55,27 +55,27 @@ class ShowPalletReturn extends RetinaAction
     {
         $addressHistories = AddressResource::collection($palletReturn->addresses()->where('scope', 'delivery')->get());
 
-        $navigation=PalletReturnTabsEnum::navigation($palletReturn);
+        $navigation = PalletReturnTabsEnum::navigation($palletReturn);
 
-        if ($palletReturn->type==PalletReturnTypeEnum::PALLET) {
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             unset($navigation[PalletReturnTabsEnum::STORED_ITEMS->value]);
         } else {
             unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
         }
 
-        if ($palletReturn->type==PalletReturnTypeEnum::PALLET) {
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             $this->tab = PalletReturnTabsEnum::PALLETS->value;
         } else {
             $this->tab = PalletReturnTabsEnum::STORED_ITEMS->value;
         }
 
-        if ($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
-            $afterTitle=[
-                'label'=> '('.__('Stored items').')'
+        if ($palletReturn->type == PalletReturnTypeEnum::STORED_ITEM) {
+            $afterTitle = [
+                'label' => '('.__('Stored items').')'
                 ];
         } else {
-            $afterTitle=[
-                'label'=> '('.__('Whole pallets').')'
+            $afterTitle = [
+                'label' => '('.__('Whole pallets').')'
             ];
         }
 
@@ -141,7 +141,7 @@ class ShowPalletReturn extends RetinaAction
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => $palletReturn->reference
                     ],
-                    'afterTitle'=> $afterTitle,
+                    'afterTitle' => $afterTitle,
                     'model'     => __('pallet return'),
                     'actions'   => $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
                         [

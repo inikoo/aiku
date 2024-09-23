@@ -41,7 +41,7 @@ class UpdateDeliveryNote extends OrgAction
         data_forget($modelData, 'delivery_address');
 
         $deliveryNote = $this->update($deliveryNote, $modelData, ['data']);
-        $changes      =$deliveryNote->getChanges();
+        $changes      = $deliveryNote->getChanges();
 
         if ($deliveryAddressData) {
             if ($deliveryNote->delivery_locked) {
@@ -110,7 +110,7 @@ class UpdateDeliveryNote extends OrgAction
         ];
     }
 
-    public function action(DeliveryNote $deliveryNote, array $modelData, int $hydratorsDelay = 0, bool $audit =true): DeliveryNote
+    public function action(DeliveryNote $deliveryNote, array $modelData, int $hydratorsDelay = 0, bool $audit = true): DeliveryNote
     {
         if (!$audit) {
             DeliveryNote::disableAuditing();

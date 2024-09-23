@@ -19,7 +19,7 @@ class AuditOrganisationResolver implements Resolver
             return $auditable->organisation_id;
         }
 
-        if (class_basename($auditable)=='Organisation') {
+        if (class_basename($auditable) == 'Organisation') {
             return $auditable->id;
         }
 

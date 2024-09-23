@@ -14,7 +14,7 @@ class TransactionFactory extends Factory
     public function definition(): array
     {
 
-        $grossAmount= fake()->randomFloat(2, 0, 100);
+        $grossAmount = fake()->randomFloat(2, 0, 100);
         return [
             'quantity_bonus'   => fake()->numberBetween(0, 10),
             'quantity_ordered' => fake()->numberBetween(0, 10),

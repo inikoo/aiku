@@ -34,7 +34,7 @@ return new class () extends Migration {
             $table->boolean('status')->default(false)->index();
             $table->string('state')->default(RentalStateEnum::IN_PROCESS)->index();
 
-            $table=$this->assetModelFields($table);
+            $table = $this->assetModelFields($table);
 
             $table->timestampsTz();
             $table->softDeletes();

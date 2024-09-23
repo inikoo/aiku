@@ -44,7 +44,7 @@ class CustomerClientRecordSearch
                         $customerClient->company_name
                     ])
                 ),
-                'result'=> [
+                'result' => [
                     'title'        => $customerClient->name,
 
 

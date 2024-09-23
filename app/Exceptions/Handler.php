@@ -74,7 +74,7 @@ class Handler extends ExceptionHandler
                 ]);
             }
 
-            $errorData=match ($response->getStatusCode()) {
+            $errorData = match ($response->getStatusCode()) {
                 403 => [
                     'status'      => $response->getStatusCode(),
                     'title'       => __('Forbidden'),
@@ -97,9 +97,9 @@ class Handler extends ExceptionHandler
                 ],
                 default => $this->getExceptionInfo($e)
             };
-            $user=$request->user();
+            $user = $request->user();
             if (Auth::check()) {
-                $errorData= array_merge(
+                $errorData = array_merge(
                     GetFirstLoadProps::run($user),
                     $errorData,
                     [
@@ -116,15 +116,15 @@ class Handler extends ExceptionHandler
 
             if ($host == 'app.'.config('app.domain')) {
                 Inertia::setRootView('app-grp');
-                $app='grp';
+                $app = 'grp';
             } else {
                 $path = Request::path();
                 if (preg_match('/^app\//', $path)) {
                     Inertia::setRootView('app-retina');
-                    $app='retina';
+                    $app = 'retina';
                 } else {
                     Inertia::setRootView('app-iris');
-                    $app='iris';
+                    $app = 'iris';
                 }
             }
 
@@ -165,17 +165,17 @@ class Handler extends ExceptionHandler
     {
 
 
-        if (get_class($e) == 'App\Exceptions\IrisWebsiteNotFound' and $app=='iris') {
+        if (get_class($e) == 'App\Exceptions\IrisWebsiteNotFound' and $app == 'iris') {
             return 'Errors/IrisWebsiteNotFound';
         }
 
-        $page='Errors/Error';
+        $page = 'Errors/Error';
 
-        if ($app=='grp' or $app=='retina') {
+        if ($app == 'grp' or $app == 'retina') {
 
 
 
-            $page= Auth::check() ? 'Errors/ErrorInApp' : 'Errors/Error';
+            $page = Auth::check() ? 'Errors/ErrorInApp' : 'Errors/Error';
         }
 
         return $page;

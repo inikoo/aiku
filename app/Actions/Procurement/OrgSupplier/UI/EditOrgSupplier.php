@@ -262,7 +262,7 @@ class EditOrgSupplier extends OrgAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.supplier.update',
-                            'parameters'=> $supplier->slug
+                            'parameters' => $supplier->slug
 
                         ],
                     ]
@@ -311,21 +311,21 @@ class EditOrgSupplier extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.procurement.org_suppliers.edit'=> [
-                'label'=> $supplier->name,
-                'route'=> [
+            'grp.org.procurement.org_suppliers.edit' => [
+                'label' => $supplier->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'supplier'  => $supplier->slug
                     ]
 
                 ]
             ],
             'grp.org.procurement.org_agents.show.org_suppliers.edit' => [
-                'label'=> $supplier->name,
-                'route'=> [
+                'label' => $supplier->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'agent'     => $supplier->agent->slug,
                         'supplier'  => $supplier->slug
                     ]

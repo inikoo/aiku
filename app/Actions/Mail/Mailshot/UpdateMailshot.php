@@ -16,7 +16,7 @@ class UpdateMailshot
 {
     use WithActionUpdate;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
 
     public function handle(Mailshot $mailshot, array $modelData): Mailshot
     {
@@ -40,7 +40,7 @@ class UpdateMailshot
 
     public function action(Mailshot $mailshot, $modelData): Mailshot
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 

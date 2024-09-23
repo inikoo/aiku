@@ -51,7 +51,7 @@ class FetchAuroraPallets extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        $query= DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Fulfilment Asset Dimension')
             ->select('Fulfilment Asset Key as source_id')
             ->orderBy('source_id')
@@ -70,7 +70,7 @@ class FetchAuroraPallets extends FetchAuroraAction
 
     public function count(): ?int
     {
-        $query= DB::connection('aurora')->table('Fulfilment Asset Dimension');
+        $query = DB::connection('aurora')->table('Fulfilment Asset Dimension');
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }

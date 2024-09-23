@@ -113,7 +113,7 @@ class ShowFulfilment extends OrgAction
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
                         'index' => [
-                            'number' => $this->organisation->fulfilmentStats->number_pallets_status_storing+
+                            'number' => $this->organisation->fulfilmentStats->number_pallets_status_storing +
                                 $this->organisation->fulfilmentStats->number_pallets_status_receiving      +
                                 $this->organisation->fulfilmentStats->number_pallets_status_returning
                         ],

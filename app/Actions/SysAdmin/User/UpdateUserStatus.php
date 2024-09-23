@@ -64,7 +64,7 @@ class UpdateUserStatus
     {
         $this->asAction = true;
         $this->setRawAttributes([
-            'status'=> $status
+            'status' => $status
         ]);
         $validatedData = $this->validateAttributes();
 

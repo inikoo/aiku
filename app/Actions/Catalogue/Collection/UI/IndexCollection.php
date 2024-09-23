@@ -206,8 +206,8 @@ class IndexCollection extends OrgAction
             'icon'  => ['fal', 'fa-cube'],
             'title' => __('collections')
         ];
-        $afterTitle=null;
-        $iconRight =null;
+        $afterTitle = null;
+        $iconRight = null;
 
         if ($this->parent instanceof Collection) {
             $title = $this->parent->name;
@@ -216,10 +216,10 @@ class IndexCollection extends OrgAction
                 'icon'  => ['fal', 'fa-cube'],
                 'title' => __('collection')
             ];
-            $iconRight    =[
+            $iconRight    = [
                 'icon' => 'fal fa-cube',
             ];
-            $afterTitle= [
+            $afterTitle = [
                 'label'     => __('Collections')
             ];
         }

@@ -42,7 +42,7 @@ trait HasProcurementStats
         $table->unsignedInteger('number_archived_suppliers')->default(0)->comment('Archived suppliers status=false');
 
 
-        if ($table->getTable()!='agent_stats') {
+        if ($table->getTable() != 'agent_stats') {
 
             $table->unsignedInteger('number_independent_suppliers')->default(0)->comment('Active + Archived no agent suppliers');
             $table->unsignedInteger('number_active_independent_suppliers')->default(0)->comment('Active no agent suppliers, status=true');
@@ -63,7 +63,7 @@ trait HasProcurementStats
         $table->unsignedInteger('number_active_org_suppliers')->default(0)->comment('Active suppliers, status=true');
         $table->unsignedInteger('number_archived_org_suppliers')->default(0)->comment('Archived suppliers status=false');
 
-        if ($table->getTable()!='agent_stats') {
+        if ($table->getTable() != 'agent_stats') {
 
             $table->unsignedInteger('number_independent_org_suppliers')->default(0)->comment('Active + Archived no agent suppliers');
             $table->unsignedInteger('number_active_independent_org_suppliers')->default(0)->comment('Active no agent suppliers, status=true');

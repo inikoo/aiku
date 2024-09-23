@@ -47,7 +47,7 @@ class FetchWowsbarEmployee extends FetchWowsbar
     private function parseJobPositions(): void
     {
 
-        $query= DB::connection('wowsbar')
+        $query = DB::connection('wowsbar')
             ->table('job_positionables')
             ->leftJoin('job_positions', 'job_positionables.job_position_id', '=', 'job_positions.id')
             ->where('job_positionables.job_positionable_type', 'Employee')
@@ -56,7 +56,7 @@ class FetchWowsbarEmployee extends FetchWowsbar
 
 
         foreach ($query as $jobPosition) {
-            $this->parsedData['employee']['positions'][] =$this->parseJobPosition($jobPosition->slug);
+            $this->parsedData['employee']['positions'][] = $this->parseJobPosition($jobPosition->slug);
         }
 
 

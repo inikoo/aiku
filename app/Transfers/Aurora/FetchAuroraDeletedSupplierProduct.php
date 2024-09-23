@@ -42,18 +42,18 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
         $settings   = [];
 
         $status = true;
-        if ($auroraDeletedData->{'Supplier Part Status'}=='NoAvailable') {
+        if ($auroraDeletedData->{'Supplier Part Status'} == 'NoAvailable') {
             $status = false;
         }
 
 
 
         $state = match ($auroraDeletedData->{'Supplier Part Status'}) {
-            'Discontinued', 'NoAvailable' =>SupplierProductStateEnum::DISCONTINUED,
+            'Discontinued', 'NoAvailable' => SupplierProductStateEnum::DISCONTINUED,
             default        => SupplierProductStateEnum::ACTIVE,
         };
 
-        if ($state==SupplierProductStateEnum::DISCONTINUED) {
+        if ($state == SupplierProductStateEnum::DISCONTINUED) {
             $status = false;
         }
 

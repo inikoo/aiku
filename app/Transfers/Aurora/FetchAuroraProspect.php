@@ -26,7 +26,7 @@ class FetchAuroraProspect extends FetchAurora
 
         $customerId = null;
         if ($this->auroraModelData->{'Prospect Customer Key'}) {
-            $customer= $this->parseCustomer(
+            $customer = $this->parseCustomer(
                 $this->organisation->id.':'.
                 $this->auroraModelData->{'Prospect Customer Key'}
             );
@@ -78,7 +78,7 @@ class FetchAuroraProspect extends FetchAurora
         $email = preg_replace('/\.+/', '.', $email);
 
         $phone = $this->auroraModelData->{'Prospect Main Plain Mobile'};
-        if (strlen($phone)<=5 or strlen($phone)>24) {
+        if (strlen($phone) <= 5 or strlen($phone) > 24) {
             $phone = null;
         }
 

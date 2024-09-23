@@ -52,8 +52,8 @@ class GroupHydrateStocks
             )
         );
 
-        $stats['number_current_stocks']=
-            Arr::get($stats, 'number_stocks_state_active', 0)+
+        $stats['number_current_stocks'] =
+            Arr::get($stats, 'number_stocks_state_active', 0) +
             Arr::get($stats, 'number_stocks_state_discontinuing', 0);
 
         $group->inventoryStats()->update($stats);

@@ -15,7 +15,7 @@ class ArtefactResource extends JsonResource
     public function toArray($request): array
     {
         /** @var Artefact $artefact */
-        $artefact=$this;
+        $artefact = $this;
         return [
             'id'      => $artefact->id,
             'slug'    => $artefact->slug,

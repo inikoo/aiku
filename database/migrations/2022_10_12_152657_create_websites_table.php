@@ -21,7 +21,7 @@ return new class () extends Migration {
         Schema::create('websites', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->string('slug')->unique()->collation('und_ns');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('type')->index();
@@ -51,7 +51,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table=$this->softDeletes($table);
+            $table = $this->softDeletes($table);
             $table->string('cloudflare_id')->index()->nullable();
             $table->string('cloudflare_status')->nullable()->default(WebsiteCloudflareStatusEnum::NOT_SET->value);
             $table->string('source_id')->nullable()->unique();

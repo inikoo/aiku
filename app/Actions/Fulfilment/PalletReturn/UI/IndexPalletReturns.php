@@ -196,29 +196,29 @@ class IndexPalletReturns extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
-        $subNavigation=[];
+        $subNavigation = [];
 
-        $icon      =['fal', 'fa-sign-out-alt'];
-        $title     =__('returns');
-        $afterTitle=null;
-        $iconRight =null;
+        $icon      = ['fal', 'fa-sign-out-alt'];
+        $title     = __('returns');
+        $afterTitle = null;
+        $iconRight = null;
         $model     = null;
 
         if ($this->parent instanceof  FulfilmentCustomer) {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $icon         =['fal', 'fa-user'];
-            $title        =$this->parent->customer->name;
-            $iconRight    =[
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         = ['fal', 'fa-user'];
+            $title        = $this->parent->customer->name;
+            $iconRight    = [
                 'icon' => 'fal fa-sign-out-alt',
             ];
-            $afterTitle= [
+            $afterTitle = [
 
                 'label'     => __('returns')
             ];
         } elseif ($this->parent instanceof Fulfilment) {
             $model = __('Operations');
         } elseif ($this->parent instanceof Warehouse) {
-            $icon         =['fal', 'fa-arrow-from-left'];
+            $icon         = ['fal', 'fa-arrow-from-left'];
             $model        = __('Goods Out');
             $iconRight    = ['fal', 'fa-sign-out-alt'];
         }
@@ -297,7 +297,7 @@ class IndexPalletReturns extends OrgAction
 
         return match ($routeName) {
 
-            'grp.org.warehouses.show.dispatching.pallet-returns.index'=> array_merge(
+            'grp.org.warehouses.show.dispatching.pallet-returns.index' => array_merge(
                 ShowWarehouse::make()->getBreadcrumbs(
                     $routeParameters
                 ),
@@ -309,7 +309,7 @@ class IndexPalletReturns extends OrgAction
                 )
             ),
 
-            'grp.org.fulfilments.show.crm.customers.show.pallet_returns.index'=> array_merge(
+            'grp.org.fulfilments.show.crm.customers.show.pallet_returns.index' => array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs(
                     $routeParameters
                 ),

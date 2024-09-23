@@ -34,7 +34,7 @@ class SubmitPalletReturn extends OrgAction
     use WithActionUpdate;
 
 
-    private bool $sendNotifications=false;
+    private bool $sendNotifications = false;
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
@@ -104,7 +104,7 @@ class SubmitPalletReturn extends OrgAction
         return $this->handle($palletReturn, $this->validatedData);
     }
 
-    public function action(PalletReturn $palletReturn, bool $sendNotification=false): PalletReturn
+    public function action(PalletReturn $palletReturn, bool $sendNotification = false): PalletReturn
     {
         $this->asAction          = true;
         $this->sendNotifications = $sendNotification;

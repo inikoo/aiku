@@ -19,8 +19,8 @@ class SetLocale
     {
         /** @var \App\Models\SysAdmin\User $user */
         if ($user = auth()->user()) {
-            $language=Language::find($user->language_id);
-            $locale  =$language->code;
+            $language = Language::find($user->language_id);
+            $locale  = $language->code;
         } else {
             $locale = Cookie::get('language');
         }

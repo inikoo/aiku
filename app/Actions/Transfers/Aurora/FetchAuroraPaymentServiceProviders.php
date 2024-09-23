@@ -36,7 +36,7 @@ class FetchAuroraPaymentServiceProviders extends FetchAuroraAction
                 );
             }
 
-            $sourceId=explode(':', $orgPaymentServiceProvider->source_id);
+            $sourceId = explode(':', $orgPaymentServiceProvider->source_id);
 
             DB::connection('aurora')->table('Payment Service Provider Dimension')
                 ->where('Payment Service Provider Key', $sourceId[1])

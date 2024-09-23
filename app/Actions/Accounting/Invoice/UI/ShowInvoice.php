@@ -195,7 +195,7 @@ class ShowInvoice extends OrgAction
                             'parameters'   => [
                                 'organisation'      => $invoice->organisation->slug,
                                 'fulfilment'        => $invoice->customer->fulfilmentCustomer->fulfilment->slug,
-                                'fulfilmentCustomer'=> $invoice->customer->fulfilmentCustomer->slug,
+                                'fulfilmentCustomer' => $invoice->customer->fulfilmentCustomer->slug,
                             ]
                         ],
                         'contact_name' => $invoice->customer->contact_name,
@@ -230,7 +230,7 @@ class ShowInvoice extends OrgAction
                     ]
                 ],
 
-                'invoice'=> InvoiceResource::make($invoice),
+                'invoice' => InvoiceResource::make($invoice),
 
 
                 InvoiceTabsEnum::ITEMS->value => $this->tab == InvoiceTabsEnum::ITEMS->value ?

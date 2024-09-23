@@ -25,8 +25,8 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): array
     {
 
-        $stock   =null;
-        $orgStock=null;
+        $stock   = null;
+        $orgStock = null;
 
         if ($stockData = $organisationSource->fetchDeletedStock($organisationSourceId)) {
 

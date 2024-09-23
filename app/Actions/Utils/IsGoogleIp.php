@@ -21,10 +21,10 @@ class IsGoogleIp
         }
 
         foreach ($this->googleIpRanges() as $rangeData) {
-            if (array_keys($rangeData)[0]=='ipv4Prefix') {
-                $range=array_values($rangeData)[0];
+            if (array_keys($rangeData)[0] == 'ipv4Prefix') {
+                $range = array_values($rangeData)[0];
 
-                $inRange=$this->ipInRange($ip, $range);
+                $inRange = $this->ipInRange($ip, $range);
                 if ($inRange) {
                     return true;
                 }
@@ -47,7 +47,7 @@ class IsGoogleIp
         } else {
 
             $x = explode('.', $range);
-            while (count($x)<4) {
+            while (count($x) < 4) {
                 $x[] = '0';
             }
             list($a, $b, $c, $d) = $x;
@@ -56,7 +56,7 @@ class IsGoogleIp
             $ip_dec              = ip2long($ip);
 
 
-            $wildcard_dec = pow(2, (32-$netmask)) - 1;
+            $wildcard_dec = pow(2, (32 - $netmask)) - 1;
             $netmask_dec  = ~$wildcard_dec;
 
             return (($ip_dec & $netmask_dec) == ($range_dec & $netmask_dec));

@@ -34,7 +34,7 @@ class IndexPostRooms extends OrgAction
 {
     private Organisation|Shop $parent;
 
-    public function handle($prefix=null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -47,7 +47,7 @@ class IndexPostRooms extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(PostRoom::class);
+        $queryBuilder = QueryBuilder::for(PostRoom::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -114,7 +114,7 @@ class IndexPostRooms extends OrgAction
                 'title'       => __('post room'),
                 'pageHead'    => [
                     'title'   => __('post room'),
-                    'create'  => $this->canEdit && $request->route()->getName()=='mail.post_rooms.index' ? [
+                    'create'  => $this->canEdit && $request->route()->getName() == 'mail.post_rooms.index' ? [
                         'route' => [
                             'name'       => 'shops.create',
                             'parameters' => array_values($request->route()->originalParameters())
@@ -153,19 +153,19 @@ class IndexPostRooms extends OrgAction
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request);
         return $this->handle();
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$shop;
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
         return $this->handle();
     }
 
-    public function getBreadcrumbs($suffix=null): array
+    public function getBreadcrumbs($suffix = null): array
     {
         return array_merge(
             (new ShowDashboard())->getBreadcrumbs(),
@@ -179,7 +179,7 @@ class IndexPostRooms extends OrgAction
                         'label' => __('post rooms'),
                         'icon'  => 'fal fa-bars'
                     ],
-                    'suffix'=> $suffix
+                    'suffix' => $suffix
 
                 ]
             ]

@@ -220,7 +220,7 @@ class SendSesEmail
 
         $mail->preSend();
 
-        $rawData=[
+        $rawData = [
             'Source'       => $emailData['Source'],
             'Destinations' => $emailData['Destination']['ToAddresses'],
             'RawMessage'   => [

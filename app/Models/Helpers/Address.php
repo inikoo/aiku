@@ -50,7 +50,7 @@ class Address extends Model
     use HasFactory;
     use IsAddress;
 
-    protected $table ='addresses';
+    protected $table = 'addresses';
 
     protected $guarded = [];
 

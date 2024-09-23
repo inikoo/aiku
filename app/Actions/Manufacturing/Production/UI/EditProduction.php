@@ -88,7 +88,7 @@ class EditProduction extends OrgAction
                     'args'      => [
                         'updateRoute' => [
                             'name'      => 'grp.models.production.update',
-                            'parameters'=> $production->id
+                            'parameters' => $production->id
                         ],
                     ]
                 ]

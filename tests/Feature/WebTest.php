@@ -116,10 +116,10 @@ test('create webpage', function (Website $website) {
 test('create model has web block', function (Webpage $webpage) {
 
     /** @var WebBlockType $webBlockType */
-    $webBlockType=$webpage->group->webBlockTypes()->where('code', 'text')->first();
+    $webBlockType = $webpage->group->webBlockTypes()->where('code', 'text')->first();
     expect($webBlockType)->toBeInstanceOf(WebBlockType::class);
 
-    $modelHasWebBlock=StoreModelHasWebBlock::make()->action(
+    $modelHasWebBlock = StoreModelHasWebBlock::make()->action(
         $webpage,
         [
             'web_block_type_id' => $webBlockType->id,
@@ -138,12 +138,12 @@ test('create model has web block', function (Webpage $webpage) {
 
 test('update model has web block', function (ModelHasWebBlocks $modelHasWebBlock) {
 
-    $modelHasWebBlock=UpdateModelHasWebBlocks::make()->action($modelHasWebBlock, ['layout' => ['text' => 'Test Text']]);
+    $modelHasWebBlock = UpdateModelHasWebBlocks::make()->action($modelHasWebBlock, ['layout' => ['text' => 'Test Text']]);
     expect($modelHasWebBlock)->toBeInstanceOf(ModelHasWebBlocks::class);
 })->depends('create model has web block');
 
 test('delete model has web block', function (ModelHasWebBlocks $modelHasWebBlock) {
-    $modelHasWebBlock= DeleteModelHasWebBlocks::make()->action($modelHasWebBlock, []);
+    $modelHasWebBlock = DeleteModelHasWebBlocks::make()->action($modelHasWebBlock, []);
     expect($modelHasWebBlock)->toBeInstanceOf(ModelHasWebBlocks::class);
 })->depends('create model has web block');
 

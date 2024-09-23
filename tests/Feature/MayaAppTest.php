@@ -39,7 +39,7 @@ beforeEach(function () {
             'name'       => 'office',
             'type'       => WorkplaceTypeEnum::BRANCH,
             'address'    => Address::factory()->definition(),
-            'timezone_id'=> Timezone::where('name', 'Asia/Kuala_Lumpur')->first()->id
+            'timezone_id' => Timezone::where('name', 'Asia/Kuala_Lumpur')->first()->id
         ];
 
         StoreWorkplace::make()->action($this->organisation, $modelData);

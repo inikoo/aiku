@@ -30,7 +30,7 @@ if (!function_exists('natural_language_join')) {
 }
 
 if (!function_exists('percentage')) {
-    function percentage($quantity, $total, int $fixed = 1, ?string $errorMessage =null, $percentageSign = '%', $plusSing = false): string
+    function percentage($quantity, $total, int $fixed = 1, ?string $errorMessage = null, $percentageSign = '%', $plusSing = false): string
     {
         $locale_info = localeconv();
 

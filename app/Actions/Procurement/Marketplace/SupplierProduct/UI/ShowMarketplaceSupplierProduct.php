@@ -87,7 +87,7 @@ class ShowMarketplaceSupplierProduct extends InertiaAction
                         ],
                     'title' => $supplierProduct->name,
 
-                    'edit' => $this->canEdit &&  $request->route()->getName()=='grp.org.procurement.marketplace.org_agents.show.org_suppliers.show.org_supplier_products.edit' ? [
+                    'edit' => $this->canEdit &&  $request->route()->getName() == 'grp.org.procurement.marketplace.org_agents.show.org_suppliers.show.org_supplier_products.edit' ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                             'parameters' => array_values($request->route()->originalParameters())

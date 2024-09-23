@@ -80,7 +80,7 @@ beforeEach(function () {
     $timesheet = Timesheet::first();
     if (!$timesheet) {
         data_set($storeData, 'date', '02-10-2002');
-        $timesheet =StoreTimesheet::make()->action(
+        $timesheet = StoreTimesheet::make()->action(
             $this->employee,
             $storeData
         );

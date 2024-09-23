@@ -45,15 +45,15 @@ beforeEach(function () {
 
     $this->group        = $this->organisation->group;
 
-    $this->warehouse= createWarehouse();
+    $this->warehouse = createWarehouse();
 
     list(
         $this->tradeUnit,
         $this->product
-    )=createProduct($this->shop);
+    ) = createProduct($this->shop);
 
-    $this->customer=createCustomer($this->shop);
-    $this->order   =createOrder($this->customer, $this->product);
+    $this->customer = createCustomer($this->shop);
+    $this->order   = createOrder($this->customer, $this->product);
 
 
 });

@@ -43,7 +43,7 @@ class GrpAction
             $this->fillFromRequest($request);
 
         }
-        $this->validatedData=$this->validateAttributes();
+        $this->validatedData = $this->validateAttributes();
 
         return $this;
     }

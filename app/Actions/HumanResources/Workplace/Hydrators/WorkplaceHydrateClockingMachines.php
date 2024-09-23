@@ -25,7 +25,7 @@ class WorkplaceHydrateClockingMachines
         $stats = [
             'number_clocking_machines' => $workplace->clockingMachines()->count()
         ];
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'clocking_machines',
             field: 'type',
             enum: ClockingMachineTypeEnum::class,
@@ -35,7 +35,7 @@ class WorkplaceHydrateClockingMachines
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'clocking_machines',
             field: 'status',
             enum: ClockingMachineStatusEnum::class,

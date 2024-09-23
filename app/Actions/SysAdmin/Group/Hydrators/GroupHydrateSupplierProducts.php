@@ -33,7 +33,7 @@ class GroupHydrateSupplierProducts
 
     public function handle(Group $group): void
     {
-        $stats=$this->getSupplierProductsStats($group);
+        $stats = $this->getSupplierProductsStats($group);
 
         $group->supplyChainStats()->update($stats);
     }

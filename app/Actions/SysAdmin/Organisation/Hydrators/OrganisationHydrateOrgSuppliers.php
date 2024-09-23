@@ -33,7 +33,7 @@ class OrganisationHydrateOrgSuppliers
     public function handle(Organisation $organisation): void
     {
 
-        $stats=$this->getOrgSuppliersStats($organisation);
+        $stats = $this->getOrgSuppliersStats($organisation);
 
         $organisation->procurementStats()->update($stats);
     }

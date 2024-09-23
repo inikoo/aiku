@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id');
             $table->foreign('shop_id')->references('id')->on('shops')->onUpdate('cascade')->onDelete('cascade');
 
-            $table=$this->dateIntervals($table, ['newsletters', 'marketing_emails', 'abandoned_carts', 'total_mailshots', 'total_emails']);
+            $table = $this->dateIntervals($table, ['newsletters', 'marketing_emails', 'abandoned_carts', 'total_mailshots', 'total_emails']);
 
             $table->timestampsTz();
             $table->unique(['shop_id']);

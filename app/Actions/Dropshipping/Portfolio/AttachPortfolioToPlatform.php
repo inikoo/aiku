@@ -19,7 +19,7 @@ class AttachPortfolioToPlatform extends OrgAction
     public function handle(Portfolio $portfolio, array $pivotData): Portfolio
     {
 
-        $platform=$portfolio->customer->platform();
+        $platform = $portfolio->customer->platform();
 
         $pivotData['group_id']        = $this->organisation->group_id;
         $pivotData['organisation_id'] = $this->organisation->id;
@@ -39,7 +39,7 @@ class AttachPortfolioToPlatform extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        if ($this->portfolio->customer->platform()==null) {
+        if ($this->portfolio->customer->platform() == null) {
             abort(403);
         }
 

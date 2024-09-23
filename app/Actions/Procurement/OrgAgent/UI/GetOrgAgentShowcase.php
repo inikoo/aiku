@@ -17,7 +17,7 @@ class GetOrgAgentShowcase
 
     public function handle(OrgAgent $orgAgent): array
     {
-        $agent=$orgAgent->agent;
+        $agent = $orgAgent->agent;
         return [
             'contactCard' => [
                 'company'  => $agent->organisation->name,

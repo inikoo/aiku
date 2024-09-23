@@ -94,7 +94,7 @@ class CreateCustomerClient extends OrgAction
                         ],
                     'route'     => [
                         'name'      => 'grp.models.org.shop.customer.client.store',
-                        'parameters'=> [
+                        'parameters' => [
                             'organisation' => $customer->organisation_id,
                             'shop'         => $customer->shop_id,
                             'customer'     => $customer->id

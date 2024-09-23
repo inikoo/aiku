@@ -25,7 +25,7 @@ class FetchAuroraPayment extends FetchAurora
             $data['exchange'] = $this->auroraModelData->{'Payment Currency Exchange Rate'};
         }
 
-        $shop=$this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Payment Store Key'});
+        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Payment Store Key'});
 
         $this->parsedData['paymentAccount'] = $this->parsePaymentAccount($this->organisation->id.':'.$this->auroraModelData->{'Payment Account Key'});
 
@@ -56,20 +56,20 @@ class FetchAuroraPayment extends FetchAurora
         }
 
 
-        $createdAt=$this->parseDatetime($this->auroraModelData->{'Payment Created Date'});
+        $createdAt = $this->parseDatetime($this->auroraModelData->{'Payment Created Date'});
         if (!$createdAt) {
-            $createdAt=$this->parseDatetime($this->auroraModelData->{'Payment Last Updated Date'});
+            $createdAt = $this->parseDatetime($this->auroraModelData->{'Payment Last Updated Date'});
         }
         if (!$createdAt) {
-            $createdAt=$this->parseDatetime($this->auroraModelData->{'Payment Completed Date'});
+            $createdAt = $this->parseDatetime($this->auroraModelData->{'Payment Completed Date'});
         }
         if (!$createdAt) {
-            $createdAt=$this->parseDatetime($this->auroraModelData->{'Payment Cancelled Date'});
+            $createdAt = $this->parseDatetime($this->auroraModelData->{'Payment Cancelled Date'});
         }
 
-        $lastUpdatedDate=$this->parseDatetime($this->auroraModelData->{'Payment Last Updated Date'});
+        $lastUpdatedDate = $this->parseDatetime($this->auroraModelData->{'Payment Last Updated Date'});
         if (!$lastUpdatedDate) {
-            $lastUpdatedDate=$createdAt;
+            $lastUpdatedDate = $createdAt;
         }
 
 

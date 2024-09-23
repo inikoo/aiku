@@ -16,7 +16,7 @@ trait WithShopsArgument
     {
 
         if (!$command->argument('shops')) {
-            $shops=Shop::all();
+            $shops = Shop::all();
         } else {
             $shops =  Shop::query()
                 ->when($command->argument('shops'), function ($query) use ($command) {

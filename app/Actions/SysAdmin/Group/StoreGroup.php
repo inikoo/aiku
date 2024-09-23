@@ -158,7 +158,7 @@ class StoreGroup
             'timezone_id' => $timezone->id,
             'subdomain'   => $command->option('subdomain') ?? null,
             'limits'      => [
-                'organisations'=> $command->option('organisations'),
+                'organisations' => $command->option('organisations'),
                 'shops'        => $command->option('shops'),
                 'warehouses'   => $command->option('warehouses'),
                 'manufactures' => $command->option('manufactures'),

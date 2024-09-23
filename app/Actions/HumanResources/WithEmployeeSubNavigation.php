@@ -16,10 +16,10 @@ trait WithEmployeeSubNavigation
     {
         $subNavigation = [];
 
-        $subNavigation[]=[
+        $subNavigation[] = [
             'href' => [
                 'name'      => 'grp.org.hr.employees.show',
-                'parameters'=> $request->route()->originalParameters()
+                'parameters' => $request->route()->originalParameters()
 
             ],
 
@@ -38,10 +38,10 @@ trait WithEmployeeSubNavigation
         ];
 
 
-        $subNavigation[]=[
+        $subNavigation[] = [
             'href' => [
                 'name'      => 'grp.org.hr.employees.show.positions.index',
-                'parameters'=> $request->route()->originalParameters()
+                'parameters' => $request->route()->originalParameters()
 
             ],
 
@@ -50,14 +50,14 @@ trait WithEmployeeSubNavigation
                 'icon'    => 'fal fa-clipboard-list-checked',
                 'tooltip' => __('Responsibilities'),
             ],
-            'number'=> $employee->stats->number_job_positions
+            'number' => $employee->stats->number_job_positions
 
         ];
 
-        $subNavigation[]=[
+        $subNavigation[] = [
             'href' => [
                 'name'      => 'grp.org.hr.employees.show.timesheets.index',
-                'parameters'=> $request->route()->originalParameters()
+                'parameters' => $request->route()->originalParameters()
 
             ],
 
@@ -66,7 +66,7 @@ trait WithEmployeeSubNavigation
                 'icon'    => 'fal fa-clock',
                 'tooltip' => __('Timesheets'),
             ],
-            'number'=> $employee->stats->number_timesheets
+            'number' => $employee->stats->number_timesheets
 
         ];
 

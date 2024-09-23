@@ -92,10 +92,10 @@ class TimezoneSeeder extends Seeder
             if ($country = Country::withTrashed()->where('code', $countryCode)->first()) {
                 $_country = $countryRepository->get($countryCode);
 
-                $timezones=[];
+                $timezones = [];
                 foreach ($_country->getTimezones() as $timezoneName) {
                     if ($timezone = Timezone::where('name', $timezoneName)->first()) {
-                        $timezones[$timezone->id]=$timezone->id;
+                        $timezones[$timezone->id] = $timezone->id;
                     }
                 }
 

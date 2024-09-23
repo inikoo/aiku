@@ -94,7 +94,7 @@ class EditPaymentAccount extends OrgAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.org.payment-account.update',
-                            'parameters'=> [
+                            'parameters' => [
                                 'organisation'   => $paymentAccount->organisation_id,
                                 'paymentAccount' => $paymentAccount->id
                             ]

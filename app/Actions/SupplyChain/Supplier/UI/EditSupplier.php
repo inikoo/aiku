@@ -262,7 +262,7 @@ class EditSupplier extends InertiaAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.supplier.update',
-                            'parameters'=> $supplier->slug
+                            'parameters' => $supplier->slug
 
                         ],
                     ]
@@ -311,21 +311,21 @@ class EditSupplier extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.supply-chain.suppliers.edit'=> [
-                'label'=> $supplier->name,
-                'route'=> [
+            'grp.supply-chain.suppliers.edit' => [
+                'label' => $supplier->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'supplier'  => $supplier->slug
                     ]
 
                 ]
             ],
             'grp.supply-chain.agents.show.suppliers.edit' => [
-                'label'=> $supplier->name,
-                'route'=> [
+                'label' => $supplier->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'agent'     => $supplier->agent->slug,
                         'supplier'  => $supplier->slug
                     ]

@@ -24,7 +24,7 @@ class LogUserRequestMiddleware
             return $next($request);
         }
 
-        if ($request->route()->getName()=='grp.logout') {
+        if ($request->route()->getName() == 'grp.logout') {
             return $next($request);
         }
 

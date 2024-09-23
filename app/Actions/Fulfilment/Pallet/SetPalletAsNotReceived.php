@@ -33,7 +33,7 @@ class SetPalletAsNotReceived extends OrgAction
         data_set($modelData, 'set_as_not_received_at', now());
 
 
-        $pallet= UpdatePallet::run($pallet, $modelData, ['data']);
+        $pallet = UpdatePallet::run($pallet, $modelData, ['data']);
         PalletRecordSearch::dispatch($pallet);
         return $pallet;
     }

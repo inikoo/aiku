@@ -28,9 +28,9 @@ class WebsitesResource extends JsonResource
 
     public function toArray($request): array
     {
-        $fulfilment_slug= null;
-        if ($this->shop_type=== 'fulfilment') {
-            $shop            =Shop::find($this->shop_id);
+        $fulfilment_slug = null;
+        if ($this->shop_type === 'fulfilment') {
+            $shop            = Shop::find($this->shop_id);
             $fulfilment_slug = $shop->fulfilment->slug;
         }
 

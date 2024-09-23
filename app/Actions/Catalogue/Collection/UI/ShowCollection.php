@@ -42,14 +42,14 @@ class ShowCollection extends OrgAction
 
     public function inOrganisation(Organisation $organisation, Collection $collection, ActionRequest $request): Collection
     {
-        $this->parent= $organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(CollectionTabsEnum::values());
         return $this->handle($collection);
     }
 
     public function asController(Organisation $organisation, Shop $shop, Collection $collection, ActionRequest $request): Collection
     {
-        $this->parent= $shop;
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(CollectionTabsEnum::values());
         return $this->handle($collection);
     }
@@ -187,7 +187,7 @@ class ShowCollection extends OrgAction
                         ]
                     ]
                 ],
-                'tabs'=> [
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => CollectionTabsEnum::navigation($collection)
                 ],
@@ -279,7 +279,7 @@ class ShowCollection extends OrgAction
             ];
         };
 
-        $collection=Collection::where('slug', $routeParameters['collection'])->first();
+        $collection = Collection::where('slug', $routeParameters['collection'])->first();
 
         return match ($routeName) {
             'shops.collections.show' =>
@@ -342,21 +342,21 @@ class ShowCollection extends OrgAction
         }
 
         return match ($routeName) {
-            'shops.org.collections.show'=> [
-                'label'=> $collection->name,
-                'route'=> [
+            'shops.org.collections.show' => [
+                'label' => $collection->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'collection'=> $collection->slug
+                    'parameters' => [
+                        'collection' => $collection->slug
                     ]
 
                 ]
             ],
-            'grp.org.shops.show.catalogue.collections.show'=> [
-                'label'=> $collection->name,
-                'route'=> [
+            'grp.org.shops.show.catalogue.collections.show' => [
+                'label' => $collection->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'organisation'   => $this->organisation->slug,
                         'shop'           => $collection->shop->slug,
                         'collection'     => $collection->slug

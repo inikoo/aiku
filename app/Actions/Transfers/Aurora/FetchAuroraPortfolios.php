@@ -48,7 +48,7 @@ class FetchAuroraPortfolios extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        $query= DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Customer Portfolio Fact')
             ->select('Customer Portfolio Key as source_id')
             ->orderBy('source_id');
@@ -67,7 +67,7 @@ class FetchAuroraPortfolios extends FetchAuroraAction
 
     public function count(): ?int
     {
-        $query= DB::connection('aurora')->table('Customer Portfolio Fact');
+        $query = DB::connection('aurora')->table('Customer Portfolio Fact');
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');

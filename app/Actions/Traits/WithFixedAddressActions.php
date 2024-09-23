@@ -24,9 +24,9 @@ trait WithFixedAddressActions
 
     protected function createFixedAddress($model, Address $addressTemplate, string $fixedScope, $scope, $addressField)
     {
-        $groupId=$model->group_id;
+        $groupId = $model->group_id;
         if ($model instanceof Group) {
-            $groupId=$model->id;
+            $groupId = $model->id;
         }
         if (!$address = $this->findFixedAddress($addressTemplate, $fixedScope)) {
 

@@ -52,7 +52,7 @@ class StoreShippingZoneSchema extends OrgAction
     public function asController(Shop $shop, ActionRequest $request): ShippingZoneSchema
     {
         $this->initialisationFromShop($shop, $request);
-        return $this->handle($shop,  $this->validatedData);
+        return $this->handle($shop, $this->validatedData);
     }
 
     public function htmlResponse(ShippingZoneSchema $shippingZoneSchema): RedirectResponse

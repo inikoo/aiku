@@ -52,7 +52,7 @@ return new class () extends Migration {
 
             $table->string('fail_status')->nullable()->index();
 
-            $table= $this->orderMoneyFields($table);
+            $table = $this->orderMoneyFields($table);
 
             $table->jsonb('data');
 

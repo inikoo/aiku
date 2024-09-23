@@ -16,7 +16,7 @@ return new class () extends Migration {
     {
         Schema::create('shipments', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->index()->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('shipper_id')->index()->nullable();

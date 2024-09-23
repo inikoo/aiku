@@ -15,7 +15,7 @@ class WarehouseResource extends JsonResource
     public function toArray($request): array
     {
         /** @var Warehouse $warehouse */
-        $warehouse=$this;
+        $warehouse = $this;
         return [
             'id'                     => $warehouse->id,
             'slug'                   => $warehouse->slug,

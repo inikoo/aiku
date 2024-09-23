@@ -61,7 +61,7 @@ class RemoveGuest extends InertiaAction
                             'title' => __('guest')
                         ],
                     'title'  => $guest->slug,
-                    'actions'=> [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',

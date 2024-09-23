@@ -17,7 +17,7 @@ return new class () extends Migration {
     {
         Schema::create('stock_transfers', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->unsignedSmallInteger('org_partner_id')->index();
             $table->foreign('org_partner_id')->references('id')->on('org_partners')->onUpdate('cascade')->onDelete('cascade');

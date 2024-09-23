@@ -56,7 +56,7 @@ test('add payment service provider to organisation', function () {
     data_set($modelData, 'type', PaymentServiceProviderTypeEnum::CASH->value);
 
 
-    $paymentServiceProvider    =PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
+    $paymentServiceProvider    = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
     $orgPaymentServiceProvider = StoreOrgPaymentServiceProvider::make()->action(
         paymentServiceProvider:$paymentServiceProvider,
         organisation: $this->organisation,
@@ -73,7 +73,7 @@ test('add payment service provider to organisation', function () {
 
 
 test('update payment service provider name', function () {
-    $paymentServiceProvider=PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
+    $paymentServiceProvider = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
 
     $paymentServiceProvider = UpdatePaymentServiceProvider::make()->action(
         $paymentServiceProvider,
@@ -90,7 +90,7 @@ test('create other org payment service provider', function () {
     data_set($modelData, 'code', 'test123');
 
 
-    $paymentServiceProvider    =PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
+    $paymentServiceProvider    = PaymentServiceProvider::where('type', PaymentServiceProviderTypeEnum::CASH->value)->first();
     $orgPaymentServiceProvider = StoreOrgPaymentServiceProvider::make()->action(
         paymentServiceProvider:$paymentServiceProvider,
         organisation: $this->organisation,
@@ -143,7 +143,7 @@ test(
             Customer::factory()->definition()
         );
 
-        $modelData=Payment::factory()->definition();
+        $modelData = Payment::factory()->definition();
         $payment  = StorePayment::make()->action(
             customer: $customer,
             paymentAccount: $paymentAccount,

@@ -21,7 +21,7 @@ class MakePaymentUsingXendit
     use AsAction;
     use WithAttributes;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
 
     /**
      * @throws \Xendit\XenditSdkException

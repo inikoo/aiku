@@ -30,7 +30,7 @@ class SeedWebsiteFixedWebpages extends OrgAction
     public function handle(Website $website): Website
     {
 
-        $storefrontData=[
+        $storefrontData = [
             'code'     => 'storefront',
             'type'     => WebpageTypeEnum::STOREFRONT,
             'purpose'  => WebpagePurposeEnum::STOREFRONT,
@@ -39,10 +39,10 @@ class SeedWebsiteFixedWebpages extends OrgAction
             'ready_at' => now(),
         ];
 
-        if ($website->state==WebsiteStateEnum::LIVE) {
+        if ($website->state == WebsiteStateEnum::LIVE) {
             unset($storefrontData['ready_at']);
-            $storefrontData['state']  =WebpageStateEnum::LIVE;
-            $storefrontData['live_at']=now();
+            $storefrontData['state']  = WebpageStateEnum::LIVE;
+            $storefrontData['live_at'] = now();
         }
 
         $storefront = StoreWebpage::make()->action($website, $storefrontData);
@@ -69,16 +69,16 @@ class SeedWebsiteFixedWebpages extends OrgAction
     {
         $modelData = json_decode(Storage::disk('datasets')->get($file), true);
 
-        $webpageData =[
+        $webpageData = [
             'is_fixed' => true,
             'ready_at' => now(),
             'state'    => WebpageStateEnum::READY,
         ];
 
-        if ($home->state==WebpageStateEnum::LIVE) {
+        if ($home->state == WebpageStateEnum::LIVE) {
             unset($webpageData['ready_at']);
-            $webpageData['state']  =WebpageStateEnum::LIVE;
-            $webpageData['live_at']=now();
+            $webpageData['state']  = WebpageStateEnum::LIVE;
+            $webpageData['live_at'] = now();
         }
 
         StoreWebpage::make()->action(

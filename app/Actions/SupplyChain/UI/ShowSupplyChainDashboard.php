@@ -65,7 +65,7 @@ class ShowSupplyChainDashboard extends GrpAction
                         [
                             'name'  => __('suppliers'),
                             'icon'  => ['fal', 'fa-person-dolly'],
-                            'href'  => ['name'=> 'grp.supply-chain.suppliers.index'],
+                            'href'  => ['name' => 'grp.supply-chain.suppliers.index'],
                             'index' => [
                                 'number' => $this->group->supplyChainStats->number_active_independent_suppliers
                             ],

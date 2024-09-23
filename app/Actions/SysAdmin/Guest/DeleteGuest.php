@@ -22,7 +22,7 @@ class DeleteGuest
     use WithAttributes;
 
 
-    private bool $isAction=false;
+    private bool $isAction = false;
 
     public function handle(Guest $guest): Guest
     {
@@ -50,7 +50,7 @@ class DeleteGuest
 
     public function action(Guest $guest): Guest
     {
-        $this->isAction=true;
+        $this->isAction = true;
         return $this->handle($guest);
     }
 

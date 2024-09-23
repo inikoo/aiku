@@ -98,8 +98,8 @@ class StoreTransaction extends OrgAction
         if (!$this->strict) {
 
             $rules['in_warehouse_at'] = ['sometimes', 'required', 'date'];
-            $rules['source_alt_id']   =['sometimes', 'string','max:255'];
-            $rules['source_id']       =['sometimes', 'string','max:255'];
+            $rules['source_alt_id']   = ['sometimes', 'string','max:255'];
+            $rules['source_id']       = ['sometimes', 'string','max:255'];
         }
 
 

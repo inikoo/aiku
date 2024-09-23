@@ -25,7 +25,7 @@ class FetchAuroraOrganisations
     {
         $organisationData = $organisationSource->fetchOrganisation($organisation);
 
-        $organisation=UpdateOrganisation::run($organisation, $organisationData['organisation']);
+        $organisation = UpdateOrganisation::run($organisation, $organisationData['organisation']);
 
         $accountsServiceProviderData = Db::connection('aurora')->table('Payment Service Provider Dimension')
             ->select('Payment Service Provider Key')

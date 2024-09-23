@@ -36,7 +36,7 @@ class FulfilmentHydratePalletDeliveries
             'number_pallet_deliveries' => PalletDelivery::where('fulfilment_id', $fulfilment->id)->count()
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'pallet_deliveries',
             field: 'state',
             enum: PalletDeliveryStateEnum::class,

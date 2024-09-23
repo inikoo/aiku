@@ -19,7 +19,7 @@ class AuditShopResolver implements Resolver
             return $auditable->shop_id;
         }
 
-        if (class_basename($auditable)=='Shop') {
+        if (class_basename($auditable) == 'Shop') {
             return $auditable->id;
         }
 

@@ -69,7 +69,7 @@ class IndexOrders extends OrgAction
         }
 
 
-        $query=QueryBuilder::for(Order::class);
+        $query = QueryBuilder::for(Order::class);
 
         if (class_basename($parent) == 'Shop') {
             $query->where('orders.shop_id', $parent->id);
@@ -202,8 +202,8 @@ class IndexOrders extends OrgAction
             'icon'  => ['fal', 'fa-shopping-cart'],
             'title' => __('orders')
         ];
-        $afterTitle=null;
-        $iconRight =null;
+        $afterTitle = null;
+        $iconRight = null;
         $actions   = null;
 
         if ($this->parent instanceof CustomerClient) {
@@ -213,10 +213,10 @@ class IndexOrders extends OrgAction
                 'icon'  => ['fal', 'fa-folder'],
                 'title' => __('customer client')
             ];
-            $iconRight    =[
+            $iconRight    = [
                 'icon' => 'fal fa-shopping-cart',
             ];
-            $afterTitle= [
+            $afterTitle = [
                 'label'     => __('Orders')
             ];
             $actions = [
@@ -242,10 +242,10 @@ class IndexOrders extends OrgAction
                 'icon'  => ['fal', 'fa-user'],
                 'title' => __('customer')
             ];
-            $iconRight    =[
+            $iconRight    = [
                 'icon' => 'fal fa-shopping-cart',
             ];
-            $afterTitle= [
+            $afterTitle = [
                 'label'     => __('Orders')
             ];
             $actions = [

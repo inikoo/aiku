@@ -20,7 +20,7 @@ trait WithImportModel
 {
     use AsAction;
     use WithAttributes;
-    private string $tmpPath='tmp/uploads/';
+    private string $tmpPath = 'tmp/uploads/';
 
     private bool $isSync = false;
 
@@ -50,7 +50,7 @@ trait WithImportModel
      */
     public function asCommand(Command $command): int
     {
-        $this->isSync=true;
+        $this->isSync = true;
         $filename    = $command->argument('filename');
         $newFileName = now()->timestamp . ".xlsx";
 

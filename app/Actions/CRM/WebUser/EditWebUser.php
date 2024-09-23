@@ -43,8 +43,8 @@ class EditWebUser extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, Customer $customer, WebUser $webUser, ActionRequest $request): WebUser
     {
-        $this->parent=$shop;
-        $this->scope =$customer;
+        $this->parent = $shop;
+        $this->scope = $customer;
 
         $this->initialisationFromShop($shop, $request);
 
@@ -54,8 +54,8 @@ class EditWebUser extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, WebUser $webUser, ActionRequest $request): WebUser
     {
-        $this->parent=$fulfilment;
-        $this->scope =$fulfilmentCustomer;
+        $this->parent = $fulfilment;
+        $this->scope = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($webUser);

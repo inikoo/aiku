@@ -15,7 +15,7 @@ class ProductionResource extends JsonResource
     public function toArray($request): array
     {
         /** @var Production $production */
-        $production=$this;
+        $production = $this;
         return [
             'id'      => $production->id,
             'slug'    => $production->slug,

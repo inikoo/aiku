@@ -22,9 +22,9 @@ return new class () extends Migration {
             $table->foreign('organisation_id')->references('id')->on('organisations')
                 ->onUpdate('cascade')->onDelete('cascade');
 
-            $table=$this->usageBaseStats($table);
-            $table=$this->offerCampaignsStats($table);
-            $table=$this->offersStats($table);
+            $table = $this->usageBaseStats($table);
+            $table = $this->offerCampaignsStats($table);
+            $table = $this->offersStats($table);
 
             $table->timestampsTz();
         });

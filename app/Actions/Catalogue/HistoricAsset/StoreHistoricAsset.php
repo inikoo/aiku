@@ -27,7 +27,7 @@ class StoreHistoricAsset
 {
     use AsAction;
 
-    public function handle(Product|Rental|Service|Subscription|Charge|ShippingZone $assetModel, array $modelData = [], int $hydratorsDelay =0): HistoricAsset
+    public function handle(Product|Rental|Service|Subscription|Charge|ShippingZone $assetModel, array $modelData = [], int $hydratorsDelay = 0): HistoricAsset
     {
         $historicAssetData = [
             'source_id' => Arr::get($modelData, 'source_id'),

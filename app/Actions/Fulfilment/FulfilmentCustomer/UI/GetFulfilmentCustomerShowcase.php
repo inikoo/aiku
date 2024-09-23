@@ -28,7 +28,7 @@ class GetFulfilmentCustomerShowcase
     {
         $irisDomain = $fulfilmentCustomer->fulfilment->shop?->website?->domain;
 
-        $recurringBillData= null;
+        $recurringBillData = null;
 
         if ($fulfilmentCustomer->currentRecurringBill) {
             $recurringBillData = [

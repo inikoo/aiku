@@ -12,7 +12,7 @@ use Illuminate\Support\Arr;
 
 trait WithOrderExchanges
 {
-    protected function processExchanges($modelData, $shop, $field='net_amount'): array
+    protected function processExchanges($modelData, $shop, $field = 'net_amount'): array
     {
 
 

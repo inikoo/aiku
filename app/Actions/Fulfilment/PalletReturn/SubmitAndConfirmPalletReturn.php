@@ -30,7 +30,7 @@ class SubmitAndConfirmPalletReturn extends OrgAction
     {
 
 
-        $palletReturn=SubmitPalletReturn::make()->action($palletReturn);
+        $palletReturn = SubmitPalletReturn::make()->action($palletReturn);
 
         return ConfirmPalletReturn::make()->action($palletReturn);
     }

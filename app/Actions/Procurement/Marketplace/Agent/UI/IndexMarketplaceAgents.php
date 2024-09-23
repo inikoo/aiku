@@ -26,7 +26,7 @@ class IndexMarketplaceAgents extends OrgAction
 {
     private bool $canCreateAgent = false;
 
-    public function handle($prefix=null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -39,7 +39,7 @@ class IndexMarketplaceAgents extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Agent::class);
+        $queryBuilder = QueryBuilder::for(Agent::class);
 
         /*
         foreach ($this->elementGroups as $key => $elementGroup) {
@@ -70,7 +70,7 @@ class IndexMarketplaceAgents extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure($prefix=null): Closure
+    public function tableStructure($prefix = null): Closure
     {
         return function (InertiaTable $table) use ($prefix) {
 
@@ -102,7 +102,7 @@ class IndexMarketplaceAgents extends OrgAction
                 ->column(key: 'adoption', label: [
                     'type'   => 'icon',
                     'data'   => ['fal','fa-yin-yang'],
-                    'tooltip'=> __('adoption')
+                    'tooltip' => __('adoption')
                 ], canBeHidden: false)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
@@ -147,7 +147,7 @@ class IndexMarketplaceAgents extends OrgAction
                 'pageHead'    => [
                     'title'  => __("agent's marketplace"),
 
-                    'actions'=> [
+                    'actions' => [
                         $this->canEdit && $request->route()->getName() == 'grp.org.procurement.marketplace.org_agents.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',

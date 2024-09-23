@@ -99,21 +99,21 @@ class IndexOrgSupplierProducts extends OrgAction
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request);
         return $this->handle($organisation);
     }
 
     public function inOrgAgent(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$orgAgent;
+        $this->parent = $orgAgent;
         $this->initialisation($organisation, $request);
         return $this->handle($orgAgent);
     }
 
     public function inOrgSupplier(Organisation $organisation, OrgSupplier $orgSupplier, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$orgSupplier;
+        $this->parent = $orgSupplier;
         $this->initialisation($organisation, $request);
         return $this->handle($orgSupplier);
     }

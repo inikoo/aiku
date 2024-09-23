@@ -147,22 +147,22 @@ class IndexRecurringBills extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $recurringBills, ActionRequest $request): Response
     {
-        $subNavigation=[];
+        $subNavigation = [];
 
-        $icon      =['fal', 'fa-receipt'];
-        $title     =__('recurring bills');
-        $afterTitle=null;
-        $iconRight =null;
+        $icon      = ['fal', 'fa-receipt'];
+        $title     = __('recurring bills');
+        $afterTitle = null;
+        $iconRight = null;
         $model     = null;
 
         if ($this->parent instanceof  FulfilmentCustomer) {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $icon         =['fal', 'fa-user'];
-            $title        =$this->parent->customer->name;
-            $iconRight    =[
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         = ['fal', 'fa-user'];
+            $title        = $this->parent->customer->name;
+            $iconRight    = [
                 'icon' => 'fal fa-receipt',
             ];
-            $afterTitle= [
+            $afterTitle = [
 
                 'label'     => __('recurring bills')
             ];
@@ -223,7 +223,7 @@ class IndexRecurringBills extends OrgAction
 
         return match ($routeName) {
 
-            'grp.org.fulfilments.show.operations.recurring_bills.index'=> array_merge(
+            'grp.org.fulfilments.show.operations.recurring_bills.index' => array_merge(
                 ShowFulfilment::make()->getBreadcrumbs(
                     $routeParameters
                 ),
@@ -235,7 +235,7 @@ class IndexRecurringBills extends OrgAction
                 )
             ),
 
-            'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index'=> array_merge(
+            'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index' => array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs(
                     $routeParameters
                 ),

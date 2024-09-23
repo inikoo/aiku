@@ -59,9 +59,9 @@ class GetImgProxyUrl
 
     public function getEncodedSourceUrl(): string
     {
-        $encodedSourceUrl= rtrim(strtr(base64_encode($this->image->getOriginalPictureUrl()), '+/', '-_'), '=');
-        if ($extension=$this->image->getExtension()) {
-            $encodedSourceUrl.='.'.$extension;
+        $encodedSourceUrl = rtrim(strtr(base64_encode($this->image->getOriginalPictureUrl()), '+/', '-_'), '=');
+        if ($extension = $this->image->getExtension()) {
+            $encodedSourceUrl .= '.'.$extension;
         }
         return  $encodedSourceUrl;
 
@@ -105,19 +105,19 @@ class GetImgProxyUrl
 
     }
 
-    public function getProcessingOptions(Image $img=null): string
+    public function getProcessingOptions(Image $img = null): string
     {
 
         if (!$img) {
-            $img=$this->image;
+            $img = $this->image;
         }
 
-        $processingOptions='';
+        $processingOptions = '';
 
         switch ($img->getSizeProcessOption()) {
             case 'resize':
-                $resize=$img->getResize();
-                $processingOptions.='rs:'.join(':', $resize);
+                $resize = $img->getResize();
+                $processingOptions .= 'rs:'.join(':', $resize);
 
                 break;
         }

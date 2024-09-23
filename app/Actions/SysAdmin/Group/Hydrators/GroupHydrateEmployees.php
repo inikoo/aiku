@@ -64,7 +64,7 @@ class GroupHydrateEmployees
                 }
             )
         );
-        $stats['number_employees_currently_working']=$stats['number_employees_state_working']+ $stats['number_employees_state_leaving'];
+        $stats['number_employees_currently_working'] = $stats['number_employees_state_working'] + $stats['number_employees_state_leaving'];
 
 
         $group->humanResourcesStats()->update($stats);

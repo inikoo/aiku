@@ -43,7 +43,7 @@ beforeEach(function () {
 
 test('can show fulfilment website', function () {
 
-    $website= $this->fulfilmentWebsite;
+    $website = $this->fulfilmentWebsite;
 
     $response = get(
         route(

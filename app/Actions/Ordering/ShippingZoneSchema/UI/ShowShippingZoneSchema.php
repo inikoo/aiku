@@ -77,7 +77,7 @@ class ShowShippingZoneSchema extends OrgAction
                             // ] : false
                         ]
                     ],
-                    'tabs'=> [
+                    'tabs' => [
                         'current'    => $this->tab,
                         'navigation' => ShippingZoneSchemaTabsEnum::navigation()
 

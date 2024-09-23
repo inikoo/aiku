@@ -28,7 +28,7 @@ class FetchAuroraServices extends FetchAuroraAction
 
         if ($serviceData = $organisationSource->fetchService($organisationSourceId)) {
 
-            if ($serviceData['type']==AssetTypeEnum::SERVICE) {
+            if ($serviceData['type'] == AssetTypeEnum::SERVICE) {
 
                 if ($service = Service::where('source_id', $serviceData['service']['source_id'])
                     ->first()) {
@@ -54,7 +54,7 @@ class FetchAuroraServices extends FetchAuroraAction
 
                 DB::connection('aurora')->table('Product Dimension')
                     ->where('Product ID', $sourceData[1])
-                    ->update(['aiku_id' =>$service->asset->id]);
+                    ->update(['aiku_id' => $service->asset->id]);
                 return $service;
 
             } else {
@@ -84,7 +84,7 @@ class FetchAuroraServices extends FetchAuroraAction
 
                 DB::connection('aurora')->table('Product Dimension')
                     ->where('Product ID', $sourceData[1])
-                    ->update(['aiku_id' =>$rental->asset_id]);
+                    ->update(['aiku_id' => $rental->asset_id]);
                 return $rental;
 
             }

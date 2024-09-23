@@ -29,7 +29,7 @@ class UpdateAsset extends OrgAction
 {
     use WithActionUpdate;
 
-    public function handle(Asset $asset, array $modelData = [], int $hydratorsDelay =0): Asset
+    public function handle(Asset $asset, array $modelData = [], int $hydratorsDelay = 0): Asset
     {
         /** @var Product|Rental|Service|Subscription $model */
         $model = $asset->model;
@@ -45,9 +45,9 @@ class UpdateAsset extends OrgAction
 
 
         $modelData['state'] = match ($model->state) {
-            RentalStateEnum::IN_PROCESS, ProductStateEnum::IN_PROCESS, ServiceStateEnum::IN_PROCESS, ChargeStateEnum::IN_PROCESS, ShippingStateEnum::IN_PROCESS=>
+            RentalStateEnum::IN_PROCESS, ProductStateEnum::IN_PROCESS, ServiceStateEnum::IN_PROCESS, ChargeStateEnum::IN_PROCESS, ShippingStateEnum::IN_PROCESS =>
             AssetStateEnum::IN_PROCESS,
-            RentalStateEnum::ACTIVE, ProductStateEnum::ACTIVE, ServiceStateEnum::ACTIVE, ChargeStateEnum::ACTIVE, ShippingStateEnum::ACTIVE,=>
+            RentalStateEnum::ACTIVE, ProductStateEnum::ACTIVE, ServiceStateEnum::ACTIVE, ChargeStateEnum::ACTIVE, ShippingStateEnum::ACTIVE, =>
             AssetStateEnum::ACTIVE,
             ProductStateEnum::DISCONTINUING =>
             AssetStateEnum::DISCONTINUING,

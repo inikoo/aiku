@@ -88,10 +88,10 @@ class StorePalletFromDelivery extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        if ($this->fulfilment->warehouses()->count()==1) {
+        if ($this->fulfilment->warehouses()->count() == 1) {
             /** @var Warehouse $warehouse */
             $warehouse = $this->fulfilment->warehouses()->first();
-            $this->fill(['warehouse_id' =>$warehouse->id]);
+            $this->fill(['warehouse_id' => $warehouse->id]);
         }
     }
 

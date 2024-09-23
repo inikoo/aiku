@@ -55,7 +55,7 @@ class IndexAgents extends GrpAction
             ];
     }
 
-    public function handle($prefix=null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -68,7 +68,7 @@ class IndexAgents extends GrpAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Agent::class);
+        $queryBuilder = QueryBuilder::for(Agent::class);
 
 
         foreach ($this->getElementGroups($this->group) as $key => $elementGroup) {
@@ -93,7 +93,7 @@ class IndexAgents extends GrpAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group $parent, $prefix=null): Closure
+    public function tableStructure(Group $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
 
@@ -172,7 +172,7 @@ class IndexAgents extends GrpAction
                         ],
                     'title'  => __("agents"),
 
-                    'actions'=> [
+                    'actions' => [
                         $this->canEdit && $request->route()->getName() == 'grp.supply-chain.agents.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',

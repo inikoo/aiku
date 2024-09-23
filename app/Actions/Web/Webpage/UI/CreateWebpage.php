@@ -158,7 +158,7 @@ class CreateWebpage extends InertiaAction
     {
 
         return match ($routeName) {
-            'org.websites.show.webpages.show.webpages.create'=>
+            'org.websites.show.webpages.show.webpages.create' =>
             array_merge(
                 ShowWebpage::make()->getBreadcrumbs($routeParameters),
                 [
@@ -170,7 +170,7 @@ class CreateWebpage extends InertiaAction
                     ]
                 ]
             ),
-            'org.websites.show.webpages.create'=>
+            'org.websites.show.webpages.create' =>
             array_merge(
                 IndexWebpages::make()->getBreadcrumbs($routeName, $routeParameters),
                 [
@@ -182,7 +182,7 @@ class CreateWebpage extends InertiaAction
                     ]
                 ]
             ),
-            default=> []
+            default => []
         };
 
 

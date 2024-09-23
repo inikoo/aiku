@@ -15,7 +15,7 @@ use Illuminate\Support\Arr;
 
 class StoreRentalAgreementSnapshot extends OrgAction
 {
-    public function handle(RentalAgreement $rentalAgreement, bool $firstSnapshot, array $updateData=null): RentalAgreementSnapshot
+    public function handle(RentalAgreement $rentalAgreement, bool $firstSnapshot, array $updateData = null): RentalAgreementSnapshot
     {
 
         $modelData = [
@@ -24,7 +24,7 @@ class StoreRentalAgreementSnapshot extends OrgAction
                 'billing_cycle' => $rentalAgreement->billing_cycle,
                 'pallets_limit' => $rentalAgreement->pallets_limit,
             ],
-            'is_first_snapshot'=> $firstSnapshot
+            'is_first_snapshot' => $firstSnapshot
         ];
         if ($firstSnapshot) {
             $modelData['data']['clauses_added'] = $rentalAgreement->clauses()->count();

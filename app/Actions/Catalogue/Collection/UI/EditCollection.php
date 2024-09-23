@@ -79,7 +79,7 @@ class EditCollection extends OrgAction
                     'args' => [
                         'updateRoute' => [
                             'name'      => 'grp.models.org.catalogue.collections.update',
-                            'parameters'=> [
+                            'parameters' => [
                                 'organisation' => $collection->organisation_id,
                                 'shop'         => $collection->shop_id,
                                 'collection'   => $collection->id

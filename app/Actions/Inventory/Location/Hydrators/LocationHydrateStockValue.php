@@ -29,12 +29,12 @@ class LocationHydrateStockValue
 
     public function handle(Location $location): void
     {
-        $orgStockValue          =0;
-        $orgStockCommercialValue=0;
+        $orgStockValue          = 0;
+        $orgStockCommercialValue = 0;
         foreach ($location->locationOrgStocks() as $locationOrgStock) {
-            $orgStock=$locationOrgStock->orgStock;
-            $orgStockValue          +=$locationOrgStock->quantity*$orgStock->unit_value;
-            $orgStockCommercialValue+=$locationOrgStock->quantity*$orgStock->unit_commercial_value;
+            $orgStock = $locationOrgStock->orgStock;
+            $orgStockValue          += $locationOrgStock->quantity * $orgStock->unit_value;
+            $orgStockCommercialValue += $locationOrgStock->quantity * $orgStock->unit_commercial_value;
         }
 
 

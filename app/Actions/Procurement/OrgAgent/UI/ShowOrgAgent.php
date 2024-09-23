@@ -50,7 +50,7 @@ class ShowOrgAgent extends OrgAction
 
     public function maya(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): OrgAgent
     {
-        $this->maya   =true;
+        $this->maya   = true;
         $this->initialisation($organisation, $request)->withTab(OrgAgentTabsEnum::values());
         return $this->handle($orgAgent);
     }

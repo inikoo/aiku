@@ -41,7 +41,7 @@ class OrganisationHydrateProductions
         ];
 
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'productions',
             field: 'state',
             enum: ProductionStateEnum::class,

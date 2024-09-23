@@ -39,14 +39,14 @@ class ShowStock extends GrpAction
 
     public function asController(Stock $stock, ActionRequest $request): Stock
     {
-        $this->parent=group();
+        $this->parent = group();
         $this->initialisation($this->parent, $request)->withTab(StockTabsEnum::values());
         return $this->handle($stock);
     }
 
     public function inStockFamily(StockFamily $stockFamily, Stock $stock, ActionRequest $request): Stock
     {
-        $this->parent=$stockFamily;
+        $this->parent = $stockFamily;
         $this->initialisation(group(), $request);
 
         return $this->handle($stock);
@@ -94,7 +94,7 @@ class ShowStock extends GrpAction
                          ] : false
                      ]
                  ],
-                 'tabs'=> [
+                 'tabs' => [
                      'current'    => $this->tab,
                      'navigation' => StockTabsEnum::navigation()
 

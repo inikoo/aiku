@@ -34,14 +34,14 @@ class Currency extends Model
 {
     protected $casts = [
         'data'               => 'array',
-        'historic_data_since'=> 'datetime'
+        'historic_data_since' => 'datetime'
     ];
 
     protected $attributes = [
         'data' => '{}',
     ];
 
-    protected $guarded=[];
+    protected $guarded = [];
 
     public function exchanges(): HasMany
     {

@@ -19,7 +19,7 @@ class AuditCustomerResolver implements Resolver
             return $auditable->customer_id;
         }
 
-        if (class_basename($auditable)=='Customer') {
+        if (class_basename($auditable) == 'Customer') {
             return $auditable->id;
         }
 

@@ -21,9 +21,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
 
-            $table=$this->usageBaseStats($table);
-            $table=$this->offerCampaignsStats($table);
-            $table=$this->offersStats($table);
+            $table = $this->usageBaseStats($table);
+            $table = $this->offerCampaignsStats($table);
+            $table = $this->offersStats($table);
 
             $table->timestampsTz();
         });

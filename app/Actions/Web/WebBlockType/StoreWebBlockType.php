@@ -26,7 +26,7 @@ class StoreWebBlockType
 
         data_set($modelData, 'group_id', $webBlockTypeCategory->group_id);
 
-        $scope= match ($webBlockTypeCategory->scope) {
+        $scope = match ($webBlockTypeCategory->scope) {
             WebBlockTypeCategoryScopeEnum::WEBPAGE => WebBlockTypeScopeEnum::WEBPAGE,
             WebBlockTypeCategoryScopeEnum::WEBSITE => WebBlockTypeScopeEnum::WEBSITE,
             default                                => null

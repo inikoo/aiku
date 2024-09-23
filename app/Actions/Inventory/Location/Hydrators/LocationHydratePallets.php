@@ -38,7 +38,7 @@ class LocationHydratePallets
             'number_pallets' => Pallet::where('location_id', $location->id)->count()
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'pallets',
             field: 'state',
             enum: PalletStateEnum::class,
@@ -48,7 +48,7 @@ class LocationHydratePallets
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'pallets',
             field: 'status',
             enum: PalletStatusEnum::class,
@@ -58,7 +58,7 @@ class LocationHydratePallets
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'pallets',
             field: 'type',
             enum: PalletTypeEnum::class,

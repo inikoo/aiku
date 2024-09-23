@@ -34,7 +34,7 @@ class FetchAuroraDeletedStock extends FetchAurora
         }
 
         $code = $this->cleanTradeUnitReference($code);
-        $code.= '-deleted';
+        $code .= '-deleted';
         $sourceSlug = Str::kebab(strtolower($code));
 
 

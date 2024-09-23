@@ -82,15 +82,15 @@ class ShowPalletReturn extends OrgAction
         $actions = [];
 
 
-        $navigation=PalletReturnTabsEnum::navigation($palletReturn);
+        $navigation = PalletReturnTabsEnum::navigation($palletReturn);
 
-        if ($palletReturn->type==PalletReturnTypeEnum::PALLET) {
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             unset($navigation[PalletReturnTabsEnum::STORED_ITEMS->value]);
         } else {
             unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
         }
 
-        if ($palletReturn->type==PalletReturnTypeEnum::PALLET) {
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             $this->tab = PalletReturnTabsEnum::PALLETS->value;
         } else {
             $this->tab = PalletReturnTabsEnum::STORED_ITEMS->value;
@@ -306,13 +306,13 @@ class ShowPalletReturn extends OrgAction
         // dd($addressCollection);
         // dd($palletReturnDeliveryAddressIds);
 
-        if ($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
-            $afterTitle=[
-                'label'=> '('.__('Stored items').')'
+        if ($palletReturn->type == PalletReturnTypeEnum::STORED_ITEM) {
+            $afterTitle = [
+                'label' => '('.__('Stored items').')'
                 ];
         } else {
-            $afterTitle=[
-                'label'=> '('.__('Whole pallets').')'
+            $afterTitle = [
+                'label' => '('.__('Whole pallets').')'
             ];
         }
 
@@ -339,7 +339,7 @@ class ShowPalletReturn extends OrgAction
                     // 'container' => $container,
                     'title'     => $palletReturn->reference,
                     'model'     => __('pallet return'),
-                    'afterTitle'=> $afterTitle,
+                    'afterTitle' => $afterTitle,
                     'icon'      => [
                         'icon'  => ['fal', 'fa-truck-couch'],
                         'title' => $palletReturn->reference

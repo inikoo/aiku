@@ -29,8 +29,8 @@ class InvoiceRecordSearch
 
         $shop = $invoice->shop;
 
-        if ($shop->type==ShopTypeEnum::FULFILMENT) {
-            $route=[
+        if ($shop->type == ShopTypeEnum::FULFILMENT) {
+            $route = [
                 'name'          => 'grp.org.fulfilments.show.operations.invoices.show',
                 'parameters'    => [
                     $invoice->organisation->slug,
@@ -39,7 +39,7 @@ class InvoiceRecordSearch
                 ]
             ];
         } else {
-            $route=[
+            $route = [
                 'name'          => 'grp.org.accounting.invoices.show',
                 'parameters'    => [
                     $invoice->organisation->slug,
@@ -86,7 +86,7 @@ class InvoiceRecordSearch
                         'code'   => $invoice->currency->code,
                         'label'  => 'Total: ',
                         'amount' => $invoice->total_amount,
-                        'tooltip'=> __('Total amount')
+                        'tooltip' => __('Total amount')
                     ],
                 ],
             ]

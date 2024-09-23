@@ -107,11 +107,11 @@ class CreateAppointment extends InertiaAction
                         ],
                     'route'     =>
                         match(class_basename($parent)) {
-                            'Shop'=> [
+                            'Shop' => [
                                 'name'       => 'org.models.shop.appointment.store',
                                 'parameters' => [$parent->id]
                             ],
-                            default=> [
+                            default => [
                                 [
                                     'name'      => 'org.models.appointment.store',
                                 ]

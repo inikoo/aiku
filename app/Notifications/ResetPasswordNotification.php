@@ -41,7 +41,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
         $data = $outbox->emailTemplate->published_layout;
 
 
-        $message= (new CustomMailMessage($notifiable))
+        $message = (new CustomMailMessage($notifiable))
             ->subject(Lang::get(Arr::get($data, 'subject', 'Reset Password Notification')))
             ->line(Lang::get(Arr::get($data, 'header', 'You are receiving this email because we received a password reset request for your account.')))
             ->action(Lang::get(Arr::get($data, 'action', 'Reset Password')), $this->url)

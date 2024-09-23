@@ -128,7 +128,7 @@ class ShowUser extends GrpAction
             ];
         };
 
-        $user=User::where('username', $routeParameters['user'])->first();
+        $user = User::where('username', $routeParameters['user'])->first();
 
         return match ($routeName) {
             'grp.sysadmin.users.show',

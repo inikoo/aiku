@@ -59,7 +59,7 @@ class RemoveStockFamily extends InertiaAction
                             'title' => __('stock family')
                         ],
                     'title'  => $stockFamily->name,
-                    'actions'=> [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',

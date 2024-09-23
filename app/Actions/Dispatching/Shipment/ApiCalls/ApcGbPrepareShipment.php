@@ -35,8 +35,8 @@ class ApcGbPrepareShipment
             $name = Arr::get($shipTo, 'contact');
         }
 
-        if ($name=='') {
-            $name='Householder';
+        if ($name == '') {
+            $name = 'Householder';
         }
 
         $country = (new Country())->where('code', $shipTo['country_code'])->first();

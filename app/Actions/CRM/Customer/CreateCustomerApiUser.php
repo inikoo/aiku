@@ -29,7 +29,7 @@ class CreateCustomerApiUser
         $webUser = StoreWebUser::run($customer);
 
 
-        $token= $webUser->createToken(
+        $token = $webUser->createToken(
             Arr::get($tokenData, 'name', 'full-access'),
             Arr::get($tokenData, 'abilities', ['*']),
         )->plainTextToken;
@@ -41,7 +41,7 @@ class CreateCustomerApiUser
     {
 
         try {
-            $customer=Customer::where('slug', $command->argument('customer_slug'))->firstOrFail();
+            $customer = Customer::where('slug', $command->argument('customer_slug'))->firstOrFail();
         } catch (Exception) {
             $command->error('WebUser not found');
             return 1;

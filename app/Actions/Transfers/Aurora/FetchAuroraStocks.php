@@ -33,7 +33,7 @@ class FetchAuroraStocks extends FetchAuroraAction
     {
         $stock         = null;
         $orgStock      = null;
-        $effectiveStock=null;
+        $effectiveStock = null;
 
         if ($stockData = $organisationSource->fetchStock($organisationSourceId)) {
             if ($baseStock = Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->first()) {
@@ -81,9 +81,9 @@ class FetchAuroraStocks extends FetchAuroraAction
             $organisation = $organisationSource->getOrganisation();
 
 
-            if ($effectiveStock and $effectiveStock->state == StockStateEnum::IN_PROCESS  and  $stockData['org_stock']['state']!=StockStateEnum::IN_PROCESS) {
+            if ($effectiveStock and $effectiveStock->state == StockStateEnum::IN_PROCESS  and  $stockData['org_stock']['state'] != StockStateEnum::IN_PROCESS) {
 
-                $effectiveStock=UpdateStock::make()->action(
+                $effectiveStock = UpdateStock::make()->action(
                     stock: $effectiveStock,
                     modelData: [
                         'state' => StockStateEnum::ACTIVE
@@ -119,9 +119,9 @@ class FetchAuroraStocks extends FetchAuroraAction
                     );
                 }
 
-                $locationsData=$this->getStockLocationData($organisationSource, $stockData['stock']['source_id']);
+                $locationsData = $this->getStockLocationData($organisationSource, $stockData['stock']['source_id']);
                 SyncOrgStockLocations::make()->action($orgStock, [
-                    'locationsData'=> $locationsData
+                    'locationsData' => $locationsData
                 ], 60, false);
             }
         }

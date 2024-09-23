@@ -28,7 +28,7 @@ class StoreFulfilmentTransaction extends OrgAction
         data_set($modelData, 'tax_category_id', $parent->tax_category_id, overwrite:false);
 
         $historicAsset = HistoricAsset::find($modelData['historic_asset_id']);
-        $net           = $modelData['quantity']*$historicAsset->asset->price;
+        $net           = $modelData['quantity'] * $historicAsset->asset->price;
 
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'group_id', $parent->group_id);
