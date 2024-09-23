@@ -8,7 +8,7 @@
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
 use App\Actions\Catalogue\Collection\UI\ShowCollection;
-use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
@@ -341,7 +341,7 @@ class IndexDepartments extends OrgAction
         return match ($routeName) {
             'grp.org.shops.show.catalogue.departments.index' =>
             array_merge(
-                ShowShop::make()->getBreadcrumbs($routeParameters),
+                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

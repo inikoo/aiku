@@ -199,41 +199,6 @@ class ShowShop extends OrgAction
         return new ShopResource($shop);
     }
 
-    public function getPrevious(Shop $shop, ActionRequest $request): ?array
-    {
-        $previous = Shop::where('code', '<', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code', 'desc')->first();
-
-        return $this->getNavigation($previous, $request->route()->getName());
-    }
-
-    public function getNext(Shop $shop, ActionRequest $request): ?array
-    {
-        $next = Shop::where('code', '>', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code')->first();
-
-        return $this->getNavigation($next, $request->route()->getName());
-    }
-
-    private function getNavigation(?Shop $shop, string $routeName): ?array
-    {
-        if (!$shop) {
-            return null;
-        }
-
-        return match ($routeName) {
-            'grp.org.shops.show' => [
-                'label' => $shop->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'organisation' => $this->organisation->slug,
-                        'shop'        => $shop->slug
-                    ]
-
-                ]
-            ]
-        };
-    }
-
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
 
@@ -256,7 +221,7 @@ class ShowShop extends OrgAction
                             ],
                             'model' => [
                                 'route' => [
-                                    'name'       => 'grp.org.shops.show',
+                                    'name'       => 'grp.org.shops.show.dashboard',
                                     'parameters' => Arr::only($routeParameters, ['organisation','shop'])
                                 ],
                                 'label' => $shop->code,
@@ -271,4 +236,41 @@ class ShowShop extends OrgAction
             );
 
     }
+
+    public function getPrevious(Shop $shop, ActionRequest $request): ?array
+    {
+        $previous = Shop::where('code', '<', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(Shop $shop, ActionRequest $request): ?array
+    {
+        $next = Shop::where('code', '>', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Shop $shop, string $routeName): ?array
+    {
+        if (!$shop) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'grp.org.shops.show.dashboard' => [
+                'label' => $shop->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'shop'        => $shop->slug
+                    ]
+
+                ]
+            ]
+        };
+    }
+
+
 }

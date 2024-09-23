@@ -9,7 +9,6 @@ namespace App\Actions\Catalogue\Shop\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
-use App\Enums\UI\Catalogue\CatalogueTabsEnum;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -39,7 +38,7 @@ class ShowCatalogue extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Shop
     {
-        $this->initialisationFromShop($shop, $request)->withTab(CatalogueTabsEnum::values());
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop);
     }
@@ -47,9 +46,9 @@ class ShowCatalogue extends OrgAction
     public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
         return Inertia::render(
-            'Org/Catalogue/Shop',
+            'Org/Catalogue/Catalogue',
             [
-                'title'       => __('shop'),
+                'title'       => __('catalogue'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
@@ -58,18 +57,15 @@ class ShowCatalogue extends OrgAction
                     'next'     => $this->getNext($shop, $request),
                 ],
                 'pageHead'    => [
-                    'title' => $shop->name,
-                    'model' => __('Catalogue'),
+                    'title' => __('Catalogue'),
+                    'model' => '',
                     'icon'  => [
-                        'title' => __('Shop'),
-                        'icon'  => 'fal fa-store-alt'
+                        'title' => __('Catalogue'),
+                        'icon'  => 'fal fa-books'
                     ],
 
                 ],
-                'tabs'        => [
-                    'current'    => $this->tab,
-                    'navigation' => CatalogueTabsEnum::navigation()
-                ],
+
 
                 'dashboard' => [
                     [

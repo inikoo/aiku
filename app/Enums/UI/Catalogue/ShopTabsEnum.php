@@ -15,31 +15,27 @@ enum ShopTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE         = 'showcase';
-    case DASHBOARD        = 'dashboard';
-    case HISTORY          = 'history';
+    case SHOWCASE = 'showcase';
+    case SALES = 'sales';
+    case HISTORY = 'history';
 
     public function blueprint(): array
     {
         return match ($this) {
-
-            ShopTabsEnum::DASHBOARD => [
-                'title' => __('stats'),
-                'icon'  => 'fal fa-chart-line',
+            ShopTabsEnum::SALES => [
+                'title' => __('sales'),
+                'icon'  => 'fal fa-money-bill-wave',
             ],
-
-
             ShopTabsEnum::HISTORY => [
-                'align' => 'right',
-                'type'  => 'icon',
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
             ShopTabsEnum::SHOWCASE => [
-                'title' => __('shop'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('overview'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
-
         };
     }
 }
