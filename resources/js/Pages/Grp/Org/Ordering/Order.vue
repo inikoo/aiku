@@ -70,7 +70,7 @@ library.add(fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCar
 const props = defineProps<{
     title: string
     tabs: TSTabs
-    
+
     products: TableTS
 
     data?: {
@@ -127,7 +127,7 @@ const props = defineProps<{
             estimated_weight: number
         }
         order_summary: {
-            
+
         }
     }
     pallet_limits?: {
@@ -247,7 +247,7 @@ const onSubmitPayment = () => {
             },
             {
                 onStart: () => isLoadingPayment.value = true,
-                onFinish: () => {
+                onFinish: (response) => {
                     isLoadingPayment.value = false,
                     isOpenModalPayment.value = false,
                     notify({
@@ -256,14 +256,14 @@ const onSubmitPayment = () => {
                         type: 'success',
                     })
                 },
-                onSuccess: () => {
+                onSuccess: (response) => {
                     paymentData.value.payment_method = null,
                     paymentData.value.payment_amount = 0,
                     paymentData.value.payment_reference = ''
                 }
             }
         )
-        
+
     } catch (error: unknown) {
         errorPaymentMethod.value = error
     }
@@ -277,7 +277,7 @@ const noteToSubmit = ref({
     value: ''
 })
 const onSubmitNote = async (closePopup: Function) => {
-    
+
     try {
         router.patch(route(props.routes.updateOrderRoute.name, props.routes.updateOrderRoute.parameters), {
             [noteToSubmit.value.selectedNote]: noteToSubmit.value.value
@@ -436,7 +436,7 @@ const onSubmitNote = async (closePopup: Function) => {
                                 full
                             />
                         </div>
-                        
+
                         <!-- Loading: fetching service list -->
                         <div v-if="isLoadingButton === 'submitNote'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
                             <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
@@ -451,7 +451,7 @@ const onSubmitNote = async (closePopup: Function) => {
     <div v-if="alert?.status" class="p-2 pb-0">
         <AlertMessage :alert />
     </div>
-    
+
     <!-- Section: Box Note -->
     <div class="relative">
         <Transition name="headlessui">
@@ -627,7 +627,7 @@ const onSubmitNote = async (closePopup: Function) => {
             keyPayloadEdit="delivery_address"
         />
     </Modal> -->
-    
+
 
     <Modal :isOpen="isOpenModalPayment" @onClose="isOpenModalPayment = false" width="w-[600px]">
         <div class="isolate bg-white px-6 lg:px-8">

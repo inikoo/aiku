@@ -7,14 +7,14 @@ name: Psalm Security Scan
 
 on:
   push:
-    branches: [ "scan" ]
+    branches: [ "staging" ]
 
 permissions:
   contents: read
 
 jobs:
   php-security:
-    runs-on: [ cloud ]
+    runs-on: [ ubuntu-latest ]
     permissions:
       contents: read # for actions/checkout to fetch code
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results

@@ -5,6 +5,7 @@ namespace App\Actions\Accounting\PaymentGateway\Paypal\Orders;
 use App\Actions\Accounting\PaymentGateway\Paypal\Traits\WithPaypalConfiguration;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Accounting\Payment;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class MakePaymentUsingPaypal
@@ -22,6 +23,6 @@ class MakePaymentUsingPaypal
 
         data_set($modelData, 'data', $paypalResponse);
 
-        return $this->update($payment, $modelData, ['data']);
+        return $this->update($payment, Arr::only($modelData, 'data'), ['data']);
     }
 }

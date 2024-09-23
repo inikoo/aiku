@@ -17,14 +17,26 @@ use App\Models\CRM\Customer;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 
 class PayOrder extends OrgAction
 {
     public function handle(Order $order, Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
     {
-        $payment = StorePayment::make()->action($customer, $paymentAccount, $modelData);
+        /*        foreach ($order->transactions as $index => $transaction) {
+                    data_set($modelData, "items.$index", [
+                        'name'        => $transaction->historicAsset->name,
+                        'quantity'    => $transaction->quantity_ordered,
+                        'description' => '',
+                        'sku'         => '',
+                        'amount'      => $transaction->historicAsset->price
+                    ]);
+                }*/
+        data_set($modelData, 'currency_code', $order->currency->code);
+        data_set($modelData, 'total_amount', $order->total_amount - $order->payment_amount);
 
+        $payment = StorePayment::make()->action($customer, $paymentAccount, $modelData);
         AttachPaymentToOrder::make()->action($order, $payment, [
             'amount'    => Arr::get($modelData, 'amount'),
             'reference' => Arr::get($modelData, 'reference')
@@ -50,10 +62,15 @@ class PayOrder extends OrgAction
         return $this->handle($order, $customer, $paymentAccount, $this->validatedData);
     }
 
-    public function asController(Order $order, Customer $customer, PaymentAccount $paymentAccount, ActionRequest $request): void
+    public function asController(Order $order, Customer $customer, PaymentAccount $paymentAccount, ActionRequest $request): Payment
     {
         $this->initialisationFromShop($customer->shop, $request);
 
-        $this->handle($order, $customer, $paymentAccount, $this->validatedData);
+        return $this->handle($order, $customer, $paymentAccount, $this->validatedData);
+    }
+
+    public function htmlResponse(Payment $payment): \Symfony\Component\HttpFoundation\Response
+    {
+        return Inertia::location(Arr::get($payment->data, 'links')[1]['href']);
     }
 }

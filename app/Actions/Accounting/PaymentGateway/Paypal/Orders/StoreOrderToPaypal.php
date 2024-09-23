@@ -22,20 +22,20 @@ class StoreOrderToPaypal
         $discount        = 0;
         $items           = [];
 
-        foreach ($orderData['items'] as $item) {
+        /*foreach ($orderData['items'] as $item) {
             $items[] = [
                 "name"        => $item['name'],
-                "quantity"    => $item['quantity'],
+                "quantity"    => (float) $item['quantity'],
                 "description" => $item['description'],
                 "sku"         => $item['sku'],
                 "unit_amount" => [
                     "currency_code" => $orderData['currency_code'],
-                    "value"         => $item['amount']
+                    "value"         => (float) $item['amount']
                 ]
             ];
 
-            $itemTotalAmount += $item['amount'] * $item['quantity'];
-        }
+            $itemTotalAmount += (float) $item['amount'] * (float) $item['quantity'];
+        }*/
 
         $response = Http::withHeaders($this->headers(
             Arr::get($payment->paymentAccount->data, 'paypal_client_id'),
@@ -46,15 +46,15 @@ class StoreOrderToPaypal
                 [
                     "amount" => [
                         "currency_code" => $orderData['currency_code'],
-                        "value"         => $itemTotalAmount - $discount,
-                        "breakdown"     => [
+                        "value"         => number_format($orderData['total_amount'], 2),
+                        /*"breakdown"     => [
                             "item_total" => [
                                 "currency_code" => $orderData['currency_code'],
                                 "value"         => $itemTotalAmount
                             ]
-                        ]
+                        ]*/
                     ],
-                    'items'          => $items,
+//                    'items'          => $items,
                     'payment_source' => [
                         'paypal' => [
                             'experience_context' => [

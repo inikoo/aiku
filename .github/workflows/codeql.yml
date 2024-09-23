@@ -13,7 +13,7 @@ name: "CodeQL Advanced"
 
 on:
   push:
-    branches: [ "scan" ]
+    branches: [ "staging" ]
     paths-ignore:
       - '**/*.md'
       - '**/*.txt'
@@ -21,7 +21,7 @@ on:
       - '**/*.json'
       - '**/*.ylm'
   schedule:
-    - cron: '0 0 */3 * *'
+    - cron: '15 10 * * 1-5'
 
 jobs:
   analyze:

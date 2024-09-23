@@ -102,9 +102,7 @@ class StorePaymentAccount extends OrgAction
         $this->initialisation($organisation, $request);
 
         /** @var PaymentServiceProvider $paymentServiceProvider */
-        $paymentServiceProvider = $organisation
-            ->paymentServiceProviders()
-            ->where('code', $organisation->slug.'-'.Str::replace('-', '', $request->input('type')))
+        $paymentServiceProvider = PaymentServiceProvider::where('code', $organisation->slug.'-'.Str::replace('-', '', $request->input('type')))
             ->first();
 
         return $this->handle($paymentServiceProvider, $this->validatedData);

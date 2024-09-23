@@ -277,17 +277,16 @@ class ShowOrder extends OrgAction
                 default => []
             };
         }
-        $deliveryNoteRoute = null;
+        $deliveryNoteRoute    = null;
         $deliveryNoteResource = null;
-        if ($order->deliveryNotes()->first())
-        {
+        if ($order->deliveryNotes()->first()) {
             $deliveryNoteRoute = [
                         'name'        => 'grp.org.shops.show.ordering.orders.show.delivery-note',
-                        'parameters' => array_merge($request->route()->originalParameters(), [
+                        'parameters'  => array_merge($request->route()->originalParameters(), [
                             'deliveryNote' => $order->deliveryNotes()->first()->slug
                         ])
             ];
-            
+
             $deliveryNoteResource = DeliveryNotesResource::make($order->deliveryNotes()->first());
 
         }

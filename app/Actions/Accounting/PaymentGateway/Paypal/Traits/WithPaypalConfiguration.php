@@ -27,8 +27,8 @@ trait WithPaypalConfiguration
     public function getCredentials($clientId, $clientSecret): array
     {
         return [
-            'username' => env($clientId),
-            'password' => env($clientSecret)
+            'username' => $clientId,
+            'password' => $clientSecret
         ];
     }
 
