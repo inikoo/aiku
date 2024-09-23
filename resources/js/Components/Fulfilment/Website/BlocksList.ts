@@ -9,6 +9,7 @@ import CTA from '@/Components/Fulfilment/Website/Block/CTA.vue'
 import Rewiews from '@/Components/Fulfilment/Website/Block/Reviews.vue'
 import Image from '@/Components/Fulfilment/Website/Block/Image.vue'
 import CTA2 from '@/Components/Fulfilment/Website/Block/CTA2.vue'
+import CTA3 from '@/Components/Fulfilment/Website/Block/CTA3.vue'
 import Gallery from '@/Components/Fulfilment/Website/Block/Gallery.vue'
 import Iframe from '@/Components/Fulfilment/Website/Block/Iframe.vue'
 import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundComponent.vue'
@@ -25,6 +26,7 @@ export const getComponent = (componentName: string) => {
         'ProductList': ProductList,
         'CTA': CTA,
         'CTA2': CTA2,
+        'CTA3': CTA3,
         'Reviews': Rewiews,
         'Image': Image,
         'Gallery': Gallery,
