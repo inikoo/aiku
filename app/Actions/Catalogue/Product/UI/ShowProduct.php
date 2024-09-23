@@ -114,7 +114,7 @@ class ShowProduct extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'   => $product->code,
-                    'model'   => __('product'),
+                    'model'   => '',
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-cube'],
@@ -187,7 +187,7 @@ class ShowProduct extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $product->slug,
+                            'label' => $product->code,
                         ],
                     ],
                     'suffix'         => $suffix,

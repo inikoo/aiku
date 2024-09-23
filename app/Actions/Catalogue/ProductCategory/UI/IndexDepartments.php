@@ -232,7 +232,7 @@ class IndexDepartments extends OrgAction
             $subNavigation = $this->getCollectionSubNavigation($this->parent);
         }
         $title = __('Departments');
-        $model = __('department');
+        $model = '';
         $icon  = [
             'icon'  => ['fal', 'fa-folder-tree'],
             'title' => __('departments')

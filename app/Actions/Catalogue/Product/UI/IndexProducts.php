@@ -82,7 +82,7 @@ class IndexProducts extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Product::class);
-
+        $queryBuilder->where('products.is_main', true);
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('products.shop_id', $parent->id);
             if ($bucket == 'current') {
@@ -395,7 +395,7 @@ class IndexProducts extends OrgAction
                 'label' => __('Products')
             ];
         } elseif ($this->parent instanceof Shop) {
-            $model = __('catalogue');
+            $model = '';
         }
         $routes = null;
         if ($this->parent instanceof Collection) {

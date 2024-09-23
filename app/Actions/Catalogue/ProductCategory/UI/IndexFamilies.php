@@ -238,7 +238,7 @@ class IndexFamilies extends OrgAction
 
 
         $title = __('families');
-        $model = __('family');
+        $model = '';
         $icon  = [
             'icon'  => ['fal', 'fa-folder'],
             'title' => __('family')
