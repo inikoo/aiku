@@ -34,7 +34,56 @@ class ProductRecordSearch
             'shop_slug'                   => $product->shop->slug,
             'sections'                    => ['catalogue'],
             'haystack_tier_1'             => $product->code,
-            'haystack_tier_2'             => $product->name.' '.$product->description
+            'haystack_tier_2'             => $product->name.' '.$product->description,
+            'result'                      => [
+                'xxx'           => $product,
+                'route'         => [
+                    'name'          => 'grp.org.shops.show.catalogue.products.current_products.show',
+                    'parameters'    => [
+                        $product->organisation->slug,
+                        $product->shop->slug,
+                        $product->slug,
+                    ]
+                ],
+                'container'     => [
+                    'label'   => $product->shop->name,
+                ],
+                'title'         => $product->name,
+                'afterTitle'    => [
+                    'label'     => '(' . $product->code . ')',
+                ],
+                'icon'      => [
+                    'icon'      => 'fal fa-cube',
+                    'tooltip'   => __('Product')
+                ],
+                'meta'      => [
+                    [
+                        'key'     => 'state',
+                        'label'   => $product->state,
+                        'tooltip' => __('State'),
+                    ],
+                    [
+                        'key'       => 'created_date',
+                        'type'      => 'date',
+                        'label'     => $product->created_at,
+                        'tooltip'   => __('Created at')
+                    ],
+                    [
+                        'key'        => 'price',
+                        'type'       => 'currency',
+                        'code'       => 'usd',     // TODO: pass correct currency code
+                        'amount'     => $product->price,
+                        'tooltip'    => __('Price')
+                    ],
+                    [
+                        'key'            => 'quantity',
+                        'type'           => 'number',
+                        'number'         => $product->available_quantity,
+                        'afterLabel'     => __('pcs'),
+                        'tooltip'        => __('Quantity')
+                    ],
+                ],
+            ]
         ];
 
         if ($shop->type == ShopTypeEnum::FULFILMENT) {

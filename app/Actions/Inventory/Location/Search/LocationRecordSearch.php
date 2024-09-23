@@ -71,7 +71,7 @@ class LocationRecordSearch
                             'key'        => 'stock_value',
                             'type'       => 'number',
                             'number'     => $location->stock_value,
-                            'tooltip'    => __('Created at')
+                            'tooltip'    => __('Stock exist')
                         ],
                         // [
                         //     'key'       => 'address',

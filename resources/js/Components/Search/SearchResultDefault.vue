@@ -122,7 +122,7 @@ const isLoading = ref(false)
                             <FontAwesomeIcon v-if="meta.icon" :icon='meta.icon' :class='meta.class' size="sm" fixed-width aria-hidden='true' />
                             <template v-if="meta.type === 'date'">{{ useFormatTime(meta.label) }}</template>
                             <template v-else-if="meta.type === 'currency'">{{ meta.label }} {{ locale.currencyFormat(meta.code || 'usd', meta.amount) }}</template>
-                            <template v-else-if="meta.type === 'number'">{{ meta.label }} {{ locale.number(meta.number) }}</template>
+                            <template v-else-if="meta.type === 'number'">{{ meta.label }} {{ locale.number(meta.number) }}<span v-if="meta.afterLabel"> {{ meta.afterLabel }}</span></template>
                             <template v-else-if="meta.type === 'address'">
                                 <AddressLocation :data="meta.label" />
                             </template>
