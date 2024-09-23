@@ -47,11 +47,11 @@ enum ProductCategoryStateEnum: string
             ],
             'active' => [
                 'tooltip' => __('Active'),
-                'icon'    => 'fal fa-spell-check',
+                'icon'    => 'fal fa-check',
                 'class'   => 'text-emerald-500',
                 'color'   => 'emerald',
                 'app'     => [
-                    'name' => 'spell-check',
+                    'name' => 'check',
                     'type' => 'font-awesome-5'
                 ]
             ],

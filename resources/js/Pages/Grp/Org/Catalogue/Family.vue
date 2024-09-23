@@ -22,8 +22,8 @@ import TableCustomers from "@/Components/Tables/Grp/Org/CRM/TableCustomers.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import TableMailshots from "@/Components/Tables/TableMailshots.vue"
 import { faDiagramNext } from "@fortawesome/free-solid-svg-icons"
-import TableProducts from "@/Components/Tables/Grp/Org/Catalogue/TableProducts.vue"
 import { capitalize } from "@/Composables/capitalize"
+import FamilyShowcase from "@/Components/Showcases/Grp/FamilyShowcase.vue";
 
 library.add(
     faFolder,
@@ -48,7 +48,9 @@ const props = defineProps<{
     }
     customers: object
     mailshots: object
-    products: object
+    showcase: object
+    details: object
+    history: object
 }>()
 
 let currentTab = ref(props.tabs.current)
@@ -57,7 +59,7 @@ const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
 
     const components = {
-        products: TableProducts,
+        showcase: FamilyShowcase,
         mailshots: TableMailshots,
         customers: TableCustomers,
         details: ModelDetails,

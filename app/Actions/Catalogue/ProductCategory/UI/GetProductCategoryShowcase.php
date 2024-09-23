@@ -7,6 +7,7 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
+use App\Http\Resources\Catalogue\FamilyResource;
 use App\Models\Catalogue\ProductCategory;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -17,7 +18,7 @@ class GetProductCategoryShowcase
     public function handle(ProductCategory $productCategory): array
     {
         return [
-            []
+            'family' => FamilyResource::make($productCategory),
         ];
     }
 }

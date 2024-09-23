@@ -7,18 +7,14 @@
 
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
-use App\Actions\Catalogue\Product\UI\IndexProducts;
-use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Catalogue\WithFamilySubNavigation;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Mail\Mailshot\UI\IndexMailshots;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Enums\UI\Catalogue\DepartmentTabsEnum;
 use App\Enums\UI\Catalogue\FamilyTabsEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
-use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Catalogue\ProductCategory;
@@ -45,7 +41,7 @@ class ShowFamily extends OrgAction
     public function asController(Organisation $organisation, ProductCategory $family, ActionRequest $request): ProductCategory
     {
         $this->parent = $organisation;
-        $this->initialisation($organisation, $request)->withTab(DepartmentTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(FamilyTabsEnum::values());
 
         return $this->handle($family);
     }
@@ -54,7 +50,7 @@ class ShowFamily extends OrgAction
     public function inShop(Organisation $organisation, Shop $shop, ProductCategory $family, ActionRequest $request): ProductCategory
     {
         $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(FamilyTabsEnum::values());
 
         return $this->handle($family);
     }
@@ -64,19 +60,19 @@ class ShowFamily extends OrgAction
     {
         $this->parent = $department;
 
-        $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(FamilyTabsEnum::values());
 
         return $this->handle($family);
     }
 
     public function htmlResponse(ProductCategory $family, ActionRequest $request): Response
     {
-        // dd($this->parent);
         return Inertia::render(
             'Org/Catalogue/Family',
             [
                 'title'       => __('family'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $family,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -86,7 +82,7 @@ class ShowFamily extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'   => $family->name,
-                    'model'   => __('family'),
+                    'model'   => '',
                     'icon'    => [
                         'icon'  => ['fal', 'fa-folder'],
                         'title' => __('department')
@@ -128,42 +124,11 @@ class ShowFamily extends OrgAction
                     fn () => MailshotResource::collection(IndexMailshots::run($family))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($family))),
 
-                /*
-                DepartmentTabsEnum::FAMILIES->value  => $this->tab == DepartmentTabsEnum::FAMILIES->value ?
-                    fn () => [
-                        'table'             => FamiliesResource::collection(IndexFamilies::run($this->department)),
-                        'createInlineModel' => [
-                            'buttonLabel' => __('family'),
-                            'dialog'      => [
-                                'title'       => __('new family'),
-                                'saveLabel'   => __('save'),
-                                'cancelLabel' => __('cancel')
-                            ]
-                        ],
-                    ]
-                    : Inertia::lazy(
-                        fn () => [
-                            'table'             => FamiliesResource::collection(IndexFamilies::run($this->department)),
-                            'createInlineModel' => [
-                                'buttonLabel' => __('family'),
-                                'dialog'      => [
-                                    'title'       => __('new family'),
-                                    'saveLabel'   => __('save'),
-                                    'cancelLabel' => __('cancel')
-                                ]
-                            ],
-                        ]
-                    ),
-*/
-
-                FamilyTabsEnum::PRODUCTS->value => $this->tab == FamilyTabsEnum::PRODUCTS->value ?
-                    fn () => ProductsResource::collection(IndexProducts::run($family))
-                    : Inertia::lazy(fn () => ProductsResource::collection(IndexProducts::run($family))),
 
             ]
         )->table(IndexCustomers::make()->tableStructure(parent: $family, prefix: FamilyTabsEnum::CUSTOMERS->value))
-            ->table(IndexMailshots::make()->tableStructure($family))
-            ->table(IndexProducts::make()->tableStructure($family));
+            ->table(IndexMailshots::make()->tableStructure($family));
+
     }
 
 
@@ -172,7 +137,7 @@ class ShowFamily extends OrgAction
         return new DepartmentsResource($family);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(ProductCategory $family, string $routeName, array $routeParameters, $suffix = null): array
     {
         $headCrumb = function (ProductCategory $family, array $routeParameters, $suffix) {
             return [
@@ -186,7 +151,7 @@ class ShowFamily extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $family->slug,
+                            'label' => $family->code,
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -196,50 +161,9 @@ class ShowFamily extends OrgAction
             ];
         };
 
-        $family = ProductCategory::where('slug', $routeParameters['family'])->first();
 
-        // dd($routeParameters['family']);
+
         return match ($routeName) {
-            'shops.families.show' =>
-            array_merge(
-                IndexShops::make()->getBreadcrumbs($routeName, $routeParameters),
-                $headCrumb(
-                    $routeParameters['family'],
-                    [
-                        'index' => [
-                            'name'       => 'shops.show.families.index',
-                            'parameters' => []
-                        ],
-                        'model' => [
-                            'name'       => 'shops.show.families.show',
-                            'parameters' => [
-                                $routeParameters['family']->slug
-                            ]
-                        ]
-                    ],
-                    $suffix
-                )
-            ),
-            // 'grp.org.shops.show.catalogue.families.show' =>
-            // array_merge(
-            //     IndexFamilies::make()->getBreadcrumbs( $routeName , $routeParameters),
-            //     $headCrumb(
-            //         $routeParameters['family'],
-            //         [
-            //             'index' => [
-            //                 'name'       => 'grp.org.shops.show.catalogue.families.index',
-            //                 'parameters' => []
-            //             ],
-            //             'model' => [
-            //                 'name'       => 'grp.org.shops.show.catalogue.families.show',
-            //                 'parameters' => [
-            //                     $routeParameters['family']
-            //                 ]
-            //             ]
-            //         ],
-            //         $suffix
-            //     )
-            // ),
             'grp.org.shops.show.catalogue.families.show' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),

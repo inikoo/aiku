@@ -13,7 +13,10 @@ import { ref } from "vue"
 import { routeType } from "@/types/route"
 import { remove as loRemove } from 'lodash'
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faCheck } from "@fal";
 
+library.add(faCheck)
 
 const props = defineProps<{
     data: object
