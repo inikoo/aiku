@@ -102,7 +102,7 @@ class IndexWebUsers extends OrgAction
         $iconRight =null;
 
 
-        if($this->parent instanceof FulfilmentCustomer) {
+        if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
             $icon         =['fal', 'fa-user'];
             $title        =$this->parent->customer->name;
@@ -113,8 +113,8 @@ class IndexWebUsers extends OrgAction
 
                 'label'     => __('Web users')
             ];
-        } elseif($this->parent instanceof Customer) {
-            if($this->parent->is_dropshipping == true) {
+        } elseif ($this->parent instanceof Customer) {
+            if ($this->parent->is_dropshipping == true) {
                 $subNavigation=$this->getCustomerDropshippingSubNavigation($this->parent, $request);
                 $icon         =['fal', 'fa-user'];
                 $title        =$this->parent->name;

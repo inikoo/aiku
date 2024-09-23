@@ -330,7 +330,7 @@ class ShowPallet extends OrgAction
 
     private function getNavigation(?Pallet $pallet, string $routeName): ?array
     {
-        if(!$pallet) {
+        if (!$pallet) {
             return null;
         }
 

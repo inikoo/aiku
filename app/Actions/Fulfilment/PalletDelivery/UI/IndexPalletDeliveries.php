@@ -135,7 +135,7 @@ class IndexPalletDeliveries extends OrgAction
             );
         }
 
-        if($parent instanceof Fulfilment || $parent instanceof Warehouse) {
+        if ($parent instanceof Fulfilment || $parent instanceof Warehouse) {
             $queryBuilder->leftJoin('fulfilment_customers', 'pallet_deliveries.fulfilment_customer_id', '=', 'fulfilment_customers.id')
               ->leftJoin('customers', 'fulfilment_customers.customer_id', '=', 'customers.id')
               ->addSelect('customers.name as customer_name', 'customers.slug as customer_slug');
@@ -236,7 +236,7 @@ class IndexPalletDeliveries extends OrgAction
         $iconRight =null;
         $model     = null;
 
-        if($this->parent instanceof FulfilmentCustomer) {
+        if ($this->parent instanceof FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
             $icon         =['fal', 'fa-user'];
             $title        =$this->parent->customer->name;
@@ -251,7 +251,7 @@ class IndexPalletDeliveries extends OrgAction
             $model = __('Operations');
         }
 
-        if($this->parent instanceof  FulfilmentCustomer) {
+        if ($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
             $action       = [
                 [

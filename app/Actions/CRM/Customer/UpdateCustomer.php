@@ -183,7 +183,7 @@ class UpdateCustomer extends OrgAction
 
     public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit =true): Customer
     {
-        if(!$audit) {
+        if (!$audit) {
             Customer::disableAuditing();
         }
 

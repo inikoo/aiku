@@ -75,7 +75,7 @@ class ProspectImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
 
         $tags = explode(',', Arr::get($data, 'tags'));
 
-        if($tags[0] != '') {
+        if ($tags[0] != '') {
             $data['tags'] = $tags;
         } else {
             $data['tags'] = null;

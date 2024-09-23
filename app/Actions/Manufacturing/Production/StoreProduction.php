@@ -9,7 +9,6 @@ namespace App\Actions\Manufacturing\Production;
 
 use App\Actions\Manufacturing\Production\Hydrators\ProductionHydrateUniversalSearch;
 use App\Actions\OrgAction;
-
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductions;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProductions;
 use App\Actions\SysAdmin\Organisation\SeedJobPositions;
@@ -130,15 +129,15 @@ class StoreProduction extends OrgAction
             'name' => $command->argument('name'),
         ];
 
-        if($command->option('state')) {
+        if ($command->option('state')) {
             $modelData['state']=$command->option('state');
         }
 
-        if($command->option('source_id')) {
+        if ($command->option('source_id')) {
             $modelData['source_id']=$command->option('source_id');
         }
 
-        if($command->option('created_at')) {
+        if ($command->option('created_at')) {
             $modelData['created_at']=$command->option('created_at');
         }
 

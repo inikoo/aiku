@@ -22,7 +22,7 @@ class AttachPaymentToInvoice extends OrgAction
             'amount' => $paymentAmount,
         ]);
 
-        if($paymentAmount > $invoice->total_amount || $paymentAmount == $invoice->total_amount) {
+        if ($paymentAmount > $invoice->total_amount || $paymentAmount == $invoice->total_amount) {
             UpdateInvoice::make()->action($invoice, [
                 'payment_amount' => $invoice->total_amount
             ]);

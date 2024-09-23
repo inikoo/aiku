@@ -37,7 +37,7 @@ class StoreHistoricAsset
         data_set($historicAssetData, 'name', $assetModel->name);
 
 
-        if($assetModel instanceof ShippingZone) {
+        if ($assetModel instanceof ShippingZone) {
             data_set($historicAssetData, 'price', null);
             data_set($historicAssetData, 'units', 1);
             data_set($historicAssetData, 'unit', 'shipping');

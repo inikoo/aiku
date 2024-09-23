@@ -49,7 +49,7 @@ class StoreRecurringBill extends OrgAction
         data_set($modelData, 'fulfilment_id', $rentalAgreement->fulfilment_id);
         data_set($modelData, 'fulfilment_customer_id', $rentalAgreement->fulfilment_customer_id);
 
-        if(!Arr::exists($modelData, 'start_end')) {
+        if (!Arr::exists($modelData, 'start_end')) {
             if (!$modelData['start_date'] instanceof Carbon) {
                 $modelData['start_date'] = Carbon::parse($modelData['start_date']);
             }

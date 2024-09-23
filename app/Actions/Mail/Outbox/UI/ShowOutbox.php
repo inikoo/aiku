@@ -195,7 +195,7 @@ class ShowOutbox extends OrgAction
 
     private function getNavigation(?Outbox $outbox, string $routeName): ?array
     {
-        if(!$outbox) {
+        if (!$outbox) {
             return null;
         }
 

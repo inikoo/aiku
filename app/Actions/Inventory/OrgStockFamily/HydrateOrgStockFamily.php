@@ -26,7 +26,7 @@ class HydrateOrgStockFamily
 
     public function asCommand(Command $command): int
     {
-        if($command->option('slug')) {
+        if ($command->option('slug')) {
             try {
                 $orgStockFamily = OrgStockFamily::where('slug', $command->option('slug'))->firstorFail();
                 $this->handle($orgStockFamily);

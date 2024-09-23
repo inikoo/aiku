@@ -19,7 +19,7 @@ class GetWebsiteWorkshopLayout
 
     public function handle(Shop|Fulfilment $scope, Website $website): array
     {
-        if($scope instanceof Fulfilment) {
+        if ($scope instanceof Fulfilment) {
 
 
             $workshopRoutes=[

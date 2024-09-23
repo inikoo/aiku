@@ -9,7 +9,6 @@ namespace App\Actions\Inventory\OrgStockFamily\Hydrators;
 
 use App\Actions\Inventory\OrgStockFamily\UpdateOrgStockFamily;
 use App\Actions\Traits\WithEnumStats;
-
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\Inventory\OrgStockFamily\OrgStockFamilyStateEnum;
 use App\Models\Inventory\OrgStock;
@@ -71,19 +70,19 @@ class OrgStockFamilyHydrateOrgStocks
 
     public function getOrgStockFamilyState($stats): OrgStockFamilyStateEnum
     {
-        if($stats['number_org_stocks'] == 0) {
+        if ($stats['number_org_stocks'] == 0) {
             return OrgStockFamilyStateEnum::IN_PROCESS;
         }
 
-        if(Arr::get($stats, 'number_org_stocks_state_active', 0)>0) {
+        if (Arr::get($stats, 'number_org_stocks_state_active', 0)>0) {
             return OrgStockFamilyStateEnum::ACTIVE;
         }
 
-        if(Arr::get($stats, 'number_org_stocks_state_discontinuing', 0)>0) {
+        if (Arr::get($stats, 'number_org_stocks_state_discontinuing', 0)>0) {
             return OrgStockFamilyStateEnum::DISCONTINUING;
         }
 
-        if(Arr::get($stats, 'number_org_stocks_state_in_process', 0)>0) {
+        if (Arr::get($stats, 'number_org_stocks_state_in_process', 0)>0) {
             return OrgStockFamilyStateEnum::IN_PROCESS;
         }
 

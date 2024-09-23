@@ -16,7 +16,7 @@ class FetchAuroraPurchaseOrderTransaction extends FetchAurora
     protected function parsePurchaseOrderTransaction(PurchaseOrder $purchaseOrder): void
     {
 
-        if(! in_array($this->auroraModelData->{'Purchase Order Transaction Type'}, ['Parcel','Container'])) {
+        if (! in_array($this->auroraModelData->{'Purchase Order Transaction Type'}, ['Parcel','Container'])) {
             return;
         }
 
@@ -45,7 +45,7 @@ class FetchAuroraPurchaseOrderTransaction extends FetchAurora
         };
 
 
-        if($state==PurchaseOrderTransactionStateEnum::CREATING) {
+        if ($state==PurchaseOrderTransactionStateEnum::CREATING) {
             $quantityOrdered=$this->auroraModelData->{'Purchase Order Ordering Units'};
 
         } else {

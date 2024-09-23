@@ -44,7 +44,7 @@ class StoreOrgSupplierProduct extends OrgAction
 
         OrganisationHydrateOrgSupplierProducts::dispatch($orgSupplier->organisation);
         OrgSupplierHydrateOrgSupplierProducts::dispatch($orgSupplier);
-        if($orgSupplierProduct->org_agent_id) {
+        if ($orgSupplierProduct->org_agent_id) {
             OrgAgentHydrateOrgSupplierProducts::dispatch($orgSupplierProduct->orgAgent);
         }
 

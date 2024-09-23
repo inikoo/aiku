@@ -30,7 +30,7 @@ class StoreQuery
         data_set($modelData, 'compiled_constrains', $this->compileConstrains($modelData['constrains']));
 
         $modelData['has_arguments'] = false;
-        if(count(Arr::get($modelData, 'compiled_constrains.arguments', []))) {
+        if (count(Arr::get($modelData, 'compiled_constrains.arguments', []))) {
             $modelData['has_arguments'] = true;
         }
 

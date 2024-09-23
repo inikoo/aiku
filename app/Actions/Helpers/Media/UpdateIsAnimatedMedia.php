@@ -21,9 +21,9 @@ class UpdateIsAnimatedMedia
     {
 
         $animated=false;
-        if($media->mime_type=='image/gif') {
+        if ($media->mime_type=='image/gif') {
 
-            if($imagePath) {
+            if ($imagePath) {
                 $fileHandler=fopen($imagePath, 'r');
             } else {
                 $content     =Storage::disk(config('media-library.disk_name'))->get($media->getPath());
@@ -56,7 +56,7 @@ class UpdateIsAnimatedMedia
 
         // We read through the file til we reach the end of the file, or we've found
         // at least 2 frame headers
-        while(!feof($fh) && $count < 2) {
+        while (!feof($fh) && $count < 2) {
             $chunk = fread($fh, 1024 * 100); //read 100kb at a time
             $count += preg_match_all('#\x00\x21\xF9\x04.{4}\x00[\x2C\x21]#s', $chunk);
         }
@@ -74,7 +74,7 @@ class UpdateIsAnimatedMedia
     public function asCommand(Command $command): int
     {
         $media = $command->argument('media');
-        if($command->argument('media')) {
+        if ($command->argument('media')) {
             try {
                 $media = Media::where('slug', $media)->firstOrFail();
             } catch (Exception) {
@@ -86,7 +86,7 @@ class UpdateIsAnimatedMedia
 
 
         } else {
-            foreach(Media::where('mime_type', 'image/gif')->get() as $media) {
+            foreach (Media::where('mime_type', 'image/gif')->get() as $media) {
                 $this->processMedia($media, $command);
             }
         }
@@ -102,7 +102,7 @@ class UpdateIsAnimatedMedia
 
         $label=$media->is_animated ? "true" : "false";
 
-        if($isAnimated!==$media->is_animated) {
+        if ($isAnimated!==$media->is_animated) {
 
             $command->line("Studio $media->slug is_animated updated from $isAnimated to $label");
         } else {

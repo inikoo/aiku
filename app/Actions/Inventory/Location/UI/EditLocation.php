@@ -194,7 +194,7 @@ class EditLocation extends OrgAction
 
     private function getNavigation(?Location $location, string $routeName): ?array
     {
-        if(!$location) {
+        if (!$location) {
             return null;
         }
         return match ($routeName) {

@@ -71,7 +71,7 @@ class StoreJobOrder extends OrgAction
     {
         $rules = [];
 
-        if(!request()->user() instanceof WebUser) {
+        if (!request()->user() instanceof WebUser) {
             $rules = [
                 'public_notes'  => ['sometimes','nullable','string','max:4000'],
                 'internal_notes'=> ['sometimes','nullable','string','max:4000'],

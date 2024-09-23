@@ -8,7 +8,6 @@
 namespace App\Actions\SysAdmin\JobPositionCategory;
 
 use App\Actions\GrpAction;
-
 use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\JobPositionCategory;

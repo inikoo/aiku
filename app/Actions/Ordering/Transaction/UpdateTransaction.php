@@ -27,9 +27,9 @@ class UpdateTransaction extends OrgAction
     public function handle(Transaction $transaction, array $modelData): Transaction
     {
 
-        if(Arr::exists($modelData, 'quantity_ordered')) {
+        if (Arr::exists($modelData, 'quantity_ordered')) {
 
-            if($this->strict) {
+            if ($this->strict) {
                 $historicAsset=$transaction->historicAsset;
             } else {
                 $historicAsset=HistoricAsset::withTrashed()->find($transaction->historic_asset_id);

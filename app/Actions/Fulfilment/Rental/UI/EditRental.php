@@ -182,7 +182,7 @@ class EditRental extends OrgAction
 
     private function getNavigation(?Rental $rental, string $routeName): ?array
     {
-        if(!$rental) {
+        if (!$rental) {
             return null;
         }
         return match ($routeName) {

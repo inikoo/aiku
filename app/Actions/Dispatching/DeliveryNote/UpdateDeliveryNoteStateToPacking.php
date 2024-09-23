@@ -22,7 +22,7 @@ class UpdateDeliveryNoteStateToPacking extends OrgAction
     {
         $deliveryNoteItems = $deliveryNote->deliveryNoteItems;
 
-        foreach($deliveryNoteItems as $deliveryNoteItem) {
+        foreach ($deliveryNoteItems as $deliveryNoteItem) {
             UpdatePickingStateToPacking::make()->action($deliveryNoteItem->pickings, []);
         }
         data_set($modelData, 'packing_at', now());

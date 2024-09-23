@@ -43,7 +43,7 @@ class JobPositionHydrateGuests
             ]
         );
 
-        if($jobPosition->organisation_id) {
+        if ($jobPosition->organisation_id) {
             OrganisationHydrateJobPositionsShare::run($jobPosition->organisation);
         }
 

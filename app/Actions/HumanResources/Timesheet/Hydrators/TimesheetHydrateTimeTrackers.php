@@ -71,7 +71,7 @@ class TimesheetHydrateTimeTrackers
             $stats['total_duration'] = $timesheet->start_at->diffInSeconds($timesheet->end_at);
         }
 
-        if($numberClosedTimeTrackers) {
+        if ($numberClosedTimeTrackers) {
             $stats['working_duration']  = $workDuration;
             $stats['breaks_duration']   = $breakDuration;
         }

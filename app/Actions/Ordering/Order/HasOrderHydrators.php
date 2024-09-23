@@ -20,7 +20,7 @@ trait HasOrderHydrators
         GroupHydrateOrders::dispatch($order->shop->group)->delay($this->hydratorsDelay);
         OrganisationHydrateOrders::dispatch($order->shop->organisation)->delay($this->hydratorsDelay);
         ShopHydrateOrders::dispatch($order->shop)->delay($this->hydratorsDelay);
-        if($order->customer_id) {
+        if ($order->customer_id) {
             CustomerHydrateOrders::dispatch($order->customer)->delay($this->hydratorsDelay);
         }
     }

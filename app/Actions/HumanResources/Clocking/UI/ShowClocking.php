@@ -316,7 +316,7 @@ class ShowClocking extends OrgAction
 
     private function getNavigation(?Clocking $clocking, string $routeName): ?array
     {
-        if(!$clocking) {
+        if (!$clocking) {
             return null;
         }
         return match ($routeName) {

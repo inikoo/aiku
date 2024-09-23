@@ -34,7 +34,7 @@ enum EmployeeStateEnum: string
     public static function count(Organisation|Group|JobPosition $parent): array
     {
 
-        if($parent instanceof JobPosition) {
+        if ($parent instanceof JobPosition) {
             $stats=$parent->stats;
         } else {
             $stats=$parent->humanResourcesStats;

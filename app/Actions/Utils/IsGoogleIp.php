@@ -16,16 +16,16 @@ class IsGoogleIp
 
     public function handle($ip): bool
     {
-        if(!$ip) {
+        if (!$ip) {
             return false;
         }
 
         foreach ($this->googleIpRanges() as $rangeData) {
-            if(array_keys($rangeData)[0]=='ipv4Prefix') {
+            if (array_keys($rangeData)[0]=='ipv4Prefix') {
                 $range=array_values($rangeData)[0];
 
                 $inRange=$this->ipInRange($ip, $range);
-                if($inRange) {
+                if ($inRange) {
                     return true;
                 }
 
@@ -47,7 +47,7 @@ class IsGoogleIp
         } else {
 
             $x = explode('.', $range);
-            while(count($x)<4) {
+            while (count($x)<4) {
                 $x[] = '0';
             }
             list($a, $b, $c, $d) = $x;
@@ -334,7 +334,7 @@ class IsGoogleIp
     public function asCommand(Command $command): int
     {
 
-        if($this->handle($command->argument('ip'))) {
+        if ($this->handle($command->argument('ip'))) {
             $command->line('Yes, is Google ip');
         } else {
             $command->line("No, isn't Google ip");

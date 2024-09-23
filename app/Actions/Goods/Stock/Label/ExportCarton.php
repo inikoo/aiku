@@ -49,7 +49,7 @@ class ExportCarton
         $barcodeSize     = 1;
         $imageSize       = 12;
 
-        if($width == 63) {
+        if ($width == 63) {
             $config['default_font_size'] = '2';
             $headerFontSize              = 1.0;
             $contentFontSize             = 0.8;
@@ -58,7 +58,7 @@ class ExportCarton
             $imageSize                   = 8;
         }
 
-        if($width == 63.5) {
+        if ($width == 63.5) {
             $config['default_font_size'] = '2';
             $headerFontSize              = 1.0;
             $contentFontSize             = 0.8;
@@ -67,7 +67,7 @@ class ExportCarton
             $imageSize                   = 8;
         }
 
-        if($width == 70) {
+        if ($width == 70) {
             $config['default_font_size'] = '2';
             $headerFontSize              = 1.0;
             $contentFontSize             = 0.8;
@@ -76,7 +76,7 @@ class ExportCarton
             $imageSize                   = 8;
         }
 
-        if($width == 125) {
+        if ($width == 125) {
             $config['default_font_size'] = '3';
             $headerFontSize              = 1.5;
             $contentFontSize             = 1.0;
@@ -85,7 +85,7 @@ class ExportCarton
             $imageSize                   = 12;
         }
 
-        if($width == 130) {
+        if ($width == 130) {
             $config['default_font_size'] = '4';
             $headerFontSize              = 2.5;
             $contentFontSize             = 2.0;
@@ -94,7 +94,7 @@ class ExportCarton
             $imageSize                   = 20;
         }
 
-        if($width == 140) {
+        if ($width == 140) {
             $config['default_font_size'] = '30';
             $headerFontSize              = 3.5;
             $contentFontSize             = 3.0;

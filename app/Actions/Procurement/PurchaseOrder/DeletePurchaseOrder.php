@@ -34,7 +34,7 @@ class DeletePurchaseOrder
     public function handle(PurchaseOrder $purchaseOrder): bool
     {
 
-        if((in_array($purchaseOrder->state, [PurchaseOrderStateEnum::CREATING, PurchaseOrderStateEnum::SUBMITTED]))) {
+        if ((in_array($purchaseOrder->state, [PurchaseOrderStateEnum::CREATING, PurchaseOrderStateEnum::SUBMITTED]))) {
             /** @var OrgSupplier|OrgAgent|OrgPartner $parent */
             $parent = $purchaseOrder->parent;
 

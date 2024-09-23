@@ -10,12 +10,10 @@ namespace App\Actions\CRM\Appointment\UI;
 use App\Actions\InertiaAction;
 use App\Http\Resources\CRM\AppointmentResource;
 use App\InertiaTable\InertiaTable;
-
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Customer;
 use App\Models\HumanResources\Employee;
 use App\Models\Catalogue\Shop;
-
 use App\Models\SysAdmin\Guest;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

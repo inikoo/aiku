@@ -28,7 +28,7 @@ class StoreCollection extends OrgAction
     public function handle(Shop|CollectionCategory $parent, array $modelData): Collection
     {
 
-        if($parent instanceof CollectionCategory) {
+        if ($parent instanceof CollectionCategory) {
             $shop = $parent->shop;
         } else {
             $shop = $parent;
@@ -51,7 +51,7 @@ class StoreCollection extends OrgAction
         ShopHydrateCollections::dispatch($collection->shop)->delay($this->hydratorsDelay);
 
 
-        if($parent instanceof CollectionCategory) {
+        if ($parent instanceof CollectionCategory) {
             CollectionCategoryHydrateCollections::dispatch($parent)->delay($this->hydratorsDelay);
         }
 
@@ -81,7 +81,7 @@ class StoreCollection extends OrgAction
 
     public function action(Shop|CollectionCategory $parent, array $modelData, int $hydratorsDelay = 0): Collection
     {
-        if($parent instanceof CollectionCategory) {
+        if ($parent instanceof CollectionCategory) {
             $shop = $parent->shop;
         } else {
             $shop = $parent;

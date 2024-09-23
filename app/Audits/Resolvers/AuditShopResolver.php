@@ -15,11 +15,11 @@ class AuditShopResolver implements Resolver
     public static function resolve(Auditable $auditable)
     {
 
-        if($auditable->shop_id) {
+        if ($auditable->shop_id) {
             return $auditable->shop_id;
         }
 
-        if(class_basename($auditable)=='Shop') {
+        if (class_basename($auditable)=='Shop') {
             return $auditable->id;
         }
 

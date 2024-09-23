@@ -56,7 +56,7 @@ class UpdateBarcode extends GrpAction
 
     public function action(Barcode $barcode, array $modelData, bool $audit=true): Barcode
     {
-        if(!$audit) {
+        if (!$audit) {
             Barcode::disableAuditing();
         }
         $this->asAction = true;

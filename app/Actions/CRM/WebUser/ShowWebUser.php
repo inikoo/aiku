@@ -67,7 +67,7 @@ class ShowWebUser extends OrgAction
 
         $subNavigation=[];
 
-        if($this->parent instanceof  FulfilmentCustomer) {
+        if ($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
 

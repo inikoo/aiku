@@ -34,7 +34,7 @@ class FetchAuroraWebpage extends FetchAurora
             ->where('Webpage Type Key', $this->auroraModelData->{'Webpage Type Key'})->first();
 
 
-        if($typeData and $typeData->{'Webpage Type Code'}=='Sys') {
+        if ($typeData and $typeData->{'Webpage Type Code'}=='Sys') {
             return;
         }
 

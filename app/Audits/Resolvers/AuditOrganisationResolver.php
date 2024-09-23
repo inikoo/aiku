@@ -15,11 +15,11 @@ class AuditOrganisationResolver implements Resolver
     public static function resolve(Auditable $auditable)
     {
 
-        if($auditable->organisation_id) {
+        if ($auditable->organisation_id) {
             return $auditable->organisation_id;
         }
 
-        if(class_basename($auditable)=='Organisation') {
+        if (class_basename($auditable)=='Organisation') {
             return $auditable->id;
         }
 

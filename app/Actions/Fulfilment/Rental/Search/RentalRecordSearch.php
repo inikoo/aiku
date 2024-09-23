@@ -21,7 +21,7 @@ class RentalRecordSearch
 
         if ($rental->trashed()) {
 
-            if($rental->universalSearch) {
+            if ($rental->universalSearch) {
                 $rental->universalSearch()->delete();
             }
             return;

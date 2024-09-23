@@ -31,7 +31,6 @@ use App\Models\HumanResources\JobPositionStats;
 use App\Models\HumanResources\Timesheet;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\User;
-
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;

@@ -37,7 +37,7 @@ class IndexStoredItemAudits extends OrgAction
 
     public function handle(Fulfilment|FulfilmentCustomer|Warehouse $parent, $prefix = null): StoredItemAudit
     {
-        if(! $parent->storedItemAudit) {
+        if (! $parent->storedItemAudit) {
             StoreStoredItemAudit::make()->action($parent, []);
         }
 

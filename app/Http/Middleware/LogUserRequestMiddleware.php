@@ -20,11 +20,11 @@ class LogUserRequestMiddleware
     public function handle(Request $request, Closure $next)
     {
 
-        if(!str_starts_with($request->route()->getName(), 'grp.')) {
+        if (!str_starts_with($request->route()->getName(), 'grp.')) {
             return $next($request);
         }
 
-        if($request->route()->getName()=='grp.logout') {
+        if ($request->route()->getName()=='grp.logout') {
             return $next($request);
         }
 

@@ -19,13 +19,13 @@ class UpdateProspectEmailSent
     public function handle(Prospect $prospect): void
     {
 
-        if($prospect->state==ProspectStateEnum::NO_CONTACTED or $prospect->state==ProspectStateEnum::CONTACTED) {
+        if ($prospect->state==ProspectStateEnum::NO_CONTACTED or $prospect->state==ProspectStateEnum::CONTACTED) {
             $dataToUpdate = [
                 'state'            => ProspectStateEnum::CONTACTED,
                 'last_contacted_at'=> now()
                 ];
 
-            if(!$prospect->contacted_at) {
+            if (!$prospect->contacted_at) {
                 $dataToUpdate['contacted_at']=now();
             }
             if (in_array(

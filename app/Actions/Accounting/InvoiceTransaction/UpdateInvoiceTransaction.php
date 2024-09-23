@@ -9,7 +9,6 @@ namespace App\Actions\Accounting\InvoiceTransaction;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-
 use App\Models\Accounting\InvoiceTransaction;
 
 class UpdateInvoiceTransaction extends OrgAction

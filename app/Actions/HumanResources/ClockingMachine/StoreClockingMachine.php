@@ -33,7 +33,7 @@ class StoreClockingMachine extends OrgAction
     public function handle(Organisation|Workplace $parent, array $modelData): ClockingMachine
     {
 
-        if($parent instanceof Organisation) {
+        if ($parent instanceof Organisation) {
             $workplaceId = Arr::get($modelData, 'workplace_id');
             $workplace   = $parent->workplaces()->where('id', $workplaceId)->firstOrFail();
         } else {
@@ -95,7 +95,7 @@ class StoreClockingMachine extends OrgAction
             'fetched_at'  => ['sometimes', 'date'],
         ];
 
-        if($this->parent instanceof Organisation) {
+        if ($this->parent instanceof Organisation) {
             $rules['workplace_id'] = ['required', Rule::Exists('workplaces', 'id')->where('organisation_id', $this->organisation->id)];
         }
 

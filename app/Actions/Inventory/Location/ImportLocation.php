@@ -50,11 +50,11 @@ class ImportLocation
         $warehouse     = Warehouse::where('slug', $command->argument('warehouse'))->first();
         $warehouseArea = WarehouseArea::where('slug', $command->argument('warehouse'))->first();
 
-        if(!$warehouse && !$warehouseArea) {
+        if (!$warehouse && !$warehouseArea) {
             throw new \Exception('Warehouse or Warehouse Area not found');
         }
 
-        if($warehouse) {
+        if ($warehouse) {
             return $this->handle($warehouse, $file);
         } else {
             return $this->handle($warehouseArea, $file);

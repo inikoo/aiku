@@ -203,18 +203,18 @@ class IndexDepartments extends OrgAction
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
 
-            if($parent instanceof Organisation) {
+            if ($parent instanceof Organisation) {
                 $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             };
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
             ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
 
-            if(class_basename($parent) != 'Collection') {
+            if (class_basename($parent) != 'Collection') {
                 $table->column(key: 'number_current_families', label: __('current families'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            if(class_basename($parent) == 'Collection') {
+            if (class_basename($parent) == 'Collection') {
                 $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
             }
         };
@@ -256,7 +256,7 @@ class IndexDepartments extends OrgAction
         }
 
         $routes = null;
-        if($this->parent instanceof Collection) {
+        if ($this->parent instanceof Collection) {
             $routes = [
                         'dataList'  => [
                             'name'          => 'grp.json.shop.catalogue.departments',

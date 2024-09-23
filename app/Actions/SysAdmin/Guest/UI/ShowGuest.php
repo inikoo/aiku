@@ -156,7 +156,7 @@ class ShowGuest extends GrpAction
 
     private function getNavigation(?Guest $guest, string $routeName): ?array
     {
-        if(!$guest) {
+        if (!$guest) {
             return null;
         }
         return match ($routeName) {

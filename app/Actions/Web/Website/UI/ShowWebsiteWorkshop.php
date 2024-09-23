@@ -64,7 +64,7 @@ class ShowWebsiteWorkshop extends OrgAction
 
         $navigation = WebsiteWorkshopTabsEnum::navigation();
 
-        if($this->scope instanceof Fulfilment) {
+        if ($this->scope instanceof Fulfilment) {
             unset($navigation[WebsiteWorkshopTabsEnum::PRODUCT->value]);
             unset($navigation[WebsiteWorkshopTabsEnum::DEPARTMENT->value]);
             unset($navigation[WebsiteWorkshopTabsEnum::FAMILY->value]);

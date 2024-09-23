@@ -24,7 +24,7 @@ class ShowStockDelivery extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        if($this->maya) {
+        if ($this->maya) {
             return true;
         }
         $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
@@ -127,7 +127,7 @@ class ShowStockDelivery extends InertiaAction
 
     private function getNavigation(?StockDelivery $stockDelivery, string $routeName): ?array
     {
-        if(!$stockDelivery) {
+        if (!$stockDelivery) {
             return null;
         }
         return match ($routeName) {

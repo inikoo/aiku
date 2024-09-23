@@ -39,11 +39,11 @@ class AttachPortfolioToPlatform extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        if($this->portfolio->customer->platform()==null) {
+        if ($this->portfolio->customer->platform()==null) {
             abort(403);
         }
 
-        if($this->portfolio->platforms()->count() >= 1) {
+        if ($this->portfolio->platforms()->count() >= 1) {
             abort(403);
         }
     }

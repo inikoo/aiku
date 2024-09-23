@@ -52,7 +52,7 @@ class FetchAuroraOrganisations
     public function asCommand(Command $command): int
     {
         foreach (Organisation::all() as $organisation) {
-            if($organisation->source['type'] !== 'Aurora') {
+            if ($organisation->source['type'] !== 'Aurora') {
                 continue;
             }
             $organisationSource = $this->getOrganisationSource($organisation);

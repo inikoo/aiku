@@ -37,7 +37,7 @@ class ProductRecordSearch
             'haystack_tier_2'             => $product->name.' '.$product->description
         ];
 
-        if($shop->type==ShopTypeEnum::FULFILMENT) {
+        if ($shop->type==ShopTypeEnum::FULFILMENT) {
             $modelData['fulfilment_id']     = $shop->fulfilment->id;
             $modelData['fulfilment_slug']   = $shop->fulfilment->slug;
         }

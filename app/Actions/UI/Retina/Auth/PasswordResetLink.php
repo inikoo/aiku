@@ -27,7 +27,7 @@ class PasswordResetLink
             $request->only('email')
         );
 
-        if($status === Password::INVALID_USER) {
+        if ($status === Password::INVALID_USER) {
             throw ValidationException::withMessages([
                 'email' => [trans($status)],
             ]);

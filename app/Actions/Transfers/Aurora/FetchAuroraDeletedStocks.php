@@ -62,7 +62,7 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
 
             $organisation = $organisationSource->getOrganisation();
 
-            if($effectiveStock) {
+            if ($effectiveStock) {
 
                 /** @var OrgStock $orgStock */
                 if ($orgStock = $organisation->orgStocks()->where('source_id', $stockData['stock']['source_id'])->first()) {

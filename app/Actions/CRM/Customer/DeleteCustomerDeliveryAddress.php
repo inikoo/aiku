@@ -37,7 +37,7 @@ class DeleteCustomerDeliveryAddress extends OrgAction
     public function afterValidator(Validator $validator): void
     {
 
-        if(DB::table('model_has_addresses')->where('address_id', $this->address->id)->where('model_type', '!=', 'Customer')->exists()) {
+        if (DB::table('model_has_addresses')->where('address_id', $this->address->id)->where('model_type', '!=', 'Customer')->exists()) {
             abort(419);
         }
 

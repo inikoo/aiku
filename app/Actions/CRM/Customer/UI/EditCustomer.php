@@ -151,7 +151,7 @@ class EditCustomer extends OrgAction
 
     private function getNavigation(?Customer $customer, string $routeName): ?array
     {
-        if(!$customer) {
+        if (!$customer) {
             return null;
         }
 

@@ -33,7 +33,7 @@ trait WithFulfilmentCustomerSubNavigation
 
         ];
 
-        if($fulfilmentCustomer->pallets_storage && $fulfilmentCustomer->rentalAgreement()->where('state', RentalAgreementStateEnum::ACTIVE)->exists()) {
+        if ($fulfilmentCustomer->pallets_storage && $fulfilmentCustomer->rentalAgreement()->where('state', RentalAgreementStateEnum::ACTIVE)->exists()) {
             $subNavigation[]=[
                 'href' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.web-users.index',
@@ -65,7 +65,7 @@ trait WithFulfilmentCustomerSubNavigation
 
             ];
 
-            if($fulfilmentCustomer->items_storage) {
+            if ($fulfilmentCustomer->items_storage) {
 
                 $subNavigation[]=[
                     'href' => [
@@ -143,7 +143,7 @@ trait WithFulfilmentCustomerSubNavigation
 
         }
 
-        if($fulfilmentCustomer->rentalAgreement()->exists()) {
+        if ($fulfilmentCustomer->rentalAgreement()->exists()) {
 
             $subNavigation[]=[
                 'href' => [

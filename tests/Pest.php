@@ -204,7 +204,7 @@ function createCustomer(Shop $shop): Customer
 function createTradeUnits(Group $group): array
 {
     $numberTradeUnits=$group->tradeUnits()->count();
-    if($numberTradeUnits<3) {
+    if ($numberTradeUnits<3) {
         $tradeUnit = StoreTradeUnit::make()->action(
             $group,
             TradeUnit::factory()->definition()
@@ -235,7 +235,7 @@ function createStocks(Group $group): array
 {
     $tradeUnits  =createTradeUnits($group);
     $numberStocks=$group->stocks()->count();
-    if($numberStocks<3) {
+    if ($numberStocks<3) {
         $stock = StoreStock::make()->action(
             $group,
             Stock::factory()->definition()
@@ -286,7 +286,7 @@ function createOrgStocks(Organisation $organisation, array $stocks): array
     $orgStocks=[];
     foreach ($stocks as $stock) {
         $orgStock=$organisation->orgStocks()->where('stock_id', $stock->id)->first();
-        if(!$orgStock) {
+        if (!$orgStock) {
             $orgStock=StoreOrgStock::make()->action(
                 $organisation,
                 $stock,
@@ -376,7 +376,7 @@ function createOrder(Customer $customer, Product $product): Order
 function createWebsite(Shop $shop): Website
 {
 
-    if($website=$shop->website) {
+    if ($website=$shop->website) {
         return $website;
     }
 

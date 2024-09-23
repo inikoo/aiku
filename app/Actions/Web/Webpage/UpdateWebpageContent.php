@@ -25,7 +25,7 @@ class UpdateWebpageContent extends OrgAction
         $snapshot = $webpage->unpublishedSnapshot;
 
         $layout  =[];
-        foreach($webpage->webBlocks as $webBlock) {
+        foreach ($webpage->webBlocks as $webBlock) {
             $layout['web_blocks'][]=
                 [
                     'id'       => $webBlock->pivot->id,

@@ -9,7 +9,6 @@ namespace App\Actions\HumanResources\Employee\Hydrators;
 
 use App\Actions\Traits\WithJobPositionableShare;
 use App\Actions\Traits\WithNormalise;
-
 use App\Models\HumanResources\Employee;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;

@@ -29,7 +29,7 @@ class SeedStockImages
 
 
                 $checksum=md5_file($filename);
-                if($group->images()->where('collection_name', 'stock-image')->where('checksum', $checksum)->exists()) {
+                if ($group->images()->where('collection_name', 'stock-image')->where('checksum', $checksum)->exists()) {
                     continue;
                 }
 

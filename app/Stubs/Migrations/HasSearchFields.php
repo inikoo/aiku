@@ -29,7 +29,7 @@ trait HasSearchFields
 
         $table->jsonb('sections');
         $table->jsonb('permissions');
-        if($table->getTable()!='universal_searches') {
+        if ($table->getTable()!='universal_searches') {
             $table->jsonb('web_users');
         }
         $table->jsonb('result');
@@ -45,7 +45,7 @@ trait HasSearchFields
         $table->increments('id');
         $table=$this->groupOrgRelationship($table);
 
-        if($table->getTable() === 'iris_searches') {
+        if ($table->getTable() === 'iris_searches') {
             $table->unsignedSmallInteger('website_id')->nullable()->index();
             $table->foreign('website_id')->references('id')->on('websites');
         }

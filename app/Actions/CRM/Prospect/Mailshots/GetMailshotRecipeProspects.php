@@ -20,7 +20,7 @@ class GetMailshotRecipeProspects extends InertiaAction
 
     public function handle(Mailshot $mailshot)
     {
-        if(Arr::get($mailshot->recipients_recipe, 'recipient_builder_type')!='prospects') {
+        if (Arr::get($mailshot->recipients_recipe, 'recipient_builder_type')!='prospects') {
             return [];
         }
         $queryBuilder=GetMailshotRecipientsQueryBuilder::run($mailshot);

@@ -306,7 +306,7 @@ class EditOrgSupplier extends OrgAction
 
     private function getNavigation(?Supplier $supplier, string $routeName): ?array
     {
-        if(!$supplier) {
+        if (!$supplier) {
             return null;
         }
 

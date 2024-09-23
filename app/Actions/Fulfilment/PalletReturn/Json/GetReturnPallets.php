@@ -72,7 +72,7 @@ class GetReturnPallets extends OrgAction
             $query->where('pallets.state', PalletStatusEnum::STORING);
         }
 
-        if($palletReturn->state !== PalletReturnStateEnum::IN_PROCESS) {
+        if ($palletReturn->state !== PalletReturnStateEnum::IN_PROCESS) {
             $query->where('pallets.pallet_return_id', $palletReturn->id);
         }
 

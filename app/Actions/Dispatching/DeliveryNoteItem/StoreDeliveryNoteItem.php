@@ -40,7 +40,7 @@ class StoreDeliveryNoteItem extends OrgAction
 
         /** @var DeliveryNoteItem $deliveryNoteItem */
         $deliveryNoteItem = $deliveryNote->deliveryNoteItems()->create($modelData);
-        if($this->strict) {
+        if ($this->strict) {
             StorePicking::make()->action($deliveryNoteItem, [
                 'quantity_required' => $deliveryNoteItem->quantity_required
             ]);

@@ -27,7 +27,7 @@ class UpdateHistoricSupplierProduct extends GrpAction
         ];
 
 
-        if(!$this->strict) {
+        if (!$this->strict) {
             $rules['last_fetched_at'] = ['sometimes', 'date'];
             $rules['source_id']       = ['sometimes', 'string', 'max:255'];
         }

@@ -43,7 +43,7 @@ class IndexPalletsInAudit extends OrgAction
     {
         $elements = [];
 
-        if($prefix=='all') {
+        if ($prefix=='all') {
             $elements = [
                 'status' => [
                     'label'    => __('Status'),

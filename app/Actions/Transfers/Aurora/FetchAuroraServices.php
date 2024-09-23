@@ -28,7 +28,7 @@ class FetchAuroraServices extends FetchAuroraAction
 
         if ($serviceData = $organisationSource->fetchService($organisationSourceId)) {
 
-            if($serviceData['type']==AssetTypeEnum::SERVICE) {
+            if ($serviceData['type']==AssetTypeEnum::SERVICE) {
 
                 if ($service = Service::where('source_id', $serviceData['service']['source_id'])
                     ->first()) {

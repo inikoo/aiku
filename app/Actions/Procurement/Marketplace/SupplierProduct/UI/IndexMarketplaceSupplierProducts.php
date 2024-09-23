@@ -84,7 +84,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix) {
 
-            if($prefix) {
+            if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');

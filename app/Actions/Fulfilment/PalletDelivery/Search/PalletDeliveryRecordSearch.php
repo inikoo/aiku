@@ -21,7 +21,7 @@ class PalletDeliveryRecordSearch
 
         if ($palletDelivery->trashed()) {
 
-            if($palletDelivery->universalSearch) {
+            if ($palletDelivery->universalSearch) {
                 $palletDelivery->universalSearch()->delete();
             }
             return;

@@ -17,7 +17,7 @@ class CalculateOrderEstimatedWeight extends OrgAction
 
         $items       = $order->transactions()->get();
         $estWeight   = 0;
-        foreach($items as $item) {
+        foreach ($items as $item) {
             $weight = $item->historicAsset->model->weight;
             $estWeight += $weight;
         }

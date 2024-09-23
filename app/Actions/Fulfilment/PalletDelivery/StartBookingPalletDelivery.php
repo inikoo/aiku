@@ -59,11 +59,11 @@ class StartBookingPalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->palletDelivery->state != PalletDeliveryStateEnum::RECEIVED) {
+        if ($this->palletDelivery->state != PalletDeliveryStateEnum::RECEIVED) {
             return false;
         }
 
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
 

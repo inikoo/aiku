@@ -180,7 +180,7 @@ class EditService extends OrgAction
 
     private function getNavigation(?Service $service, string $routeName): ?array
     {
-        if(!$service) {
+        if (!$service) {
             return null;
         }
         return match ($routeName) {

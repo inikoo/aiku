@@ -26,7 +26,7 @@ class StoreRentalAgreementSnapshot extends OrgAction
             ],
             'is_first_snapshot'=> $firstSnapshot
         ];
-        if($firstSnapshot) {
+        if ($firstSnapshot) {
             $modelData['data']['clauses_added'] = $rentalAgreement->clauses()->count();
         } else {
             $modelData['data']['clauses_added']   = Arr::get($updateData, 'clauses_added', 0);

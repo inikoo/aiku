@@ -43,7 +43,7 @@ class StorePalletFromDelivery extends OrgAction
         data_set($modelData, 'warehouse_id', $palletDelivery->warehouse_id);
         data_set($modelData, 'pallet_delivery_id', $palletDelivery->id);
 
-        if(Arr::get($modelData, 'type')) {
+        if (Arr::get($modelData, 'type')) {
             data_set($modelData, 'type', Arr::get($modelData, 'type'));
         }
 
@@ -52,13 +52,13 @@ class StorePalletFromDelivery extends OrgAction
         $palletLimits        = $palletDelivery->fulfilmentCustomer->rentalAgreement->pallets_limit ?? 0;
         $palletLimitLeft     = ($palletLimits - ($totalPallets + $numberStoredPallets));
 
-        if($palletLimits > 0 && $palletLimitLeft <= 0) {
+        if ($palletLimits > 0 && $palletLimitLeft <= 0) {
             abort(403, __("Pallet has reached over the limit: :palletLimitLeft", ['palletLimitLeft' => $palletLimitLeft]));
         }
 
         $pallet = StorePallet::make()->action($palletDelivery->fulfilmentCustomer, $modelData);
 
-        if(Arr::exists($modelData, 'stored_item') && Arr::get($modelData, 'with_stored_item')) {
+        if (Arr::exists($modelData, 'stored_item') && Arr::get($modelData, 'with_stored_item')) {
             $storedItem = StoreStoredItem::run($pallet->fulfilmentCustomer, [
                 'reference' => Arr::get($modelData, 'stored_item')
             ]);
@@ -88,7 +88,7 @@ class StorePalletFromDelivery extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        if($this->fulfilment->warehouses()->count()==1) {
+        if ($this->fulfilment->warehouses()->count()==1) {
             /** @var Warehouse $warehouse */
             $warehouse = $this->fulfilment->warehouses()->first();
             $this->fill(['warehouse_id' =>$warehouse->id]);

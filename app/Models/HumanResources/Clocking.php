@@ -101,7 +101,7 @@ class Clocking extends Model implements HasMedia
 
     public function photoImageSources($width = 0, $height = 0)
     {
-        if($this->photo) {
+        if ($this->photo) {
             $photoThumbnail = $this->photo->getImage()->resize($width, $height);
             return GetPictureSources::run($photoThumbnail);
         }

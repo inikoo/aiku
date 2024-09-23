@@ -67,7 +67,7 @@ class LogUserRequest
 
     public function getDeviceIcon($deviceType): string
     {
-        if($deviceType == 'Desktop') {
+        if ($deviceType == 'Desktop') {
             return 'far fa-desktop-alt';
         }
 
@@ -76,9 +76,9 @@ class LogUserRequest
 
     public function getBrowserIcon($browser): string
     {
-        if(explode(' ', $browser)[0] == 'chrome') {
+        if (explode(' ', $browser)[0] == 'chrome') {
             return 'fab fa-chrome';
-        } elseif($browser == 'microsoft') {
+        } elseif ($browser == 'microsoft') {
             return 'fab fa-edge';
         }
 
@@ -87,9 +87,9 @@ class LogUserRequest
 
     public function getPlatformIcon($platform): string
     {
-        if($platform == 'android') {
+        if ($platform == 'android') {
             return 'fab fa-android';
-        } elseif($platform == 'apple') {
+        } elseif ($platform == 'apple') {
             return 'fab fa-apple';
         }
 
@@ -111,7 +111,7 @@ class LogUserRequest
 
     public function detectWindows11($parsedUserAgent): string
     {
-        if($parsedUserAgent->isWindows()) {
+        if ($parsedUserAgent->isWindows()) {
             if (str_contains($parsedUserAgent->userAgent(), 'Windows NT 10.0; Win64; x64')) {
                 return 'Windows 11';
             }

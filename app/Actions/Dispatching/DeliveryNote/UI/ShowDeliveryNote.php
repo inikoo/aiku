@@ -494,7 +494,7 @@ class ShowDeliveryNote extends OrgAction
 
     private function getNavigation(?DeliveryNote $deliveryNote, string $routeName, $routeParameters): ?array
     {
-        if(!$deliveryNote) {
+        if (!$deliveryNote) {
             return null;
         }
 

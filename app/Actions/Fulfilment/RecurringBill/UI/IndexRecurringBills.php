@@ -155,7 +155,7 @@ class IndexRecurringBills extends OrgAction
         $iconRight =null;
         $model     = null;
 
-        if($this->parent instanceof  FulfilmentCustomer) {
+        if ($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
             $icon         =['fal', 'fa-user'];
             $title        =$this->parent->customer->name;

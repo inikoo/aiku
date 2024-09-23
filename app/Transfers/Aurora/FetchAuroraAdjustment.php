@@ -17,7 +17,7 @@ class FetchAuroraAdjustment extends FetchAurora
     {
 
 
-        if($this->auroraModelData->{'Order Store Key'}!='') {
+        if ($this->auroraModelData->{'Order Store Key'}!='') {
             $this->parsedData['shop'] = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Order Store Key'});
             $date                     = $this->parseDateTime($this->auroraModelData->{'Order Date'});
         } else {

@@ -26,8 +26,8 @@ class UpdateTradeUnit extends GrpAction
     public function handle(TradeUnit $tradeUnit, array $modelData): TradeUnit
     {
         $tradeUnit= $this->update($tradeUnit, $modelData, ['data', 'dimensions']);
-        if($tradeUnit->wasChanged('gross_weight')) {
-            foreach($tradeUnit->stocks as $stock) {
+        if ($tradeUnit->wasChanged('gross_weight')) {
+            foreach ($tradeUnit->stocks as $stock) {
                 StockHydrateGrossWeightFromTradeUnits::dispatch($stock);
             }
 

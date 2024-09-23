@@ -33,7 +33,7 @@ beforeEach(function () {
     $this->warehouse         = createWarehouse();
     $this->fulfilment        = createFulfilment($this->organisation);
     $this->website           = createWebsite($this->fulfilment->shop);
-    if($this->website->state != WebsiteStateEnum::LIVE) {
+    if ($this->website->state != WebsiteStateEnum::LIVE) {
         LaunchWebsite::make()->action($this->website);
     }
     $this->customer = createCustomer($this->fulfilment->shop);

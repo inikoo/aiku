@@ -67,7 +67,7 @@ class Handler extends ExceptionHandler
             && !(!$request->inertia() && $request->expectsJson())
         ) {
 
-            if(str_starts_with($request->route()->getName(), 'grp.models')) {
+            if (str_starts_with($request->route()->getName(), 'grp.models')) {
 
                 return back()->withErrors([
                     'error_in_models' => $response->getStatusCode().': '.$e->getMessage()
@@ -98,7 +98,7 @@ class Handler extends ExceptionHandler
                 default => $this->getExceptionInfo($e)
             };
             $user=$request->user();
-            if(Auth::check()) {
+            if (Auth::check()) {
                 $errorData= array_merge(
                     GetFirstLoadProps::run($user),
                     $errorData,
@@ -171,7 +171,7 @@ class Handler extends ExceptionHandler
 
         $page='Errors/Error';
 
-        if($app=='grp' or $app=='retina') {
+        if ($app=='grp' or $app=='retina') {
 
 
 

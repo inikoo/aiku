@@ -84,13 +84,13 @@ class ShowPalletReturn extends OrgAction
 
         $navigation=PalletReturnTabsEnum::navigation($palletReturn);
 
-        if($palletReturn->type==PalletReturnTypeEnum::PALLET) {
+        if ($palletReturn->type==PalletReturnTypeEnum::PALLET) {
             unset($navigation[PalletReturnTabsEnum::STORED_ITEMS->value]);
         } else {
             unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
         }
 
-        if($palletReturn->type==PalletReturnTypeEnum::PALLET) {
+        if ($palletReturn->type==PalletReturnTypeEnum::PALLET) {
             $this->tab = PalletReturnTabsEnum::PALLETS->value;
         } else {
             $this->tab = PalletReturnTabsEnum::STORED_ITEMS->value;
@@ -99,7 +99,7 @@ class ShowPalletReturn extends OrgAction
 
 
 
-        if($this->canEdit) {
+        if ($this->canEdit) {
             $actions = $palletReturn->state == PalletReturnStateEnum::IN_PROCESS ? [
                 [
                     'type'      => 'button',
@@ -242,7 +242,7 @@ class ShowPalletReturn extends OrgAction
                 ] : [],
             ];
 
-            if(!in_array($palletReturn->state, [
+            if (!in_array($palletReturn->state, [
                 PalletReturnStateEnum::IN_PROCESS,
                 PalletReturnStateEnum::SUBMITTED
             ])) {
@@ -271,7 +271,7 @@ class ShowPalletReturn extends OrgAction
         $processedAddresses = $addresses->map(function ($address) {
 
 
-            if(!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
+            if (!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
 
                 return $address->setAttribute('can_delete', false)
                     ->setAttribute('can_edit', true);
@@ -306,7 +306,7 @@ class ShowPalletReturn extends OrgAction
         // dd($addressCollection);
         // dd($palletReturnDeliveryAddressIds);
 
-        if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
+        if ($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle=[
                 'label'=> '('.__('Stored items').')'
                 ];
@@ -317,7 +317,7 @@ class ShowPalletReturn extends OrgAction
         }
 
         $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
-        if($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             $downloadRoute = 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.export';
         } else {
             $downloadRoute = 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.pallets.stored-items.export';

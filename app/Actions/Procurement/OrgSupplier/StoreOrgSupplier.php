@@ -21,7 +21,7 @@ class StoreOrgSupplier extends OrgAction
     public function handle(Organisation|OrgAgent $parent, Supplier $supplier, $modelData = []): OrgSupplier
     {
 
-        if($parent instanceof OrgAgent) {
+        if ($parent instanceof OrgAgent) {
             $organisation = $parent->organisation;
         } else {
             $organisation = $parent;
@@ -40,7 +40,7 @@ class StoreOrgSupplier extends OrgAction
         $orgSupplier->stats()->create();
 
         OrganisationHydrateOrgSuppliers::dispatch($organisation);
-        if($orgSupplier->org_agent_id) {
+        if ($orgSupplier->org_agent_id) {
             OrgAgentHydrateOrgSuppliers::dispatch($orgSupplier->orgAgent);
         }
 
@@ -57,7 +57,7 @@ class StoreOrgSupplier extends OrgAction
 
     public function action(Organisation|OrgAgent $parent, Supplier $supplier, $modelData = [], $hydratorDelay = 0): OrgSupplier
     {
-        if($parent instanceof OrgAgent) {
+        if ($parent instanceof OrgAgent) {
             $organisation = $parent->organisation;
         } else {
             $organisation = $parent;

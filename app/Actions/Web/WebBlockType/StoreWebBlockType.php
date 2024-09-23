@@ -32,7 +32,7 @@ class StoreWebBlockType
             default                                => null
         };
 
-        if($scope === null) {
+        if ($scope === null) {
             throw new \Exception('Invalid Scope');
         }
 

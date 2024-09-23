@@ -21,7 +21,7 @@ trait WithEnumStats
         $stats = [];
 
         $applyWhere=false;
-        if($this->is_closure($where)) {
+        if ($this->is_closure($where)) {
             $applyWhere=true;
         } else {
             $where=function ($q) {};

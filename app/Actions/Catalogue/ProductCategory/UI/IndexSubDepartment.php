@@ -111,7 +111,7 @@ class IndexSubDepartment extends OrgAction
 
 
 
-            if($parent->type==ProductCategoryTypeEnum::DEPARTMENT) {
+            if ($parent->type==ProductCategoryTypeEnum::DEPARTMENT) {
 
                 $queryBuilder->where('product_categories.department_id', $parent->id);
 

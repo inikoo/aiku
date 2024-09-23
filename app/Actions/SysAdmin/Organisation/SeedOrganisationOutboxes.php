@@ -47,9 +47,9 @@ class SeedOrganisationOutboxes
     public function asCommand(Command $command): int
     {
 
-        if($command->argument('organisation') == null) {
+        if ($command->argument('organisation') == null) {
             $organisations = Organisation::all();
-            foreach($organisations as $organisation) {
+            foreach ($organisations as $organisation) {
                 $this->handle($organisation);
             }
             return 0;

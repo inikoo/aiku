@@ -20,7 +20,7 @@ enum PurchaseOrderStateEnum: string
     case DISPATCHED   = 'dispatched';
     case RECEIVED     = 'received';
     case CHECKED      = 'checked';
-    case  SETTLED     = 'settled';
+    case SETTLED      = 'settled';
 
     public static function labels(): array
     {

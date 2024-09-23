@@ -7,7 +7,6 @@
 
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Enums\Web\Website\WebsiteStateEnum;
-
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -27,7 +26,7 @@ beforeEach(function () {
     $this->warehouse         = createWarehouse();
     $this->fulfilment        = createFulfilment($this->organisation);
     $this->fulfilmentWebsite = createWebsite($this->fulfilment->shop);
-    if($this->fulfilmentWebsite->state == WebsiteStateEnum::IN_PROCESS) {
+    if ($this->fulfilmentWebsite->state == WebsiteStateEnum::IN_PROCESS) {
         LaunchWebsite::make()->action($this->fulfilmentWebsite);
     }
 

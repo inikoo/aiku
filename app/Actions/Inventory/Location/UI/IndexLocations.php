@@ -45,7 +45,7 @@ class IndexLocations extends OrgAction
             return true; //Idk the auth for this
         }
 
-        if($this->parent instanceof Organisation) {
+        if ($this->parent instanceof Organisation) {
             $this->canEdit = $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
             return  $request->user()->hasPermissionTo("warehouses-view.{$this->organisation->id}");
         }

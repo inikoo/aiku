@@ -29,7 +29,7 @@ class UpdateOffer extends OrgAction
     {
         $offer= $this->update($offer, $modelData);
 
-        if($offer->wasChanged(['state','status'])) {
+        if ($offer->wasChanged(['state','status'])) {
             GroupHydrateOffers::dispatch($offer->group)->delay($this->hydratorsDelay);
             OrganisationHydrateOffers::dispatch($offer->organisation)->delay($this->hydratorsDelay);
             ShopHydrateOffers::dispatch($offer->shop)->delay($this->hydratorsDelay);

@@ -32,7 +32,7 @@ class GetRetinaFulfilmentNavigation
 
         $additionalSubsections = [];
 
-        if($webUser?->customer?->fulfilmentCustomer?->number_pallets_status_storing) {
+        if ($webUser?->customer?->fulfilmentCustomer?->number_pallets_status_storing) {
             $additionalSubsections = [
                 [
                     'label' => __('pallet return'),

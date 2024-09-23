@@ -27,7 +27,7 @@ class NotReceivedPalletDelivery extends OrgAction
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
 
-        if($palletDelivery->state != PalletDeliveryStateEnum::RECEIVED) {
+        if ($palletDelivery->state != PalletDeliveryStateEnum::RECEIVED) {
             abort(419);
         }
 

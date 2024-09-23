@@ -64,7 +64,7 @@ class UpdateStateToFinalizedOrder extends OrgAction
                 'net_amount'      => $transaction->net_amount,
             ];
 
-            if($transaction->model_type == 'Adjustment') {
+            if ($transaction->model_type == 'Adjustment') {
                 /** @var Adjustment $adjustment */
                 $adjustment = Adjustment::find($transaction->model_id);
                 StoreInvoiceTransactionFromAdjustment::make()->action($invoice, $adjustment, []);

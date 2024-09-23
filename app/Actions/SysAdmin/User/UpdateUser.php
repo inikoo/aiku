@@ -32,14 +32,14 @@ class UpdateUser extends GrpAction
 
 
 
-        if(Arr::exists($modelData, 'password')) {
+        if (Arr::exists($modelData, 'password')) {
             $this->set('auth_type', UserAuthTypeEnum::DEFAULT);
         }
 
 
         $user= $this->update($user, $modelData, ['profile', 'settings']);
 
-        if($user->wasChanged('status')) {
+        if ($user->wasChanged('status')) {
             GroupHydrateUsers::run($user->group);
         }
 

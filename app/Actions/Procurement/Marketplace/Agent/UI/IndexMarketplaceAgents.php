@@ -74,7 +74,7 @@ class IndexMarketplaceAgents extends OrgAction
     {
         return function (InertiaTable $table) use ($prefix) {
 
-            if($prefix) {
+            if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');

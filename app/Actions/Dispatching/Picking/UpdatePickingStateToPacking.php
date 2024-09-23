@@ -27,10 +27,10 @@ class UpdatePickingStateToPacking extends OrgAction
 
     public function handle(Picking $picking, array $modelData): Picking
     {
-        if(!$picking->packer_id) {
+        if (!$picking->packer_id) {
             data_set($modelData, 'picker_id', Arr::get($modelData, 'packer'));
         }
-        if(!$picking->packer_assigned_at) {
+        if (!$picking->packer_assigned_at) {
             data_set($modelData, 'packer_assigned_at', now());
         }
         data_set($modelData, 'packing_at', now());

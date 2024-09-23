@@ -46,7 +46,7 @@ class ImportWarehouseArea
     {
         $warehouse = Warehouse::where('slug', $command->argument('warehouse'))->first();
 
-        if(!$warehouse) {
+        if (!$warehouse) {
             throw new \Exception('Warehouse not found');
         }
 

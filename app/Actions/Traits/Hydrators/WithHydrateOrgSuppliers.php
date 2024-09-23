@@ -21,7 +21,7 @@ trait WithHydrateOrgSuppliers
         ];
         $stats['number_archived_org_suppliers'] = $stats['number_org_suppliers'] - $stats['number_active_org_suppliers'];
 
-        if($model instanceof Organisation) {
+        if ($model instanceof Organisation) {
             $stats['number_org_suppliers_in_agents']          = $model->orgSuppliers()->whereNotNull('org_agent_id')->count();
             $stats['number_active_org_suppliers_in_agents']   = $model->orgSuppliers()->whereNotNull('org_agent_id')->where('status', 'true')->count();
             $stats['number_archived_org_suppliers_in_agents'] = $stats['number_org_suppliers_in_agents'] - $stats['number_active_org_suppliers_in_agents'];

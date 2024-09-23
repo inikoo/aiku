@@ -78,7 +78,7 @@ class UpdateLocation extends OrgAction
             'last_fetched_at'        => ['sometimes', 'date'],
         ];
 
-        if(!$this->strict) {
+        if (!$this->strict) {
             $rules['code'] = [
                 'required',
                 'max:64',
@@ -93,7 +93,7 @@ class UpdateLocation extends OrgAction
     public function action(Location $location, array $modelData, int $hydratorsDelay =0, bool $strict=true, bool $audit=true): Location
     {
         $this->strict = $strict;
-        if(!$audit) {
+        if (!$audit) {
             Location::disableAuditing();
         }
         $this->asAction       = true;

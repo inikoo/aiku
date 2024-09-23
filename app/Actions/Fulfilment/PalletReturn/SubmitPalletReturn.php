@@ -40,7 +40,7 @@ class SubmitPalletReturn extends OrgAction
     {
         $modelData[PalletReturnStateEnum::SUBMITTED->value.'_at'] = now();
 
-        if(!request()->user() instanceof WebUser) {
+        if (!request()->user() instanceof WebUser) {
             $modelData[PalletReturnStateEnum::CONFIRMED->value.'_at'] = now();
             $modelData['state']                                       = PalletReturnStateEnum::CONFIRMED;
         } else {
@@ -71,7 +71,7 @@ class SubmitPalletReturn extends OrgAction
         FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
 
 
-        if($this->sendNotifications) {
+        if ($this->sendNotifications) {
             SendPalletReturnNotification::run($palletReturn);
         }
         PalletReturnRecordSearch::dispatch($palletReturn);

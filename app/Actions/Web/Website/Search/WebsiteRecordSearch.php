@@ -22,7 +22,7 @@ class WebsiteRecordSearch
 
         if ($website->trashed()) {
 
-            if($website->universalSearch) {
+            if ($website->universalSearch) {
                 $website->universalSearch()->delete();
             }
             return;

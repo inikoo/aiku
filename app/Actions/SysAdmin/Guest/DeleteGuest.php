@@ -35,7 +35,7 @@ class DeleteGuest
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->isAction) {
+        if ($this->isAction) {
             return true;
         }
         return $request->user()->hasPermissionTo("sysadmin.edit");

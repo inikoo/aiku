@@ -21,7 +21,7 @@ class PalletReturnRecordSearch
 
         if ($palletReturn->trashed()) {
 
-            if($palletReturn->universalSearch) {
+            if ($palletReturn->universalSearch) {
                 $palletReturn->universalSearch()->delete();
             }
             return;

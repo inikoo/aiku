@@ -28,16 +28,16 @@ class UpdatePickingStateToPicking extends OrgAction
 
     public function handle(Picking $picking, array $modelData): Picking
     {
-        if(!$picking->picker_id) {
+        if (!$picking->picker_id) {
             data_set($modelData, 'picker_id', Arr::pull($modelData, 'picker'));
         }
-        if(!$picking->picker_assigned_at) {
+        if (!$picking->picker_assigned_at) {
             data_set($modelData, 'picker_assigned_at', now());
         }
 
         $totalQuantityRemoved = Arr::get($modelData, 'quantity_removed');
-        if($totalQuantityRemoved) {
-            if((int) $totalQuantityRemoved > $picking->quantity_picked) {
+        if ($totalQuantityRemoved) {
+            if ((int) $totalQuantityRemoved > $picking->quantity_picked) {
                 throw ValidationException::withMessages(['status' => 'Quantity picked less than quantity removed']);
             }
 
@@ -46,11 +46,11 @@ class UpdatePickingStateToPicking extends OrgAction
 
         $totalQuantityPicked = (int) Arr::get($modelData, 'quantity_picked') + $picking->quantity_picked;
 
-        if($totalQuantityPicked > $picking->deliveryNoteItem->quantity_required) {
+        if ($totalQuantityPicked > $picking->deliveryNoteItem->quantity_required) {
             throw ValidationException::withMessages(['status' => 'Quantity picked reached the quantity required']);
         }
 
-        if(Arr::exists($modelData, 'quantity_picked')) {
+        if (Arr::exists($modelData, 'quantity_picked')) {
             data_set($modelData, 'quantity_picked', $totalQuantityPicked);
         }
 

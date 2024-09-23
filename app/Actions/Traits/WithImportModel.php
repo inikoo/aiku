@@ -54,10 +54,10 @@ trait WithImportModel
         $filename    = $command->argument('filename');
         $newFileName = now()->timestamp . ".xlsx";
 
-        if($command->option('g_drive')) {
+        if ($command->option('g_drive')) {
             $googleDisk = Storage::disk('google');
 
-            if(!$googleDisk->exists($filename)) {
+            if (!$googleDisk->exists($filename)) {
                 $command->error("$filename do not found in GDrive");
                 return 1;
             }

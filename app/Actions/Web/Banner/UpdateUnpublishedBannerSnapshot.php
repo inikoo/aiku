@@ -14,7 +14,6 @@ use App\Actions\Web\Slide\StoreSlide;
 use App\Actions\Web\Slide\UpdateSlide;
 use App\Http\Resources\Web\BannerResource;
 use App\Models\Helpers\Snapshot;
-
 use App\Models\Web\Banner;
 use App\Models\Web\Slide;
 use Illuminate\Support\Arr;

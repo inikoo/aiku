@@ -32,7 +32,7 @@ class SeedGroupPaymentServiceProviders
                 'name' => PaymentServiceProviderEnum::labels()[$modelData]
             ];
 
-            if($paymentServiceProvider) {
+            if ($paymentServiceProvider) {
                 UpdatePaymentServiceProvider::make()->action(
                     $paymentServiceProvider,
                     $data

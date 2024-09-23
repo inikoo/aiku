@@ -172,7 +172,7 @@ class IndexCollection extends OrgAction
                 ->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'description', label: __('Description'), canBeHidden: false, sortable: false, searchable: true);
-            if($parent instanceof Collection) {
+            if ($parent instanceof Collection) {
                 $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
             }
         };
@@ -225,7 +225,7 @@ class IndexCollection extends OrgAction
         }
 
         $routes = null;
-        if($this->parent instanceof Collection) {
+        if ($this->parent instanceof Collection) {
             $routes = [
                         'dataList'  => [
                             'name'          => 'grp.json.shop.catalogue.collections',

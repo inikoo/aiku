@@ -41,7 +41,7 @@ class StoreShipper extends OrgAction
     {
         if ($this->has('website') and $this->get('website') != null) {
 
-            if(!Str::startsWith($this->get('website'), 'http')) {
+            if (!Str::startsWith($this->get('website'), 'http')) {
                 $this->fill(['website' => 'https://' . $this->get('website')]);
             }
         }

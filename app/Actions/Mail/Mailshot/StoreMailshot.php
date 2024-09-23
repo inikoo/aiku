@@ -28,7 +28,7 @@ class StoreMailshot extends OrgAction
 
     public function handle(Outbox|Shop $parent, array $modelData): Mailshot
     {
-        if($parent instanceof Outbox) {
+        if ($parent instanceof Outbox) {
             $modelData['shop_id']=$parent->shop_id;
         }
 

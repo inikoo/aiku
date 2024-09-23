@@ -114,7 +114,7 @@ class ShowMenu extends OrgAction
             return true;
         }
 
-        if($this->scope instanceof Fulfilment) {
+        if ($this->scope instanceof Fulfilment) {
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
 
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");

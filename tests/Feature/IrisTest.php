@@ -6,7 +6,6 @@
  */
 
 use App\Actions\Web\Website\UI\DetectWebsiteFromDomain;
-
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;

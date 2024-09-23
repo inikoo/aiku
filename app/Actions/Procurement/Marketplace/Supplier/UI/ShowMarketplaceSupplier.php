@@ -228,7 +228,7 @@ class ShowMarketplaceSupplier extends InertiaAction
 
     private function getNavigation(?Supplier $supplier, string $routeName): ?array
     {
-        if(!$supplier) {
+        if (!$supplier) {
             return null;
         }
 

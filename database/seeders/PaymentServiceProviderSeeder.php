@@ -21,7 +21,7 @@ class PaymentServiceProviderSeeder extends Seeder
         $paymentServiceProvidersData->each(function ($modelData) {
             $paymentServiceProvider=PaymentServiceProvider::where('code', $modelData)->first();
 
-            if(!$paymentServiceProvider) {
+            if (!$paymentServiceProvider) {
                 StorePaymentServiceProvider::run([
                     'code' => $modelData,
                     'type' => PaymentServiceProviderEnum::types()[$modelData],

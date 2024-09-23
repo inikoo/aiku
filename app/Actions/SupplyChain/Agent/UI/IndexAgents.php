@@ -97,7 +97,7 @@ class IndexAgents extends GrpAction
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
 
-            if($prefix) {
+            if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');

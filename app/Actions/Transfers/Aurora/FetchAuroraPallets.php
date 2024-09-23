@@ -9,7 +9,6 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
-
 use App\Models\Fulfilment\Pallet;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;

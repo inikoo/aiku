@@ -169,7 +169,7 @@ class ShowPayment extends InertiaAction
 
     private function getNavigation(?Payment $payment, string $routeName): ?array
     {
-        if(!$payment) {
+        if (!$payment) {
             return null;
         }
         return match ($routeName) {

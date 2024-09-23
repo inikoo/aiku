@@ -23,7 +23,7 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        if(!Schema::hasTable('pallet_returns')) {
+        if (!Schema::hasTable('pallet_returns')) {
             Schema::create('pallet_returns', function (Blueprint $table) {
                 $table->increments('id');
                 $table = $this->getPalletIOFields($table);

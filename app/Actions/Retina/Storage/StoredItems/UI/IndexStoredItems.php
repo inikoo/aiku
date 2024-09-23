@@ -39,7 +39,7 @@ class IndexStoredItems extends RetinaAction
         return QueryBuilder::for(StoredItem::class)
             ->defaultSort('slug')
             ->when($parent, function ($query) use ($parent) {
-                if(class_basename($parent) == "FulfilmentCustomer") {
+                if (class_basename($parent) == "FulfilmentCustomer") {
                     $query->where('fulfilment_customer_id', $parent->id);
                 }
             })

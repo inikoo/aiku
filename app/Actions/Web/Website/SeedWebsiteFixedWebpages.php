@@ -39,7 +39,7 @@ class SeedWebsiteFixedWebpages extends OrgAction
             'ready_at' => now(),
         ];
 
-        if($website->state==WebsiteStateEnum::LIVE) {
+        if ($website->state==WebsiteStateEnum::LIVE) {
             unset($storefrontData['ready_at']);
             $storefrontData['state']  =WebpageStateEnum::LIVE;
             $storefrontData['live_at']=now();
@@ -75,7 +75,7 @@ class SeedWebsiteFixedWebpages extends OrgAction
             'state'    => WebpageStateEnum::READY,
         ];
 
-        if($home->state==WebpageStateEnum::LIVE) {
+        if ($home->state==WebpageStateEnum::LIVE) {
             unset($webpageData['ready_at']);
             $webpageData['state']  =WebpageStateEnum::LIVE;
             $webpageData['live_at']=now();

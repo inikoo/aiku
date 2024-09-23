@@ -21,7 +21,7 @@ class GetTimesheet
     {
 
         $timesheet = $subject->timesheets()->where('date', $date)->first();
-        if(!$timesheet) {
+        if (!$timesheet) {
             $timesheet=StoreTimesheet::make()->action(
                 $subject,
                 [

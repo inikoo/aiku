@@ -66,7 +66,7 @@ class UpdateWarehouseArea extends OrgAction
 
     public function action(WarehouseArea $warehouseArea, array $modelData, bool $audit =true): WarehouseArea
     {
-        if(!$audit) {
+        if (!$audit) {
             WarehouseArea::disableAuditing();
         }
         $this->asAction      = true;

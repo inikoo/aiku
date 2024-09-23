@@ -55,8 +55,8 @@ class FetchAuroraStock extends FetchAurora
             'In Process' => StockStateEnum::IN_PROCESS,
         };
 
-        if($state==StockStateEnum::IN_PROCESS) {
-            if(DB::connection('aurora')
+        if ($state==StockStateEnum::IN_PROCESS) {
+            if (DB::connection('aurora')
                 ->table('Inventory Transaction Fact')
                 ->leftJoin('Part Dimension', 'Part Dimension.Part SKU', 'Inventory Transaction Fact.Part SKU')
                 ->whereIn('Inventory Transaction Section', ['In','Out'])

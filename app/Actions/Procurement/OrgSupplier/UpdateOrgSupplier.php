@@ -23,9 +23,9 @@ class UpdateOrgSupplier extends OrgAction
     {
         $orgSupplier = $this->update($orgSupplier, $modelData);
 
-        if($orgSupplier->wasChanged('status')) {
+        if ($orgSupplier->wasChanged('status')) {
             OrganisationHydrateOrgSuppliers::dispatch($orgSupplier->organisation);
-            if($orgSupplier->org_agent_id) {
+            if ($orgSupplier->org_agent_id) {
                 OrgAgentHydrateOrgSuppliers::dispatch($orgSupplier->orgAgent);
             }
         }

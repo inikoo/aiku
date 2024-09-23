@@ -8,7 +8,6 @@
 namespace App\Actions\Mail\EmailAddress;
 
 use App\Models\Mail\EmailAddress;
-
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetEmailAddress

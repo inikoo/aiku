@@ -41,8 +41,8 @@ class UpdateFulfilmentCustomer extends OrgAction
             'dropshipping'   => $fulfilmentCustomer->dropshipping
         ];
 
-        if(! blank($contactAddressData)) {
-            if($fulfilmentCustomer->customer->address) {
+        if (! blank($contactAddressData)) {
+            if ($fulfilmentCustomer->customer->address) {
                 UpdateAddress::run($fulfilmentCustomer->customer->address, $contactAddressData);
             } else {
                 $this->addAddressToModel(
@@ -57,7 +57,7 @@ class UpdateFulfilmentCustomer extends OrgAction
 
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
 
-        if($fulfilmentCustomer->wasChanged()) {
+        if ($fulfilmentCustomer->wasChanged()) {
 
             $fulfilmentCustomer->customer->auditEvent    = 'update';
             $fulfilmentCustomer->customer->isCustomEvent = true;

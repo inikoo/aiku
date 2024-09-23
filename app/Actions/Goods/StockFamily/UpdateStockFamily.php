@@ -89,7 +89,7 @@ class UpdateStockFamily extends GrpAction
 
     public function action(StockFamily $stockFamily, array $modelData, bool $audit =true): StockFamily
     {
-        if(!$audit) {
+        if (!$audit) {
             StockFamily::disableAuditing();
         }
         $this->asAction    = true;

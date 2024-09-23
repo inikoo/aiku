@@ -19,7 +19,7 @@ class CustomerClientRecordSearch
     public function handle(CustomerClient $customerClient): void
     {
 
-        if($customerClient->trashed()) {
+        if ($customerClient->trashed()) {
             $customerClient->universalSearch()->delete();
             return;
         }

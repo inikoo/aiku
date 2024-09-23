@@ -28,13 +28,13 @@ class UpdateFulfilment extends OrgAction
         $settings       = $fulfilment->settings;
         $updateSettings = false;
 
-        if(Arr::exists($modelData, 'weekly_cut_off_day')) {
+        if (Arr::exists($modelData, 'weekly_cut_off_day')) {
             $settings['rental_agreement_cut_off']['weekly']['day'] = $modelData['weekly_cut_off_day'];
             $updateSettings                                        = true;
             data_forget($modelData, 'weekly_cut_off_day');
         }
 
-        if(Arr::exists($modelData, 'monthly_cut_off')) {
+        if (Arr::exists($modelData, 'monthly_cut_off')) {
             $settings['rental_agreement_cut_off']['monthly']['day']      = $modelData['monthly_cut_off']['date'];
             $settings['rental_agreement_cut_off']['monthly']['workdays'] = $modelData['monthly_cut_off']['isWeekdays'];
             $updateSettings                                              = true;
@@ -42,7 +42,7 @@ class UpdateFulfilment extends OrgAction
             // data_forget($modelData, 'monthly_only_weekdays');
         }
 
-        if($updateSettings) {
+        if ($updateSettings) {
             $modelData['settings'] = $settings;
         }
 

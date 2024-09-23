@@ -48,9 +48,9 @@ class SeedWebsiteOutboxes
     public function asCommand(Command $command): int
     {
 
-        if($command->argument('website') == null) {
+        if ($command->argument('website') == null) {
             $websites = Website::all();
-            foreach($websites as $website) {
+            foreach ($websites as $website) {
                 $this->handle($website);
             }
             return 0;

@@ -8,7 +8,6 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
-
 use App\Enums\Ordering\Adjustment\AdjustmentTypeEnum;
 use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaTypeEnum;
 use Illuminate\Database\Schema\Blueprint;

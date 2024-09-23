@@ -263,7 +263,7 @@ class GetShopNavigation
 
         if ($user->hasPermissionTo("web.$shop->id.view")) {
 
-            if($shop->website) {
+            if ($shop->website) {
                 $navigation["web"] = [
                     "root"  => "grp.org.shops.show.web.",
                     "icon"  => ["fal", "fa-globe"],

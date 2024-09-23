@@ -63,7 +63,7 @@ trait WithModelAddressActions
         }
 
         $groupId=$model->group_id;
-        if($model instanceof Group) {
+        if ($model instanceof Group) {
             $groupId=$model->id;
         }
         data_set($addressData, 'group_id', $groupId);
@@ -83,11 +83,11 @@ trait WithModelAddressActions
             'group_id' => $groupId
         ];
 
-        if($canShip===null and $scope=='delivery') {
+        if ($canShip===null and $scope=='delivery') {
             $canShip=true;
         }
 
-        if($canShip!==null) {
+        if ($canShip!==null) {
             $pivotData['can_ship']=$canShip;
         }
 
@@ -117,7 +117,7 @@ trait WithModelAddressActions
         data_set($addressData, 'usage', 1);
 
         $groupId=$model->group_id;
-        if($model instanceof Group) {
+        if ($model instanceof Group) {
             $groupId=$model->id;
         }
         data_set($addressData, 'group_id', $groupId);
@@ -149,7 +149,7 @@ trait WithModelAddressActions
         }
 
         $groupId=$model->group_id;
-        if($model instanceof Group) {
+        if ($model instanceof Group) {
             $groupId=$model->id;
         }
 
@@ -180,7 +180,7 @@ trait WithModelAddressActions
 
 
         $groupId=$model->group_id;
-        if($model instanceof Group) {
+        if ($model instanceof Group) {
             $groupId=$model->id;
         }
 
@@ -189,11 +189,11 @@ trait WithModelAddressActions
             'group_id' => $groupId
         ];
 
-        if($canShip===null and $scope=='delivery') {
+        if ($canShip===null and $scope=='delivery') {
             $canShip=true;
         }
 
-        if($canShip!==null) {
+        if ($canShip!==null) {
             $pivotData['can_ship']=$canShip;
         }
 

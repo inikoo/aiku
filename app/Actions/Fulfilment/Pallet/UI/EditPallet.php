@@ -31,7 +31,7 @@ class EditPallet extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->parent instanceof FulfilmentCustomer) {
+        if ($this->parent instanceof FulfilmentCustomer) {
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.edit");
             return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.stored-items.view");
         } elseif ($this->parent instanceof Warehouse) {

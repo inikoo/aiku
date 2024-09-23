@@ -24,7 +24,7 @@ class CreateWebsite extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->parent instanceof Fulfilment) {
+        if ($this->parent instanceof Fulfilment) {
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->parent->id}.edit");
         } elseif ($this->parent instanceof Shop) {
             return $request->user()->hasPermissionTo("web.{$this->parent->id}.edit");

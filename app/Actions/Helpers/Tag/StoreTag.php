@@ -38,8 +38,8 @@ class StoreTag extends OrgAction
         );
         $tag->generateTagSlug();
         $tag->saveQuietly();
-        if($tag->type=='crm') {
-            if(!$tag->crmStats) {
+        if ($tag->type=='crm') {
+            if (!$tag->crmStats) {
                 $tag->crmStats()->create();
                 OrganisationHydrateCrmTags::dispatch();
             }

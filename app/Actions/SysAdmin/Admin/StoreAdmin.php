@@ -62,7 +62,7 @@ class StoreAdmin
 
         try {
             $validatedData = $this->validateAttributes();
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             $command->error($e->getMessage());
             return 1;
         }

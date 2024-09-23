@@ -58,7 +58,7 @@ class CancelPalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->palletDelivery->state != PalletDeliveryStateEnum::CONFIRMED) {
+        if ($this->palletDelivery->state != PalletDeliveryStateEnum::CONFIRMED) {
             return false;
         }
 

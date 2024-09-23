@@ -337,7 +337,7 @@ class ShowCollection extends OrgAction
 
     private function getNavigation(?Collection $collection, string $routeName): ?array
     {
-        if(!$collection) {
+        if (!$collection) {
             return null;
         }
 

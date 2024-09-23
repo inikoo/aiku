@@ -24,7 +24,7 @@ class FetchAuroraTimesheets extends FetchAuroraAction
     {
         if ($timesheetData = $organisationSource->fetchTimesheet($organisationSourceId)) {
 
-            if(!$timesheetData['employee'] or $timesheetData['employee']->trashed()) {
+            if (!$timesheetData['employee'] or $timesheetData['employee']->trashed()) {
                 return null;
             }
 

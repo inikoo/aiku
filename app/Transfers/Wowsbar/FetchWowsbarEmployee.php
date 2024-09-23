@@ -55,7 +55,7 @@ class FetchWowsbarEmployee extends FetchWowsbar
             ->get();
 
 
-        foreach($query as $jobPosition) {
+        foreach ($query as $jobPosition) {
             $this->parsedData['employee']['positions'][] =$this->parseJobPosition($jobPosition->slug);
         }
 

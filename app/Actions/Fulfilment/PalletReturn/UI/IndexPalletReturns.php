@@ -40,11 +40,11 @@ class IndexPalletReturns extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->parent instanceof Fulfilment or $this->parent instanceof FulfilmentCustomer) {
+        if ($this->parent instanceof Fulfilment or $this->parent instanceof FulfilmentCustomer) {
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
 
-        } elseif($this->parent instanceof Warehouse) {
+        } elseif ($this->parent instanceof Warehouse) {
             $this->canEdit = $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.edit");
             return $request->user()->hasPermissionTo("fulfilment.{$this->warehouse->id}.view");
         }
@@ -114,15 +114,15 @@ class IndexPalletReturns extends OrgAction
 
         $queryBuilder = QueryBuilder::for(PalletReturn::class);
 
-        if($parent instanceof Fulfilment) {
+        if ($parent instanceof Fulfilment) {
             $queryBuilder->where('pallet_returns.fulfilment_id', $parent->id);
-        } elseif($parent instanceof Warehouse) {
+        } elseif ($parent instanceof Warehouse) {
             $queryBuilder->where('pallet_returns.warehouse_id', $parent->id);
         } else {
             $queryBuilder->where('pallet_returns.fulfilment_customer_id', $parent->id);
         }
 
-        if($type = request()->get('type')) {
+        if ($type = request()->get('type')) {
             $queryBuilder->where('type', $type);
         }
 
@@ -204,7 +204,7 @@ class IndexPalletReturns extends OrgAction
         $iconRight =null;
         $model     = null;
 
-        if($this->parent instanceof  FulfilmentCustomer) {
+        if ($this->parent instanceof  FulfilmentCustomer) {
             $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
             $icon         =['fal', 'fa-user'];
             $title        =$this->parent->customer->name;

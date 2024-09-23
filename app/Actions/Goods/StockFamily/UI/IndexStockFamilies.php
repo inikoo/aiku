@@ -79,7 +79,7 @@ class IndexStockFamilies extends GrpAction
     public function tableStructure(Group $parent, $prefix=null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
-            if($prefix) {
+            if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');

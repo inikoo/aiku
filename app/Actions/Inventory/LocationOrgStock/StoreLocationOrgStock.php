@@ -82,7 +82,7 @@ class StoreLocationOrgStock extends OrgAction
         }
 
 
-        if($this->strict and $this->has('type') and $this->get('type') == LocationStockTypeEnum::PICKING->value) {
+        if ($this->strict and $this->has('type') and $this->get('type') == LocationStockTypeEnum::PICKING->value) {
             if (LocationOrgStock::where('type', LocationStockTypeEnum::PICKING->value)->where('org_stock_id', $this->orgStock->id)
                     ->count() > 0) {
                 $validator->errors()->add('type', __('This stock can have one picking only'));

@@ -31,7 +31,7 @@ class LocationHydrateStockValue
     {
         $orgStockValue          =0;
         $orgStockCommercialValue=0;
-        foreach($location->locationOrgStocks() as $locationOrgStock) {
+        foreach ($location->locationOrgStocks() as $locationOrgStock) {
             $orgStock=$locationOrgStock->orgStock;
             $orgStockValue          +=$locationOrgStock->quantity*$orgStock->unit_value;
             $orgStockCommercialValue+=$locationOrgStock->quantity*$orgStock->unit_commercial_value;

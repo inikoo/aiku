@@ -57,7 +57,7 @@ class ReceivedPalletDelivery extends OrgAction
                 ->where('auto_assign_asset_type', $pallet->type->value)
                 ->first();
 
-            if($rental) {
+            if ($rental) {
                 SetPalletRental::run($pallet, [
                     'rental_id' => $rental->id
                 ]);
@@ -81,11 +81,11 @@ class ReceivedPalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->palletDelivery->state != PalletDeliveryStateEnum::CONFIRMED) {
+        if ($this->palletDelivery->state != PalletDeliveryStateEnum::CONFIRMED) {
             return false;
         }
 
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
 

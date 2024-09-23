@@ -32,7 +32,7 @@ class BuildElasticsearchClient
             $client->ping();
 
             return $client;
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return $e;
         }
 

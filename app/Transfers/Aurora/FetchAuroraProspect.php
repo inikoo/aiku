@@ -78,7 +78,7 @@ class FetchAuroraProspect extends FetchAurora
         $email = preg_replace('/\.+/', '.', $email);
 
         $phone = $this->auroraModelData->{'Prospect Main Plain Mobile'};
-        if(strlen($phone)<=5 or strlen($phone)>24) {
+        if (strlen($phone)<=5 or strlen($phone)>24) {
             $phone = null;
         }
 

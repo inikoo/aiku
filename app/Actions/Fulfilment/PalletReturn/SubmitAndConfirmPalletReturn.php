@@ -37,7 +37,7 @@ class SubmitAndConfirmPalletReturn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->palletReturn->state != PalletReturnStateEnum::IN_PROCESS) {
+        if ($this->palletReturn->state != PalletReturnStateEnum::IN_PROCESS) {
             return false;
         }
 

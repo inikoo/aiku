@@ -70,7 +70,7 @@ class StoreRentalAgreement extends OrgAction
         }
 
         $password= null;
-        if(
+        if (
             $this->shop->website and
             $this->fulfilmentCustomer->customer->webUsers()->count()==0) {
             $password = Str::random(8);
@@ -85,7 +85,7 @@ class StoreRentalAgreement extends OrgAction
             $webUser=$this->fulfilmentCustomer->customer->webUsers()->first();
         }
 
-        if($this->sendEmail) {
+        if ($this->sendEmail) {
             $webUser?->notify(new SendEmailRentalAgreementCreated($password));
         }
         StoreRentalAgreementSnapshot::run($rentalAgreement, firstSnapshot: true);

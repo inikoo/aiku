@@ -100,7 +100,7 @@ class EditStockDelivery extends InertiaAction
 
     private function getNavigation(?StockDelivery $stockDelivery, string $routeName): ?array
     {
-        if(!$stockDelivery) {
+        if (!$stockDelivery) {
             return null;
         }
         return match ($routeName) {

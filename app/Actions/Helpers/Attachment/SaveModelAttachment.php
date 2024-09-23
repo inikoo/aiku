@@ -25,7 +25,7 @@ class SaveModelAttachment
         $checksum = md5_file($fileData['path']);
 
         /** @var Media $media */
-        if(!$media=$model->group->media()->where('type', 'attachment')->where('checksum', $checksum)->first()) {
+        if (!$media=$model->group->media()->where('type', 'attachment')->where('checksum', $checksum)->first()) {
             data_set($fileData, 'checksum', $checksum);
             $media= StoreMediaFromFile::run($model, $fileData, 'attachment', 'attachment');
         }

@@ -210,11 +210,11 @@ class IndexFamilies extends OrgAction
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
 
-            if(class_basename($parent) != 'Collection') {
+            if (class_basename($parent) != 'Collection') {
                 $table->column(key: 'number_current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            if(class_basename($parent) == 'Collection') {
+            if (class_basename($parent) == 'Collection') {
                 $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
             }
         };
@@ -279,7 +279,7 @@ class IndexFamilies extends OrgAction
         }
 
         $routes = null;
-        if($this->parent instanceof Collection) {
+        if ($this->parent instanceof Collection) {
             $routes = [
                         'dataList'  => [
                             'name'          => 'grp.json.shop.catalogue.families',

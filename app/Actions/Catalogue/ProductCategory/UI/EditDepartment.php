@@ -151,7 +151,7 @@ class EditDepartment extends OrgAction
 
     private function getNavigation(?ProductCategory $department, string $routeName): ?array
     {
-        if(!$department) {
+        if (!$department) {
             return null;
         }
         return match ($routeName) {

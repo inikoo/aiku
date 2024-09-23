@@ -38,7 +38,7 @@ class UpdateStock extends GrpAction
         $changes = $stock->getChanges();
         if (Arr::hasAny($changes, ['code', 'name', 'stock_family_id', 'unit_value', 'state'])) {
 
-            if($stock->state!=StockStateEnum::IN_PROCESS) {
+            if ($stock->state!=StockStateEnum::IN_PROCESS) {
                 foreach ($stock->orgStocks as $orgStock) {
                     $orgStock->update(
                         [

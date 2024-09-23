@@ -29,7 +29,7 @@ class InvoiceRecordSearch
 
         $shop = $invoice->shop;
 
-        if($shop->type==ShopTypeEnum::FULFILMENT) {
+        if ($shop->type==ShopTypeEnum::FULFILMENT) {
             $route=[
                 'name'          => 'grp.org.fulfilments.show.operations.invoices.show',
                 'parameters'    => [

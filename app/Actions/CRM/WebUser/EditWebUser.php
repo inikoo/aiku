@@ -32,9 +32,9 @@ class EditWebUser extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
 
-        if($this->parent instanceof Fulfilment) {
+        if ($this->parent instanceof Fulfilment) {
             return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.view");
-        } elseif($this->parent instanceof Shop) {
+        } elseif ($this->parent instanceof Shop) {
             return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
         }
 

@@ -25,7 +25,7 @@ class ImportUpload
             is_string($file) ? $file : $file->path()
         );
 
-        if(is_string($file)) {
+        if (is_string($file)) {
             Storage::delete($file);
         }
     }

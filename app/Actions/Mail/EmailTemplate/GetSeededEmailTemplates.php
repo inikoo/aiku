@@ -23,7 +23,7 @@ class GetSeededEmailTemplates extends InertiaAction
         $selectOptions = [];
 
         /** @var EmailTemplate $emailTemplates */
-        if($category== null) {
+        if ($category== null) {
             $emailTemplates = EmailTemplate::all();
         } else {
             $emailTemplates = EmailTemplateCategory::where('name', $category)->first();

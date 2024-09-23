@@ -216,7 +216,7 @@ class IndexOrgStocks extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->column(key: 'code', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 
-            if($parent instanceof Organisation) {
+            if ($parent instanceof Organisation) {
                 $table->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true);
             }
 

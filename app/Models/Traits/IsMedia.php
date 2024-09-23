@@ -36,7 +36,7 @@ trait IsMedia
 
     public function getImgProxyFilename(): string
     {
-        if(config('media-library.disk_name')=='media-r2') {
+        if (config('media-library.disk_name')=='media-r2') {
             return 's3://'.config('filesystems.disks.media-r2.bucket').'/'.$this->getPath();
         }
 

@@ -61,7 +61,7 @@ class FetchAuroraDepartments extends FetchAuroraAction
         $query              =DB::connection('aurora')
             ->table('Store Dimension')
             ->select('Store Department Category Key');
-        foreach($query->get() as $row) {
+        foreach ($query->get() as $row) {
             $departmentSourceIDs[]=$row->{'Store Department Category Key'};
         }
 
@@ -81,7 +81,7 @@ class FetchAuroraDepartments extends FetchAuroraAction
         $query              =DB::connection('aurora')
             ->table('Store Dimension')
             ->select('Store Department Category Key');
-        foreach($query->get() as $row) {
+        foreach ($query->get() as $row) {
             $departmentSourceIDs[]=$row->{'Store Department Category Key'};
         }
 

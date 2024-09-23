@@ -8,7 +8,6 @@
 namespace App\Actions\Web\Banner\UI;
 
 use App\Actions\InertiaAction;
-
 use App\Enums\Web\Banner\BannerTabsEnum;
 use App\Http\Resources\Web\BannerResource;
 use App\Models\Catalogue\Shop;

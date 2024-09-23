@@ -58,7 +58,7 @@ beforeEach(function () {
     $this->orgStocks          = createOrgStocks($this->organisation, $this->stocks);
 
     $agent = Agent::first();
-    if(!$agent) {
+    if (!$agent) {
         $modelData = Agent::factory()->definition();
         $agent     = StoreAgent::make()->action(
             group: $this->group,

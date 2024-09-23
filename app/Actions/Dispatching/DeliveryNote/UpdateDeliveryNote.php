@@ -112,7 +112,7 @@ class UpdateDeliveryNote extends OrgAction
 
     public function action(DeliveryNote $deliveryNote, array $modelData, int $hydratorsDelay = 0, bool $audit =true): DeliveryNote
     {
-        if(!$audit) {
+        if (!$audit) {
             DeliveryNote::disableAuditing();
         }
         $this->asAction       = true;

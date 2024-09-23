@@ -73,7 +73,7 @@ class PublishWebsiteMarginal extends OrgAction
             ]
         );
 
-        if(in_array($marginal, ['header', 'footer'])) {
+        if (in_array($marginal, ['header', 'footer'])) {
             $updateData = [
                 "live_{$marginal}_snapshot_id"    => $snapshot->id,
                 "published_layout->$marginal"     => $snapshot->layout,
@@ -95,7 +95,7 @@ class PublishWebsiteMarginal extends OrgAction
         $url   = url()->previous();
         $route = app('router')->getRoutes()->match(app('request')->create($url))->getName();
 
-        if($route == 'grp.org.shops.show.web.websites.workshop') {
+        if ($route == 'grp.org.shops.show.web.websites.workshop') {
             return match ($this->marginal) {
                 'header' =>
                 Inertia::location(route('grp.org.shops.show.web.websites.workshop.header', [

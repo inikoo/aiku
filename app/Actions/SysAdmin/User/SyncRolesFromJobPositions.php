@@ -52,7 +52,7 @@ class SyncRolesFromJobPositions
                     Role::where('name', RolesEnum::getRoleName(RolesEnum::ORG_ADMIN->value, $organisation))->first()
                 ]);
             }
-            foreach($user->group->shops  as $shop) {
+            foreach ($user->group->shops as $shop) {
                 if ($shop->type == ShopTypeEnum::FULFILMENT) {
                     UserAddRoles::run($user, [
                         Role::where('name', RolesEnum::getRoleName(RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR->value, $shop->fulfilment))->first()

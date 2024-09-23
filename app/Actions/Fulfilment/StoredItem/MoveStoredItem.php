@@ -40,7 +40,7 @@ class MoveStoredItem extends OrgAction
 
             $quantity = Arr::get($modelData, 'quantity', 1);
 
-            if($currentQuantity < $quantity) {
+            if ($currentQuantity < $quantity) {
                 throw ValidationException::withMessages(['quantity' => 'The quantity to move is greater than the current quantity']);
             }
 

@@ -226,7 +226,7 @@ class EditProduct extends OrgAction
 
     private function getNavigation(?Product $product, string $routeName): ?array
     {
-        if(!$product) {
+        if (!$product) {
             return null;
         }
         return match ($routeName) {

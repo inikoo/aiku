@@ -8,7 +8,6 @@
 namespace App\Actions\Ordering\Order\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStatusEnum;
@@ -39,7 +38,7 @@ class OrderHydrateTransactions
             'number_transactions' => $order->transactions()->count(),
         ];
 
-        if($order->state == OrderStateEnum::CREATING) {
+        if ($order->state == OrderStateEnum::CREATING) {
             $stats['number_transactions_at_creation' ]= $order->transactions()->count();
 
         }

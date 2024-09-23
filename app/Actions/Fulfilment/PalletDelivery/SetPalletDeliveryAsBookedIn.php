@@ -50,14 +50,14 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
         $palletDelivery = $this->update($palletDelivery, $modelData);
 
         $recurringBill = $palletDelivery->fulfilmentCustomer->currentRecurringBill;
-        if(!$recurringBill) {
+        if (!$recurringBill) {
             $recurringBill=StoreRecurringBill::make()->action($palletDelivery->fulfilmentCustomer->rentalAgreement, [
                 'start_date' => now(),
                 'end_date'   => now()->addMonth(),
                 'status'     => 'active'
             ]);
             $palletDelivery->fulfilmentCustomer->update(['current_recurring_bill_id' => $recurringBill->id]);
-            foreach($palletDelivery->transactions as $transaction) {
+            foreach ($palletDelivery->transactions as $transaction) {
                 StoreRecurringBillTransaction::make()->action(
                     $recurringBill,
                     $transaction,
@@ -67,7 +67,7 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
                 );
             }
         } else {
-            foreach($palletDelivery->transactions as $transaction) {
+            foreach ($palletDelivery->transactions as $transaction) {
                 StoreRecurringBillTransaction::make()->action(
                     $recurringBill,
                     $transaction,
@@ -76,7 +76,7 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
                     ]
                 );
             }
-            foreach($palletDelivery->pallets as $pallet) {
+            foreach ($palletDelivery->pallets as $pallet) {
                 StoreRecurringBillTransaction::make()->action(
                     $recurringBill,
                     $pallet,
@@ -105,11 +105,11 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->palletDelivery->state != PalletDeliveryStateEnum::BOOKING_IN) {
+        if ($this->palletDelivery->state != PalletDeliveryStateEnum::BOOKING_IN) {
             return false;
         }
 
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
 
@@ -118,7 +118,7 @@ class SetPalletDeliveryAsBookedIn extends OrgAction
 
     public function prepareForValidation(): void
     {
-        if($this->palletDelivery->pallets()->whereNotIn('state', [PalletStateEnum::BOOKED_IN,PalletStateEnum::NOT_RECEIVED])->count()>0) {
+        if ($this->palletDelivery->pallets()->whereNotIn('state', [PalletStateEnum::BOOKED_IN,PalletStateEnum::NOT_RECEIVED])->count()>0) {
             abort(400, 'One or more pallets are not in a state that can be booked in.');
         }
     }

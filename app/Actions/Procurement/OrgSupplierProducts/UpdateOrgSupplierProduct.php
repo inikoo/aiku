@@ -24,10 +24,10 @@ class UpdateOrgSupplierProduct extends OrgAction
     {
         $orgSupplierProduct = $this->update($orgSupplierProduct, $modelData);
 
-        if($orgSupplierProduct->wasChanged(['status','is_available'])) {
+        if ($orgSupplierProduct->wasChanged(['status','is_available'])) {
             OrganisationHydrateOrgSupplierProducts::dispatch($orgSupplierProduct->organisation);
             OrgSupplierHydrateOrgSupplierProducts::dispatch($orgSupplierProduct->orgSupplier);
-            if($orgSupplierProduct->org_agent_id) {
+            if ($orgSupplierProduct->org_agent_id) {
                 OrgAgentHydrateOrgSupplierProducts::dispatch($orgSupplierProduct->orgAgent);
             }
         }

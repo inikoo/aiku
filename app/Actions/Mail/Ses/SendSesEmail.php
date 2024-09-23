@@ -96,7 +96,7 @@ class SendSesEmail
                     ]
                 );
 
-                if($dispatchedEmail->recipient) {
+                if ($dispatchedEmail->recipient) {
                     if ($dispatchedEmail->mailshotRecipient->recipient_type == 'Prospect') {
                         UpdateProspectEmailSent::run($dispatchedEmail->recipient);
                     }

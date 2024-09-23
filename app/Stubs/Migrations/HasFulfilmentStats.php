@@ -47,7 +47,7 @@ trait HasFulfilmentStats
 
         $table->unsignedInteger('number_stored_items')->default(0);
         foreach (StoredItemStateEnum::cases() as $state) {
-            if($table->getTable()=='pallets' and  $state==StoredItemStateEnum::DISCONTINUED) {
+            if ($table->getTable()=='pallets' and  $state==StoredItemStateEnum::DISCONTINUED) {
                 continue;
             }
             $table->unsignedInteger("number_stored_items_state_{$state->snake()}")->default(0);

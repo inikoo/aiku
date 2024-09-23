@@ -37,7 +37,7 @@ trait WithAttachMediaToModel
             $organisation_id = $model->organisation_id;
         }
 
-        if(!$data) {
+        if (!$data) {
             $data = new stdClass();
         }
 

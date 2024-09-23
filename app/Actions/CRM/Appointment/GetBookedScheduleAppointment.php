@@ -51,9 +51,9 @@ class GetBookedScheduleAppointment
             $appointment = Appointment::whereDate('schedule_at', $date)
                 ->pluck('schedule_at');
 
-            if($employees->count() != 0) {
+            if ($employees->count() != 0) {
                 $bookedSchedules[$date] = $availableTimes;
-            } elseif(count($appointment) > 0) {
+            } elseif (count($appointment) > 0) {
                 $bookedSchedules[$date] = $appointment->map(function ($item) {
                     return Carbon::parse($item)->format('H:i');
                 })->toArray();

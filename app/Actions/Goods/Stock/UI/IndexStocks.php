@@ -239,7 +239,7 @@ class IndexStocks extends GrpAction
                     }
                 )
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
-            if($parent instanceof Group) {
+            if ($parent instanceof Group) {
                 $table->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true);
             }
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);

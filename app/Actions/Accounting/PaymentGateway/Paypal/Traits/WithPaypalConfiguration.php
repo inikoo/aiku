@@ -9,7 +9,7 @@ trait WithPaypalConfiguration
 {
     public function url(): string
     {
-        if(app()->isProduction()) {
+        if (app()->isProduction()) {
             return 'https://api-m.paypal.com';
         }
 

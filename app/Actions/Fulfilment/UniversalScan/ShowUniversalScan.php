@@ -21,7 +21,7 @@ class ShowUniversalScan extends OrgAction
         /** @var UniversalSearch $query */
         $query = $warehouse->universalSearches();
 
-        if($type = $request->get('type')) {
+        if ($type = $request->get('type')) {
             $query->where('model_type', $type);
         }
 

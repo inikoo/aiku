@@ -84,7 +84,7 @@ class HydrateOrganisations extends HydrateModel
         OrganisationHydrateServices::run($organisation);
         OrganisationHydrateOutboxes::run($organisation);
 
-        if($organisation->type==OrganisationTypeEnum::SHOP) {
+        if ($organisation->type==OrganisationTypeEnum::SHOP) {
             OrganisationHydrateDepartments::run($organisation);
             OrganisationHydrateSubDepartments::run($organisation);
             OrganisationHydrateFamilies::run($organisation);

@@ -57,19 +57,19 @@ class ShowPalletReturn extends RetinaAction
 
         $navigation=PalletReturnTabsEnum::navigation($palletReturn);
 
-        if($palletReturn->type==PalletReturnTypeEnum::PALLET) {
+        if ($palletReturn->type==PalletReturnTypeEnum::PALLET) {
             unset($navigation[PalletReturnTabsEnum::STORED_ITEMS->value]);
         } else {
             unset($navigation[PalletReturnTabsEnum::PALLETS->value]);
         }
 
-        if($palletReturn->type==PalletReturnTypeEnum::PALLET) {
+        if ($palletReturn->type==PalletReturnTypeEnum::PALLET) {
             $this->tab = PalletReturnTabsEnum::PALLETS->value;
         } else {
             $this->tab = PalletReturnTabsEnum::STORED_ITEMS->value;
         }
 
-        if($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
+        if ($palletReturn->type==PalletReturnTypeEnum::STORED_ITEM) {
             $afterTitle=[
                 'label'=> '('.__('Stored items').')'
                 ];
@@ -84,7 +84,7 @@ class ShowPalletReturn extends RetinaAction
         $processedAddresses = $addresses->map(function ($address) {
 
 
-            if(!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
+            if (!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
 
                 return $address->setAttribute('can_delete', false)
                     ->setAttribute('can_edit', true);
@@ -118,7 +118,7 @@ class ShowPalletReturn extends RetinaAction
 
         $showGrossAndDiscount = $palletReturn->gross_amount !== $palletReturn->net_amount;
 
-        if($palletReturn->type == PalletReturnTypeEnum::PALLET) {
+        if ($palletReturn->type == PalletReturnTypeEnum::PALLET) {
             $downloadRoute = 'retina.storage.pallet-returns.pallets.uploads.templates';
         } else {
             $downloadRoute = 'retina.storage.pallet-returns.stored-items.uploads.templates';

@@ -29,7 +29,7 @@ class NotPickedPalletFromReturn extends OrgAction
 
     public function handle(PalletReturnItem $palletReturnItem, $modelData): PalletReturnItem
     {
-        if($palletReturnItem->type == 'Pallet') {
+        if ($palletReturnItem->type == 'Pallet') {
             $palletReturnItem = $this->update($palletReturnItem, [
                 'state' => PalletReturnItemStateEnum::NOT_PICKED
             ], ['data']);

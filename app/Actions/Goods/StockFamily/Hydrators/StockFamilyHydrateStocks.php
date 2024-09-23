@@ -69,19 +69,19 @@ class StockFamilyHydrateStocks
 
     public function getStockFamilyState($stats): StockFamilyStateEnum
     {
-        if($stats['number_stocks'] == 0) {
+        if ($stats['number_stocks'] == 0) {
             return StockFamilyStateEnum::IN_PROCESS;
         }
 
-        if(Arr::get($stats, 'number_stocks_state_active', 0)>0) {
+        if (Arr::get($stats, 'number_stocks_state_active', 0)>0) {
             return StockFamilyStateEnum::ACTIVE;
         }
 
-        if(Arr::get($stats, 'number_stocks_state_discontinuing', 0)>0) {
+        if (Arr::get($stats, 'number_stocks_state_discontinuing', 0)>0) {
             return StockFamilyStateEnum::DISCONTINUING;
         }
 
-        if(Arr::get($stats, 'number_stocks_state_in_process', 0)>0) {
+        if (Arr::get($stats, 'number_stocks_state_in_process', 0)>0) {
             return StockFamilyStateEnum::IN_PROCESS;
         }
 

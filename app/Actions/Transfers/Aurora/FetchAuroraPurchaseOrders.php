@@ -117,7 +117,7 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                 ->get() as $auroraData
         ) {
             $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Purchase Order Transaction Fact Key'}]);
-            if($purchaseOrder->parent_type=='OrgPartner') {
+            if ($purchaseOrder->parent_type=='OrgPartner') {
                 //todo implement this
             } else {
                 FetchPurchaseOrderTransactions::run($organisationSource, $auroraData->{'Purchase Order Transaction Fact Key'}, $purchaseOrder);

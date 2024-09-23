@@ -54,7 +54,7 @@ class AuditLocationOrgStock extends OrgAction
     public function prepareForValidation(): void
     {
 
-        if(!$this->has('quantity')) {
+        if (!$this->has('quantity')) {
             $this->set('quantity', $this->locationOrgStock->quantity);
         }
 

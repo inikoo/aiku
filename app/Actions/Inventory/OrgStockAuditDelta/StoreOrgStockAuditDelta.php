@@ -8,7 +8,6 @@
 namespace App\Actions\Inventory\OrgStockAuditDelta;
 
 use App\Actions\Catalogue\HasRentalAgreement;
-
 use App\Actions\Fulfilment\WithDeliverableStoreProcessing;
 use App\Actions\OrgAction;
 use App\Enums\Inventory\OrgStockAuditDelta\OrgStockAuditDeltaTypeEnum;
@@ -40,7 +39,7 @@ class StoreOrgStockAuditDelta extends OrgAction
         data_set($modelData, 'type', OrgStockAuditDeltaTypeEnum::ADDITION->value);
 
 
-        if($parent instanceof OrgStockAudit) {
+        if ($parent instanceof OrgStockAudit) {
             $orgStockAuditDelta = $parent->orgStockAuditDeltas()->create($modelData);
         } else {
             $orgStockAuditDelta=OrgStockAuditDelta::create($modelData);

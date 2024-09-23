@@ -19,8 +19,8 @@ enum PurchaseOrderTransactionStateEnum: string
     case MANUFACTURED     ='manufactured';
     case DISPATCHED       = 'dispatched';
     case PROCESSING       = 'processing';
-    case  SETTLED         = 'settled';
-    case  CANCELLED       = 'cancelled';
-    case  NO_RECEIVED     = 'no-received';
+    case SETTLED          = 'settled';
+    case CANCELLED        = 'cancelled';
+    case NO_RECEIVED      = 'no-received';
 
 }

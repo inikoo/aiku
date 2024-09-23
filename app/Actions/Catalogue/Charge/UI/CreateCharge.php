@@ -58,19 +58,19 @@ class CreateCharge extends OrgAction
                                 'title'  => __('contact'),
                                 'fields' => [
                                     'code' => [
-                                        'type'  => 'input',
-                                        'label' => __('code'),
+                                        'type'     => 'input',
+                                        'label'    => __('code'),
                                         'required' => true,
                                     ],
                                     'name' => [
-                                        'type'  => 'input',
-                                        'label' => __('name'),
+                                        'type'     => 'input',
+                                        'label'    => __('name'),
                                         'required' => true,
                                     ],
                                     'description' => [
                                         'type'        => 'textarea',
                                         'label'       => __('description'),
-                                        'required' => true,
+                                        'required'    => true,
                                     ],
                                     'state' => [
                                         'type'     => 'select',

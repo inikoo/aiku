@@ -33,7 +33,7 @@ class HistoryUploads
     public function handle(string $class, $argument): array|Collection
     {
         $upload = Upload::whereType($class);
-        if(!blank($argument)) {
+        if (!blank($argument)) {
             $upload->where(Arr::get($argument, 'key'), Arr::get($argument, 'value'));
         }
 

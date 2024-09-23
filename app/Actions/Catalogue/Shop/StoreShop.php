@@ -86,7 +86,7 @@ class StoreShop extends OrgAction
         $shop->mailshotsIntervals()->create();
         $shop->discountsStats()->create();
 
-        if($shop->type === ShopTypeEnum::DROPSHIPPING) {
+        if ($shop->type === ShopTypeEnum::DROPSHIPPING) {
             $shop->dropshippingStats()->create();
         }
 

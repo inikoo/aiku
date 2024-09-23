@@ -30,7 +30,7 @@ class SyncStoredItemToPallet extends OrgAction
     public function handle(Pallet $pallet, array $modelData): void
     {
         Arr::map(Arr::get($modelData, 'stored_item_ids'), function (array $item, int|string $key) {
-            if($key == 'null') {
+            if ($key == 'null') {
                 throw ValidationException::withMessages(['stored_item_ids' => __('The stored item is required')]);
             }
         });

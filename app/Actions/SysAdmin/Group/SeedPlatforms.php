@@ -28,7 +28,7 @@ class SeedPlatforms extends GrpAction
 
             $code= $case->value;
 
-            if($group->platforms()->where('code', $code)->exists()) {
+            if ($group->platforms()->where('code', $code)->exists()) {
                 continue;
             }
 

@@ -33,7 +33,7 @@ enum WebsiteStateEnum: string
 
     public static function count(Group|Organisation|Shop|Fulfilment $parent): array
     {
-        if($parent instanceof Group || $parent instanceof Organisation) {
+        if ($parent instanceof Group || $parent instanceof Organisation) {
             $webStats = $parent->webStats;
 
             return [

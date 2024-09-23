@@ -109,7 +109,7 @@ class IndexJobPositions extends OrgAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
 
-            if($parent instanceof Organisation) {
+            if ($parent instanceof Organisation) {
                 $table->column(key: 'number_employees_currently_working', label: __('employees'), canBeHidden: false, sortable: true, searchable: true);
 
                 //$table->column(key: 'department', label: __('department'), canBeHidden: false, sortable: true, searchable: true);
@@ -127,7 +127,7 @@ class IndexJobPositions extends OrgAction
 
         $subNavigation=[];
 
-        if($this->parent instanceof Employee) {
+        if ($this->parent instanceof Employee) {
             $subNavigation = $this->getEmployeeSubNavigation($this->parent, $request);
         }
 

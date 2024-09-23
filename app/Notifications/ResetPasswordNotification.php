@@ -48,7 +48,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
             ->line(Lang::get(Arr::get($data, 'footer', 'This password reset link will expire in :count minutes.'), ['count' => config('auth.passwords.'.config('auth.defaults.passwords').'.expire')]))
             ->line(Lang::get(Arr::get($data, 'notes', 'If you did not request a password reset, no further action is required.')));
 
-        if(app()->isProduction()) {
+        if (app()->isProduction()) {
             if ($notifiable instanceof WebUser) {
                 $message->from($notifiable->shop->email);
             } else {

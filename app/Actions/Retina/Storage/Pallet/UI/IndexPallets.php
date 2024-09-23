@@ -132,7 +132,7 @@ class IndexPallets extends RetinaAction
                 ->withEmptyState($emptyStateData)
                 ->withModelOperations($modelOperations);
 
-            if($parent->state == PalletDeliveryStateEnum::IN_PROCESS && $parent->state == PalletReturnStateEnum::PICKING) {
+            if ($parent->state == PalletDeliveryStateEnum::IN_PROCESS && $parent->state == PalletReturnStateEnum::PICKING) {
                 $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
             } else {
                 $table->column(key: 'type_icon', label: ['fal', 'fa-yin-yang'], type: 'icon');

@@ -82,7 +82,7 @@ class StorePurchaseOrderTransaction extends OrgAction
 
     public function prepareForValidation(): void
     {
-        if(!$this->has('state')) {
+        if (!$this->has('state')) {
             $this->set('state', PurchaseOrderTransactionStateEnum::PROCESSING);
         }
     }

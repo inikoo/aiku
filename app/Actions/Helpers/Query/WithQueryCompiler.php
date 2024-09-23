@@ -149,7 +149,7 @@ trait WithQueryCompiler
     {
 
         $state=Arr::get($constrain, 'state');
-        if(is_string($state)) {
+        if (is_string($state)) {
             $state =$state=='true';
         }
 

@@ -20,7 +20,7 @@ class RecurringBillRecordSearch
     {
         if ($recurringBill->trashed()) {
 
-            if($recurringBill->universalSearch) {
+            if ($recurringBill->universalSearch) {
                 $recurringBill->universalSearch()->delete();
             }
             return;

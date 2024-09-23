@@ -152,7 +152,7 @@ class UpdatePallet extends OrgAction
 
     public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0, bool $audit =true): Pallet
     {
-        if(!$audit) {
+        if (!$audit) {
             Pallet::disableAuditing();
         }
 

@@ -132,7 +132,7 @@ class HydrateGroup extends HydrateModel
 
     public function asCommand(Command $command): int
     {
-        if($command->argument('group')) {
+        if ($command->argument('group')) {
             try {
                 $group = Group::where('slug', $command->argument('group'))->firstorFail();
             } catch (Exception $e) {
@@ -146,7 +146,7 @@ class HydrateGroup extends HydrateModel
         } else {
             $groups = Group::all();
 
-            foreach($groups as $group) {
+            foreach ($groups as $group) {
                 $this->handle($group);
             }
         }

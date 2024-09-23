@@ -40,7 +40,7 @@ class AttachOrderToPlatform extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        if($this->order->platforms()->count() >= 1) {
+        if ($this->order->platforms()->count() >= 1) {
             abort(403);
         }
     }

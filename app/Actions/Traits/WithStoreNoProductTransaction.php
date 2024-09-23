@@ -19,7 +19,7 @@ trait WithStoreNoProductTransaction
         data_set($modelData, 'model_type', 'Charge');
         data_set($modelData, 'model_id', Arr::get($modelData, 'charge_id'));
 
-        if(Arr::get($modelData, 'charge_id')) {
+        if (Arr::get($modelData, 'charge_id')) {
             data_set($modelData, 'asset_id', Arr::get($modelData, 'charge_id'));
             $charge = Charge::find(Arr::get($modelData, 'charge_id'));
             data_set($modelData, 'historic_asset_id', $charge->current_historic_asset_id);
@@ -34,7 +34,7 @@ trait WithStoreNoProductTransaction
         data_set($modelData, 'model_type', 'ShippingZone');
         data_set($modelData, 'model_id', Arr::get($modelData, 'shipping_zone_id'));
 
-        if(Arr::get($modelData, 'shipping_zone_id')) {
+        if (Arr::get($modelData, 'shipping_zone_id')) {
             data_set($modelData, 'asset_id', Arr::get($modelData, 'shipping_zone_id'));
             $shippingZone = ShippingZone::find(Arr::get($modelData, 'shipping_zone_id'));
             data_set($modelData, 'historic_asset_id', $shippingZone->current_historic_asset_id);

@@ -29,7 +29,7 @@ class FetchAuroraPayment extends FetchAurora
 
         $this->parsedData['paymentAccount'] = $this->parsePaymentAccount($this->organisation->id.':'.$this->auroraModelData->{'Payment Account Key'});
 
-        if(!$this->parsedData['paymentAccount']) {
+        if (!$this->parsedData['paymentAccount']) {
             print_r($this->auroraModelData);
             dd('Error Payment Account not found');
         }
@@ -57,18 +57,18 @@ class FetchAuroraPayment extends FetchAurora
 
 
         $createdAt=$this->parseDatetime($this->auroraModelData->{'Payment Created Date'});
-        if(!$createdAt) {
+        if (!$createdAt) {
             $createdAt=$this->parseDatetime($this->auroraModelData->{'Payment Last Updated Date'});
         }
-        if(!$createdAt) {
+        if (!$createdAt) {
             $createdAt=$this->parseDatetime($this->auroraModelData->{'Payment Completed Date'});
         }
-        if(!$createdAt) {
+        if (!$createdAt) {
             $createdAt=$this->parseDatetime($this->auroraModelData->{'Payment Cancelled Date'});
         }
 
         $lastUpdatedDate=$this->parseDatetime($this->auroraModelData->{'Payment Last Updated Date'});
-        if(!$lastUpdatedDate) {
+        if (!$lastUpdatedDate) {
             $lastUpdatedDate=$createdAt;
         }
 

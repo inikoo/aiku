@@ -37,7 +37,7 @@ class StoreCreditTransaction extends OrgAction
         /** @var CreditTransaction $creditTransaction */
         $creditTransaction = $customer->creditTransactions()->create($modelData);
 
-        if($this->hydratorsDelay>0) {
+        if ($this->hydratorsDelay>0) {
             CustomerHydrateCreditTransactions::dispatch($customer)->delay($this->hydratorsDelay);
 
         } else {

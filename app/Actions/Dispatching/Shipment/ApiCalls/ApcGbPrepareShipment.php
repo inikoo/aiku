@@ -35,7 +35,7 @@ class ApcGbPrepareShipment
             $name = Arr::get($shipTo, 'contact');
         }
 
-        if($name=='') {
+        if ($name=='') {
             $name='Householder';
         }
 

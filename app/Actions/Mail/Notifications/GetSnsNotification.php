@@ -30,11 +30,11 @@ class GetSnsNotification
                 $messageData = json_decode($message['Message'], true);
 
                 $type=Arr::get($messageData, 'notificationType');
-                if($type=='notificationType') {
+                if ($type=='notificationType') {
                     return 'ok';
                 }
 
-                if($messageId=Arr::get($messageData, 'mail.messageId')) {
+                if ($messageId=Arr::get($messageData, 'mail.messageId')) {
 
                     $sesNotification=SesNotification::create(
                         [

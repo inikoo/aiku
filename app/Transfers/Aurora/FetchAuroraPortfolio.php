@@ -37,7 +37,7 @@ class FetchAuroraPortfolio extends FetchAurora
             'status'          => $this->auroraModelData->{'Customer Portfolio Customers State'} === 'Active',
         ];
         $lastRemoved=$this->auroraModelData->{'Customer Portfolio Removed Date'};
-        if($lastRemoved) {
+        if ($lastRemoved) {
             $this->parsedData['portfolio']['last_removed_at']=$lastRemoved;
         }
 
