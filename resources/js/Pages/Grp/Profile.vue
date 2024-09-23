@@ -21,7 +21,7 @@ import ProfileVisitLogs from "@/Components/Profile/ProfileVisitLogs.vue"
 import ProfileTodo from "@/Components/Profile/ProfileTodo.vue"
 import ProfileNotifications from "@/Components/Profile/ProfileNotifications.vue"
 // import ProfileDashboard from "@/Components/Profile/ProfileDashboard.vue"
-// import EditProfile from "@/Pages/Grp/EditProfile.vue"
+import EditProfile from "@/Pages/Grp/EditProfile.vue"
 
 import axios from 'axios'
 import { trans } from 'laravel-vue-i18n'
@@ -38,7 +38,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { useLogoutAuth } from '@/Composables/useAppMethod'
 library.add(faIdCard, faClipboardListCheck, faRabbitFast, faSpinnerThird, faInfoCircle)
 
-const EditProfile = defineAsyncComponent(() => import("@/Pages/Grp/EditProfile.vue"))
+/* const EditProfile = defineAsyncComponent(() => import("@/Pages/Grp/EditProfile.vue")) */
 
 
 const props = defineProps<{

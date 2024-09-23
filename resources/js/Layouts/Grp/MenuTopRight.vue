@@ -5,6 +5,7 @@ import SearchBar from "@/Components/SearchBar.vue"
 import Image from '@/Components/Image.vue'
 import Popover from '@/Components/Popover.vue'
 import NotificationList from '@/Components/NotificationList/NotificationList.vue'
+import Profile from "@/Pages/Grp/Profile.vue"
 
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
@@ -14,7 +15,7 @@ import { faCircle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faCircle)
 
-const Profile = defineAsyncComponent(() => import("@/Pages/Grp/Profile.vue"))
+/* const Profile = defineAsyncComponent(() => import("@/Pages/Grp/Profile.vue")) */
 
 
 const props = defineProps<{
