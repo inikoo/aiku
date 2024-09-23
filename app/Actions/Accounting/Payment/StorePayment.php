@@ -37,8 +37,10 @@ class StorePayment extends OrgAction
 
     public function handle(Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
     {
+        $items = Arr::pull($modelData,'items');
+        $currencyCode = Arr::pull($modelData, 'currency_code');
+        
         data_set($modelData, 'date', gmdate('Y-m-d H:i:s'), overwrite: false);
-
 
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
@@ -55,15 +57,19 @@ class StorePayment extends OrgAction
         /** @var Payment $payment */
         $payment = $paymentAccount->payments()->create($modelData);
 
+        $paypalData = [
+            'items' => $items,
+            'currency_code' => $currencyCode,
+        ];
 
-        // if($this->strict) {
-        //     match ($paymentAccount->type->value) {
-        //         PaymentAccountTypeEnum::CHECKOUT->value => MakePaymentUsingCheckout::run($payment, $modelData),
-        //         PaymentAccountTypeEnum::XENDIT->value   => MakePaymentUsingXendit::run($payment),
-        //         PaymentAccountTypeEnum::PAYPAL->value   => MakePaymentUsingPaypal::run($payment, $modelData),
-        //         default                                 => null
-        //     };
-        // }
+        if($this->strict) {
+            match ($paymentAccount->type->value) {
+                PaymentAccountTypeEnum::CHECKOUT->value => MakePaymentUsingCheckout::run($payment, $modelData),
+                PaymentAccountTypeEnum::XENDIT->value   => MakePaymentUsingXendit::run($payment),
+                PaymentAccountTypeEnum::PAYPAL->value   => MakePaymentUsingPaypal::run($payment, $paypalData),
+                default                                 => null
+            };
+        }
 
 
         GroupHydratePayments::dispatch($payment->group)->delay($this->hydratorsDelay);
@@ -90,28 +96,30 @@ class StorePayment extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'    => ['nullable', 'string', 'max:255'],
-            'amount'       => ['required', 'decimal:0,2'],
-            'org_amount'   => ['sometimes', 'numeric'],
-            'group_amount' => ['sometimes', 'numeric'],
-            'data'         => ['sometimes', 'array'],
-            'date'         => ['sometimes', 'date'],
-            'status'       => ['sometimes', 'required', Rule::enum(PaymentStatusEnum::class)],
-            'state'        => ['sometimes', 'required', Rule::enum(PaymentStateEnum::class)],
+            'reference'      => ['nullable', 'string', 'max:255'],
+            'amount'         => ['required', 'decimal:0,2'],
+            'org_amount'     => ['sometimes', 'numeric'],
+            'group_amount'   => ['sometimes', 'numeric'],
+            'data'           => ['sometimes', 'array'],
+            'date'           => ['sometimes', 'date'],
+            'status'         => ['sometimes', 'required', Rule::enum(PaymentStatusEnum::class)],
+            'state'          => ['sometimes', 'required', Rule::enum(PaymentStateEnum::class)],
+            'items'          => ['sometimes', 'array'],
+            'currency_code'  => ['sometimes', 'string']
         ];
 
         if (!$this->strict) {
-            $rules['source_id']    = ['sometimes', 'string'];
-            $rules['cancelled_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['completed_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['created_at']   = ['sometimes', 'date'];
+            $rules['source_id']      = ['sometimes', 'string'];
+            $rules['cancelled_at']   = ['sometimes', 'nullable', 'date'];
+            $rules['completed_at']   = ['sometimes', 'nullable', 'date'];
+            $rules['created_at']     = ['sometimes', 'date'];
         }
 
         return $rules;
     }
 
     public function action(Customer $customer, PaymentAccount $paymentAccount, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Payment
-    {
+    {   
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;

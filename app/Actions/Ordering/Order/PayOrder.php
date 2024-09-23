@@ -23,8 +23,18 @@ class PayOrder extends OrgAction
 {
     public function handle(Order $order, Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
     {
-        $payment = StorePayment::make()->action($customer, $paymentAccount, $modelData);
+        foreach ($order->transactions as $index => $transaction) {
+            data_set($modelData, "items.$index", [
+                'name'    => $transaction->historicAsset->name,
+                'quantity' => $transaction->quantity_ordered,
+                'description' => '',
+                'sku'         => '',
+                'amount'      => $transaction->historicAsset->price
+            ]);
+        }
+        data_set($modelData, 'currency_code', $order->currency->code);
 
+        $payment = StorePayment::make()->action($customer, $paymentAccount, $modelData);
         AttachPaymentToOrder::make()->action($order, $payment, [
             'amount'    => Arr::get($modelData, 'amount'),
             'reference' => Arr::get($modelData, 'reference')
