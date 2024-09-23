@@ -141,7 +141,7 @@ class IndexFamilies extends OrgAction
             ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
             ->where('product_categories.type', ProductCategoryTypeEnum::FAMILY)
             ->leftjoin('product_categories as departments', 'departments.id', 'product_categories.department_id')
-            ->allowedSorts(['code', 'name', 'shop_code', 'department_code'])
+            ->allowedSorts(['code', 'name', 'shop_code', 'department_code','number_current_products'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();

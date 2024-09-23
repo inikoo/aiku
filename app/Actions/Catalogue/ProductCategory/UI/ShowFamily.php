@@ -162,7 +162,6 @@ class ShowFamily extends OrgAction
         };
 
 
-
         return match ($routeName) {
             'grp.org.shops.show.catalogue.families.show' =>
             array_merge(
