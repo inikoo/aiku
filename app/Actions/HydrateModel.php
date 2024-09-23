@@ -45,6 +45,9 @@ class HydrateModel
             if ($model) {
                 $this->handle($model);
                 $command->line(class_basename($model)." $model->name hydrated 💦");
+            } else {
+                $command->error("Model not found");
+                $exitCode = 1;
             }
         }
 
