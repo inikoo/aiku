@@ -36,7 +36,7 @@ class FetchAuroraPaymentAccounts extends FetchAuroraAction
                     modelData: $paymentAccountData['paymentAccount']
                 );
             }
-            $sourceId=explode(':', $paymentAccount->source_id);
+            $sourceId = explode(':', $paymentAccount->source_id);
             DB::connection('aurora')->table('Payment Account Dimension')
                 ->where('Payment Account Key', $sourceId[1])
                 ->update(['aiku_id' => $paymentAccount->id]);

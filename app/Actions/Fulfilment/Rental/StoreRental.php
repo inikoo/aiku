@@ -29,7 +29,7 @@ class StoreRental extends OrgAction
     {
 
         $status = false;
-        if (Arr::get($modelData, 'state')==RentalStateEnum::ACTIVE) {
+        if (Arr::get($modelData, 'state') == RentalStateEnum::ACTIVE) {
             $status = true;
         }
         data_set($modelData, 'status', $status);

@@ -21,10 +21,10 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table=$this->postRoomsStats($table);
-            $table=$this->outboxesStats($table);
-            $table=$this->mailshotsStats($table);
-            $table=$this->dispatchedEmailStats($table);
+            $table = $this->postRoomsStats($table);
+            $table = $this->outboxesStats($table);
+            $table = $this->mailshotsStats($table);
+            $table = $this->dispatchedEmailStats($table);
 
             $table->timestampsTz();
         });

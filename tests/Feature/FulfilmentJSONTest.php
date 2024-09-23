@@ -113,7 +113,7 @@ beforeEach(function () {
 
     $this->palletDelivery = $palletDelivery;
 
-    $palletReturn= PalletReturn::first();
+    $palletReturn = PalletReturn::first();
     if (!$palletReturn) {
         data_set($storeData, 'warehouse_id', $this->warehouse->id);
         data_set($storeData, 'state', PalletReturnStateEnum::IN_PROCESS);

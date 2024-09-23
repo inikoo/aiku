@@ -75,7 +75,7 @@ class FetchAuroraNoProductInvoiceTransaction extends FetchAurora
             'quantity'        => 1,
         ];
 
-        if ($shippingZone and $shippingZone->shop_id==$invoice->shop_id) {
+        if ($shippingZone and $shippingZone->shop_id == $invoice->shop_id) {
 
             $this->parsedData['transaction']['shipping_zone_id'] = $shippingZone->id;
         }

@@ -22,20 +22,20 @@ class AutoAssignServicesToPalletReturn extends OrgAction
     public function handle(PalletReturn  $palletReturn, Pallet|StoredItem $subject): PalletReturn
     {
         /** @var Service $service */
-        $service=$palletReturn->fulfilment->shop->services()->where([
+        $service = $palletReturn->fulfilment->shop->services()->where([
             ['is_auto_assign', true],
             ['auto_assign_trigger', class_basename($palletReturn)],
             ['auto_assign_subject', class_basename($subject)],
             ['auto_assign_subject_type', $subject->type]
         ])->first();
 
-        if(!$service) {
+        if (!$service) {
             return $palletReturn;
         }
 
-        $asset    =$service->asset;
+        $asset    = $service->asset;
 
-        if($subject instanceof Pallet) {
+        if ($subject instanceof Pallet) {
             $quantity = $palletReturn->pallets()->where('pallets.type', $subject->type)->count();
         } else {
             $quantity = $palletReturn->storedItems()->where('stored_items.type', $subject->type)->count();
@@ -47,10 +47,10 @@ class AutoAssignServicesToPalletReturn extends OrgAction
 
 
         /** @var FulfilmentTransaction $transaction */
-        $transaction=$palletReturn->transactions()->where('asset_id', $asset->id)->first();
+        $transaction = $palletReturn->transactions()->where('asset_id', $asset->id)->first();
 
-        if($quantity == 0) {
-            if($transaction) {
+        if ($quantity == 0) {
+            if ($transaction) {
                 DeleteFulfilmentTransaction::run($transaction);
             }
 
@@ -58,9 +58,9 @@ class AutoAssignServicesToPalletReturn extends OrgAction
         }
 
 
-        if($transaction) {
+        if ($transaction) {
 
-            if($transaction->historic_asset_id!=$asset->current_historic_asset_id) {
+            if ($transaction->historic_asset_id != $asset->current_historic_asset_id) {
 
                 DeleteFulfilmentTransaction::run($transaction);
                 data_set($modelData, 'historic_asset_id', $asset->current_historic_asset_id);

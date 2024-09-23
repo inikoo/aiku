@@ -89,7 +89,7 @@ class CreateEmployee extends OrgAction
                                     'label'    => __('state'),
                                     'type'     => 'radio',
                                     'mode'     => 'card',
-                                    'valueProp'=> 'value',
+                                    'valueProp' => 'value',
                                     'required' => true,
                                     'value'    => EmployeeStateEnum::HIRED->value,
                                     'options'  => [

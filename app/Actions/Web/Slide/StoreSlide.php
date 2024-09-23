@@ -21,7 +21,7 @@ class StoreSlide
     {
         data_fill($modelData, 'ulid', Str::ulid());
         /** @var Slide $slide */
-        $slide= $snapshot->slides()->create($modelData);
+        $slide = $snapshot->slides()->create($modelData);
 
         return $slide;
     }

@@ -26,7 +26,7 @@ class ConnectMayaWithCredentials
     public function handle(User $user, array $modelData): array
     {
         return [
-            'token'=> $user->createToken(Arr::get($modelData, 'device_name', 'unknown-device'))->plainTextToken
+            'token' => $user->createToken(Arr::get($modelData, 'device_name', 'unknown-device'))->plainTextToken
             ];
     }
 

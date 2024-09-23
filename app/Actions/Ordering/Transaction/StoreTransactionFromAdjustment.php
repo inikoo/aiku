@@ -30,7 +30,7 @@ class StoreTransactionFromAdjustment extends OrgAction
     {
 
         $modelData = $this->prepareAdjustmentTransaction($adjustment, $modelData);
-        $modelData =$this->transactionFieldProcess($order, $modelData);
+        $modelData = $this->transactionFieldProcess($order, $modelData);
 
 
         /** @var Transaction $transaction */
@@ -62,7 +62,7 @@ class StoreTransactionFromAdjustment extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['source_alt_id'] =['sometimes', 'string','max:255'];
+            $rules['source_alt_id'] = ['sometimes', 'string','max:255'];
             $rules['fetched_at']    = ['sometimes', 'required', 'date'];
             $rules['created_at']    = ['sometimes', 'required', 'date'];
         }

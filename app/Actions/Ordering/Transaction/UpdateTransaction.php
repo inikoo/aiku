@@ -27,12 +27,12 @@ class UpdateTransaction extends OrgAction
     public function handle(Transaction $transaction, array $modelData): Transaction
     {
 
-        if(Arr::exists($modelData, 'quantity_ordered')) {
+        if (Arr::exists($modelData, 'quantity_ordered')) {
 
-            if($this->strict) {
-                $historicAsset=$transaction->historicAsset;
+            if ($this->strict) {
+                $historicAsset = $transaction->historicAsset;
             } else {
-                $historicAsset=HistoricAsset::withTrashed()->find($transaction->historic_asset_id);
+                $historicAsset = HistoricAsset::withTrashed()->find($transaction->historic_asset_id);
             }
 
             $net   = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
@@ -75,9 +75,9 @@ class UpdateTransaction extends OrgAction
         ];
     }
 
-    public function action(Transaction $transaction, array $modelData, bool $strict=true): Transaction
+    public function action(Transaction $transaction, array $modelData, bool $strict = true): Transaction
     {
-        $this->strict=$strict;
+        $this->strict = $strict;
         $this->initialisationFromShop($transaction->shop, $modelData);
 
         return $this->handle($transaction, $this->validatedData);

@@ -142,7 +142,7 @@ class IndexDepartments extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit=false): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
@@ -203,18 +203,18 @@ class IndexDepartments extends OrgAction
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
 
-            if($parent instanceof Organisation) {
+            if ($parent instanceof Organisation) {
                 $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             };
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
             ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
 
-            if(class_basename($parent) != 'Collection') {
+            if (class_basename($parent) != 'Collection') {
                 $table->column(key: 'number_current_families', label: __('current families'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_current_products', label: __('current products'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            if(class_basename($parent) == 'Collection') {
+            if (class_basename($parent) == 'Collection') {
                 $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
             }
         };
@@ -237,8 +237,8 @@ class IndexDepartments extends OrgAction
             'icon'  => ['fal', 'fa-folder-tree'],
             'title' => __('departments')
         ];
-        $afterTitle=null;
-        $iconRight =null;
+        $afterTitle = null;
+        $iconRight = null;
 
         if ($this->parent instanceof Collection) {
             $title = $this->parent->name;
@@ -247,16 +247,16 @@ class IndexDepartments extends OrgAction
                 'icon'  => ['fal', 'fa-cube'],
                 'title' => __('collection')
             ];
-            $iconRight    =[
+            $iconRight    = [
                 'icon' => 'fal fa-folder-tree',
             ];
-            $afterTitle= [
+            $afterTitle = [
                 'label'     => __('Departments')
             ];
         }
 
         $routes = null;
-        if($this->parent instanceof Collection) {
+        if ($this->parent instanceof Collection) {
             $routes = [
                         'dataList'  => [
                             'name'          => 'grp.json.shop.catalogue.departments',

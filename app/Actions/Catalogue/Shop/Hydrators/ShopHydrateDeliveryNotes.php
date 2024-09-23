@@ -37,7 +37,7 @@ class ShopHydrateDeliveryNotes
 
     public function handle(Shop $shop): void
     {
-        $stats =$this->getDeliveryNotesStats($shop);
+        $stats = $this->getDeliveryNotesStats($shop);
 
         $stats = array_merge(
             $stats,

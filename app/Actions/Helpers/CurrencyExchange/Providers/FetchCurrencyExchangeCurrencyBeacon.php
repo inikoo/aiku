@@ -20,7 +20,7 @@ class FetchCurrencyExchangeCurrencyBeacon
     public function handle(Currency $baseCurrency, Currency $targetCurrency, ?Carbon $date = null): array
     {
 
-        if(app()->environment('testing')) {
+        if (app()->environment('testing')) {
             return [
                 'status'   => 'success',
                 'exchange' => 1,

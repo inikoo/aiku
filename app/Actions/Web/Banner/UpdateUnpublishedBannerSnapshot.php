@@ -14,7 +14,6 @@ use App\Actions\Web\Slide\StoreSlide;
 use App\Actions\Web\Slide\UpdateSlide;
 use App\Http\Resources\Web\BannerResource;
 use App\Models\Helpers\Snapshot;
-
 use App\Models\Web\Banner;
 use App\Models\Web\Slide;
 use Illuminate\Support\Arr;
@@ -58,12 +57,12 @@ class UpdateUnpublishedBannerSnapshot
             }
         }
 
-        $slidesULIDs=collect($slides)->keys();
+        $slidesULIDs = collect($slides)->keys();
 
 
-        $olsULIDs=$snapshot->slides()->pluck('ulid');
+        $olsULIDs = $snapshot->slides()->pluck('ulid');
         $olsULIDs->diff($slidesULIDs)->each(function (string $ulid) {
-            $slideToDelete=Slide::firstWhere('ulid', $ulid);
+            $slideToDelete = Slide::firstWhere('ulid', $ulid);
             $slideToDelete?->delete();
         });
 

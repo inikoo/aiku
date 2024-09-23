@@ -1,8 +1,3 @@
 {
-    "preset": "psr12",
-    "rules": {
-        "binary_operator_spaces": {
-            "default": "align"
-        }
-    }
+    "preset": "psr12"
 }

@@ -15,8 +15,8 @@ trait WithShopsArgument
     public function getShops(Command $command): \Illuminate\Database\Eloquent\Collection|\Illuminate\Support\LazyCollection
     {
 
-        if(!$command->argument('shops')) {
-            $shops=Shop::all();
+        if (!$command->argument('shops')) {
+            $shops = Shop::all();
         } else {
             $shops =  Shop::query()
                 ->when($command->argument('shops'), function ($query) use ($command) {

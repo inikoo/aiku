@@ -20,7 +20,7 @@ class PalletRecordSearch
     {
         if ($pallet->trashed()) {
 
-            if($pallet->universalSearch) {
+            if ($pallet->universalSearch) {
                 $pallet->universalSearch()->delete();
             }
             return;

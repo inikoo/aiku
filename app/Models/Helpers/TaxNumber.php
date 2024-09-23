@@ -68,7 +68,7 @@ class TaxNumber extends Model
     {
         static::creating(
             function (TaxNumber $taxNumber) {
-                $country                 =Country::find($taxNumber->country_id);
+                $country                 = Country::find($taxNumber->country_id);
                 $taxNumber->country_code = $country?->code;
                 $taxNumber->type         = $taxNumber->getType($country);
             }

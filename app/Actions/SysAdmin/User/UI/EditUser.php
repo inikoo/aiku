@@ -18,7 +18,6 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\Manufacturing\Production\ProductionStateEnum;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
-
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Group;
@@ -55,7 +54,7 @@ class EditUser extends InertiaAction
     public function htmlResponse(User $user, ActionRequest $request): Response
     {
 
-        $orgTypeShop=[];
+        $orgTypeShop = [];
 
         $roles       = collect(RolesEnum::cases());
         $permissions = $roles->map(function ($role) {

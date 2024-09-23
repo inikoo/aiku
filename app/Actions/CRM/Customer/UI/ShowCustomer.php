@@ -80,7 +80,7 @@ class ShowCustomer extends OrgAction
     public function htmlResponse(Customer $customer, ActionRequest $request): Response
     {
 
-        $tabs=$customer->shop->type == ShopTypeEnum::DROPSHIPPING ? CustomerDropshippingTabsEnum::class : CustomerTabsEnum::class;
+        $tabs = $customer->shop->type == ShopTypeEnum::DROPSHIPPING ? CustomerDropshippingTabsEnum::class : CustomerTabsEnum::class;
 
         $webUsersMeta = $this->getWebUserMeta($customer, $request);
 

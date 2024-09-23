@@ -148,9 +148,9 @@ trait WithQueryCompiler
     public function prospectLastContactedConstrain(array $constrain): array
     {
 
-        $state=Arr::get($constrain, 'state');
-        if(is_string($state)) {
-            $state =$state=='true';
+        $state = Arr::get($constrain, 'state');
+        if (is_string($state)) {
+            $state = $state == 'true';
         }
 
 

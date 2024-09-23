@@ -21,7 +21,7 @@ class StoreShipper extends OrgAction
     {
         data_set($modelData, 'group_id', $organisation->group_id);
         /** @var Shipper $shipper */
-        $shipper= $organisation->shippers()->create($modelData);
+        $shipper = $organisation->shippers()->create($modelData);
 
         ShipperHydrateUniversalSearch::dispatch($shipper);
 
@@ -41,7 +41,7 @@ class StoreShipper extends OrgAction
     {
         if ($this->has('website') and $this->get('website') != null) {
 
-            if(!Str::startsWith($this->get('website'), 'http')) {
+            if (!Str::startsWith($this->get('website'), 'http')) {
                 $this->fill(['website' => 'https://' . $this->get('website')]);
             }
         }

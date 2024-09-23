@@ -57,12 +57,12 @@ class FetchAuroraDepartments extends FetchAuroraAction
     public function getModelsQuery(): Builder
     {
 
-        $departmentSourceIDs=[];
-        $query              =DB::connection('aurora')
+        $departmentSourceIDs = [];
+        $query              = DB::connection('aurora')
             ->table('Store Dimension')
             ->select('Store Department Category Key');
-        foreach($query->get() as $row) {
-            $departmentSourceIDs[]=$row->{'Store Department Category Key'};
+        foreach ($query->get() as $row) {
+            $departmentSourceIDs[] = $row->{'Store Department Category Key'};
         }
 
 
@@ -77,12 +77,12 @@ class FetchAuroraDepartments extends FetchAuroraAction
 
     public function count(): ?int
     {
-        $departmentSourceIDs=[];
-        $query              =DB::connection('aurora')
+        $departmentSourceIDs = [];
+        $query              = DB::connection('aurora')
             ->table('Store Dimension')
             ->select('Store Department Category Key');
-        foreach($query->get() as $row) {
-            $departmentSourceIDs[]=$row->{'Store Department Category Key'};
+        foreach ($query->get() as $row) {
+            $departmentSourceIDs[] = $row->{'Store Department Category Key'};
         }
 
 

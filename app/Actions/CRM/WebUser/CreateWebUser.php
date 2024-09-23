@@ -137,7 +137,7 @@ class CreateWebUser extends OrgAction
         ActionRequest $request
     ): ActionRequest {
         $this->parent  = $fulfilmentCustomer;
-        $this->customer=$fulfilmentCustomer->customer;
+        $this->customer = $fulfilmentCustomer->customer;
         $this->initialisationFromFulfilment($fulfilment, $request);
         return $request;
     }
@@ -149,7 +149,7 @@ class CreateWebUser extends OrgAction
         ActionRequest $request
     ): ActionRequest {
         $this->parent  = $customer;
-        $this->customer=$customer;
+        $this->customer = $customer;
         $this->initialisationFromShop($shop, $request);
         return $request;
     }

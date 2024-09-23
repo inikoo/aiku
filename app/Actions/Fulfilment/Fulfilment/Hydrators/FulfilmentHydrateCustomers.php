@@ -42,7 +42,7 @@ class FulfilmentHydrateCustomers
 
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'customers',
             field: 'status',
             enum: FulfilmentCustomerStatusEnum::class,

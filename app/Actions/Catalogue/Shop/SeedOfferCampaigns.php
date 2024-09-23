@@ -23,12 +23,12 @@ class SeedOfferCampaigns extends GrpAction
     public function handle(Shop $shop): void
     {
 
-        if($shop->type!=ShopTypeEnum::B2B) {
+        if ($shop->type != ShopTypeEnum::B2B) {
             return;
         }
 
         foreach (OfferCampaignTypeEnum::cases() as $case) {
-            $code =$case->codes()[$case->value];
+            $code = $case->codes()[$case->value];
 
             if ($shop->offerCampaigns()->where('code', $code)->exists()) {
                 continue;
@@ -50,7 +50,7 @@ class SeedOfferCampaigns extends GrpAction
 
     public function asCommand(Command $command): int
     {
-        if($command->argument('shop')) {
+        if ($command->argument('shop')) {
             try {
                 $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
             } catch (Exception $e) {

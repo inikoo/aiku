@@ -24,7 +24,7 @@ class CreateWebsite extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->parent instanceof Fulfilment) {
+        if ($this->parent instanceof Fulfilment) {
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->parent->id}.edit");
         } elseif ($this->parent instanceof Shop) {
             return $request->user()->hasPermissionTo("web.{$this->parent->id}.edit");
@@ -36,7 +36,7 @@ class CreateWebsite extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Response|RedirectResponse
     {
-        $this->parent= $shop;
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
         if ($shop->website) {
             return Redirect::route('grp.org.shops.show.web.websites.show', [
@@ -53,7 +53,7 @@ class CreateWebsite extends OrgAction
 
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): Response|RedirectResponse
     {
-        $this->parent= $fulfilment;
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
         if ($fulfilment->shop->website) {
             return Redirect::route('grp.org.fulfilments.show.web.websites.show', [

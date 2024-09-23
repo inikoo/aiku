@@ -200,7 +200,7 @@ class IndexLostPallets extends OrgAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return match ($routeName) {
-            'grp.org.fulfilments.show.operations.pallets.lost.index'=>
+            'grp.org.fulfilments.show.operations.pallets.lost.index' =>
             array_merge(
                 ShowFulfilment::make()->getBreadcrumbs($routeParameters),
                 [

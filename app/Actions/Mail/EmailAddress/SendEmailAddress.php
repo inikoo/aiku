@@ -35,13 +35,13 @@ class SendEmailAddress
 
     public function attachments(array|string|null $attachments)
     {
-        if(is_array($attachments)) {
+        if (is_array($attachments)) {
             foreach ($attachments as $attach) {
                 $this->message->attach($attach);
             }
         }
 
-        if(is_string($attachments)) {
+        if (is_string($attachments)) {
             $this->message->attach($attachments);
         }
 

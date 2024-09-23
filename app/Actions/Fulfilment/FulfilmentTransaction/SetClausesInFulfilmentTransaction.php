@@ -45,7 +45,7 @@ class SetClausesInFulfilmentTransaction extends OrgAction
 
         $fulfilmentTransaction->update($modelData);
 
-        if($fulfilmentTransaction->parent instanceof PalletDelivery) {
+        if ($fulfilmentTransaction->parent instanceof PalletDelivery) {
             CalculatePalletDeliveryNet::run($fulfilmentTransaction->parent);
         } else {
             CalculatePalletReturnNet::run($fulfilmentTransaction->parent);

@@ -59,7 +59,7 @@ class FetchAuroraDeletedCustomer extends FetchAurora
         $billingAddress  = $this->parseAddress(prefix: 'Customer Invoice', auAddressData: $auroraDeletedData);
         $deliveryAddress = $this->parseAddress(prefix: 'Customer Delivery', auAddressData: $auroraDeletedData);
 
-        if($billingAddress['country_id'] == '') {
+        if ($billingAddress['country_id'] == '') {
             $billingAddress['country_id'] = $this->parsedData['shop']->country_id;
         }
 
@@ -98,7 +98,7 @@ class FetchAuroraDeletedCustomer extends FetchAurora
             ];
 
         if ($billingAddress != $deliveryAddress) {
-            if($deliveryAddress['country_id'] == '') {
+            if ($deliveryAddress['country_id'] == '') {
                 $deliveryAddress['country_id'] = $this->parsedData['shop']->country_id;
             }
             $this->parsedData['customer']['delivery_address'] = $deliveryAddress;

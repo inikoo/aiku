@@ -42,7 +42,7 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 );
 
 
-                if($websiteData['launch']) {
+                if ($websiteData['launch']) {
                     LaunchWebsite::run(website: $website);
                 }
 

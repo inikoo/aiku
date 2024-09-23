@@ -42,11 +42,11 @@ class IndexPalletStoredItems extends OrgAction
         $queryBuilder->join('pallets', 'pallet_stored_items.pallet_id', '=', 'pallets.id');
         $queryBuilder->join('locations', 'pallets.location_id', '=', 'locations.id');
 
-        if($parent instanceof FulfilmentCustomer) {
+        if ($parent instanceof FulfilmentCustomer) {
             $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->id);
         }
 
-        if($parent instanceof Pallet) {
+        if ($parent instanceof Pallet) {
             $queryBuilder->where('pallet_stored_items.pallet_id', $parent->id);
         }
 

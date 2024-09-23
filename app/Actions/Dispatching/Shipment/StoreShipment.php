@@ -28,7 +28,7 @@ class StoreShipment extends OrgAction
     public function handle(DeliveryNote $deliveryNote, Shipper $shipper, array $modelData): Shipment
     {
 
-        $modelData=array_merge(
+        $modelData = array_merge(
             $modelData,
             [
                 'group_id'        => $deliveryNote->group_id,
@@ -39,12 +39,12 @@ class StoreShipment extends OrgAction
         );
 
         /** @var Shipment $shipment */
-        $shipment                =match($shipper->api_shipper) {
-            'apc-gb'=> ApcGbCallShipperApi::run($deliveryNote, $shipper),
-            'dpd-gb'=> DpdGbCallShipperApi::run($deliveryNote, $shipper),
-            'dpd-sk'=> DpdSkCallShipperApi::run($deliveryNote, $shipper),
-            'pst-mn'=> PostmenCallShipperApi::run($deliveryNote, $shipper),
-            'whl-gb'=> WhistlGbCallShipperApi::run($deliveryNote, $shipper),
+        $shipment                = match($shipper->api_shipper) {
+            'apc-gb' => ApcGbCallShipperApi::run($deliveryNote, $shipper),
+            'dpd-gb' => DpdGbCallShipperApi::run($deliveryNote, $shipper),
+            'dpd-sk' => DpdSkCallShipperApi::run($deliveryNote, $shipper),
+            'pst-mn' => PostmenCallShipperApi::run($deliveryNote, $shipper),
+            'whl-gb' => WhistlGbCallShipperApi::run($deliveryNote, $shipper),
             default => $shipper->shipments()->create($modelData),
         };
 

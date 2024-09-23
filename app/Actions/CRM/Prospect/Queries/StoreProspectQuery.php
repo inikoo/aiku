@@ -68,7 +68,7 @@ class StoreProspectQuery
             ],
         ];
 
-        if($query['prospect_last_contacted']['state']) {
+        if ($query['prospect_last_contacted']['state']) {
             $lastContacted = [
                 'last_contacted_at',
                 '<=',

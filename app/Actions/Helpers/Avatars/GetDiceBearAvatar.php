@@ -20,7 +20,7 @@ class GetDiceBearAvatar
     {
 
 
-        if(config('app.dice_bear.mock')) {
+        if (config('app.dice_bear.mock')) {
             return Storage::disk('art')->get('icons/'.$style->value.'.svg');
         }
 

@@ -175,7 +175,7 @@ class ShowProduct extends OrgAction
 
     public function getBreadcrumbs(Product $product, string $routeName, array $routeParameters, $suffix = null): array
     {
-        $headCrumb = function (Product $product, array $routeParameters, $suffix, $suffixIndex='') {
+        $headCrumb = function (Product $product, array $routeParameters, $suffix, $suffixIndex = '') {
             return [
 
                 [

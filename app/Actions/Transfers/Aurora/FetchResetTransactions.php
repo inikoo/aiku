@@ -42,7 +42,7 @@ class FetchResetTransactions
         foreach ($organisations as $organisation) {
             if ($databaseName = Arr::get($organisation->source, 'db_name')) {
 
-                if($databaseName=='wowsbar') {
+                if ($databaseName == 'wowsbar') {
                     continue;
                 }
 

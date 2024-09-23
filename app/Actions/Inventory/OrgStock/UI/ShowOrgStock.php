@@ -47,7 +47,7 @@ class ShowOrgStock extends OrgAction
 
     public function maya(Organisation $organisation, Warehouse $warehouse, OrgStock $orgStock, ActionRequest $request): OrgStock
     {
-        $this->maya   =true;
+        $this->maya   = true;
         $this->parent = $organisation;
         $this->initialisationFromWarehouse($warehouse, $request)->withTab(OrgStockTabsEnum::values());
         return $this->handle($orgStock);

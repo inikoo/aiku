@@ -19,7 +19,7 @@ class UserHydrateFailLogin
     {
 
         $stats = [
-            'number_failed_logins'    => $user->stats->number_failed_logins+1,
+            'number_failed_logins'    => $user->stats->number_failed_logins + 1,
             'last_failed_login_ip'    => $ip,
             'last_failed_login_at'    => $datetime
         ];

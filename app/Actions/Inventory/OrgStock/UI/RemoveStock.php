@@ -71,7 +71,7 @@ class RemoveStock extends InertiaAction
                             'title' => __('sku')
                         ],
                     'title'  => $stock->slug,
-                    'actions'=> [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',

@@ -35,7 +35,7 @@ class IndexStockFamilies extends GrpAction
         return $this->handle($this->group);
     }
 
-    public function handle(Group $group, $prefix=null): LengthAwarePaginator
+    public function handle(Group $group, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -47,7 +47,7 @@ class IndexStockFamilies extends GrpAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(StockFamily::class);
+        $queryBuilder = QueryBuilder::for(StockFamily::class);
         $queryBuilder->where('stock_families.group_id', $group->id);
         /*
         foreach ($this->elementGroups as $key => $elementGroup) {
@@ -76,10 +76,10 @@ class IndexStockFamilies extends GrpAction
             ->withQueryString();
     }
 
-    public function tableStructure(Group $parent, $prefix=null): Closure
+    public function tableStructure(Group $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
-            if($prefix) {
+            if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
@@ -130,7 +130,7 @@ class IndexStockFamilies extends GrpAction
                         'title' => __("SKUs families"),
                         'icon'  => 'fal fa-boxes-alt'
                     ],
-                    'actions'=> [
+                    'actions' => [
                         $this->canEdit && $request->route()->getName() == 'grp.goods.stock-families.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',

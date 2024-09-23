@@ -23,7 +23,7 @@ trait WithCheckCanContactByEmail
 
     protected function canContactCustomerByEmail(Customer $customer): bool
     {
-        if(!filter_var($customer->email, FILTER_VALIDATE_EMAIL)) {
+        if (!filter_var($customer->email, FILTER_VALIDATE_EMAIL)) {
             return false;
         }
 
@@ -33,7 +33,7 @@ trait WithCheckCanContactByEmail
     protected function canContactProspectByEmail(Prospect $prospect): bool
     {
 
-        if(!$prospect->email) {
+        if (!$prospect->email) {
             return false;
         }
 

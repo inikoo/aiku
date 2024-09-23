@@ -111,7 +111,7 @@ test('create supplier in agent', function ($agent) {
 
 test('create supplier product independent supplier', function ($supplier) {
 
-    $supplierProductData= SupplierProduct::factory()->definition();
+    $supplierProductData = SupplierProduct::factory()->definition();
     data_set($supplierProductData, 'stock_id', $this->stocks[0]->id);
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, $supplierProductData);
     $this->assertModelExists($supplierProduct);
@@ -120,7 +120,7 @@ test('create supplier product independent supplier', function ($supplier) {
 })->depends('create independent supplier');
 
 test('create supplier product independent supplier 2', function ($supplier) {
-    $supplierProductData= SupplierProduct::factory()->definition();
+    $supplierProductData = SupplierProduct::factory()->definition();
     data_set($supplierProductData, 'stock_id', $this->stocks[1]->id);
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, $supplierProductData);
     $this->assertModelExists($supplierProduct);
@@ -129,7 +129,7 @@ test('create supplier product independent supplier 2', function ($supplier) {
 })->depends('create independent supplier');
 
 test('create supplier product in agent supplier', function ($supplier) {
-    $supplierProductData= SupplierProduct::factory()->definition();
+    $supplierProductData = SupplierProduct::factory()->definition();
     data_set($supplierProductData, 'stock_id', $this->stocks[2]->id);
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, $supplierProductData);
     expect($supplierProduct)->toBeInstanceOf(SupplierProduct::class);
@@ -147,7 +147,7 @@ test('create trade unit', function () {
 });
 
 test('create org-agent', function ($agent) {
-    $orgAgent=StoreOrgAgent::make()->action(
+    $orgAgent = StoreOrgAgent::make()->action(
         $this->organisation,
         $agent,
         []

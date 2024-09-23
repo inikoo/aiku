@@ -8,7 +8,6 @@
 namespace App\Actions\Web\Website\Utils;
 
 use App\Enums\Web\Website\WebsiteCloudflareStatusEnum;
-
 use App\Models\Web\Website;
 use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\Concerns\AsAction;

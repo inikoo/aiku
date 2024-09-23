@@ -468,7 +468,7 @@ class ShowDashboard
         );
     }
 
-    public function getBreadcrumbs($label=null): array
+    public function getBreadcrumbs($label = null): array
     {
         return [
             [

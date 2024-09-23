@@ -39,11 +39,11 @@ class GetReturnStoredItems extends OrgAction
 
         $queryBuilder->where('stored_items.state', StoredItemStateEnum::ACTIVE->value);
 
-        if($parent instanceof FulfilmentCustomer) {
+        if ($parent instanceof FulfilmentCustomer) {
             $queryBuilder->where('stored_items.fulfilment_customer_id', $parent->id);
         }
 
-        if($parent instanceof Fulfilment) {
+        if ($parent instanceof Fulfilment) {
             $queryBuilder->where('stored_items.fulfilment_id', $parent->id);
         }
 

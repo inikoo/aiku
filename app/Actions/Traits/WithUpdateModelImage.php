@@ -35,8 +35,8 @@ trait WithUpdateModelImage
         $checksum = md5_file($imagePath);
 
 
-        if(!$extension) {
-            $extension=pathinfo($imagePath, PATHINFO_EXTENSION);
+        if (!$extension) {
+            $extension = pathinfo($imagePath, PATHINFO_EXTENSION);
         }
 
 

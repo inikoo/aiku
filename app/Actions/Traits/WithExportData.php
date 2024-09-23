@@ -24,19 +24,19 @@ trait WithExportData
 
         $query = $callback->query();
 
-        if($query->count() >= 20000) {
+        if ($query->count() >= 20000) {
             $type = ExportTypeEnum::CSV->value;
         }
 
-        if($type == ExportTypeEnum::XLSX->value) {
+        if ($type == ExportTypeEnum::XLSX->value) {
             $result = $this->xlsx($callback, $prefix);
         }
 
-        if($type == ExportTypeEnum::CSV->value) {
+        if ($type == ExportTypeEnum::CSV->value) {
             $result = $this->csv($callback, $prefix);
         }
 
-        if($type == ExportTypeEnum::PDF->value) {
+        if ($type == ExportTypeEnum::PDF->value) {
             $result = $this->pdf($callback, $prefix);
         }
 

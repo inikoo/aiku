@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up()
     {
-        if(!Schema::hasTable('movement_pallets')) {
+        if (!Schema::hasTable('movement_pallets')) {
             Schema::create('movement_pallets', function (Blueprint $table) {
                 $table->id();
 

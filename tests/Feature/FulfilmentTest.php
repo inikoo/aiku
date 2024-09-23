@@ -588,7 +588,7 @@ test('update second rental agreement cause', function (RentalAgreement $rentalAg
     $rentalAgreement = UpdateRentalAgreement::make()->action(
         $rentalAgreement,
         [
-            'update_all'=> false,
+            'update_all' => false,
             'clauses'   => [
                 'rentals' => [
                     [
@@ -2292,7 +2292,7 @@ test('update third rental agreement cause', function ($fulfilmentCustomer) {
     $rentalAgreement = UpdateRentalAgreement::make()->action(
         $fulfilmentCustomer->rentalAgreement,
         [
-            'update_all'=> true,
+            'update_all' => true,
             'clauses'   => [
                 'rentals' => [
                     [

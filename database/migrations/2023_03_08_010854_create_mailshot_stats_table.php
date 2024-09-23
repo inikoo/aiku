@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedSmallInteger('mailshot_id')->nullable();
             $table->foreign('mailshot_id')->references('id')->on('mailshots');
-            $table=$this->dispatchedEmailStats($table);
+            $table = $this->dispatchedEmailStats($table);
 
             $table->timestampsTz();
         });

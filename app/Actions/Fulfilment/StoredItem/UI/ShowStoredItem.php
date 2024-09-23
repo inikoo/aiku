@@ -91,7 +91,7 @@ class ShowStoredItem extends OrgAction
                         ],
                     'model'  => 'stored item',
                     'title'  => $storedItem->slug,
-                    'actions'=> [
+                    'actions' => [
 
 
                         [

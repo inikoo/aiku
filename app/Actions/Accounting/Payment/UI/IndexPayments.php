@@ -127,7 +127,7 @@ class IndexPayments extends OrgAction
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request);
 
         return $this->handle($organisation);
@@ -135,7 +135,7 @@ class IndexPayments extends OrgAction
 
     public function inOrgPaymentServiceProvider(Organisation $organisation, OrgPaymentServiceProvider $OrgPaymentServiceProvider, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$OrgPaymentServiceProvider;
+        $this->parent = $OrgPaymentServiceProvider;
         $this->initialisation($organisation, $request);
 
         return $this->handle($OrgPaymentServiceProvider);
@@ -144,7 +144,7 @@ class IndexPayments extends OrgAction
     /** @noinspection PhpUnused */
     public function inPaymentAccount(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$paymentAccount;
+        $this->parent = $paymentAccount;
         $this->initialisation($organisation, $request);
         return $this->handle($paymentAccount);
     }
@@ -153,14 +153,14 @@ class IndexPayments extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inPaymentAccountInOrgPaymentServiceProvider(Organisation $organisation, OrgPaymentServiceProvider $OrgPaymentServiceProvider, PaymentAccount $paymentAccount, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$paymentAccount;
+        $this->parent = $paymentAccount;
         $this->initialisation($organisation, $request);
         return $this->handle($paymentAccount);
     }
 
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$shop;
+        $this->parent = $shop;
         $this->initialisation($organisation, $request);
         return $this->handle($shop);
     }

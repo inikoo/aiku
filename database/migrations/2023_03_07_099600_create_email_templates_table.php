@@ -17,7 +17,7 @@ return new class () extends Migration {
     {
         Schema::create('email_templates', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->string('type')->index()->nullable();
             $table->json('data')->nullable();
             $table->unsignedInteger('screenshot_id')->nullable();

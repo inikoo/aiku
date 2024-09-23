@@ -18,7 +18,7 @@ class StoreEmailTrackingEvent
     public function handle(DispatchedEmail $dispatchedEmail, array $modelData): EmailTrackingEvent
     {
         /** @var EmailTrackingEvent $emailTrackingEvent */
-        $emailTrackingEvent= $dispatchedEmail->emailTrackingEvents()->create($modelData);
+        $emailTrackingEvent = $dispatchedEmail->emailTrackingEvents()->create($modelData);
         return $emailTrackingEvent;
     }
 }

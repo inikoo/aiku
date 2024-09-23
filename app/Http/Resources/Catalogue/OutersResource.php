@@ -18,7 +18,7 @@ class OutersResource extends JsonResource
     {
         $currency = Currency::find($this->currency_id);
         /** @var Product $outer */
-        $outer=$this;
+        $outer = $this;
         return [
             'id'                          => $outer->id,
             'asset_id'                    => $outer->asset_id,

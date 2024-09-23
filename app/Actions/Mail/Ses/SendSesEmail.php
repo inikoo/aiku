@@ -96,7 +96,7 @@ class SendSesEmail
                     ]
                 );
 
-                if($dispatchedEmail->recipient) {
+                if ($dispatchedEmail->recipient) {
                     if ($dispatchedEmail->mailshotRecipient->recipient_type == 'Prospect') {
                         UpdateProspectEmailSent::run($dispatchedEmail->recipient);
                     }
@@ -220,7 +220,7 @@ class SendSesEmail
 
         $mail->preSend();
 
-        $rawData=[
+        $rawData = [
             'Source'       => $emailData['Source'],
             'Destinations' => $emailData['Destination']['ToAddresses'],
             'RawMessage'   => [

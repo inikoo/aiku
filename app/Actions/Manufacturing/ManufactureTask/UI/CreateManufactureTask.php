@@ -182,8 +182,8 @@ class CreateManufactureTask extends OrgAction
             [
                 [
                     'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __('Creating task'),
+                    'creatingModel' => [
+                        'label' => __('Creating task'),
                     ]
                 ]
             ]

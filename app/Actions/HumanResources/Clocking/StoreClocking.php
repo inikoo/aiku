@@ -93,7 +93,7 @@ class StoreClocking extends OrgAction
 
     public function jsonResponse(Clocking $clocking): ClockingResource|ClockingHanResource
     {
-        if($this->han) {
+        if ($this->han) {
             return ClockingHanResource::make($clocking);
         }
 
@@ -106,7 +106,7 @@ class StoreClocking extends OrgAction
             return true;
         }
 
-        if($request->user() instanceof ClockingMachine) {
+        if ($request->user() instanceof ClockingMachine) {
             $employeeWorkplace = $this->employee->workplaces()
             ->wherePivot('workplace_id', $request->user()->workplace_id)
             ->count() > 0;
@@ -139,13 +139,13 @@ class StoreClocking extends OrgAction
     public function han(Employee $employee, ActionRequest $request): Clocking
     {
 
-        $this->han=true;
+        $this->han = true;
 
 
-        if($request->user()->organisation_id !== $employee->organisation_id) {
+        if ($request->user()->organisation_id !== $employee->organisation_id) {
             abort(404);
         }
-        if(in_array($employee->state, [EmployeeStateEnum::HIRED,EmployeeStateEnum::LEFT])) {
+        if (in_array($employee->state, [EmployeeStateEnum::HIRED,EmployeeStateEnum::LEFT])) {
             abort(405);
         }
 

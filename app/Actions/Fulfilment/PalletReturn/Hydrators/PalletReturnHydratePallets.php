@@ -40,7 +40,7 @@ class PalletReturnHydratePallets extends HydrateModel
             'number_pallets_with_stored_items' => Pallet::where('pallet_return_id', $palletReturn->id)->where('with_stored_items', '=', true)->count(),
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'pallets',
             field: 'state',
             enum: PalletStateEnum::class,
@@ -50,7 +50,7 @@ class PalletReturnHydratePallets extends HydrateModel
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'pallets',
             field: 'status',
             enum: PalletStatusEnum::class,
@@ -60,7 +60,7 @@ class PalletReturnHydratePallets extends HydrateModel
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'pallets',
             field: 'type',
             enum: PalletTypeEnum::class,

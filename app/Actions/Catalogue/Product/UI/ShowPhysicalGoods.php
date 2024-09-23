@@ -33,11 +33,11 @@ class ShowPhysicalGoods extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->parent instanceof Fulfilment) {
+        if ($this->parent instanceof Fulfilment) {
             $this->canEdit   = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
             $this->canDelete = $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
-        } elseif($this->parent instanceof Organisation) {
+        } elseif ($this->parent instanceof Organisation) {
             $this->canEdit   = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
             $this->canDelete = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
             return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
@@ -52,21 +52,21 @@ class ShowPhysicalGoods extends OrgAction
 
     public function inOrganisation(Organisation $organisation, Product $product, ActionRequest $request): Product
     {
-        $this->parent= $organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(FulfilmentAssetTabsEnum::values());
         return $this->handle($product);
     }
 
     public function asController(Organisation $organisation, Shop $shop, Product $product, ActionRequest $request): Product
     {
-        $this->parent= $shop;
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(FulfilmentAssetTabsEnum::values());
         return $this->handle($product);
     }
 
     public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, Product $product, ActionRequest $request): Product
     {
-        $this->parent= $department;
+        $this->parent = $department;
         $this->initialisationFromShop($shop, $request)->withTab(FulfilmentAssetTabsEnum::values());
 
         return $this->handle($product);
@@ -74,7 +74,7 @@ class ShowPhysicalGoods extends OrgAction
 
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Product $product, ActionRequest $request): Product
     {
-        $this->parent= $fulfilment;
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request)->withTab(FulfilmentAssetTabsEnum::values());
         return $this->handle($product);
     }
@@ -120,7 +120,7 @@ class ShowPhysicalGoods extends OrgAction
                         ] : false
                     ]
                 ],
-                'tabs'=> [
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => FulfilmentAssetTabsEnum::navigation()
                 ],

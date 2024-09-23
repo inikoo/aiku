@@ -246,17 +246,17 @@ return [
 
 
 
-    'currency_exchange'=> [
+    'currency_exchange' => [
         'pivot'     => env('EXCHANGE_PIVOT_CURRENCY', 'GBP'),
         'providers' => [
-            'currency_beacon'=> env('CURRENCY_EXCHANGE_CURRENCY_BEACON_API_KEYS')
+            'currency_beacon' => env('CURRENCY_EXCHANGE_CURRENCY_BEACON_API_KEYS')
         ]
     ],
 
     'with_user_legacy_passwords'    => env('WITH_USER_LEGACY_PASSWORDS', false),
-    'with_web_user_legacy_passwords'=> env('WITH_WEB_USER_LEGACY_PASSWORDS', false),
+    'with_web_user_legacy_passwords' => env('WITH_WEB_USER_LEGACY_PASSWORDS', false),
 
-    'dice_bear'=> [
+    'dice_bear' => [
         'mock'  => env('DICE_BEAR_MOCK', false),
         'url'   => env('DICE_BEAR_API_URL', 'https://api.dicebear.com/9.x'),
     ]

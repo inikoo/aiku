@@ -28,8 +28,8 @@ class StoreMailshot extends OrgAction
 
     public function handle(Outbox|Shop $parent, array $modelData): Mailshot
     {
-        if($parent instanceof Outbox) {
-            $modelData['shop_id']=$parent->shop_id;
+        if ($parent instanceof Outbox) {
+            $modelData['shop_id'] = $parent->shop_id;
         }
 
         /** @var Mailshot $mailshot */
@@ -66,7 +66,7 @@ class StoreMailshot extends OrgAction
 
     public function action(Outbox $outbox, array $modelData): Mailshot
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 

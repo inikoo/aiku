@@ -22,8 +22,8 @@ trait HasSalesStats
         $table->unsignedSmallInteger('currency_id')->nullable();
         $table->foreign('currency_id')->references('id')->on('currencies');
 
-        $table=$this->ordersStatsFields($table);
-        $table=$this->invoicesStatsFields($table);
+        $table = $this->ordersStatsFields($table);
+        $table = $this->invoicesStatsFields($table);
 
         return $this->deliveryNotesStatsFields($table);
     }

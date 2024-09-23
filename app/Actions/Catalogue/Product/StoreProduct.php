@@ -131,7 +131,7 @@ class StoreProduct extends OrgAction
         }
         $tradeUnits = [];
         foreach ($product->orgStocks as $orgStock) {
-            foreach ($orgStock->stock->tradeUnits  as $tradeUnit) {
+            foreach ($orgStock->stock->tradeUnits as $tradeUnit) {
                 $tradeUnits[$tradeUnit->id] = [
                     'quantity' => $orgStock->pivot->quantity * $tradeUnit->pivot->quantity,
                 ];

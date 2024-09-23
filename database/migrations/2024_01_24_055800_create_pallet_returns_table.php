@@ -23,7 +23,7 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        if(!Schema::hasTable('pallet_returns')) {
+        if (!Schema::hasTable('pallet_returns')) {
             Schema::create('pallet_returns', function (Blueprint $table) {
                 $table->increments('id');
                 $table = $this->getPalletIOFields($table);
@@ -44,8 +44,8 @@ return new class () extends Migration {
                 $table->unsignedInteger('collection_address_id')->index()->nullable();
                 $table->foreign('collection_address_id')->references('id')->on('addresses');
 
-                $table=$this->currencyFields($table);
-                $table=$this->orderTotalAmounts($table);
+                $table = $this->currencyFields($table);
+                $table = $this->orderTotalAmounts($table);
 
                 $table->timestampsTz();
                 $this->softDeletes($table);

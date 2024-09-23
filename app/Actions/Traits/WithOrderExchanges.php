@@ -12,7 +12,7 @@ use Illuminate\Support\Arr;
 
 trait WithOrderExchanges
 {
-    protected function processExchanges($modelData, $shop, $field='net_amount'): array
+    protected function processExchanges($modelData, $shop, $field = 'net_amount'): array
     {
 
 
@@ -32,13 +32,13 @@ trait WithOrderExchanges
         data_set($modelData, 'org_exchange', $orgExchange, overwrite: false);
         data_set($modelData, 'grp_exchange', $grpExchange, overwrite: false);
 
-        if($orgExchange) {
+        if ($orgExchange) {
             $orgAmount = Arr::get($modelData, $field) * $orgExchange;
         } else {
             $orgAmount = null;
         }
 
-        if($grpExchange) {
+        if ($grpExchange) {
             $grpAmount = Arr::get($modelData, $field) * $grpExchange;
         } else {
             $grpAmount = null;

@@ -67,7 +67,7 @@ class FetchAuroraTimesheet extends FetchAurora
             $parent = Workplace::first();
 
             if ($clockingsDatum->{'Timesheet Record Source'} == 'ClockingMachine') {
-                $parent=$this->parseClockingMachine($this->organisation->id.':'.$clockingsDatum->{'Timesheet Record Source Key'});
+                $parent = $this->parseClockingMachine($this->organisation->id.':'.$clockingsDatum->{'Timesheet Record Source Key'});
             }
 
             $parsedClocking['generator'] = $generator;

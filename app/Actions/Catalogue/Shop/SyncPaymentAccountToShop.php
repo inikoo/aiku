@@ -24,7 +24,7 @@ class SyncPaymentAccountToShop extends OrgAction
         /** @var Shop $shop */
         $shop = Shop::find(Arr::get($modelData, 'shop_id'));
 
-        if($shop) {
+        if ($shop) {
             $paymentAccount->shops()->syncWithPivotValues(
                 $shop,
                 [

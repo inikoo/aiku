@@ -56,7 +56,7 @@ class DeleteShop extends OrgAction
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        if($this->shop->orders()->exists()) {
+        if ($this->shop->orders()->exists()) {
             $validator->errors()->add('orders', 'This shop has orders associated with it.');
         }
 

@@ -47,7 +47,7 @@ trait HasFulfilmentStats
 
         $table->unsignedInteger('number_stored_items')->default(0);
         foreach (StoredItemStateEnum::cases() as $state) {
-            if($table->getTable()=='pallets' and  $state==StoredItemStateEnum::DISCONTINUED) {
+            if ($table->getTable() == 'pallets' and  $state == StoredItemStateEnum::DISCONTINUED) {
                 continue;
             }
             $table->unsignedInteger("number_stored_items_state_{$state->snake()}")->default(0);
@@ -60,7 +60,7 @@ trait HasFulfilmentStats
     public function fulfilmentStats(Blueprint $table): Blueprint
     {
 
-        $table=$this->fulfilmentAssetsStats($table);
+        $table = $this->fulfilmentAssetsStats($table);
 
         $table->unsignedInteger('number_pallet_deliveries')->default(0);
 
@@ -73,7 +73,7 @@ trait HasFulfilmentStats
         foreach (PalletReturnStateEnum::cases() as $case) {
             $table->unsignedInteger("number_pallet_returns_state_{$case->snake()}")->default(0);
         }
-        $table=$this->storedItemsAuditStats($table);
+        $table = $this->storedItemsAuditStats($table);
         return $this->recurringBillStats($table);
     }
 

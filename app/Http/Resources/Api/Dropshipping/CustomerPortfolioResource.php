@@ -36,7 +36,7 @@ class CustomerPortfolioResource extends JsonResource
     public function toArray($request): array
     {
 
-        $product=Product::find($this->product_id);
+        $product = Product::find($this->product_id);
 
         return [
             'id'                         => $this->id,

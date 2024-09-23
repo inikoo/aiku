@@ -46,7 +46,7 @@ class ShowWebUser extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, Customer $customer, WebUser $webUser, ActionRequest $request): WebUser
     {
-        $this->parent=$customer;
+        $this->parent = $customer;
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($webUser);
@@ -65,10 +65,10 @@ class ShowWebUser extends OrgAction
     public function htmlResponse(WebUser $webUser, ActionRequest $request): Response
     {
 
-        $subNavigation=[];
+        $subNavigation = [];
 
-        if($this->parent instanceof  FulfilmentCustomer) {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        if ($this->parent instanceof  FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
         }
 
 
@@ -139,7 +139,7 @@ class ShowWebUser extends OrgAction
             ];
         };
 
-        $webUser=WebUser::where('slug', $routeParameters['webUser'])->first();
+        $webUser = WebUser::where('slug', $routeParameters['webUser'])->first();
 
         return match ($routeName) {
             'grp.org.fulfilments.show.crm.customers.show.web-users.show' =>

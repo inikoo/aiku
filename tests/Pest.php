@@ -203,24 +203,24 @@ function createCustomer(Shop $shop): Customer
 
 function createTradeUnits(Group $group): array
 {
-    $numberTradeUnits=$group->tradeUnits()->count();
-    if($numberTradeUnits<3) {
+    $numberTradeUnits = $group->tradeUnits()->count();
+    if ($numberTradeUnits < 3) {
         $tradeUnit = StoreTradeUnit::make()->action(
             $group,
             TradeUnit::factory()->definition()
         );
-        $tradeUnit2=StoreTradeUnit::make()->action(
+        $tradeUnit2 = StoreTradeUnit::make()->action(
             $group,
             TradeUnit::factory()->definition()
         );
-        $tradeUnit3=StoreTradeUnit::make()->action(
+        $tradeUnit3 = StoreTradeUnit::make()->action(
             $group,
             TradeUnit::factory()->definition()
         );
     } else {
-        $tradeUnit =$group->tradeUnits()->first();
-        $tradeUnit2=$group->tradeUnits()->skip(1)->first();
-        $tradeUnit3=$group->tradeUnits()->skip(2)->first();
+        $tradeUnit = $group->tradeUnits()->first();
+        $tradeUnit2 = $group->tradeUnits()->skip(1)->first();
+        $tradeUnit3 = $group->tradeUnits()->skip(2)->first();
     }
 
     return [
@@ -233,9 +233,9 @@ function createTradeUnits(Group $group): array
 
 function createStocks(Group $group): array
 {
-    $tradeUnits  =createTradeUnits($group);
-    $numberStocks=$group->stocks()->count();
-    if($numberStocks<3) {
+    $tradeUnits  = createTradeUnits($group);
+    $numberStocks = $group->stocks()->count();
+    if ($numberStocks < 3) {
         $stock = StoreStock::make()->action(
             $group,
             Stock::factory()->definition()
@@ -246,7 +246,7 @@ function createStocks(Group $group): array
             ]
         ]);
 
-        $stock2=StoreStock::make()->action(
+        $stock2 = StoreStock::make()->action(
             $group,
             Stock::factory()->definition()
         );
@@ -256,7 +256,7 @@ function createStocks(Group $group): array
             ]
         ]);
 
-        $stock3=StoreStock::make()->action(
+        $stock3 = StoreStock::make()->action(
             $group,
             Stock::factory()->definition()
         );
@@ -267,9 +267,9 @@ function createStocks(Group $group): array
         ]);
 
     } else {
-        $stock =$group->stocks()->first();
-        $stock2=$group->stocks()->skip(1)->first();
-        $stock3=$group->stocks()->skip(2)->first();
+        $stock = $group->stocks()->first();
+        $stock2 = $group->stocks()->skip(1)->first();
+        $stock3 = $group->stocks()->skip(2)->first();
     }
 
     return [
@@ -283,17 +283,17 @@ function createStocks(Group $group): array
 function createOrgStocks(Organisation $organisation, array $stocks): array
 {
 
-    $orgStocks=[];
+    $orgStocks = [];
     foreach ($stocks as $stock) {
-        $orgStock=$organisation->orgStocks()->where('stock_id', $stock->id)->first();
-        if(!$orgStock) {
-            $orgStock=StoreOrgStock::make()->action(
+        $orgStock = $organisation->orgStocks()->where('stock_id', $stock->id)->first();
+        if (!$orgStock) {
+            $orgStock = StoreOrgStock::make()->action(
                 $organisation,
                 $stock,
                 OrgStock::factory()->definition()
             );
         }
-        $orgStocks[]=$orgStock;
+        $orgStocks[] = $orgStock;
     }
 
     return $orgStocks;
@@ -303,8 +303,8 @@ function createOrgStocks(Organisation $organisation, array $stocks): array
 function createProduct(Shop $shop): array
 {
 
-    $stocks   =createStocks($shop->group);
-    $orgStocks=createOrgStocks($shop->organisation, $stocks);
+    $stocks   = createStocks($shop->group);
+    $orgStocks = createOrgStocks($shop->organisation, $stocks);
 
     $department = $shop->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->first();
     if (!$department) {
@@ -376,7 +376,7 @@ function createOrder(Customer $customer, Product $product): Order
 function createWebsite(Shop $shop): Website
 {
 
-    if($website=$shop->website) {
+    if ($website = $shop->website) {
         return $website;
     }
 

@@ -33,7 +33,7 @@ class StoreClockingMachine extends OrgAction
     public function handle(Organisation|Workplace $parent, array $modelData): ClockingMachine
     {
 
-        if($parent instanceof Organisation) {
+        if ($parent instanceof Organisation) {
             $workplaceId = Arr::get($modelData, 'workplace_id');
             $workplace   = $parent->workplaces()->where('id', $workplaceId)->firstOrFail();
         } else {
@@ -55,7 +55,7 @@ class StoreClockingMachine extends OrgAction
 
         $clockingMachine->updateQuietly(
             [
-                'qr_code'=> base_convert($clockingMachine->id, 10, 36).Str::random(6)
+                'qr_code' => base_convert($clockingMachine->id, 10, 36).Str::random(6)
             ]
         );
 
@@ -79,7 +79,7 @@ class StoreClockingMachine extends OrgAction
 
     public function rules(): array
     {
-        $rules= [
+        $rules = [
             'name'  => ['required', 'max:64', 'string',
                         new IUnique(
                             table: 'clocking_machines',
@@ -95,7 +95,7 @@ class StoreClockingMachine extends OrgAction
             'fetched_at'  => ['sometimes', 'date'],
         ];
 
-        if($this->parent instanceof Organisation) {
+        if ($this->parent instanceof Organisation) {
             $rules['workplace_id'] = ['required', Rule::Exists('workplaces', 'id')->where('organisation_id', $this->organisation->id)];
         }
 
@@ -111,14 +111,14 @@ class StoreClockingMachine extends OrgAction
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): ClockingMachine
     {
-        $this->parent=$organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request);
         return $this->handle($organisation, $this->validatedData);
     }
 
     public function asController(Workplace $workplace, ActionRequest $request): ClockingMachine
     {
-        $this->parent=$workplace;
+        $this->parent = $workplace;
         $this->initialisation($workplace->organisation, $request);
         return $this->handle($workplace, $this->validatedData);
     }
@@ -127,7 +127,7 @@ class StoreClockingMachine extends OrgAction
     {
         // todo we might need to make a proper authorisation check here
         $this->asAction = true;
-        $this->parent   =$workplace;
+        $this->parent   = $workplace;
         $this->initialisation($workplace->organisation, $request);
         return $this->handle($workplace, $this->validatedData);
     }
@@ -136,7 +136,7 @@ class StoreClockingMachine extends OrgAction
     public function action(Workplace $workplace, array $modelData): ClockingMachine
     {
         $this->asAction = true;
-        $this->parent   =$workplace;
+        $this->parent   = $workplace;
         $this->initialisation($workplace->organisation, $modelData);
         return $this->handle($workplace, $this->validatedData);
     }

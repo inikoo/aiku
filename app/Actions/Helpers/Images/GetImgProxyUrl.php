@@ -37,7 +37,7 @@ class GetImgProxyUrl
     public function handle(Image $image): string
     {
 
-        if(!config('img-proxy.base_url')) {
+        if (!config('img-proxy.base_url')) {
             return $image->getOriginalPictureUrl();
         }
 
@@ -59,9 +59,9 @@ class GetImgProxyUrl
 
     public function getEncodedSourceUrl(): string
     {
-        $encodedSourceUrl= rtrim(strtr(base64_encode($this->image->getOriginalPictureUrl()), '+/', '-_'), '=');
-        if($extension=$this->image->getExtension()) {
-            $encodedSourceUrl.='.'.$extension;
+        $encodedSourceUrl = rtrim(strtr(base64_encode($this->image->getOriginalPictureUrl()), '+/', '-_'), '=');
+        if ($extension = $this->image->getExtension()) {
+            $encodedSourceUrl .= '.'.$extension;
         }
         return  $encodedSourceUrl;
 
@@ -86,7 +86,7 @@ class GetImgProxyUrl
 
 
 
-        if(app()->environment(['local']) && empty(config('img-proxy.key'))) {
+        if (app()->environment(['local']) && empty(config('img-proxy.key'))) {
             return 'signature';
         }
 
@@ -105,19 +105,19 @@ class GetImgProxyUrl
 
     }
 
-    public function getProcessingOptions(Image $img=null): string
+    public function getProcessingOptions(Image $img = null): string
     {
 
-        if(!$img) {
-            $img=$this->image;
+        if (!$img) {
+            $img = $this->image;
         }
 
-        $processingOptions='';
+        $processingOptions = '';
 
         switch ($img->getSizeProcessOption()) {
             case 'resize':
-                $resize=$img->getResize();
-                $processingOptions.='rs:'.join(':', $resize);
+                $resize = $img->getResize();
+                $processingOptions .= 'rs:'.join(':', $resize);
 
                 break;
         }

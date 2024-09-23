@@ -23,7 +23,7 @@ trait EnumHelperTrait
 
     public static function shortLabels(): array
     {
-        $shortLabels=[];
+        $shortLabels = [];
         foreach (self::cases() as $case) {
             $shortLabels[$case->value] = Abbreviate::run($case->value);
         }

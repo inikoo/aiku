@@ -126,7 +126,7 @@ class ShowOrgSupplierProduct extends OrgAction
                         'index' => [
                             'route' => [
                                 'name'      => 'grp.org.procurement.org_supplier_products.index',
-                                'parameters'=> Arr::only($routeParameters, 'organisation')
+                                'parameters' => Arr::only($routeParameters, 'organisation')
 
                             ],
                             'label' => __('Supplier products')
@@ -160,7 +160,7 @@ class ShowOrgSupplierProduct extends OrgAction
 
         $previous = $query->orderBy('code', 'desc')->first();
         /** @var OrgSupplierProduct $previous */
-        $previous=OrgSupplierProduct::find($previous->id);
+        $previous = OrgSupplierProduct::find($previous->id);
 
         return $this->getNavigation($previous, $request->route()->getName());
     }
@@ -179,7 +179,7 @@ class ShowOrgSupplierProduct extends OrgAction
 
         $next = $query->orderBy('code')->first();
         /** @var OrgSupplierProduct $next */
-        $next=OrgSupplierProduct::find($next->id);
+        $next = OrgSupplierProduct::find($next->id);
         return $this->getNavigation($next, $request->route()->getName());
     }
 

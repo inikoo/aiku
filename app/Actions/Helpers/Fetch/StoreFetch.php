@@ -21,7 +21,7 @@ class StoreFetch
     public function handle(array $modelData): Fetch
     {
         /** @var Fetch $fetch */
-        $fetch= Fetch::create($modelData);
+        $fetch = Fetch::create($modelData);
         return $fetch;
     }
 

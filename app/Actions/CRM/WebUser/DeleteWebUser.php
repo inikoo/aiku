@@ -18,10 +18,10 @@ class DeleteWebUser
 
     public string $commandSignature = 'delete:web-user  {web_user}';
 
-    public function handle(WebUser $webUser, array $deletedData=[], bool $skipHydrate = false): WebUser
+    public function handle(WebUser $webUser, array $deletedData = [], bool $skipHydrate = false): WebUser
     {
         $webUser->delete();
-        $webUser=$this->update($webUser, $deletedData, ['data']);
+        $webUser = $this->update($webUser, $deletedData, ['data']);
 
         if (!$skipHydrate) {
             CustomerHydrateWebUsers::dispatch($webUser->customer);

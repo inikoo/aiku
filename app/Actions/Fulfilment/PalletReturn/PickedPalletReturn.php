@@ -45,7 +45,7 @@ class PickedPalletReturn extends OrgAction
                 SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
             }
         } else {
-            foreach($palletReturn->storedItems as $storedItem) {
+            foreach ($palletReturn->storedItems as $storedItem) {
                 $palletReturnItem = PalletReturnItem::find($storedItem->pivot->id);
                 SetPalletInReturnAsPicked::make()->action($palletReturnItem, []);
             }
@@ -65,7 +65,7 @@ class PickedPalletReturn extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");

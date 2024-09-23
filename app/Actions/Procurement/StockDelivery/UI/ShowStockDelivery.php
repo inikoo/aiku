@@ -24,7 +24,7 @@ class ShowStockDelivery extends InertiaAction
 {
     public function authorize(ActionRequest $request): bool
     {
-        if($this->maya) {
+        if ($this->maya) {
             return true;
         }
         $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
@@ -40,7 +40,7 @@ class ShowStockDelivery extends InertiaAction
 
     public function maya(Organisation $organisation, StockDelivery $stockDelivery, ActionRequest $request): void
     {
-        $this->maya   =true;
+        $this->maya   = true;
         $this->initialisation($request)->withTab(StockDeliveryTabsEnum::values());
         $this->stockDelivery = $stockDelivery;
     }
@@ -69,7 +69,7 @@ class ShowStockDelivery extends InertiaAction
                         ]
                     ] : false,
                 ],
-                'tabs'=> [
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => StockDeliveryTabsEnum::navigation()
                 ],
@@ -127,16 +127,16 @@ class ShowStockDelivery extends InertiaAction
 
     private function getNavigation(?StockDelivery $stockDelivery, string $routeName): ?array
     {
-        if(!$stockDelivery) {
+        if (!$stockDelivery) {
             return null;
         }
         return match ($routeName) {
-            'grp.org.procurement.stock_deliveries.show'=> [
-                'label'=> $stockDelivery->reference,
-                'route'=> [
+            'grp.org.procurement.stock_deliveries.show' => [
+                'label' => $stockDelivery->reference,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'employee'=> $stockDelivery->number
+                    'parameters' => [
+                        'employee' => $stockDelivery->number
                     ]
 
                 ]

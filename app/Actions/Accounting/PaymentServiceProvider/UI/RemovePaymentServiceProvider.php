@@ -57,7 +57,7 @@ class RemovePaymentServiceProvider extends InertiaAction
                             'title' => __('payment service provider')
                         ],
                     'title'  => $paymentServiceProvider->slug,
-                    'actions'=> [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',

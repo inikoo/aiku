@@ -106,7 +106,7 @@ class EditProduct extends InertiaAction
                                 'price' => [
                                     'type'    => 'input',
                                     'label'   => __('price'),
-                                    'required'=> true,
+                                    'required' => true,
                                     'value'   => $product->price
                                 ],
 
@@ -151,27 +151,27 @@ class EditProduct extends InertiaAction
 
     private function getNavigation(?Asset $product, string $routeName): ?array
     {
-        if(!$product) {
+        if (!$product) {
             return null;
         }
         return match ($routeName) {
-            'shops.products.edit'=> [
-                'label'=> $product->name,
-                'route'=> [
+            'shops.products.edit' => [
+                'label' => $product->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'product'=> $product->slug
+                    'parameters' => [
+                        'product' => $product->slug
                     ]
 
                 ]
             ],
-            'shops.show.products.edit'=> [
-                'label'=> $product->name,
-                'route'=> [
+            'shops.show.products.edit' => [
+                'label' => $product->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'shop'   => $product->shop->slug,
-                        'product'=> $product->slug
+                        'product' => $product->slug
                     ]
 
                 ]

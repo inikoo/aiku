@@ -31,7 +31,7 @@ class StoreBannerSnapshot
 
         data_set($modelData, 'scope', 'banner');
 
-        $snapshot=Snapshot::create($modelData);
+        $snapshot = Snapshot::create($modelData);
         $banner->snapshots()->save($snapshot);
         $snapshot->saveQuietly();
         $snapshot->stats()->create();

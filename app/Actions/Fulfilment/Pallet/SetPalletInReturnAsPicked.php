@@ -48,7 +48,7 @@ class SetPalletInReturnAsPicked extends OrgAction
         data_set($modelData, 'state', PalletStateEnum::PICKED);
         data_set($modelData, 'status', PalletStatusEnum::RETURNING);
 
-        if($palletReturnItem->type == 'Pallet') {
+        if ($palletReturnItem->type == 'Pallet') {
             $pallet = UpdatePallet::run($palletReturnItem->pallet, $modelData);
         } else {
             $storedItems = PalletReturnItem::where('pallet_return_id', $palletReturnItem->pallet_return_id)->where('stored_item_id', $palletReturnItem->stored_item_id)->get();

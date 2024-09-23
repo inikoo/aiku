@@ -86,7 +86,7 @@ class ShowWebsite extends OrgAction
                         array_merge(
                             $this->workshopActions($request),
                             [
-                                $this->isSupervisor && $website->state==WebsiteStateEnum::IN_PROCESS ? [
+                                $this->isSupervisor && $website->state == WebsiteStateEnum::IN_PROCESS ? [
                                     'type'  => 'button',
                                     'style' => 'edit',
                                     'label' => __('launch'),
@@ -152,7 +152,7 @@ class ShowWebsite extends OrgAction
     public function getBreadcrumbs(string $scope, array $routeParameters, $suffix = null): array
     {
 
-        $website=Website::where('slug', $routeParameters['website'])->first();
+        $website = Website::where('slug', $routeParameters['website'])->first();
 
         $modelRoute = match ($scope) {
             'Shop' => [

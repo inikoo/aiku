@@ -30,14 +30,14 @@ class SubmitAndConfirmPalletReturn extends OrgAction
     {
 
 
-        $palletReturn=SubmitPalletReturn::make()->action($palletReturn);
+        $palletReturn = SubmitPalletReturn::make()->action($palletReturn);
 
         return ConfirmPalletReturn::make()->action($palletReturn);
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->palletReturn->state != PalletReturnStateEnum::IN_PROCESS) {
+        if ($this->palletReturn->state != PalletReturnStateEnum::IN_PROCESS) {
             return false;
         }
 

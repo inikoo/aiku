@@ -87,7 +87,7 @@ class RemoveLocation extends InertiaAction
                             'title' => __('location')
                         ],
                     'title'  => $location->slug,
-                    'actions'=> [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',

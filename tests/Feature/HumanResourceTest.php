@@ -31,7 +31,6 @@ use App\Models\HumanResources\JobPositionStats;
 use App\Models\HumanResources\Timesheet;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\User;
-
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -134,13 +133,13 @@ test('create employee successful', function () {
 test('add job position to employee', function (Employee $employee) {
 
     /** @var JobPosition $jobPosition */
-    $jobPosition=$this->organisation->jobPositions()->where('slug', 'hr-c')->first();
+    $jobPosition = $this->organisation->jobPositions()->where('slug', 'hr-c')->first();
 
     UpdateEmployee::make()->action($employee, [
         'positions' => [
             [
             'slug'  => $jobPosition->slug,
-            'scopes'=> []
+            'scopes' => []
             ]
         ]
     ]);
@@ -306,7 +305,7 @@ test('create clocking', function (Timesheet $timesheet, Workplace $workplace) {
     /** @var Employee $employee */
     $employee = $timesheet->subject;
 
-    $clocking=StoreClocking::make()->action($this->organisation, $workplace, $employee, [
+    $clocking = StoreClocking::make()->action($this->organisation, $workplace, $employee, [
         'clocked_at' => now()->subMinutes(10),
     ]);
     $clocking->refresh();
@@ -329,11 +328,11 @@ test('second clocking ', function (Timesheet $timesheet, Workplace $workplace) {
     /** @var Employee $employee */
     $employee = $timesheet->subject;
 
-    $clocking=StoreClocking::make()->action($this->organisation, $workplace, $employee, [
+    $clocking = StoreClocking::make()->action($this->organisation, $workplace, $employee, [
         'clocked_at' => now()->subMinutes(5),
     ]);
     $clocking->refresh();
-    $timesheet=$clocking->timesheet;
+    $timesheet = $clocking->timesheet;
     $employee->refresh();
 
     expect($clocking)->toBeInstanceOf(Clocking::class)
@@ -347,7 +346,7 @@ test('second clocking ', function (Timesheet $timesheet, Workplace $workplace) {
         ->and($employee->stats->number_clockings)->toBe(2)
         ->and($employee->stats->number_time_trackers)->toBe(1);
 
-    $timeTracker=$timesheet->timeTrackers->first();
+    $timeTracker = $timesheet->timeTrackers->first();
     expect($timeTracker->status)->toBe(TimeTrackerStatusEnum::CLOSED)
         ->and($timeTracker->end_clocking_id)->toBe($clocking->id);
 

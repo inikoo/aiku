@@ -91,7 +91,7 @@ class ShowGuest extends GrpAction
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
     {
 
-        $guest=Guest::where('slug', $routeParameters['guest'])->firstOrFail();
+        $guest = Guest::where('slug', $routeParameters['guest'])->firstOrFail();
 
         $headCrumb = function (Guest $guest, array $routeParameters, string $suffix) {
             return [
@@ -156,16 +156,16 @@ class ShowGuest extends GrpAction
 
     private function getNavigation(?Guest $guest, string $routeName): ?array
     {
-        if(!$guest) {
+        if (!$guest) {
             return null;
         }
         return match ($routeName) {
-            'grp.sysadmin.guests.show'=> [
-                'label'=> $guest->contact_name,
-                'route'=> [
+            'grp.sysadmin.guests.show' => [
+                'label' => $guest->contact_name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'guest'=> $guest->slug
+                    'parameters' => [
+                        'guest' => $guest->slug
                     ]
 
                 ]

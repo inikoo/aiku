@@ -182,7 +182,7 @@ class StoreBanner extends OrgAction
             return 1;
         }
         Config::set('global.customer_id', $customer->id);
-        $this->customer=$customer;
+        $this->customer = $customer;
 
         $portfolioWebsite = PortfolioWebsite::where('slug', $command->argument('portfolio-website'))->firstOrFail();
 

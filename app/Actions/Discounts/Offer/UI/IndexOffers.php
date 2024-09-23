@@ -44,7 +44,7 @@ class IndexOffers extends OrgAction
 
         $query = QueryBuilder::for(Offer::class);
 
-        if($parent instanceof OfferCampaign) {
+        if ($parent instanceof OfferCampaign) {
             $query->where('offers.offer_campaign_id', $parent->id);
         } else {
             $query->where('offers.shop_id', $parent->id);

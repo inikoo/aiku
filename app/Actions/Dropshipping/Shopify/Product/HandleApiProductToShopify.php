@@ -45,7 +45,7 @@ class HandleApiProductToShopify extends OrgAction
                 foreach ($product->productVariants as $variant) {
                     $existingOptions = Arr::pluck($variants, 'option1');
 
-                    if(!in_array($variant->name, $existingOptions)) {
+                    if (!in_array($variant->name, $existingOptions)) {
                         $variants[] = [
                             "option1"      => $variant->name,
                             "price"        => $variant->price,
@@ -78,7 +78,7 @@ class HandleApiProductToShopify extends OrgAction
 
                 $response =  $client->request('POST', '/admin/api/2024-04/products.json', $body);
 
-                if($response['status'] == 422) {
+                if ($response['status'] == 422) {
                     abort($response['status'], $response['body']);
                 }
 

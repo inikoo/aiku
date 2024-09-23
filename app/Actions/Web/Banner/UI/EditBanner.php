@@ -92,7 +92,7 @@ class EditBanner extends InertiaAction
                         'type'  => 'button',
                         'style' => 'delete',
                         'label' => __('delete banner'),
-                        'method'=> 'delete',
+                        'method' => 'delete',
                         'route' => [
                             'name'       => 'customer.models.banner.delete',
                             'parameters' => [

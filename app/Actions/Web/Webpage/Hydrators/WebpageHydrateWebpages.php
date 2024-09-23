@@ -38,7 +38,7 @@ class WebpageHydrateWebpages
             'number_webpages' => $webpage->webpages()->count(),
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'webpages',
             field: 'state',
             enum: WebpageStateEnum::class,
@@ -48,7 +48,7 @@ class WebpageHydrateWebpages
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'webpages',
             field: 'type',
             enum: WebpageTypeEnum::class,
@@ -58,7 +58,7 @@ class WebpageHydrateWebpages
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'webpages',
             field: 'purpose',
             enum: WebpagePurposeEnum::class,

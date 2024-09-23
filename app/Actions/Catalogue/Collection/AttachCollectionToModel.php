@@ -18,14 +18,14 @@ class AttachCollectionToModel extends OrgAction
 {
     public function handle(Product|ProductCategory|Collection $model, Collection $collection): Collection
     {
-        if($model instanceof ProductCategory) {
-            if($model->type == ProductCategoryTypeEnum::DEPARTMENT) {
+        if ($model instanceof ProductCategory) {
+            if ($model->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 $model->collections()->attach($collection->id, [
                     'type' => 'Department',
                 ]);
             }
 
-            if($model->type == ProductCategoryTypeEnum::FAMILY) {
+            if ($model->type == ProductCategoryTypeEnum::FAMILY) {
                 $model->collections()->attach($collection->id, [
                     'type' => 'Family',
                 ]);

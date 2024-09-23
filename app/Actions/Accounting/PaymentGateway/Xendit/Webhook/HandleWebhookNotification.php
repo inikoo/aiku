@@ -37,7 +37,7 @@ class HandleWebhookNotification
             if ($callbackToken === env('XENDIT_CALLBACK_TOKEN')) {
                 $payment = Payment::where('reference', $request->input('external_id'))->first();
 
-                if(!$payment) {
+                if (!$payment) {
                     abort(404);
                 }
 
@@ -49,7 +49,7 @@ class HandleWebhookNotification
                         'data'       => $request->all()
                     ];
 
-                    if($status === 'PAID') {
+                    if ($status === 'PAID') {
                         array_merge($data, ['completed_at' => now()]);
                     } else {
                         array_merge($data, ['cancelled_at' => now()]);

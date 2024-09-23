@@ -26,8 +26,8 @@ class StoreTransactionFromCharge extends OrgAction
 
     public function handle(Order $order, array $modelData): Transaction
     {
-        $modelData=$this->prepareChargeTransaction($modelData);
-        $modelData=$this->transactionFieldProcess($order, $modelData);
+        $modelData = $this->prepareChargeTransaction($modelData);
+        $modelData = $this->transactionFieldProcess($order, $modelData);
 
         /** @var Transaction $transaction */
         $transaction = $order->transactions()->create($modelData);

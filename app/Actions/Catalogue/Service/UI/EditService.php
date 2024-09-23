@@ -51,7 +51,7 @@ class EditService extends OrgAction
 
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Service $service, ActionRequest $request): Service
     {
-        $this->parent= $fulfilment;
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
         return $this->handle($service);
     }
@@ -127,7 +127,7 @@ class EditService extends OrgAction
                                 'price' => [
                                     'type'    => 'input',
                                     'label'   => __('price'),
-                                    'required'=> true,
+                                    'required' => true,
                                     'value'   => $service->price
                                 ],
                                 // 'type' => [
@@ -180,27 +180,27 @@ class EditService extends OrgAction
 
     private function getNavigation(?Service $service, string $routeName): ?array
     {
-        if(!$service) {
+        if (!$service) {
             return null;
         }
         return match ($routeName) {
-            'shops.products.edit'=> [
-                'label'=> $service->name,
-                'route'=> [
+            'shops.products.edit' => [
+                'label' => $service->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'product'=> $service->slug
+                    'parameters' => [
+                        'product' => $service->slug
                     ]
 
                 ]
             ],
-            'shops.show.products.edit'=> [
-                'label'=> $service->name,
-                'route'=> [
+            'shops.show.products.edit' => [
+                'label' => $service->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'shop'   => $service->shop->slug,
-                        'product'=> $service->slug
+                        'product' => $service->slug
                     ]
 
                 ]

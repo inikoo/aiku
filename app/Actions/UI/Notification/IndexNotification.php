@@ -31,11 +31,11 @@ class IndexNotification
         // dd($user);
         $globalSearch = AllowedFilter::callback('filter', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                if($value == 'unread') {
+                if ($value == 'unread') {
                     $query->whereNull('notifications.read_at');
                 }
 
-                if($value == 'read') {
+                if ($value == 'read') {
                     $query->whereNotNull('notifications.read_at');
                 }
             });

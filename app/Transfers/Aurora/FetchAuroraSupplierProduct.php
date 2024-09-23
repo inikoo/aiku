@@ -35,7 +35,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
             return;
         }
 
-        $stock=$this->parseStock($this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Part SKU'});
+        $stock = $this->parseStock($this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Part SKU'});
         if (!$stock) {
             return;
         }

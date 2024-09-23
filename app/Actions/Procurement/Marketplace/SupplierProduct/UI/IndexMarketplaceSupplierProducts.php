@@ -28,7 +28,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexMarketplaceSupplierProducts extends InertiaAction
 {
-    public function handle(Group|Agent|Supplier|Organisation $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Group|Agent|Supplier|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -41,7 +41,7 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(SupplierProduct::class);
+        $queryBuilder = QueryBuilder::for(SupplierProduct::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -80,11 +80,11 @@ class IndexMarketplaceSupplierProducts extends InertiaAction
             ->withQueryString();
     }
 
-    public function tableStructure(array $modelOperations = null, $prefix=null): Closure
+    public function tableStructure(array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($modelOperations, $prefix) {
 
-            if($prefix) {
+            if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');

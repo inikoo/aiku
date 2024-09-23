@@ -151,26 +151,26 @@ class EditDepartment extends OrgAction
 
     private function getNavigation(?ProductCategory $department, string $routeName): ?array
     {
-        if(!$department) {
+        if (!$department) {
             return null;
         }
         return match ($routeName) {
-            'shops.departments.edit'=> [
-                'label'=> $department->name,
-                'route'=> [
+            'shops.departments.edit' => [
+                'label' => $department->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'department'=> $department->slug
+                    'parameters' => [
+                        'department' => $department->slug
                     ]
                 ]
             ],
-            'shops.show.departments.edit'=> [
-                'label'=> $department->name,
-                'route'=> [
+            'shops.show.departments.edit' => [
+                'label' => $department->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'shop'      => $department->shop->slug,
-                        'department'=> $department->slug
+                        'department' => $department->slug
                     ]
                 ]
             ],

@@ -39,7 +39,7 @@ class WebpageHydrateSnapshots
             'number_snapshots' => $webpage->snapshots()->count(),
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'snapshots',
             field: 'state',
             enum: SnapshotStateEnum::class,
@@ -50,7 +50,7 @@ class WebpageHydrateSnapshots
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'webpages',
             field: 'type',
             enum: WebpageTypeEnum::class,
@@ -60,7 +60,7 @@ class WebpageHydrateSnapshots
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'webpages',
             field: 'purpose',
             enum: WebpagePurposeEnum::class,

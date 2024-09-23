@@ -55,7 +55,7 @@ return new class () extends Migration {
             $table->dateTimeTz('registered_at')->nullable();
             $table->dateTimeTz('invoiced_at')->nullable();
             $table->dateTimeTz('last_soft_bounced_at')->nullable();
-            $table=$this->softDeletes($table);
+            $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
         });
         DB::statement('CREATE INDEX ON prospects USING gin (name gin_trgm_ops) ');

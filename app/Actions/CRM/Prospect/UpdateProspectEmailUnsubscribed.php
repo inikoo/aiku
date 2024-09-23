@@ -24,7 +24,7 @@ class UpdateProspectEmailUnsubscribed
             'dont_contact_me' => true
         ];
         if (!$prospect->dont_contact_me_at) {
-            $dataToUpdate['dont_contact_me_at'] =$date;
+            $dataToUpdate['dont_contact_me_at'] = $date;
         }
         if (!$prospect->failed_at) {
             $dataToUpdate['failed_at'] = $date;

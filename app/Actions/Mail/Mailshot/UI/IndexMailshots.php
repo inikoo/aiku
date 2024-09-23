@@ -32,7 +32,7 @@ class IndexMailshots extends OrgAction
 
     public Outbox|PostRoom|Organisation $parent;
 
-    public function handle(Outbox|PostRoom|Organisation $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Outbox|PostRoom|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -45,7 +45,7 @@ class IndexMailshots extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(Mailshot::class);
+        $queryBuilder = QueryBuilder::for(Mailshot::class);
 
         return $queryBuilder
             ->defaultSort('mailshots.state')
@@ -69,7 +69,7 @@ class IndexMailshots extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix=null): Closure
+    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
 

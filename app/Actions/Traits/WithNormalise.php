@@ -14,7 +14,7 @@ trait WithNormalise
     public function normalise(Collection $shares): array
     {
         $total = $shares->sum();
-        if ($total==0) {
+        if ($total == 0) {
             return $shares->all();
         }
 

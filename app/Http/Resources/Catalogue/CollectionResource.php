@@ -16,7 +16,7 @@ class CollectionResource extends JsonResource
     {
 
         /** @var Collection $collection */
-        $collection=$this;
+        $collection = $this;
 
         return [
             'id'                => $collection->id,

@@ -151,16 +151,16 @@ class EditCustomer extends OrgAction
 
     private function getNavigation(?Customer $customer, string $routeName): ?array
     {
-        if(!$customer) {
+        if (!$customer) {
             return null;
         }
 
         return match ($routeName) {
-            'grp.org.shops.show.crm.customers.edit'=> [
-                'label'=> $customer->name,
-                'route'=> [
+            'grp.org.shops.show.crm.customers.edit' => [
+                'label' => $customer->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'organisation' => $customer->organisation->slug,
                         'shop'         => $customer->shop->slug,
                         'customer'     => $customer->slug

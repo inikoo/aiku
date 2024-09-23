@@ -20,7 +20,7 @@ trait WithImportModel
 {
     use AsAction;
     use WithAttributes;
-    private string $tmpPath='tmp/uploads/';
+    private string $tmpPath = 'tmp/uploads/';
 
     private bool $isSync = false;
 
@@ -50,14 +50,14 @@ trait WithImportModel
      */
     public function asCommand(Command $command): int
     {
-        $this->isSync=true;
+        $this->isSync = true;
         $filename    = $command->argument('filename');
         $newFileName = now()->timestamp . ".xlsx";
 
-        if($command->option('g_drive')) {
+        if ($command->option('g_drive')) {
             $googleDisk = Storage::disk('google');
 
-            if(!$googleDisk->exists($filename)) {
+            if (!$googleDisk->exists($filename)) {
                 $command->error("$filename do not found in GDrive");
                 return 1;
             }

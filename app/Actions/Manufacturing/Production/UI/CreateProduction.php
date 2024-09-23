@@ -93,8 +93,8 @@ class CreateProduction extends OrgAction
             [
                 [
                     'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __('Creating production'),
+                    'creatingModel' => [
+                        'label' => __('Creating production'),
                     ]
                 ]
             ]

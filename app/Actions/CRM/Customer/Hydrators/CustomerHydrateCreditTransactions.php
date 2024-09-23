@@ -38,7 +38,7 @@ class CustomerHydrateCreditTransactions
         $creditTransactions = $customer->creditTransactions()
         ->orderBy('date', 'asc')
         ->get();
-        foreach($creditTransactions as $creditTransaction) {
+        foreach ($creditTransactions as $creditTransaction) {
             $balance += $creditTransaction->amount;
             $this->update($creditTransaction, [
                 'running_amount' => $balance

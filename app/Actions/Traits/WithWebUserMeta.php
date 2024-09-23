@@ -21,16 +21,16 @@ trait WithWebUserMeta
                     'icon'    => 'fal fa-globe',
                     'tooltip' => __('Web user')
                 ],
-                'label'=> __('Add web user'),
+                'label' => __('Add web user'),
                 'href' => [
                     'name'      => $request->route()->getName().'.web-users.create',
-                    'parameters'=> $request->route()->originalParameters()
+                    'parameters' => $request->route()->originalParameters()
                 ]
             ],
             1 => [
                 'href' => [
                     'name'      => $request->route()->getName().'.web-users.show',
-                    'parameters'=> array_merge_recursive($request->route()->originalParameters(), ['webUser' => $customer->webUsers->first()->slug])
+                    'parameters' => array_merge_recursive($request->route()->originalParameters(), ['webUser' => $customer->webUsers->first()->slug])
 
                 ],
 

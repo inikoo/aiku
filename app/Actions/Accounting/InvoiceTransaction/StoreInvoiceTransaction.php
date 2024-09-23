@@ -23,7 +23,7 @@ class StoreInvoiceTransaction extends OrgAction
     {
         data_set($modelData, 'date', now(), overwrite: false);
 
-        if($model instanceof Transaction) {
+        if ($model instanceof Transaction) {
             data_set($modelData, 'model_type', $model->model_type);
             data_set($modelData, 'model_id', $model->model_id);
         } else {

@@ -85,7 +85,7 @@ test('can fetch 1 stock from aurora', function () {
     $this->artisan($command)->assertExitCode(0);
     $fetch = Fetch::where('type', FetchTypeEnum::STOCKS)->first();
     /** @var Group $group */
-    $group= $this->organisation->group;
+    $group = $this->organisation->group;
 
     expect($fetch->number_items)->toBe(1)
         ->and($fetch->number_stores)->toBe(1)
@@ -106,7 +106,7 @@ test('can fetch 1 prospect from aurora', function () {
 
     $this->artisan($command)->assertExitCode(0);
     /** @var Shop $fetchedShop */
-    $fetchedShop=Shop::whereNotNull('source_id')->first();
+    $fetchedShop = Shop::whereNotNull('source_id')->first();
     expect($fetchedShop)->toBeInstanceOf(Shop::class)->and($fetchedShop->source_id)->toBe('1:2')
         ->and($fetchedShop->crmStats->number_prospects)->toBe(1);
     $fetch = Fetch::where('type', FetchTypeEnum::PROSPECTS)->first();
@@ -124,7 +124,7 @@ test('can fetch 1 invoice from aurora', function () {
 
     // $s=10;
     // $s=28;
-    $s=450;
+    $s = 450;
 
 
     $command = join(

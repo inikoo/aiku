@@ -221,7 +221,7 @@ class IndexPallets extends OrgAction
 
     public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$fulfilment;
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
         return $this->handle($fulfilment, 'pallets');
     }

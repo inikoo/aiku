@@ -34,13 +34,13 @@ class SubmitPalletReturn extends OrgAction
     use WithActionUpdate;
 
 
-    private bool $sendNotifications=false;
+    private bool $sendNotifications = false;
 
     public function handle(PalletReturn $palletReturn, array $modelData): PalletReturn
     {
         $modelData[PalletReturnStateEnum::SUBMITTED->value.'_at'] = now();
 
-        if(!request()->user() instanceof WebUser) {
+        if (!request()->user() instanceof WebUser) {
             $modelData[PalletReturnStateEnum::CONFIRMED->value.'_at'] = now();
             $modelData['state']                                       = PalletReturnStateEnum::CONFIRMED;
         } else {
@@ -71,7 +71,7 @@ class SubmitPalletReturn extends OrgAction
         FulfilmentHydratePalletReturns::dispatch($palletReturn->fulfilment);
 
 
-        if($this->sendNotifications) {
+        if ($this->sendNotifications) {
             SendPalletReturnNotification::run($palletReturn);
         }
         PalletReturnRecordSearch::dispatch($palletReturn);
@@ -104,7 +104,7 @@ class SubmitPalletReturn extends OrgAction
         return $this->handle($palletReturn, $this->validatedData);
     }
 
-    public function action(PalletReturn $palletReturn, bool $sendNotification=false): PalletReturn
+    public function action(PalletReturn $palletReturn, bool $sendNotification = false): PalletReturn
     {
         $this->asAction          = true;
         $this->sendNotifications = $sendNotification;

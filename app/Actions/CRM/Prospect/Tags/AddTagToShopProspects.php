@@ -22,7 +22,7 @@ class AddTagToShopProspects
 
     public function handle(Shop $shop, $tagName): void
     {
-        $tag =StoreTag::run([
+        $tag = StoreTag::run([
             'name' => $tagName,
             'type' => 'crm'
         ]);

@@ -40,7 +40,7 @@ return new class () extends Migration {
             }
 
 
-            $table=$this->salesStatsFields($table);
+            $table = $this->salesStatsFields($table);
 
 
 

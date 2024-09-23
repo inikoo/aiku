@@ -26,17 +26,17 @@ class SubmitAndConfirmPalletDelivery extends OrgAction
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
 
-        $palletDelivery=SubmitPalletDelivery::make()->action($palletDelivery);
+        $palletDelivery = SubmitPalletDelivery::make()->action($palletDelivery);
         return ConfirmPalletDelivery::make()->action($palletDelivery);
     }
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->palletDelivery->state != PalletDeliveryStateEnum::IN_PROCESS) {
+        if ($this->palletDelivery->state != PalletDeliveryStateEnum::IN_PROCESS) {
             return false;
         }
 
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
 

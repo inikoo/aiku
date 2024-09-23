@@ -33,7 +33,7 @@ class UpdateJobOrder extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
 
@@ -48,15 +48,15 @@ class UpdateJobOrder extends OrgAction
     {
         $rules = [];
 
-        if(!request()->user() instanceof WebUser) {
+        if (!request()->user() instanceof WebUser) {
             $rules = [
                 'public_notes'  => ['sometimes','nullable','string','max:4000'],
-                'internal_notes'=> ['sometimes','nullable','string','max:4000'],
+                'internal_notes' => ['sometimes','nullable','string','max:4000'],
             ];
         }
 
         return [
-            'customer_notes'=> ['sometimes','nullable','string','max:4000'],
+            'customer_notes' => ['sometimes','nullable','string','max:4000'],
             ...$rules
         ];
     }

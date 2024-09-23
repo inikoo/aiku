@@ -33,7 +33,7 @@ class EditWebpage extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, Website $website, Webpage $webpage, ActionRequest $request): Webpage
     {
-        $this->scope=$shop;
+        $this->scope = $shop;
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($webpage);
@@ -42,7 +42,7 @@ class EditWebpage extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Website $website, Webpage $webpage, ActionRequest $request): Webpage
     {
-        $this->scope=$fulfilment;
+        $this->scope = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($webpage);

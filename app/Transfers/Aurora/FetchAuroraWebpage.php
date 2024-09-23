@@ -28,13 +28,13 @@ class FetchAuroraWebpage extends FetchAurora
     {
 
 
-        $typeData=DB::connection('aurora')
+        $typeData = DB::connection('aurora')
             ->table('Webpage Type Dimension')
             ->select('Webpage Type Code')
             ->where('Webpage Type Key', $this->auroraModelData->{'Webpage Type Key'})->first();
 
 
-        if($typeData and $typeData->{'Webpage Type Code'}=='Sys') {
+        if ($typeData and $typeData->{'Webpage Type Code'} == 'Sys') {
             return;
         }
 

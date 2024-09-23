@@ -154,22 +154,22 @@ class IndexInvoices extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $invoices, ActionRequest $request): Response
     {
-        $subNavigation=[];
+        $subNavigation = [];
 
-        $icon      =['fal', 'fa-file-invoice-dollar'];
-        $title     =__('invoices');
-        $afterTitle=null;
-        $iconRight =null;
+        $icon      = ['fal', 'fa-file-invoice-dollar'];
+        $title     = __('invoices');
+        $afterTitle = null;
+        $iconRight = null;
         $model     = null;
 
-        if($this->parent instanceof FulfilmentCustomer) {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $icon         =['fal', 'fa-user'];
-            $title        =$this->parent->customer->name;
-            $iconRight    =[
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         = ['fal', 'fa-user'];
+            $title        = $this->parent->customer->name;
+            $iconRight    = [
                 'icon' => 'fal fa-file-invoice-dollar',
             ];
-            $afterTitle= [
+            $afterTitle = [
 
                 'label'     => __('invoices')
             ];
@@ -264,7 +264,7 @@ class IndexInvoices extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.fulfilments.show.crm.customers.show.invoices.index'=>
+            'grp.org.fulfilments.show.crm.customers.show.invoices.index' =>
             array_merge(
                 ShowFulfilmentCustomer::make()->getBreadcrumbs($routeParameters),
                 $headCrumb()

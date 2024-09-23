@@ -27,7 +27,7 @@ class StoreHistoricAsset
 {
     use AsAction;
 
-    public function handle(Product|Rental|Service|Subscription|Charge|ShippingZone $assetModel, array $modelData = [], int $hydratorsDelay =0): HistoricAsset
+    public function handle(Product|Rental|Service|Subscription|Charge|ShippingZone $assetModel, array $modelData = [], int $hydratorsDelay = 0): HistoricAsset
     {
         $historicAssetData = [
             'source_id' => Arr::get($modelData, 'source_id'),
@@ -37,7 +37,7 @@ class StoreHistoricAsset
         data_set($historicAssetData, 'name', $assetModel->name);
 
 
-        if($assetModel instanceof ShippingZone) {
+        if ($assetModel instanceof ShippingZone) {
             data_set($historicAssetData, 'price', null);
             data_set($historicAssetData, 'units', 1);
             data_set($historicAssetData, 'unit', 'shipping');

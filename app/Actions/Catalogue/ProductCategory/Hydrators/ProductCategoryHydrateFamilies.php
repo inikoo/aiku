@@ -35,7 +35,7 @@ class ProductCategoryHydrateFamilies
     public function handle(ProductCategory $productCategory): void
     {
 
-        if($productCategory->type == ProductCategoryTypeEnum::FAMILY) {
+        if ($productCategory->type == ProductCategoryTypeEnum::FAMILY) {
             return;
         }
 

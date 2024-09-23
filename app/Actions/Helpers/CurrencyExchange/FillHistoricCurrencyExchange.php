@@ -41,7 +41,7 @@ class FillHistoricCurrencyExchange
             }
 
 
-            if($command->option('from')) {
+            if ($command->option('from')) {
                 $startDate = new Carbon($command->option('from'));
             } else {
                 $startDate = new Carbon($currency->historic_data_since);

@@ -158,7 +158,7 @@ class EditArtefact extends OrgAction
                 [
                     'type'         => 'editingModel',
                     'editingModel' => [
-                        'label'=> __('editing raw material'),
+                        'label' => __('editing raw material'),
                     ]
                 ]
             ]

@@ -56,15 +56,15 @@ trait WithModelAddressActions
         }
     }
 
-    protected function addAddressToModel($model, $addressData, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id', bool $canShip=null)
+    protected function addAddressToModel($model, $addressData, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id', bool $canShip = null)
     {
         if (!$addressData) {
             return $model;
         }
 
-        $groupId=$model->group_id;
-        if($model instanceof Group) {
-            $groupId=$model->id;
+        $groupId = $model->group_id;
+        if ($model instanceof Group) {
+            $groupId = $model->id;
         }
         data_set($addressData, 'group_id', $groupId);
 
@@ -83,12 +83,12 @@ trait WithModelAddressActions
             'group_id' => $groupId
         ];
 
-        if($canShip===null and $scope=='delivery') {
-            $canShip=true;
+        if ($canShip === null and $scope == 'delivery') {
+            $canShip = true;
         }
 
-        if($canShip!==null) {
-            $pivotData['can_ship']=$canShip;
+        if ($canShip !== null) {
+            $pivotData['can_ship'] = $canShip;
         }
 
 
@@ -116,9 +116,9 @@ trait WithModelAddressActions
         data_set($addressData, 'is_fixed', true);
         data_set($addressData, 'usage', 1);
 
-        $groupId=$model->group_id;
-        if($model instanceof Group) {
-            $groupId=$model->id;
+        $groupId = $model->group_id;
+        if ($model instanceof Group) {
+            $groupId = $model->id;
         }
         data_set($addressData, 'group_id', $groupId);
 
@@ -148,9 +148,9 @@ trait WithModelAddressActions
             $address = $addressModel->addresses()->where('scope', $addressLink[1])->first();
         }
 
-        $groupId=$model->group_id;
-        if($model instanceof Group) {
-            $groupId=$model->id;
+        $groupId = $model->group_id;
+        if ($model instanceof Group) {
+            $groupId = $model->id;
         }
 
         if ($address) {
@@ -175,13 +175,13 @@ trait WithModelAddressActions
     }
 
 
-    protected function attachAddressToModel($model, Address $address, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id', bool $canShip=null)
+    protected function attachAddressToModel($model, Address $address, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id', bool $canShip = null)
     {
 
 
-        $groupId=$model->group_id;
-        if($model instanceof Group) {
-            $groupId=$model->id;
+        $groupId = $model->group_id;
+        if ($model instanceof Group) {
+            $groupId = $model->id;
         }
 
         $pivotData = [
@@ -189,12 +189,12 @@ trait WithModelAddressActions
             'group_id' => $groupId
         ];
 
-        if($canShip===null and $scope=='delivery') {
-            $canShip=true;
+        if ($canShip === null and $scope == 'delivery') {
+            $canShip = true;
         }
 
-        if($canShip!==null) {
-            $pivotData['can_ship']=$canShip;
+        if ($canShip !== null) {
+            $pivotData['can_ship'] = $canShip;
         }
 
 

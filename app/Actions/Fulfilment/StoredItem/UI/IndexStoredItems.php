@@ -46,11 +46,11 @@ class IndexStoredItems extends OrgAction
         return QueryBuilder::for(StoredItem::class)
             ->defaultSort('slug')
             ->when($parent, function ($query) use ($parent) {
-                if($parent instanceof FulfilmentCustomer) {
+                if ($parent instanceof FulfilmentCustomer) {
                     $query->where('fulfilment_customer_id', $parent->id);
                 }
 
-                if($parent instanceof Fulfilment) {
+                if ($parent instanceof Fulfilment) {
                     $query->where('fulfilment_id', $parent->id);
                 }
             })
@@ -113,21 +113,21 @@ class IndexStoredItems extends OrgAction
     public function htmlResponse(LengthAwarePaginator $storedItems, ActionRequest $request): Response
     {
         // dd($this->parent);
-        $subNavigation=[];
+        $subNavigation = [];
 
-        $icon      =['fal', 'fa-narwhal'];
-        $title     =__('stored items');
-        $afterTitle=null;
-        $iconRight =null;
+        $icon      = ['fal', 'fa-narwhal'];
+        $title     = __('stored items');
+        $afterTitle = null;
+        $iconRight = null;
 
-        if($this->parent instanceof  FulfilmentCustomer) {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $icon         =['fal', 'fa-user'];
-            $title        =$this->parent->customer->name;
-            $iconRight    =[
+        if ($this->parent instanceof  FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         = ['fal', 'fa-user'];
+            $title        = $this->parent->customer->name;
+            $iconRight    = [
                 'icon' => 'fal fa-narwhal',
             ];
-            $afterTitle= [
+            $afterTitle = [
 
                 'label'     => __('stored items')
             ];

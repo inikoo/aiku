@@ -30,11 +30,11 @@ class DeleteProductCategory extends OrgAction
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
-        if($this->productCategory->products()->exists()) {
+        if ($this->productCategory->products()->exists()) {
             $validator->errors()->add('products', 'This category has products associated with it.');
         }
 
-        if($this->productCategory->children()->exists()) {
+        if ($this->productCategory->children()->exists()) {
             $validator->errors()->add('children', 'This category has sub-categories associated with it.');
         }
 
@@ -42,7 +42,7 @@ class DeleteProductCategory extends OrgAction
 
     public function asController(ProductCategory $productCategory, ActionRequest $request): ProductCategory
     {
-        $this->productCategory=$productCategory;
+        $this->productCategory = $productCategory;
         $this->initialisationFromShop($productCategory->shop, $request);
 
         return $this->handle($productCategory);

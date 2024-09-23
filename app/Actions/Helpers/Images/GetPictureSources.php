@@ -38,11 +38,11 @@ class GetPictureSources
                 ($image->getHeight() ?? 0) * 2,
             );
 
-            if(Arr::has($sources, 'avif')) {
+            if (Arr::has($sources, 'avif')) {
                 $sources['avif_2x']     = GetImgProxyUrl::run($image_2x->extension('avif'));
             }
 
-            if(Arr::has($sources, 'webp')) {
+            if (Arr::has($sources, 'webp')) {
                 $sources['webp_2x']     = GetImgProxyUrl::run($image_2x->extension('webp'));
             }
 

@@ -39,7 +39,7 @@ class FetchAuroraOffer extends FetchAurora
         }
         $type = $this->auroraModelData->{'Deal Terms Type'};
 
-        if($type=='') {
+        if ($type == '') {
             return;
         }
 
@@ -92,15 +92,15 @@ class FetchAuroraOffer extends FetchAurora
 
 
         $code = Abbreviate::run($code, maximumLength: 32);
-        $code =strtolower($code);
+        $code = strtolower($code);
 
-        if($code!='') {
-            $code=$code.'-';
+        if ($code != '') {
+            $code = $code.'-';
         }
-        $code=$code.$this->auroraModelData->{'Deal Key'};
+        $code = $code.$this->auroraModelData->{'Deal Key'};
 
-        if($name=='') {
-            $name=$code;
+        if ($name == '') {
+            $name = $code;
         }
 
 

@@ -21,7 +21,7 @@ class FulfilmentCustomerRecordSearch
 
         if ($fulfilmentCustomer->trashed()) {
 
-            if($fulfilmentCustomer->universalSearch) {
+            if ($fulfilmentCustomer->universalSearch) {
                 $fulfilmentCustomer->universalSearch()->delete();
             }
             return;

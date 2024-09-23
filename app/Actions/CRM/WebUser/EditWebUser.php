@@ -32,9 +32,9 @@ class EditWebUser extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
 
-        if($this->parent instanceof Fulfilment) {
+        if ($this->parent instanceof Fulfilment) {
             return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.view");
-        } elseif($this->parent instanceof Shop) {
+        } elseif ($this->parent instanceof Shop) {
             return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
         }
 
@@ -43,8 +43,8 @@ class EditWebUser extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, Customer $customer, WebUser $webUser, ActionRequest $request): WebUser
     {
-        $this->parent=$shop;
-        $this->scope =$customer;
+        $this->parent = $shop;
+        $this->scope = $customer;
 
         $this->initialisationFromShop($shop, $request);
 
@@ -54,8 +54,8 @@ class EditWebUser extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inFulfilmentCustomer(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, WebUser $webUser, ActionRequest $request): WebUser
     {
-        $this->parent=$fulfilment;
-        $this->scope =$fulfilmentCustomer;
+        $this->parent = $fulfilment;
+        $this->scope = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($webUser);

@@ -28,10 +28,10 @@ class AuditLocationOrgStock extends OrgAction
 
         data_set($modelData, 'audited_at', now());
 
-        $currentStock    =$locationOrgStock->quantity;
-        $locationOrgStock=$this->update($locationOrgStock, $modelData);
-        $newStock        =$locationOrgStock->quantity;
-        $stockDiff       =$newStock-$currentStock;
+        $currentStock    = $locationOrgStock->quantity;
+        $locationOrgStock = $this->update($locationOrgStock, $modelData);
+        $newStock        = $locationOrgStock->quantity;
+        $stockDiff       = $newStock - $currentStock;
 
         StoreOrgStockAuditDelta::make()->action($locationOrgStock, [
             'original_quantity' => $newStock,
@@ -54,7 +54,7 @@ class AuditLocationOrgStock extends OrgAction
     public function prepareForValidation(): void
     {
 
-        if(!$this->has('quantity')) {
+        if (!$this->has('quantity')) {
             $this->set('quantity', $this->locationOrgStock->quantity);
         }
 
@@ -63,7 +63,7 @@ class AuditLocationOrgStock extends OrgAction
     public function action(LocationOrgStock $locationOrgStock, array $modelData): LocationOrgStock
     {
         $this->asAction        = true;
-        $this->locationOrgStock=$locationOrgStock;
+        $this->locationOrgStock = $locationOrgStock;
         $this->initialisation($locationOrgStock->organisation, $modelData);
 
         return $this->handle($locationOrgStock, $this->validatedData);
@@ -71,7 +71,7 @@ class AuditLocationOrgStock extends OrgAction
 
     public function asController(LocationOrgStock $locationOrgStock, ActionRequest $request): LocationOrgStock
     {
-        $this->locationOrgStock=$locationOrgStock;
+        $this->locationOrgStock = $locationOrgStock;
         $this->initialisation($locationOrgStock->organisation, $request);
 
         return $this->handle($locationOrgStock, $this->validatedData);

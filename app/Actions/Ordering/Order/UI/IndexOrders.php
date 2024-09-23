@@ -69,7 +69,7 @@ class IndexOrders extends OrgAction
         }
 
 
-        $query=QueryBuilder::for(Order::class);
+        $query = QueryBuilder::for(Order::class);
 
         if (class_basename($parent) == 'Shop') {
             $query->where('orders.shop_id', $parent->id);
@@ -162,7 +162,7 @@ class IndexOrders extends OrgAction
             $table->column(key: 'state', label: __('state'), canBeHidden: false, sortable: false, searchable: true);
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
-            if($parent instanceof Shop) {
+            if ($parent instanceof Shop) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, sortable: false, searchable: true);
             }
             $table->column(key: 'payment_status', label: __('payment'), canBeHidden: false, sortable: false, searchable: true);
@@ -202,8 +202,8 @@ class IndexOrders extends OrgAction
             'icon'  => ['fal', 'fa-shopping-cart'],
             'title' => __('orders')
         ];
-        $afterTitle=null;
-        $iconRight =null;
+        $afterTitle = null;
+        $iconRight = null;
         $actions   = null;
 
         if ($this->parent instanceof CustomerClient) {
@@ -213,10 +213,10 @@ class IndexOrders extends OrgAction
                 'icon'  => ['fal', 'fa-folder'],
                 'title' => __('customer client')
             ];
-            $iconRight    =[
+            $iconRight    = [
                 'icon' => 'fal fa-shopping-cart',
             ];
-            $afterTitle= [
+            $afterTitle = [
                 'label'     => __('Orders')
             ];
             $actions = [
@@ -242,10 +242,10 @@ class IndexOrders extends OrgAction
                 'icon'  => ['fal', 'fa-user'],
                 'title' => __('customer')
             ];
-            $iconRight    =[
+            $iconRight    = [
                 'icon' => 'fal fa-shopping-cart',
             ];
-            $afterTitle= [
+            $afterTitle = [
                 'label'     => __('Orders')
             ];
             $actions = [

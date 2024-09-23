@@ -72,7 +72,7 @@ class EditProduct extends OrgAction
 
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Product $product, ActionRequest $request): Product
     {
-        $this->parent= $fulfilment;
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
         return $this->handle($product);
     }
@@ -164,13 +164,13 @@ class EditProduct extends OrgAction
                                 'price' => [
                                     'type'    => 'input',
                                     'label'   => __('price'),
-                                    'required'=> true,
+                                    'required' => true,
                                     'value'   => $product->price
                                 ],
                                 'state' => [
                                     'type'    => 'select',
                                     'label'   => __('state'),
-                                    'required'=> true,
+                                    'required' => true,
                                     'value'   => $product->state,
                                     'options' => Options::forEnum(AssetStateEnum::class)
                                 ],
@@ -226,27 +226,27 @@ class EditProduct extends OrgAction
 
     private function getNavigation(?Product $product, string $routeName): ?array
     {
-        if(!$product) {
+        if (!$product) {
             return null;
         }
         return match ($routeName) {
-            'shops.products.edit'=> [
-                'label'=> $product->name,
-                'route'=> [
+            'shops.products.edit' => [
+                'label' => $product->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'product'=> $product->slug
+                    'parameters' => [
+                        'product' => $product->slug
                     ]
 
                 ]
             ],
-            'shops.show.products.edit'=> [
-                'label'=> $product->name,
-                'route'=> [
+            'shops.show.products.edit' => [
+                'label' => $product->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'shop'   => $product->shop->slug,
-                        'product'=> $product->slug
+                        'product' => $product->slug
                     ]
 
                 ]

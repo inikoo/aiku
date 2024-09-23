@@ -48,9 +48,9 @@ trait HasCatalogueStats
 
         $table->unsignedInteger('number_collection_categories')->default(0);
         $table->unsignedInteger('number_collections')->default(0);
-        $table= $this->catalogueFamilyStats($table);
-        $table= $this->assetStats($table);
-        $table= $this->catalogueProductsStats($table);
+        $table = $this->catalogueFamilyStats($table);
+        $table = $this->assetStats($table);
+        $table = $this->catalogueProductsStats($table);
 
         return $this->productVariantFields($table);
     }

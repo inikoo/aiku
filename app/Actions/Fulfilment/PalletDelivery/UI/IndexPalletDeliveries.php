@@ -135,7 +135,7 @@ class IndexPalletDeliveries extends OrgAction
             );
         }
 
-        if($parent instanceof Fulfilment || $parent instanceof Warehouse) {
+        if ($parent instanceof Fulfilment || $parent instanceof Warehouse) {
             $queryBuilder->leftJoin('fulfilment_customers', 'pallet_deliveries.fulfilment_customer_id', '=', 'fulfilment_customers.id')
               ->leftJoin('customers', 'fulfilment_customers.customer_id', '=', 'customers.id')
               ->addSelect('customers.name as customer_name', 'customers.slug as customer_slug');
@@ -228,22 +228,22 @@ class IndexPalletDeliveries extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $customers, ActionRequest $request): Response
     {
-        $subNavigation=[];
+        $subNavigation = [];
 
-        $icon      =['fal', 'fa-truck-couch'];
-        $title     =__('fulfilment deliveries');
-        $afterTitle=null;
-        $iconRight =null;
+        $icon      = ['fal', 'fa-truck-couch'];
+        $title     = __('fulfilment deliveries');
+        $afterTitle = null;
+        $iconRight = null;
         $model     = null;
 
-        if($this->parent instanceof FulfilmentCustomer) {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $icon         =['fal', 'fa-user'];
-            $title        =$this->parent->customer->name;
-            $iconRight    =[
+        if ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+            $icon         = ['fal', 'fa-user'];
+            $title        = $this->parent->customer->name;
+            $iconRight    = [
                 'icon' => 'fal fa-truck-couch',
             ];
-            $afterTitle= [
+            $afterTitle = [
 
                 'label'     => __('Deliveries')
             ];
@@ -251,8 +251,8 @@ class IndexPalletDeliveries extends OrgAction
             $model = __('Operations');
         }
 
-        if($this->parent instanceof  FulfilmentCustomer) {
-            $subNavigation=$this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        if ($this->parent instanceof  FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
             $action       = [
                 [
                     'type'    => 'button',

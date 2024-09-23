@@ -79,7 +79,7 @@ class CreateProduct extends InertiaAction
                                     'price' => [
                                         'type'    => 'input',
                                         'label'   => __('price'),
-                                        'required'=> true,
+                                        'required' => true,
                                     ],
 
                                 ]
@@ -125,8 +125,8 @@ class CreateProduct extends InertiaAction
             [
                 [
                     'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __('Creating product'),
+                    'creatingModel' => [
+                        'label' => __('Creating product'),
                     ]
                 ]
             ]

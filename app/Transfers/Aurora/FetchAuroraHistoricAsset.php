@@ -14,13 +14,13 @@ class FetchAuroraHistoricAsset extends FetchAurora
     protected function parseModel(): void
     {
 
-        if($this->auroraModelData->{'Product Type'}=='Product') {
+        if ($this->auroraModelData->{'Product Type'} == 'Product') {
             $this->parsedData['asset_model'] = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Product ID'});
         } else {
             $this->parsedData['asset_model'] = $this->parseService($this->organisation->id.':'.$this->auroraModelData->{'Product ID'});
         }
 
-        if(!$this->parsedData['asset_model']) {
+        if (!$this->parsedData['asset_model']) {
             print_r($this->auroraModelData);
             // dd('Error');
         }

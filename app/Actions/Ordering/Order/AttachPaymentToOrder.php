@@ -22,7 +22,7 @@ class AttachPaymentToOrder extends OrgAction
             'amount' => $paymentAmount,
         ]);
 
-        if($paymentAmount > $order->total_amount || $paymentAmount == $order->total_amount) {
+        if ($paymentAmount > $order->total_amount || $paymentAmount == $order->total_amount) {
             UpdateOrder::make()->action($order, [
                 'payment_amount' => $order->total_amount
             ]);

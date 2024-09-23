@@ -26,7 +26,7 @@ class GetCustomerShowcase
         $processedAddresses = $addresses->map(function ($address) {
 
 
-            if(!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
+            if (!DB::table('model_has_addresses')->where('address_id', $address->id)->where('model_type', '=', 'Customer')->exists()) {
 
                 return $address->setAttribute('can_delete', false)
                     ->setAttribute('can_edit', true);

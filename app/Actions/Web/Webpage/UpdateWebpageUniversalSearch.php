@@ -8,7 +8,6 @@
 namespace App\Actions\Web\Webpage;
 
 use App\Actions\HydrateModel;
-
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateUniversalSearch;
 use App\Models\Web\Webpage;
 use Illuminate\Support\Collection;

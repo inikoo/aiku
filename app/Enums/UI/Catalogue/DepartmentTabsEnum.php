@@ -70,7 +70,7 @@ enum DepartmentTabsEnum: string
             ],DepartmentTabsEnum::RELATED_CATEGORIES => [
                 'title' => __('related categories'),
                 'icon'  => 'fal fa-project-diagram',
-            ],DepartmentTabsEnum::IMAGES=> [
+            ],DepartmentTabsEnum::IMAGES => [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
                 'type'  => 'icon',

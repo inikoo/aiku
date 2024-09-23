@@ -25,7 +25,7 @@ trait HasRoles
     public function removeJoBPositionRoles(JobPosition $jobPosition): void
     {
         foreach ($jobPosition->roles as $roleID) {
-            $currentRole=$this->roles()->wherePivot('role_id', $roleID)->first();
+            $currentRole = $this->roles()->wherePivot('role_id', $roleID)->first();
 
             if ($currentRole && $currentRole->pivot->direct_role) {
                 $this->roles()->updateExistingPivot($roleID, ['locked' => false]);

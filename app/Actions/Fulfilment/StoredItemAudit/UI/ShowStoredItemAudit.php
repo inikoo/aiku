@@ -67,7 +67,7 @@ class ShowStoredItemAudit extends OrgAction
                         ],
                     'model'  => 'stored item',
                     'title'  => $storedItemAudit->slug,
-                    'actions'=> [
+                    'actions' => [
 
 
                         [

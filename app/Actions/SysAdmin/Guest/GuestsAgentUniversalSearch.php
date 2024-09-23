@@ -25,7 +25,7 @@ class GuestsAgentUniversalSearch
 
     public function asCommand(): int
     {
-        foreach(Guest::all() as $agent) {
+        foreach (Guest::all() as $agent) {
             $this->handle($agent);
         }
         return 0;

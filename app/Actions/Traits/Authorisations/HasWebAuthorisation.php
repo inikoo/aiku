@@ -18,7 +18,7 @@ trait HasWebAuthorisation
     public function authorize(ActionRequest $request): bool
     {
 
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
 

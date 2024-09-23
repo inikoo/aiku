@@ -31,16 +31,16 @@ class UpdateProspectEmailUndoUnsubscribed
             $state          = ProspectStateEnum::CONTACTED;
             $contactedState = ProspectContactedStateEnum::NEVER_OPEN;
 
-            if(!$prospect->last_contacted_at) {
+            if (!$prospect->last_contacted_at) {
                 $state          = ProspectStateEnum::NO_CONTACTED;
                 $contactedState = ProspectContactedStateEnum::NA;
             }
 
-            if($prospect->last_opened_at) {
+            if ($prospect->last_opened_at) {
                 $contactedState = ProspectContactedStateEnum::OPEN;
             }
 
-            if($prospect->last_clicked_at) {
+            if ($prospect->last_clicked_at) {
                 $contactedState = ProspectContactedStateEnum::CLICKED;
             }
 

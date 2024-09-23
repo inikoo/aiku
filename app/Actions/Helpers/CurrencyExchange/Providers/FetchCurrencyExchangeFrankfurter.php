@@ -17,9 +17,9 @@ class FetchCurrencyExchangeFrankfurter
     use AsAction;
 
 
-    public function handle(Currency $baseCurrency, Currency $targetCurrency, ?Carbon $date=null): array
+    public function handle(Currency $baseCurrency, Currency $targetCurrency, ?Carbon $date = null): array
     {
-        if(app()->environment('testing')) {
+        if (app()->environment('testing')) {
             return [
                 'status'   => 'success',
                 'exchange' => 1,
@@ -27,11 +27,11 @@ class FetchCurrencyExchangeFrankfurter
             ];
         }
 
-        $url='https://api.frankfurter.app/';
-        if($date) {
-            $url.=$date->toDateString();
+        $url = 'https://api.frankfurter.app/';
+        if ($date) {
+            $url .= $date->toDateString();
         } else {
-            $url.='latest';
+            $url .= 'latest';
         }
 
 
@@ -39,8 +39,8 @@ class FetchCurrencyExchangeFrankfurter
             'from' => $baseCurrency->code,
             'to'   => $targetCurrency->code
         ]);
-        $exchange=$response->json('rates.'.$targetCurrency->code);
-        if($exchange) {
+        $exchange = $response->json('rates.'.$targetCurrency->code);
+        if ($exchange) {
             return [
                 'status'   => 'success',
                 'exchange' => $exchange,

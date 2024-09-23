@@ -25,7 +25,7 @@ class FetchDeliveryNoteTransactions
         if ($transactionData = $organisationSource->fetchDeliveryNoteTransaction(id: $source_id, deliveryNote: $deliveryNote)) {
 
 
-            if ($deliveryNoteItem=DeliveryNoteItem::where('source_id', $transactionData['delivery_note_item']['source_id'])->first()) {
+            if ($deliveryNoteItem = DeliveryNoteItem::where('source_id', $transactionData['delivery_note_item']['source_id'])->first()) {
 
 
                 $deliveryNoteItem = UpdateDeliveryNoteItem::make()->action(

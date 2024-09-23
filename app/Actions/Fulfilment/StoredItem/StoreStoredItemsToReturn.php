@@ -83,7 +83,7 @@ class StoreStoredItemsToReturn extends OrgAction
         $storedItem->palletReturns()->attach($palletReturn->id, [
             'stored_item_id'       => $storedItem->id,
             'pallet_id'            => $pallet->id,
-            'pallet_stored_item_id'=> $pallet->pivot->id,
+            'pallet_stored_item_id' => $pallet->pivot->id,
             'quantity_ordered'     => $quantityToUse,
             'type'                 => 'StoredItem'
         ]);

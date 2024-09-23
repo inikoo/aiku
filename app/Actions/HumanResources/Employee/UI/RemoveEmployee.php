@@ -60,7 +60,7 @@ class RemoveEmployee extends OrgAction
                             'title' => __('employee')
                         ],
                     'title'  => $employee->slug,
-                    'actions'=> [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',

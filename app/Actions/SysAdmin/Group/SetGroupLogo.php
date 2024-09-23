@@ -38,7 +38,7 @@ class SetGroupLogo
     {
 
         try {
-            $group=Group::where('slug', $command->argument('group'))->firstOrFail();
+            $group = Group::where('slug', $command->argument('group'))->firstOrFail();
         } catch (Exception) {
             $command->error('Group not found');
             return 1;

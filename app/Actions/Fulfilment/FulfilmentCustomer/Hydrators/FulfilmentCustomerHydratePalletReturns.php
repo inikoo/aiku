@@ -36,7 +36,7 @@ class FulfilmentCustomerHydratePalletReturns
             'number_pallet_returns' => PalletReturn::where('fulfilment_customer_id', $fulfilmentCustomer->id)->count()
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'pallet_returns',
             field: 'state',
             enum: PalletReturnStateEnum::class,

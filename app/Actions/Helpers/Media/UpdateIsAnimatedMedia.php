@@ -17,28 +17,28 @@ class UpdateIsAnimatedMedia
 {
     use AsAction;
 
-    public function handle(Media $media, ?string $imagePath=null): Media
+    public function handle(Media $media, ?string $imagePath = null): Media
     {
 
-        $animated=false;
-        if($media->mime_type=='image/gif') {
+        $animated = false;
+        if ($media->mime_type == 'image/gif') {
 
-            if($imagePath) {
-                $fileHandler=fopen($imagePath, 'r');
+            if ($imagePath) {
+                $fileHandler = fopen($imagePath, 'r');
             } else {
-                $content     =Storage::disk(config('media-library.disk_name'))->get($media->getPath());
+                $content     = Storage::disk(config('media-library.disk_name'))->get($media->getPath());
                 $fileHandler = tmpfile();
                 fwrite($fileHandler, $content);
                 fseek($fileHandler, 0);
             }
 
-            $animated=$this->isGifAnimated($fileHandler);
+            $animated = $this->isGifAnimated($fileHandler);
 
 
 
         }
 
-        $media->update(['is_animated'=>$animated]);
+        $media->update(['is_animated' => $animated]);
         return $media;
 
     }
@@ -56,7 +56,7 @@ class UpdateIsAnimatedMedia
 
         // We read through the file til we reach the end of the file, or we've found
         // at least 2 frame headers
-        while(!feof($fh) && $count < 2) {
+        while (!feof($fh) && $count < 2) {
             $chunk = fread($fh, 1024 * 100); //read 100kb at a time
             $count += preg_match_all('#\x00\x21\xF9\x04.{4}\x00[\x2C\x21]#s', $chunk);
         }
@@ -74,7 +74,7 @@ class UpdateIsAnimatedMedia
     public function asCommand(Command $command): int
     {
         $media = $command->argument('media');
-        if($command->argument('media')) {
+        if ($command->argument('media')) {
             try {
                 $media = Media::where('slug', $media)->firstOrFail();
             } catch (Exception) {
@@ -86,7 +86,7 @@ class UpdateIsAnimatedMedia
 
 
         } else {
-            foreach(Media::where('mime_type', 'image/gif')->get() as $media) {
+            foreach (Media::where('mime_type', 'image/gif')->get() as $media) {
                 $this->processMedia($media, $command);
             }
         }
@@ -97,12 +97,12 @@ class UpdateIsAnimatedMedia
 
     private function processMedia(Media $media, Command $command): void
     {
-        $isAnimated=$media->is_animated;
+        $isAnimated = $media->is_animated;
         $this->handle($media);
 
-        $label=$media->is_animated ? "true" : "false";
+        $label = $media->is_animated ? "true" : "false";
 
-        if($isAnimated!==$media->is_animated) {
+        if ($isAnimated !== $media->is_animated) {
 
             $command->line("Studio $media->slug is_animated updated from $isAnimated to $label");
         } else {

@@ -30,7 +30,7 @@ class UpdateTimesheet extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
         return false;
@@ -45,7 +45,7 @@ class UpdateTimesheet extends OrgAction
 
     public function action(Timesheet $timesheet, $modelData): Timesheet
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->initialisation($timesheet->organisation, $modelData);
 
         return $this->handle($timesheet, $this->validatedData);

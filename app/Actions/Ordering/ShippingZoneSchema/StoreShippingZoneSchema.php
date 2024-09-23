@@ -7,24 +7,23 @@
 
 namespace App\Actions\Ordering\ShippingZoneSchema;
 
+use App\Actions\OrgAction;
 use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaTypeEnum;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Catalogue\Shop;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
+use Lorisleiva\Actions\ActionRequest;
 
-class StoreShippingZoneSchema
+class StoreShippingZoneSchema extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
-
     public function handle(Shop $shop, array $modelData): ShippingZoneSchema
     {
         data_set($modelData, 'group_id', $shop->group_id);
         data_set($modelData, 'organisation_id', $shop->organisation_id);
         /** @var $shippingZoneSchema ShippingZoneSchema */
-        $shippingZoneSchema= $shop->shippingZoneSchemas()->create($modelData);
+        $shippingZoneSchema = $shop->shippingZoneSchemas()->create($modelData);
         $shippingZoneSchema->stats()->create();
 
         return $shippingZoneSchema;
@@ -48,5 +47,20 @@ class StoreShippingZoneSchema
         $validatedData = $this->validateAttributes();
 
         return $this->handle($shop, $validatedData);
+    }
+
+    public function asController(Shop $shop, ActionRequest $request): ShippingZoneSchema
+    {
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle($shop, $this->validatedData);
+    }
+
+    public function htmlResponse(ShippingZoneSchema $shippingZoneSchema): RedirectResponse
+    {
+        return Redirect::route('grp.org.shops.show.assets.shipping.show', [
+            'organisation'          => $shippingZoneSchema->organisation->slug,
+            'shop'                  => $shippingZoneSchema->shop->slug,
+            'shippingZoneSchema'    => $shippingZoneSchema->slug
+        ]);
     }
 }

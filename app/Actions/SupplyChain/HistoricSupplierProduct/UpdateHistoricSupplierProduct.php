@@ -23,11 +23,11 @@ class UpdateHistoricSupplierProduct extends GrpAction
 
     public function rules(): array
     {
-        $rules= [
+        $rules = [
         ];
 
 
-        if(!$this->strict) {
+        if (!$this->strict) {
             $rules['last_fetched_at'] = ['sometimes', 'date'];
             $rules['source_id']       = ['sometimes', 'string', 'max:255'];
         }
@@ -35,7 +35,7 @@ class UpdateHistoricSupplierProduct extends GrpAction
         return $rules;
     }
 
-    public function action(HistoricSupplierProduct $historicSupplierProduct, array $modelData, int $hydratorsDelay = 0, bool $strict=true): HistoricSupplierProduct
+    public function action(HistoricSupplierProduct $historicSupplierProduct, array $modelData, int $hydratorsDelay = 0, bool $strict = true): HistoricSupplierProduct
     {
         $this->strict          = $strict;
         $this->asAction        = true;

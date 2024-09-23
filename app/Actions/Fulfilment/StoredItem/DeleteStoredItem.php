@@ -31,11 +31,11 @@ class DeleteStoredItem extends OrgAction
             PalletHydrateStoredItems::run($pallet);
         }
 
-        $group             =$storedItem->group;
-        $organisation      =$storedItem->organisation;
-        $fulfilment        =$storedItem->fulfilment;
-        $fulfilmentCustomer=$storedItem->fulfilmentCustomer;
-        $warehouse         =$storedItem->warehouse;
+        $group             = $storedItem->group;
+        $organisation      = $storedItem->organisation;
+        $fulfilment        = $storedItem->fulfilment;
+        $fulfilmentCustomer = $storedItem->fulfilmentCustomer;
+        $warehouse         = $storedItem->warehouse;
 
         $storedItem->delete();
 
@@ -51,7 +51,7 @@ class DeleteStoredItem extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
         return $request->user()->hasPermissionTo("fulfilment.{$this->fulfilment->id}.edit");

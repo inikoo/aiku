@@ -34,7 +34,7 @@ class FillTodayCurrencyExchange
                 continue;
             }
 
-            $date=now();
+            $date = now();
 
             $exchangeData          = FetchCurrencyExchange::run($exchangePivotCurrency, $currency);
             $currencyExchangeValue = $exchangeData['exchange'] ?? null;

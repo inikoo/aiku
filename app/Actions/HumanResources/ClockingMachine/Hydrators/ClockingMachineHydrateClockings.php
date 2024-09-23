@@ -38,7 +38,7 @@ class ClockingMachineHydrateClockings
             'last_clocking_at' => $clockingMachine->clockings()->max('clocked_at') ?? null
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'clockings',
             field: 'type',
             enum: ClockingTypeEnum::class,

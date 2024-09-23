@@ -37,7 +37,7 @@ class TaxCategorySeeder extends Seeder
 
 
 
-            $taxCategoryData= [
+            $taxCategoryData = [
                 'label'        => $taxCategoryRawData->{'Tax Category Code'},
                 'name'         => $taxCategoryRawData->{'Tax Category Name'},
                 'status'       => $taxCategoryRawData->{'Tax Category Active'} === 'Yes',

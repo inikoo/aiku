@@ -22,7 +22,7 @@ class RemoveLostAndFoundStock
             'quantity' => $lostAndFoundStock->quantity - $quantity
         ]);
 
-        if($lostAndFoundStock->quantity <= 0) {
+        if ($lostAndFoundStock->quantity <= 0) {
             $lostAndFoundStock->delete();
         }
 

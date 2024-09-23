@@ -28,8 +28,8 @@ class SeedStockImages
             if (preg_match('/\/(.*)\/(.*)\/(.*)\/(.*)/', $_filename, $fileData)) {
 
 
-                $checksum=md5_file($filename);
-                if($group->images()->where('collection_name', 'stock-image')->where('checksum', $checksum)->exists()) {
+                $checksum = md5_file($filename);
+                if ($group->images()->where('collection_name', 'stock-image')->where('checksum', $checksum)->exists()) {
                     continue;
                 }
 

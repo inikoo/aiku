@@ -41,7 +41,7 @@ class PalletReturnItemImport implements ToCollection, WithHeadingRow, SkipsOnFai
 
         $modelData = $rowData;
 
-        if(!Arr::get($modelData, 'type')) {
+        if (!Arr::get($modelData, 'type')) {
             data_set($modelData, 'type', PalletTypeEnum::PALLET->value);
         }
 

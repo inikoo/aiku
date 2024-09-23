@@ -29,7 +29,7 @@ class StoreOrgSupplierProduct extends OrgAction
         data_set($modelData, 'org_agent_id', $orgSupplier->org_agent_id);
         data_set($modelData, 'org_supplier_id', $orgSupplier->id);
 
-        $state=match ($supplierProduct->state) {
+        $state = match ($supplierProduct->state) {
             SupplierProductStateEnum::DISCONTINUING => OrgSupplierProductStateEnum::DISCONTINUING,
             SupplierProductStateEnum::DISCONTINUED  => OrgSupplierProductStateEnum::DISCONTINUED,
             default                                 => OrgSupplierProductStateEnum::ACTIVE
@@ -44,7 +44,7 @@ class StoreOrgSupplierProduct extends OrgAction
 
         OrganisationHydrateOrgSupplierProducts::dispatch($orgSupplier->organisation);
         OrgSupplierHydrateOrgSupplierProducts::dispatch($orgSupplier);
-        if($orgSupplierProduct->org_agent_id) {
+        if ($orgSupplierProduct->org_agent_id) {
             OrgAgentHydrateOrgSupplierProducts::dispatch($orgSupplierProduct->orgAgent);
         }
 

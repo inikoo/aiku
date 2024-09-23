@@ -25,7 +25,7 @@ class HydrateWebUser extends HydrateModel
     {
         $webUser->update(
             [
-               'number_api_tokens'=> $webUser->tokens->count()
+               'number_api_tokens' => $webUser->tokens->count()
             ]
         );
     }

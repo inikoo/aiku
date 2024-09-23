@@ -16,7 +16,7 @@ trait HasUIPayment
 {
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        $payment   =$routeParameters['payment'];
+        $payment   = $routeParameters['payment'];
         $headCrumb = function (array $parameters = []) use ($routeName, $payment) {
             return [
                 $routeName => [

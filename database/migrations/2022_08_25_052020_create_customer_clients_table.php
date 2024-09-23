@@ -16,7 +16,7 @@ return new class () extends Migration {
     {
         Schema::create('customer_clients', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->string('reference')->nullable()->index();
             $table->boolean('status')->default(true)->index();
             $table->unsignedSmallInteger('shop_id')->index()->nullable();

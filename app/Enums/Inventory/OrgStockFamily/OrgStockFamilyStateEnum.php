@@ -75,7 +75,7 @@ enum OrgStockFamilyStateEnum: string
 
     public static function count(Organisation $organisation): array
     {
-        $stats=$organisation->inventoryStats;
+        $stats = $organisation->inventoryStats;
 
         return [
             'in-process'            => $stats->number_org_stock_families_state_in_process,

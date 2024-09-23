@@ -37,7 +37,7 @@ class StoreCreditTransaction extends OrgAction
         /** @var CreditTransaction $creditTransaction */
         $creditTransaction = $customer->creditTransactions()->create($modelData);
 
-        if($this->hydratorsDelay>0) {
+        if ($this->hydratorsDelay > 0) {
             CustomerHydrateCreditTransactions::dispatch($customer)->delay($this->hydratorsDelay);
 
         } else {
@@ -53,7 +53,7 @@ class StoreCreditTransaction extends OrgAction
 
     public function rules(): array
     {
-        $rules= [
+        $rules = [
             'amount'     => ['required', 'numeric'],
             'date'       => ['sometimes', 'date'],
             'type'       => ['required', Rule::enum(CreditTransactionTypeEnum::class)],

@@ -20,7 +20,7 @@ use stdClass;
 
 trait WithAttachMediaToModel
 {
-    protected function attachMediaToModel(Group|Organisation|Shop|User|Webuser|Website|WebBlock|Product $model, Media $media, string $scope = 'default', string $subScope=null, $data=null): Group|Organisation|Shop|User|Website|Webuser|WebBlock|Product
+    protected function attachMediaToModel(Group|Organisation|Shop|User|Webuser|Website|WebBlock|Product $model, Media $media, string $scope = 'default', string $subScope = null, $data = null): Group|Organisation|Shop|User|Website|Webuser|WebBlock|Product
     {
 
 
@@ -37,7 +37,7 @@ trait WithAttachMediaToModel
             $organisation_id = $model->organisation_id;
         }
 
-        if(!$data) {
+        if (!$data) {
             $data = new stdClass();
         }
 

@@ -15,7 +15,7 @@ class PaymentAccountResource extends JsonResource
     public function toArray($request): array
     {
         /** @var PaymentAccount $paymentAccount */
-        $paymentAccount=$this;
+        $paymentAccount = $this;
         return [
             'slug'                           => $paymentAccount->slug,
             'name'                           => $paymentAccount->name,

@@ -89,7 +89,7 @@ class EditOutbox extends InertiaAction
                     'args'      => [
                         'updateRoute' => [
                             'name'      => 'grp.models.outbox.update',
-                            'parameters'=> $outbox->id
+                            'parameters' => $outbox->id
 
                         ],
                     ]

@@ -17,7 +17,7 @@ class FetchAuroraCustomerClient extends FetchAurora
             return;
         }
 
-        $customer=$this->parseCustomer(
+        $customer = $this->parseCustomer(
             $this->organisation->id.':'.$this->auroraModelData->{'Customer Client Customer Key'}
         );
 

@@ -17,8 +17,8 @@ class UserFactory extends Factory
             'username'   => 'hello',
             'password'   => 'password',
             'email'      => fake()->email,
-            'language_id'=> 1,
-            'timezone_id'=> 1
+            'language_id' => 1,
+            'timezone_id' => 1
         ];
     }
 }

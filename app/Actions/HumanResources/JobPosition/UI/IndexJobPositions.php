@@ -109,7 +109,7 @@ class IndexJobPositions extends OrgAction
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
 
-            if($parent instanceof Organisation) {
+            if ($parent instanceof Organisation) {
                 $table->column(key: 'number_employees_currently_working', label: __('employees'), canBeHidden: false, sortable: true, searchable: true);
 
                 //$table->column(key: 'department', label: __('department'), canBeHidden: false, sortable: true, searchable: true);
@@ -125,9 +125,9 @@ class IndexJobPositions extends OrgAction
     public function htmlResponse(LengthAwarePaginator $jobPositions, ActionRequest $request): Response
     {
 
-        $subNavigation=[];
+        $subNavigation = [];
 
-        if($this->parent instanceof Employee) {
+        if ($this->parent instanceof Employee) {
             $subNavigation = $this->getEmployeeSubNavigation($this->parent, $request);
         }
 
@@ -155,7 +155,7 @@ class IndexJobPositions extends OrgAction
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request);
         return $this->handle($organisation);
     }
@@ -163,7 +163,7 @@ class IndexJobPositions extends OrgAction
 
     public function inEmployee(Organisation $organisation, Employee $employee, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$employee;
+        $this->parent = $employee;
         $this->initialisation($organisation, $request);
         return $this->handle($employee);
     }

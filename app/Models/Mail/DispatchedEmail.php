@@ -96,13 +96,13 @@ class DispatchedEmail extends Model
     public function getName(): string
     {
 
-        if($this->is_test) {
+        if ($this->is_test) {
             return Auth::user()->contact_name;
         }
 
-        if($this->recipient) {
+        if ($this->recipient) {
             /** @var Prospect|Customer $recipient */
-            $recipient=$this->recipient;
+            $recipient = $this->recipient;
             return $recipient->name;
         }
         return '';

@@ -228,26 +228,26 @@ class ShowMarketplaceSupplier extends InertiaAction
 
     private function getNavigation(?Supplier $supplier, string $routeName): ?array
     {
-        if(!$supplier) {
+        if (!$supplier) {
             return null;
         }
 
         return match ($routeName) {
-            'grp.org.procurement.marketplace.org_suppliers.show'=> [
-                'label'=> $supplier->code,
-                'route'=> [
+            'grp.org.procurement.marketplace.org_suppliers.show' => [
+                'label' => $supplier->code,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'supplier'  => $supplier->slug
                     ]
 
                 ]
             ],
             'grp.org.procurement.marketplace.org_agents.show.org_suppliers.show' => [
-                'label'=> $supplier->code,
-                'route'=> [
+                'label' => $supplier->code,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'agent'     => $supplier->agent->slug,
                         'supplier'  => $supplier->slug
                     ]

@@ -132,7 +132,7 @@ class ShowPayment extends InertiaAction
 
     public function getPrevious(Payment $payment, ActionRequest $request): ?array
     {
-        $previous=Payment::where('reference', '<', $payment->reference)->when(true, function ($query) use ($payment, $request) {
+        $previous = Payment::where('reference', '<', $payment->reference)->when(true, function ($query) use ($payment, $request) {
             switch ($request->route()->getName()) {
                 case 'grp.org.accounting.payment-accounts.show.payments.show':
                     $query->where('payments.payment_account_id', $payment->payment_account_id);
@@ -151,7 +151,7 @@ class ShowPayment extends InertiaAction
 
     public function getNext(Payment $payment, ActionRequest $request): ?array
     {
-        $next=Payment::where('reference', '>', $payment->reference)->when(true, function ($query) use ($payment, $request) {
+        $next = Payment::where('reference', '>', $payment->reference)->when(true, function ($query) use ($payment, $request) {
             switch ($request->route()->getName()) {
                 case 'grp.org.accounting.payment-accounts.show.payments.show':
                     $query->where('payments.payment_account_id', $payment->paymentAccount->id);
@@ -169,48 +169,48 @@ class ShowPayment extends InertiaAction
 
     private function getNavigation(?Payment $payment, string $routeName): ?array
     {
-        if(!$payment) {
+        if (!$payment) {
             return null;
         }
         return match ($routeName) {
-            'grp.org.accounting.payments.show'=> [
-                'label'=> $payment->reference,
-                'route'=> [
+            'grp.org.accounting.payments.show' => [
+                'label' => $payment->reference,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'payment'  => $payment->slug
                     ]
 
                 ]
             ],
             'grp.org.accounting.payment-accounts.show.payments.show' => [
-                'label'=> $payment->reference,
-                'route'=> [
+                'label' => $payment->reference,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'paymentAccount'=> $payment->paymentAccount->slug,
+                    'parameters' => [
+                        'paymentAccount' => $payment->paymentAccount->slug,
                         'payment'       => $payment->slug
                     ]
 
                 ]
             ],
-            'grp.org.accounting.org-payment-service-providers.show.payments.show'=> [
-                'label'=> $payment->reference,
-                'route'=> [
+            'grp.org.accounting.org-payment-service-providers.show.payments.show' => [
+                'label' => $payment->reference,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'paymentServiceProvider'=> $payment->paymentAccount->paymentServiceProvider->slug,
+                    'parameters' => [
+                        'paymentServiceProvider' => $payment->paymentAccount->paymentServiceProvider->slug,
                         'payment'               => $payment->slug
                     ]
 
                 ]
             ],
             'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show.payments.show' => [
-                'label'=> $payment->reference,
-                'route'=> [
+                'label' => $payment->reference,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'paymentServiceProvider'=> $payment->paymentAccount->paymentServiceProvider->slug,
+                    'parameters' => [
+                        'paymentServiceProvider' => $payment->paymentAccount->paymentServiceProvider->slug,
                         'paymentAccount'        => $payment->paymentAccount->slug,
                         'payment'               => $payment->slug
                     ]

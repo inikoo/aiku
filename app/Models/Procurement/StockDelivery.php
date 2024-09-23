@@ -103,7 +103,7 @@ class StockDelivery extends Model implements HasMedia, Auditable
     protected $casts = [
         'data'  => 'array',
         'state' => StockDeliveryStateEnum::class,
-        'status'=> StockDeliveryStatusEnum::class,
+        'status' => StockDeliveryStatusEnum::class,
     ];
 
     protected $attributes = [

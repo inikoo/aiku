@@ -27,14 +27,14 @@ class NotReceivedPalletDelivery extends OrgAction
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
 
-        if($palletDelivery->state != PalletDeliveryStateEnum::RECEIVED) {
+        if ($palletDelivery->state != PalletDeliveryStateEnum::RECEIVED) {
             abort(419);
         }
 
         $modelData['not_received_at'] = now();
         $modelData['state']           = PalletDeliveryStateEnum::NOT_RECEIVED;
 
-        $palletDelivery= $this->update($palletDelivery, $modelData);
+        $palletDelivery = $this->update($palletDelivery, $modelData);
 
         GroupHydratePalletDeliveries::dispatch($palletDelivery->group);
         OrganisationHydratePalletDeliveries::dispatch($palletDelivery->organisation);

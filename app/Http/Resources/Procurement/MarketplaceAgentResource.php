@@ -31,7 +31,7 @@ class MarketplaceAgentResource extends JsonResource
             'location'                 => $this->location,
             'number_suppliers'         => $this->number_suppliers,
             'number_supplier_products' => $this->number_supplier_products,
-            'adoption'                 => $this->adoption??'available'
+            'adoption'                 => $this->adoption ?? 'available'
 
         ];
     }

@@ -130,7 +130,7 @@ beforeEach(function () {
 
     $this->palletDelivery = $palletDelivery;
 
-    $palletReturn= PalletReturn::first();
+    $palletReturn = PalletReturn::first();
     if (!$palletReturn) {
         data_set($storeData, 'warehouse_id', $this->warehouse->id);
         data_set($storeData, 'state', PalletReturnStateEnum::IN_PROCESS);
@@ -262,7 +262,7 @@ test('UI edit fulfilment', function () {
 
 test('UI show fulfilment shop', function () {
 
-    $fulfilment=$this->shop->fulfilment;
+    $fulfilment = $this->shop->fulfilment;
     $response  = get(
         route(
             'grp.org.fulfilments.show.operations.dashboard',
@@ -283,7 +283,7 @@ test('UI show fulfilment shop', function () {
 
 test('UI show fulfilment shop customers list', function () {
 
-    $fulfilment=$this->shop->fulfilment;
+    $fulfilment = $this->shop->fulfilment;
 
     $response = get(
         route(

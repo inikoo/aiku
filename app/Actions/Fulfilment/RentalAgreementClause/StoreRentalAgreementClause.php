@@ -31,8 +31,8 @@ class StoreRentalAgreementClause extends OrgAction
             $modelData,
             'type',
             match($asset->type) {
-                AssetTypeEnum::PRODUCT=> RentalAgreementClauseTypeEnum::PRODUCT,
-                AssetTypeEnum::SERVICE=> RentalAgreementClauseTypeEnum::SERVICE,
+                AssetTypeEnum::PRODUCT => RentalAgreementClauseTypeEnum::PRODUCT,
+                AssetTypeEnum::SERVICE => RentalAgreementClauseTypeEnum::SERVICE,
                 default               => RentalAgreementClauseTypeEnum::RENTAL
             }
         );

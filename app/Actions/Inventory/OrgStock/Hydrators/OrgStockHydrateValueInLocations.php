@@ -31,7 +31,7 @@ class OrgStockHydrateValueInLocations
     {
 
         $orgStock->update([
-            'value_in_locations' => $orgStock->locationOrgStocks()->sum('quantity')*$orgStock->unit_value
+            'value_in_locations' => $orgStock->locationOrgStocks()->sum('quantity') * $orgStock->unit_value
         ]);
     }
 

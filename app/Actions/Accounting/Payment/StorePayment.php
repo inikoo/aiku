@@ -64,7 +64,7 @@ class StorePayment extends OrgAction
             'currency_code' => $currencyCode,
         ];
 
-        if($this->strict) {
+        if ($this->strict) {
             match ($paymentAccount->type->value) {
                 PaymentAccountTypeEnum::CHECKOUT->value => MakePaymentUsingCheckout::run($payment, $modelData),
                 PaymentAccountTypeEnum::XENDIT->value   => MakePaymentUsingXendit::run($payment),

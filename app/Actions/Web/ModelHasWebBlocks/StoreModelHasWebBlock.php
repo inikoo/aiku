@@ -29,11 +29,11 @@ class StoreModelHasWebBlock extends OrgAction
     public function handle(Webpage $webpage, array $modelData): ModelHasWebBlocks
     {
         $position    = $webpage->webBlocks()->count();
-        $webBlockType=WebBlockType::find($modelData['web_block_type_id']);
+        $webBlockType = WebBlockType::find($modelData['web_block_type_id']);
 
         $webBlock = StoreWebBlock::run($webBlockType, $modelData);
         /** @var ModelHasWebBlocks $modelHasWebBlock */
-        $modelHasWebBlock=$webpage->modelHasWebBlocks()->create(
+        $modelHasWebBlock = $webpage->modelHasWebBlocks()->create(
             [
                 'group_id'        => $webpage->group_id,
                 'organisation_id' => $webpage->organisation_id,
@@ -63,7 +63,7 @@ class StoreModelHasWebBlock extends OrgAction
 
     public function asController(Webpage $webpage, ActionRequest $request): ModelHasWebBlocks
     {
-        $this->webpage=$webpage;
+        $this->webpage = $webpage;
         if ($webpage->shop->type == ShopTypeEnum::FULFILMENT) {
             $this->scope = $webpage->shop->fulfilment;
             $this->initialisationFromFulfilment($this->scope, $request);

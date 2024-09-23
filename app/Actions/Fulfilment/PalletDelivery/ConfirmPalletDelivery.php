@@ -32,7 +32,7 @@ class ConfirmPalletDelivery extends OrgAction
 {
     use WithActionUpdate;
     private PalletDelivery $palletDelivery;
-    private bool $sendNotifications=false;
+    private bool $sendNotifications = false;
 
     public function handle(PalletDelivery $palletDelivery): PalletDelivery
     {
@@ -57,7 +57,7 @@ class ConfirmPalletDelivery extends OrgAction
         $modelData['confirmed_at'] = now();
         $modelData['state']        = PalletDeliveryStateEnum::CONFIRMED;
 
-        if(!$palletDelivery->{PalletDeliveryStateEnum::SUBMITTED->value.'_at'}) {
+        if (!$palletDelivery->{PalletDeliveryStateEnum::SUBMITTED->value.'_at'}) {
             $modelData[PalletDeliveryStateEnum::SUBMITTED->value.'_at'] = now();
         }
 
@@ -69,7 +69,7 @@ class ConfirmPalletDelivery extends OrgAction
         }
 
         $palletDelivery = $this->update($palletDelivery, $modelData);
-        if($this->sendNotifications) {
+        if ($this->sendNotifications) {
             SendPalletDeliveryNotification::dispatch($palletDelivery);
         }
 
@@ -85,11 +85,11 @@ class ConfirmPalletDelivery extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
 
-        if(! in_array($this->palletDelivery->state, [PalletDeliveryStateEnum::SUBMITTED,
+        if (! in_array($this->palletDelivery->state, [PalletDeliveryStateEnum::SUBMITTED,
             PalletDeliveryStateEnum::IN_PROCESS])) {
             return false;
         }
@@ -105,12 +105,12 @@ class ConfirmPalletDelivery extends OrgAction
     public function asController(PalletDelivery $palletDelivery, ActionRequest $request): PalletDelivery
     {
         $this->palletDelivery   = $palletDelivery;
-        $this->sendNotifications=true;
+        $this->sendNotifications = true;
         $this->initialisationFromFulfilment($palletDelivery->fulfilment, $request);
         return $this->handle($palletDelivery);
     }
 
-    public function action(PalletDelivery $palletDelivery, bool $sendNotification=false): PalletDelivery
+    public function action(PalletDelivery $palletDelivery, bool $sendNotification = false): PalletDelivery
     {
         $this->asAction          = true;
         $this->palletDelivery    = $palletDelivery;

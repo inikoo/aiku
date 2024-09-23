@@ -124,8 +124,8 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                     return null;
                 }
 
-                $historicSupplierProduct=FetchAuroraHistoricSupplierProducts::run($organisationSource, $supplierProductData['historicSupplierProductSourceID']);
-                $supplierProduct->updateQuietly(['current_historic_supplier_product_id'=>$historicSupplierProduct->id]);
+                $historicSupplierProduct = FetchAuroraHistoricSupplierProducts::run($organisationSource, $supplierProductData['historicSupplierProductSourceID']);
+                $supplierProduct->updateQuietly(['current_historic_supplier_product_id' => $historicSupplierProduct->id]);
 
             }
 

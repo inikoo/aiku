@@ -32,7 +32,7 @@ class WarehouseHydrateWarehouseAreas
     {
         $warehouse->stats()->update(
             [
-                'number_warehouse_areas'=> $warehouse->warehouseAreas()->count()
+                'number_warehouse_areas' => $warehouse->warehouseAreas()->count()
 
             ]
         );

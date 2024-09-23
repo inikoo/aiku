@@ -197,12 +197,12 @@ class ShowEmployee extends OrgAction
 
     public function han(Employee $employee, ActionRequest $request): Employee
     {
-        $this->han=true;
+        $this->han = true;
 
-        if($request->user()->organisation_id !== $employee->organisation_id) {
+        if ($request->user()->organisation_id !== $employee->organisation_id) {
             abort(404);
         }
-        if(in_array($employee->state, [EmployeeStateEnum::HIRED,EmployeeStateEnum::LEFT])) {
+        if (in_array($employee->state, [EmployeeStateEnum::HIRED,EmployeeStateEnum::LEFT])) {
             abort(405);
         }
 
@@ -211,7 +211,7 @@ class ShowEmployee extends OrgAction
 
     public function jsonResponse(Employee $employee): EmployeeResource|EmployeeHanResource
     {
-        if($this->han) {
+        if ($this->han) {
             return new EmployeeHanResource($employee);
         }
 

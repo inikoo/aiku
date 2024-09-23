@@ -8,8 +8,8 @@
 
 return [
 
-    'table'=> [
-        'records_per_page'=> 50
+    'table' => [
+        'records_per_page' => 50
 
     ]
 

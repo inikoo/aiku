@@ -119,7 +119,7 @@ class StoreWorkplace extends OrgAction
         }
 
 
-        $data=[
+        $data = [
             'name'    => $command->argument('name'),
             'type'    => $command->argument('type'),
         ];

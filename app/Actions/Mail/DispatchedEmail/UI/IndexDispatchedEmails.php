@@ -31,7 +31,7 @@ class IndexDispatchedEmails extends OrgAction
 {
     private Organisation|Shop $parent;
 
-    public function handle(Mailshot|Outbox|PostRoom|Organisation|Shop $parent, $prefix=null): LengthAwarePaginator
+    public function handle(Mailshot|Outbox|PostRoom|Organisation|Shop $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -45,7 +45,7 @@ class IndexDispatchedEmails extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $queryBuilder=QueryBuilder::for(DispatchedEmail::class);
+        $queryBuilder = QueryBuilder::for(DispatchedEmail::class);
         foreach ($this->elementGroups as $key => $elementGroup) {
             $queryBuilder->whereElementGroup(
                 key: $key,
@@ -83,7 +83,7 @@ class IndexDispatchedEmails extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, $prefix=null): Closure
+    public function tableStructure($parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
 
@@ -139,14 +139,14 @@ class IndexDispatchedEmails extends OrgAction
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request);
         return $this->handle($organisation);
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$shop;
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
         return $this->handle($shop);
     }

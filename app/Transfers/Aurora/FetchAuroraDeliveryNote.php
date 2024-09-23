@@ -24,9 +24,9 @@ class FetchAuroraDeliveryNote extends FetchAurora
 
         $order     = $this->parseOrder($this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Order Key'});
 
-        $warehouseID=$this->auroraModelData->{'Delivery Note Warehouse Key'};
-        if(!$warehouseID) {
-            $warehouseID=1;
+        $warehouseID = $this->auroraModelData->{'Delivery Note Warehouse Key'};
+        if (!$warehouseID) {
+            $warehouseID = 1;
         }
         $warehouse = $this->parseWarehouse($this->organisation->id.':'.$warehouseID);
 

@@ -35,11 +35,11 @@ Broadcast::channel('grp.live.users', function (User $user) {
 });
 
 Broadcast::channel('retina.{websiteID}.website', function (Webuser $webUser, int $websiteID) {
-    return $websiteID===$webUser->website_id;
+    return $websiteID === $webUser->website_id;
 });
 
 Broadcast::channel('retina.{customerID}.customer', function (Webuser $webUser, int $customerID) {
-    return $customerID===$webUser->customer_id;
+    return $customerID === $webUser->customer_id;
 });
 
 Broadcast::channel('retina.personal.{webUserID}', function (Webuser $webUser, int $webUserID) {

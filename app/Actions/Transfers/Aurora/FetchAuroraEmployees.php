@@ -117,7 +117,7 @@ class FetchAuroraEmployees extends FetchAuroraAction
             }
 
             if (in_array('attachments', $this->with)) {
-                $sourceData= explode(':', $employee->source_id);
+                $sourceData = explode(':', $employee->source_id);
                 foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
 
                     SaveModelAttachment::run(

@@ -16,7 +16,7 @@ class FetchAuroraPurchaseOrderTransaction extends FetchAurora
     protected function parsePurchaseOrderTransaction(PurchaseOrder $purchaseOrder): void
     {
 
-        if(! in_array($this->auroraModelData->{'Purchase Order Transaction Type'}, ['Parcel','Container'])) {
+        if (! in_array($this->auroraModelData->{'Purchase Order Transaction Type'}, ['Parcel','Container'])) {
             return;
         }
 
@@ -28,7 +28,7 @@ class FetchAuroraPurchaseOrderTransaction extends FetchAurora
             return;
         }
 
-        $this->parsedData['historic_supplier_product']=$historicSupplierProduct;
+        $this->parsedData['historic_supplier_product'] = $historicSupplierProduct;
 
         //enum('Cancelled','NoReceived','InProcess','Submitted','ProblemSupplier','Confirmed','Manufactured','QC_Pass','ReceivedAgent','InDelivery','Inputted','Dispatched','Received','Checked','Placed','InvoiceChecked')
         $state = match ($this->auroraModelData->{'Purchase Order Transaction State'}) {
@@ -45,11 +45,11 @@ class FetchAuroraPurchaseOrderTransaction extends FetchAurora
         };
 
 
-        if($state==PurchaseOrderTransactionStateEnum::CREATING) {
-            $quantityOrdered=$this->auroraModelData->{'Purchase Order Ordering Units'};
+        if ($state == PurchaseOrderTransactionStateEnum::CREATING) {
+            $quantityOrdered = $this->auroraModelData->{'Purchase Order Ordering Units'};
 
         } else {
-            $quantityOrdered=$this->auroraModelData->{'Purchase Order Submitted Units'};
+            $quantityOrdered = $this->auroraModelData->{'Purchase Order Submitted Units'};
 
         }
 

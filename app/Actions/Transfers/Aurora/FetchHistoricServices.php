@@ -38,7 +38,7 @@ class FetchHistoricServices
 
             DB::connection('aurora')->table('Product History Dimension')
                 ->where('Product Key', $sourceData[1])
-                ->update(['aiku_id'=>$historicProduct->id]);
+                ->update(['aiku_id' => $historicProduct->id]);
 
             return $historicProduct;
         }

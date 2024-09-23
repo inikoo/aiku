@@ -34,7 +34,7 @@ class DepartmentHydrateSubDepartments
     public function handle(ProductCategory $productCategory): void
     {
 
-        if($productCategory->type !== ProductCategoryTypeEnum::DEPARTMENT) {
+        if ($productCategory->type !== ProductCategoryTypeEnum::DEPARTMENT) {
             return;
         }
 

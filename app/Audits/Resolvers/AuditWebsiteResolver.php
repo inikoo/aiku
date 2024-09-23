@@ -15,11 +15,11 @@ class AuditWebsiteResolver implements Resolver
     public static function resolve(Auditable $auditable)
     {
 
-        if($auditable->website_id) {
+        if ($auditable->website_id) {
             return $auditable->website_id;
         }
 
-        if(class_basename($auditable)=='Website') {
+        if (class_basename($auditable) == 'Website') {
             return $auditable->id;
         }
 

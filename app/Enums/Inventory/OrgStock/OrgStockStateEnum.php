@@ -60,7 +60,7 @@ enum OrgStockStateEnum: string
     public static function count(Organisation|OrgStockFamily $parent): array
     {
 
-        if($parent instanceof OrgStockFamily) {
+        if ($parent instanceof OrgStockFamily) {
             $stats = $parent->stats;
         } else {
             $stats = $parent->inventoryStats;

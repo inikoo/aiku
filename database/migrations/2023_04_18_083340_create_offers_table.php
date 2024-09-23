@@ -17,7 +17,7 @@ return new class () extends Migration {
     {
         Schema::create('offers', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('offer_campaign_id')->index();

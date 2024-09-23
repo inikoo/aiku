@@ -46,7 +46,7 @@ class PalletImport implements ToCollection, WithHeadingRow, SkipsOnFailure, With
 
         data_set($modelData, 'with_stored_item', $this->includeStoredItem);
 
-        if(!Arr::get($modelData, 'type')) {
+        if (!Arr::get($modelData, 'type')) {
             data_set($modelData, 'type', PalletTypeEnum::PALLET->value);
         }
 

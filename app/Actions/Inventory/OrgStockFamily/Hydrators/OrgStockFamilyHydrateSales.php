@@ -37,7 +37,7 @@ class OrgStockFamilyHydrateSales
 
         $queryBase = DeliveryNoteItem::where('org_stock_family_id', $orgStockFamily->id)->selectRaw('sum(grp_net_amount) as  sum_group  , sum(grp_net_amount) as  sum_org , sum(net) as  sum_shop  ');
 
-        $stats=array_merge($stats, $this->processIntervalShopAssetsStats($queryBase));
+        $stats = array_merge($stats, $this->processIntervalShopAssetsStats($queryBase));
 
         $orgStockFamily->stats()->update($stats);
     }

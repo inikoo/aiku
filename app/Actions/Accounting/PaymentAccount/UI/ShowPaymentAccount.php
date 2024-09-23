@@ -210,7 +210,7 @@ class ShowPaymentAccount extends OrgAction
         return match ($routeName) {
             'grp.org.accounting.shops.show.payment-accounts.show' =>
             array_merge(
-                (new  ShowAccountingDashboard())->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
+                (new ShowAccountingDashboard())->getBreadcrumbs('grp.org.accounting.shops.show.dashboard', $routeParameters),
                 $headCrumb(
                     $paymentAccount,
                     [
@@ -228,7 +228,7 @@ class ShowPaymentAccount extends OrgAction
             ),
             'grp.org.accounting.payment-accounts.show' =>
             array_merge(
-                (new  ShowAccountingDashboard())->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
+                (new ShowAccountingDashboard())->getBreadcrumbs('grp.org.accounting.dashboard', $routeParameters),
                 $headCrumb(
                     $paymentAccount,
                     [

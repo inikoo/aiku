@@ -62,7 +62,7 @@ class ShowFamily extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $family, ActionRequest $request): ProductCategory
     {
-        $this->parent=$department;
+        $this->parent = $department;
 
         $this->initialisationFromShop($shop, $request)->withTab(DepartmentTabsEnum::values());
 

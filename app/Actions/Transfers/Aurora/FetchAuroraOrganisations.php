@@ -25,7 +25,7 @@ class FetchAuroraOrganisations
     {
         $organisationData = $organisationSource->fetchOrganisation($organisation);
 
-        $organisation=UpdateOrganisation::run($organisation, $organisationData['organisation']);
+        $organisation = UpdateOrganisation::run($organisation, $organisationData['organisation']);
 
         $accountsServiceProviderData = Db::connection('aurora')->table('Payment Service Provider Dimension')
             ->select('Payment Service Provider Key')
@@ -52,7 +52,7 @@ class FetchAuroraOrganisations
     public function asCommand(Command $command): int
     {
         foreach (Organisation::all() as $organisation) {
-            if($organisation->source['type'] !== 'Aurora') {
+            if ($organisation->source['type'] !== 'Aurora') {
                 continue;
             }
             $organisationSource = $this->getOrganisationSource($organisation);

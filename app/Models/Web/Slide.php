@@ -52,7 +52,7 @@ class Slide extends Model implements HasMedia
         'layout'   => '{}',
     ];
 
-    protected $guarded=[];
+    protected $guarded = [];
 
     public function snapshot(): BelongsTo
     {

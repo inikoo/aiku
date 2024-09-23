@@ -22,10 +22,10 @@ class SyncOrgStockLocations extends OrgAction
 
     public function handle(OrgStock $orgStock, array $modelData): array
     {
-        $locationsData=$modelData['locationsData'];
+        $locationsData = $modelData['locationsData'];
 
         $oldLocations = $orgStock->locationOrgStocks()->pluck('location_id')->toArray();
-        $newLocations =[];
+        $newLocations = [];
 
         foreach ($locationsData as $locationID => $locationOrgStockData) {
 

@@ -163,8 +163,8 @@ class CreateFamily extends OrgAction
             [
                 [
                     'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __('Creating family'),
+                    'creatingModel' => [
+                        'label' => __('Creating family'),
                     ]
                 ]
             ]

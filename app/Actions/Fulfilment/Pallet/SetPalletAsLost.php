@@ -39,7 +39,7 @@ class SetPalletAsLost extends OrgAction
             ]
         ]);
 
-        $pallet= UpdatePallet::run($pallet, Arr::except($modelData, 'message'), ['data']);
+        $pallet = UpdatePallet::run($pallet, Arr::except($modelData, 'message'), ['data']);
         PalletRecordSearch::dispatch($pallet);
         return $pallet;
     }

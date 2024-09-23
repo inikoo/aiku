@@ -23,13 +23,13 @@ class UpdateDeliveryNoteItem extends OrgAction
     {
         $deliveryNoteItem = $this->update($deliveryNoteItem, $modelData, ['data']);
 
-        if($deliveryNoteItem->wasChanged('quantity_picked') && $deliveryNoteItem->quantity_picked === $deliveryNoteItem->quantity_required) {
+        if ($deliveryNoteItem->wasChanged('quantity_picked') && $deliveryNoteItem->quantity_picked === $deliveryNoteItem->quantity_required) {
             UpdateDeliveryNoteItem::run($deliveryNoteItem, [
                 'state' => DeliveryNoteItemStateEnum::HANDLING->value
             ]);
         }
 
-        if($deliveryNoteItem->wasChanged('quantity_packed') && $deliveryNoteItem->quantity_packed === $deliveryNoteItem->quantity_required) {
+        if ($deliveryNoteItem->wasChanged('quantity_packed') && $deliveryNoteItem->quantity_packed === $deliveryNoteItem->quantity_required) {
             UpdateDeliveryNoteItem::run($deliveryNoteItem, [
                 'state' => DeliveryNoteItemStateEnum::PACKED->value
             ]);

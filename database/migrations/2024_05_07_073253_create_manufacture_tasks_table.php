@@ -18,7 +18,7 @@ return new class () extends Migration {
     {
         Schema::create('manufacture_tasks', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('production_id')->index();
             $table->foreign('production_id')->references('id')->on('productions');
             $table->string('slug')->unique()->collation('und_ns');

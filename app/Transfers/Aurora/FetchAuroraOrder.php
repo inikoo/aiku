@@ -54,12 +54,12 @@ class FetchAuroraOrder extends FetchAurora
 
         $this->parsedData["parent"] = $parent;
         if (!$parent) {
-            $this->parsedData= null;
+            $this->parsedData = null;
             return;
         }
 
         if ($parent->deleted_at and $this->auroraModelData->{'Order State'} == "Cancelled") {
-            $this->parsedData= null;
+            $this->parsedData = null;
             return;
         }
 
@@ -127,7 +127,7 @@ class FetchAuroraOrder extends FetchAurora
             $billingLocked  = true;
         }
 
-        $taxCategory=$this->parseTaxCategory($this->auroraModelData->{'Order Tax Category Key'});
+        $taxCategory = $this->parseTaxCategory($this->auroraModelData->{'Order Tax Category Key'});
 
         $shop = $parent->shop;
 

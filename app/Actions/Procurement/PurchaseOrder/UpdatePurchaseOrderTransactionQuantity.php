@@ -22,7 +22,7 @@ class UpdatePurchaseOrderTransactionQuantity extends OrgAction
     {
         $updatedItem = $this->update($purchaseOrderTransaction, $modelData);
 
-        if($updatedItem->unit_quantity == 0) {
+        if ($updatedItem->unit_quantity == 0) {
             DeletePurchaseOrderTransaction::run($updatedItem);
         }
 
@@ -31,7 +31,7 @@ class UpdatePurchaseOrderTransactionQuantity extends OrgAction
 
     public function action(PurchaseOrderTransaction $purchaseOrderTransaction, array $modelData): PurchaseOrderTransaction
     {
-        $this->asAction= true;
+        $this->asAction = true;
         $this->initialisation($purchaseOrderTransaction->organisation, $modelData);
         return $this->handle($purchaseOrderTransaction, $modelData);
     }

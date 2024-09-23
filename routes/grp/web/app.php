@@ -13,7 +13,7 @@ Route::middleware(["auth"])->group(function () {
         return redirect('/dashboard');
     });
 
-    if(!app()->isProduction()) {
+    if (!app()->isProduction()) {
         Route::get('routes', function () {
             $routeCollection = Route::getRoutes();
 

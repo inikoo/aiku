@@ -145,8 +145,8 @@ class IndexDeliveryNotes extends OrgAction
         }
 
         if ($this->parent instanceof Warehouse) {
-            $icon         =['fal', 'fa-arrow-from-left'];
-            $iconRight    =[
+            $icon         = ['fal', 'fa-arrow-from-left'];
+            $iconRight    = [
                 'icon' => 'fal fa-truck',
             ];
             $model = __('Goods Out');

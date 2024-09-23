@@ -189,7 +189,7 @@ class ShowDepartment extends OrgAction
             ];
         };
 
-        $department=ProductCategory::where('slug', $routeParameters['department'])->first();
+        $department = ProductCategory::where('slug', $routeParameters['department'])->first();
 
         return match ($routeName) {
             /*

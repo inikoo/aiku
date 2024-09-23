@@ -105,10 +105,10 @@ class ShowOrganisation extends GrpAction
             ];
         };
 
-        $organisation=Organisation::where('slug', $routeParameters['organisation'])->first();
+        $organisation = Organisation::where('slug', $routeParameters['organisation'])->first();
 
         return match ($routeName) {
-            'grp.organisations.show'=>
+            'grp.organisations.show' =>
 
             array_merge(
                 IndexOrganisations::make()->getBreadcrumbs(),

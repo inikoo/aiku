@@ -44,7 +44,7 @@ class DeleteOrder
     {
 
         try {
-            $order=Order::findOrFail($command->argument('id'));
+            $order = Order::findOrFail($command->argument('id'));
         } catch (Exception) {
             $command->error('Order not found');
             return 1;

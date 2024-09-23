@@ -18,7 +18,7 @@ return new class () extends Migration {
     {
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('parent_type')->comment('OrgAgent|OrgSupplier|Organisation(intra-group sales)')->index();
             $table->unsignedInteger('parent_id')->index();

@@ -25,10 +25,10 @@ class FetchAuroraPaymentServiceProvider extends FetchAurora
             default => Str::lower($this->auroraModelData->{'Payment Service Provider Block'})
         };
 
-        $paymentServiceProvider=PaymentServiceProvider::where('group_id', $this->organisation->group_id)
+        $paymentServiceProvider = PaymentServiceProvider::where('group_id', $this->organisation->group_id)
             ->where('code', $code)->firstOrFail();
 
-        $this->parsedData['paymentServiceProvider'] =$paymentServiceProvider;
+        $this->parsedData['paymentServiceProvider'] = $paymentServiceProvider;
 
 
 

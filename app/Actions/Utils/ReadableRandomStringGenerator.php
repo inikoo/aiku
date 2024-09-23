@@ -13,7 +13,7 @@ class ReadableRandomStringGenerator
 {
     use AsObject;
 
-    public function handle($length=6): string
+    public function handle($length = 6): string
     {
         $string     = '';
         $vowels     = array("a","e","i","o","u");

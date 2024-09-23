@@ -36,7 +36,7 @@ class BookInPallet extends OrgAction
         $pallet             = $this->update($pallet, $modelData, ['data']);
         $pallet->refresh();
 
-        if($pallet->palletDelivery) {
+        if ($pallet->palletDelivery) {
             UpdatePalletDeliveryStateFromItems::run($pallet->palletDelivery);
         }
 

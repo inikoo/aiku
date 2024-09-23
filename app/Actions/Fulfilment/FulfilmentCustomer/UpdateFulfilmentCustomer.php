@@ -36,13 +36,13 @@ class UpdateFulfilmentCustomer extends OrgAction
         Arr::forget($modelData, ['contact_name', 'company_name', 'email', 'phone', 'address']);
 
         $oldData = [
-            'pallets_storage'=> $fulfilmentCustomer->pallets_storage,
+            'pallets_storage' => $fulfilmentCustomer->pallets_storage,
             'items_storage'  => $fulfilmentCustomer->items_storage,
             'dropshipping'   => $fulfilmentCustomer->dropshipping
         ];
 
-        if(! blank($contactAddressData)) {
-            if($fulfilmentCustomer->customer->address) {
+        if (! blank($contactAddressData)) {
+            if ($fulfilmentCustomer->customer->address) {
                 UpdateAddress::run($fulfilmentCustomer->customer->address, $contactAddressData);
             } else {
                 $this->addAddressToModel(
@@ -57,19 +57,19 @@ class UpdateFulfilmentCustomer extends OrgAction
 
         $fulfilmentCustomer = $this->update($fulfilmentCustomer, $modelData, ['data']);
 
-        if($fulfilmentCustomer->wasChanged()) {
+        if ($fulfilmentCustomer->wasChanged()) {
 
             $fulfilmentCustomer->customer->auditEvent    = 'update';
             $fulfilmentCustomer->customer->isCustomEvent = true;
 
             $newData = [
-                'pallets_storage'=> $fulfilmentCustomer->pallets_storage,
+                'pallets_storage' => $fulfilmentCustomer->pallets_storage,
                 'items_storage'  => $fulfilmentCustomer->items_storage,
                 'dropshipping'   => $fulfilmentCustomer->dropshipping
             ];
 
 
-            $fulfilmentCustomer->customer->auditCustomOld =$oldData;
+            $fulfilmentCustomer->customer->auditCustomOld = $oldData;
             $fulfilmentCustomer->customer->auditCustomNew = $newData;
             Event::dispatch(AuditCustom::class, [$fulfilmentCustomer->customer]);
         }

@@ -25,8 +25,8 @@ return new class () extends Migration {
             $table = $this->paymentServiceProviderStats($table);
             $table = $this->paymentAccountStats($table);
             $table = $this->paymentStats($table);
-            $table =$this->getCreditTransactionsStats($table);
-            $table =$this->getTopUpsStats($table);
+            $table = $this->getCreditTransactionsStats($table);
+            $table = $this->getTopUpsStats($table);
 
 
             $table->timestampsTz();

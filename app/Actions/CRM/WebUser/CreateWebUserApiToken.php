@@ -22,7 +22,7 @@ class CreateWebUserApiToken
 
     public function handle(WebUser $webUser, $tokenData): string
     {
-        $token= $webUser->createToken(
+        $token = $webUser->createToken(
             Arr::get($tokenData, 'name', 'full-access'),
             Arr::get($tokenData, 'abilities', ['*']),
         )->plainTextToken;
@@ -35,7 +35,7 @@ class CreateWebUserApiToken
     {
 
         try {
-            $webUser=WebUser::where('slug', $command->argument('web_user_slug'))->firstOrFail();
+            $webUser = WebUser::where('slug', $command->argument('web_user_slug'))->firstOrFail();
         } catch (Exception) {
             $command->error('WebUser not found');
             return 1;

@@ -35,7 +35,7 @@ class OrganisationHydrateInvoices
 
     public function handle(Organisation $organisation): void
     {
-        $stats=$this->getInvoicesStats($organisation);
+        $stats = $this->getInvoicesStats($organisation);
 
         $stats = array_merge(
             $stats,

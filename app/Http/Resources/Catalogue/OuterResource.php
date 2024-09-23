@@ -15,7 +15,7 @@ class OuterResource extends JsonResource
     public function toArray($request): array
     {
         /** @var Product $outer */
-        $outer=$this;
+        $outer = $this;
         return [
             'slug'       => $outer->slug,
             'code'       => $outer->code,

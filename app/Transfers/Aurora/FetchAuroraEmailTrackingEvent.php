@@ -37,8 +37,8 @@ class FetchAuroraEmailTrackingEvent extends FetchAurora
 
         if ($this->auroraModelData->{'Email Tracking Event Data'} and
             !(
-                $this->auroraModelData->{'Email Tracking Event Data'}!='""'  or
-                $this->auroraModelData->{'Email Tracking Event Data'}!='{}'
+                $this->auroraModelData->{'Email Tracking Event Data'} != '""'  or
+                $this->auroraModelData->{'Email Tracking Event Data'} != '{}'
             )
         ) {
             $data['sns'] = json_decode($this->auroraModelData->{'Email Tracking Event Data'});

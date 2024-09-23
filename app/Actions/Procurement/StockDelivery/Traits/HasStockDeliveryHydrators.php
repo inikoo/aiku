@@ -21,9 +21,9 @@ trait HasStockDeliveryHydrators
         /** @var OrgSupplier|OrgAgent|OrgPartner $parent */
         $parent = $stockDelivery->parent;
 
-        if(class_basename($parent) == 'OrgSupplier') {
+        if (class_basename($parent) == 'OrgSupplier') {
             SupplierHydrateStockDeliveries::dispatch($parent->supplier);
-        } elseif(class_basename($parent) == 'OrgAgent') {
+        } elseif (class_basename($parent) == 'OrgAgent') {
             AgentHydrateStockDeliveries::dispatch($parent->agent);
         }
 

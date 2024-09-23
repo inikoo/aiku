@@ -17,7 +17,7 @@ return new class () extends Migration {
     {
         Schema::create('outboxes', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('post_room_id')->nullable();
             $table->foreign('post_room_id')->references('id')->on('post_rooms');
             $table->unsignedSmallInteger('shop_id')->nullable();

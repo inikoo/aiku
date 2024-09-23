@@ -79,7 +79,7 @@ class UpdateSupplierProduct extends GrpAction
 
     public function rules(): array
     {
-        $rules= [
+        $rules = [
             'code'         => [
                 'sometimes',
                 'required',
@@ -106,7 +106,7 @@ class UpdateSupplierProduct extends GrpAction
         ];
 
 
-        if(!$this->strict) {
+        if (!$this->strict) {
             $rules['last_fetched_at'] = ['sometimes', 'date'];
             $rules['source_id']       = ['sometimes', 'string', 'max:255'];
         }
@@ -114,9 +114,9 @@ class UpdateSupplierProduct extends GrpAction
         return $rules;
     }
 
-    public function action(SupplierProduct $supplierProduct, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0, bool $strict=true, bool $audit=true): SupplierProduct
+    public function action(SupplierProduct $supplierProduct, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): SupplierProduct
     {
-        if(!$audit) {
+        if (!$audit) {
             SupplierProduct::disableAuditing();
         }
         $this->strict          = $strict;

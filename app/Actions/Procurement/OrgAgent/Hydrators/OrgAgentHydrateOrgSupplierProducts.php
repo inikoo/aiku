@@ -33,7 +33,7 @@ class OrgAgentHydrateOrgSupplierProducts
 
     public function handle(OrgAgent $orgAgent): void
     {
-        $stats=$this->getOrgSupplierProductsStats($orgAgent);
+        $stats = $this->getOrgSupplierProductsStats($orgAgent);
         $orgAgent->stats()->update($stats);
     }
 

@@ -59,7 +59,7 @@ class ShowPalletDelivery extends RetinaAction
         $palletLimitData = $palletLimits == null ? null : ($palletLimitLeft < 0
         ? [
                 'status'  => 'exceeded',
-                'message' => __("Pallet has reached over the limit: :palletLimitLeft", ['palletLimitLeft'=>$palletLimitLeft])
+                'message' => __("Pallet has reached over the limit: :palletLimitLeft", ['palletLimitLeft' => $palletLimitLeft])
             ]
         : ($palletLimitLeft == 0
             ? [
@@ -69,7 +69,7 @@ class ShowPalletDelivery extends RetinaAction
             : ($palletLimitLeft <= 5
                 ? [
                         'status'  => 'almost',
-                        'message' => __("Pallet almost reached the limit: :palletLimitLeft left.", ['palletLimitLeft'=>$palletLimitLeft])
+                        'message' => __("Pallet almost reached the limit: :palletLimitLeft left.", ['palletLimitLeft' => $palletLimitLeft])
                     ]
                 : null)));
 
@@ -182,7 +182,7 @@ class ShowPalletDelivery extends RetinaAction
                             'icon'    => 'fad fa-save',
                             'tooltip' => ($palletDelivery->pallets()->count() > 0) ? __('Submit Delivery') : __('Add pallet to submit Delivery'),
                             'label'   => __('submit'),
-                            'disabled'=> ($palletDelivery->pallets()->count() > 0) ? false : true,
+                            'disabled' => ($palletDelivery->pallets()->count() > 0) ? false : true,
                             'key'     => 'action',
                             'route'   => [
                                 'method'     => 'post',

@@ -105,21 +105,21 @@ class IndexClockings extends OrgAction
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$organisation;
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request);
         return $this->handle(parent: $organisation);
     }
 
     public function inWorkplace(Organisation $organisation, Workplace $workplace, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$workplace;
+        $this->parent = $workplace;
         $this->initialisation($organisation, $request);
         return $this->handle(parent: $workplace);
     }
 
     public function inClockingMachine(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$clockingMachine;
+        $this->parent = $clockingMachine;
         $this->initialisation($organisation, $request);
         return $this->handle(parent: $clockingMachine);
     }
@@ -128,7 +128,7 @@ class IndexClockings extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWorkplaceInClockingMachine(Organisation $organisation, Workplace $workplace, ClockingMachine $clockingMachine, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent=$clockingMachine;
+        $this->parent = $clockingMachine;
         $this->initialisation($organisation, $request);
 
         return $this->handle(parent: $clockingMachine);

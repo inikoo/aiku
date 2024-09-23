@@ -17,7 +17,7 @@ return new class () extends Migration {
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('task_type_id')->index()->nullable();
             $table->unsignedSmallInteger('production_id')->index()->nullable();
             $table->boolean('is_manufacturing')->default(false);

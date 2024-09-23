@@ -15,19 +15,19 @@ trait HasGetProductCategoryState
     public function getProductCategoryState($stats): ProductCategoryStateEnum
     {
 
-        if($stats['number_products'] == 0) {
+        if ($stats['number_products'] == 0) {
             return ProductCategoryStateEnum::IN_PROCESS;
         }
 
-        if(Arr::get($stats, 'number_products_state_active', 0)>0) {
+        if (Arr::get($stats, 'number_products_state_active', 0) > 0) {
             return ProductCategoryStateEnum::ACTIVE;
         }
 
-        if(Arr::get($stats, 'number_stocks_state_discontinuing', 0)>0) {
+        if (Arr::get($stats, 'number_stocks_state_discontinuing', 0) > 0) {
             return ProductCategoryStateEnum::DISCONTINUING;
         }
 
-        if(Arr::get($stats, 'number_stocks_state_in_process', 0)>0) {
+        if (Arr::get($stats, 'number_stocks_state_in_process', 0) > 0) {
             return ProductCategoryStateEnum::IN_PROCESS;
         }
 

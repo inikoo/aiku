@@ -50,7 +50,7 @@ class FetchAuroraWebUser extends FetchAurora
                 'is_root'    => true
             ];
 
-        if($password) {
+        if ($password) {
             data_set($this->parsedData, 'webUser.password', $password);
         }
 

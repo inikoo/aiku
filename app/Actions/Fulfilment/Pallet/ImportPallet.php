@@ -58,8 +58,8 @@ class ImportPallet
 
     public function authorize(ActionRequest $request): bool
     {
-        $userable=$request->user();
-        if($userable instanceof WebUser) {
+        $userable = $request->user();
+        if ($userable instanceof WebUser) {
             return true;
         }
 

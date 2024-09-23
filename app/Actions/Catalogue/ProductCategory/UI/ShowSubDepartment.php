@@ -197,7 +197,7 @@ class ShowSubDepartment extends OrgAction
             ];
         };
 
-        $subDepartment=ProductCategory::where('slug', $routeParameters['subDepartment'])->first();
+        $subDepartment = ProductCategory::where('slug', $routeParameters['subDepartment'])->first();
 
         return match ($routeName) {
             /*

@@ -22,7 +22,7 @@ return new class () extends Migration {
     {
         Schema::create('purchase_order_transactions', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('purchase_order_id')->index();
             $table->foreign('purchase_order_id')->references('id')->on('purchase_orders');
             $table->unsignedInteger('supplier_product_id')->index();

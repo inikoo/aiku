@@ -16,7 +16,7 @@ class UpdatePostRoom
 {
     use WithActionUpdate;
 
-    private bool $asAction=false;
+    private bool $asAction = false;
 
     public function handle(PostRoom $postRoom, array $modelData): PostRoom
     {
@@ -25,7 +25,7 @@ class UpdatePostRoom
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction) {
+        if ($this->asAction) {
             return true;
         }
         return $request->user()->hasPermissionTo("mail.edit");
@@ -46,7 +46,7 @@ class UpdatePostRoom
 
     public function action(PostRoom $postRoom, $modelData): PostRoom
     {
-        $this->asAction=true;
+        $this->asAction = true;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 

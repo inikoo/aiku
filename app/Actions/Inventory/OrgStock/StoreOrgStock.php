@@ -30,7 +30,7 @@ class StoreOrgStock extends OrgAction
     public function handle(Organisation|OrgStockFamily $parent, Stock $stock, $modelData): OrgStock
     {
 
-        if($parent instanceof Organisation) {
+        if ($parent instanceof Organisation) {
             $organisation = $parent;
         } else {
             $organisation = $parent->organisation;
@@ -57,7 +57,7 @@ class StoreOrgStock extends OrgAction
         );
 
 
-        if($parent instanceof OrgStockFamily) {
+        if ($parent instanceof OrgStockFamily) {
             $orgStock->orgStockFamily()->associate($parent);
             $orgStock->save();
         }
@@ -65,7 +65,7 @@ class StoreOrgStock extends OrgAction
 
         OrgStockHydrateUniversalSearch::dispatch($orgStock);
         OrganisationHydrateOrgStocks::dispatch($organisation)->delay($this->hydratorsDelay);
-        if($orgStock->orgStockFamily) {
+        if ($orgStock->orgStockFamily) {
             OrgStockFamilyHydrateOrgStocks::dispatch($orgStock->orgStockFamily)->delay($this->hydratorsDelay);
         }
 
@@ -99,10 +99,10 @@ class StoreOrgStock extends OrgAction
         $this->set('state', $state);
     }
 
-    public function action(Organisation|OrgStockFamily $parent, Stock $stock, $modelData=[], $hydratorDelay = 0): OrgStock
+    public function action(Organisation|OrgStockFamily $parent, Stock $stock, $modelData = [], $hydratorDelay = 0): OrgStock
     {
 
-        if($parent instanceof Organisation) {
+        if ($parent instanceof Organisation) {
             $organisation = $parent;
         } else {
             $organisation = $parent->organisation;

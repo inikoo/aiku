@@ -20,12 +20,12 @@ return new class () extends Migration {
     {
         Schema::create('products', function (Blueprint $table) {
 
-            $table=$this->productFields($table);
+            $table = $this->productFields($table);
             $table->boolean('is_main')->default(true)->index();
             $table->boolean('status')->default(false)->index();
             $table->string('state')->default(ProductStateEnum::IN_PROCESS)->index();
 
-            $table=$this->assetModelFields($table);
+            $table = $this->assetModelFields($table);
 
             $table->unsignedInteger('gross_weight')->nullable()->comment('outer weight including packing, grams');
             $table->unsignedInteger('marketing_weight')->nullable()->comment('to be shown in website, grams');

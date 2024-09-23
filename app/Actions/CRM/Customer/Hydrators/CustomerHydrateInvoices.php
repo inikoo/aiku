@@ -36,15 +36,15 @@ class CustomerHydrateInvoices
 
     public function handle(Customer $customer): void
     {
-        $stats=$this->getInvoicesStats($customer);
+        $stats = $this->getInvoicesStats($customer);
 
-        $updateData['trade_state']= match ($stats['number_invoices']) {
+        $updateData['trade_state'] = match ($stats['number_invoices']) {
             0       => CustomerTradeStateEnum::NONE,
             1       => CustomerTradeStateEnum::ONE,
             default => CustomerTradeStateEnum::MANY
         };
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'invoices',
             field: 'type',
             enum: InvoiceTypeEnum::class,

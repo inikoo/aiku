@@ -21,7 +21,7 @@ class UserRecordSearch
     {
         if ($user->trashed()) {
 
-            if($user->universalSearch) {
+            if ($user->universalSearch) {
                 $user->universalSearch()->delete();
             }
             return;

@@ -52,7 +52,7 @@ class EditRental extends OrgAction
 
     public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Rental
     {
-        $this->parent= $fulfilment;
+        $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);
         return $this->handle($rental);
     }
@@ -128,7 +128,7 @@ class EditRental extends OrgAction
                                 'price' => [
                                     'type'    => 'input',
                                     'label'   => __('price'),
-                                    'required'=> true,
+                                    'required' => true,
                                     'value'   => $rental->price
                                 ],
                                 // 'type' => [
@@ -182,27 +182,27 @@ class EditRental extends OrgAction
 
     private function getNavigation(?Rental $rental, string $routeName): ?array
     {
-        if(!$rental) {
+        if (!$rental) {
             return null;
         }
         return match ($routeName) {
-            'shops.products.edit'=> [
-                'label'=> $rental->name,
-                'route'=> [
+            'shops.products.edit' => [
+                'label' => $rental->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
-                        'product'=> $rental->slug
+                    'parameters' => [
+                        'product' => $rental->slug
                     ]
 
                 ]
             ],
-            'shops.show.products.edit'=> [
-                'label'=> $rental->name,
-                'route'=> [
+            'shops.show.products.edit' => [
+                'label' => $rental->name,
+                'route' => [
                     'name'      => $routeName,
-                    'parameters'=> [
+                    'parameters' => [
                         'shop'   => $rental->shop->slug,
-                        'product'=> $rental->slug
+                        'product' => $rental->slug
                     ]
 
                 ]

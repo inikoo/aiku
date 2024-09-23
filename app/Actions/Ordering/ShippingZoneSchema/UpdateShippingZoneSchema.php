@@ -36,7 +36,7 @@ class UpdateShippingZoneSchema extends OrgAction
         ];
     }
 
-    public function action(ShippingZoneSchema $shippingZoneSchema, array $modelData, bool $audit=true): ShippingZoneSchema
+    public function action(ShippingZoneSchema $shippingZoneSchema, array $modelData, bool $audit = true): ShippingZoneSchema
     {
         if (!$audit) {
             ShippingZoneSchema::disableAuditing();

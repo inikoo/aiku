@@ -52,9 +52,9 @@ class SeedShopOutboxes
     public function asCommand(Command $command): int
     {
 
-        if($command->argument('shop') == null) {
+        if ($command->argument('shop') == null) {
             $shops = Shop::all();
-            foreach($shops as $shop) {
+            foreach ($shops as $shop) {
                 $this->handle($shop);
             }
             return 0;

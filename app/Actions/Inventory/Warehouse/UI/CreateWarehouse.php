@@ -93,8 +93,8 @@ class CreateWarehouse extends OrgAction
             [
                 [
                     'type'         => 'creatingModel',
-                    'creatingModel'=> [
-                        'label'=> __('Creating warehouse'),
+                    'creatingModel' => [
+                        'label' => __('Creating warehouse'),
                     ]
                 ]
             ]

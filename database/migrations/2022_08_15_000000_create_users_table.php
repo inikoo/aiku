@@ -43,7 +43,7 @@ return new class () extends Migration {
             $table->foreign('language_id')->references('id')->on('languages');
             $table->unsignedInteger('image_id')->nullable();
             $table->timestampsTz();
-            $table=$this->softDeletes($table);
+            $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
             $table->string('legacy_password')->nullable()->index()->comment('source password');
 

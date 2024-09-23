@@ -22,10 +22,10 @@ class RedirectIfAuthenticated
         foreach ($guards as $guard) {
 
             if (Auth::guard($guard)->check()) {
-                if($guard=='retina') {
-                    $redirectTo='/app/dashboard';
+                if ($guard == 'retina') {
+                    $redirectTo = '/app/dashboard';
                 } else {
-                    $redirectTo=RouteServiceProvider::HOME;
+                    $redirectTo = RouteServiceProvider::HOME;
                 }
 
                 return redirect($redirectTo);

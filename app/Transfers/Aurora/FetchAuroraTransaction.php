@@ -49,7 +49,7 @@ class FetchAuroraTransaction extends FetchAurora
 
 
             $status = match ($this->auroraModelData->{'Current Dispatching State'}) {
-                'In Process by Customer', 'Out of Stock in Basket', 'In Process'=> TransactionStatusEnum::CREATING,
+                'In Process by Customer', 'Out of Stock in Basket', 'In Process' => TransactionStatusEnum::CREATING,
                 'Picking', 'Ready to Pack', 'Submitted by Customer', 'Ready to Ship', 'Ready to Pick', 'Packing', 'Packed', 'Packed Done' => TransactionStatusEnum::PROCESSING,
                 'Suspended', 'Dispatched', 'Unknown', 'Cancelled', 'No Picked Due No Authorised', 'No Picked Due Not Found', 'No Picked Due Other', 'No Picked Due Out of Stock' => TransactionStatusEnum::SETTLED,
             };

@@ -19,7 +19,7 @@ class CustomerClientRecordSearch
     public function handle(CustomerClient $customerClient): void
     {
 
-        if($customerClient->trashed()) {
+        if ($customerClient->trashed()) {
             $customerClient->universalSearch()->delete();
             return;
         }
@@ -44,7 +44,7 @@ class CustomerClientRecordSearch
                         $customerClient->company_name
                     ])
                 ),
-                'result'=> [
+                'result' => [
                     'title'        => $customerClient->name,
 
 

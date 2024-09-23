@@ -21,7 +21,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPurchaseOrderTransactions extends InertiaAction
 {
-    public function handle($prefix=null): LengthAwarePaginator
+    public function handle($prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->whereHas('supplierProduct', function ($query) use ($value) {
@@ -42,7 +42,7 @@ class IndexPurchaseOrderTransactions extends InertiaAction
     }
 
 
-    public function tableStructure($prefix=null): Closure
+    public function tableStructure($prefix = null): Closure
     {
         return function (InertiaTable $table) use ($prefix) {
             if ($prefix) {

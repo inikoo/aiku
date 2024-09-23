@@ -26,17 +26,17 @@ class StorePurchaseOrderTransaction extends OrgAction
         data_set($modelData, 'group_id', $purchaseOrder->group_id);
         data_set($modelData, 'organisation_id', $purchaseOrder->organisation_id);
 
-        $supplierProduct= $historicSupplierProduct->supplierProduct;
+        $supplierProduct = $historicSupplierProduct->supplierProduct;
         data_set($modelData, 'supplier_product_id', $supplierProduct->id);
         data_set($modelData, 'historic_supplier_product_id', $historicSupplierProduct->id);
 
         data_set($modelData, 'historic_supplier_product_id', $historicSupplierProduct->id);
 
-        $orgSupplierProduct= $supplierProduct->orgSupplierProducts()->where('organisation_id', $purchaseOrder->organisation_id)->first();
+        $orgSupplierProduct = $supplierProduct->orgSupplierProducts()->where('organisation_id', $purchaseOrder->organisation_id)->first();
 
         data_set($modelData, 'org_supplier_product_id', $orgSupplierProduct->id);
 
-        $orgStock =$supplierProduct->stock->orgStocks()->where('organisation_id', $purchaseOrder->organisation_id)->first();
+        $orgStock = $supplierProduct->stock->orgStocks()->where('organisation_id', $purchaseOrder->organisation_id)->first();
         data_set($modelData, 'org_stock_id', $orgStock->id);
 
         $status = match ($modelData['state']) {
@@ -82,7 +82,7 @@ class StorePurchaseOrderTransaction extends OrgAction
 
     public function prepareForValidation(): void
     {
-        if(!$this->has('state')) {
+        if (!$this->has('state')) {
             $this->set('state', PurchaseOrderTransactionStateEnum::PROCESSING);
         }
     }

@@ -29,7 +29,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_movements')->default(0);
 
 
-            $table=$this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
+            $table = $this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
 
             $table->timestampsTz();
         });

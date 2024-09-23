@@ -27,7 +27,7 @@ class StoreUploads
         /** @var User $user */
         $user     = request()->user();
 
-        if($user instanceof WebUser) {
+        if ($user instanceof WebUser) {
             $user = null;
         }
 

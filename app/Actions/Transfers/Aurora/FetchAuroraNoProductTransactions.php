@@ -27,8 +27,8 @@ class FetchAuroraNoProductTransactions
         if ($transactionData = $organisationSource->fetchNoProductTransaction(id: $source_id, order: $order)) {
 
 
-            $transactionData['transaction']['state'] =$order->state->value;
-            $transactionData['transaction']['status']=$order->status->value;
+            $transactionData['transaction']['state'] = $order->state->value;
+            $transactionData['transaction']['status'] = $order->status->value;
 
 
 

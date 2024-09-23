@@ -46,8 +46,8 @@ return new class () extends Migration {
             $table->text('public_notes')->nullable();
             $table->text('internal_notes')->nullable();
 
-            $table=$this->currencyFields($table);
-            $table=$this->orderTotalAmounts($table);
+            $table = $this->currencyFields($table);
+            $table = $this->orderTotalAmounts($table);
 
             $table->jsonb('data')->nullable();
             $table->timestampsTz();

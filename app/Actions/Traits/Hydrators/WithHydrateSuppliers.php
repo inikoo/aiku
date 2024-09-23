@@ -20,7 +20,7 @@ trait WithHydrateSuppliers
         ];
         $stats['number_archived_suppliers'] = $stats['number_suppliers'] - $stats['number_active_suppliers'];
 
-        if($model instanceof Group) {
+        if ($model instanceof Group) {
             $stats['number_suppliers_in_agents']          = $model->suppliers()->whereNotNull('agent_id')->count();
             $stats['number_active_suppliers_in_agents']   = $model->suppliers()->whereNotNull('agent_id')->where('status', 'true')->count();
             $stats['number_archived_suppliers_in_agents'] = $stats['number_suppliers_in_agents'] - $stats['number_active_suppliers_in_agents'];

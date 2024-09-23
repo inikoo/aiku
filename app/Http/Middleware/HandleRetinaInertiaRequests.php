@@ -50,7 +50,7 @@ class HandleRetinaInertiaRequests extends Middleware
                 'ziggy' => [
                     'location' => $request->url(),
                 ],
-                'iris'=> WebsiteIrisResource::make($request->get('website'))->getArray()
+                'iris' => WebsiteIrisResource::make($request->get('website'))->getArray()
 
             ],
             parent::share($request),

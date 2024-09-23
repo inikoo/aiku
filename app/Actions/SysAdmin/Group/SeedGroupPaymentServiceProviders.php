@@ -24,15 +24,15 @@ class SeedGroupPaymentServiceProviders
         $paymentServiceProvidersData = collect(PaymentServiceProviderEnum::values());
 
         $paymentServiceProvidersData->each(function ($modelData) use ($group) {
-            $paymentServiceProvider=PaymentServiceProvider::where('code', $modelData)->first();
+            $paymentServiceProvider = PaymentServiceProvider::where('code', $modelData)->first();
 
-            $data=[
+            $data = [
                 'code' => $modelData,
                 'type' => PaymentServiceProviderEnum::types()[$modelData],
                 'name' => PaymentServiceProviderEnum::labels()[$modelData]
             ];
 
-            if($paymentServiceProvider) {
+            if ($paymentServiceProvider) {
                 UpdatePaymentServiceProvider::make()->action(
                     $paymentServiceProvider,
                     $data

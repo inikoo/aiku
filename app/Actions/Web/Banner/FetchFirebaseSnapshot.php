@@ -53,7 +53,7 @@ class FetchFirebaseSnapshot
     public function asCommand(Command $command): int
     {
 
-        if($banner=$this->getBanner($command)) {
+        if ($banner = $this->getBanner($command)) {
             $result = $this->handle($banner);
             if ($result) {
                 $command->info("Done! banner  $banner->slug unpublished slide from 🔥 updated 🥳");

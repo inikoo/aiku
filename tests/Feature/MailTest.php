@@ -66,7 +66,7 @@ test('seed shop outboxes by command', function (Shop $shop) {
 })->depends('outbox seeded when shop created');
 
 test('outbox seeded when website created', function (Shop $shop) {
-    $website=StoreWebsite::make()->action(
+    $website = StoreWebsite::make()->action(
         $shop,
         Website::factory()->definition()
     );
@@ -106,7 +106,7 @@ test('seed fulfilments outboxes by command', function (Fulfilment $fulfilment) {
 test('create mailshot', function (Shop $shop) {
 
     /** @var Outbox $outbox */
-    $outbox=$shop->outboxes()->where('type', OutboxTypeEnum::MARKETING)->first();
+    $outbox = $shop->outboxes()->where('type', OutboxTypeEnum::MARKETING)->first();
 
     $mailshot = StoreMailshot::make()->action($outbox, Mailshot::factory()->definition());
     $this->assertModelExists($mailshot);
@@ -122,7 +122,7 @@ test('update mailshot', function ($mailshot) {
 
 test('create dispatched email in outbox', function (Shop $shop) {
     /** @var Outbox $outbox */
-    $outbox          =$shop->outboxes()->where('type', OutboxTypeEnum::MARKETING)->first();
+    $outbox          = $shop->outboxes()->where('type', OutboxTypeEnum::MARKETING)->first();
     $dispatchedEmail = StoreDispatchEmail::make()->action(
         $outbox,
         fake()->email,

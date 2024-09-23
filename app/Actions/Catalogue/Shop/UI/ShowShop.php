@@ -225,7 +225,7 @@ class ShowShop extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'=> $this->organisation->slug,
+                        'organisation' => $this->organisation->slug,
                         'shop'        => $shop->slug
                     ]
 
@@ -237,7 +237,7 @@ class ShowShop extends OrgAction
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
 
-        $shop=Shop::where('slug', $routeParameters['shop'])->first();
+        $shop = Shop::where('slug', $routeParameters['shop'])->first();
 
         return
             array_merge(

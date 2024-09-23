@@ -32,7 +32,7 @@ return new class () extends Migration {
             $table->boolean('auto_assign_status')->default(false);
             $table->boolean('status')->default(false)->index();
             $table->string('state')->default(ServiceStateEnum::IN_PROCESS)->index();
-            $table=$this->assetModelFields($table);
+            $table = $this->assetModelFields($table);
             $table->timestampsTz();
             $table->softDeletes();
             $table->string('source_id')->nullable()->unique();

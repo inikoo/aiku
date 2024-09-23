@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('user_id')->index();
             $table->foreign('user_id')->references('id')->on('users');
-            $table=$this->userStats($table);
+            $table = $this->userStats($table);
             $table->timestampsTz();
         });
     }

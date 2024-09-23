@@ -19,7 +19,7 @@ return new class () extends Migration {
     {
         Schema::create('webpages', function (Blueprint $table) {
             $table->increments('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('parent_id')->index()->nullable();
@@ -48,7 +48,7 @@ return new class () extends Migration {
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table=$this->softDeletes($table);
+            $table = $this->softDeletes($table);
 
             $table->string('source_id')->nullable()->unique();
 

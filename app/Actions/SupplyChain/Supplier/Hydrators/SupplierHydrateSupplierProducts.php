@@ -20,7 +20,7 @@ class SupplierHydrateSupplierProducts
 
     public function handle(Supplier $supplier): void
     {
-        $stats=$this->getSupplierProductsStats($supplier);
+        $stats = $this->getSupplierProductsStats($supplier);
         $supplier->stats()->update($stats);
     }
 

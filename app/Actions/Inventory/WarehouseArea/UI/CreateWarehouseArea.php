@@ -56,7 +56,7 @@ class CreateWarehouseArea extends InertiaAction
                                     'type'    => 'input',
                                     'label'   => __('name'),
                                     'value'   => '',
-                                    'required'=> true
+                                    'required' => true
                                 ],
 
                             ]

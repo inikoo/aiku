@@ -28,7 +28,7 @@ trait HasImage
 
     public function imageSources($width = 0, $height = 0)
     {
-        if($this->image) {
+        if ($this->image) {
             $avatarThumbnail = $this->image->getImage()->resize($width, $height);
             return GetPictureSources::run($avatarThumbnail);
         }

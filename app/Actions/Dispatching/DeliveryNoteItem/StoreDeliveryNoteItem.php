@@ -40,7 +40,7 @@ class StoreDeliveryNoteItem extends OrgAction
 
         /** @var DeliveryNoteItem $deliveryNoteItem */
         $deliveryNoteItem = $deliveryNote->deliveryNoteItems()->create($modelData);
-        if($this->strict) {
+        if ($this->strict) {
             StorePicking::make()->action($deliveryNoteItem, [
                 'quantity_required' => $deliveryNoteItem->quantity_required
             ]);
@@ -74,7 +74,7 @@ class StoreDeliveryNoteItem extends OrgAction
             $rules['quantity_required']  = ['sometimes', 'numeric'];
             $rules['quantity_picked']    = ['sometimes', 'numeric'];
             $rules['quantity_packed']    = ['sometimes', 'numeric'];
-            $rules['quantity_dispatched']= ['sometimes', 'numeric'];
+            $rules['quantity_dispatched'] = ['sometimes', 'numeric'];
             $rules['source_id']          = ['sometimes', 'string','max:255'];
             $rules['fetched_at']         = ['sometimes', 'date'];
             $rules['created_at']         = ['sometimes', 'date'];

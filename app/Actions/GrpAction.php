@@ -37,13 +37,13 @@ class GrpAction
     public function initialisation(Group $group, ActionRequest|array $request): static
     {
         $this->group          = $group;
-        if(is_array($request)) {
+        if (is_array($request)) {
             $this->setRawAttributes($request);
         } else {
             $this->fillFromRequest($request);
 
         }
-        $this->validatedData=$this->validateAttributes();
+        $this->validatedData = $this->validateAttributes();
 
         return $this;
     }

@@ -32,8 +32,8 @@ return new class () extends Migration {
             $table->foreign('billing_country_id')->references('id')->on('countries');
             $table->string('type')->default(InvoiceTypeEnum::INVOICE)->index();
 
-            $table=$this->currencyFields($table);
-            $table=$this->orderTotalAmounts($table);
+            $table = $this->currencyFields($table);
+            $table = $this->orderTotalAmounts($table);
 
             $table->dateTimeTz('date')->index()->nullable();
             $table->dateTimeTz('tax_liability_at')->nullable();

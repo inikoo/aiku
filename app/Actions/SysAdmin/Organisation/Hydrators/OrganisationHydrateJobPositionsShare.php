@@ -39,10 +39,10 @@ class OrganisationHydrateJobPositionsShare
         /** @var JobPosition $jobPosition */
         foreach ($organisation->jobPositions as $jobPosition) {
             $share[$jobPosition->id]           = $jobPosition->number_employee_work_time;
-            $shareWithGuests[$jobPosition->id] = $jobPosition->number_employee_work_time+$jobPosition->number_guest_work_time;
+            $shareWithGuests[$jobPosition->id] = $jobPosition->number_employee_work_time + $jobPosition->number_guest_work_time;
 
         }
-        $employeeShares=$this->normalise(collect($share));
+        $employeeShares = $this->normalise(collect($share));
         foreach ($employeeShares as $id => $share) {
             JobPosition::find($id)->stats()->update(
                 [
@@ -52,7 +52,7 @@ class OrganisationHydrateJobPositionsShare
         }
 
 
-        $employeeWithGuestsShares=$this->normalise(collect($shareWithGuests));
+        $employeeWithGuestsShares = $this->normalise(collect($shareWithGuests));
         foreach ($employeeWithGuestsShares as $id => $share) {
             JobPosition::find($id)->stats()->update(
                 [

@@ -19,8 +19,8 @@ class FetchAuroraCredit extends FetchAurora
     {
         $customer = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Credit Transaction Customer Key'});
 
-        $payment=null;
-        if($this->auroraModelData->{'Credit Transaction Payment Key'}) {
+        $payment = null;
+        if ($this->auroraModelData->{'Credit Transaction Payment Key'}) {
             $payment  = $this->parsePayment($this->organisation->id.':'.$this->auroraModelData->{'Credit Transaction Payment Key'});
         }
 

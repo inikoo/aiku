@@ -26,9 +26,9 @@ class SeedPlatforms extends GrpAction
 
         foreach (PlatformTypeEnum::cases() as $case) {
 
-            $code= $case->value;
+            $code = $case->value;
 
-            if($group->platforms()->where('code', $code)->exists()) {
+            if ($group->platforms()->where('code', $code)->exists()) {
                 continue;
             }
 

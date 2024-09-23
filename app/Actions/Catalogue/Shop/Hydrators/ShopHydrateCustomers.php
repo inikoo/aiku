@@ -39,7 +39,7 @@ class ShopHydrateCustomers
         ];
 
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'customers',
             field: 'state',
             enum: CustomerStateEnum::class,
@@ -49,7 +49,7 @@ class ShopHydrateCustomers
             }
         ));
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'customers',
             field: 'trade_state',
             enum: CustomerTradeStateEnum::class,

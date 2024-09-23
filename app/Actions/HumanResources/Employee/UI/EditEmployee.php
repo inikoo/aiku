@@ -98,7 +98,7 @@ class EditEmployee extends OrgAction
                     'type'    => 'employeeState',
                     'mode'    => 'card',
                     'label'   => 'Employee status',
-                    'required'=> true,
+                    'required' => true,
                     'options' => [
                         [
                             'title'       => __('Hired'),
@@ -231,14 +231,14 @@ class EditEmployee extends OrgAction
         return Inertia::render(
             'EditModel',
             [
-                'live_users'=> [
+                'live_users' => [
                     'icon_left'   => [
                         'icon' => 'fal fa-user-hard-hat',
-                        'class'=> 'text-lime-400'
+                        'class' => 'text-lime-400'
                     ],
                     'icon_right'  => [
                         'icon' => 'fal fa-pencil',
-                        'class'=> 'text-gray-300'
+                        'class' => 'text-gray-300'
                     ],
                 ],
                 'title'       => __('employee'),

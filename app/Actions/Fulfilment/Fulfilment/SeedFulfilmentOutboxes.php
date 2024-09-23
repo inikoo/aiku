@@ -47,9 +47,9 @@ class SeedFulfilmentOutboxes
     public function asCommand(Command $command): int
     {
 
-        if($command->argument('fulfilment') == null) {
+        if ($command->argument('fulfilment') == null) {
             $fulfilments = Fulfilment::all();
-            foreach($fulfilments as $fulfilment) {
+            foreach ($fulfilments as $fulfilment) {
                 $this->handle($fulfilment);
             }
             return 0;

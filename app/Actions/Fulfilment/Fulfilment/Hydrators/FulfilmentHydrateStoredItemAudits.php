@@ -36,7 +36,7 @@ class FulfilmentHydrateStoredItemAudits
             'number_stored_item_audits' => StoredItemAudit::where('fulfilment_id', $fulfilment->id)->count()
         ];
 
-        $stats=array_merge($stats, $this->getEnumStats(
+        $stats = array_merge($stats, $this->getEnumStats(
             model:'stored_item_audits',
             field: 'state',
             enum: StoredItemAuditStateEnum::class,

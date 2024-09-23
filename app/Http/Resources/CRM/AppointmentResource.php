@@ -61,7 +61,7 @@ class AppointmentResource extends JsonResource
                     'tooltip' => __('canceled'),
                     'icon'    => 'fal fa-ghost'
                 ],
-                default=> []
+                default => []
 
             },
         ];

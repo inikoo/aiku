@@ -30,7 +30,7 @@ class StoreEmailTemplateSnapshot
             )
         );
 
-        $snapshot=Snapshot::create($modelData);
+        $snapshot = Snapshot::create($modelData);
         $emailTemplate->snapshots()->save($snapshot);
         $snapshot->saveQuietly();
         $snapshot->stats()->create();

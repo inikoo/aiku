@@ -87,7 +87,7 @@ class RemoveClocking extends OrgAction
                             'title' => __('clocking')
                         ],
                     'title'  => $clocking->slug,
-                    'actions'=> [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',

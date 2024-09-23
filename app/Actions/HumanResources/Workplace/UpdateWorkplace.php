@@ -36,7 +36,7 @@ class UpdateWorkplace extends OrgAction
 
         $workplace = $this->update($workplace, $modelData, ['data']);
 
-        if(Arr::hasAny($workplace->getChanges(), ['type'])) {
+        if (Arr::hasAny($workplace->getChanges(), ['type'])) {
             OrganisationHydrateWorkplaces::run($workplace->organisation);
         }
         $workplace = $this->updateModelAddress($workplace, $addressData);

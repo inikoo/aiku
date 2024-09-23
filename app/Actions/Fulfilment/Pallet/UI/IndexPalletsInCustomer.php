@@ -42,7 +42,7 @@ class IndexPalletsInCustomer extends OrgAction
     {
         $elements = [];
 
-        if($prefix=='all') {
+        if ($prefix == 'all') {
             $elements = [
                 'status' => [
                     'label'    => __('Status'),
@@ -175,7 +175,7 @@ class IndexPalletsInCustomer extends OrgAction
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'customer_reference', label: __("Pallet reference (customer's), notes"), canBeHidden: false, sortable: true, searchable: true);
 
-            if($this->parent->items_storage) {
+            if ($this->parent->items_storage) {
                 $table->column(key: 'stored_items', label: __('stored items'), canBeHidden: false, searchable: false);
             }
 

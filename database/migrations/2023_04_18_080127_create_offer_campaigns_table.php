@@ -17,7 +17,7 @@ return new class () extends Migration {
     {
         Schema::create('offer_campaigns', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table=$this->groupOrgRelationship($table);
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('state')->default(OfferCampaignStateEnum::IN_PROCESS->value)->index();

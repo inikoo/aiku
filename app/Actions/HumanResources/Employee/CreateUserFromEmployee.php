@@ -43,7 +43,7 @@ class CreateUserFromEmployee
         $modelData         = [
             'username'    => $username ?? $employee->slug,
             'password'    => $this->newPassword,
-            'contact_name'=> $employee->contact_name,
+            'contact_name' => $employee->contact_name,
             'email'       => $employee->work_email,
             'auth_type'   => UserAuthTypeEnum::DEFAULT
         ];
@@ -73,7 +73,7 @@ class CreateUserFromEmployee
 
         return Redirect::route('grp.org.hr.employees.show', $employee->id)->with('notification', [
             'type'   => 'newUser',
-            'message'=> __('New user created'),
+            'message' => __('New user created'),
             'fields' => [
                 'username' => [
                     'label' => __('username'),

@@ -24,7 +24,7 @@ class TimesheetsExport implements FromQuery, WithMapping, ShouldAutoSize, WithHe
     {
         $timesheets = Timesheet::query();
 
-        if($this->employee) {
+        if ($this->employee) {
             $timesheets->where([['subject_type', class_basename($this->employee)], ['subject_id', $this->employee->id]]);
         }
 

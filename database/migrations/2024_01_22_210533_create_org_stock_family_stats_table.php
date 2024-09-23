@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table->unsignedInteger('org_stock_family_id')->index();
             $table->foreign('org_stock_family_id')->references('id')->on('org_stock_families');
 
-            $table=$this->orgStockStats($table);
+            $table = $this->orgStockStats($table);
 
             $table->softDeletesTz();
             $table->timestampsTz();

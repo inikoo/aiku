@@ -102,7 +102,7 @@ class IndexCharges extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit=false): Closure
+    public function tableStructure(Shop|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
@@ -142,7 +142,7 @@ class IndexCharges extends OrgAction
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
 
-            if($parent instanceof Organisation) {
+            if ($parent instanceof Organisation) {
                 $table->column(key: 'shop_code', label: __('shop'), canBeHidden: false, sortable: true, searchable: true);
             };
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)

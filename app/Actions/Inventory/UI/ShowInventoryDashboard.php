@@ -96,9 +96,9 @@ class ShowInventoryDashboard extends OrgAction
 
         foreach (OrgStockStateEnum::cases() as $case) {
 
-            $count=OrgStockStateEnum::count($this->organisation)[$case->value];
+            $count = OrgStockStateEnum::count($this->organisation)[$case->value];
 
-            if($case==OrgStockStateEnum::SUSPENDED and $count==0) {
+            if ($case == OrgStockStateEnum::SUSPENDED and $count == 0) {
                 continue;
             }
 

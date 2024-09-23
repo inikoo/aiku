@@ -25,7 +25,7 @@ class UpdateAgentUniversalSearch
 
     public function asCommand(): int
     {
-        foreach(Agent::all() as $agent) {
+        foreach (Agent::all() as $agent) {
             $this->handle($agent);
         }
         return 0;

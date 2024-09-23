@@ -22,7 +22,7 @@ return new class () extends Migration {
             $table->unsignedInteger('asset_id')->index();
             $table->foreign('asset_id')->references('id')->on('assets');
             $table->unsignedInteger('number_historic_assets')->default(0);
-            $table= $this->assetStatsBis($table);
+            $table = $this->assetStatsBis($table);
             $table->timestampsTz();
         });
     }

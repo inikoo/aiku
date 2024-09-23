@@ -14,7 +14,6 @@ use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
-
 use App\Enums\Miscellaneous\GenderEnum;
 use Illuminate\Database\Schema\Blueprint;
 

@@ -38,11 +38,11 @@ class JobPositionHydrateEmployees
     {
 
 
-        $numberEmployees        =$jobPosition->employees()->count();
-        $numberEmployeesWorkTime=$jobPosition->employees()->sum('share');
+        $numberEmployees        = $jobPosition->employees()->count();
+        $numberEmployeesWorkTime = $jobPosition->employees()->sum('share');
 
 
-        $stats= [
+        $stats = [
             'number_employees'           => $numberEmployees,
             'number_employees_work_time' => $numberEmployeesWorkTime
         ];
@@ -61,7 +61,7 @@ class JobPositionHydrateEmployees
             )
         );
 
-        $stats['number_employees_currently_working']=$stats['number_employees_state_working']+ $stats['number_employees_state_leaving'];
+        $stats['number_employees_currently_working'] = $stats['number_employees_state_working'] + $stats['number_employees_state_leaving'];
 
         $jobPosition->stats()->update($stats);
 
