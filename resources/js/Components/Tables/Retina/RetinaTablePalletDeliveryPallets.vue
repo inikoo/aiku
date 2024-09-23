@@ -150,6 +150,16 @@ const typePallet = [
             />
 		</template>
 
+
+		<template #cell(location)="{ item }">
+			{{ item?.location_code }}
+		</template>
+
+
+		<template #cell(rental)="{ item }">
+			<pre>{{ item?.rental_name }}</pre>
+		</template>
+
         <!-- Column: Actions -->
 		<template #cell(actions)="{ item: pallet }">
 			<div v-if="props.state == 'in-process'">
