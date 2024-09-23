@@ -57,6 +57,13 @@ class DeliveryNoteRecordSearch
                             'label'     => $deliveryNote->created_at,
                             'tooltip'   => __('Created at')
                         ],
+                        [
+                            'key'       => 'number_stocks',
+                            'type'      => 'number',
+                            'number'    => $deliveryNote->number_stocks,
+                            'afterLabel'    => ' ' . __('Stocks'),
+                            'tooltip'   => __('Stocks Quantity')
+                        ],
                         // [
                         //     'key'       => 'updated_date',
                         //     'type'      => 'date',
