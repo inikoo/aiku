@@ -22,7 +22,7 @@ class UpdateInvoiceTransaction extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'quantity_ordered'    => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_bonus'      => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_dispatched' => ['sometimes', 'required', 'numeric', 'min:0'],
@@ -34,16 +34,21 @@ class UpdateInvoiceTransaction extends OrgAction
             'grp_exchange'        => ['sometimes', 'numeric'],
             'org_net_amount'      => ['sometimes', 'numeric'],
             'grp_net_amount'      => ['sometimes', 'numeric'],
-            'created_at'          => ['sometimes', 'required', 'date'],
             'tax_category_id'     => ['sometimes', 'required', 'exists:tax_categories,id'],
             'date'                => ['sometimes', 'required', 'date'],
             'submitted_at'        => ['sometimes', 'required', 'date'],
-            'last_fetched_at'     => ['sometimes', 'date'],
         ];
+        if (!$this->strict) {
+            $rules['created_at']      = ['sometimes', 'required', 'date'];
+            $rules['last_fetched_at'] = ['sometimes', 'required', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(InvoiceTransaction $invoiceTransaction, array $modelData): InvoiceTransaction
+    public function action(InvoiceTransaction $invoiceTransaction, array $modelData, bool $strict = true): InvoiceTransaction
     {
+        $this->strict = $strict;
         $this->initialisationFromShop($invoiceTransaction->shop, $modelData);
 
         return $this->handle($invoiceTransaction, $this->validatedData);

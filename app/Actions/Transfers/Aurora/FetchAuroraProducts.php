@@ -56,6 +56,13 @@ class FetchAuroraProducts extends FetchAuroraAction
                         hydratorsDelay: 120,
                         strict: false
                     );
+
+                    $sourceData = explode(':', $product->source_id);
+
+                    DB::connection('aurora')->table('Product Dimension')
+                        ->where('Product ID', $sourceData[1])
+                        ->update(['aiku_id' => $product->id]);
+
                 } catch (Exception $e) {
 
                     $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'store');
@@ -65,12 +72,7 @@ class FetchAuroraProducts extends FetchAuroraAction
 
             }
 
-
             $sourceData = explode(':', $product->source_id);
-
-            DB::connection('aurora')->table('Product Dimension')
-                ->where('Product ID', $sourceData[1])
-                ->update(['aiku_id' => $product->id]);
 
 
             if (count($productData['product']['images']) > 0) {

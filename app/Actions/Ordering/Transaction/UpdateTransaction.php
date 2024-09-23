@@ -26,22 +26,21 @@ class UpdateTransaction extends OrgAction
 
     public function handle(Transaction $transaction, array $modelData): Transaction
     {
-
         if (Arr::exists($modelData, 'quantity_ordered')) {
-
             if ($this->strict) {
                 $historicAsset = $transaction->historicAsset;
             } else {
                 $historicAsset = HistoricAsset::withTrashed()->find($transaction->historic_asset_id);
             }
 
-            $net   = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
+            $net = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
             // todo deal with discounts
             $gross = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
 
             data_set($modelData, 'gross_amount', $gross);
             data_set($modelData, 'net_amount', $net);
         }
+
         $this->update($transaction, $modelData, ['data']);
         $transaction->order->refresh();
         CalculateOrderTotalAmounts::run($transaction->order);
@@ -51,7 +50,7 @@ class UpdateTransaction extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'quantity_ordered'    => ['sometimes', 'numeric', 'min:0'],
             'quantity_bonus'      => ['sometimes', 'numeric', 'min:0'],
             'quantity_dispatched' => ['sometimes', 'numeric', 'min:0'],
@@ -67,12 +66,18 @@ class UpdateTransaction extends OrgAction
             'grp_exchange'        => ['sometimes', 'numeric'],
             'org_net_amount'      => ['sometimes', 'numeric'],
             'grp_net_amount'      => ['sometimes', 'numeric'],
-            'created_at'          => ['sometimes', 'date'],
             'tax_category_id'     => ['sometimes', 'exists:tax_categories,id'],
             'date'                => ['sometimes', 'date'],
             'submitted_at'        => ['sometimes', 'date'],
-            'last_fetched_at'     => ['sometimes', 'date'],
         ];
+
+        if (!$this->strict) {
+            $rules['in_warehouse_at'] = ['sometimes', 'required', 'date'];
+            $rules['created_at']      = ['sometimes', 'required', 'date'];
+            $rules['last_fetched_at'] = ['sometimes', 'required', 'date'];
+        }
+
+        return $rules;
     }
 
     public function action(Transaction $transaction, array $modelData, bool $strict = true): Transaction

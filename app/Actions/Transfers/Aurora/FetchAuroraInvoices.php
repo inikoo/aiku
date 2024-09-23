@@ -118,7 +118,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
 
     private function fetchInvoiceNoProductTransactions($organisationSource, Invoice $invoice): void
     {
-        $transactionsToDelete = $invoice->invoiceTransactions()->whereNotIn('model_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
+        $transactionsToDelete = $invoice->invoiceTransactions()->whereNotIn('model_type', ['Product', 'Service'])->pluck('source_alt_id', 'id')->all();
         $this->allowLegacy    = true;
 
         $sourceData = explode(':', $invoice->source_id);

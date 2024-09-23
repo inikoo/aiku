@@ -47,7 +47,7 @@ class FetchDeliveryNoteTransactions
                 $sourceData = explode(':', $deliveryNoteItem->source_id);
                 DB::connection('aurora')->table('Inventory Transaction Fact')
                     ->where('Inventory Transaction Key', $sourceData[1])
-                    ->update(['aiku_id' => $deliveryNoteItem->id]);
+                    ->update(['aiku_dn_item_id' => $deliveryNoteItem->id]);
 
 
             }
