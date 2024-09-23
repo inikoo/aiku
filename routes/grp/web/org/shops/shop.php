@@ -6,7 +6,6 @@
  */
 
 use App\Actions\Catalogue\Shop\UI\CreateShop;
-use App\Actions\Catalogue\Shop\UI\EditShop;
 use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Stubs\UIDummies\ShowDummyDashboard;
@@ -20,7 +19,6 @@ Route::get('{shop}', function ($organisation, $shop) {
     return redirect()->route('grp.org.shops.show.dashboard', [$organisation, $shop]);
 });
 
-Route::get('{shop}/edit', EditShop::class)->name('edit');
 
 Route::prefix('{shop}')->name('show.')
     ->group(function () {

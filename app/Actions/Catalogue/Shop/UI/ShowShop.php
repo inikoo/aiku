@@ -71,21 +71,13 @@ class ShowShop extends OrgAction
                         'icon'  => 'fal fa-store-alt'
                     ],
                     'actions' => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('website'),
-                            'route' => [
-                                'name'       => 'grp.org.shops.show.web.websites.create',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-
-                        ],
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
+                            'label' => __('settings'),
+                            'icon'  => 'fal fa-sliders-h',
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'name'       => 'grp.org.shops.show.settings.edit',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
