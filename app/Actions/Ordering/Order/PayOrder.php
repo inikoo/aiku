@@ -17,6 +17,7 @@ use App\Models\CRM\Customer;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 
 class PayOrder extends OrgAction
@@ -25,8 +26,8 @@ class PayOrder extends OrgAction
     {
         foreach ($order->transactions as $index => $transaction) {
             data_set($modelData, "items.$index", [
-                'name'    => $transaction->historicAsset->name,
-                'quantity' => $transaction->quantity_ordered,
+                'name'        => $transaction->historicAsset->name,
+                'quantity'    => $transaction->quantity_ordered,
                 'description' => '',
                 'sku'         => '',
                 'amount'      => $transaction->historicAsset->price
@@ -60,10 +61,15 @@ class PayOrder extends OrgAction
         return $this->handle($order, $customer, $paymentAccount, $this->validatedData);
     }
 
-    public function asController(Order $order, Customer $customer, PaymentAccount $paymentAccount, ActionRequest $request): void
+    public function asController(Order $order, Customer $customer, PaymentAccount $paymentAccount, ActionRequest $request): Payment
     {
         $this->initialisationFromShop($customer->shop, $request);
 
-        $this->handle($order, $customer, $paymentAccount, $this->validatedData);
+        return $this->handle($order, $customer, $paymentAccount, $this->validatedData);
+    }
+
+    public function htmlResponse(Payment $payment): \Symfony\Component\HttpFoundation\Response
+    {
+        return Inertia::location(Arr::get($payment->data, 'links')[1]['href']);
     }
 }

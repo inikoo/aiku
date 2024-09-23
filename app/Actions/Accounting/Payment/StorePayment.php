@@ -37,9 +37,9 @@ class StorePayment extends OrgAction
 
     public function handle(Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
     {
-        $items = Arr::pull($modelData,'items');
+        $items        = Arr::pull($modelData, 'items');
         $currencyCode = Arr::pull($modelData, 'currency_code');
-        
+
         data_set($modelData, 'date', gmdate('Y-m-d H:i:s'), overwrite: false);
 
         data_set($modelData, 'group_id', $customer->group_id);
@@ -58,7 +58,7 @@ class StorePayment extends OrgAction
         $payment = $paymentAccount->payments()->create($modelData);
 
         $paypalData = [
-            'items' => $items,
+            'items'         => $items,
             'currency_code' => $currencyCode,
         ];
 
@@ -71,6 +71,7 @@ class StorePayment extends OrgAction
             };
         }
 
+        $payment->refresh();
 
         GroupHydratePayments::dispatch($payment->group)->delay($this->hydratorsDelay);
         OrganisationHydratePayments::dispatch($paymentAccount->organisation)->delay($this->hydratorsDelay);
@@ -119,7 +120,7 @@ class StorePayment extends OrgAction
     }
 
     public function action(Customer $customer, PaymentAccount $paymentAccount, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Payment
-    {   
+    {
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;

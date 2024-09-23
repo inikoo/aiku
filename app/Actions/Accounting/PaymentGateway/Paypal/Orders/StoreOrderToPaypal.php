@@ -25,16 +25,16 @@ class StoreOrderToPaypal
         foreach ($orderData['items'] as $item) {
             $items[] = [
                 "name"        => $item['name'],
-                "quantity"    => $item['quantity'],
+                "quantity"    => (float) $item['quantity'],
                 "description" => $item['description'],
                 "sku"         => $item['sku'],
                 "unit_amount" => [
                     "currency_code" => $orderData['currency_code'],
-                    "value"         => $item['amount']
+                    "value"         => (float) $item['amount']
                 ]
             ];
 
-            $itemTotalAmount += $item['amount'] * $item['quantity'];
+            $itemTotalAmount += (float) $item['amount'] * (float) $item['quantity'];
         }
 
         $response = Http::withHeaders($this->headers(
