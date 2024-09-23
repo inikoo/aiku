@@ -71,9 +71,8 @@ class CreateShippingZoneSchema extends OrgAction
                             ]
                         ],
                     'route'     => [
-                        'name'      => 'grp.models.org.shop.customer.store',
+                        'name'      => 'grp.models.billables.shipping-zone-schemas.store',
                         'parameters'=> [
-                            'organisation' => $shop->organisation_id,
                             'shop'         => $shop->id
                             ]
                     ]
