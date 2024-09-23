@@ -36,7 +36,7 @@ const component = computed(() => {
 
     const components = {
         website_layout: LayoutWorkshop,
-        category: CategoryWorkshop,
+        family: CategoryWorkshop,
         product: WorkshopProduct
     }
     return components[currentTab.value]

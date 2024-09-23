@@ -170,5 +170,18 @@ export default {
 			},
 			fieldProps: {},
 		},
+		{
+			id: 11,
+			name: "CTA 3",
+			icon: ["fal", "rectangle-wide"],
+			type: "CTA",
+			component: "CTA3",
+			fieldValue: {
+				headline: `<h2><strong><span style="color: #FFFFFF">What ingredients should be considered when selecting body and hand soaps?</span></strong></h2>`,
+				description: '<p><span style="color: #FFFFFF">Provide your customers with informed advice.</span></p><p></p>',
+				button: `Read blog`,
+			},
+			fieldProps: {},
+		},
 	],
 }

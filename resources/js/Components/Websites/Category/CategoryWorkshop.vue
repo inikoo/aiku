@@ -11,6 +11,9 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { ref } from "vue"
 import Button from '@/Components/Elements/Buttons/Button.vue';
+import { getComponent } from "@/Components/Websites/Category/Content"
+import FamilyList from "@/Components/Websites/Category/FamilyList"
+import Modal from '@/Components/Utils/Modal.vue'
 
 library.add(faCube, faLink, faStar, faCircle)
 
@@ -18,84 +21,31 @@ const props = defineProps<{
     modelValue: any
 }>()
 
+const isModalOpen = ref(false)
 const selectedProduct = ref(0)
+const usedTemplates = ref({ key : "template1"})
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
     (e: 'autoSave'): void
 }>()
 
 
+const onPickTemplate = (family) => {
+    isModalOpen.value = false
+    usedTemplates.value = { key: family.key }
+}
+
+
 </script>
 
 <template>
-    <div id="app" class="ml-10 my-10  text-gray-600">
+    <div id="app" class="mx-10 my-10  text-gray-600">
+        <div class="py-3">
+            <Button label="Templates" @click="isModalOpen = true"></Button>
+        </div>
         <div class="grid grid-cols-4 gap-x-10">
-            <div class="col-span-1 border-2 p-4 rounded-lg">
-                <FontAwesomeIcon class="absolute top-2 right-2 text-2xl far fa-heart text-gray-500"></FontAwesomeIcon>
-                <img src="https://tailwindui.com/img/ecommerce-images/product-page-03-related-product-02.jpg" alt=""
-                    class="">
-                <div class="mb-0.5 font-bold leading-5">
-                    8x Monkey Bath Bomb 90g - Guava & Strawberry
-                </div>
-
-                <div class="mb-0.5 flex justify-between items-end">
-                    <div class="leading-none">SKB-01</div>
-                    <div class="text-xs">RRP: £3.95/Piece</div>
-                </div>
-
-                <div class="mb-2 flex justify-between">
-                    <div class="space-x-2">
-                        <FontAwesomeIcon icon="fas fa-circle" class="text-sm text-green-600"></FontAwesomeIcon>
-                        <span class="text-xs">(41)</span>
-                    </div>
-
-                    <div class="flex gap-x-[1px] items-center">
-                        <FontAwesomeIcon icon="fas fa-star" class=" text-xs text-gray-600"></FontAwesomeIcon>
-                        <FontAwesomeIcon icon="fas fa-star" class="text-xs text-gray-600"></FontAwesomeIcon>
-                        <FontAwesomeIcon icon="fas fa-star" class="text-xs text-gray-600"></FontAwesomeIcon>
-                        <FontAwesomeIcon icon="fas fa-star" class="text-xs text-gray-600"></FontAwesomeIcon>
-                        <FontAwesomeIcon icon="fas fa-star" class="text-xs text-gray-600"></FontAwesomeIcon>
-                        <span class="ml-1 text-xs">41</span>
-                    </div>
-                </div>
-
-                <div class="mb-2 bg-red-500 text-white px-2 py-0 rounded w-fit font-bold">
-                    10% OFF
-                </div>
-
-                <div class="mb-2 space-y-2">
-                    <div class="flex justify-between items-end">
-                        <div class="text-sm font-bold leading-none whitespace-nowrap">
-                            £9.60 (1.20/Piece)
-                        </div>
-                        <div class="text-gray-400 text-[10px] whitespace-nowrap line-through">
-                            £9.60 (1.20/Piece)
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-end">
-                        <div class="text-sm text-orange-500 font-bold leading-none whitespace-nowrap">
-                            £8.00 (1.00/Piece)
-                        </div>
-                        <div class="text-gray-400 text-[10px] whitespace-nowrap line-through">
-                            £8.00 (1.00/Piece)
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-4 bg-orange-500 px-2 py-0.5 rounded w-fit text-xs text-white">
-                    Member Price
-                </div>
-
-                <div class="mx-auto w-fit flex gap-x-2 mb-4">
-                    <div class="flex items-start gap-x-1">
-                        <div class="font-bold text-3xl leading-none cursor-pointer">-</div>
-                        <div
-                            class="h-8 aspect-square border border-gray-400 flex items-center justify-center tabular-nums text-xl font-bold">
-                            1</div>
-                        <div class="font-bold text-3xl leading-none cursor-pointer">+</div>
-                    </div>
-                    <div class="bg-gray-600 text-white rounded px-3 py-1 h-fit w-fit">Order Now</div>
-                </div>
+            <div class="col-span-1 border-2 p-4 rounded-lg">          
+                <component :is="getComponent(usedTemplates.key)"  />
             </div>
 
 
@@ -165,4 +115,21 @@ const emits = defineEmits<{
             </div>
         </div>
     </div>
+
+
+    <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-2/5">
+        <div tag="div"
+            class="relative grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-3 gap-x-4 overflow-y-auto overflow-x-hidden">
+            <div v-for="family in FamilyList.listTemplate" :key="family.key" @click="() => onPickTemplate(family)"
+                class="group flex items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded cursor-pointer hover:bg-gray-100">
+                <div class="flex items-center justify-center">
+                    <FontAwesomeIcon :icon='family.icon' class='' fixed-width aria-hidden='true' />
+                </div>
+                <h3 class="text-sm font-medium">
+                    {{ family.name }}
+                </h3>
+            </div>
+        </div>
+    </Modal>
+
 </template>
