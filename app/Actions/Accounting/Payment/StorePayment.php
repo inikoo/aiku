@@ -37,8 +37,9 @@ class StorePayment extends OrgAction
 
     public function handle(Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
     {
-        $items        = Arr::pull($modelData, 'items');
+        //        $items        = Arr::pull($modelData, 'items');
         $currencyCode = Arr::pull($modelData, 'currency_code');
+        $totalAmount  = Arr::pull($modelData, 'total_amount');
 
         data_set($modelData, 'date', gmdate('Y-m-d H:i:s'), overwrite: false);
 
@@ -58,7 +59,8 @@ class StorePayment extends OrgAction
         $payment = $paymentAccount->payments()->create($modelData);
 
         $paypalData = [
-            'items'         => $items,
+            'total_amount' => $totalAmount,
+            //'items'         => $items,
             'currency_code' => $currencyCode,
         ];
 
@@ -99,6 +101,7 @@ class StorePayment extends OrgAction
         $rules = [
             'reference'      => ['nullable', 'string', 'max:255'],
             'amount'         => ['required', 'decimal:0,2'],
+            'total_amount'   => ['sometimes', 'decimal:0,2'],
             'org_amount'     => ['sometimes', 'numeric'],
             'group_amount'   => ['sometimes', 'numeric'],
             'data'           => ['sometimes', 'array'],
