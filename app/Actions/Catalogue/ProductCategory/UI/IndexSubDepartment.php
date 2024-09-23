@@ -34,16 +34,9 @@ class IndexSubDepartment extends OrgAction
 
     private Shop|ProductCategory|Organisation $parent;
 
-    public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $organisation;
-        $this->initialisation($organisation, $request);
 
-        return $this->handle(parent: $organisation);
-    }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ActionRequest $request): LengthAwarePaginator
+    public function asController(Organisation $organisation, Shop $shop, ProductCategory $department, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $department;
         $this->initialisationFromShop($shop, $request);
@@ -51,7 +44,8 @@ class IndexSubDepartment extends OrgAction
         return $this->handle(parent: $department);
     }
 
-    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
@@ -84,29 +78,8 @@ class IndexSubDepartment extends OrgAction
         }
 
 
-
-        /*
-        foreach ($this->elementGroups as $key => $elementGroup) {
-            $queryBuilder->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
-        }
-        */
-
-
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('product_categories.shop_id', $parent->id);
-        } elseif (class_basename($parent) == 'Organisation') {
-            $queryBuilder->where('product_categories.organisation_id', $parent->id);
-            $queryBuilder->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
-            $queryBuilder->addSelect(
-                'shops.slug as shop_slug',
-                'shops.code as shop_code',
-                'shops.name as shop_name',
-            );
         } elseif (class_basename($parent) == 'ProductCategory') {
 
 
@@ -146,8 +119,9 @@ class IndexSubDepartment extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
+    public function tableStructure(Shop|ProductCategory $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false): Closure
     {
+
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit) {
             if ($prefix) {
                 $table
@@ -167,38 +141,18 @@ class IndexSubDepartment extends OrgAction
                 ->defaultSort('code')
                 ->withEmptyState(
                     match (class_basename($parent)) {
-                        'Organisation' => [
-                            'title'       => __("No families found"),
-                            'description' => $canEdit ?
-                                $parent->catalogueStats->number_shops == 0 ? __("In fact, is no even a shop yet 🤷🏽‍♂️") : ''
-                                : '',
-                            'count'       => $parent->catalogueStats->number_families,
-                            'action'      => $canEdit && $parent->catalogueStats->number_shops == 0
-                                ?
-                                [
-                                    'type'    => 'button',
-                                    'style'   => 'create',
-                                    'tooltip' => __('new shop'),
-                                    'label'   => __('shop'),
-                                    'route'   => [
-                                        'name'       => 'grp.org.shops.show.catalogue.families.create',
-                                        'parameters' => [$parent->slug]
-                                    ]
-                                ] : null
-
-                        ],
                         'Shop' => [
-                            'title' => __("No families found"),
+                            'title' => __("No Sub-departments foundx"),
                             'count' => $parent->stats->number_families,
                         ],
                         'ProductCategory' => [
-                            'title'       => __("No sub department found"),
+                            'title'       => __("This department has no Sub-departments"),
                             'count'       => $parent->stats->number_sub_departments,
                             'action'      => [
                                 'type'    => 'button',
                                 'style'   => 'create',
-                                'tooltip' => __('new sub department'),
-                                'label'   => __('sub department'),
+                                'tooltip' => __('new Sub-department'),
+                                'label'   => __('Sub-department'),
                                 'route'   => [
                                     'name'           => 'grp.org.shops.show.catalogue.departments.show.sub-departments.create',
                                     'parameters'     => [
@@ -244,6 +198,32 @@ class IndexSubDepartment extends OrgAction
             }
         }
 
+        $title = __('Sub-departments');
+        $model = '';
+        $icon  = [
+            'icon'  => ['fal', 'fa-dot-circle'],
+            'title' => __('Sub-department')
+        ];
+        $afterTitle = null;
+        $iconRight = null;
+
+        if ($this->parent instanceof ProductCategory) {
+            if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
+                $title = $this->parent->name;
+                $model = '';
+                $icon  = [
+                    'icon'  => ['fal', 'fa-folder-tree'],
+                    'title' => __('department')
+                ];
+                $iconRight    = [
+                    'icon' => 'fal fa-dot-circle',
+                ];
+                $afterTitle = [
+
+                    'label'     => __('Sub-departments')
+                ];
+            }
+        }
 
         return Inertia::render(
             'Org/Catalogue/SubDepartments',
@@ -252,21 +232,21 @@ class IndexSubDepartment extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('sub departments'),
+                'title'       => __('sub-departments'),
                 'pageHead'    => [
-                    'title'         => __('sub departments'),
-                    'icon'          => [
-                        'icon'  => ['fal', 'fa-folder'],
-                        'title' => __('sub department')
-                    ],
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
                     'actions'       => [
                         $this->canEdit ? (
                             class_basename($this->parent) == 'ProductCategory'
                             ? [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new sub department'),
-                            'label'   => __('sub department'),
+                            'tooltip' => __('new Sub-department'),
+                            'label'   => __('Sub-department'),
                             'route'   => [
                                 'name'       => 'grp.org.shops.show.catalogue.departments.show.sub-departments.create',
                                 'parameters' => $request->route()->originalParameters()
@@ -275,8 +255,8 @@ class IndexSubDepartment extends OrgAction
                             : (class_basename($this->parent) == 'Shop' ? [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('new sub department'),
-                            'label'   => __('sub department'),
+                            'tooltip' => __('new Sub-department'),
+                            'label'   => __('Sub-department'),
                             'route'   => [
                                 'name'       => 'grp.org.shops.show.catalogue.families.create',
                                 'parameters' => $request->route()->originalParameters()
@@ -299,7 +279,7 @@ class IndexSubDepartment extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('Sub departments'),
+                        'label' => __('Sub-departments'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix

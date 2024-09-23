@@ -71,7 +71,7 @@ class EditSubDepartment extends OrgAction
         return Inertia::render(
             'EditModel',
             [
-                'title'       => __('sub department'),
+                'title'       => __('Sub-department'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()

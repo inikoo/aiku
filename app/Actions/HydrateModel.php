@@ -42,8 +42,10 @@ class HydrateModel
             $this->loopAll($command);
         } else {
             $model = $this->getModel($command->option('slugs'));
-            $this->handle($model);
-            $command->line(class_basename($model)." $model->name hydrated 💦");
+            if ($model) {
+                $this->handle($model);
+                $command->line(class_basename($model)." $model->name hydrated 💦");
+            }
         }
 
         return $exitCode;

@@ -37,8 +37,9 @@ class HydrateProductCategory extends HydrateModel
         //ProductCategoryHydrateSales::run($productCategory);
     }
 
-    protected function getModel(string $slug): ProductCategory
+    protected function getModel(string $slug): ?ProductCategory
     {
+        dd($slug);
         return ProductCategory::where('slug', $slug)->first();
     }
 

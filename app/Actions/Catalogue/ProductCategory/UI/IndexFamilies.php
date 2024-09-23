@@ -71,7 +71,6 @@ class IndexFamilies extends OrgAction
         return $this->handle(parent: $shop);
     }
 
-
     public function handle(Shop|ProductCategory|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -250,7 +249,7 @@ class IndexFamilies extends OrgAction
         if ($this->parent instanceof ProductCategory) {
             if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 $title = $this->parent->name;
-                $model = __('department');
+                $model = '';
                 $icon  = [
                     'icon'  => ['fal', 'fa-folder-tree'],
                     'title' => __('department')

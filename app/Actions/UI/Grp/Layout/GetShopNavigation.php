@@ -96,7 +96,7 @@ class GetShopNavigation
                         [
                             "label"   => __("collections"),
                             "tooltip" => __("Collections"),
-                            "icon"    => ["fal", "fa-cube"],
+                            "icon"    => ["fal", "fa-album-collection"],
                             'root'    => 'grp.org.shops.show.catalogue.collections.',
                             "route"   => [
                                 "name"       => "grp.org.shops.show.catalogue.collections.index",

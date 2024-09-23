@@ -22,7 +22,7 @@ trait WithSubDepartmentSubNavigation
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-folder'],
-                    'tooltip' => __('sub department')
+                    'tooltip' => __('Sub-department')
                 ]
             ],
 

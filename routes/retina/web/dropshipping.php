@@ -10,12 +10,12 @@
 use App\Actions\Dropshipping\ShopifyUser\DeleteShopifyUser;
 use App\Actions\Dropshipping\ShopifyUser\StoreShopifyUser;
 use App\Actions\UI\Retina\Dropshipping\ShowDropshipping;
-use App\Actions\UI\Retina\Dropshipping\IndexProducts;
+use App\Actions\UI\Retina\Dropshipping\IndexDropshippingRetinaProducts;
 use App\Actions\UI\Retina\Dropshipping\ShowProduct;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', ShowDropshipping::class)->name('dashboard');
-Route::get('/products', IndexProducts::class)->name('products.index');
+Route::get('/products', IndexDropshippingRetinaProducts::class)->name('products.index');
 Route::get('/products/{product}', ShowProduct::class)->name('products.show');
 
 Route::post('shopify-user', StoreShopifyUser::class)->name('shopify_user.store');

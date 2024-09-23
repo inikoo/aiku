@@ -352,7 +352,7 @@ class IndexProducts extends OrgAction
         if ($this->parent instanceof ProductCategory) {
             if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 $title      = $this->parent->name;
-                $model      = __('department');
+                $model      = '';
                 $icon       = [
                     'icon'  => ['fal', 'fa-folder-tree'],
                     'title' => __('Department')
