@@ -22,8 +22,11 @@ use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Shop;
 use App\Rules\IUnique;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 
 class StoreCharge extends OrgAction
 {
@@ -138,6 +141,22 @@ class StoreCharge extends OrgAction
         $this->initialisationFromShop($shop, $modelData);
 
         return $this->handle($shop, $this->validatedData);
+    }
+
+    public function asController(Shop $shop, ActionRequest $request): Charge
+    {
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($shop, $this->validatedData);
+    }
+
+    public function htmlResponse(Charge $charge): RedirectResponse
+    {
+        return Redirect::route('grp.org.shops.show.assets.charges.show', [
+            'organisation'      => $charge->organisation->slug,
+            'shop'              => $charge->shop->slug,
+            'charge'            => $charge->slug
+        ]);
     }
 
 
