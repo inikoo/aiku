@@ -35,7 +35,6 @@ const onPickTemplate = (family) => {
     usedTemplates.value = { key: family.key }
 }
 
-
 </script>
 
 <template>
@@ -44,10 +43,9 @@ const onPickTemplate = (family) => {
             <Button label="Templates" @click="isModalOpen = true"></Button>
         </div>
         <div class="grid grid-cols-4 gap-x-10">
-            <div class="col-span-1 border-2 p-4 rounded-lg">          
+            <div class="col-span-1">          
                 <component :is="getComponent(usedTemplates.key)"  />
             </div>
-
 
             <div class="col-span-3 border-2 p-4 rounded-lg">
                 <form>
@@ -75,8 +73,7 @@ const onPickTemplate = (family) => {
                                     <textarea id="about" name="about" rows="3"
                                         class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                                 </div>
-                                <p class="mt-3 text-sm leading-6 text-gray-600">Write a few sentences about
-                                    yourself.</p>
+                                <p class="mt-3 text-sm leading-6 text-gray-600">Write a few sentences about yourself.</p>
                             </div>
 
                             <div class="col-span-full">
@@ -90,8 +87,7 @@ const onPickTemplate = (family) => {
                             </div>
 
                             <div class="col-span-full">
-                                <label for="cover-photo" class="block text-sm font-medium leading-6 text-gray-900">Cover
-                                    photo</label>
+                                <label for="cover-photo" class="block text-sm font-medium leading-6 text-gray-900">Coverphoto</label>
                                 <div
                                     class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
                                     <div class="text-center">

@@ -87,6 +87,7 @@
         "pusher-js": "^8.4.0-rc2",
         "qrcode.vue": "^3.4.1",
         "qs": "^6.11.1",
+        "splitpanes": "^3.1.5",
         "string-to-color": "^2.2.2",
         "swiper": "^11.0.5",
         "tiptap-extension-font-size": "^1.2.0",
