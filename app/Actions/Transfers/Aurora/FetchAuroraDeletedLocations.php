@@ -30,6 +30,7 @@ class FetchAuroraDeletedLocations extends FetchAuroraAction
                     strict: false,
                     audit: false
                 );
+                $this->recordChange($organisationSource, $location->wasChanged());
             } else {
                 $location = StoreLocation::make()->action(
                     parent: $deletedLocationData['parent'],
@@ -37,6 +38,13 @@ class FetchAuroraDeletedLocations extends FetchAuroraAction
                     hydratorsDelay: 60,
                     strict: false,
                 );
+
+                $this->recordNew($organisationSource);
+                $sourceData = explode(':', $location->source_id);
+                DB::connection('aurora')->table('Location Deleted Dimension')
+                    ->where('Location Deleted Key', $sourceData[1])
+                    ->update(['aiku_id' => $location->id]);
+
             }
 
             return $location;
