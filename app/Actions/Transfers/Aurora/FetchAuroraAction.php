@@ -66,6 +66,7 @@ class FetchAuroraAction extends FetchAction
             'fetch:outers',
             'fetch:portfolios',
             'fetch:stock_movements',
+            'fetch:deleted-locations',
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }

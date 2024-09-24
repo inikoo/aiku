@@ -40,12 +40,12 @@ class FetchAuroraDeletedLocations extends FetchAuroraAction
                 );
 
                 $this->recordNew($organisationSource);
-                $sourceData = explode(':', $location->source_id);
-                DB::connection('aurora')->table('Location Deleted Dimension')
-                    ->where('Location Deleted Key', $sourceData[1])
-                    ->update(['aiku_id' => $location->id]);
-
             }
+
+            $sourceData = explode(':', $location->source_id);
+            DB::connection('aurora')->table('Location Deleted Dimension')
+                ->where('Location Deleted Key', $sourceData[1])
+                ->update(['aiku_id' => $location->id]);
 
             return $location;
         }
@@ -55,18 +55,32 @@ class FetchAuroraDeletedLocations extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Location Deleted Dimension')
-            ->select('Location Deleted Key as source_id')
-            ->orderBy('source_id')
+            ->select('Location Deleted Key as source_id');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        $query->orderBy('source_id')
             ->when(app()->environment('testing'), function ($query) {
                 return $query->limit(20);
             });
+
+        return $query;
     }
 
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Location Deleted Dimension')->count();
+        $query =  DB::connection('aurora')
+            ->table('Location Deleted Dimension');
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query->count();
+
     }
 }

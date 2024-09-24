@@ -36,6 +36,10 @@ class FetchAuroraOrgStockMovement extends FetchAurora
 
         $location = $this->parseLocation($this->organisation->id.':'.$this->auroraModelData->{'Location Key'}, $this->organisationSource);
 
+        if (!$location) {
+            dd($this->auroraModelData->{'Location Key'});
+        }
+
         $date = $this->parseDatetime($this->auroraModelData->{'Date'});
 
         $type        = null;
