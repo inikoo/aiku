@@ -45,9 +45,65 @@ class CustomerClientRecordSearch
                     ])
                 ),
                 'result' => [
+                    'xxxx'        => $customerClient,
+                    'route'         => [
+                        'name'          => 'grp.org.shops.show.crm.customers.show.customer-clients.show',
+                        'parameters'    => [
+                            $customerClient->organisation->slug,
+                            $customerClient->shop->slug,
+                            $customerClient->customer->slug,
+                            $customerClient->ulid,
+                        ]
+                    ],
+                    'container' => [
+                        'label' => $customerClient->shop->name,
+                        'tooltip'   => __('Shop')
+                    ],
                     'title'        => $customerClient->name,
-
-
+                    // 'afterTitle'   => [
+                    //     'label'     => '(#' . $customerClient->reference . ')',
+                    //     'tooltip'   => __('reference')
+                    // ],
+                    'icon'      => [
+                        'icon' => 'fal fa-folder',
+                    ],
+                    'meta'      => [
+                        // [
+                        //     'key'   => 'status',
+                        //     'label' => $customerClient->status
+                        // ],
+                        [
+                            'key'       => 'created_date',
+                            'type'      => 'date',
+                            'label'     => $customerClient->created_at,
+                            'tooltip'   => __('Created at')
+                        ],
+                        [
+                            'key'       => 'address',
+                            'type'      => 'address',
+                            'label'     => $customerClient->location,
+                            'tooltip'   => __('Location')
+                        ],
+                        // [
+                        //     'key'   => 'contact_name',
+                        //     // 'type'  => 'address',
+                        //     'label'     => $customerClient->contact_name,
+                        //     'tooltip'   => __('Contact name')
+                        // ],
+                        [
+                            'key'   => 'email',
+                            // 'type'  => 'address',
+                            'label'     => $customerClient->email,
+                            'tooltip'   => __('Email')
+                        ],
+                        // [
+                        //     'key'    => 'total',
+                        //     'type'   => 'currency',
+                        //     'code'   => $customerClient->currency->code,
+                        //     'label'  => 'Total: ',
+                        //     'amount' => $customerClient->total_amount
+                        // ],
+                    ],
                 ]
             ]
         );

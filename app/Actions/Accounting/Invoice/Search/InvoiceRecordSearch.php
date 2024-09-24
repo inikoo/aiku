@@ -73,12 +73,14 @@ class InvoiceRecordSearch
                 'meta'      => [
                     [
                         'key'   => 'type',
-                        'label' => $invoice->type
+                        'label' => $invoice->type,
+                        'tooltip' => __('Type')
                     ],
                     [
                         'key'   => 'created_date',
                         'type'  => 'date',
-                        'label' => $invoice->created_at
+                        'label' => $invoice->created_at,
+                        'tooltip' => __('created date')
                     ],
                     [
                         'key'    => 'total',
