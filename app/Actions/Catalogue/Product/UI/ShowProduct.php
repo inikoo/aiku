@@ -165,8 +165,8 @@ class ShowProduct extends OrgAction
 
             ]
         )->table(IndexOrders::make()->tableStructure($product->asset, ProductTabsEnum::ORDERS->value));
-            // ->table(IndexCustomers::make()->tableStructure($product))
-            // ->table(IndexMailshots::make()->tableStructure($product));
+        // ->table(IndexCustomers::make()->tableStructure($product))
+        // ->table(IndexMailshots::make()->tableStructure($product));
     }
 
     public function jsonResponse(Product $product): ProductsResource

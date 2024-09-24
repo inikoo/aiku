@@ -50,9 +50,11 @@ class PalletReturnItemImport implements ToCollection, WithHeadingRow, SkipsOnFai
             'type' => 'Upload',
         ]);
 
+
         if ($this->scope->type == PalletReturnTypeEnum::PALLET) {
+
             try {
-                AttachPalletToReturn::run(
+                AttachPalletToReturn::make()->action(
                     $this->scope,
                     $modelData
                 );

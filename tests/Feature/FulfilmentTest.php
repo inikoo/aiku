@@ -96,6 +96,7 @@ use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\RentalAgreementStats;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\Upload;
 use App\Models\Inventory\Location;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
@@ -589,7 +590,7 @@ test('update second rental agreement cause', function (RentalAgreement $rentalAg
         $rentalAgreement,
         [
             'update_all' => false,
-            'clauses'   => [
+            'clauses'    => [
                 'rentals' => [
                     [
                         'asset_id'       => $rentalAgreement->fulfilmentCustomer->fulfilment->rentals->first()->asset_id,
@@ -899,7 +900,6 @@ test('start booking-in pallet delivery', function (PalletDelivery $palletDeliver
     $palletDelivery->refresh();
 
 
-
     expect($palletDelivery->state)->toBe(PalletDeliveryStateEnum::BOOKING_IN)
         ->and($palletDelivery->booking_in_at)->toBeInstanceOf(Carbon::class);
 
@@ -981,7 +981,6 @@ test('undo booked in', function (PalletDelivery $palletDelivery) {
 
 
 test('book in 1st pallet again', function (Pallet $pallet) {
-
     /** @var Location $location */
     $location = $this->warehouse->locations->skip(1)->first();
     expect($location->stats->number_pallets)->toBe(0);
@@ -989,8 +988,6 @@ test('book in 1st pallet again', function (Pallet $pallet) {
     $pallet->refresh();
     expect($pallet->location)->toBeInstanceOf(Location::class)
         ->and($pallet->location->id)->toBe($location->id);
-
-
 })->depends('undo booked in');
 
 
@@ -1005,7 +1002,7 @@ test('set rental to first pallet in the pallet delivery', function (PalletDelive
 
     expect($pallet->rental)->toBeInstanceOf(Rental::class)
         ->and($palletNotInRentalCount)->toBe(0)
-    ->and($palletDelivery->stats->number_pallets)->toBe(3);
+        ->and($palletDelivery->stats->number_pallets)->toBe(3);
 
 
     return $palletDelivery;
@@ -1137,7 +1134,6 @@ test('set pallet delivery as booked in', function (PalletDelivery $palletDeliver
     expect($recurringBill->stats->number_transactions)->toBe(3)
         ->and($recurringBill->stats->number_transactions_type_pallets)->toBe(2)
         ->and($recurringBill->stats->number_transactions_type_stored_items)->toBe(0);
-
 
 
     return $palletDelivery;
@@ -1304,23 +1300,61 @@ test('store pallet to return', function (PalletReturn $palletReturn) {
 })->depends('create pallet return');
 
 test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
-
     Storage::fake('local');
 
     $tmpPath = 'tmp/uploads/';
 
-    $filePath = base_path('tests/fixtures/returnpalletimporttest.xlsx');
-    $file     = new UploadedFile($filePath, 'returnpalletimporttest.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+    $filePath = base_path('tests/fixtures/returnPalletItems.xlsx');
+    $file     = new UploadedFile($filePath, 'returnPalletItems.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
     Storage::fake('local')->put($tmpPath, $file);
-
-    ImportPalletReturnItem::run($palletReturn, $file);
-
+    $palletReturn->refresh();
+    expect($palletReturn->pallets()->count())->toBe(1)
+        ->and($palletReturn->stats->number_pallets)->toBe(1);
+    $upload = ImportPalletReturnItem::run($palletReturn, $file);
     $palletReturn->refresh();
 
-    expect($palletReturn->pallets()->count())->toBe(2);
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->type)->toBe('PalletReturnItem')
+        ->and($upload->original_filename)->toBe('returnPalletItems.xlsx')
+        ->and($upload->number_rows)->toBe(1)
+        ->and($upload->number_success)->toBe(1)
+        ->and($upload->number_fails)->toBe(0)
+
+        ->and($palletReturn->pallets()->count())->toBe(2)
+        ->and($palletReturn->stats->number_pallets)->toBe(2);
+
     return $palletReturn;
 })->depends('store pallet to return');
+
+test('import pallets in return (xlsx) again', function (PalletReturn $palletReturn) {
+    Storage::fake('local');
+    $tmpPath = 'tmp/uploads/';
+    $filePath = base_path('tests/fixtures/returnPalletItems.xlsx');
+    $file     = new UploadedFile($filePath, 'returnPalletItems.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+
+    Storage::fake('local')->put($tmpPath, $file);
+    $palletReturn->refresh();
+    expect($palletReturn->pallets()->count())->toBe(2)
+        ->and($palletReturn->stats->number_pallets)->toBe(2);
+    $upload = ImportPalletReturnItem::run($palletReturn, $file);
+    $palletReturn->refresh();
+
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->type)->toBe('PalletReturnItem')
+        ->and($upload->original_filename)->toBe('returnPalletItems.xlsx')
+        ->and($upload->number_rows)->toBe(1)
+        ->and($upload->number_success)->toBe(0)
+        ->and($upload->number_fails)->toBe(1)
+
+        ->and($palletReturn->pallets()->count())->toBe(2)
+        ->and($palletReturn->stats->number_pallets)->toBe(2);
+
+    return $palletReturn;
+})->depends('import pallets in return (xlsx)');
+
+
+
 
 test('update rental agreement clause again', function (PalletReturn $palletReturn) {
     $rentalAgreement        = $palletReturn->fulfilmentCustomer->rentalAgreement;
@@ -1330,7 +1364,7 @@ test('update rental agreement clause again', function (PalletReturn $palletRetur
         [
             'update_all' => true,
             'clauses'    => [
-                'rentals' => [
+                'rentals'  => [
                     [
                         'asset_id'       => $rentalAgreement->fulfilmentCustomer->fulfilment->rentals->first()->asset_id,
                         'percentage_off' => 30,
@@ -1728,11 +1762,16 @@ test('import pallet (xlsx)', function (PalletDelivery $palletDelivery) {
 
     Storage::fake('local')->put($tmpPath, $file);
 
-    ImportPallet::run($palletDelivery, $file);
+    expect($palletDelivery->stats->number_pallets)->toBe(0);
 
+    $upload = ImportPallet::run($palletDelivery, $file);
     $palletDelivery->refresh();
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->numer_rows)->toBe(1)
+        ->and($upload->number_success)->toBe(1)
+        ->and($upload->number_fails)->toBe(0)
+        ->and($palletDelivery->stats->number_pallets)->toBe(1);
 
-    expect($palletDelivery->stats->number_pallets)->toBe(1);
 
     return $palletDelivery;
 })->depends('create fourth pallet delivery (pallet import test)');
@@ -1742,19 +1781,33 @@ test('import pallet and stored item (xlsx)', function (PalletDelivery $palletDel
 
     $tmpPath = 'tmp/uploads/';
 
-    $filePath = base_path('tests/fixtures/palletwithstoreditem.xlsx');
-    $file     = new UploadedFile($filePath, 'palletwithstoreditem.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+    $filePath = base_path('tests/fixtures/palletWithStoredItem.xlsx');
+    $file     = new UploadedFile($filePath, 'palletWithStoredItem.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
     Storage::fake('local')->put($tmpPath, $file);
 
-    $includeStoredItem = true;
 
-    ImportPallet::run($palletDelivery, $file, $includeStoredItem);
+    expect($palletDelivery->pallets->count())->toBe(1)
+        ->and($palletDelivery->stats->number_pallets)->toBe(1);
+
+    $upload = ImportPallet::run(
+        palletDelivery: $palletDelivery,
+        file: $file,
+        includeStoredItem: true
+    );
+
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->numer_rows)->toBe(1)
+        ->and($upload->number_success)->toBe(1)
+        ->and($upload->number_fails)->toBe(0);
+
 
     $palletDelivery->refresh();
     $pallet = $palletDelivery->pallets->skip(1)->first();
 
-    expect($pallet->storedItems()->count())->toBe(1);
+    expect($palletDelivery->pallets->count())->toBe(2)
+        ->and($palletDelivery->stats->number_pallets)->toBe(2)
+        ->and($pallet->storedItems()->count())->toBe(1);
 
     return $palletDelivery;
 })->depends('create fourth pallet delivery (pallet import test)');
@@ -2034,21 +2087,24 @@ test('create second pallet return', function (PalletDelivery $palletDelivery) {
 })->depends('set fifth pallet delivery as booked in');
 
 test('import stored items (xlsx)', function (PalletReturn $palletReturn) {
-
     Storage::fake('local');
 
     $tmpPath = 'tmp/uploads/';
 
-    $filePath = base_path('tests/fixtures/Spreadsheett.xlsx');
-    $file     = new UploadedFile($filePath, 'Spreadsheett.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
+    $filePath = base_path('tests/fixtures/storedItemsA.xlsx');
+    $file     = new UploadedFile($filePath, 'storedItemsA.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', null, true);
 
     Storage::fake('local')->put($tmpPath, $file);
 
-    ImportPalletReturnItem::run($palletReturn, $file);
-
+    $upload = ImportPalletReturnItem::run($palletReturn, $file);
     $palletReturn->refresh();
 
-    expect($palletReturn->storedItems()->count())->toBe(2);
+    expect($upload)->toBeInstanceOf(Upload::class)
+        ->and($upload->numer_rows)->toBe(2)
+        ->and($upload->number_success)->toBe(2)
+        ->and($upload->number_fails)->toBe(0)
+        ->and($palletReturn->stats->number_stored_items)->toBe(2);
+
 
     return $palletReturn;
 })->depends('create second pallet return');
@@ -2117,7 +2173,7 @@ test('add pallet to sixth pallet delivery', function (PalletDelivery $palletDeli
 })->depends('create sixth pallet delivery (consolidation test)');
 
 test('create 2 stored item and attach to pallet (6th delivery)', function (Pallet $pallet) {
-    $storedItem = StoreStoredItem::make()->action(
+    $storedItem       = StoreStoredItem::make()->action(
         $pallet->fulfilmentCustomer,
         [
             'reference' => 'Bao',
@@ -2134,7 +2190,7 @@ test('create 2 stored item and attach to pallet (6th delivery)', function (Palle
         $pallet,
         [
             'stored_item_ids' => [
-                $storedItem->id => [
+                $storedItem->id       => [
                     'quantity' => 8
                 ],
                 $secondStoredItem->id => [
@@ -2147,14 +2203,13 @@ test('create 2 stored item and attach to pallet (6th delivery)', function (Palle
     $pallet->refresh();
 
     expect($storedItem)->toBeInstanceOf(StoredItem::class)
-    ->and($pallet)->toBeInstanceOf(Pallet::class)
-    ->and($pallet->storedItems()->count())->toBe(2);
+        ->and($pallet)->toBeInstanceOf(Pallet::class)
+        ->and($pallet->storedItems()->count())->toBe(2);
 
     return $pallet;
 })->depends('add pallet to sixth pallet delivery');
 
 test('submit and confirm sixth pallet delivery', function (Pallet $pallet) {
-
     SendPalletDeliveryNotification::shouldRun()->andReturn();
 
     $palletDelivery = SubmitAndConfirmPalletDelivery::make()->action($pallet->palletDelivery);
@@ -2283,7 +2338,6 @@ test('consolidate recurring bill', function ($fulfilmentCustomer) {
     expect($fulfilmentCustomer->recurringBills()->count())->toBe(2);
 
     return $fulfilmentCustomer;
-
 })->depends('check current recurring bill');
 
 test('update third rental agreement cause', function ($fulfilmentCustomer) {
@@ -2293,7 +2347,7 @@ test('update third rental agreement cause', function ($fulfilmentCustomer) {
         $fulfilmentCustomer->rentalAgreement,
         [
             'update_all' => true,
-            'clauses'   => [
+            'clauses'    => [
                 'rentals' => [
                     [
                         'asset_id'       => $recurringBillTransaction->asset_id,
@@ -2336,7 +2390,6 @@ test('check invoice transactions length', function ($fulfilmentCustomer) {
     expect(count($queryData))->tobe(2);
 
     return $invoice;
-
 })->depends('update third rental agreement cause');
 
 test('pay invoice (full)', function ($invoice) {
@@ -2356,7 +2409,6 @@ test('pay invoice (full)', function ($invoice) {
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED);
 
     return $fulfilmentCustomer;
-
 })->depends('check invoice transactions length');
 
 test('consolidate 2nd recurring bill', function ($fulfilmentCustomer) {
@@ -2383,7 +2435,6 @@ test('consolidate 2nd recurring bill', function ($fulfilmentCustomer) {
     $invoice = $recurringBill->invoices;
 
     return $invoice;
-
 })->depends('pay invoice (full)');
 
 test('pay invoice (half)', function ($invoice) {
@@ -2403,7 +2454,6 @@ test('pay invoice (half)', function ($invoice) {
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED);
 
     return $invoice;
-
 })->depends('consolidate 2nd recurring bill');
 
 test('pay invoice (other half)', function ($invoice) {
@@ -2423,7 +2473,6 @@ test('pay invoice (other half)', function ($invoice) {
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED);
 
     return $fulfilmentCustomer;
-
 })->depends('pay invoice (half)');
 
 test('consolidate 3rd recurring bill', function ($fulfilmentCustomer) {
@@ -2450,7 +2499,6 @@ test('consolidate 3rd recurring bill', function ($fulfilmentCustomer) {
     $invoice = $recurringBill->invoices;
 
     return $invoice;
-
 })->depends('pay invoice (other half)');
 
 test('pay invoice (exceed)', function ($invoice) {
@@ -2474,5 +2522,4 @@ test('pay invoice (exceed)', function ($invoice) {
         ->and($customer->creditTransactions->first()->amount)->toBe("60.00");
 
     return $fulfilmentCustomer;
-
 })->depends('consolidate 3rd recurring bill');

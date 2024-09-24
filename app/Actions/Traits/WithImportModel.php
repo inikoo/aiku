@@ -20,14 +20,21 @@ trait WithImportModel
 {
     use AsAction;
     use WithAttributes;
+
     private string $tmpPath = 'tmp/uploads/';
 
     private bool $isSync = false;
 
+    public function __construct()
+    {
+        if (app()->environment('testing')) {
+            $this->isSync = true;
+        }
+    }
+
     public function rumImport($file, $command): Upload
     {
         return $this->handle($file);
-
     }
 
     public function asController($parent, ActionRequest $request): Upload
@@ -35,6 +42,7 @@ trait WithImportModel
         $request->validate();
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);
+
         return $this->handle($parent, $file);
     }
 
@@ -51,26 +59,27 @@ trait WithImportModel
     public function asCommand(Command $command): int
     {
         $this->isSync = true;
-        $filename    = $command->argument('filename');
-        $newFileName = now()->timestamp . ".xlsx";
+        $filename     = $command->argument('filename');
+        $newFileName  = now()->timestamp.".xlsx";
 
         if ($command->option('g_drive')) {
             $googleDisk = Storage::disk('google');
 
             if (!$googleDisk->exists($filename)) {
                 $command->error("$filename do not found in GDrive");
+
                 return 1;
             }
 
             $content = $googleDisk->get($filename);
             Storage::disk('local')->put("tmp/$newFileName", $content);
-            $filename = "storage/app/tmp/" . $newFileName;
+            $filename = "storage/app/tmp/".$newFileName;
         }
 
-        $file   = ConvertUploadedFile::run($filename);
+        $file = ConvertUploadedFile::run($filename);
         $upload = $this->rumImport($file, $command);
 
-        Storage::disk('local')->delete("tmp/" . $newFileName);
+        Storage::disk('local')->delete("tmp/".$newFileName);
 
         $command->table(
             ['', 'Success', 'Fail'],
