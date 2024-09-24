@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { Head } from "@inertiajs/vue3"
+import { Head, Link } from '@inertiajs/vue3'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import {  } from "@fal"
 import { faCheckCircle, faTimesCircle } from "@fas"
@@ -17,6 +17,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { inject } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import CountUp from 'vue-countup-v3'
+import BackgroundBox from '@/Components/BackgroundBox.vue'
 
 library.add(faCheckCircle, faTimesCircle )
 
@@ -29,6 +30,7 @@ const props = defineProps<{
     title: string
     stats?: {}
 }>()
+
 
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -51,10 +53,18 @@ const locale = inject('locale', aikuLocaleStructure)
         <div>
             <div class="text-xl font-semibold py-1 border-b border-gray-200">Stats</div>
             <dl class="mt-4 grid grid-cols-1 gap-2 lg:gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                <div v-for="(stat, index) in stats" :key="'stat' + index" class="relative overflow-hidden rounded-lg bg-white border border-gray-200 px-4 py-5 shadow-sm sm:p-6 sm:pb-3">
+                <Link
+                    v-for="(stat, index) in stats"
+                    :key="'stat' + index"
+                    :href="route(stat.route.name, stat.route.parameters)"
+                    :style="{color: stat.color}"
+                    class="isolate relative overflow-hidden rounded-lg bg-white hover:bg-gray-100 cursor-pointer border border-gray-200 px-4 py-5 shadow-sm sm:p-6 sm:pb-3"
+                >
+                    <BackgroundBox class="-z-10 opacity-60 absolute top-0 right-0" />
+
                     <dt class="truncate text-sm font-medium text-gray-400">{{ stat.label }}</dt>
                     <dd class="mt-1 text-3xl font-semibold tracking-tight flex gap-x-2 items-center">
-                        <FontAwesomeIcon :icon='stat.icon' class='text-gray-400 text-xl' fixed-width aria-hidden='true' />
+                        <FontAwesomeIcon :icon='stat.icon' class='text-xl' fixed-width aria-hidden='true' />
                         <CountUp
                             :endVal='stat.value'
                             :duration='1.5'
@@ -74,12 +84,12 @@ const locale = inject('locale', aikuLocaleStructure)
                             v-tooltip="capitalize(meta.icon?.tooltip)"
                         >
                             <FontAwesomeIcon :icon="meta.icon?.icon" class="md:opacity-50 group-hover/sub:opacity-100" :class="meta.icon?.class" fixed-width :title="meta.icon?.tooltip" aria-hidden="true" />
-                            <span class="text-gray-400 group-hover/sub:text-gray-700">
-                                {{ locale.number(meta.count) }}
-                            </span>
+                            <div class="group-hover/sub:text-red-700">
+                                {{ locale.number(meta.count) }} {{  }}
+                            </div>
                         </Link>
                     </div>
-                </div>
+                </Link>
             </dl>
         </div>
     </div>

@@ -93,7 +93,6 @@ const isLoading = ref<string | boolean>(false)
                                 {{ locale.number(subData.count) }}
                             </span>
                         </Link>
-                        {{ node.sub_data }}
                     </div>
                 </component>
 

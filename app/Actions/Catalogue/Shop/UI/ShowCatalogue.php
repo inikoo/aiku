@@ -70,25 +70,32 @@ class ShowCatalogue extends OrgAction
                 'stats' => [
                     [
                         'label' => __('Department'),
+                        'route' => [
+                            'name'  => 'grp.profile.visit-logs.index',        // TODO
+                            'parameters'    => 'zzzzzzzz'
+                        ],
                         'icon'  => 'fal fa-folder-tree',
+                        "color" => "#a3e635",
                         'value' => $shop->stats->number_departments,
-                        'meta'  => [
-                            'value' => '+4',
-                            'label' => __('from last month'),
-                        ]
                     ],
                     [
                         'label' => __('Families'),
+                        'route' => [
+                            'name'  => 'grp.profile.visit-logs.index',        // TODO
+                            'parameters'    => 'zzzzzzzz'
+                        ],
                         'icon'  => 'fal fa-folder',
+                        "color" => "#facc15",
                         'value' => $shop->stats->number_families,
-                        'meta'  => [
-                            'value' => '+4',
-                            'label' => __('from last month'),
-                        ]
                     ],
                     [
                         'label' => __('Products'),
+                        'route' => [
+                            'name'  => 'grp.profile.visit-logs.index',        // TODO
+                            'parameters'    => 'zzzzzzzz'
+                        ],
                         'icon'  => 'fal fa-cube',
+                        "color" => "#38bdf8",
                         'value' => $shop->stats->number_products,
                         'metas'  =>  [
                             [
@@ -125,12 +132,13 @@ class ShowCatalogue extends OrgAction
                     ],
                     [
                         'label' => __('Collections'),
+                        'route' => [
+                            'name'  => 'grp.profile.visit-logs.index',        // TODO
+                            'parameters'    => 'zzzzzzzz'
+                        ],
                         'icon'  => 'fal fa-album-collection',
+                        "color" => "#4f46e5",
                         'value' => $shop->stats->number_collections,
-                        'meta'  => [
-                            'value' => '+4',
-                            'label' => __('from last month'),
-                        ]
                     ],
                 ]
 
