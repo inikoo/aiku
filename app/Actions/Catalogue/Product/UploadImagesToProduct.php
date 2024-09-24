@@ -12,7 +12,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Models\Catalogue\Product;
 use App\Models\SysAdmin\Organisation;
-use Illuminate\Support\Collection;
 use Lorisleiva\Actions\ActionRequest;
 
 class UploadImagesToProduct extends OrgAction
@@ -21,11 +20,11 @@ class UploadImagesToProduct extends OrgAction
     use HasWebAuthorisation;
 
 
-    public function asController(Organisation $organisation, Product $product, ActionRequest $request): Collection
+    public function asController(Organisation $organisation, Product $product, ActionRequest $request): void
     {
         $this->scope = $organisation;
         $this->initialisation($organisation, $request);
 
-        return $this->handle($product, 'image', $this->validatedData);
+        $this->handle($product, 'image', $this->validatedData);
     }
 }

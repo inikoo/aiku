@@ -5,13 +5,10 @@
   -->
 
 <script setup lang="ts">
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { ref, onBeforeMount } from "vue"
 import axios from 'axios'
 import Image from '@/Components/Image.vue'
 import { notify } from '@kyvg/vue3-notification'
-import { faSpinnerThird } from '@fad'
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { routeType } from "@/types/route"
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
@@ -21,15 +18,6 @@ import Button from "@/Components/Elements/Buttons/Button.vue"
 import { Images } from "@/types/Images"
 import { router } from '@inertiajs/vue3'
 
-library.add(faSpinnerThird)
-
-// interface Image {
-//     name: string
-//     id: number
-//     thumbnail: Images
-//     size: string
-//     created_at: string
-// }
 
 const props = defineProps<{
     imagesUploadedRoutes: routeType
@@ -116,7 +104,7 @@ const submitSelectedImages = () => {
                     <div class="text-2xl font-semibold">
                         {{ trans('Select images') }} ({{ selectedImages.length }})
                     </div>
-                    <Button label="Select image" @click="() => submitSelectedImages()" :loading="isLoading === 'submitImage'" />
+                    <Button label="Select image" @click="() => submitSelectedImages()" :loading="isLoading === 'submitImage'" :disabled="!selectedImages.length" />
                 </div>
             </div>
 
@@ -157,7 +145,6 @@ const submitSelectedImages = () => {
 
         </template>
         <div v-else class="flex justify-center items-center">
-            <!-- <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin' fixed-width  aria-hidden="true"/> -->
             <LoadingIcon class="text-4xl" />
         </div>
     </div>

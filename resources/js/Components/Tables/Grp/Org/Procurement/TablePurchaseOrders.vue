@@ -9,6 +9,7 @@ import { Link } from '@inertiajs/vue3'
 import Table from '@/Components/Table/Table.vue'
 import { PurchaseOrder } from "@/types/purchase-order"
 import { useFormatTime } from '@/Composables/useFormatTime'
+import Icon from '@/Components/Icon.vue'
 
 defineProps<{
     data: {}
@@ -68,7 +69,7 @@ function AgentRoute(purchaseOrder: PurchaseOrder) {
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: purchaseOrder }">
             <Link :href="PurchaseOrderRoute(purchaseOrder)" class="primaryLink">
-                {{ purchaseOrder['reference'] }}
+                {{ purchaseOrder.reference }}
             </Link>
         </template>
 
@@ -76,6 +77,11 @@ function AgentRoute(purchaseOrder: PurchaseOrder) {
             <Link :href="purchaseOrder.parent_type === 'OrgSupplier' ? SupplierRoute(purchaseOrder) : AgentRoute(purchaseOrder)" class="secondaryLink">
                 {{ purchaseOrder.parent_name }}
             </Link>
+        </template>
+        
+        <template #cell(state)="{ item: purchaseOrder }">
+            <!-- <pre>{{ purchaseOrder }}</pre> -->
+            <Icon :data="purchaseOrder.state_icon" />
         </template>
         
         <template #cell(date)="{ item: purchaseOrder }">

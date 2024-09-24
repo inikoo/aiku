@@ -19,7 +19,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
     (e: 'onFinishUpload'): void
-    (e: 'onSubmitUpload'): void
+    (e: 'onSubmitUpload', clearCallback: Function): void
 }>()
 
 
@@ -51,15 +51,15 @@ const formatSize = (bytes: number) => {
             :multiple="true"
             accept="image/*"
             :maxFileSize="10000000"
-            @upload="emits('onFinishUpload')"
+            @upload=""
             @select="(filess) => modelFiles = filess.files"
             
         >
             <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
                 <div class="flex flex-wrap justify-center items-center flex-1 gap-4">
-                    <Button @click="chooseCallback()" label="Choose" icon="fal fa-images" type="tertiary"></Button>
-                    <Button @click="emits('onSubmitUpload')" label="Upload" icon="fal fa-upload" :loading="isLoading" :disabled="!files || files.length === 0"></Button>
-                    <Button @click="clearCallback()" label="Clear" type="negative" :disabled="!files || files.length === 0"></Button>
+                    <Button @click="chooseCallback()" label="Choose" icon="fal fa-images" type="tertiary" />
+                    <Button @click="emits('onSubmitUpload', clearCallback)" label="Upload" icon="fal fa-upload" :loading="isLoading" :disabled="!files || files.length === 0" />
+                    <Button @click="clearCallback()" label="Clear" type="negative" :disabled="!files || files.length === 0" />
                 </div>
             </template>
 
