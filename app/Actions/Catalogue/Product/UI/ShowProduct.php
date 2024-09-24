@@ -153,19 +153,19 @@ class ShowProduct extends OrgAction
                     fn () => OrderResource::collection(IndexOrders::run($product->asset))
                     : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($product->asset))),
 
-                ProductTabsEnum::CUSTOMERS->value => $this->tab == ProductTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomersResource::collection(IndexCustomers::run($product))
-                    : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run($product))),
+                // ProductTabsEnum::CUSTOMERS->value => $this->tab == ProductTabsEnum::CUSTOMERS->value ?
+                //     fn () => CustomersResource::collection(IndexCustomers::run($product))
+                //     : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run($product))),
 
-                ProductTabsEnum::MAILSHOTS->value => $this->tab == ProductTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotResource::collection(IndexMailshots::run($product))
-                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($product))),
+                // ProductTabsEnum::MAILSHOTS->value => $this->tab == ProductTabsEnum::MAILSHOTS->value ?
+                //     fn () => MailshotResource::collection(IndexMailshots::run($product))
+                //     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($product))),
 
 
             ]
-        )->table(IndexOrders::make()->tableStructure($product->asset, ProductTabsEnum::ORDERS->value))
-            ->table(IndexCustomers::make()->tableStructure($product))
-            ->table(IndexMailshots::make()->tableStructure($product));
+        )->table(IndexOrders::make()->tableStructure($product->asset, ProductTabsEnum::ORDERS->value));
+            // ->table(IndexCustomers::make()->tableStructure($product))
+            // ->table(IndexMailshots::make()->tableStructure($product));
     }
 
     public function jsonResponse(Product $product): ProductsResource

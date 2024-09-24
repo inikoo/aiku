@@ -19,7 +19,7 @@ enum FamilyTabsEnum: string
     case SALES     = 'sales';
 
     case OFFERS    = 'offers';
-    case MAILSHOTS = 'mailshots';
+    // case MAILSHOTS = 'mailshots';
     case HISTORY   = 'history';
     case IMAGES    = 'images';
     case CUSTOMERS = 'customers';
@@ -42,10 +42,10 @@ enum FamilyTabsEnum: string
                 'title' => __('offers'),
                 'icon'  => 'fal fa-tags',
             ],
-            FamilyTabsEnum::MAILSHOTS => [
-                'title' => __('mailshots'),
-                'icon'  => 'fal fa-bullhorn',
-            ],
+            // FamilyTabsEnum::MAILSHOTS => [
+            //     'title' => __('mailshots'),
+            //     'icon'  => 'fal fa-bullhorn',
+            // ],
             FamilyTabsEnum::IMAGES => [
                 'title' => __('images'),
                 'icon'  => 'fal fa-camera-retro',
