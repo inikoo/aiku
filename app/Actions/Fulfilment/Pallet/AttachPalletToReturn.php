@@ -40,18 +40,19 @@ class AttachPalletToReturn extends OrgAction
         return $palletReturn;
     }
 
-    public function attach(PalletReturn $palletReturn, Pallet $pallet): void
+    private function attach(PalletReturn $palletReturn, Pallet $pallet): void
     {
         $palletReturn->pallets()->attach($pallet->id, [
             'quantity_ordered'     => 1,
             'type'                 => 'Pallet'
         ]);
 
-        Pallet::whereIn('id', $pallet->id)->update([
+        $pallet = UpdatePallet::make()->action($pallet, [
             'pallet_return_id' => $palletReturn->id,
-            'status'           => PalletStatusEnum::STORING,
-            'state'            => PalletStateEnum::IN_PROCESS
+            'status' => PalletStatusEnum::STORING,
+            'state'  => PalletStateEnum::IN_PROCESS
         ]);
+
 
         AutoAssignServicesToPalletReturn::run($palletReturn, $pallet);
     }

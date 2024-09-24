@@ -23,8 +23,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\LaravelOptions\Options;
 
-use function Deployer\parse;
-
 class EditProduct extends OrgAction
 {
     use HasCatalogueAuthorisation;
