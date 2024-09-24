@@ -104,6 +104,7 @@ class ShowProduct extends OrgAction
             [
                 'title'       => __('product'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $this->parent,
                     $product,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
@@ -153,19 +154,19 @@ class ShowProduct extends OrgAction
                     fn () => OrderResource::collection(IndexOrders::run($product->asset))
                     : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($product->asset))),
 
-                ProductTabsEnum::CUSTOMERS->value => $this->tab == ProductTabsEnum::CUSTOMERS->value ?
-                    fn () => CustomersResource::collection(IndexCustomers::run($product))
-                    : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run($product))),
+                // ProductTabsEnum::CUSTOMERS->value => $this->tab == ProductTabsEnum::CUSTOMERS->value ?
+                //     fn () => CustomersResource::collection(IndexCustomers::run($product))
+                //     : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run($product))),
 
-                ProductTabsEnum::MAILSHOTS->value => $this->tab == ProductTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotResource::collection(IndexMailshots::run($product))
-                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($product))),
+                // ProductTabsEnum::MAILSHOTS->value => $this->tab == ProductTabsEnum::MAILSHOTS->value ?
+                //     fn () => MailshotResource::collection(IndexMailshots::run($product))
+                //     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($product))),
 
 
             ]
-        )->table(IndexOrders::make()->tableStructure($product->asset, ProductTabsEnum::ORDERS->value))
-            ->table(IndexCustomers::make()->tableStructure($product))
-            ->table(IndexMailshots::make()->tableStructure($product));
+        )->table(IndexOrders::make()->tableStructure($product->asset, ProductTabsEnum::ORDERS->value));
+            // ->table(IndexCustomers::make()->tableStructure($product))
+            // ->table(IndexMailshots::make()->tableStructure($product));
     }
 
     public function jsonResponse(Product $product): ProductsResource
@@ -173,7 +174,7 @@ class ShowProduct extends OrgAction
         return new ProductsResource($product);
     }
 
-    public function getBreadcrumbs(Product $product, string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(Organisation|Shop|Fulfilment|ProductCategory $parent, Product $product, string $routeName, array $routeParameters, $suffix = null): array
     {
         $headCrumb = function (Product $product, array $routeParameters, $suffix, $suffixIndex = '') {
             return [
@@ -295,7 +296,7 @@ class ShowProduct extends OrgAction
             'grp.org.shops.show.catalogue.families.show.products.show' =>
             array_merge(
                 ShowFamily::make()->getBreadcrumbs(
-                    family: $this->parent,
+                    family: $parent,
                     routeName: 'grp.org.shops.show.catalogue.families.show',
                     routeParameters: Arr::only($routeParameters, ['organisation', 'shop', 'family'])
                 ),
@@ -317,7 +318,7 @@ class ShowProduct extends OrgAction
             'grp.org.shops.show.catalogue.departments.show.families.show.products.show' =>
             array_merge(
                 ShowFamily::make()->getBreadcrumbs(
-                    family: $this->parent,
+                    family: $parent,
                     routeName: 'grp.org.shops.show.catalogue.departments.show.families.show',
                     routeParameters: Arr::only($routeParameters, ['organisation', 'shop', 'department', 'family'])
                 ),

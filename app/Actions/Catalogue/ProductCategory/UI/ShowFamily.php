@@ -120,9 +120,9 @@ class ShowFamily extends OrgAction
                 FamilyTabsEnum::CUSTOMERS->value => $this->tab == FamilyTabsEnum::CUSTOMERS->value ?
                     fn () => CustomersResource::collection(IndexCustomers::run(parent : $family->shop, prefix: FamilyTabsEnum::CUSTOMERS->value))
                     : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run(parent : $family->shop, prefix: FamilyTabsEnum::CUSTOMERS->value))),
-                FamilyTabsEnum::MAILSHOTS->value => $this->tab == FamilyTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotResource::collection(IndexMailshots::run($family))
-                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($family))),
+                // FamilyTabsEnum::MAILSHOTS->value => $this->tab == FamilyTabsEnum::MAILSHOTS->value ?
+                //     fn () => MailshotResource::collection(IndexMailshots::run($family))
+                //     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($family))),
 
 
             ]

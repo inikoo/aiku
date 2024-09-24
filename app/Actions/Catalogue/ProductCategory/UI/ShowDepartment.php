@@ -118,20 +118,20 @@ class ShowDepartment extends OrgAction
                             prefix: 'customers'
                         )
                     )),
-                DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value
-                    ?
-                    fn () => MailshotResource::collection(
-                        IndexMailshots::run(
-                            parent: $department,
-                            prefix: 'mailshots'
-                        )
-                    )
-                    : Inertia::lazy(fn () => MailshotResource::collection(
-                        IndexMailshots::run(
-                            parent: $department,
-                            prefix: 'mailshots'
-                        )
-                    )),
+                // DepartmentTabsEnum::MAILSHOTS->value => $this->tab == DepartmentTabsEnum::MAILSHOTS->value
+                //     ?
+                //     fn () => MailshotResource::collection(
+                //         IndexMailshots::run(
+                //             parent: $department,
+                //             prefix: 'mailshots'
+                //         )
+                //     )
+                //     : Inertia::lazy(fn () => MailshotResource::collection(
+                //         IndexMailshots::run(
+                //             parent: $department,
+                //             prefix: 'mailshots'
+                //         )
+                //     )),
 
 
                 DepartmentTabsEnum::HISTORY->value => $this->tab == DepartmentTabsEnum::HISTORY->value ?
@@ -148,12 +148,13 @@ class ShowDepartment extends OrgAction
                 parent: $department->shop,
                 prefix: 'customers'
             )
-        )->table(
-            IndexMailshots::make()->tableStructure(
-                parent: $department->shop,
-                prefix: 'mailshots'
-            )
         )
+        // ->table(
+        //     IndexMailshots::make()->tableStructure(
+        //         parent: $department->shop,
+        //         prefix: 'mailshots'
+        //     )
+        // )
 
             ->table(IndexHistory::make()->tableStructure(prefix: DepartmentTabsEnum::HISTORY->value));
     }

@@ -679,7 +679,7 @@ test('can show catalogue', function (Shop $shop) {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Catalogue/Shop')
+            ->component('Org/Catalogue/Catalogue')
             ->has('breadcrumbs', 3);
     });
 })->depends('create shop');
