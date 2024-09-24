@@ -2,7 +2,7 @@ import type { Component } from 'vue'
 
 //Components
 import Product1 from '@/Components/Websites/Product/ProductTemplates/Product1/Product1Edit.vue'
-import Product2 from '@/Components/Iris/AW/ProductPage1.vue'
+import Product2 from '@/Components/Websites/Product/ProductTemplates/Product2/Product2Edit.vue'
 import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundComponent.vue'
 
 

@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
+use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateStoredItems;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
@@ -17,7 +18,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
-class StoreStoredItemToReturn extends OrgAction
+class AttachStoredItemToReturn extends OrgAction
 {
     use AsCommand;
 
@@ -56,11 +57,13 @@ class StoreStoredItemToReturn extends OrgAction
         $palletReturn->refresh();
 
         PalletReturnHydratePallets::run($palletReturn);
+        PalletReturnHydrateStoredItems::run($palletReturn);
+
 
         return $palletReturn;
     }
 
-    public function attach(PalletReturn $palletReturn, Pallet $pallet, StoredItem $storedItem, $quantityToUse): void
+    private function attach(PalletReturn $palletReturn, Pallet $pallet, StoredItem $storedItem, $quantityToUse): void
     {
         $storedItem->palletReturns()->attach($palletReturn->id, [
             'stored_item_id'       => $storedItem->id,
@@ -69,6 +72,8 @@ class StoreStoredItemToReturn extends OrgAction
             'quantity_ordered'     => $quantityToUse,
             'type'                 => 'StoredItem'
         ]);
+
+
 
     }
 

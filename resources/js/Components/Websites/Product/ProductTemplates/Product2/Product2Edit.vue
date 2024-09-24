@@ -70,7 +70,7 @@ const productData = {
 </script>
 
 <template>
-    <div class="grid grid-cols-11 gap-x-8">
+    <div class="grid grid-cols-11 gap-x-8 p-14">
         <div class="col-span-3">
             <img :src="productData.image" alt="">
         </div>

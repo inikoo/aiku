@@ -2,51 +2,47 @@
 import { ref } from "vue"
 import ProductList from '@/Components/Websites/Product/ProductList'
 
-import { v4 as uuidv4 } from 'uuid'
 import { capitalize } from "@/Composables/capitalize"
 import { Head } from '@inertiajs/vue3'
-import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { useColorTheme } from '@/Composables/useStockList'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
 import Modal from '@/Components/Utils/Modal.vue'
-import { getComponent, getDescriptor } from '@/Components/Websites/Product/Content'
+import { getComponent } from '@/Components/Websites/Product/Content'
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
+import { Splitpanes, Pane } from 'splitpanes'
+import 'splitpanes/dist/splitpanes.css'
 
 
 import { faCube, faChevronLeft, faChevronRight } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-library.add(faCube,faChevronLeft,faChevronRight)
+library.add(faCube, faChevronLeft, faChevronRight)
 
 const props = defineProps<{
-    data : {
-        product : Object
+    data: {
+        product: Object
     }
 }>()
-
-console.log(props)
 
 
 const emits = defineEmits(['update:modelValue', 'autoSave'])
 
-const usedTemplates = ref({data : props.data.product, key : 'product1'})
+const usedTemplates = ref({ data: props.data.product, key: 'product1' })
 const previewMode = ref(false)
 const isModalOpen = ref(false)
-const isLoading = ref(false)
-const comment = ref('')
-const colorThemed = props.data?.color ? props.data?.color : {color : [...useColorTheme[0]]}
+const colorThemed = props.data?.color ? props.data?.color : { color: [...useColorTheme[0]] }
 const option = [
-    {label : 'aku1', value : 'ini1'},
-    {label : 'aku2', value : 'ini2'},
-    {label : 'aku3', value : 'ini3'}
-] 
+    { label: 'aku1', value: 'ini1' },
+    { label: 'aku2', value: 'ini2' },
+    { label: 'aku3', value: 'ini3' }
+]
 const valueSelect = ref('ini1')
 
 
 const onPickTemplate = (header) => {
     isModalOpen.value = false
-    usedTemplates.value = { key: header.key, data : props.data.product }
+    usedTemplates.value = { key: header.key, data: props.data.product }
 }
 
 </script>
@@ -54,49 +50,50 @@ const onPickTemplate = (header) => {
 <template>
 
     <Head :title="capitalize(title)" />
-    <div class="h-screen grid grid-flow-row-dense grid-cols-4">
-        <div class="col-span-1 bg-slate-200 px-3 py-2 flex flex-col justify-between h-full">
-          <div>
-                <div class=" flex justify-end">
-                    <div>
-                        <Button type="tertiary" label="List Templates" size="xs" icon="fas fa-th-large"
-                            @click="isModalOpen = true" />
-                    </div>
+
+<!--     @resized="(a,b,c)=>console.log(a,b,c) -->
+    <splitpanes class="default-theme">
+        <pane min-size="8" max-size="20">
+            <div class="bg-slate-200 px-3 py-2  w-full h-screen">
+                <div class="flex justify-end mb-4">
+                    <Button type="tertiary" label="List Templates" size="xs" icon="fas fa-th-large" @click="isModalOpen = true" />
                 </div>
 
-                <div class="flex items-center mt-4">
-                    <font-awesome-icon :icon="['fas', 'chevron-left']" class="px-4"/>
+                <div class="flex items-center">
+                    <font-awesome-icon :icon="['fas', 'chevron-left']" class="px-4" />
                     <PureMultiselect :options="option" required label="label" valueProp="value" v-model="valueSelect"
                         class="mx-2" />
-                    <font-awesome-icon :icon="['far', 'chevron-right']" class="px-4" />
+                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="px-4" />
                 </div>
             </div>
-            <!-- sideEdit -->
-        </div>
+        </pane>
 
 
-        <div class="bg-gray-100 px-6 py-6 h-full overflow-auto"
-            :class="usedTemplates?.key ? 'col-span-3' : 'col-span-4'">
-            <div :class="usedTemplates?.key ? 'bg-white' : ''">
-                <section v-if="usedTemplates?.key">
-                    <component :is="getComponent(usedTemplates.key)" :previewMode="previewMode"
-                        v-model="usedTemplates.data" :colorThemed="colorThemed" />
-                </section>
-                <section v-else>
-                    <EmptyState
-                        :data="{ description: 'You need pick a template from list', title: 'Pick Header Templates' }">
-                        <template #button-empty-state>
-                            <div class="mt-4 block">
-                                <Button type="secondary" label="Templates" icon="fas fa-th-large"
-                                    @click="isModalOpen = true"></Button>
-                            </div>
-                        </template>
-                    </EmptyState>
-                </section>
-                <DummyCanvas v-if="usedTemplates?.key"></DummyCanvas>
+        <pane>
+            <div class="bg-gray-100 px-6 py-6 h-full overflow-auto"
+                :class="usedTemplates?.key ? 'col-span-3' : 'col-span-4'">
+                <div :class="usedTemplates?.key ? 'bg-white' : ''">
+                    <section v-if="usedTemplates?.key">
+                        <component :is="getComponent(usedTemplates.key)" :previewMode="previewMode"
+                            v-model="usedTemplates.data" :colorThemed="colorThemed" />
+                    </section>
+                    <section v-else>
+                        <EmptyState
+                            :data="{ description: 'You need pick a template from list', title: 'Pick Header Templates' }">
+                            <template #button-empty-state>
+                                <div class="mt-4 block">
+                                    <Button type="secondary" label="Templates" icon="fas fa-th-large"
+                                        @click="isModalOpen = true"></Button>
+                                </div>
+                            </template>
+                        </EmptyState>
+                    </section>
+                    <DummyCanvas v-if="usedTemplates?.key"></DummyCanvas>
+                </div>
             </div>
-        </div>
-    </div>
+        </pane>
+    </splitpanes>
+
     <div class="bg-gray-300 p-4 text-white text-center fixed bottom-5 w-full">
         <div class="flex items-center gap-x-2">
             <Switch @click="previewMode = !previewMode"
@@ -129,3 +126,14 @@ const onPickTemplate = (header) => {
     </Modal>
 
 </template>
+
+
+<style scoped>
+.splitpanes__pane {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    box-shadow: 0 0 3px rgba(0, 0, 0, .2) inset;
+}
+</style>

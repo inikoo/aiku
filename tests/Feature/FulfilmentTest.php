@@ -232,17 +232,17 @@ test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
             'auto_assign_subject_type' => 'pallet'
         ]
     );
-    $service3 = StoreService::make()->action(
+    StoreService::make()->action(
         $fulfilment->shop,
         [
-            'price'                    => 111,
-            'unit'                     => 'job',
-            'code'                     => 'Ser-03',
-            'name'                     => 'Service 3',
-            'is_auto_assign'           => true,
-            'auto_assign_trigger'      => 'PalletReturn',
-            'auto_assign_subject'      => 'Pallet',
-            'auto_assign_subject_type' => 'pallet'
+           'price'                    => 111,
+           'unit'                     => 'job',
+           'code'                     => 'Ser-03',
+           'name'                     => 'Service 3',
+           'is_auto_assign'           => true,
+           'auto_assign_trigger'      => 'PalletReturn',
+           'auto_assign_subject'      => 'Pallet',
+           'auto_assign_subject_type' => 'pallet'
         ]
     );
 
@@ -1353,9 +1353,6 @@ test('import pallets in return (xlsx) again', function (PalletReturn $palletRetu
     return $palletReturn;
 })->depends('import pallets in return (xlsx)');
 
-
-
-
 test('update rental agreement clause again', function (PalletReturn $palletReturn) {
     $rentalAgreement        = $palletReturn->fulfilmentCustomer->rentalAgreement;
     $service                = $palletReturn->services()->first();
@@ -1387,9 +1384,8 @@ test('update rental agreement clause again', function (PalletReturn $palletRetur
     $palletReturn->refresh();
     expect($updatedRentalAgreement->stats->number_rental_agreement_clauses)->toBe(3)
         ->and($updatedRentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
-        ->and($updatedRentalAgreement->stats->number_rental_agreement_clauses_type_service)->toBe(1);
-
-    expect($palletReturn->gross_amount)->not->tobe($palletReturn->net_amount);
+        ->and($updatedRentalAgreement->stats->number_rental_agreement_clauses_type_service)->toBe(1)
+        ->and($palletReturn->gross_amount)->not->tobe($palletReturn->net_amount);
 
     return $rentalAgreement;
 })->depends('import pallets in return (xlsx)');
@@ -1638,7 +1634,7 @@ test('add pallet to third pallet delivery', function (PalletDelivery $palletDeli
     $pallet = StorePalletFromDelivery::make()->action(
         $palletDelivery,
         [
-            'customer_reference' => 'AAAA',
+            'customer_reference' => 'pallet_A123',
             'type'               => PalletTypeEnum::PALLET->value,
         ]
     );
@@ -1707,7 +1703,7 @@ test('create stored item, attach to pallet and delete', function (Pallet $pallet
     $storedItem = StoreStoredItem::make()->action(
         $pallet->fulfilmentCustomer,
         [
-            'reference' => 'stor',
+            'reference' => 'stored_item_A',
         ]
     );
 
@@ -1767,7 +1763,7 @@ test('import pallet (xlsx)', function (PalletDelivery $palletDelivery) {
     $upload = ImportPallet::run($palletDelivery, $file);
     $palletDelivery->refresh();
     expect($upload)->toBeInstanceOf(Upload::class)
-        ->and($upload->numer_rows)->toBe(1)
+        ->and($upload->number_rows)->toBe(1)
         ->and($upload->number_success)->toBe(1)
         ->and($upload->number_fails)->toBe(0)
         ->and($palletDelivery->stats->number_pallets)->toBe(1);
@@ -1797,7 +1793,7 @@ test('import pallet and stored item (xlsx)', function (PalletDelivery $palletDel
     );
 
     expect($upload)->toBeInstanceOf(Upload::class)
-        ->and($upload->numer_rows)->toBe(1)
+        ->and($upload->number_rows)->toBe(1)
         ->and($upload->number_success)->toBe(1)
         ->and($upload->number_fails)->toBe(0);
 
@@ -1818,8 +1814,8 @@ test('create third fulfilment customer', function (Fulfilment $fulfilment) {
         [
             'state'           => CustomerStateEnum::ACTIVE,
             'status'          => CustomerStatusEnum::APPROVED,
-            'contact_name'    => 'storo',
-            'company_name'    => 'storo.o',
+            'contact_name'    => 'John Dow',
+            'company_name'    => 'Acme',
             'interest'        => ['pallets_storage', 'items_storage', 'dropshipping'],
             'contact_address' => Address::factory()->definition(),
 
@@ -1906,7 +1902,7 @@ test('add pallet to fifth pallet delivery', function (PalletDelivery $palletDeli
     $pallet = StorePalletFromDelivery::make()->action(
         $palletDelivery,
         [
-            'customer_reference' => 'AAAA',
+            'customer_reference' => 'A1234',
             'type'               => PalletTypeEnum::PALLET->value,
         ]
     );
@@ -2100,7 +2096,7 @@ test('import stored items (xlsx)', function (PalletReturn $palletReturn) {
     $palletReturn->refresh();
 
     expect($upload)->toBeInstanceOf(Upload::class)
-        ->and($upload->numer_rows)->toBe(2)
+        ->and($upload->number_rows)->toBe(2)
         ->and($upload->number_success)->toBe(2)
         ->and($upload->number_fails)->toBe(0)
         ->and($palletReturn->stats->number_stored_items)->toBe(2);
@@ -2153,7 +2149,7 @@ test('add pallet to sixth pallet delivery', function (PalletDelivery $palletDeli
     $pallet = StorePalletFromDelivery::make()->action(
         $palletDelivery,
         [
-            'customer_reference' => 'GAGAGAG',
+            'customer_reference' => 'RefA',
             'type'               => PalletTypeEnum::PALLET->value,
         ]
     );
@@ -2329,13 +2325,11 @@ test('consolidate recurring bill', function ($fulfilmentCustomer) {
     expect($newRecurringBill)->not->toBe($recurringBill)
         ->and($newRecurringBill)->toBeInstanceOf(RecurringBill::class)
         ->and($newRecurringBill->status)->toBe(RecurringBillStatusEnum::CURRENT)
-        ->and($newRecurringBill->transactions()->count())->toBe(2);
-
-    expect($recurringBill->status)->toBe(RecurringBillStatusEnum::FORMER)
+        ->and($newRecurringBill->transactions()->count())->toBe(2)
+        ->and($recurringBill->status)->toBe(RecurringBillStatusEnum::FORMER)
         ->and($recurringBill->invoices)->not->toBeNull()
-        ->and($recurringBill->invoices)->toBeInstanceOf(Invoice::class);
-
-    expect($fulfilmentCustomer->recurringBills()->count())->toBe(2);
+        ->and($recurringBill->invoices)->toBeInstanceOf(Invoice::class)
+        ->and($fulfilmentCustomer->recurringBills()->count())->toBe(2);
 
     return $fulfilmentCustomer;
 })->depends('check current recurring bill');
@@ -2370,9 +2364,8 @@ test('update third rental agreement cause', function ($fulfilmentCustomer) {
         ->and($rentalAgreement->stats->number_rental_agreement_clauses_type_rental)->toBe(2)
         ->and($rentalAgreement->clauses->first()->percentage_off)->toEqualWithDelta(30, .001)
         ->and($rentalAgreement->clauses->last()->percentage_off)->toEqualWithDelta(50, .001)
-        ->and($rentalAgreement->stats->number_rental_agreement_snapshots)->toBe(2);
-
-    expect($recurringBillTransaction->clause)->not->toBeNull();
+        ->and($rentalAgreement->stats->number_rental_agreement_snapshots)->toBe(2)
+        ->and($recurringBillTransaction->clause)->not->toBeNull();
 
     return $fulfilmentCustomer;
 })->depends('consolidate recurring bill');
@@ -2385,9 +2378,8 @@ test('check invoice transactions length', function ($fulfilmentCustomer) {
     $queryData = $query['data'];
 
     expect($invoice)->toBeInstanceOf(Invoice::class)
-        ->and($invoice->invoiceTransactions()->count())->toBe(4);
-
-    expect(count($queryData))->tobe(2);
+        ->and($invoice->invoiceTransactions()->count())->toBe(4)
+        ->and(count($queryData))->tobe(2);
 
     return $invoice;
 })->depends('update third rental agreement cause');
@@ -2402,9 +2394,8 @@ test('pay invoice (full)', function ($invoice) {
     ]);
     $invoice->refresh();
 
-    expect($invoice->total_amount)->tobe($invoice->payment_amount);
-
-    expect($payment)->toBeInstanceOf(Payment::class)
+    expect($invoice->total_amount)->tobe($invoice->payment_amount)
+        ->and($payment)->toBeInstanceOf(Payment::class)
         ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED);
 
@@ -2424,22 +2415,17 @@ test('consolidate 2nd recurring bill', function ($fulfilmentCustomer) {
     expect($newRecurringBill)->not->toBe($recurringBill)
         ->and($newRecurringBill)->toBeInstanceOf(RecurringBill::class)
         ->and($newRecurringBill->status)->toBe(RecurringBillStatusEnum::CURRENT)
-        ->and($newRecurringBill->transactions()->count())->toBe(2);
-
-    expect($recurringBill->status)->toBe(RecurringBillStatusEnum::FORMER)
+        ->and($newRecurringBill->transactions()->count())->toBe(2)
+        ->and($recurringBill->status)->toBe(RecurringBillStatusEnum::FORMER)
         ->and($recurringBill->invoices)->not->toBeNull()
-        ->and($recurringBill->invoices)->toBeInstanceOf(Invoice::class);
+        ->and($recurringBill->invoices)->toBeInstanceOf(Invoice::class)
+        ->and($fulfilmentCustomer->recurringBills()->count())->toBe(3);
 
-    expect($fulfilmentCustomer->recurringBills()->count())->toBe(3);
-
-    $invoice = $recurringBill->invoices;
-
-    return $invoice;
+    return $recurringBill->invoices;
 })->depends('pay invoice (full)');
 
 test('pay invoice (half)', function ($invoice) {
     $paymentAccount     = $invoice->shop->paymentAccounts()->first();
-    $fulfilmentCustomer = $invoice->customer->fulfilmentCustomer;
     $payment            = PayInvoice::make()->action($invoice, $invoice->customer, $paymentAccount, [
         'amount' => 70,
         'status' => PaymentStatusEnum::SUCCESS->value,
@@ -2447,9 +2433,8 @@ test('pay invoice (half)', function ($invoice) {
     ]);
     $invoice->refresh();
 
-    expect($invoice->total_amount)->not->tobe($invoice->payment_amount);
-
-    expect($payment)->toBeInstanceOf(Payment::class)
+    expect($invoice->total_amount)->not->tobe($invoice->payment_amount)
+        ->and($payment)->toBeInstanceOf(Payment::class)
         ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED);
 
@@ -2466,9 +2451,8 @@ test('pay invoice (other half)', function ($invoice) {
     ]);
     $invoice->refresh();
 
-    expect($invoice->total_amount)->toBe($invoice->payment_amount);
-
-    expect($payment)->toBeInstanceOf(Payment::class)
+    expect($invoice->total_amount)->toBe($invoice->payment_amount)
+        ->and($payment)->toBeInstanceOf(Payment::class)
         ->and($payment->status)->toBe(PaymentStatusEnum::SUCCESS)
         ->and($payment->state)->toBe(PaymentStateEnum::COMPLETED);
 
@@ -2488,17 +2472,13 @@ test('consolidate 3rd recurring bill', function ($fulfilmentCustomer) {
     expect($newRecurringBill)->not->toBe($recurringBill)
         ->and($newRecurringBill)->toBeInstanceOf(RecurringBill::class)
         ->and($newRecurringBill->status)->toBe(RecurringBillStatusEnum::CURRENT)
-        ->and($newRecurringBill->transactions()->count())->toBe(2);
-
-    expect($recurringBill->status)->toBe(RecurringBillStatusEnum::FORMER)
+        ->and($newRecurringBill->transactions()->count())->toBe(2)
+        ->and($recurringBill->status)->toBe(RecurringBillStatusEnum::FORMER)
         ->and($recurringBill->invoices)->not->toBeNull()
-        ->and($recurringBill->invoices)->toBeInstanceOf(Invoice::class);
+        ->and($recurringBill->invoices)->toBeInstanceOf(Invoice::class)
+        ->and($fulfilmentCustomer->recurringBills()->count())->toBe(4);
 
-    expect($fulfilmentCustomer->recurringBills()->count())->toBe(4);
-
-    $invoice = $recurringBill->invoices;
-
-    return $invoice;
+    return $recurringBill->invoices;
 })->depends('pay invoice (other half)');
 
 test('pay invoice (exceed)', function ($invoice) {
@@ -2523,3 +2503,7 @@ test('pay invoice (exceed)', function ($invoice) {
 
     return $fulfilmentCustomer;
 })->depends('consolidate 3rd recurring bill');
+
+test('hydrate pallet return command', function () {
+    $this->artisan('hydrate:pallet-returns  '.$this->organisation->slug)->assertExitCode(0);
+});
