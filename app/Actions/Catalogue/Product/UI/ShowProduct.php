@@ -114,7 +114,7 @@ class ShowProduct extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'   => $product->code,
-                    'model'   => __('product'),
+                    'model'   => '',
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-cube'],
@@ -187,7 +187,7 @@ class ShowProduct extends OrgAction
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],
-                            'label' => $product->slug,
+                            'label' => $product->code,
                         ],
                     ],
                     'suffix'         => $suffix,
@@ -294,7 +294,11 @@ class ShowProduct extends OrgAction
             ),
             'grp.org.shops.show.catalogue.families.show.products.show' =>
             array_merge(
-                ShowFamily::make()->getBreadcrumbs('grp.org.shops.show.catalogue.families.show', Arr::only($routeParameters, ['organisation', 'shop', 'family'])),
+                ShowFamily::make()->getBreadcrumbs(
+                    family: $this->parent,
+                    routeName: 'grp.org.shops.show.catalogue.families.show',
+                    routeParameters: Arr::only($routeParameters, ['organisation', 'shop', 'family'])
+                ),
                 $headCrumb(
                     $product,
                     [
@@ -312,7 +316,11 @@ class ShowProduct extends OrgAction
             ),
             'grp.org.shops.show.catalogue.departments.show.families.show.products.show' =>
             array_merge(
-                ShowFamily::make()->getBreadcrumbs('grp.org.shops.show.catalogue.departments.show.families.show', Arr::only($routeParameters, ['organisation', 'shop', 'department', 'family'])),
+                ShowFamily::make()->getBreadcrumbs(
+                    family: $this->parent,
+                    routeName: 'grp.org.shops.show.catalogue.departments.show.families.show',
+                    routeParameters: Arr::only($routeParameters, ['organisation', 'shop', 'department', 'family'])
+                ),
                 $headCrumb(
                     $product,
                     [

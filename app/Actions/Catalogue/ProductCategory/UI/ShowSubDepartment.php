@@ -68,7 +68,7 @@ class ShowSubDepartment extends OrgAction
         return Inertia::render(
             'Org/Catalogue/Department',
             [
-                'title'       => __('sub department'),
+                'title'       => __('Sub-department'),
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
@@ -79,10 +79,10 @@ class ShowSubDepartment extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'     => $subDepartment->name,
-                    'model'     => __('Sub Department'),
+                    'model'     => __('Sub-department'),
                     'icon'      => [
                         'icon'  => ['fal', 'fa-folder-tree'],
-                        'title' => __('Sub Department')
+                        'title' => __('Sub-department')
                     ],
                     'actions' => [
                         $this->canEdit ? [
@@ -183,7 +183,7 @@ class ShowSubDepartment extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('Sub departments')
+                            'label' => __('Sub-departments')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

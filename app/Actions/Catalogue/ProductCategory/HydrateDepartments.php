@@ -28,7 +28,7 @@ class HydrateDepartments extends HydrateModel
         //ProductCategoryHydrateSales::run($productCategory);
     }
 
-    protected function getModel(string $slug): ProductCategory
+    protected function getModel(string $slug): ProductCategory|null
     {
         return ProductCategory::where('slug', $slug)->where('type', ProductCategoryTypeEnum::DEPARTMENT)->first();
     }

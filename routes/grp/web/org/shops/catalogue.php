@@ -108,7 +108,7 @@ Route::name("departments.")->prefix('departments')
                 Route::get('edit/{product}', [EditProduct::class, 'inDepartment'])->name('edit');
             });
             Route::prefix('sub-departments')->name('.sub-departments.')->group(function () {
-                Route::get('', [IndexSubDepartment::class, 'inDepartment'])->name('index');
+                Route::get('', IndexSubDepartment::class)->name('index');
                 Route::get('create', [CreateSubDepartment::class, 'inDepartment'])->name('create');
                 Route::get('edit/{subDepartment}', [EditSubDepartment::class, 'inDepartment'])->name('edit');
                 Route::get('{subDepartment}', [ShowSubDepartment::class, 'inDepartment'])->name('show');

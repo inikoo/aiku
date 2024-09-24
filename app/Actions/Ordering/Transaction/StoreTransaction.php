@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:33:32 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:33:32 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -35,7 +35,6 @@ class StoreTransaction extends OrgAction
         data_set($modelData, 'model_id', $historicAsset->asset->model_id);
 
 
-
         $net   = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
         $gross = $historicAsset->price * Arr::get($modelData, 'quantity_ordered');
 
@@ -55,8 +54,6 @@ class StoreTransaction extends OrgAction
 
 
         $modelData = $this->processExchanges($modelData, $order->shop);
-
-
 
 
         /** @var Transaction $transaction */
@@ -88,29 +85,27 @@ class StoreTransaction extends OrgAction
             'grp_exchange'        => ['sometimes', 'numeric'],
             'org_net_amount'      => ['sometimes', 'numeric'],
             'grp_net_amount'      => ['sometimes', 'numeric'],
-            'created_at'          => ['sometimes', 'required', 'date'],
             'tax_category_id'     => ['sometimes', 'required', 'exists:tax_categories,id'],
             'date'                => ['sometimes', 'required', 'date'],
             'submitted_at'        => ['sometimes', 'required', 'date'],
-            'fetched_at'          => ['sometimes', 'required', 'date'],
         ];
 
         if (!$this->strict) {
-
             $rules['in_warehouse_at'] = ['sometimes', 'required', 'date'];
-            $rules['source_alt_id']   = ['sometimes', 'string','max:255'];
-            $rules['source_id']       = ['sometimes', 'string','max:255'];
+            $rules['source_alt_id']   = ['sometimes', 'string', 'max:255'];
+            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
+            $rules['created_at']      = ['sometimes', 'required', 'date'];
+            $rules['fetched_at']      = ['sometimes', 'required', 'date'];
         }
-
 
         return $rules;
     }
 
     public function action(Order $order, HistoricAsset $historicAsset, array $modelData, bool $strict = true): Transaction
     {
-
         $this->strict = $strict;
         $this->initialisationFromShop($order->shop, $modelData);
+
         return $this->handle($order, $historicAsset, $this->validatedData);
     }
 

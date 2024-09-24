@@ -78,9 +78,9 @@ class CreateSubDepartment extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('New Sub Department'),
+                'title'       => __('New Sub-department'),
                 'pageHead'    => [
-                    'title'        => __('new sub department'),
+                    'title'        => __('new Sub-department'),
                     'actions'      => [
                         [
                             'type'  => 'button',
@@ -101,7 +101,7 @@ class CreateSubDepartment extends OrgAction
                     'blueprint' =>
                         [
                             [
-                                'title'  => __('sub department'),
+                                'title'  => __('Sub-department'),
                                 'fields' => [
                                     'type' => [
                                         'type'     => 'select',
@@ -164,7 +164,7 @@ class CreateSubDepartment extends OrgAction
                 [
                     'type'         => 'creatingModel',
                     'creatingModel' => [
-                        'label' => __('Creating sub department'),
+                        'label' => __('Creating Sub-department'),
                     ]
                 ]
             ]

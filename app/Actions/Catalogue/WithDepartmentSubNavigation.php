@@ -45,19 +45,19 @@ trait WithDepartmentSubNavigation
                     'parameters' => [$this->organisation->slug, $department->shop->slug, $department->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-folder'],
+                    'icon'    => ['fal', 'fa-cube'],
                     'tooltip' => __('products')
                 ]
             ],
             [
-                'label'    => __('Sub departments'),
+                'label'    => __('Sub-departments'),
                 'number'   => $department->stats->number_sub_departments,
                 'href'     => [
                     'name'       => 'grp.org.shops.show.catalogue.departments.show.sub-departments.index',
                     'parameters' => [$this->organisation->slug, $department->shop->slug, $department->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-folders'],
+                    'icon'    => ['fal', 'fa-dot-circle'],
                     'tooltip' => __('sub-departments')
                 ]
             ],

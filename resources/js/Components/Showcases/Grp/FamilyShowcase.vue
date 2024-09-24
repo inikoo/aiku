@@ -19,9 +19,9 @@ const product = props.data.data;
 <template>
     <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-2  xl:grid-cols-3 gap-4 ">
         <div class="m-auto">
-            <img :src="route('grp.media.show',family.image_id)" alt="product main image"
-                 class=" sm:max-w-xs  md:max-w lg:h-64 "
-            />
+<!--            <img :src="route('grp.media.show',family.image_id)" alt="product main image"-->
+<!--                 class=" sm:max-w-xs  md:max-w lg:h-64 "-->
+<!--            />-->
         </div>
         <table class="lg:mr-6 lg:ml-0 md:ml-28 md:mr-28">
             <tr>
@@ -79,7 +79,7 @@ const product = props.data.data;
         <table class="table-auto lg:ml-10 lg:mr-6 md:ml-28 md:mr-28">
             <tbody>
             <tr>
-                <td class="px-1 border-b border-t border-gray-200">Active</td>
+                <td class="px-1 border-b border-t border-gray-200">{{data.family.data.state}}</td>
                 <td class="px-1 border-b border-t border-gray-200">Online</td>
             </tr>
             <tr>
@@ -106,22 +106,5 @@ const product = props.data.data;
         </table>
 
     </div>
-<!--
-    <table class="table-auto">
-        <tbody>
-        <tr>
-            <td class="px-1">Primera fila</td>
-        </tr>
-        <tr>
-            <td class="px-1">Segunda fila</td>
-        </tr>
-        <tr>
-            <td class="px-1">Tercera fila</td>
-        </tr>
-        <tr>
-            <td class="px-1">Cuarta fila</td>
-        </tr>
-        </tbody>
-    </table>
--->
+
 </template>

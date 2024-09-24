@@ -17,7 +17,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class IndexProducts extends RetinaAction
+class IndexDropshippingRetinaProducts extends RetinaAction
 {
     public function authorize(ActionRequest $request): bool
     {

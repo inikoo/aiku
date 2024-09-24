@@ -133,8 +133,8 @@ class ShowCustomerClient extends OrgAction
 
                 /*
                 CustomerTabsEnum::PRODUCTS->value => $this->tab == CustomerTabsEnum::PRODUCTS->value ?
-                    fn () => ProductsResource::collection(IndexProducts::run($customer))
-                    : Inertia::lazy(fn () => ProductsResource::collection(IndexProducts::run($customer))),
+                    fn () => ProductsResource::collection(IndexDropshippingRetinaProducts::run($customer))
+                    : Inertia::lazy(fn () => ProductsResource::collection(IndexDropshippingRetinaProducts::run($customer))),
                 */
 
                 // CustomerTabsEnum::DISPATCHED_EMAILS->value => $this->tab == CustomerTabsEnum::DISPATCHED_EMAILS->value ?
@@ -149,7 +149,7 @@ class ShowCustomerClient extends OrgAction
             ]
         );
         // ->table(IndexOrders::make()->tableStructure($customer))
-        //     //    ->table(IndexProducts::make()->tableStructure($customer))
+        //     //    ->table(IndexDropshippingRetinaProducts::make()->tableStructure($customer))
         //     ->table(IndexDispatchedEmails::make()->tableStructure($customer))
         //     ->table(
         //         IndexWebUsers::make()->tableStructure(

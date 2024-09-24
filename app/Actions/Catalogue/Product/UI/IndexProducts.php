@@ -82,7 +82,7 @@ class IndexProducts extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Product::class);
-
+        $queryBuilder->where('products.is_main', true);
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('products.shop_id', $parent->id);
             if ($bucket == 'current') {
@@ -219,19 +219,23 @@ class IndexProducts extends OrgAction
                         ],
                         'Shop' => [
                             'title' => match ($bucket) {
-                                'in_process'   => __("There is no products in process"),
+                                'in_process' => __("There is no products in process"),
                                 'discontinued' => __('There is no discontinued products'),
-                                default        => __("No products found"),
+                                default => __("No products found"),
                             },
 
 
                             'count' => match ($bucket) {
-                                'current'      => $parent->stats->number_current_products,
-                                'in_process'   => $parent->stats->number_products_state_in_process,
+                                'current' => $parent->stats->number_current_products,
+                                'in_process' => $parent->stats->number_products_state_in_process,
                                 'discontinued' => $parent->stats->number_products_state_discontinued,
-                                default        => $parent->stats->number_products,
+                                default => $parent->stats->number_products,
                             }
 
+                        ],
+                        'ProductCategory' => [
+                            'title' => $this->parent->type == ProductCategoryTypeEnum::DEPARTMENT ? __("There is no families in this department") : __("There is no products in this family"),
+                            'count' => $this->parent->stats->number_products
                         ],
                         default => null
                     }
@@ -352,10 +356,23 @@ class IndexProducts extends OrgAction
         if ($this->parent instanceof ProductCategory) {
             if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 $title      = $this->parent->name;
-                $model      = __('department');
+                $model      = '';
                 $icon       = [
                     'icon'  => ['fal', 'fa-folder-tree'],
                     'title' => __('Department')
+                ];
+                $iconRight  = [
+                    'icon' => 'fal fa-cube',
+                ];
+                $afterTitle = [
+                    'label' => __('Products')
+                ];
+            } elseif ($this->parent->type == ProductCategoryTypeEnum::FAMILY) {
+                $title      = $this->parent->name;
+                $model      = '';
+                $icon       = [
+                    'icon'  => ['fal', 'fa-folder'],
+                    'title' => __('Family')
                 ];
                 $iconRight  = [
                     'icon' => 'fal fa-cube',
@@ -378,7 +395,7 @@ class IndexProducts extends OrgAction
                 'label' => __('Products')
             ];
         } elseif ($this->parent instanceof Shop) {
-            $model = __('catalogue');
+            $model = '';
         }
         $routes = null;
         if ($this->parent instanceof Collection) {
@@ -423,7 +440,7 @@ class IndexProducts extends OrgAction
                         $this->canEdit
                         && class_basename(
                             $this->parent
-                        )                      == 'ProductCategory'
+                        ) == 'ProductCategory'
                         && $this->parent->type == ProductCategoryTypeEnum::FAMILY ? [
                             'type'    => 'button',
                             'style'   => 'create',
@@ -494,6 +511,7 @@ class IndexProducts extends OrgAction
         return $this->handle(parent: $department, bucket: $this->bucket);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function inCollection(Organisation $organisation, Shop $shop, Collection $collection, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
@@ -621,6 +639,7 @@ class IndexProducts extends OrgAction
             'grp.org.shops.show.catalogue.departments.show.families.show.products.index' =>
             array_merge(
                 ShowFamily::make()->getBreadcrumbs(
+                    $this->parent,
                     'grp.org.shops.show.catalogue.departments.show.families.show',
                     $routeParameters
                 ),
@@ -636,6 +655,7 @@ class IndexProducts extends OrgAction
             'grp.org.shops.show.catalogue.families.show.products.index' =>
             array_merge(
                 ShowFamily::make()->getBreadcrumbs(
+                    $this->parent,
                     'grp.org.shops.show.catalogue.families.show',
                     $routeParameters
                 ),

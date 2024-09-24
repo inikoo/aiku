@@ -187,8 +187,8 @@ class ShowCustomer extends OrgAction
 
                 /*
                 $tabs::PRODUCTS->value => $this->tab == $tabs::PRODUCTS->value ?
-                    fn () => ProductsResource::collection(IndexProducts::run($customer))
-                    : Inertia::lazy(fn () => ProductsResource::collection(IndexProducts::run($customer))),
+                    fn () => ProductsResource::collection(IndexDropshippingRetinaProducts::run($customer))
+                    : Inertia::lazy(fn () => ProductsResource::collection(IndexDropshippingRetinaProducts::run($customer))),
                 */
 
                 $tabs::DISPATCHED_EMAILS->value => $this->tab == $tabs::DISPATCHED_EMAILS->value ?
@@ -198,7 +198,7 @@ class ShowCustomer extends OrgAction
 
             ]
         )->table(IndexOrders::make()->tableStructure($customer))
-            //    ->table(IndexProducts::make()->tableStructure($customer))
+            //    ->table(IndexDropshippingRetinaProducts::make()->tableStructure($customer))
             ->table(IndexDispatchedEmails::make()->tableStructure($customer));
 
     }

@@ -33,19 +33,19 @@ trait WithStoreInvoiceTransaction
 
     public function getRules(): array
     {
-        $rules =  [
+        $rules = [
             'date'            => ['sometimes', 'required', 'date'],
             'tax_category_id' => ['required', 'exists:tax_categories,id'],
             'quantity'        => ['required', 'numeric'],
             'gross_amount'    => ['required', 'numeric'],
             'net_amount'      => ['required', 'numeric'],
-            'source_id'       => ['sometimes', 'required', 'string'],
             'org_exchange'    => ['sometimes', 'numeric'],
             'grp_exchange'    => ['sometimes', 'numeric'],
 
         ];
 
         if (!$this->strict) {
+            $rules['source_id']     = ['sometimes', 'string', 'max:255'];
             $rules['source_alt_id'] = ['sometimes', 'string', 'max:255'];
             $rules['fetched_at']    = ['sometimes', 'required', 'date'];
             $rules['created_at']    = ['sometimes', 'required', 'date'];

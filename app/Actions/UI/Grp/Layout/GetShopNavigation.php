@@ -19,18 +19,10 @@ class GetShopNavigation
     {
         $navigation = [];
 
-        $number = rand(-100, 100);
-
-        if ($number > 0) {
-            $icon = ['fal', 'fa-chart-line'];
-        } else {
-            $icon = ['fal', 'fa-chart-line-down'];
-        }
-
         $navigation['dashboard'] = [
             'root'  => 'grp.org.shops.show.dashboard',
-            'label' => __('Dashboard'),
-            'icon'  => $icon,
+            'label' => __('Shop'),
+            'icon'  => 'fal fa-store-alt',
 
             'route' => [
                 'name'       => 'grp.org.shops.show.dashboard',
@@ -46,7 +38,7 @@ class GetShopNavigation
 
             $navigation["catalogue"] = [
                 "root"  => "grp.org.shops.show.catalogue.",
-                "icon"  => ["fal", "fa-cube"],
+                "icon"  => ["fal", "fa-books"],
                 "label" => __("catalogue"),
                 "route" => [
                     "name"       => 'grp.org.shops.show.catalogue.dashboard',
@@ -55,8 +47,8 @@ class GetShopNavigation
                 "topMenu" => [
                     "subSections" => [
                         [
-                            "tooltip" => __("shop"),
-                            "icon"    => ["fal", "fa-store-alt"],
+                            "tooltip" => __("catalogue"),
+                            "icon"    => ["fal", "fa-books"],
                             'root'    => 'grp.org.shops.show.catalogue.dashboard',
                             "route"   => [
                                 "name"       => 'grp.org.shops.show.catalogue.dashboard',
@@ -96,7 +88,7 @@ class GetShopNavigation
                         [
                             "label"   => __("collections"),
                             "tooltip" => __("Collections"),
-                            "icon"    => ["fal", "fa-cube"],
+                            "icon"    => ["fal", "fa-album-collection"],
                             'root'    => 'grp.org.shops.show.catalogue.collections.',
                             "route"   => [
                                 "name"       => "grp.org.shops.show.catalogue.collections.index",
@@ -451,7 +443,7 @@ class GetShopNavigation
             $navigation['setting'] = [
                 "root"    => "grp.org.shops.show.settings.",
                 "icon"    => ["fal", "fa-sliders-h"],
-                "label"   => __("Setting"),
+                "label"   => __("Settings"),
                 "route"   => [
                     "name"       => 'grp.org.shops.show.settings.edit',
                     "parameters" => [$shop->organisation->slug, $shop->slug],

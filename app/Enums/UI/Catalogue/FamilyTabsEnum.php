@@ -17,23 +17,17 @@ enum FamilyTabsEnum: string
 
     case SHOWCASE  = 'showcase';
     case SALES     = 'sales';
-    case CUSTOMERS = 'customers';
+
     case OFFERS    = 'offers';
     case MAILSHOTS = 'mailshots';
     case HISTORY   = 'history';
     case IMAGES    = 'images';
-    case PRODUCTS  = 'products';
-
+    case CUSTOMERS = 'customers';
 
     public function blueprint(): array
     {
         return match ($this) {
-            FamilyTabsEnum::PRODUCTS => [
-                'title' => __('products'),
-                'icon'  => 'fal fa-cube',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
+
             FamilyTabsEnum::SALES => [
                 'title' => __('sales'),
                 'icon'  => 'fal fa-money-bill-wave',
@@ -41,6 +35,8 @@ enum FamilyTabsEnum: string
             FamilyTabsEnum::CUSTOMERS => [
                 'title' => __('customers'),
                 'icon'  => 'fal fa-user',
+                'type'  => 'icon',
+                'align' => 'right',
             ],
             FamilyTabsEnum::OFFERS => [
                 'title' => __('offers'),
@@ -63,8 +59,8 @@ enum FamilyTabsEnum: string
                 'align' => 'right',
             ],
             FamilyTabsEnum::SHOWCASE => [
-                'title' => __('family'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('overview'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
         };
     }

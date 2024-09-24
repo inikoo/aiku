@@ -35,7 +35,7 @@ const keyTemplate = uuidv4()
 <template>
     <div class="relative">
         <ScreenWarning v-if="layout.app.environment === 'staging'" />
-        <div v-if="false" class="container max-w-7xl mx-auto shadow-xl">
+        <div  class="container max-w-7xl mx-auto shadow-xl">
             <!-- <IrisHeader :data="header" /> -->
             <IrisHeader :data="header" :colorThemed="colorThemed"/>
 
@@ -51,10 +51,10 @@ const keyTemplate = uuidv4()
             <Footer :data="footer" :colorThemed="colorThemed"/>
         </div>
 
-        <div class="flex flex-col gap-y-4 divide-y-1 divide-gray-500 mx-auto max-w-7xl py-16" >
+        <!-- <div class="flex flex-col gap-y-4 divide-y-1 divide-gray-500 mx-auto max-w-7xl py-16" >
             <ProductPage1 />
             <FamilyPage1 />
-        </div>
+        </div> -->
     </div>
 
     <!-- Global declaration: Notification -->

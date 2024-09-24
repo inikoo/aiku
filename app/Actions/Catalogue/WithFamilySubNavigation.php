@@ -45,10 +45,29 @@ trait WithFamilySubNavigation
                 'parameters' => $routeParameters
             ];
         } elseif ($parent->type == ProductCategoryTypeEnum::FAMILY) {
-            $productRoute = [
-                'name'       => 'grp.org.shops.show.catalogue.families.show.products.index',
-                'parameters' => $routeParameters
-            ];
+
+
+            if ($request->route()->getName() == 'grp.org.shops.show.catalogue.departments.show.families.show.products.index') {
+                $familyRoute  = [
+                    'name'       => 'grp.org.shops.show.catalogue.departments.show.families.show',
+                    'parameters' => $routeParameters
+                ];
+                $productRoute = [
+                    'name'       => 'grp.org.shops.show.catalogue.departments.show.families.show.products.index',
+                    'parameters' => $routeParameters
+                ];
+            } else {
+                $familyRoute  = [
+                    'name'       => 'grp.org.shops.show.catalogue.families.show',
+                    'parameters' => $routeParameters
+                ];
+                $productRoute = [
+                    'name'       => 'grp.org.shops.show.catalogue.families.show.products.index',
+                    'parameters' => $routeParameters
+                ];
+            }
+
+
         } elseif ($parent instanceof Shop) {
             $productRoute = [
                 'name'       => 'grp.org.shops.show.catalogue.families.show.products.index',

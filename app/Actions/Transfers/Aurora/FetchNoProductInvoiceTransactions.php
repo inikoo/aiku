@@ -39,7 +39,6 @@ class FetchNoProductInvoiceTransactions
                 dd($invoiceTransactionData['type']);
             }
 
-
             return $invoiceTransaction;
         }
 
@@ -53,6 +52,7 @@ class FetchNoProductInvoiceTransactions
             $invoiceTransaction = UpdateInvoiceTransaction::make()->action(
                 invoiceTransaction: $invoiceTransaction,
                 modelData: $invoiceTransactionData['transaction'],
+                strict: false
             );
         } else {
             $invoiceTransaction = StoreInvoiceTransactionFromAdjustment::make()->action(
@@ -63,9 +63,9 @@ class FetchNoProductInvoiceTransactions
             );
 
             $sourceData = explode(':', $invoiceTransaction->source_alt_id);
-            DB::connection('aurora')->table('Order Transaction Fact')
-                ->where('Order Transaction Fact Key', $sourceData[1])
-                ->update(['aiku_id' => $invoiceTransaction->id]);
+            DB::connection('aurora')->table('Order No Product Transaction Fact')
+                ->where('Order No Product Transaction Fact Key', $sourceData[1])
+                ->update(['aiku_invoice_id' => $invoiceTransaction->id]);
         }
 
         return $invoiceTransaction;
@@ -77,6 +77,7 @@ class FetchNoProductInvoiceTransactions
             $invoiceTransaction = UpdateInvoiceTransaction::make()->action(
                 invoiceTransaction: $invoiceTransaction,
                 modelData: $invoiceTransactionData['transaction'],
+                strict: false
             );
         } else {
             $invoiceTransaction = StoreInvoiceTransactionFromShipping::make()->action(
@@ -86,9 +87,9 @@ class FetchNoProductInvoiceTransactions
             );
 
             $sourceData = explode(':', $invoiceTransaction->source_alt_id);
-            DB::connection('aurora')->table('Order Transaction Fact')
-                ->where('Order Transaction Fact Key', $sourceData[1])
-                ->update(['aiku_id' => $invoiceTransaction->id]);
+            DB::connection('aurora')->table('Order No Product Transaction Fact')
+                ->where('Order No Product Transaction Fact Key', $sourceData[1])
+                ->update(['aiku_invoice_id' => $invoiceTransaction->id]);
         }
 
         return $invoiceTransaction;
@@ -100,6 +101,7 @@ class FetchNoProductInvoiceTransactions
             $invoiceTransaction = UpdateInvoiceTransaction::make()->action(
                 invoiceTransaction: $invoiceTransaction,
                 modelData: $invoiceTransactionData['transaction'],
+                strict: false
             );
         } else {
             $invoiceTransaction = StoreInvoiceTransactionFromCharge::make()->action(
@@ -109,9 +111,9 @@ class FetchNoProductInvoiceTransactions
             );
 
             $sourceData = explode(':', $invoiceTransaction->source_alt_id);
-            DB::connection('aurora')->table('Order Transaction Fact')
-                ->where('Order Transaction Fact Key', $sourceData[1])
-                ->update(['aiku_id' => $invoiceTransaction->id]);
+            DB::connection('aurora')->table('Order No Product Transaction Fact')
+                ->where('Order No Product Transaction Fact Key', $sourceData[1])
+                ->update(['aiku_invoice_id' => $invoiceTransaction->id]);
         }
 
         return $invoiceTransaction;

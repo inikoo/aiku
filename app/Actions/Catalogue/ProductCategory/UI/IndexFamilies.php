@@ -8,7 +8,7 @@
 namespace App\Actions\Catalogue\ProductCategory\UI;
 
 use App\Actions\Catalogue\Collection\UI\ShowCollection;
-use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\OrgAction;
@@ -70,7 +70,6 @@ class IndexFamilies extends OrgAction
 
         return $this->handle(parent: $shop);
     }
-
 
     public function handle(Shop|ProductCategory|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
     {
@@ -142,7 +141,7 @@ class IndexFamilies extends OrgAction
             ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
             ->where('product_categories.type', ProductCategoryTypeEnum::FAMILY)
             ->leftjoin('product_categories as departments', 'departments.id', 'product_categories.department_id')
-            ->allowedSorts(['code', 'name', 'shop_code', 'department_code'])
+            ->allowedSorts(['code', 'name', 'shop_code', 'department_code','number_current_products'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -239,7 +238,7 @@ class IndexFamilies extends OrgAction
 
 
         $title = __('families');
-        $model = __('family');
+        $model = '';
         $icon  = [
             'icon'  => ['fal', 'fa-folder'],
             'title' => __('family')
@@ -250,7 +249,7 @@ class IndexFamilies extends OrgAction
         if ($this->parent instanceof ProductCategory) {
             if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 $title = $this->parent->name;
-                $model = __('department');
+                $model = '';
                 $icon  = [
                     'icon'  => ['fal', 'fa-folder-tree'],
                     'title' => __('department')
@@ -365,7 +364,7 @@ class IndexFamilies extends OrgAction
 
         return match ($routeName) {
             'grp.org.shops.show.catalogue.families.index' => array_merge(
-                ShowShop::make()->getBreadcrumbs($routeParameters),
+                ShowCatalogue::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,

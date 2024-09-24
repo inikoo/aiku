@@ -73,6 +73,7 @@ class EditFamily extends OrgAction
             [
                 'title'       => __('family'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $family,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -129,9 +130,10 @@ class EditFamily extends OrgAction
     }
 
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(ProductCategory $family, string $routeName, array $routeParameters): array
     {
         return ShowFamily::make()->getBreadcrumbs(
+            $family,
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('Editing').')'

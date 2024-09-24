@@ -71,21 +71,13 @@ class ShowShop extends OrgAction
                         'icon'  => 'fal fa-store-alt'
                     ],
                     'actions' => [
-                        [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('website'),
-                            'route' => [
-                                'name'       => 'grp.org.shops.show.web.websites.create',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-
-                        ],
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
+                            'label' => __('settings'),
+                            'icon'  => 'fal fa-sliders-h',
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'name'       => 'grp.org.shops.show.settings.edit',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
@@ -199,41 +191,6 @@ class ShowShop extends OrgAction
         return new ShopResource($shop);
     }
 
-    public function getPrevious(Shop $shop, ActionRequest $request): ?array
-    {
-        $previous = Shop::where('code', '<', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code', 'desc')->first();
-
-        return $this->getNavigation($previous, $request->route()->getName());
-    }
-
-    public function getNext(Shop $shop, ActionRequest $request): ?array
-    {
-        $next = Shop::where('code', '>', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code')->first();
-
-        return $this->getNavigation($next, $request->route()->getName());
-    }
-
-    private function getNavigation(?Shop $shop, string $routeName): ?array
-    {
-        if (!$shop) {
-            return null;
-        }
-
-        return match ($routeName) {
-            'grp.org.shops.show' => [
-                'label' => $shop->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'organisation' => $this->organisation->slug,
-                        'shop'        => $shop->slug
-                    ]
-
-                ]
-            ]
-        };
-    }
-
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
 
@@ -256,7 +213,7 @@ class ShowShop extends OrgAction
                             ],
                             'model' => [
                                 'route' => [
-                                    'name'       => 'grp.org.shops.show',
+                                    'name'       => 'grp.org.shops.show.dashboard',
                                     'parameters' => Arr::only($routeParameters, ['organisation','shop'])
                                 ],
                                 'label' => $shop->code,
@@ -271,4 +228,41 @@ class ShowShop extends OrgAction
             );
 
     }
+
+    public function getPrevious(Shop $shop, ActionRequest $request): ?array
+    {
+        $previous = Shop::where('code', '<', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code', 'desc')->first();
+
+        return $this->getNavigation($previous, $request->route()->getName());
+    }
+
+    public function getNext(Shop $shop, ActionRequest $request): ?array
+    {
+        $next = Shop::where('code', '>', $shop->code)->where('organisation_id', $this->organisation->id)->orderBy('code')->first();
+
+        return $this->getNavigation($next, $request->route()->getName());
+    }
+
+    private function getNavigation(?Shop $shop, string $routeName): ?array
+    {
+        if (!$shop) {
+            return null;
+        }
+
+        return match ($routeName) {
+            'grp.org.shops.show.dashboard' => [
+                'label' => $shop->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'shop'        => $shop->slug
+                    ]
+
+                ]
+            ]
+        };
+    }
+
+
 }

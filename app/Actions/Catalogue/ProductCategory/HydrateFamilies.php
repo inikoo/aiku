@@ -24,7 +24,7 @@ class HydrateFamilies extends HydrateModel
         //ProductCategoryHydrateSales::run($productCategory);
     }
 
-    protected function getModel(string $slug): ProductCategory
+    protected function getModel(string $slug): ?ProductCategory
     {
         return ProductCategory::where('slug', $slug)->where('type', ProductCategoryTypeEnum::FAMILY)->first();
     }

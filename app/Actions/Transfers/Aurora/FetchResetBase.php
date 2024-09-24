@@ -20,7 +20,7 @@ class FetchResetBase
     use WithAttributes;
     use HasFetchReset;
 
-    public string $commandSignature = 'fetch:reset_base {organisations?*}  {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:reset_base {organisations?*} {--d|db_suffix=}';
     private int $timeStart;
     private int $timeLastStep;
 
@@ -217,13 +217,33 @@ class FetchResetBase
 
 
                 DB::connection('aurora')->table('Order Dimension')->update([$aikuIdField => null]);
-                DB::connection('aurora')->table('Order Transaction Fact')->update([$aikuIdField => null]);
-                DB::connection('aurora')->table('Order No Product Transaction Fact')->update([$aikuIdField => null]);
+                DB::connection('aurora')->table('Order Transaction Fact')->update(
+                    [
+                        $aikuIdField      => null,
+                        'aiku_basket_id'  => null,
+                        'aiku_invoice_id' => null
+                    ]
+                );
+                DB::connection('aurora')->table('Order No Product Transaction Fact')->update(
+                    [
+                        $aikuIdField => null,
+                        'aiku_basket_id' => null,
+                        'aiku_invoice_id' => null
+                    ]
+                );
                 DB::connection('aurora')->table('Order Dimension')->update([$aikuIdField => null]);
                 $command->line("✅ orders \t\t".$this->stepTime());
 
                 DB::connection('aurora')->table('Delivery Note Dimension')->update([$aikuIdField => null]);
-                DB::connection('aurora')->table('Inventory Transaction Fact')->update([$aikuIdField => null]);
+                DB::connection('aurora')->table('Inventory Transaction Fact')->update(
+                    [
+                        $aikuIdField      => null,
+                        'aiku_dn_item_id' => null,
+                        'aiku_picking_id' => null
+                    ]
+                );
+
+
                 $command->line("✅ delivery notes \t\t".$this->stepTime());
 
 

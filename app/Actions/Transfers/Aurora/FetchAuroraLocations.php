@@ -48,6 +48,12 @@ class FetchAuroraLocations extends FetchAuroraAction
                     );
 
                     $this->recordNew($organisationSource);
+                    $sourceData = explode(':', $location->source_id);
+                    DB::connection('aurora')->table('Location Dimension')
+                        ->where('Location Key', $sourceData[1])
+                        ->update(['aiku_id' => $location->id]);
+
+
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $locationData['location'], 'Location', 'store');
 
