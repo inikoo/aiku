@@ -8,6 +8,7 @@
 namespace App\Enums\Catalogue\Product;
 
 use App\Enums\EnumHelperTrait;
+use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 
@@ -86,7 +87,7 @@ enum ProductStateEnum: string
         ];
     }
 
-    public static function count(Shop|ProductCategory $parent, $bucket = null): array
+    public static function count(Shop|ProductCategory|Collection $parent, $bucket = null): array
     {
         $stats = $parent->stats;
 

@@ -17,14 +17,15 @@ import GalleryUploadedImages from '@/Components/Utils/GalleryManagement/GalleryU
 
 import { faCube, faStar, faImage } from "@fas"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import axios from 'axios'
 import { routeType } from '@/types/route'
+import { router } from '@inertiajs/vue3'
+import { notify } from '@kyvg/vue3-notification'
+import { trans } from 'laravel-vue-i18n'
 library.add(faCube, faStar, faImage)
 
 const props = withDefaults(defineProps<{
     width?: string
-    uploadRoute: string
+    uploadRoute: routeType
     stockImageRoutes?: routeType
     imagesUploadedRoutes?: routeType
     attachImageRoute: routeType
@@ -84,45 +85,40 @@ const onUpload = (e) => {
 
 const isLoading = ref(false)
 const selectedUploadFiles = ref([])
-// const forfdatra = (formData) => {
-//     console.log('formData', formData)
-    
-//     const files = formData.getAll('image');
 
-//     files.forEach((file, index) => {
-//         console.log('index', index)
-//         formData.delete('image'); // Remove the original 'image[]' entry
-//         // formData.append(`images[${index}]`, file); // Append with the new key format
-//     });
-
-//     console.log('formData', formData)
-// }
-const onSubmitUpload = async () => {
-    isLoading.value = true
+const onSubmitUpload = async (clear: Function) => {
     const formData = new FormData()
     Array.from(selectedUploadFiles.value).forEach((file, index) => {
         formData.append(`images[${index}]`, file)
     })
 
-    // console.log('formData', formData)
-    try {
-        const response = await axios.post(props.uploadRoute, formData, {
+    router.post(route(props.uploadRoute.name, props.uploadRoute.parameters),
+        formData,
+        {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
-            onUploadProgress: function (progressEvent) {
-            // Calculate the progress percentage
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            console.log(percentCompleted + '%'); // You can update your UI with the progress here
+            onStart: () => isLoading.value = true,
+            onSuccess: () => {
+                notify({
+                    title: trans('Success'),
+                    text: trans('New image added'),
+                    type: 'success',
+                })
+            },
+            onError: (ee) => {
+                notify({
+                    title: trans('Something went wrong'),
+                    text: trans('Failed to add new image'),
+                    type: 'error',
+                })
+            },
+            onFinish: () => {
+                isLoading.value = false,
+                clear()
+            }
         }
-        })
-        emits('onSuccessUpload', response.data)
-        console.log('response', response)
-    } catch (error) {
-        console.error('error', error)
-    } finally {
-        isLoading.value = false
-    }
+    )
 }
 
 
@@ -161,7 +157,6 @@ const onSubmitUpload = async () => {
                         :isLoading
                         :stockImageRoutes="stockImageRoutes"
                         :closePopup
-                        @onUpload="onUpload"
                         @onSubmitUpload="onSubmitUpload"
                         @selectImage="(image: {}) => emits('selectImage', image)"
                     />

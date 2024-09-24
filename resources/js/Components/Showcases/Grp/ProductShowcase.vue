@@ -11,13 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { notify } from '@kyvg/vue3-notification'
 import Image from "@/Components/Image.vue"
 import Modal from "@/Components/Utils/Modal.vue"
-import {
-    Tab,
-    TabGroup,
-    TabList,
-    TabPanel,
-    TabPanels,
-} from '@headlessui/vue'
+import { Tab, TabGroup, TabList, TabPanel, TabPanels, } from '@headlessui/vue'
 import { inject, ref } from 'vue'
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 import axios from "axios";
@@ -26,20 +20,35 @@ import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import { faTrash as falTrash, faEdit } from '@fal'
 import { faCircle, faTrash } from '@fas'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
-import { remove as removeLodash } from 'lodash'
-import { useFormatTime } from '../../../Composables/useFormatTime'
+import { useFormatTime } from '@/Composables/useFormatTime'
 import { trans } from 'laravel-vue-i18n'
 import { routeType } from "@/types/route"
+import { Images } from "@/types/Images"
+import { router } from '@inertiajs/vue3'
 library.add(faCircle, faTrash, falTrash, faEdit)
 
 const props = defineProps<{
     data: {
-        product: {}
         stockImageRoutes: routeType
         uploadImageRoute: routeType
         attachImageRoute: routeType
         deleteImageRoute: routeType
         imagesUploadedRoutes: routeType
+        product: {
+            data: {
+                id: number
+                slug: string
+                image_id: number
+                code: string
+                name: string
+                price: string
+                description?: string
+                state: string
+                created_at: string
+                updated_at: string
+                images: Images[]
+            }
+        }
         stats: {}
     }
 }>()
@@ -47,7 +56,7 @@ const props = defineProps<{
 
 const locale = inject('locale', aikuLocaleStructure)
 const selectedImage = ref(0)
-const isLoading = ref<string[]>([])
+const isLoading = ref<string[] | number[]>([])
 
 const stats = [
     { name: '2024', stat: '71,897', previousStat: '70,946', change: '12%', changeType: 'increase' },
@@ -62,32 +71,60 @@ const product = ref({
     images: props.data?.product?.data?.images,   // TODO: No need to use this, 'props.data.product.data.images' instead
 })
 
-const deleteImage = async (data, index) => {
-    isLoading.value.push(data?.id)
+const deleteImage = async (data, index: number) => {
+    // isLoading.value.push(data?.id)
 
-    try {
-        const response = await axios.delete(route(props.data.deleteImageRoute.name, {
-            ...props.data.deleteImageRoute.parameters, media: data.id
-        }));
-        if(selectedImage.value == index) selectedImage.value = 0
-        product.value.images.splice(index,1)
-    } catch (error: any) {
-        console.log('error', error);
-        notify({
-            title: 'Failed',
-            text: 'cannot show stock images',
-            type: 'error'
-        })
-    } finally {
-        isLoading.value.push(data.id)
-        removeLodash(isLoading.value, (n) => {
-            return n == data.id
-        })
-    }
+    router.delete(route(props.data.deleteImageRoute.name, {
+            ...props.data.deleteImageRoute.parameters,
+            media: data.id
+        }),
+        {
+            onStart: () => {
+                isLoading.value.push(data.id)
+            },
+            onFinish: () => {
+                notify({
+                    title: trans('Success'),
+                    text: trans('Image deleted'),
+                    type: 'success',
+                })
+            },
+            onError: () => {
+                notify({
+                    title: trans('Failed'),
+                    text: trans('Cannot show stock images'),
+                    type: 'error'
+                })
+            }
+        }
+    )
+
+    // try {
+    //     const response = await axios.delete(route(props.data.deleteImageRoute.name, {
+    //         ...props.data.deleteImageRoute.parameters, media: data.id
+    //     }));
+
+    //     if(selectedImage.value == index) selectedImage.value = 0
+    //     product.value.images.splice(index,1)
+
+        
+    // } catch (error: any) {
+    //     console.log('error', error);
+    //     notify({
+    //         title: 'Failed',
+    //         text: 'cannot show stock images',
+    //         type: 'error'
+    //     })
+    // } finally {
+    //     isLoading.value.push(data.id)
+    //     removeLodash(isLoading.value, (n) => {
+    //         return n == data.id
+    //     })
+    // }
 }
 
 
-function changeSelectedImage(index) {
+function changeSelectedImage(index: number) {
     selectedImage.value = index
 }
 
@@ -98,6 +135,7 @@ const isModalGallery = ref(false)
 
 
 <template>
+    <!-- <pre>{{ props.data }}</pre> -->
     <div class="grid md:grid-cols-4 gap-x-1 gap-y-4">
         <div class="p-5 space-y-5 grid grid-cols-1 md:grid-cols-1 max-w-[500px]">
             <div class="relative">
@@ -106,8 +144,8 @@ const isModalGallery = ref(false)
                     <TabGroup as="div" class="grid grid-cols-2 md:grid-cols-1 p-0 md:p-2.5 gap-x-3 h-full" :selectedIndex="selectedImage" @change="changeSelectedImage">
                         <!-- Section: Main image (big) -->
                         <TabPanels class="overflow-hidden duration-300">
-                            <template v-if="product?.images?.length > 0">
-                                <TabPanel v-for="image in product.images" :key="image.id">
+                            <template v-if="props.data?.product?.data?.images?.length > 0">
+                                <TabPanel v-for="image in props.data?.product?.data?.images" :key="image.id">
                                     <div class="relative flex items-center border border-gray-200 rounded-lg aspect-square w-auto h-auto overflow-hidden">
                                         <div class="absolute top-1 right-3 flex items-center gap-2 capitalize"
                                             :class="data.product?.data?.state === 'active' ? 'text-green-500' : ''"
@@ -134,7 +172,7 @@ const isModalGallery = ref(false)
                         <!-- Section: Images list -->
                         <div @scroll="(eee) => console.log('on scroll', eee)" class="h-44 md:h-64 md:max-h-80 overflow-y-auto mx-auto md:mt-6 w-full max-w-2xl block lg:max-w-none">
                             <TabList class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-3 gap-y-4 md:gap-x-2 md:gap-y-5">
-                                <Tab v-for="(image,index) in product.images" :key="image.id"
+                                <Tab v-for="(image, index) in props.data?.product?.data?.images" :key="image.id"
                                     class="group relative flex aspect-square h-auto cursor-pointer items-center justify-center rounded-md text-gray-900 hover:bg-gray-50"
                                     v-slot="{ selected }"
                                     
@@ -239,12 +277,11 @@ const isModalGallery = ref(false)
 
     <Modal :isOpen="isModalGallery" @onClose="() => isModalGallery = false" width="w-3/4" >
         <GalleryManagement
-            :uploadRoute="route(data.uploadImageRoute.name, data.uploadImageRoute.parameters)"
+            :uploadRoute="data.uploadImageRoute"
             :imagesUploadedRoutes="data.imagesUploadedRoutes"
             :attachImageRoute="data.attachImageRoute"
             :stockImageRoutes="data.stockImageRoutes"
             :closePopup="() => isModalGallery = false"
-            @onSuccessUpload="(data: {}) => product.images = product.images.concat(data.data)"
             @selectImage="(image: {}) => console.log('image', image)"
         >
         </GalleryManagement>

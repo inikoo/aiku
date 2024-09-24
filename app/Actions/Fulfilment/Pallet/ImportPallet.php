@@ -12,7 +12,7 @@ use App\Actions\Helpers\Uploads\ImportUpload;
 use App\Actions\Helpers\Uploads\StoreUploads;
 use App\Actions\Traits\WithImportModel;
 use App\Http\Resources\Helpers\UploadsResource;
-use App\Imports\CRM\PalletImport;
+use App\Imports\Fulfilment\PalletImport;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;

@@ -27,6 +27,8 @@ class EditProduct extends OrgAction
 {
     use HasCatalogueAuthorisation;
 
+    private Organisation|Shop|Fulfilment|ProductCategory $parent;
+
     public function handle(Product $product): Product
     {
         return $product;
@@ -105,6 +107,7 @@ class EditProduct extends OrgAction
             [
                 'title'       => __('goods'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $product,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -202,9 +205,11 @@ class EditProduct extends OrgAction
         );
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(Product $product, string $routeName, array $routeParameters): array
     {
         return ShowProduct::make()->getBreadcrumbs(
+            parent: $this->parent,
+            product: $product,
             routeName: preg_replace('/edit$/', 'show', $routeName),
             routeParameters: $routeParameters,
             suffix: '('.__('Editing').')'

@@ -38,7 +38,10 @@ return new class () extends Migration {
 
             $table->string('state')->default(PalletReturnItemStateEnum::IN_PROCESS->value);
             $table->timestampsTz();
+
         });
+        DB::statement("CREATE UNIQUE INDEX pallet_return_items_unique ON pallet_return_items (pallet_return_id, pallet_id, stored_item_id) NULLS NOT DISTINCT");
+
     }
 
 

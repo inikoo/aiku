@@ -62,6 +62,7 @@ class UpdatePallet extends OrgAction
             AutoAssignServicesToPalletDelivery::make()->handle($pallet->palletDelivery, $pallet, $originalType);
         }
         PalletRecordSearch::dispatch($pallet);
+
         return $pallet;
     }
 
@@ -113,12 +114,22 @@ class UpdatePallet extends OrgAction
                 'sometimes',
                 Rule::enum(PalletTypeEnum::class)
             ],
-            'rental_id'                => ['nullable', 'exists:rentals,id'],
-            'notes'                    => ['nullable', 'string', 'max:1024'],
-            'received_at'              => ['nullable', 'nullable', 'date'],
-            'booked_in_at'             => ['sometimes', 'nullable', 'date'],
-            'storing_at'               => ['sometimes', 'nullable', 'date'],
-            'last_fetched_at'          => ['sometimes', 'date'],
+            'rental_id'          => [
+                'nullable',
+                Rule::Exists('rentals', 'id')->where('fulfilment_id', $this->fulfilment->id)
+            ],
+            'pallet_return_id'   => [
+                'sometimes',
+                'nullable',
+                Rule::Exists('pallet_returns', 'id')->where('fulfilment_id', $this->fulfilment->id)
+
+            ],
+            'notes'              => ['nullable', 'string', 'max:1024'],
+            'received_at'        => ['nullable', 'nullable', 'date'],
+            'booked_in_at'       => ['sometimes', 'nullable', 'date'],
+            'storing_at'         => ['sometimes', 'nullable', 'date'],
+            'last_fetched_at'    => ['sometimes', 'date'],
+
         ];
     }
 

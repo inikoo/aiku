@@ -31,11 +31,11 @@ class DeleteImagesFromProduct extends OrgAction
         return GetProductShowcase::run($product);
     }
 
-    public function asController(Organisation $organisation, Product $product, Media $media, ActionRequest $request): Product
+    public function asController(Organisation $organisation, Product $product, Media $media, ActionRequest $request): void
     {
         $this->scope = $organisation;
         $this->initialisation($organisation, $request);
 
-        return $this->handle($product, $media);
+        $this->handle($product, $media);
     }
 }
