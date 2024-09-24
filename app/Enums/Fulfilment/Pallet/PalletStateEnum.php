@@ -36,6 +36,7 @@ enum PalletStateEnum: string
     case STORING = 'storing';
 
     // Status: returning
+    case REQUEST_RETURN = 'request-return';
     case PICKING = 'picking';
     case PICKED  = 'picked';
 
@@ -59,6 +60,7 @@ enum PalletStateEnum: string
             'booking-in'     => __('Booking in'),
             'booked-in'      => __('Booked in'),
             'storing'        => __('Storing'),
+            'request-return' => __('Request Return'),
             'picking'        => __('Picking'),
             'picked'         => __('Picked'),
             'dispatched'     => __('Dispatched'),
@@ -162,6 +164,16 @@ enum PalletStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
+            'request-return'        => [
+                'tooltip' => __('Request Return'),
+                'icon'    => 'fal fa-check',
+                'class'   => 'text-green-400',
+                'color'   => 'green',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
             'picking'        => [
                 'tooltip' => __('Picking'),
                 'icon'    => 'fal fa-check',
@@ -235,6 +247,7 @@ enum PalletStateEnum: string
             'booking-in'     => $stats->number_pallets_state_booking_in,
             'booked-in'      => $stats->number_pallets_state_booked_in,
             'storing'        => $stats->number_pallets_state_storing,
+            'request-return' => $stats->number_pallets_state_request_return,
             'picking'        => $stats->number_pallets_state_picking,
             'picked'         => $stats->number_pallets_state_picked,
             'dispatched'     => $stats->number_pallets_state_disoatched,

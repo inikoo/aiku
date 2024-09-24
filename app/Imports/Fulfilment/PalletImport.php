@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 28 Sep 2023 01:20:30 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 24 Sept 2024 14:27:33 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Imports\CRM;
+namespace App\Imports\Fulfilment;
 
 use App\Actions\Fulfilment\Pallet\StorePalletFromDelivery;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;

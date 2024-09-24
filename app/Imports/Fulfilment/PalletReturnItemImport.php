@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 28 Sep 2023 01:20:30 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 24 Sept 2024 14:27:33 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Imports\CRM;
+namespace App\Imports\Fulfilment;
 
 use App\Actions\Fulfilment\Pallet\AttachPalletToReturn;
-use App\Actions\Fulfilment\StoredItem\StoreStoredItemToReturn;
+use App\Actions\Fulfilment\StoredItem\AttachStoredItemToReturn;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnTypeEnum;
 use App\Imports\WithImport;
@@ -27,11 +27,11 @@ class PalletReturnItemImport implements ToCollection, WithHeadingRow, SkipsOnFai
     use WithImport;
 
     protected PalletReturn $scope;
-    protected bool $includeStoredItem;
+
     public function __construct(PalletReturn $palletReturn, Upload $upload)
     {
-        $this->upload             = $upload;
-        $this->scope              = $palletReturn;
+        $this->upload = $upload;
+        $this->scope  = $palletReturn;
     }
 
     public function storeModel($row, $uploadRecord): void
@@ -50,9 +50,9 @@ class PalletReturnItemImport implements ToCollection, WithHeadingRow, SkipsOnFai
             'type' => 'Upload',
         ]);
 
+        $fail = false;
 
         if ($this->scope->type == PalletReturnTypeEnum::PALLET) {
-
             try {
                 AttachPalletToReturn::make()->action(
                     $this->scope,
@@ -61,34 +61,35 @@ class PalletReturnItemImport implements ToCollection, WithHeadingRow, SkipsOnFai
 
                 $this->setRecordAsCompleted($uploadRecord);
             } catch (Exception $e) {
-                $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
+                $fail = $e->getMessage();
             } catch (\Throwable $e) {
-                $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
+                $fail = $e->getMessage();
             }
         } else {
             try {
-                StoreStoredItemToReturn::run(
+                AttachStoredItemToReturn::run(
                     $this->scope,
                     $modelData
                 );
 
                 $this->setRecordAsCompleted($uploadRecord);
             } catch (Exception $e) {
-                $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
+                $fail = $e->getMessage();
             } catch (\Throwable $e) {
-                $this->setRecordAsFailed($uploadRecord, [$e->getMessage()]);
+                $fail = $e->getMessage();
             }
         }
 
+        if ($fail) {
+            $this->setRecordAsFailed($uploadRecord, [$fail]);
+        }
     }
 
     public function rules(): array
     {
-        $rules = [
-            'reference'    => ['required'],
-            'quantity'     => ['sometimes']
+        return [
+            'reference' => ['required'],
+            'quantity'  => ['sometimes']
         ];
-
-        return $rules;
     }
 }
