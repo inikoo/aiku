@@ -8,6 +8,7 @@
 namespace App\Actions\Fulfilment\StoredItem;
 
 use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydratePallets;
+use App\Actions\Fulfilment\PalletReturn\Hydrators\PalletReturnHydrateStoredItems;
 use App\Actions\OrgAction;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
@@ -56,7 +57,7 @@ class AttachStoredItemToReturn extends OrgAction
         $palletReturn->refresh();
 
         PalletReturnHydratePallets::run($palletReturn);
-        // todo add PalletReturnHydrateStoredItems
+        PalletReturnHydrateStoredItems::run($palletReturn);
 
 
         return $palletReturn;

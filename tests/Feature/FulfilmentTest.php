@@ -2503,3 +2503,7 @@ test('pay invoice (exceed)', function ($invoice) {
 
     return $fulfilmentCustomer;
 })->depends('consolidate 3rd recurring bill');
+
+test('hydrate pallet return command', function () {
+    $this->artisan('hydrate:pallet-returns  '.$this->organisation->slug)->assertExitCode(0);
+});
