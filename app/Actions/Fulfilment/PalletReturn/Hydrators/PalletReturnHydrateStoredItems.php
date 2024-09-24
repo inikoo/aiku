@@ -9,9 +9,6 @@ namespace App\Actions\Fulfilment\PalletReturn\Hydrators;
 
 use App\Actions\HydrateModel;
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
-use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Fulfilment\StoredItem\StoredItemStateEnum;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
