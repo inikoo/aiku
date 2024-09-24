@@ -75,6 +75,7 @@ class StoreLocation extends OrgAction
                     ]
                 ),
             ],
+            'data' => ['sometimes', 'nullable', 'array'],
             'max_weight' => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
             'max_volume' => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
         ];
