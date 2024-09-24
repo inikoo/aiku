@@ -83,7 +83,7 @@ const compareObjects = (objA, objB) => {
                 </div>
 
 
-                <div v-if="fieldData.mode === 'tabs'" :class="get(form, ['errors', fieldName]) ? 'errorShake' : ''">
+                <div v-else-if="fieldData.mode === 'tabs'" :class="get(form, ['errors', fieldName]) ? 'errorShake' : ''">
                     <RadioGroup v-model="form[fieldName]" class="flex space-x-1 rounded-xl bg-white border  flex-wrap gap-y-1">
                             <RadioGroupOption
                                 v-for="(option, index) in fieldData.options"

@@ -49,7 +49,7 @@ const isLoading = ref<string | boolean>(false)
 
 <template>
     <nav aria-label="Tree maps" class="py-1 md:py-0" :class="[mode == 'compact' ? 'mt-2' : 'mt-3']">
-        <ol v-if="nodes" role="list" class="divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
+        <ol v-if="nodes" role="list" class="overflow-x-auto divide-y divide-gray-300 rounded-md border border-gray-300 md:flex md:divide-y-0">
             <li v-for="(node, nodeIdx) in nodes" :key="node.name" class="relative flex flex-1 items-center">
                 <!-- Main Tree -->
                 <component
@@ -93,6 +93,7 @@ const isLoading = ref<string | boolean>(false)
                                 {{ locale.number(subData.count) }}
                             </span>
                         </Link>
+                        {{ node.sub_data }}
                     </div>
                 </component>
 

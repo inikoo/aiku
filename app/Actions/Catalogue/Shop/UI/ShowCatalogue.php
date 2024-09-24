@@ -67,7 +67,7 @@ class ShowCatalogue extends OrgAction
                 ],
 
 
-                'dashboard' => [
+                'stats' => [
                     [
                         'label' => __('Department'),
                         'icon'  => 'fal fa-folder-tree',
@@ -90,14 +90,42 @@ class ShowCatalogue extends OrgAction
                         'label' => __('Products'),
                         'icon'  => 'fal fa-cube',
                         'value' => $shop->stats->number_products,
-                        'meta'  => [
-                            'value' => '+4',
-                            'label' => __('from last month'),
+                        'metas'  =>  [
+                            [
+                                "value" => "active",
+                                "icon" => [
+                                    "tooltip" => "active",
+                                    "icon" => "fas fa-check-circle",
+                                    "class" => "text-green-500"
+                                ],
+                                "count" => 11843,
+                                "label" => "Active"
+                            ],
+                            [
+                                "value" => "discontinuing",
+                                "icon" => [
+                                    "tooltip" => "discontinuing",
+                                    "icon" => "fas fa-times-circle",
+                                    "class" => "text-amber-500"
+                                ],
+                                "count" => 0,
+                                "label" => "Discontinuing"
+                            ],
+                            [
+                                "value" => "discontinued",
+                                "icon" => [
+                                    "tooltip" => "discontinued",
+                                    "icon" => "fas fa-times-circle",
+                                    "class" => "text-red-500"
+                                ],
+                                "count" => 29113,
+                                "label" => "Discontinued"
+                            ]
                         ]
                     ],
                     [
                         'label' => __('Collections'),
-                        'icon'  => 'fal fa-cube',
+                        'icon'  => 'fal fa-album-collection',
                         'value' => $shop->stats->number_collections,
                         'meta'  => [
                             'value' => '+4',
