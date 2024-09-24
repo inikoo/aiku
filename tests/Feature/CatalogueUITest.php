@@ -99,7 +99,7 @@ test('UI Index catalogue departments', function () {
         $page
             ->component('Org/Catalogue/Departments')
             ->has('title')
-            ->has('breadcrumbs', 3);
+            ->has('breadcrumbs', 4);
     });
 });
 
@@ -128,7 +128,7 @@ test('UI create department', function () {
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CreateModel')
-            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 4);
+            ->has('title')->has('formData')->has('pageHead')->has('breadcrumbs', 5);
     });
 });
 
@@ -343,6 +343,7 @@ test('UI Create collection', function () {
 });
 
 test('UI show collection', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.shops.show.catalogue.collections.show', [$this->organisation->slug, $this->shop->slug, $this->collection->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -375,6 +376,7 @@ test('UI edit collection', function () {
 });
 
 test('UI edit product', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.shops.show.catalogue.families.show.products.edit', [$this->organisation->slug, $this->shop->slug, $this->family->slug, $this->product->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
