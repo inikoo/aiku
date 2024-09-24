@@ -426,6 +426,7 @@ class IndexProducts extends OrgAction
             'Org/Catalogue/Products',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $this->parent,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -560,7 +561,7 @@ class IndexProducts extends OrgAction
         return $this->handle(parent: $shop, bucket: $this->bucket);
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
+    public function getBreadcrumbs(Shop|ProductCategory|Organisation|Collection $parent, string $routeName, array $routeParameters, string $suffix = null): array
     {
         $headCrumb = function (array $routeParameters, ?string $suffix) {
             return [
@@ -639,7 +640,7 @@ class IndexProducts extends OrgAction
             'grp.org.shops.show.catalogue.departments.show.families.show.products.index' =>
             array_merge(
                 ShowFamily::make()->getBreadcrumbs(
-                    $this->parent,
+                    $parent,
                     'grp.org.shops.show.catalogue.departments.show.families.show',
                     $routeParameters
                 ),
@@ -655,7 +656,7 @@ class IndexProducts extends OrgAction
             'grp.org.shops.show.catalogue.families.show.products.index' =>
             array_merge(
                 ShowFamily::make()->getBreadcrumbs(
-                    $this->parent,
+                    $parent,
                     'grp.org.shops.show.catalogue.families.show',
                     $routeParameters
                 ),
