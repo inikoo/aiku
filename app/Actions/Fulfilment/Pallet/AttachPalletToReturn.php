@@ -16,6 +16,7 @@ use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletReturn;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsCommand;
 
 class AttachPalletToReturn extends OrgAction
@@ -78,5 +79,21 @@ class AttachPalletToReturn extends OrgAction
         $this->initialisationFromFulfilment($palletReturn->fulfilment, $modelData);
 
         return $this->handle($palletReturn, $this->validatedData);
+    }
+
+    public function prepareForValidation()
+    {
+        $reference = $this->get('reference');
+
+    
+        $pallet = Pallet::where('reference', $reference)
+                        ->where('fulfilment_customer_id', $this->parent->fulfilment_customer_id)
+                        ->first();
+    
+        if ($pallet && $this->parent->pallets()->where('pallet_id', $pallet->id)->exists()) {
+            throw ValidationException::withMessages([
+                'reference' => ['This pallet is already attached to the pallet return.'],
+            ]);
+        }
     }
 }
