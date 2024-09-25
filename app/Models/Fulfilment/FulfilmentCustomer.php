@@ -166,11 +166,12 @@ class FulfilmentCustomer extends Model
         return 'slug';
     }
 
+    /** @noinspection PhpPossiblePolymorphicInvocationInspection */
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->customer->slug;
+                return $this->customer()->withTrashed()->first()->slug;
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
