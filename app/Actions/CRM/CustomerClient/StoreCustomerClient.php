@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
+use App\Rules\IUnique;
 use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
@@ -74,7 +75,14 @@ class StoreCustomerClient extends OrgAction
     {
         $rules = [
 
-            'reference'      => ['nullable', 'string', 'max:255'],
+            'reference'      => ['sometimes','nullable', 'string', 'max:255',
+                                 new IUnique(
+                                     table: 'customer_clients',
+                                     extraConditions: [
+                                         ['column' => 'customer_id', 'value' => $this->shop->id],
+                                     ]
+                                 ),
+                ],
             'contact_name'   => ['nullable', 'string', 'max:255'],
             'company_name'   => ['nullable', 'string', 'max:255'],
             'email'          => ['nullable', 'email'],
