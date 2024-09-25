@@ -88,7 +88,7 @@ class StoreLocation extends OrgAction
             ];
             $rules['fetched_at'] = ['sometimes', 'date'];
             $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['source_id']  = ['sometimes', 'string'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
         }
 
         return $rules;
