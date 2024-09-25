@@ -51,6 +51,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_pallets_with_stored_items_state_not_received
  * @property int $number_pallets_state_storing
  * @property int $number_pallets_with_stored_items_state_storing
+ * @property int $number_pallets_state_request_return
+ * @property int $number_pallets_with_stored_items_state_request_return
  * @property int $number_pallets_state_picking
  * @property int $number_pallets_with_stored_items_state_picking
  * @property int $number_pallets_state_picked

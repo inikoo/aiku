@@ -170,8 +170,8 @@ class StoreCustomer extends OrgAction
                 ),
             ],
             'phone'                    => ['nullable', new Phone()],
-            'identity_document_number' => ['nullable', 'string'],
-            'contact_website'          => ['nullable', 'active_url'],
+            'identity_document_number' => ['sometimes','nullable', 'string'],
+            'contact_website'          => ['sometimes','nullable', 'active_url'],
             'contact_address'          => ['required', new ValidAddress()],
             'delivery_address'         => ['sometimes', 'required', new ValidAddress()],
 
@@ -194,8 +194,8 @@ class StoreCustomer extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['phone']           = ['sometimes', 'string', 'max:255'];
-            $rules['email'] = [
+            $rules['phone']           = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['email']           = [
                 'nullable',
                 'string',
                 'max:255',
@@ -208,12 +208,10 @@ class StoreCustomer extends OrgAction
                     ]
                 ),
             ];
-            $rules['contact_website'] = ['nullable', 'string', 'max:255'];
-
-            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['fetched_at'] = ['sometimes', 'date'];
-            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
-
+            $rules['contact_website'] = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['deleted_at']      = ['sometimes', 'nullable', 'date'];
+            $rules['fetched_at']      = ['sometimes', 'date'];
+            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
         }
 
         return $rules;
