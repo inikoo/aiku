@@ -122,9 +122,7 @@ class UpdateCustomer extends OrgAction
             'email'                    => [
                 'sometimes',
                 'nullable',
-                'string',
-                'max:255',
-
+                'email',
                 new IUnique(
                     table: 'customers',
                     extraConditions: [
@@ -134,39 +132,43 @@ class UpdateCustomer extends OrgAction
                     ]
                 ),
             ],
-            'phone'                    => ['sometimes', 'nullable', 'max:255'],
+            'phone'                    => ['sometimes', 'nullable', new Phone()],
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
-            'contact_website'          => ['sometimes', 'nullable', 'string', 'max:255'],
+            'contact_website'          => ['sometimes', 'nullable', 'active_url'],
             'contact_address'          => ['sometimes', 'required', new ValidAddress()],
             'delivery_address'         => ['sometimes', 'nullable', new ValidAddress()],
             'timezone_id'              => ['sometimes', 'nullable', 'exists:timezones,id'],
             'language_id'              => ['sometimes', 'nullable', 'exists:languages,id'],
             'balance'                  => ['sometimes', 'nullable'],
-            'last_fetched_at'          => ['sometimes', 'date'],
             'internal_notes'           => ['sometimes', 'nullable', 'string'],
             'warehouse_internal_notes' => ['sometimes', 'nullable', 'string'],
             'warehouse_public_notes'   => ['sometimes', 'nullable', 'string'],
         ];
 
-        if ($this->strict) {
-            $strictRules = [
-                'phone'           => ['sometimes', 'nullable', new Phone()],
-                'contact_website' => ['sometimes', 'nullable', 'active_url'],
-                'email'           => [
-                    'sometimes',
-                    'nullable',
-                    'email',
-                    new IUnique(
-                        table: 'customers',
-                        extraConditions: [
-                            ['column' => 'shop_id', 'value' => $this->shop->id],
-                            ['column' => 'deleted_at', 'operator' => 'notNull'],
-                            ['column' => 'id', 'value' => $this->customer->id, 'operator' => '!=']
-                        ]
-                    ),
-                ],
+
+
+        if (!$this->strict) {
+            $rules['phone']           = ['sometimes', 'string', 'max:255'];
+            $rules['email'] = [
+                'sometimes',
+                'nullable',
+                'string',
+                'max:255',
+                'exclude_unless:deleted_at,null',
+                new IUnique(
+                    table: 'customers',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
+                        ['column' => 'id', 'value' => $this->customer->id, 'operator' => '!=']
+                    ]
+                ),
             ];
-            $rules       = array_merge($rules, $strictRules);
+            $rules['contact_website'] = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+
         }
 
         return $rules;

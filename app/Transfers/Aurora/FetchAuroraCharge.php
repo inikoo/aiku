@@ -46,10 +46,10 @@ class FetchAuroraCharge extends FetchAurora
             $settings['amount'] = $this->auroraModelData->{'Charge Metadata'};
         }
 
+        $description = $this->clearTextWithHtml($this->auroraModelData->{'Charge Public Description'});
 
-        $description = strip_tags(html_entity_decode(htmlspecialchars_decode($this->auroraModelData->{'Charge Public Description'})));
         if ($description == '') {
-            $description = strip_tags($this->auroraModelData->{'Charge Description'});
+            $description = $this->clearTextWithHtml($this->auroraModelData->{'Charge Description'});
         }
 
         $state                      = $this->auroraModelData->{'Charge Active'} === 'Yes' ? ChargeStateEnum::ACTIVE : ChargeStateEnum::DISCONTINUED;

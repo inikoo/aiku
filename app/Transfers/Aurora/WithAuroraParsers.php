@@ -692,6 +692,12 @@ trait WithAuroraParsers
         return $offerCampaign;
     }
 
+    public function clearTextWithHtml($string): string
+    {
+        $string = preg_replace('#<br\s*/?>#i', "\n", $string);
+        return strip_tags(html_entity_decode(htmlspecialchars_decode($string)));
+    }
+
     public function cleanTradeUnitReference(string $reference): string
     {
         $reference = str_replace('&', 'and', $reference);

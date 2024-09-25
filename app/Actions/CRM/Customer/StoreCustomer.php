@@ -160,9 +160,7 @@ class StoreCustomer extends OrgAction
             'company_name'             => ['nullable', 'string', 'max:255'],
             'email'                    => [
                 'nullable',
-                'string',
-                'max:255',
-                'exclude_unless:deleted_at,null',
+                'email',
                 new IUnique(
                     table: 'customers',
                     extraConditions: [
@@ -171,9 +169,9 @@ class StoreCustomer extends OrgAction
                     ]
                 ),
             ],
-            'phone'                    => ['nullable', 'max:255'],
+            'phone'                    => ['nullable', new Phone()],
             'identity_document_number' => ['nullable', 'string'],
-            'contact_website'          => ['nullable', 'string', 'max:255'],
+            'contact_website'          => ['nullable', 'active_url'],
             'contact_address'          => ['required', new ValidAddress()],
             'delivery_address'         => ['sometimes', 'required', new ValidAddress()],
 
@@ -181,10 +179,7 @@ class StoreCustomer extends OrgAction
             'timezone_id'              => ['nullable', 'exists:timezones,id'],
             'language_id'              => ['nullable', 'exists:languages,id'],
             'data'                     => ['sometimes', 'array'],
-            'source_id'                => ['sometimes', 'nullable', 'string'],
             'created_at'               => ['sometimes', 'nullable', 'date'],
-            'deleted_at'               => ['sometimes', 'nullable', 'date'],
-            'fetched_at'               => ['sometimes', 'date'],
             'internal_notes'           => ['sometimes', 'nullable', 'string'],
             'warehouse_internal_notes' => ['sometimes', 'nullable', 'string'],
             'warehouse_public_notes'   => ['sometimes', 'nullable', 'string'],
@@ -198,23 +193,27 @@ class StoreCustomer extends OrgAction
 
         ];
 
-        if ($this->strict) {
-            $strictRules = [
-                'phone'           => ['nullable', new Phone()],
-                'contact_website' => ['nullable', 'active_url'],
-                'email'           => [
-                    'nullable',
-                    'email',
-                    new IUnique(
-                        table: 'customers',
-                        extraConditions: [
-                            ['column' => 'shop_id', 'value' => $this->shop->id],
-                            ['column' => 'deleted_at', 'operator' => 'notNull'],
-                        ]
-                    ),
-                ],
+        if (!$this->strict) {
+            $rules['phone']           = ['sometimes', 'string', 'max:255'];
+            $rules['email'] = [
+                'nullable',
+                'string',
+                'max:255',
+                'exclude_unless:deleted_at,null',
+                new IUnique(
+                    table: 'customers',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
+                    ]
+                ),
             ];
-            $rules       = array_merge($rules, $strictRules);
+            $rules['contact_website'] = ['nullable', 'string', 'max:255'];
+
+            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+
         }
 
         return $rules;
@@ -252,6 +251,7 @@ class StoreCustomer extends OrgAction
         $this->strict   = true;
 
         try {
+            /** @var Shop $shop */
             $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
         } catch (Exception) {
             $command->error('Shop not found');
