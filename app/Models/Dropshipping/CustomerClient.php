@@ -50,6 +50,8 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property Carbon|null $deactivated_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Address|null $address

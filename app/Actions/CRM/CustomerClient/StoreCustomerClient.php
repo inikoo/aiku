@@ -13,9 +13,11 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
+use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
@@ -25,6 +27,9 @@ class StoreCustomerClient extends OrgAction
     use WithModelAddressActions;
 
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Customer $customer, array $modelData): CustomerClient
     {
         $address = Arr::get($modelData, 'address');
@@ -37,15 +42,18 @@ class StoreCustomerClient extends OrgAction
         data_set($modelData, 'shop_id', $customer->shop_id);
 
 
-        /** @var CustomerClient $customerClient */
-        $customerClient = $customer->clients()->create($modelData);
+        $customerClient = DB::transaction(function () use ($customer, $modelData, $address) {
+            /** @var CustomerClient $customerClient */
+            $customerClient = $customer->clients()->create($modelData);
 
-        $customerClient = $this->addAddressToModel(
-            model: $customerClient,
-            addressData: $address,
-            scope: 'delivery',
-            canShip: true
-        );
+            return $this->addAddressToModel(
+                model: $customerClient,
+                addressData: $address,
+                scope: 'delivery',
+                canShip: true
+            );
+        });
+
 
         CustomerClientRecordSearch::dispatch($customerClient);
         CustomerHydrateClients::dispatch($customer);
@@ -69,18 +77,21 @@ class StoreCustomerClient extends OrgAction
             'reference'      => ['nullable', 'string', 'max:255'],
             'contact_name'   => ['nullable', 'string', 'max:255'],
             'company_name'   => ['nullable', 'string', 'max:255'],
-            'email'          => ['nullable', 'string', 'max:255'],
-            'phone'          => ['nullable', 'string', 'max:255'],
+            'email'          => ['nullable', 'email'],
+            'phone'          => ['nullable', new Phone()],
             'address'        => ['required', new ValidAddress()],
-            'source_id'      => 'sometimes|nullable|string|max:255',
-            'created_at'     => 'sometimes|nullable|date',
-            'deactivated_at' => 'sometimes|nullable|date',
+            'deactivated_at' => ['sometimes', 'nullable', 'date'],
             'status'         => ['sometimes', 'boolean'],
 
         ];
 
-        if ($this->strict) {
+        if (!$this->strict) {
             $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['created_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+            $rules['email']      = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['phone']      = ['sometimes', 'nullable', 'string', 'max:255'];
         }
 
         return $rules;
@@ -91,14 +102,22 @@ class StoreCustomerClient extends OrgAction
         return Redirect::route('grp.org.shops.show.crm.customers.show.customer-clients.index', [$customer->organisation->slug, $customer->shop->slug, $customer->slug]);
     }
 
-    public function action(Customer $customer, array $modelData): CustomerClient
+    /**
+     * @throws \Throwable
+     */
+    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true): CustomerClient
     {
-        $this->asAction = true;
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($customer->shop, $modelData);
 
         return $this->handle($customer, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(Customer $customer, ActionRequest $request): CustomerClient
     {
         $this->asAction = true;
