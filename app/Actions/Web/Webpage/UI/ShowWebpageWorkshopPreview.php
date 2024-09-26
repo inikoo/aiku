@@ -53,7 +53,7 @@ class ShowWebpageWorkshopPreview extends OrgAction
         return Inertia::render(
             'Web/PreviewWorkshop',
             [
-                'blocks' => $home->published_layout
+                'blocks' => $home->unpublishedSnapshot->layout
             ]
         );
     }

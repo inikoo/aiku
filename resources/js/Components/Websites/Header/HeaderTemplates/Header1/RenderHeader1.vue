@@ -56,11 +56,11 @@ const selectedColor = props.colorThemed?.color
             <a href="#" class="flex items-center" v-if="loginMode">
                 <FontAwesomeIcon icon="fas fa-user-circle" class="mr-1"></FontAwesomeIcon> Hello Sandra
             </a>
-        
-            <a :href="`${route(loginRoute.name, loginRoute?.parameters)}`" class="flex items-center" v-if="!loginMode">
+
+            <a :href="`${route(loginRoute?.name, loginRoute?.parameters)}`" class="flex items-center" v-if="!loginMode && loginRoute">
                 <font-awesome-icon :icon="['fas', 'sign-in-alt']" class="mr-1" /> Login
             </a>
-      
+
             <a href="#" class="flex items-center" v-if="!loginMode">
                 <font-awesome-icon :icon="['fas', 'file-alt']" class="mr-1" /> Register
             </a>

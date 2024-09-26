@@ -43,7 +43,7 @@ const keyTemplate = uuidv4()
     <div class="relative">
         <div  class="container max-w-7xl mx-auto shadow-xl">
             <!-- <IrisHeader :data="header" /> -->
-<!--            <IrisHeader :data="header" :colorThemed="colorThemed"/>-->
+            <IrisHeader :data="header" :colorThemed="colorThemed"/>
 
             <!-- Section: Navigation Tab -->
             <NavigationMenu :data="navigation" :colorThemed="colorThemed"/>
