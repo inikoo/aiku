@@ -15,13 +15,14 @@ trait WithWorkplaceSubNavigation
     {
         return [
             [
-                'label'    => $workplace->name,
+                'anchor' => true,
+                'label'    => __('Workplace'),
                 'href'     => [
                     'name'       => 'grp.org.hr.workplaces.show',
                     'parameters' => [$this->organisation->slug, $workplace->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'building'],
+                    'icon'    => ['fal', 'fa-stream'],
                     'tooltip' => __('Workplace')
                 ]
             ],

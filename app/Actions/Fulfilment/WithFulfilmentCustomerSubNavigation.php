@@ -18,13 +18,14 @@ trait WithFulfilmentCustomerSubNavigation
         $subNavigation = [];
 
         $subNavigation[] = [
+            'anchor' => true,
             'href' => [
                 'name'      => 'grp.org.fulfilments.show.crm.customers.show',
                 'parameters' => $request->route()->originalParameters()
 
             ],
 
-            'label'     => $fulfilmentCustomer->customer->name,
+            'label'     => __('Customer'),
             'leftIcon'  => [
                 'icon'    => 'fal fa-stream',
                 'tooltip' => __('customer'),

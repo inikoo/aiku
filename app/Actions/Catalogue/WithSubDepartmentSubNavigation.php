@@ -15,13 +15,14 @@ trait WithSubDepartmentSubNavigation
     {
         return [
             [
-                'label'    => $subDepartment->code,
+                'anchor'   => true,
+                'label'    => __('Sub-department'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.catalogue.departments.show.sub-departments.show',
-                    'parameters' => [$this->organisation->slug, $subDepartment->shop->slug, $subDepartment->parent->slug,  $subDepartment->slug]
+                    'parameters' => [$this->organisation->slug, $subDepartment->shop->slug, $subDepartment->parent->slug, $subDepartment->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-folder'],
+                    'icon'    => ['fal', 'fa-stream'],
                     'tooltip' => __('Sub-department')
                 ]
             ],

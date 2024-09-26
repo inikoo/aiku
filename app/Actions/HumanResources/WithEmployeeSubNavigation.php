@@ -17,24 +17,17 @@ trait WithEmployeeSubNavigation
         $subNavigation = [];
 
         $subNavigation[] = [
+            'anchor' => true,
             'href' => [
                 'name'      => 'grp.org.hr.employees.show',
                 'parameters' => $request->route()->originalParameters()
-
             ],
-
-            'label'     => $employee->alias.' '.$employee->worker_number,
+            'label'     => __('Employee'),
             'leftIcon'  => [
                 'icon'    => 'fal fa-stream',
                 'tooltip' => __('employee'),
             ],
-            'secondaryLabel'  => [
-                'label'    => $employee->worker_number,
-                'leftIcon' => [
-                    'icon'    => 'fal fa-id-card',
-                    'tooltip' => __('Worker number')
-                ]
-            ],
+
         ];
 
 

@@ -86,13 +86,14 @@ trait WithCustomerSubNavigation
     {
         return [
             [
+                'anchor' => true,
                 'label'    => __('Customer'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show',
                     'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-atom-alt'],
+                    'icon'    => ['fal', 'fa-stream'],
                     'tooltip' => __('Customer')
                 ]
             ],
@@ -178,13 +179,14 @@ trait WithCustomerSubNavigation
     {
         return [
             [
-                'label'    => $customerClient->name,
+                'anchor' => true,
+                'label'    => __('Client'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.show',
                     'parameters' => [$this->organisation->slug, $customerClient->shop->slug, $customerClient->customer->slug, $customerClient->ulid]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-user'],
+                    'icon'    => ['fal', 'fa-stream'],
                     'tooltip' => __('Customer')
                 ]
             ],
