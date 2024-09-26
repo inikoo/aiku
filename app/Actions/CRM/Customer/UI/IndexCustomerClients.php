@@ -40,9 +40,9 @@ class IndexCustomerClients extends OrgAction
     {
         $this->parent = $customer;
         $this->initialisationFromShop($shop, $request);
+
         return $this->handle($customer);
     }
-
 
     public function handle(Customer $parent, $prefix = null): LengthAwarePaginator
     {
@@ -148,8 +148,20 @@ class IndexCustomerClients extends OrgAction
     {
         $scope = $this->parent;
 
-
         $subNavigation = $this->getCustomerDropshippingSubNavigation($this->parent, $request);
+
+
+        $icon       = ['fal', 'fa-user'];
+        $title      = $this->parent->name;
+        $iconRight  = [
+            'icon'  => ['fal', 'fa-user-friends'],
+            'title' => __('customer client')
+        ];
+        $afterTitle = [
+
+            'label' => __('Clients')
+        ];
+
 
         return Inertia::render(
             'Org/Shop/CRM/CustomerClients',
@@ -160,11 +172,11 @@ class IndexCustomerClients extends OrgAction
                 ),
                 'title'       => __('customer clients'),
                 'pageHead'    => [
-                    'title'         => __('customer clients'),
-                    'icon'          => [
-                        'icon'  => ['fal', 'fa-user'],
-                        'title' => __('customer client')
-                    ],
+                    'title'         => $title,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'icon'          => $icon,
+                    'subNavigation' => $subNavigation,
                     'actions'       => [
                         [
                             'type'    => 'button',
@@ -181,7 +193,7 @@ class IndexCustomerClients extends OrgAction
                             ]
                         ],
                     ],
-                    'subNavigation' => $subNavigation,
+
                 ],
                 'data'        => CustomerClientResource::collection($customerClients),
 

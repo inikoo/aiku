@@ -47,7 +47,7 @@ class IndexPortfolios extends OrgAction
 
     public function handle(Customer $parent, $prefix = null): LengthAwarePaginator
     {
-        // dd($parent->type);
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('portfolios.reference', $value);
@@ -154,6 +154,17 @@ class IndexPortfolios extends OrgAction
 
         $subNavigation = $this->getCustomerDropshippingSubNavigation($this->parent, $request);
 
+        $icon       = ['fal', 'fa-user'];
+        $title      = $this->parent->name;
+        $iconRight  = [
+            'icon'  => ['fal', 'fa-chess-board'],
+            'title' => __('portfolio')
+        ];
+        $afterTitle = [
+
+            'label' => __('Portfolio')
+        ];
+
 
         return Inertia::render(
             'Org/Shop/CRM/Portfolios',
@@ -164,11 +175,11 @@ class IndexPortfolios extends OrgAction
                 ),
                 'title'       => __('portfolios'),
                 'pageHead'    => [
-                    'title'         => __('portfolios'),
-                    'icon'          => [
-                        'icon'  => ['fal', 'fa-user'],
-                        'title' => __('portfolios')
-                    ],
+                    'title'         => $title,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'icon'          => $icon,
+                    'subNavigation' => $subNavigation,
                     'actions'       => [
                         [
                             'type'    => 'button',
@@ -186,7 +197,6 @@ class IndexPortfolios extends OrgAction
                             ]
                         ],
                     ],
-                    'subNavigation' => $subNavigation,
                 ],
                 'data'        => PortfolioResource::collection($portfolio),
 

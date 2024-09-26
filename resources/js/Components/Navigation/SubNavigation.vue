@@ -7,10 +7,10 @@ import { layoutStructure } from "@/Composables/useLayoutStructure";
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faAtomAlt, faDotCircle } from "@fal";
+import { faAtomAlt, faDotCircle, faUserFriends, faChessBoard } from "@fal";
 import { library } from "@fortawesome/fontawesome-svg-core";
 
-library.add(faAtomAlt, faDotCircle);
+library.add(faAtomAlt, faDotCircle, faUserFriends, faChessBoard);
 
 const layout = inject("layout", layoutStructure);
 
