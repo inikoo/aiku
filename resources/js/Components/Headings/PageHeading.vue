@@ -79,8 +79,8 @@ const layout = inject('layout', layoutStructure)
                 
                 <div class="flex flex-col sm:flex-row gap-y-1.5 gap-x-3 items-center ">
                     <h2 :class="data.noCapitalise ? '' : 'capitalize'" class="flex gap-x-2 items-center">
-                        <div v-if="data.model" class="text-gray-400 font-medium">{{ data.model }}</div>
-                        <div class="">{{ useTruncate(data.title, 30) }}</div>
+                        <span v-if="data.model" class="text-gray-400 font-medium">{{ data.model }}</span>
+                        <span class="">{{ useTruncate(data.title, 30) }}</span>
                     </h2>
                     
                     <!-- Section: After Title -->
@@ -101,7 +101,7 @@ const layout = inject('layout', layoutStructure)
 
             <!-- Section: mini Tabs -->
             <div class="mb-2 block h-full">
-                <div v-if="data.meta?.length" class="w-fit flex flex-col sm:mt-0 sm:flex-row items-end sm:flex-wrap sm:gap-x-0.5 sm:gap-y-0.5 text-gray-500 text-xs">
+                <div v-if="data.meta?.length" class="w-fit flex flex-col sm:mt-0 sm:flex-row items-end sm:flex-wrap sm:gap-x-0.5 sm:gap-y-0.5 text-gray-500 text-sm">
                     <template v-for="item in data.meta">
                         <slot :name="`tabs-${item.key}`" :data="item">
                             <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"
@@ -110,9 +110,9 @@ const layout = inject('layout', layoutStructure)
                                     ? $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
                                         ? 'text-gray-600 font-medium'
                                         : 'underline text-gray-600 hover:text-gray-700'
-                                    : 'text-gray-600'
+                                    : 'text-gray-500'
                                 ]"
-                                class="first:pl-0 px-1 flex gap-x-1.5 items-center"
+                                class="first:pl-0 px-1 flex gap-x-1 items-center"
                             >
                                 <FontAwesomeIcon v-if="item.leftIcon"
                                     :title="item.leftIcon.tooltip"

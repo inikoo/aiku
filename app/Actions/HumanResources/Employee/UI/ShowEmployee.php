@@ -79,25 +79,6 @@ class ShowEmployee extends OrgAction
                                 'tooltip' => __('Worker number')
                             ]
                         ],
-
-                        [
-                            'label'    => Arr::get(explode(':', $employee->pin), 1),
-                            'key'      => 'pin',
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-key',
-                                'tooltip' => __('Pin')
-                            ]
-                        ],
-
-                        $employee->user ?
-                            [
-                                'label'    => $employee->user->username,
-                                'key'      => 'user',
-                                'leftIcon' => [
-                                    'icon'    => 'fal fa-user',
-                                    'tooltip' => __('User')
-                                ]
-                            ] : []
                     ],
                     'actions'       => [
                         $this->canDelete ? $this->getDeleteActionIcon($request) : null,
