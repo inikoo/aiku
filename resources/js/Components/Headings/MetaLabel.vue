@@ -37,7 +37,8 @@ const locale = inject('locale', aikuLocaleStructure)
                     (<FontAwesomeIcon icon='fal fa-empty-set' class='' fixed-width aria-hidden='true' />)
                 </template>
             </template>
-            <template v-else>
+            
+            <template v-else-if="item.number">
                 ({{ item.number }})
             </template>
         </span>

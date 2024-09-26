@@ -54,7 +54,7 @@ const layout = inject('layout', layoutStructure)
     </slot>
 
     <div class="relative px-4 py-2 md:pb-2 md:pt-2 lg:py-2 grid grid-flow-col justify-between items-center">
-        <div class="">
+        <div class="flex items-end gap-x-3">
 
             <!-- Section: Main Title -->
             <div class="flex leading-none py-1.5 items-center gap-x-2 font-bold text-gray-700 text-2xl tracking-tight ">
@@ -97,9 +97,11 @@ const layout = inject('layout', layoutStructure)
                         </div>
                     </slot>
                 </div>
-                
-                <!-- Section: mini Tabs -->
-                <div v-if="data.meta?.length" class="w-fit flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-2 sm:gap-y-0.5 text-gray-500 text-xs">
+            </div>
+
+            <!-- Section: mini Tabs -->
+            <div class="mb-2 block h-full">
+                <div v-if="data.meta?.length" class="w-fit flex flex-col sm:mt-0 sm:flex-row items-end sm:flex-wrap sm:gap-x-0.5 sm:gap-y-0.5 text-gray-500 text-xs">
                     <template v-for="item in data.meta">
                         <slot :name="`tabs-${item.key}`" :data="item">
                             <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"
@@ -107,16 +109,16 @@ const layout = inject('layout', layoutStructure)
                                     item.href?.name
                                     ? $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
                                         ? 'text-gray-600 font-medium'
-                                        : 'underline text-gray-400 hover:text-gray-500'
-                                    : 'text-gray-400'
+                                        : 'underline text-gray-600 hover:text-gray-700'
+                                    : 'text-gray-600'
                                 ]"
-                                class="first:pl-0 py-1 px-2 flex gap-x-1.5 items-center"
+                                class="first:pl-0 px-1 flex gap-x-1.5 items-center"
                             >
                                 <FontAwesomeIcon v-if="item.leftIcon"
                                     :title="item.leftIcon.tooltip"
                                     fixed-width
                                     aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400" />
-                                <MetaLabel :item="item" />
+                                <MetaLabel :item="item" class="leading-none" />
                             </component>
                         </slot>
                     </template>

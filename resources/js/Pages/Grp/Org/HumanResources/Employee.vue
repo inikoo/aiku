@@ -106,11 +106,13 @@ const component = computed(() => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #tabs-pin="{ data }">
-            <div class="flex items-center gap-x-1">
-                <FontAwesomeIcon v-if="data.leftIcon" v-tooltip="data.leftIcon.tooltip" fixed-width aria-hidden="true" :icon="data.leftIcon.icon" class="text-gray-400" />
-                <Popover v-if="data.label" class="relative h-full" position="left-0">
+            <div class="flex items-end gap-x-1">
+                <Popover v-if="data.label" class="flex items-end" position="left-0">
                     <template #button>
-                        <div class="h-[22px] flex items-center">XXXXXX</div>
+                        <div class="flex items-end text-xs leading-none gap-x-1">
+                            <FontAwesomeIcon v-if="data.leftIcon" v-tooltip="data.leftIcon.tooltip" fixed-width aria-hidden="true" :icon="data.leftIcon.icon" class="text-gray-400" />
+                            <div class="flex items-end leading-none">XXXXXX</div>
+                        </div>
                     </template>
                     
                     <template #content="{ close: closed }">
