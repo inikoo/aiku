@@ -20,7 +20,6 @@ use App\Actions\Web\Webpage\UI\ShowHeader;
 use App\Actions\Web\Webpage\UI\ShowMenu;
 use App\Actions\Web\Webpage\UI\ShowWebpage;
 use App\Actions\Web\Webpage\UI\ShowWebpageWorkshop;
-use App\Actions\Web\Webpage\UI\ShowWebpageWorkshopPreview;
 use App\Actions\Web\Website\UI\CreateWebsite;
 use App\Actions\Web\Website\UI\EditWebsite;
 use App\Actions\Web\Website\UI\IndexWebsites;
@@ -58,7 +57,6 @@ Route::prefix('{website}/webpages')->name('webpages.')->group(function () {
         ->group(function () {
             Route::get('', [ShowWebpage::class, 'inFulfilment'])->name('show');
             Route::get('workshop', [ShowWebpageWorkshop::class, 'inFulfilment'])->name('workshop');
-            Route::get('workshop/preview', [ShowWebpageWorkshopPreview::class, 'inFulfilment'])->name('preview');
 
             Route::get('webpages', [IndexWebpages::class, 'inWebpageInFulfilment'])->name('show.webpages.index');
         });
