@@ -19,6 +19,7 @@ import { faParachuteBox } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { capitalize } from '@/Composables/capitalize'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+import { trans } from 'laravel-vue-i18n'
 library.add(faChevronLeft, faChevronRight, faParachuteBox)
 
 
@@ -197,12 +198,6 @@ const isLoadingNavigation = ref<string | boolean>(false)
 
             <!-- Label: 'UK (Shop)' -->
             <div :href="routeLabelHorizontal()" class="relative flex gap-x-1.5 items-center pt-1 select-none cursor-default">
-                <Transition name="spin-to-down">
-                    <FontAwesomeIcon v-if="currentNavigation()?.value.type === 'b2b'" icon="fal fa-store-alt" class='text-xs' fixed-width aria-hidden='true' />
-                    <FontAwesomeIcon v-else-if="currentNavigation()?.value.type === 'fulfilment'" icon="fal fa-hand-holding-box" class='text-xs' fixed-width aria-hidden='true' />
-                    <FontAwesomeIcon v-else-if="currentNavigation()?.value.type === 'dropshipping'" icon="fal fa-parachute-box " class='text-xs' fixed-width aria-hidden='true' />
-                    <FontAwesomeIcon v-else-if="currentNavigation()?.type === 'shop'" icon="fal fa-store-alt " class='text-xs' fixed-width aria-hidden='true' />
-                </Transition>
 
                 <Transition name="slide-to-left">
                     <div v-if="layout.leftSidebar.show" class="flex items-end gap-x-0.5">
@@ -211,12 +206,19 @@ const isLoadingNavigation = ref<string | boolean>(false)
                                 {{ currentNavigation()?.key }}
                             </span>
                         </Transition>
-                        <Transition name="spin-to-down">
+                        <!-- <Transition name="spin-to-down">
                             <span :key="currentNavigation()?.value.type" class="text-xxs capitalize leading-3">
                                 ({{ currentNavigation()?.value.type || currentNavigation()?.type}})
                             </span>
-                        </Transition>
+                        </Transition> -->
                     </div>
+                </Transition>
+                
+                <Transition name="spin-to-down">
+                    <FontAwesomeIcon v-if="currentNavigation()?.value.type === 'b2b'" icon="fal fa-fax" class='text-xs' fixed-width aria-hidden='true' v-tooltip="trans('Ecommerce')" />
+                    <FontAwesomeIcon v-else-if="currentNavigation()?.value.type === 'fulfilment'" icon="fal fa-hand-holding-box" class='text-xs' fixed-width aria-hidden='true' v-tooltip="trans('Fulfilment')" />
+                    <FontAwesomeIcon v-else-if="trans('Ecommerce') === 'dropshipping'" icon="fal fa-parachute-box " class='text-xs' fixed-width aria-hidden='true' v-tooltip="trans('Dropshipping')" />
+                    <FontAwesomeIcon v-else-if="currentNavigation()?.type === 'shop'" icon="fal fa-store-alt " class='text-xs' fixed-width aria-hidden='true' v-tooltip="trans('Shop')" />
                 </Transition>
             </div>
 

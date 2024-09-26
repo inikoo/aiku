@@ -7,6 +7,9 @@
 
 namespace App\Actions\Accounting\Invoice\UI;
 
+use App\Actions\CRM\Customer\UI\ShowCustomer;
+use App\Actions\CRM\Customer\UI\ShowCustomerClient;
+use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Fulfilment\FulfilmentCustomer\ShowFulfilmentCustomer;
 use App\Actions\Fulfilment\WithFulfilmentCustomerSubNavigation;
@@ -15,6 +18,8 @@ use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Http\Resources\Accounting\InvoicesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\Invoice;
+use App\Models\CRM\Customer;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -32,10 +37,11 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexInvoices extends OrgAction
 {
     use WithFulfilmentCustomerSubNavigation;
+    use WithCustomerSubNavigation;
 
-    private Organisation|Fulfilment|FulfilmentCustomer|Shop $parent;
+    private Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop $parent;
 
-    public function handle(Organisation|Fulfilment|FulfilmentCustomer|Shop|Order $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop|Order $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -58,6 +64,8 @@ class IndexInvoices extends OrgAction
             $queryBuilder->where('invoices.shop_id', $parent->shop->id);
         } elseif ($parent instanceof FulfilmentCustomer) {
             $queryBuilder->where('invoices.customer_id', $parent->customer->id);
+        } elseif ($parent instanceof Customer) {
+            $queryBuilder->where('invoices.customer_id', $parent->id);
         } elseif ($parent instanceof Order) {
             $queryBuilder->where('invoices.order', $parent->id);
         } else {
@@ -104,7 +112,7 @@ class IndexInvoices extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Fulfilment|FulfilmentCustomer|Shop|Order $parent, $prefix = null): Closure
+    public function tableStructure(Organisation|Fulfilment|Customer|CustomerClient|FulfilmentCustomer|Shop|Order $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($prefix, $parent) {
             if ($prefix) {
@@ -112,7 +120,29 @@ class IndexInvoices extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
-            $table->column(key: 'type', label: '', type: 'icon', canBeHidden: false, sortable: false, searchable: true)
+
+
+            $noResults = __("No invoices found");
+            if ($parent instanceof Customer) {
+                $stats     = $parent->stats;
+                $noResults = __("Customer hasn't been invoiced");
+            } elseif ($parent instanceof CustomerClient) {
+                $stats     = $parent->stats;
+                $noResults = __("This customer client hasn't been invoiced");
+            } else {
+                $stats = $parent->salesStats;
+            }
+
+            $table
+                ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title' => $noResults,
+                        'count' => $stats->number_invoices,
+                    ]
+                );
+
+            $table->column(key: 'type', label: '', canBeHidden: false, searchable: true, type: 'icon')
                 ->defaultSort('reference');
             $table
                 ->withGlobalSearch()
@@ -126,7 +156,7 @@ class IndexInvoices extends OrgAction
             }
 
 
-            $table->column(key: 'total_amount', label: __('total'), type: 'number', canBeHidden: false, sortable: true, searchable: true)
+            $table->column(key: 'total_amount', label: __('total'), canBeHidden: false, sortable: true, searchable: true, type: 'number')
                 ->defaultSort('reference');
         };
     }
@@ -135,6 +165,8 @@ class IndexInvoices extends OrgAction
     {
         if ($this->parent instanceof Organisation) {
             return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.view");
+        } elseif ($this->parent instanceof Customer or $this->parent instanceof CustomerClient) {
+            return $request->user()->hasPermissionTo("crm.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Shop) {
             //todo think about it
             return false;
@@ -156,30 +188,75 @@ class IndexInvoices extends OrgAction
     {
         $subNavigation = [];
 
-        $icon      = ['fal', 'fa-file-invoice-dollar'];
-        $title     = __('invoices');
+        if ($this->parent instanceof CustomerClient) {
+            $subNavigation = $this->getCustomerClientSubNavigation($this->parent, $request);
+        } elseif ($this->parent instanceof Customer) {
+            if ($this->parent->is_dropshipping) {
+                $subNavigation = $this->getCustomerDropshippingSubNavigation($this->parent, $request);
+            } else {
+                $subNavigation = $this->getCustomerSubNavigation($this->parent, $request);
+            }
+        } elseif ($this->parent instanceof FulfilmentCustomer) {
+            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
+        }
+
+
+        $title = __('Invoices');
+
+        $icon  = [
+            'icon'  => ['fal', 'fa-file-invoice-dollar'],
+            'title' => __('invoices')
+        ];
+
         $afterTitle = null;
-        $iconRight = null;
-        $model     = null;
+        $iconRight  = null;
+        $model      = null;
+        $actions    = null;
 
         if ($this->parent instanceof FulfilmentCustomer) {
-            $subNavigation = $this->getFulfilmentCustomerSubNavigation($this->parent, $request);
-            $icon         = ['fal', 'fa-user'];
-            $title        = $this->parent->customer->name;
-            $iconRight    = [
+            $icon       = ['fal', 'fa-user'];
+            $title      = $this->parent->customer->name;
+            $iconRight  = [
                 'icon' => 'fal fa-file-invoice-dollar',
             ];
             $afterTitle = [
 
-                'label'     => __('invoices')
+                'label' => __('invoices')
             ];
         } elseif ($this->parent instanceof Fulfilment) {
             $model = __('Operations');
+        } elseif ($this->parent instanceof CustomerClient) {
+
+            $iconRight  = $icon;
+            $afterTitle = [
+                'label' => $title
+            ];
+
+            $title      = $this->parent->name;
+            $model      = __('customer client');
+            $icon       = [
+                'icon'  => ['fal', 'fa-folder'],
+                'title' => __('customer client')
+            ];
+
+
+        } elseif ($this->parent instanceof Customer) {
+
+            $iconRight  = $icon;
+            $afterTitle = [
+                'label' => $title
+            ];
+            $title = $this->parent->name;
+            $icon       = [
+                'icon'  => ['fal', 'fa-user'],
+                'title' => __('customer')
+            ];
+
+
         }
 
         $routeName       = $request->route()->getName();
         $routeParameters = $request->route()->originalParameters();
-        $modelPageHead   = null;
 
         return Inertia::render(
             'Org/Accounting/Invoices',
@@ -197,7 +274,7 @@ class IndexInvoices extends OrgAction
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
                     'subNavigation' => $subNavigation,
-
+                    'actions'       => $actions
                 ],
                 'data'        => InvoicesResource::collection($invoices),
 
@@ -242,18 +319,24 @@ class IndexInvoices extends OrgAction
         return $this->handle($fulfilmentCustomer);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inCustomer(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $customer;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $customer);
+    }
+
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        $headCrumb = function () use ($routeName, $routeParameters) {
+        $headCrumb = function (array $routeParameters = []) {
             return [
                 [
                     'type'   => 'simple',
                     'simple' => [
-                        'route' => [
-                            'name'       => $routeName,
-                            'parameters' => $routeParameters
-                        ],
+                        'route' => $routeParameters,
                         'label' => __('Invoices'),
                         'icon'  => 'fal fa-bars',
 
@@ -284,6 +367,27 @@ class IndexInvoices extends OrgAction
                 ShowFulfilment::make()->getBreadcrumbs(routeParameters: $routeParameters),
                 $headCrumb()
             ),
+            'grp.org.shops.show.crm.customers.show.invoices.index' =>
+            array_merge(
+                ShowCustomer::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.crm.customers.show.invoices.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.org.shops.show.crm.customers.show.customer-clients.invoices.index' =>
+            array_merge(
+                ShowCustomerClient::make()->getBreadcrumbs('grp.org.shops.show.crm.customers.show.customer-clients.show', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.invoices.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+
 
             default => []
         };

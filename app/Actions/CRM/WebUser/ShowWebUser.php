@@ -125,7 +125,7 @@ class ShowWebUser extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('web users')
+                            'label' => __('Web users')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

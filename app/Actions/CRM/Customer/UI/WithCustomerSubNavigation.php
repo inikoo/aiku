@@ -17,6 +17,7 @@ trait WithCustomerSubNavigation
     {
         return [
             [
+                'anchor'   => true,
                 'label'    => __('Customer'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show',
@@ -30,17 +31,17 @@ trait WithCustomerSubNavigation
 
             [
                 'href' => [
-                    'name'      => 'grp.org.shops.show.crm.customers.show.web-users.index',
+                    'name'       => 'grp.org.shops.show.crm.customers.show.web-users.index',
                     'parameters' => $request->route()->originalParameters()
 
                 ],
 
-                'label'     => __('Web users'),
-                'leftIcon'  => [
+                'label'    => __('Web users'),
+                'leftIcon' => [
                     'icon'    => 'fal fa-terminal',
                     'tooltip' => __('Web users'),
                 ],
-                'number' => $customer->stats->number_web_users
+                'number'   => $customer->stats->number_web_users
             ],
             [
                 'label'    => __('Orders'),
@@ -97,17 +98,17 @@ trait WithCustomerSubNavigation
             ],
             [
                 'href' => [
-                    'name'      => 'grp.org.shops.show.crm.customers.show.web-users.index',
+                    'name'       => 'grp.org.shops.show.crm.customers.show.web-users.index',
                     'parameters' => $request->route()->originalParameters()
 
                 ],
 
-                'label'     => __('Web users'),
-                'leftIcon'  => [
+                'label'    => __('Web users'),
+                'leftIcon' => [
                     'icon'    => 'fal fa-terminal',
                     'tooltip' => __('Web users'),
                 ],
-                'number' => $customer->stats->number_web_users
+                'number'   => $customer->stats->number_web_users
             ],
             [
                 'label'    => __('Clients'),
@@ -117,7 +118,7 @@ trait WithCustomerSubNavigation
                     'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-folder'],
+                    'icon'    => ['fal', 'fa-user-friends'],
                     'tooltip' => __('clients')
                 ]
             ],
@@ -129,7 +130,7 @@ trait WithCustomerSubNavigation
                     'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-folder'],
+                    'icon'    => ['fal', 'fa-chess-board'],
                     'tooltip' => __('portfolio')
                 ]
             ],

@@ -158,12 +158,12 @@ console.log("environment:", usePage().props.environment);
           <!-- Section: Dropdown + subsections -->
           <div class="flex items-center gap-x-2 pl-2">
             <!-- Section: Dropdown -->
-            <div v-if="
-                            layoutStore.group
-                            || (layoutStore.organisations.data?.length > 1)
-                            || (layoutStore.organisations.data?.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops'))
-                            || (layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.warehouses_navigation && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouse'))
-                        "
+            <div
+                v-if="layoutStore.group
+                    || (layoutStore.organisations.data?.length > 1)
+                    || (layoutStore.organisations.data?.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && ((route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops') || layoutStore.currentRoute.includes('grp.org.dashboard.')))
+                    || (layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.warehouses_navigation && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouse'))
+                "
                  class="flex border border-gray-300 rounded-md">
               <!-- Dropdown: Topbar -->
               <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1)" as="div" class="relative inline-block text-left">
@@ -230,84 +230,9 @@ console.log("environment:", usePage().props.environment);
               </Menu>
 
 
-              <!-- Dropdown: Go to shop (only show in Organisation Dashboard) -->
-              <Menu
-                v-if="layoutStore.currentRoute.includes('grp.org.dashboard.')"
-                as="div" class="relative inline-block text-left"
-                v-slot="{ close: closeMenu }"
-              >
-                <TopBarSelectButton
-                  :icon="layoutStore.isFulfilmentPage ? 'fal fa-hand-holding-box' : 'fal fa-store-alt'"
-                  :label="trans('Go to shop')"
-                  :key="`shop` + layoutStore.currentParams.shop + layoutStore.currentParams.fulfilment"
-                />
-
-                <transition>
-                  <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-400 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
-                    <!-- Shops -->
-                    <div v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops?.length" class="px-1 py-1">
-                      <!-- Show All -->
-                      <div
-                        @click="() => (router.visit(route(layoutStore.navigation.org[layoutStore.currentParams.organisation].shops_index?.route?.name, layoutStore.navigation.org[layoutStore.currentParams.organisation].shops_index?.route?.parameters)), closeMenu())"
-                        class="flex gap-x-2 items-center pl-2 py-1.5 rounded text-slate-600 hover:bg-slate-200/30 cursor-pointer">
-                        <FontAwesomeIcon icon="fal fa-store-alt" class="text-xxs" aria-hidden="true" />
-                        <span class="text-[9px] leading-none font-semibold">Show all shops</span>
-                      </div>
-                      <hr class="w-11/12 mx-auto border-t border-gray-200 mt-1 mb-1">
-
-                      <!-- List -->
-                      <div class="max-h-52 overflow-y-auto space-y-1.5">
-                        <template v-for="(showare, idxSH) in layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops">
-                          <MenuItem v-if="showare.state != 'closed'"
-                                    v-slot="{ active }"
-                                    as="div"
-                                    @click="() => router.visit(route(showare.route?.name, showare.route?.parameters))"
-                                    class="rounded text-slate-600 hover:bg-slate-200/30 cursor-pointer group flex gap-x-2 w-full justify-start items-center px-2 py-2 text-sm">
-                            <div class="font-semibold">{{ showare.label }}</div>
-                          </MenuItem>
-                        </template>
-                      </div>
-                    </div>
-
-                    <!-- Fulfilments -->
-                    <div v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments?.length" class="px-1 py-1">
-                      <!-- Show All -->
-                      <div
-                        @click="() => (router.visit(route(layoutStore.navigation.org[layoutStore.currentParams.organisation].fulfilments_index?.route?.name, layoutStore.navigation.org[layoutStore.currentParams.organisation].fulfilments_index?.route?.parameters)), closeMenu())"
-                        class="flex gap-x-2 items-center pl-2 py-1.5 rounded text-slate-600 hover:bg-slate-200/30 cursor-pointer">
-                        <FontAwesomeIcon icon="fal fa-store-alt" class="text-xxs" aria-hidden="true" />
-                        <span class="text-[9px] leading-none font-semibold">Show all fulfilments</span>
-                      </div>
-                      <hr class="w-11/12 mx-auto border-t border-gray-200 mt-1 mb-1">
-
-                      <!-- List -->
-                      <div class="max-h-52 overflow-y-auto space-y-1.5">
-                        <template v-for="(showare, idxSH) in layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments">
-                          <MenuItem v-if="showare.state != 'closed'"
-                                    v-slot="{ active }"
-                                    as="div"
-                                    @click="() => router.visit(route(showare.route?.name, showare.route?.parameters))"
-                                    class="rounded text-slate-600 hover:bg-slate-200/30 cursor-pointer group flex gap-x-2 w-full justify-start items-center px-2 py-2 text-sm">
-                            <div class="font-semibold">{{ showare.label }}</div>
-                          </MenuItem>
-                        </template>
-                      </div>
-                    </div>
-
-                    <!-- <MenuPopoverList
-                        v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops.length"
-                        icon="fal fa-store-alt" :navKey="'shop'" :closeMenu="closeMenu" />
-                    <MenuPopoverList
-                        v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length"
-                        icon="fal fa-hand-holding-box" :navKey="'fulfilment'" :closeMenu="closeMenu" /> -->
-                  </MenuItems>
-                </transition>
-              </Menu>
-
-
               <!-- Dropdown: Shops and Fulfilment-->
               <Menu
-                v-if="layoutStore.currentParams?.organisation && (layoutStore.isShopPage || layoutStore.isFulfilmentPage)"
+                v-if="layoutStore.currentParams?.organisation && ((layoutStore.isShopPage || layoutStore.isFulfilmentPage) || layoutStore.currentRoute.includes('grp.org.dashboard.'))"
                 as="div" class="relative inline-block text-left"
                 v-slot="{ close: closeMenu }"
               >
@@ -328,7 +253,7 @@ console.log("environment:", usePage().props.environment);
                 />
 
                 <transition>
-                  <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y divide-gray-400 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
+                  <MenuItems class="absolute left-0 mt-2 w-56 origin-top-right divide-y-0 divide-gray-400 rounded bg-white shadow-lg ring-1 ring-black/5 focus:outline-none">
                     <MenuPopoverList v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_shops.length"
                                      icon="fal fa-store-alt" :navKey="'shop'" :closeMenu="closeMenu" />
                     <MenuPopoverList v-if="layoutStore.organisations.data.find(organisation => organisation.slug == layoutStore.currentParams.organisation)?.authorised_fulfilments.length"

@@ -76,7 +76,7 @@ class StoreSupplierProduct extends GrpAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'code'                   => [
                 'required',
                 $this->strict ? 'max:64' : 'max:255',
@@ -107,7 +107,14 @@ class StoreSupplierProduct extends GrpAction
             'source_organisation_id' => ['sometimes', 'nullable'],
             'fetched_at'             => ['sometimes', 'date'],
         ];
-    }
+
+        if (!$this->strict) {
+            $rules['source_id'] = ['sometimes', 'nullable', 'string'];
+            $rules['source_slug'] = ['sometimes', 'nullable', 'string'];
+            $rules['source_slug_inter_org'] = ['sometimes', 'nullable', 'string'];
+            $rules['source_organisation_id'] = ['sometimes', 'nullable'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+        }
 
 
     public function action(Supplier $supplier, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0, bool $strict = true): SupplierProduct
