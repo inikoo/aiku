@@ -7,6 +7,7 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
+use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
@@ -27,6 +28,7 @@ use App\Services\QueryBuilder;
 class IndexJobPositions extends OrgAction
 {
     use WithEmployeeSubNavigation;
+
     private Employee|Organisation $parent;
 
     public function handle(Organisation|Employee $parent, string $prefix = null): LengthAwarePaginator
@@ -51,15 +53,12 @@ class IndexJobPositions extends OrgAction
             $queryBuilder->leftJoin('employee_has_job_positions', 'job_positions.id', 'employee_has_job_positions.job_position_id');
             $queryBuilder->where('employee_id', $parent->id);
             $queryBuilder->addSelect('employee_has_job_positions.share');
-
-
-
         }
 
 
         return $queryBuilder
             ->defaultSort('job_positions.code')
-            ->allowedSorts(['code', 'name', 'number_employees_currently_working','share'])
+            ->allowedSorts(['code', 'name', 'number_employees_currently_working', 'share'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -90,12 +89,12 @@ class IndexJobPositions extends OrgAction
             $table->withEmptyState(
                 match (class_basename($parent)) {
                     'Organisation' => [
-                        'title'       => __("No responsibilities found"),
-                        'count'       => $parent->humanResourcesStats->number_job_positions,
+                        'title' => __("No responsibilities found"),
+                        'count' => $parent->humanResourcesStats->number_job_positions,
                     ],
                     'Employee' => [
-                        'title'       => __("Employee has no responsibilities"),
-                        'count'       => $parent->stats->number_job_positions
+                        'title' => __("Employee has no responsibilities"),
+                        'count' => $parent->stats->number_job_positions
 
                     ],
                     default => null
@@ -116,7 +115,6 @@ class IndexJobPositions extends OrgAction
                 //$table->column(key: 'team', label: __('team'), canBeHidden: false, sortable: true, searchable: true);
             } else {
                 $table->column(key: 'share', label: __('Share'), canBeHidden: false, sortable: true, searchable: true);
-
             }
             $table->defaultSort('slug');
         };
@@ -124,26 +122,25 @@ class IndexJobPositions extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $jobPositions, ActionRequest $request): Response
     {
-
         $subNavigation = [];
-        $model      = '';
-        $title = __('Responsibilities');
-        $icon = [
+        $model         = '';
+        $title         = __('Responsibilities');
+        $icon          = [
             'title' => __('Responsibilities'),
             'icon'  => 'fal fa-clipboard-list-check'
         ];
-        $afterTitle = null;
-        $iconRight  = null;
+        $afterTitle    = null;
+        $iconRight     = null;
 
         if ($this->parent instanceof Employee) {
-            $afterTitle = [
+            $afterTitle    = [
                 'label' => $title
             ];
-            $iconRight = $icon;
+            $iconRight     = $icon;
             $subNavigation = $this->getEmployeeSubNavigation($this->parent, $request);
-            $title = $this->parent->contact_name;
+            $title         = $this->parent->contact_name;
 
-            $icon       = [
+            $icon = [
                 'icon'  => ['fal', 'fa-user-hard-hat'],
                 'title' => __('employee')
             ];
@@ -153,7 +150,11 @@ class IndexJobPositions extends OrgAction
         return Inertia::render(
             'Org/HumanResources/JobPositions',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $this->parent,
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __('Responsibilities'),
                 'pageHead'    => [
                     'title'         => $title,
@@ -175,6 +176,7 @@ class IndexJobPositions extends OrgAction
     {
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
+
         return $this->handle($organisation);
     }
 
@@ -183,27 +185,44 @@ class IndexJobPositions extends OrgAction
     {
         $this->parent = $employee;
         $this->initialisation($organisation, $request);
+
         return $this->handle($employee);
     }
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(Organisation|Employee $parent, string $routeName, array $routeParameters): array
     {
-        return array_merge(
-            (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
-            [
+        $headCrumb = function (array $routeParameters = []) {
+            return [
                 [
                     'type'   => 'simple',
                     'simple' => [
-                        'route' => [
-                            'name'       => 'grp.org.hr.job_positions.index',
-                            'parameters' => $routeParameters
-                        ],
+                        'route' => $routeParameters,
                         'label' => __('Responsibilities'),
                         'icon'  => 'fal fa-bars',
                     ],
+                ],
+            ];
+        };
 
-                ]
-            ]
-        );
+        return match ($routeName) {
+            'grp.org.hr.job_positions.index' => array_merge(
+                ShowHumanResourcesDashboard::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.hr.job_positions.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.org.hr.employees.show.positions.index' => array_merge(
+                ShowEmployee::make()->getBreadcrumbs($parent, $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.hr.employees.show.positions.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+        };
     }
 }

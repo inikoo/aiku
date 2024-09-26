@@ -7,6 +7,7 @@
 
 namespace App\Actions\HumanResources\Timesheet\UI;
 
+use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
@@ -65,7 +66,7 @@ class IndexTimesheets extends OrgAction
 
         return $query
             ->defaultSort('date')
-            ->allowedSorts(['date', 'subject_name','working_duration','breaks_duration'])
+            ->allowedSorts(['date', 'subject_name', 'working_duration', 'breaks_duration'])
             ->allowedFilters([$globalSearch, 'subject_name'])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -124,8 +125,8 @@ class IndexTimesheets extends OrgAction
 
             $table->column(key: 'working_duration', label: __('working'), canBeHidden: false, sortable: true)
                 ->column(key: 'breaks_duration', label: __('breaks'), canBeHidden: false, sortable: true)
-             //   ->column(key: 'number_time_trackers', label: __('time tracker'), canBeHidden: false)
-              //  ->column(key: 'number_open_time_trackers', label: __('open time tracker'), canBeHidden: false)
+                //   ->column(key: 'number_time_trackers', label: __('time tracker'), canBeHidden: false)
+                //  ->column(key: 'number_open_time_trackers', label: __('open time tracker'), canBeHidden: false)
                 ->defaultSort('date');
         };
     }
@@ -148,26 +149,25 @@ class IndexTimesheets extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $timesheets, ActionRequest $request): Response
     {
-
         $subNavigation = [];
-        $model      = '';
-        $title = __('Timesheets');
-        $icon = [
+        $model         = '';
+        $title         = __('Timesheets');
+        $icon          = [
             'title' => __('Timesheets'),
             'icon'  => 'fal fa-stopwatch'
         ];
-        $afterTitle = null;
-        $iconRight  = null;
+        $afterTitle    = null;
+        $iconRight     = null;
 
         if ($this->parent instanceof Employee) {
-            $afterTitle = [
+            $afterTitle    = [
                 'label' => $title
             ];
-            $iconRight = $icon;
+            $iconRight     = $icon;
             $subNavigation = $this->getEmployeeSubNavigation($this->parent, $request);
-            $title = $this->parent->contact_name;
+            $title         = $this->parent->contact_name;
 
-            $icon       = [
+            $icon = [
                 'icon'  => ['fal', 'fa-user-hard-hat'],
                 'title' => __('employee')
             ];
@@ -177,6 +177,7 @@ class IndexTimesheets extends OrgAction
             'Org/HumanResources/Timesheets',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $this->parent,
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
@@ -190,7 +191,7 @@ class IndexTimesheets extends OrgAction
                     'subNavigation' => $subNavigation,
                 ],
 
-                'tabs'        => [
+                'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => TimesheetsTabsEnum::navigation()
                 ],
@@ -198,7 +199,8 @@ class IndexTimesheets extends OrgAction
                 'data' => TimesheetsResource::collection($timesheets)
 
             ]
-        )->table($this->tableStructure($this->parent, modelOperations: [
+        )->table(
+            $this->tableStructure($this->parent, modelOperations: [
 
                 'createLink' => [
                     [
@@ -210,7 +212,8 @@ class IndexTimesheets extends OrgAction
                     ]
                 ]
 
-        ]));
+            ])
+        );
     }
 
 
@@ -231,26 +234,40 @@ class IndexTimesheets extends OrgAction
     }
 
 
-
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(Organisation|Employee|Guest $parent, string $routeName, array $routeParameters): array
     {
-        return array_merge(
-            ShowHumanResourcesDashboard::make()->getBreadcrumbs(
-                Arr::only($routeParameters, 'organisation')
-            ),
-            [
+        $headCrumb = function (array $routeParameters = []) {
+            return [
                 [
                     'type'   => 'simple',
                     'simple' => [
-                        'route' => [
-                            'name'       => 'grp.org.hr.timesheets.index',
-                            'parameters' => Arr::only($routeParameters, 'organisation')
-                        ],
+                        'route' => $routeParameters,
                         'label' => __('Timesheets'),
                         'icon'  => 'fal fa-bars',
                     ],
-                ]
-            ]
-        );
+                ],
+            ];
+        };
+
+        return match ($routeName) {
+            'grp.org.hr.timesheets.index' => array_merge(
+                ShowHumanResourcesDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.hr.timesheets.index',
+                        'parameters' => Arr::only($routeParameters, 'organisation')
+                    ]
+                )
+            ),
+            'grp.org.hr.employees.show.timesheets.index' => array_merge(
+                ShowEmployee::make()->getBreadcrumbs($parent, $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.hr.employees.show.timesheets.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+        };
     }
 }
