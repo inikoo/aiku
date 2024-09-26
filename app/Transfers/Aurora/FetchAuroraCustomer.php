@@ -139,9 +139,6 @@ class FetchAuroraCustomer extends FetchAurora
             $this->parsedData['customer']['identity_document_number'] = $identityDocumentNumber;
         }
 
-
-        //print_r($this->parsedData['customer']);
-
         if ($billingAddress != $deliveryAddress) {
             $this->parsedData['customer']['delivery_address'] = $deliveryAddress;
         }

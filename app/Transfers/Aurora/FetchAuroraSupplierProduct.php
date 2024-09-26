@@ -58,9 +58,6 @@ class FetchAuroraSupplierProduct extends FetchAurora
             return;
         }
 
-        //print_r($this->auroraModelData);
-        //print_r($supplier);
-
         $orgSupplier = $supplier->orgSuppliers()->where('organisation_id', $this->organisation->id)->firstOrFail();
 
         $this->parsedData['orgSupplier'] = $orgSupplier;
