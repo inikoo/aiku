@@ -11,7 +11,7 @@
         <link href="https://fonts.bunny.net/css?family=inter:100,200,300,400,500,600,700,800,900&display=swap" rel="stylesheet" />
         
         <link rel="icon" type="image/png" href="{{ url('favicons/favicon.png') }}">
-        <link rel="icon" href="{{ url('favicons/favicon.svg') }}" type="image/svg+xml">
+        <link rel="icon" href="{{ url('favicon.svg') }}" type="image/svg+xml">
         @routes('grp')
         {{Vite::useHotFile('grp.hot')->useBuildDirectory('grp')->withEntryPoints(['resources/js/app-grp.js'])}}
         @inertiaHead
