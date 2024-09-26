@@ -53,7 +53,7 @@ const layout = inject('layout', layoutStructure)
         
     </slot>
 
-    <div class="relative px-4 py-2 md:pb-2 md:pt-3 lg:py-2 grid grid-flow-col justify-between items-center">
+    <div class="relative px-4 py-2 md:pb-2 md:pt-2 lg:py-2 grid grid-flow-col justify-between items-center">
         <div class="">
 
             <!-- Section: Main Title -->
@@ -77,15 +77,15 @@ const layout = inject('layout', layoutStructure)
                         fixed-width />
                 </div>
                 
-                <div class="flex flex-col sm:flex-row gap-y-1.5 gap-x-3">
-                    <h2 :class="data.noCapitalise ? '' : 'capitalize'" class="flex gap-x-2">
+                <div class="flex flex-col sm:flex-row gap-y-1.5 gap-x-3 items-center ">
+                    <h2 :class="data.noCapitalise ? '' : 'capitalize'" class="flex gap-x-2 items-center">
                         <div v-if="data.model" class="text-gray-400 font-medium">{{ data.model }}</div>
                         <div class="">{{ useTruncate(data.title, 30) }}</div>
                     </h2>
                     
                     <!-- Section: After Title -->
                     <slot name="afterTitle">
-                        <div class="flex gap-x-2 items-center">
+                        <div v-if="data.iconRight || data.afterTitle" class="flex gap-x-2 items-center">
                             <FontAwesomeIcon v-if="data.iconRight"
                                 v-tooltip="data.iconRight.tooltip || ''"
                                 :icon="data.iconRight.icon" class="h-4" :class="data.iconRight.class"
@@ -97,31 +97,32 @@ const layout = inject('layout', layoutStructure)
                         </div>
                     </slot>
                 </div>
+                
+                <!-- Section: mini Tabs -->
+                <div v-if="data.meta?.length" class="w-fit flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-2 sm:gap-y-0.5 text-gray-500 text-xs">
+                    <template v-for="item in data.meta">
+                        <slot :name="`tabs-${item.key}`" :data="item">
+                            <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"
+                                :class="[
+                                    item.href?.name
+                                    ? $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
+                                        ? 'text-gray-600 font-medium'
+                                        : 'underline text-gray-400 hover:text-gray-500'
+                                    : 'text-gray-400'
+                                ]"
+                                class="first:pl-0 py-1 px-2 flex gap-x-1.5 items-center"
+                            >
+                                <FontAwesomeIcon v-if="item.leftIcon"
+                                    :title="item.leftIcon.tooltip"
+                                    fixed-width
+                                    aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400" />
+                                <MetaLabel :item="item" />
+                            </component>
+                        </slot>
+                    </template>
+                </div>
             </div>
 
-            <!-- Section: mini Tabs -->
-            <div v-if="data.meta?.length" class="w-fit flex flex-col sm:mt-0 sm:flex-row sm:flex-wrap sm:gap-x-2 sm:gap-y-0.5 text-gray-500 text-xs">
-                <template v-for="item in data.meta">
-                    <slot :name="`tabs-${item.key}`" :data="item">
-                        <component :is="item.href?.name ? Link : 'div'" :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'"
-                            :class="[
-                                item.href?.name
-                                ? $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
-                                    ? 'text-gray-600 font-medium'
-                                    : 'underline text-gray-400 hover:text-gray-500'
-                                : 'text-gray-400'
-                            ]"
-                            class="first:pl-0 py-1 px-2 flex gap-x-1.5 items-center"
-                        >
-                            <FontAwesomeIcon v-if="item.leftIcon"
-                                :title="item.leftIcon.tooltip"
-                                fixed-width
-                                aria-hidden="true" :icon="item.leftIcon.icon" class="text-gray-400" />
-                            <MetaLabel :item="item" />
-                        </component>
-                    </slot>
-                </template>
-            </div>
         </div>
 
         <!-- Section: Button and/or ButtonGroup -->

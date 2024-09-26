@@ -193,7 +193,7 @@ const isLoadingNavigation = ref<string | boolean>(false)
         </span>
         
         <!-- Label: Icon shops/warehouses and slug -->
-        <div v-if="!!currentNavigation()" class="relative w-full flex justify-between items-end pt-2 pl-2.5 pr-0.5 pb-2"
+        <div v-if="!!currentNavigation()" class="relative w-full flex justify-between items-end pt-2 pl-2 pr-0.5 pb-2"
             :style="{ color: layout.app.theme[1] + '99' }">
 
             <!-- Label: 'UK (Shop)' -->
@@ -217,7 +217,7 @@ const isLoadingNavigation = ref<string | boolean>(false)
                 <Transition name="spin-to-down">
                     <FontAwesomeIcon v-if="currentNavigation()?.value.type === 'b2b'" icon="fal fa-fax" class='text-xs' fixed-width aria-hidden='true' v-tooltip="trans('Ecommerce')" />
                     <FontAwesomeIcon v-else-if="currentNavigation()?.value.type === 'fulfilment'" icon="fal fa-hand-holding-box" class='text-xs' fixed-width aria-hidden='true' v-tooltip="trans('Fulfilment')" />
-                    <FontAwesomeIcon v-else-if="trans('Ecommerce') === 'dropshipping'" icon="fal fa-parachute-box " class='text-xs' fixed-width aria-hidden='true' v-tooltip="trans('Dropshipping')" />
+                    <FontAwesomeIcon v-else-if="currentNavigation()?.value.type === 'dropshipping'" icon="fal fa-parachute-box " class='text-xs' fixed-width aria-hidden='true' v-tooltip="trans('Dropshipping')" />
                     <FontAwesomeIcon v-else-if="currentNavigation()?.type === 'shop'" icon="fal fa-store-alt " class='text-xs' fixed-width aria-hidden='true' v-tooltip="trans('Shop')" />
                 </Transition>
             </div>
