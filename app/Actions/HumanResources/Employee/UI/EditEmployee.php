@@ -7,6 +7,7 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
+use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
@@ -26,6 +27,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class EditEmployee extends OrgAction
 {
+    use WithEmployeeSubNavigation;
     protected Organisation $organisation;
 
     public function handle(Employee $employee): Employee
@@ -52,7 +54,7 @@ class EditEmployee extends OrgAction
      */
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
-        $jobPositionsData = (object) $employee->jobPositions->map(function ($jobPosition) {
+        $jobPositionsData = (object)$employee->jobPositions->map(function ($jobPosition) {
             $scopes = collect($jobPosition->pivot->scopes)->mapWithKeys(function ($scopeIds, $scope) use ($jobPosition) {
                 return match ($scope) {
                     'Warehouse' => [
@@ -77,29 +79,29 @@ class EditEmployee extends OrgAction
             'label'  => __('Properties'),
             'icon'   => 'fal fa-sliders-h',
             'fields' => [
-                'worker_number'       => [
+                'worker_number' => [
                     'type'     => 'input',
                     'label'    => __('worker number'),
                     'required' => true,
                     'value'    => $employee->worker_number
                 ],
-                'alias'               => [
+                'alias'         => [
                     'type'     => 'input',
                     'label'    => __('alias'),
                     'required' => true,
                     'value'    => $employee->alias
                 ],
-                'work_email'          => [
+                'work_email'    => [
                     'type'  => 'input',
                     'label' => __('work email'),
                     'value' => $employee->work_email ?? ''
                 ],
-                'state'               => [
-                    'type'    => 'employeeState',
-                    'mode'    => 'card',
-                    'label'   => 'Employee status',
+                'state'         => [
+                    'type'     => 'employeeState',
+                    'mode'     => 'card',
+                    'label'    => 'Employee status',
                     'required' => true,
-                    'options' => [
+                    'options'  => [
                         [
                             'title'       => __('Hired'),
                             'description' => __('Will start in future date'),
@@ -121,13 +123,13 @@ class EditEmployee extends OrgAction
                             'value'       => EmployeeStateEnum::LEFT->value
                         ],
                     ],
-                    'value'   => [
-                        'state'                 => $employee->state,
-                        'employment_start_at'   => $employee->employment_start_at ?? '',
-                        'employment_end_at'     => $employee->employment_end_at   ?? '',
+                    'value'    => [
+                        'state'               => $employee->state,
+                        'employment_start_at' => $employee->employment_start_at ?? '',
+                        'employment_end_at'   => $employee->employment_end_at ?? '',
                     ]
                 ],
-                'job_title'           => [
+                'job_title'     => [
                     'type'        => 'input',
                     'label'       => __('job title'),
                     'placeholder' => __('Job title'),
@@ -135,10 +137,10 @@ class EditEmployee extends OrgAction
                     'value'       => $employee->job_title,
                     'required'    => true
                 ],
-                'positions' => [
-                    'type'                   => 'employeePosition',
-                    'required'               => true,
-                    'label'                  => __('position'),
+                'positions'     => [
+                    'type'     => 'employeePosition',
+                    'required' => true,
+                    'label'    => __('position'),
                     // 'list_authorised'        => [
                     //     'positions'         => [
                     //         'authorised_shops'       =>
@@ -152,14 +154,14 @@ class EditEmployee extends OrgAction
                     //     ]
                     // ],
 
-                    'options'  => [
-                        'positions'           => JobPositionResource::collection($this->organisation->jobPositions),
-                        'shops'               => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
-                        'fulfilments'         => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
-                        'warehouses'          => WarehouseResource::collection($this->organisation->warehouses),
+                    'options' => [
+                        'positions'   => JobPositionResource::collection($this->organisation->jobPositions),
+                        'shops'       => ShopResource::collection($this->organisation->shops()->where('type', '!=', ShopTypeEnum::FULFILMENT)->get()),
+                        'fulfilments' => ShopResource::collection($this->organisation->shops()->where('type', '=', ShopTypeEnum::FULFILMENT)->get()),
+                        'warehouses'  => WarehouseResource::collection($this->organisation->warehouses),
                     ],
-                    'value'    => $jobPositionsData,  // Should return an object
-                    'full'     => true
+                    'value'   => $jobPositionsData,  // Should return an object
+                    'full'    => true
                 ],
 
 
@@ -231,21 +233,27 @@ class EditEmployee extends OrgAction
         return Inertia::render(
             'EditModel',
             [
-                'live_users' => [
-                    'icon_left'   => [
-                        'icon' => 'fal fa-user-hard-hat',
+                'live_users'  => [
+                    'icon_left'  => [
+                        'icon'  => 'fal fa-user-hard-hat',
                         'class' => 'text-lime-400'
                     ],
-                    'icon_right'  => [
-                        'icon' => 'fal fa-pencil',
+                    'icon_right' => [
+                        'icon'  => 'fal fa-pencil',
                         'class' => 'text-gray-300'
                     ],
                 ],
                 'title'       => __('employee'),
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $employee,
+                    $request->route()->originalParameters()
+                ),
                 'pageHead'    => [
-                    'title'    => $employee->contact_name,
-                    'actions'  => [
+                    'title'   => $employee->contact_name,
+                    'subNavigation' => $this->getEmployeeSubNavigation($employee, $request),
+
+
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'cancel',
@@ -257,7 +265,7 @@ class EditEmployee extends OrgAction
                     ]
                 ],
 
-                'formData'    => [
+                'formData' => [
                     'current'   => $currentSection,
                     'blueprint' => $sections,
                     'args'      => [
@@ -274,8 +282,8 @@ class EditEmployee extends OrgAction
         );
     }
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(Employee $employee, array $routeParameters): array
     {
-        return ShowEmployee::make()->getBreadcrumbs(routeParameters:$routeParameters, suffix: '('.__('Editing').')');
+        return ShowEmployee::make()->getBreadcrumbs($employee, routeParameters: $routeParameters, suffix: '('.__('Editing').')');
     }
 }

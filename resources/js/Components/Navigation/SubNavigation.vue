@@ -6,11 +6,11 @@ import { inject, ref } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faAtomAlt, faDotCircle, faUserFriends, faChessBoard } from "@fal"
-import { library } from "@fortawesome/fontawesome-svg-core"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faAtomAlt, faDotCircle, faUserFriends, faChessBoard,faStopwatch,faClipboardListCheck } from "@fal";
+import { library } from "@fortawesome/fontawesome-svg-core";
 
-library.add(faAtomAlt, faDotCircle, faUserFriends, faChessBoard)
+library.add(faAtomAlt, faDotCircle, faUserFriends, faChessBoard, faStopwatch, faClipboardListCheck);
 
 const layout = inject("layout", layoutStructure)
 
