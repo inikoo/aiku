@@ -111,6 +111,16 @@ class Kernel extends HttpKernel
             AddLinkHeadersForPreloadedAssets::class,
         ],
 
+        'web_errors' => [
+            EncryptCookies::class,
+            AddQueuedCookiesToResponse::class,
+            StartSession::class,
+            ShareErrorsFromSession::class,
+            VerifyCsrfToken::class,
+            BindGroupInstance::class,
+            SetLocale::class,
+        ],
+
         'aiku-public' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,

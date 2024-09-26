@@ -7,6 +7,9 @@
 
 use App\Actions\UI\Notification\IndexNotification;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+require __DIR__."/auth.php";
 
 Route::middleware(["auth"])->group(function () {
     Route::get('/', function () {
@@ -26,16 +29,15 @@ Route::middleware(["auth"])->group(function () {
             echo "</tr>";
             foreach ($routeCollection as $value) {
                 echo "<tr>";
-                echo "<td>" . $value->methods()[0] . "</td>";
-                echo "<td>" . $value->uri() . "</td>";
-                echo "<td>" . $value->getName() . "</td>";
-                echo "<td>" . $value->getActionName() . "</td>";
+                echo "<td>".$value->methods()[0]."</td>";
+                echo "<td>".$value->uri()."</td>";
+                echo "<td>".$value->getName()."</td>";
+                echo "<td>".$value->getActionName()."</td>";
                 echo "</tr>";
             }
             echo "</table>";
         });
     }
-
 
 
     Route::get('/notifications', IndexNotification::class)->name('notifications');
@@ -84,6 +86,10 @@ Route::middleware(["auth"])->group(function () {
         ->name("websites.")
         ->group(__DIR__."/websites.php");
 
+    Route::fallback(function () {
+        $status = 404;
+        return Inertia::render('Errors/Error404', compact('status'))
+            ->toResponse(request())
+            ->setStatusCode($status);
+    })->name('fallback');
 });
-
-require __DIR__."/auth.php";

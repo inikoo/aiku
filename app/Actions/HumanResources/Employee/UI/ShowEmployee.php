@@ -51,6 +51,10 @@ class ShowEmployee extends OrgAction
 
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
+        // Uncomment this to test the error page
+        //valid values 500, 503, 404, 403, 422
+        //abort(500);
+
         return Inertia::render(
             'Org/HumanResources/Employee',
             [

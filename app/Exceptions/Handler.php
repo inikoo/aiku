@@ -4,14 +4,18 @@ namespace App\Exceptions;
 
 use App\Actions\UI\Grp\GetFirstLoadProps;
 use App\Http\Resources\UI\LoggedUserResource;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Throwable;
+use Tightenco\Ziggy\Ziggy;
 
 class Handler extends ExceptionHandler
 {
@@ -58,6 +62,16 @@ class Handler extends ExceptionHandler
         });
     }
 
+    protected function loadErrorMiddleware($request, $callback)
+    {
+        $middleware = (\Route::getMiddlewareGroups()['web_errors']);
+
+        return (new Pipeline($this->container))
+            ->send($request)
+            ->through($middleware)
+            ->then($callback);
+    }
+
     public function render($request, Throwable $e): Response|JsonResponse|\Symfony\Component\HttpFoundation\Response|RedirectResponse
     {
         $response = parent::render($request, $e);
@@ -66,77 +80,72 @@ class Handler extends ExceptionHandler
             && in_array($response->getStatusCode(), [500, 503, 404, 403, 422])
             && !(!$request->inertia() && $request->expectsJson())
         ) {
-            $route = $request->route();
+            $app = $this->getApp();
 
-            if ($route and str_starts_with($route->getName(), 'grp.models')) {
-                return back()->withErrors([
-                    'error_in_models' => $response->getStatusCode().': '.$e->getMessage()
-                ]);
+
+            if ($app == 'aiku-public') {
+                return $this->renderErrorForLogOutWebpages($app, $request, $e, $response);
             }
 
-            $errorData = match ($response->getStatusCode()) {
-                403 => [
-                    'status'      => $response->getStatusCode(),
-                    'title'       => __('Forbidden'),
-                    'description' => __('Sorry, you are forbidden from accessing this page.')
-                ],
-                404 => [
-                    'status'      => $response->getStatusCode(),
-                    'title'       => __('Page Not Found'),
-                    'description' => __('Sorry, the page you are looking for could not be found.')
-                ],
-                422 => [
-                    'status'      => $response->getStatusCode(),
-                    'title'       => __('Unprocessable request'),
-                    'description' => __('Sorry, is impossible to process this page.')
-                ],
-                503 => [
-                    'status'      => $response->getStatusCode(),
-                    'title'       => __('Service Unavailable'),
-                    'description' => __('Sorry, we are doing some maintenance. Please check back soon.')
-                ],
-                default => $this->getExceptionInfo($e)
-            };
-            $user      = $request->user();
-            if (Auth::check()) {
-                $errorData = array_merge(
-                    GetFirstLoadProps::run($user),
-                    $errorData,
-                    [
-                        'auth' => [
-                            'user' => $request->user() ? new LoggedUserResource($user) : null,
-                        ],
-                    ]
-                );
-            }
 
-            $host = Request::getHost();
+            return $this->loadErrorMiddleware($request, function ($request) use ($e, $response, $app) {
+                //$user = $request->user();
+                //$host = Request::getHost();
 
 
-            if ($host == 'app.'.config('app.domain')) {
-                Inertia::setRootView('app-grp');
-                $app = 'grp';
-            } elseif (config('app.domain')) {
-                Inertia::setRootView('app-aiku-public');
-                $app = 'aiku-public';
-            } else {
-                $path = Request::path();
-                if (preg_match('/^app\//', $path)) {
-                    Inertia::setRootView('app-retina');
-                    $app = 'retina';
-                } else {
-                    Inertia::setRootView('app-iris');
-                    $app = 'iris';
+                if (Auth::check()) {
+                    $route = $request->route();
+                    if ($route and str_starts_with($route->getName(), 'grp.models')) {
+                        return back()->withErrors([
+                            'error_in_models' => $response->getStatusCode().': '.$e->getMessage()
+                        ]);
+                    }
+
+
+                    if ($e instanceof ModelNotFoundException) {
+                        if (Str::startsWith($request->route()->getName(), 'grp.org')) {
+                            $fallbackPlaceholder = explode('/', Request::path());
+                            $fallbackPlaceholder = array_slice($fallbackPlaceholder, 2);
+                            $fallbackPlaceholder = implode('/', $fallbackPlaceholder).'/404';
+
+                            return redirect()->route(
+                                'grp.org.fallback',
+                                [
+                                    'organisation'        => $request->route()->originalParameters()['organisation'],
+                                    'fallbackPlaceholder' => $fallbackPlaceholder
+                                ]
+                            );
+                        }
+
+                        return redirect()->route(
+                            'grp.fallback',
+                            [
+                                'fallbackPlaceholder' => Request::path()
+                            ]
+                        );
+                    }
+
+                    Inertia::setRootView('app-'.$app);
+
+
+                    return Inertia::render(
+                        $this->getInertiaPage($e, $app),
+                        $this->getInertiaProps($request->user(), $request, $response, $e)
+                    )
+                        ->toResponse($request)
+                        ->setStatusCode($response->getStatusCode());
                 }
-            }
 
+                // User not logged in
 
-            return Inertia::render(
-                $this->getInertiaPage($e, $app),
-                $errorData
-            )
-                ->toResponse($request)
-                ->setStatusCode($response->getStatusCode());
+                if ($app == 'grp') {
+                    return redirect('login');
+                } elseif ($app == 'retina') {
+                    return redirect('app/login');
+                } else {
+                    return $this->renderErrorForLogOutWebpages($app, $request, $e, $response);
+                }
+            });
         } elseif ($response->getStatusCode() === 419) {
             return back()->with([
                 'message' => 'The page expired, please try again.',
@@ -144,6 +153,83 @@ class Handler extends ExceptionHandler
         }
 
         return $response;
+    }
+
+    private function getApp(): string
+    {
+        $host = Request::getHost();
+
+        if ($host == 'app.'.config('app.domain')) {
+            $app = 'grp';
+        } elseif ($host == config('app.domain')) {
+            $app = 'aiku-public';
+        } else {
+            $path = Request::path();
+            if (preg_match('/^app\//', $path)) {
+                $app = 'retina';
+            } else {
+                $app = 'iris';
+            }
+        }
+
+        return $app;
+    }
+
+    private function getInertiaProps($user, $request, $response, $e): array
+    {
+        $firstLoadOnlyProps = [];
+
+
+        if (!$request->inertia()) {
+            $firstLoadOnlyProps          = GetFirstLoadProps::run($user);
+            $firstLoadOnlyProps['ziggy'] = function () use ($request) {
+                return array_merge((new Ziggy())->toArray(), [
+                    'location' => $request->url(),
+                ]);
+            };
+        }
+
+
+        return array_merge(
+            $firstLoadOnlyProps,
+            [
+                'error' => $this->getBaseErrorData($response, $e),
+                'auth'  => [
+                    'user' => $request->user() ? LoggedUserResource::make($request->user())->getArray() : null,
+                ],
+                'ziggy' => [
+                    'location' => $request->url(),
+                ],
+
+            ]
+        );
+    }
+
+    private function getBaseErrorData($response, $e): array
+    {
+        return match ($response->getStatusCode()) {
+            403 => [
+                'status'      => $response->getStatusCode(),
+                'title'       => __('Forbidden'),
+                'description' => __('Sorry, you are forbidden from accessing this page.')
+            ],
+            404 => [
+                'status'      => $response->getStatusCode(),
+                'title'       => __('Page Not Found'),
+                'description' => __('Sorry, the page you are looking for could not be found.')
+            ],
+            422 => [
+                'status'      => $response->getStatusCode(),
+                'title'       => __('Unprocessable request'),
+                'description' => __('Sorry, is impossible to process this page.')
+            ],
+            503 => [
+                'status'      => $response->getStatusCode(),
+                'title'       => __('Service Unavailable'),
+                'description' => __('Sorry, we are doing some maintenance. Please check back soon.')
+            ],
+            default => $this->getExceptionInfo($e)
+        };
     }
 
     public function getExceptionInfo(Throwable $e): array
@@ -169,12 +255,21 @@ class Handler extends ExceptionHandler
             return 'Errors/IrisWebsiteNotFound';
         }
 
-        $page = 'Errors/Error';
-
-        if ($app == 'grp' or $app == 'retina') {
-            $page = Auth::check() ? 'Errors/ErrorInApp' : 'Errors/Error';
-        }
-
-        return $page;
+        return 'Errors/Error';
     }
+
+    public function renderErrorForLogOutWebpages($app, $request, Throwable $e, $response): Response|JsonResponse|\Symfony\Component\HttpFoundation\Response|RedirectResponse
+    {
+        Inertia::setRootView('app-'.$app);
+
+
+        return Inertia::render(
+            $this->getInertiaPage($e, $app),
+            $this->getBaseErrorData($response, $e)
+        )
+            ->toResponse($request)
+            ->setStatusCode($response->getStatusCode());
+    }
+
+
 }

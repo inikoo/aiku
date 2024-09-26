@@ -21,6 +21,7 @@ class GetFirstLoadProps
 
     public function handle(?User $user): array
     {
+
         if ($user) {
             $language = $user->language;
         } else {
