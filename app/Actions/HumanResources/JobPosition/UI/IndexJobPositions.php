@@ -126,9 +126,27 @@ class IndexJobPositions extends OrgAction
     {
 
         $subNavigation = [];
+        $model      = '';
+        $title = __('Responsibilities');
+        $icon = [
+            'title' => __('Responsibilities'),
+            'icon'  => 'fal fa-clipboard-list-check'
+        ];
+        $afterTitle = null;
+        $iconRight  = null;
 
         if ($this->parent instanceof Employee) {
+            $afterTitle = [
+                'label' => $title
+            ];
+            $iconRight = $icon;
             $subNavigation = $this->getEmployeeSubNavigation($this->parent, $request);
+            $title = $this->parent->contact_name;
+
+            $icon       = [
+                'icon'  => ['fal', 'fa-user-hard-hat'],
+                'title' => __('employee')
+            ];
         }
 
 
@@ -138,11 +156,11 @@ class IndexJobPositions extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'title'       => __('Responsibilities'),
                 'pageHead'    => [
-                    'icon'    => [
-                        'title' => __('Responsibilities'),
-                        'icon'  => 'fal fa-clipboard-list-check'
-                    ],
-                    'title'         => __('Responsibilities'),
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
                 ],
                 'data'        => JobPositionsResource::collection($jobPositions),

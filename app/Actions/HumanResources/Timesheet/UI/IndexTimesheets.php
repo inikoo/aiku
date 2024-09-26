@@ -7,6 +7,7 @@
 
 namespace App\Actions\HumanResources\Timesheet\UI;
 
+use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\Helpers\Period\PeriodEnum;
@@ -29,6 +30,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexTimesheets extends OrgAction
 {
+    use WithEmployeeSubNavigation;
+
     private Employee|Organisation|Guest $parent;
 
     public function handle(Organisation|Employee|Guest $parent, ?string $prefix = null, bool $isTodayTimesheet = false): LengthAwarePaginator
@@ -92,8 +95,22 @@ class IndexTimesheets extends OrgAction
                     ->pageName($prefix.'Page');
             }
 
+            $noResults = __("No timesheets found");
+            if ($parent instanceof Employee) {
+                $stats     = $parent->stats;
+                $noResults = __("Employee has no timesheets");
+            } else {
+                $stats = $parent->humanResourcesStats;
+            }
+
             $table
                 ->withGlobalSearch()
+                ->withEmptyState(
+                    [
+                        'title' => $noResults,
+                        'count' => $stats->number_timesheets
+                    ]
+                )
                 ->withModelOperations($modelOperations)
                 ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true);
 
@@ -124,15 +141,38 @@ class IndexTimesheets extends OrgAction
             );
     }
 
-
     public function jsonResponse(LengthAwarePaginator $timesheets): AnonymousResourceCollection
     {
         return TimesheetsResource::collection($timesheets);
     }
 
-
     public function htmlResponse(LengthAwarePaginator $timesheets, ActionRequest $request): Response
     {
+
+        $subNavigation = [];
+        $model      = '';
+        $title = __('Timesheets');
+        $icon = [
+            'title' => __('Timesheets'),
+            'icon'  => 'fal fa-stopwatch'
+        ];
+        $afterTitle = null;
+        $iconRight  = null;
+
+        if ($this->parent instanceof Employee) {
+            $afterTitle = [
+                'label' => $title
+            ];
+            $iconRight = $icon;
+            $subNavigation = $this->getEmployeeSubNavigation($this->parent, $request);
+            $title = $this->parent->contact_name;
+
+            $icon       = [
+                'icon'  => ['fal', 'fa-user-hard-hat'],
+                'title' => __('employee')
+            ];
+        }
+
         return Inertia::render(
             'Org/HumanResources/Timesheets',
             [
@@ -142,21 +182,12 @@ class IndexTimesheets extends OrgAction
                 ),
                 'title'       => __('timesheets'),
                 'pageHead'    => [
-                    'icon'  =>
-                    [
-                        'icon'  => ['fal', 'fa-stopwatch'],
-                        'title' => __('timesheets')
-                    ],
-                    'title'  => __('timesheets'),
-                    'create' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'grp.org.hr.employees.create',
-                            'parameters' => [
-                                'organisation' => $this->organisation->slug
-                            ]
-                        ],
-                        'label' => __('timesheets')
-                    ] : false,
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'subNavigation' => $subNavigation,
                 ],
 
                 'tabs'        => [
@@ -199,13 +230,6 @@ class IndexTimesheets extends OrgAction
         return $this->handle($employee);
     }
 
-    public function inGuest(Organisation $organisation, Guest $guest, ActionRequest $request): LengthAwarePaginator
-    {
-        $this->parent = $guest;
-        $this->initialisation($organisation, $request);
-
-        return $this->handle($guest);
-    }
 
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
