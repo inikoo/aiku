@@ -8,4 +8,4 @@
 
 use App\Actions\Web\Webpage\UI\ShowWebpageWorkshopPreview;
 
-Route::get('website/{website}/webpages/{webpage}/workshop/preview', [ShowWebpageWorkshopPreview::class, 'inWebsite'])->name('preview');
+Route::get('{website}/webpages/{webpage}/workshop/preview', [ShowWebpageWorkshopPreview::class, 'inWebsite'])->name('preview');
