@@ -3,9 +3,6 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        @env(['staging', 'production'])
-        @include('new-relic', ['appID' => Config::get('new-relic.application_id.iris')])
-        @endenv
         <title inertia>{{ config('app.name', 'Iris') }}</title>
         
         <!-- Fonts -->
