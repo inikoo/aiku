@@ -79,8 +79,8 @@ const layout = inject('layout', layoutStructure)
                 
                 <div class="flex flex-col sm:flex-row gap-y-1.5 gap-x-3 items-center ">
                     <h2 :class="data.noCapitalise ? '' : 'capitalize'" class="flex gap-x-2 items-center">
-                        <div v-if="data.model" class="text-gray-400 font-medium">{{ data.model }}</div>
-                        <div class="">{{ useTruncate(data.title, 30) }}</div>
+                        <span v-if="data.model" class="text-gray-400 font-medium">{{ data.model }}</span>
+                        <span class="">{{ useTruncate(data.title, 30) }}</span>
                     </h2>
                     
                     <!-- Section: After Title -->
