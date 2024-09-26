@@ -48,7 +48,7 @@ class CustomerHydrateDeliveryNotes
                 enum: DeliveryNoteTypeEnum::class,
                 models: DeliveryNote::class,
                 where: function ($q) use ($customer) {
-                    $q->where('shop_id', $customer->id);
+                    $q->where('customer_id', $customer->id);
                 }
             )
         );
@@ -61,7 +61,7 @@ class CustomerHydrateDeliveryNotes
                 enum: DeliveryNoteStateEnum::class,
                 models: DeliveryNote::class,
                 where: function ($q) use ($customer) {
-                    $q->where('shop_id', $customer->id);
+                    $q->where('customer_id', $customer->id);
                 }
             )
         );
@@ -74,7 +74,7 @@ class CustomerHydrateDeliveryNotes
                 enum: DeliveryNoteStatusEnum::class,
                 models: DeliveryNote::class,
                 where: function ($q) use ($customer) {
-                    $q->where('shop_id', $customer->id);
+                    $q->where('customer_id', $customer->id);
                 }
             )
         );
