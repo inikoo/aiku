@@ -15,7 +15,7 @@ trait WithCollectionSubNavigation
     {
         return [
             [
-                'anchor' => true,
+                'isAnchor' => true,
                 'label'    => __('Collection'),
                 'href'     => [
                         'name'       => 'grp.org.shops.show.catalogue.collections.show',

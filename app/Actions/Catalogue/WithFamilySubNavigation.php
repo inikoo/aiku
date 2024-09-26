@@ -74,7 +74,7 @@ trait WithFamilySubNavigation
 
         return [
             [
-                'anchor'   => true,
+                'isAnchor'   => true,
                 'label'    => __('Family'),
                 'href'     => $familyRoute,
                 'leftIcon' => [

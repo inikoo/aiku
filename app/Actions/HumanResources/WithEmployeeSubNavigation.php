@@ -17,7 +17,7 @@ trait WithEmployeeSubNavigation
         $subNavigation = [];
 
         $subNavigation[] = [
-            'anchor' => true,
+            'isAnchor' => true,
             'href' => [
                 'name'      => 'grp.org.hr.employees.show',
                 'parameters' => $request->route()->originalParameters()
