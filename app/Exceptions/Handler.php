@@ -66,9 +66,9 @@ class Handler extends ExceptionHandler
             && in_array($response->getStatusCode(), [500, 503, 404, 403, 422])
             && !(!$request->inertia() && $request->expectsJson())
         ) {
+            $route = $request->route();
 
-            if (str_starts_with($request->route()->getName(), 'grp.models')) {
-
+            if ($route and str_starts_with($route->getName(), 'grp.models')) {
                 return back()->withErrors([
                     'error_in_models' => $response->getStatusCode().': '.$e->getMessage()
                 ]);
@@ -97,26 +97,28 @@ class Handler extends ExceptionHandler
                 ],
                 default => $this->getExceptionInfo($e)
             };
-            $user = $request->user();
+            $user      = $request->user();
             if (Auth::check()) {
                 $errorData = array_merge(
                     GetFirstLoadProps::run($user),
                     $errorData,
                     [
-                    'auth'          => [
-                        'user' => $request->user() ? new LoggedUserResource($user) : null,
-                    ],
-               ]
+                        'auth' => [
+                            'user' => $request->user() ? new LoggedUserResource($user) : null,
+                        ],
+                    ]
                 );
             }
 
             $host = Request::getHost();
 
 
-
             if ($host == 'app.'.config('app.domain')) {
                 Inertia::setRootView('app-grp');
                 $app = 'grp';
+            } elseif (config('app.domain')) {
+                Inertia::setRootView('app-aiku-public');
+                $app = 'aiku-public';
             } else {
                 $path = Request::path();
                 if (preg_match('/^app\//', $path)) {
@@ -137,8 +139,8 @@ class Handler extends ExceptionHandler
                 ->setStatusCode($response->getStatusCode());
         } elseif ($response->getStatusCode() === 419) {
             return back()->with([
-                                    'message' => 'The page expired, please try again.',
-                                ]);
+                'message' => 'The page expired, please try again.',
+            ]);
         }
 
         return $response;
@@ -163,8 +165,6 @@ class Handler extends ExceptionHandler
 
     public function getInertiaPage(Throwable $e, string $app): string
     {
-
-
         if (get_class($e) == 'App\Exceptions\IrisWebsiteNotFound' and $app == 'iris') {
             return 'Errors/IrisWebsiteNotFound';
         }
@@ -172,13 +172,9 @@ class Handler extends ExceptionHandler
         $page = 'Errors/Error';
 
         if ($app == 'grp' or $app == 'retina') {
-
-
-
             $page = Auth::check() ? 'Errors/ErrorInApp' : 'Errors/Error';
         }
 
         return $page;
-
     }
 }
