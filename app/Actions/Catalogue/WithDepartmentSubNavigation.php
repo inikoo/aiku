@@ -15,13 +15,14 @@ trait WithDepartmentSubNavigation
     {
         return [
             [
-                'label'    => $department->name,
+                'anchor'   => true,
+                'label'    => __('Department'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.catalogue.departments.show',
                     'parameters' => [$this->organisation->slug, $department->shop->slug, $department->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-folder-tree'],
+                    'icon'    => ['fal', 'fa-stream'],
                     'tooltip' => __('Department')
                 ]
             ],

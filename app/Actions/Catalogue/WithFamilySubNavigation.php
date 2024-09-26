@@ -45,8 +45,6 @@ trait WithFamilySubNavigation
                 'parameters' => $routeParameters
             ];
         } elseif ($parent->type == ProductCategoryTypeEnum::FAMILY) {
-
-
             if ($request->route()->getName() == 'grp.org.shops.show.catalogue.departments.show.families.show.products.index') {
                 $familyRoute  = [
                     'name'       => 'grp.org.shops.show.catalogue.departments.show.families.show',
@@ -66,8 +64,6 @@ trait WithFamilySubNavigation
                     'parameters' => $routeParameters
                 ];
             }
-
-
         } elseif ($parent instanceof Shop) {
             $productRoute = [
                 'name'       => 'grp.org.shops.show.catalogue.families.show.products.index',
@@ -78,10 +74,11 @@ trait WithFamilySubNavigation
 
         return [
             [
-                'label'    => $family->code,
+                'anchor'   => true,
+                'label'    => __('Family'),
                 'href'     => $familyRoute,
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-folder'],
+                    'icon'    => ['fal', 'fa-stream'],
                     'tooltip' => __('family')
                 ]
             ],

@@ -15,7 +15,8 @@ trait WithCollectionSubNavigation
     {
         return [
             [
-                'label'    => $collection->name,
+                'anchor' => true,
+                'label'    => __('Collection'),
                 'href'     => [
                         'name'       => 'grp.org.shops.show.catalogue.collections.show',
                         'parameters' => [$this->organisation->slug, $collection->shop->slug, $collection->slug]
@@ -33,8 +34,8 @@ trait WithCollectionSubNavigation
                     'parameters' => [$this->organisation->slug, $collection->shop->slug, $collection->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-folder-tree'],
-                    'tooltip' => __('Departments')
+                    'icon'    => ['fal', 'fa-stream'],
+                    'tooltip' => __('Sub-Department')
                 ]
             ],
             [
