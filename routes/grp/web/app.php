@@ -80,5 +80,10 @@ Route::middleware(["auth"])->group(function () {
         ->name("json.")
         ->group(__DIR__."/json.php");
 
+    Route::prefix("websites")
+        ->name("websites.")
+        ->group(__DIR__."/websites.php");
+
 });
+
 require __DIR__."/auth.php";

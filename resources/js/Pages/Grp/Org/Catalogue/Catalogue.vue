@@ -104,10 +104,11 @@ const locale = inject('locale', aikuLocaleStructure)
 
                 <div class="flex flex-col justify-between gap-y-1">
                     <div>
-                        <div class="text-gray-400 text-sm">AT48441546</div>
+                        <div class="text-indigo-600 text-sm animate-pulse">Product of the month</div>
                         <h3 class="text-xl font-semibold">
                             Vintage Orange Mint Hand Carved Buddha Statue - 30cm - Happy Buddha
                         </h3>
+                        <div class="text-gray-400 text-sm">AT48441546</div>
                     </div>
                     <div>
                         <p aria-hidden="true" class="text-gray-500">Sold this month: 1,684 pcs</p>

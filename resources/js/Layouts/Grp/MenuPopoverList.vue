@@ -7,6 +7,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { capitalize } from "@/Composables/capitalize"
 import { inject } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
+import { trans } from "laravel-vue-i18n"
 library.add(faStoreAlt)
 
 const props = defineProps<{
@@ -23,16 +24,17 @@ const layout = inject('layout', layoutStructure)
 <template>
     <div class="px-1 py-1">
         <!-- Show All -->
-        <div @click="() => (router.visit(route(layout.navigation.org[layout.currentParams.organisation][`${navKey}s_index`].route.name, layout.navigation.org[layout.currentParams.organisation][`${navKey}s_index`].route.parameters)), closeMenu())"
+        <!-- <div @click="() => (router.visit(route(layout.navigation.org[layout.currentParams.organisation][`${navKey}s_index`].route.name, layout.navigation.org[layout.currentParams.organisation][`${navKey}s_index`].route.parameters)), closeMenu())"
             class="flex gap-x-2 items-center pl-2 py-1.5 rounded text-slate-600 hover:bg-slate-200/30 cursor-pointer">
             <FontAwesomeIcon v-if="icon" :icon='icon' class='text-xxs' aria-hidden='true' />
             <span class="text-[9px] leading-none font-semibold">Show all {{ navKey }}s</span>
         </div>
-        <hr class="w-11/12 mx-auto border-t border-gray-200 mt-1 mb-1">
+        <hr class="w-11/12 mx-auto border-t border-gray-200 mt-1 mb-1"> -->
 
         <!-- List -->
-        <div class="max-h-52 overflow-y-auto space-y-1.5">
+        <div class="max-h-52x overflow-y-auto space-y-1.5">
             <template v-for="(showare, idxSH) in layout.organisations.data.find(organisation => organisation.slug == layout.currentParams.organisation)?.[`authorised_${navKey}s`]">
+            <!-- {{showare}} -->
                 <MenuItem v-if="showare.state != 'closed'"
                     v-slot="{ active }"
                     as="div"
@@ -47,6 +49,9 @@ const layout = inject('layout', layoutStructure)
                             <div v-show="!imageSkeleton[idxSH]" class="skeleton w-5 h-5"/>
                         </div> -->
                         <div class="font-semibold">{{ showare.label }}</div>
+                        <FontAwesomeIcon v-if="showare.type === 'b2b'" icon='fal fa-fax' class='text-sm text-gray-400' v-tooltip="trans('Ecommerce')" aria-hidden='true' />
+                        <FontAwesomeIcon v-if="showare.type === 'dropshipping'" icon='fal fa-store-alt' class='text-sm text-gray-400' v-tooltip="trans('Dropshipping')" aria-hidden='true' />
+                        <FontAwesomeIcon v-if="showare.type === 'fulfilment'" icon='fal fa-hand-holding-box' class='text-sm text-gray-400' v-tooltip="trans('Fulfilment')" aria-hidden='true' />
                 </MenuItem>
             </template>
         </div>
