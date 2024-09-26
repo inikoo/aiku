@@ -90,6 +90,12 @@ class FetchAuroraCustomer extends FetchAurora
         $warehouseInternalNotes = $this->auroraModelData->{'Customer Order Sticky Note'};
         $warehousePublicNotes   = $this->auroraModelData->{'Customer Delivery Sticky Note'};
 
+
+        $internalNotes = $this->clearTextWithHtml($internalNotes);
+        $warehouseInternalNotes = $this->clearTextWithHtml($warehouseInternalNotes);
+        $warehousePublicNotes = $this->clearTextWithHtml($warehousePublicNotes);
+
+
         $this->parsedData['customer'] =
             [
                 'reference'                => sprintf('%05d', $this->auroraModelData->{'Customer Key'}),

@@ -32,6 +32,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -45,6 +46,9 @@ class StoreCustomer extends OrgAction
     use WithModelAddressActions;
 
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Shop $shop, array $modelData): Customer
     {
         $contactAddressData = Arr::get($modelData, 'contact_address', []);
@@ -79,56 +83,57 @@ class StoreCustomer extends OrgAction
                 CustomerStatusEnum::APPROVED
         );
 
+        $customer = DB::transaction(function () use ($shop, $modelData, $contactAddressData, $deliveryAddressData, $taxNumberData) {
 
-        /** @var Customer $customer */
-        $customer = $shop->customers()->create($modelData);
+            /** @var Customer $customer */
+            $customer = $shop->customers()->create($modelData);
+            $customer->stats()->create();
 
+            if ($customer->is_dropshipping) {
+                $customer->dropshippingStats()->create();
+            }
 
-        $customer->stats()->create();
+            if ($customer->is_fulfilment) {
+                StoreFulfilmentCustomerFromCustomer::run($customer, $shop, ['source_id' => $customer->source_id]);
+            }
 
-        if ($customer->is_dropshipping) {
-            $customer->dropshippingStats()->create();
-        }
-
-        if ($customer->is_fulfilment) {
-            StoreFulfilmentCustomerFromCustomer::run($customer, $shop, ['source_id' => $customer->source_id]);
-        }
-
-        $customer = $this->addAddressToModel(
-            model: $customer,
-            addressData: $contactAddressData,
-            scope: 'billing',
-            canShip: true
-        );
-        $customer->refresh();
-
-        if ($deliveryAddressData) {
             $customer = $this->addAddressToModel(
                 model: $customer,
-                addressData: $deliveryAddressData,
-                scope: 'delivery',
-                updateLocation: false,
-                updateAddressField: 'delivery_address_id'
+                addressData: $contactAddressData,
+                scope: 'billing',
+                canShip: true
             );
-        } else {
-            $customer->updateQuietly(['delivery_address_id' => $customer->address_id]);
-        }
+            $customer->refresh();
 
-
-        if ($taxNumberData) {
-            if (!Arr::get($taxNumberData, 'data.name')) {
-                Arr::forget($taxNumberData, 'data.name');
+            if ($deliveryAddressData) {
+                $customer = $this->addAddressToModel(
+                    model: $customer,
+                    addressData: $deliveryAddressData,
+                    scope: 'delivery',
+                    updateLocation: false,
+                    updateAddressField: 'delivery_address_id'
+                );
+            } else {
+                $customer->updateQuietly(['delivery_address_id' => $customer->address_id]);
             }
 
-            if (!Arr::get($taxNumberData, 'data.address')) {
-                Arr::forget($taxNumberData, 'data.address');
-            }
 
-            StoreTaxNumber::run(
-                owner: $customer,
-                modelData: $taxNumberData
-            );
-        }
+            if ($taxNumberData) {
+                if (!Arr::get($taxNumberData, 'data.name')) {
+                    Arr::forget($taxNumberData, 'data.name');
+                }
+
+                if (!Arr::get($taxNumberData, 'data.address')) {
+                    Arr::forget($taxNumberData, 'data.address');
+                }
+
+                StoreTaxNumber::run(
+                    owner: $customer,
+                    modelData: $taxNumberData
+                );
+            }
+            return $customer;
+        });
 
         ShopHydrateCustomers::dispatch($customer->shop)->delay($this->hydratorsDelay);
         ShopHydrateCustomerInvoices::dispatch($customer->shop)->delay($this->hydratorsDelay);
@@ -153,16 +158,24 @@ class StoreCustomer extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'                => ['sometimes', 'string', 'max:16'],
+            'reference'                => [
+                'sometimes',
+                'string',
+                'max:16',
+                new IUnique(
+                    table: 'customers',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                    ]
+                ),
+            ],
             'state'                    => ['sometimes', Rule::enum(CustomerStateEnum::class)],
             'status'                   => ['sometimes', Rule::enum(CustomerStatusEnum::class)],
             'contact_name'             => ['nullable', 'string', 'max:255'],
             'company_name'             => ['nullable', 'string', 'max:255'],
             'email'                    => [
                 'nullable',
-                'string',
-                'max:255',
-                'exclude_unless:deleted_at,null',
+                'email',
                 new IUnique(
                     table: 'customers',
                     extraConditions: [
@@ -171,9 +184,9 @@ class StoreCustomer extends OrgAction
                     ]
                 ),
             ],
-            'phone'                    => ['nullable', 'max:255'],
-            'identity_document_number' => ['nullable', 'string'],
-            'contact_website'          => ['nullable', 'string', 'max:255'],
+            'phone'                    => ['nullable', new Phone()],
+            'identity_document_number' => ['sometimes', 'nullable', 'string'],
+            'contact_website'          => ['sometimes', 'nullable', 'active_url'],
             'contact_address'          => ['required', new ValidAddress()],
             'delivery_address'         => ['sometimes', 'required', new ValidAddress()],
 
@@ -181,10 +194,7 @@ class StoreCustomer extends OrgAction
             'timezone_id'              => ['nullable', 'exists:timezones,id'],
             'language_id'              => ['nullable', 'exists:languages,id'],
             'data'                     => ['sometimes', 'array'],
-            'source_id'                => ['sometimes', 'nullable', 'string'],
             'created_at'               => ['sometimes', 'nullable', 'date'],
-            'deleted_at'               => ['sometimes', 'nullable', 'date'],
-            'fetched_at'               => ['sometimes', 'date'],
             'internal_notes'           => ['sometimes', 'nullable', 'string'],
             'warehouse_internal_notes' => ['sometimes', 'nullable', 'string'],
             'warehouse_public_notes'   => ['sometimes', 'nullable', 'string'],
@@ -198,23 +208,25 @@ class StoreCustomer extends OrgAction
 
         ];
 
-        if ($this->strict) {
-            $strictRules = [
-                'phone'           => ['nullable', new Phone()],
-                'contact_website' => ['nullable', 'active_url'],
-                'email'           => [
-                    'nullable',
-                    'email',
-                    new IUnique(
-                        table: 'customers',
-                        extraConditions: [
-                            ['column' => 'shop_id', 'value' => $this->shop->id],
-                            ['column' => 'deleted_at', 'operator' => 'notNull'],
-                        ]
-                    ),
-                ],
+        if (!$this->strict) {
+            $rules['phone']           = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['email']           = [
+                'nullable',
+                'string',
+                'max:255',
+                'exclude_unless:deleted_at,null',
+                new IUnique(
+                    table: 'customers',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'deleted_at', 'operator' => 'notNull'],
+                    ]
+                ),
             ];
-            $rules       = array_merge($rules, $strictRules);
+            $rules['contact_website'] = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['deleted_at']      = ['sometimes', 'nullable', 'date'];
+            $rules['fetched_at']      = ['sometimes', 'date'];
+            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
         }
 
         return $rules;
@@ -227,6 +239,9 @@ class StoreCustomer extends OrgAction
         }
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Customer
     {
         $this->initialisationFromShop($shop, $request);
@@ -234,6 +249,9 @@ class StoreCustomer extends OrgAction
         return $this->handle($shop, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Customer
     {
         $this->asAction       = true;
@@ -246,12 +264,16 @@ class StoreCustomer extends OrgAction
 
     public string $commandSignature = 'customer:create {shop} {--contact_name=} {--company_name=} {--email=} {--phone=}  {--contact_website=} {--country=} ';
 
+    /**
+     * @throws \Throwable
+     */
     public function asCommand(Command $command): int
     {
         $this->asAction = true;
         $this->strict   = true;
 
         try {
+            /** @var Shop $shop */
             $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
         } catch (Exception) {
             $command->error('Shop not found');

@@ -56,25 +56,23 @@ class UpdateCustomerClient extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'        => ['sometimes', 'nullable', 'string', 'max:255'],
-            'contact_name'     => ['sometimes', 'nullable', 'string', 'max:255'],
-            'company_name'     => ['sometimes', 'nullable', 'string', 'max:255'],
-            'phone'            => ['sometimes', 'nullable', 'string', 'max:255'],
-            'email'            => ['sometimes', 'nullable', 'string', 'max:255'],
-            'address'          => ['sometimes', new ValidAddress()],
-            'source_id'        => 'sometimes|nullable|string|max:255',
-            'status'           => ['sometimes', 'boolean'],
+            'reference'      => ['sometimes', 'nullable', 'string', 'max:255'],
+            'status'         => ['sometimes', 'boolean'],
+            'contact_name'   => ['sometimes', 'nullable', 'string', 'max:255'],
+            'company_name'   => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'          => ['sometimes', 'nullable', 'email'],
+            'phone'          => ['sometimes', 'nullable', new Phone()],
+            'address'        => ['sometimes', new ValidAddress()],
+            'deactivated_at' => ['sometimes', 'nullable', 'date'],
         ];
 
-        if ($this->strict) {
-            $strictRules = [
-                'phone' => ['sometimes', 'nullable', new Phone()],
-                'email' => [
-                    'nullable',
-                    'email',
-                ],
-            ];
-            $rules       = array_merge($rules, $strictRules);
+        if (!$this->strict) {
+            $rules['phone']           = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['email']           = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['source_id']       = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['created_at']      = ['sometimes', 'date'];
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules['deleted_at']      = ['sometimes', 'nullable', 'date'];
         }
 
         return $rules;
@@ -87,25 +85,19 @@ class UpdateCustomerClient extends OrgAction
         return $this->handle($customerClient, $this->validatedData);
     }
 
-    public function action(CustomerClient $customerClient, $modelData): CustomerClient
+    public function action(CustomerClient $customerClient, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): CustomerClient
     {
-        $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $this->initialisationFromShop($customerClient->shop, $modelData);
-
-        return $this->handle($customerClient, $this->validatedData);
-    }
-
-    public function asFetch(CustomerClient $customerClient, $modelData): CustomerClient
-    {
+        $this->strict = $strict;
+        if (!$audit) {
+            CustomerClient::disableAuditing();
+        }
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
-        $this->strict         = false;
-        $this->hydratorsDelay = 60;
-        $this->setRawAttributes($modelData);
         $this->initialisationFromShop($customerClient->shop, $modelData);
 
         return $this->handle($customerClient, $this->validatedData);
     }
+
 
     public function jsonResponse(CustomerClient $customerClient): CustomerClientResource
     {

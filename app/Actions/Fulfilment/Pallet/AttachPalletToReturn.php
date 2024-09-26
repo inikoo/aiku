@@ -85,11 +85,11 @@ class AttachPalletToReturn extends OrgAction
     {
         $reference = $this->get('reference');
 
-    
+
         $pallet = Pallet::where('reference', $reference)
                         ->where('fulfilment_customer_id', $this->parent->fulfilment_customer_id)
                         ->first();
-    
+
         if ($pallet && $this->parent->pallets()->where('pallet_id', $pallet->id)->exists()) {
             throw ValidationException::withMessages([
                 'reference' => ['This pallet is already attached to the pallet return.'],

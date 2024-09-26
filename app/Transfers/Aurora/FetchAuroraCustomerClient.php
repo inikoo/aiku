@@ -35,23 +35,26 @@ class FetchAuroraCustomerClient extends FetchAurora
 
         $this->parsedData['customer_client'] =
             [
-                'reference'        => $this->auroraModelData->{'Customer Client Code'},
-                'status'           => $status,
-                'contact_name'     => $this->auroraModelData->{'Customer Client Main Contact Name'},
-                'company_name'     => $this->auroraModelData->{'Customer Client Company Name'},
-                'email'            => $this->auroraModelData->{'Customer Client Main Plain Email'},
-                'phone'            => $this->auroraModelData->{'Customer Client Main Plain Mobile'},
-                'source_id'        => $this->organisation->id.':'.$this->auroraModelData->{'Customer Client Key'},
-                'created_at'       => $this->auroraModelData->{'Customer Client Creation Date'},
-                'deactivated_at'   => $deactivated_at,
-                'address'          => $this->parseAddress(prefix: 'Customer Client Contact', auAddressData: $this->auroraModelData),
-                'deleted_at'       => $customer->deleted_at
+                'reference'       => $this->auroraModelData->{'Customer Client Code'},
+                'status'          => $status,
+                'contact_name'    => $this->auroraModelData->{'Customer Client Main Contact Name'},
+                'company_name'    => $this->auroraModelData->{'Customer Client Company Name'},
+                'email'           => $this->auroraModelData->{'Customer Client Main Plain Email'},
+                'phone'           => $this->auroraModelData->{'Customer Client Main Plain Mobile'},
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Customer Client Key'},
+                'created_at'      => $this->auroraModelData->{'Customer Client Creation Date'},
+                'address'         => $this->parseAddress(prefix: 'Customer Client Contact', auAddressData: $this->auroraModelData),
+                'fetched_at'      => now(),
+                'last_fetched_at' => now(),
             ];
 
+        if ($customer->deleted_at) {
+            $this->parsedData['customer_client']['deleted_at'] = $customer->deleted_at;
+        }
 
-
-
-
+        if ($deactivated_at) {
+            $this->parsedData['customer_client']['deactivated_at'] = $deactivated_at;
+        }
     }
 
 

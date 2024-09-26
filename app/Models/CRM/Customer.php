@@ -42,6 +42,7 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
+use Google\Service\Sasportal\Resource\CustomersNodes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -95,10 +96,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $warehouse_public_notes
  * @property int|null $prospects_sender_email_id
  * @property int|null $image_id
- * @property Carbon|null $fetched_at
- * @property Carbon|null $last_fetched_at
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
+ * @property Carbon|null $fetched_at
+ * @property Carbon|null $last_fetched_at
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
@@ -392,5 +393,10 @@ class Customer extends Model implements HasMedia, Auditable
     public function deliveryNotes(): HasMany
     {
         return $this->hasMany(DeliveryNote::class);
+    }
+
+    public function customerNotes(): HasMany
+    {
+        return $this->hasMany(CustomersNodes::class);
     }
 }

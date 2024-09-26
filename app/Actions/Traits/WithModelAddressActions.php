@@ -68,7 +68,7 @@ trait WithModelAddressActions
         }
         data_set($addressData, 'group_id', $groupId);
 
-        $label = isset($addressData['label']) ? $addressData['label'] : null;
+        $label = $addressData['label'] ?? null;
 
         unset($addressData['label']);
 
@@ -76,7 +76,6 @@ trait WithModelAddressActions
         data_forget($addressData, 'id');
 
         $address = Address::create($addressData);
-
 
         $pivotData = [
             'scope'    => $scope,
@@ -177,8 +176,6 @@ trait WithModelAddressActions
 
     protected function attachAddressToModel($model, Address $address, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id', bool $canShip = null)
     {
-
-
         $groupId = $model->group_id;
         if ($model instanceof Group) {
             $groupId = $model->id;
@@ -196,7 +193,6 @@ trait WithModelAddressActions
         if ($canShip !== null) {
             $pivotData['can_ship'] = $canShip;
         }
-
 
 
         $model->addresses()->attach(

@@ -21,6 +21,7 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
     public function handle(Customer $customer, Shop $shop, array $modelData): FulfilmentCustomer
     {
         /** @var FulfilmentCustomer $fulfilmentCustomer */
+
         $fulfilmentCustomer = $customer->fulfilmentCustomer()->create(
             array_merge(
                 $modelData,
@@ -29,10 +30,13 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
                     'fulfilment_id'   => $shop->fulfilment->id,
                     'group_id'        => $customer->group_id,
                     'organisation_id' => $customer->organisation_id,
+                    'deleted_at'      => $customer->deleted_at
                 ]
             )
         );
+
         $fulfilmentCustomer->refresh();
+
 
         $fulfilmentCustomer->serialReferences()->create(
             [
@@ -49,7 +53,6 @@ class StoreFulfilmentCustomerFromCustomer extends OrgAction
                 'format'          => Abbreviate::run($fulfilmentCustomer->slug).'-r%03d'
             ]
         );
-
 
 
         $fulfilmentCustomer->serialReferences()->create(

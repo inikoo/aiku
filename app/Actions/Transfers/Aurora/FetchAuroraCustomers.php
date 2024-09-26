@@ -43,7 +43,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
                         modelData: $customerData['customer'],
                         hydratorsDelay: 60,
                         strict: false,
-                        audit:false
+                        audit: false
                     );
                     $this->recordChange($organisationSource, $customer->wasChanged());
                 } catch (Exception $e) {
