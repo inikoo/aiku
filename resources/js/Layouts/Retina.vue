@@ -45,7 +45,7 @@ const isStaging = layout.app.environment === 'staging'
         :class="[Object.values(layout.rightSidebar).some(value => value.show) ? 'mr-44' : 'mr-0']">
 
         <RetinaTopBar @sidebarOpen="(value: boolean) => sidebarOpen = value" :sidebarOpen="sidebarOpen"
-            logoRoute="retina.dashboard.show" urlPrefix="retina." />
+            logoRoute="retina.dashboard.show" />
 
         
         <!-- Sidebar: Left -->
@@ -80,8 +80,8 @@ const isStaging = layout.app.environment === 'staging'
         </main>
 
         <!-- Sidebar: Right -->
-        <RetinaRightSideBar class="fixed top-16 w-44 transition-all"
-            :class="[Object.values(layout.rightSidebar).some(value => value.show) ? 'right-0' : '-right-44']" />
+        <RetinaRightSideBar class="fixed top-[52px] w-[170px] transition-all"
+            :class="[Object.values(layout.rightSidebar).some(value => value.show) ? 'right-2' : '-right-[170px]']" />
 
     </div>
 
