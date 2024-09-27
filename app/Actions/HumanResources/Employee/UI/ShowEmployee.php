@@ -53,7 +53,7 @@ class ShowEmployee extends OrgAction
     {
         // Uncomment this to test the error page
         //valid values 500, 503, 404, 403, 422
-        //abort(500);
+        // abort(403);
 
         return Inertia::render(
             'Org/HumanResources/Employee',
