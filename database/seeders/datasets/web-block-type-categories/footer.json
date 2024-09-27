@@ -2,7 +2,6 @@
     "slug": "footer",
     "name": "Website footer",
     "scope": "website",
-    "category" : "footer",
     "webBlockTypes": [
         {
             "code": "FooterTheme1",

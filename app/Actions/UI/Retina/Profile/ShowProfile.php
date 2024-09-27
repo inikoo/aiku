@@ -54,12 +54,14 @@ class ShowProfile
                     "label" => __("about"),
                     "value" => $webUser->about,
                 ],
-                "avatar" => [
+                "image" => [
                     "type"  => "avatar",
                     "label" => __("avatar"),
                     "value" => !blank($webUser->image_id)
                         ? $webUser->imageSources(320, 320)
-                        : '/retina-default-user.svg',
+                        : [
+                            'original'  => '/retina-default-user.svg'
+                        ],
                 ],
             ],
         ];

@@ -18,6 +18,7 @@ import { inject } from "vue"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import CountUp from 'vue-countup-v3'
 import BackgroundBox from '@/Components/BackgroundBox.vue'
+import Icon from '@/Components/Icon.vue'
 
 library.add(faCheckCircle, faTimesCircle )
 
@@ -29,6 +30,17 @@ const props = defineProps<{
     },
     title: string
     stats?: {}
+    totm: {
+        product: {
+
+        }
+        family: {
+
+        }
+        department: {
+
+        }
+    }
 }>()
 
 
@@ -50,18 +62,20 @@ const locale = inject('locale', aikuLocaleStructure)
     <PageHeading :data="pageHead" />
 
     <div class="p-6">
-        <div class="text-xl font-semibold py-1 border-b border-gray-200">Stats</div>
-        <dl class="mt-4 grid grid-cols-1 gap-2 lg:gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <dl class="grid grid-cols-1 gap-2 lg:gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <Link
                 v-for="(stat, index) in stats"
                 :key="'stat' + index"
                 :href="route(stat.route.name, stat.route.parameters)"
                 :style="{color: stat.color}"
-                class="isolate relative overflow-hidden rounded-lg bg-white hover:bg-gray-100 cursor-pointer border border-gray-200 px-4 py-5 shadow-sm sm:p-6 sm:pb-3"
+                class="isolate relative overflow-hidden rounded-lg bg-white hover:bg-gray-50 cursor-pointer border border-gray-200 px-4 py-5 shadow-sm sm:p-6 sm:pb-3"
             >
                 <BackgroundBox class="-z-10 opacity-60 absolute top-0 right-0" />
 
-                <dt class="truncate text-sm font-medium text-gray-400">{{ stat.label }}</dt>
+                <dt class="truncate text-sm font-medium text-gray-400">
+                    {{ stat.label }}
+                </dt>
+
                 <dd class="mt-1 text-3xl font-semibold tracking-tight flex gap-x-2 items-center">
                     <FontAwesomeIcon :icon='stat.icon' class='text-xl' fixed-width aria-hidden='true' />
                     <CountUp
@@ -75,18 +89,24 @@ const locale = inject('locale', aikuLocaleStructure)
                 </dd>
 
                 <div v-if="stat.metas?.length" class="-ml-2 py-2 text-sm text-gray-500 flex gap-x-3 gap-y-0.5 items-center flex-wrap">
-                    <Link
+                    <component
                         v-for="meta in stat.metas"
                         :is="meta.href?.name ? Link : 'div'"
                         :href="meta.href?.name ? route(meta.href.name, meta.href.parameters) : ''"
                         class="group/sub px-2 flex gap-x-0.5 items-center font-normal"
-                        v-tooltip="capitalize(meta.icon?.tooltip)"
+                        v-tooltip="capitalize(meta.tooltip) || capitalize(meta.icon?.tooltip)"
                     >
-                        <FontAwesomeIcon :icon="meta.icon?.icon" class="md:opacity-50 group-hover/sub:opacity-100" :class="meta.icon?.class" fixed-width :title="meta.icon?.tooltip" aria-hidden="true" />
-                        <div class="group-hover/sub:text-red-700">
-                            {{ locale.number(meta.count) }} {{  }}
+                        <FontAwesomeIcon
+                            aria-hidden="true"
+                            :icon="meta.icon.icon"
+                            class="md:opacity-50 group-hover/sub:opacity-100"
+                            :class="meta.icon.class"
+                            fixed-width
+                        />
+                        <div class="group-hover/sub:text-gray-700">
+                            {{ locale.number(meta.count) }}
                         </div>
-                    </Link>
+                    </component>
                 </div>
             </Link>
         </dl>
@@ -125,6 +145,8 @@ const locale = inject('locale', aikuLocaleStructure)
             </div>
         </dl>
     </div>
+
+    <!-- <pre>{{ totm.product }}</pre> -->
 
 
 </template>

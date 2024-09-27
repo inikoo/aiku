@@ -285,7 +285,7 @@ const abcdef = computed(() => {
             </DataTable>
         </div>
 
-        <div class="mt-10 w-1/2 flex gap-x-4">
+        <div v-if="groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)).some(i => {return !!i})" class="mt-10 w-1/2 flex flex-wrap gap-y-4 gap-x-4">
             <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
                 <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Refunds')}} </div>
                 <div class="w-24">
@@ -306,7 +306,8 @@ const abcdef = computed(() => {
                     </template>
                 </div> -->
             </div>
-            <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+
+            <div v-if="groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)).some(i => {return !!i})" class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
                 <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Invoices')}} </div>
                 <div class="w-24">
                     <Pie :data="{
@@ -326,7 +327,8 @@ const abcdef = computed(() => {
                     </template>
                 </div> -->
             </div>
-            <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+
+            <div v-if="groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)).some(i => {return !!i})" class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
                 <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Sales')}} </div>
                 <div class="w-24">
                     <Pie :data="{
