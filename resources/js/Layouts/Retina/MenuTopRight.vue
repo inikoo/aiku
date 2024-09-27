@@ -35,11 +35,13 @@ const logoutAuth = () => {
     useLiveUsers().unsubscribe()  // Unsubscribe from Laravel Echo
 }
 // console.log('layout', layout.customer)
+console.log(layout.user)
 </script>
 
 <template>
     <!-- Avatar Group -->
     <div class="flex justify-between gap-x-2">
+    <!-- {{ layout.user.username }} -->
         <div class="flex">
             <!-- Avatar Button -->
             <Menu as="div" class="relative">
@@ -77,6 +79,7 @@ const logoutAuth = () => {
                     </MenuItems>
                 </transition>
             </Menu>
+            
             <!-- Button: Search -->
             <button @click="showSearchDialog = !showSearchDialog" id="search"
                 class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
@@ -84,6 +87,7 @@ const logoutAuth = () => {
                 <FontAwesomeIcon aria-hidden="true" icon="fa-regular fa-search" size="lg" />
                 <SearchBar :isOpen="showSearchDialog" @close="(e) => showSearchDialog = e" />
             </button>
+
             <!-- Button: Notifications -->
             <!-- <button type="button"
                     class="h-8 w-8 grid items-center justify-center rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">

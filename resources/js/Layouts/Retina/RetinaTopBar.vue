@@ -77,15 +77,16 @@ console.log('environment', isStaging)
                     }"
                 >
                     <Link :href="layout.app?.url ?? '#'"
-                          class="pl-2 hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
+                          class="hidden md:flex flex-nowrap items-center h-full overflow-hidden gap-x-1.5 transition-all duration-200 ease-in-out"
                           :class="[
                             // layout.leftSidebar.show ? 'py-1 pl-4' : 'pl-3 w-full'
                         ]"
                     >
-                        <!-- <Image :src="undefined" class="aspect-square h-6" /> -->
+                        <!-- <Image :src="undefined" class="pl-2 aspect-square h-6" /> -->
                         <Transition name="slide-to-left">
-                            <p v-if="layout.leftSidebar.show || true" class="capitalize text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate"
-                               :style="{color: layout.app.theme[2]}"
+                            <p v-if="layout.leftSidebar.show || true"
+                                class="capitalize text-lg bg-clip-text font-bold whitespace-nowrap leading-none lg:truncate py-2"
+                                :style="{color: layout.app.theme[2]}"
                             >
                                 {{ layout.website?.label }}
                             </p>
