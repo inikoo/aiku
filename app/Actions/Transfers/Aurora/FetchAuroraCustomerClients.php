@@ -14,6 +14,7 @@ use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraCustomerClients extends FetchAuroraAction
 {
@@ -41,6 +42,8 @@ class FetchAuroraCustomerClients extends FetchAuroraAction
                     return null;
                 }
             } else {
+
+
                 try {
                     $customerClient = StoreCustomerClient::make()->action(
                         customer: $customerClientData['customer'],
@@ -52,9 +55,8 @@ class FetchAuroraCustomerClients extends FetchAuroraAction
                     DB::connection('aurora')->table('Customer Client Dimension')
                         ->where('Customer Client Key', $sourceData[1])
                         ->update(['aiku_id' => $customerClient->id]);
-                } catch (Exception $e) {
+                } catch (Exception|Throwable $e) {
                     $this->recordError($organisationSource, $e, $customerClientData['customer_client'], 'CustomerClient', 'store');
-
                     return null;
                 }
             }

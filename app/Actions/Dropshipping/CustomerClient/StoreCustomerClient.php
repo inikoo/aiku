@@ -27,6 +27,8 @@ class StoreCustomerClient extends OrgAction
 {
     use WithModelAddressActions;
 
+    private Customer $customer;
+
 
     /**
      * @throws \Throwable
@@ -79,7 +81,7 @@ class StoreCustomerClient extends OrgAction
                                  new IUnique(
                                      table: 'customer_clients',
                                      extraConditions: [
-                                         ['column' => 'customer_id', 'value' => $this->shop->id],
+                                         ['column' => 'customer_id', 'value' => $this->customer->id],
                                      ]
                                  ),
                 ],
@@ -115,6 +117,7 @@ class StoreCustomerClient extends OrgAction
      */
     public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true): CustomerClient
     {
+        $this->customer         = $customer;
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
@@ -128,6 +131,7 @@ class StoreCustomerClient extends OrgAction
      */
     public function asController(Customer $customer, ActionRequest $request): CustomerClient
     {
+        $this->customer         = $customer;
         $this->asAction = true;
         $this->initialisationFromShop($customer->shop, $request);
 
