@@ -152,7 +152,7 @@ test('UI Index customer clients', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'customer clients')
+                        ->where('title', $this->customer->name)
                         ->has('subNavigation')
                         ->etc()
             )
@@ -181,7 +181,7 @@ test('UI Index customer portfolios', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'portfolios')
+                        ->where('title', $this->customer->name)
                         ->has('subNavigation')
                         ->etc()
             )

@@ -248,6 +248,7 @@ test('UI Index catalogue product inside department', function () {
 });
 
 test('UI show product in department', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.shops.show.catalogue.departments.show.products.show', [$this->organisation->slug, $this->shop->slug, $this->department->slug, $this->product->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page

@@ -62,6 +62,16 @@ class ShowCatalogue extends OrgAction
             ->orderByDesc('product_sales_intervals.shop_amount_all')
             ->first();
 
+        $totalProducts = $shop->stats->number_products;
+
+        $productsWithZeroQuantity = $shop->products()
+            ->where('available_quantity', 0)
+            ->count();
+
+        $percentageWithZeroQuantity = ($totalProducts > 0) 
+            ? round(($productsWithZeroQuantity / $totalProducts) * 100, 2) 
+            : 0;
+
         return Inertia::render(
             'Org/Catalogue/Catalogue',
             [
@@ -235,6 +245,9 @@ class ShowCatalogue extends OrgAction
                             'icon'  => 'fal fa-folder-tree',
                             'value' => ProductResource::make($topProduct),
                         ],
+                        [
+                            'out_of_stock' => $percentageWithZeroQuantity
+                        ]
                     ],
                     'collections' => [
                         [

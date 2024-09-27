@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
+use App\Events\BroadcastPreviewWebpage;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Dropshipping\ModelHasWebBlocks;
 use Lorisleiva\Actions\ActionRequest;
@@ -26,6 +27,8 @@ class UpdateModelHasWebBlocks extends OrgAction
         $this->update($modelHasWebBlocks->webBlock, $modelData, ['data', 'layout']);
         $modelHasWebBlocks->refresh();
         UpdateWebpageContent::run($modelHasWebBlocks->webpage);
+
+        BroadcastPreviewWebpage::dispatch($modelHasWebBlocks->webpage);
 
         return $modelHasWebBlocks;
 

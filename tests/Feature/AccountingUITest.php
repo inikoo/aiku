@@ -406,7 +406,7 @@ test('UI show list invoices', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'invoices')
+                        ->where('title', 'Invoices')
                         ->has('subNavigation')
                         ->etc()
             )
