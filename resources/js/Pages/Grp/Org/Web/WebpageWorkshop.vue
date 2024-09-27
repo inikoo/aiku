@@ -10,7 +10,7 @@ import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { ref, watch } from 'vue'
-import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faExpandWide } from '@fal'
+import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faExternalLink } from '@fal'
 import draggable from "vuedraggable"
 import BlockGap from '@/Components/Websites/Fields/BlockGap.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -256,7 +256,7 @@ const openFullScreenPreview = () => {
                     v-tooltip="'Preview'"
                     @click="openFullScreenPreview"
                 >
-                    <FontAwesomeIcon :icon='faExpandWide' aria-hidden='true' />
+                    <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
                 </div>
             </div>
 
