@@ -1,13 +1,13 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 07 Jun 2024 11:21:47 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Created: Fri, 27 Sept 2024 11:46:47 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\CustomerClient;
+namespace App\Actions\Dropshipping\CustomerClient;
 
-use App\Actions\CRM\CustomerClient\Search\CustomerClientRecordSearch;
+use App\Actions\Dropshipping\CustomerClient\Search\CustomerClientRecordSearch;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -15,6 +15,7 @@ use App\Http\Resources\CRM\CustomerClientResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\SysAdmin\Organisation;
+use App\Rules\IUnique;
 use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
@@ -23,6 +24,9 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateCustomerClient extends OrgAction
 {
     use WithActionUpdate;
+
+
+    private CustomerClient $customerClient;
 
     public function handle(CustomerClient $customerClient, array $modelData): CustomerClient
     {
@@ -56,7 +60,24 @@ class UpdateCustomerClient extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'      => ['sometimes', 'nullable', 'string', 'max:255'],
+            'reference'      => [
+                'sometimes',
+                'nullable',
+                'string',
+                'max:255',
+
+                new IUnique(
+                    table: 'customer_clients',
+                    extraConditions: [
+                        [
+                            'column' => 'customer_id',
+                            'value'  => $this->customerClient->customer->id
+                        ],
+                        ['column' => 'id', 'value' => $this->customerClient->id, 'operator' => '!=']
+                    ]
+                ),
+
+            ],
             'status'         => ['sometimes', 'boolean'],
             'contact_name'   => ['sometimes', 'nullable', 'string', 'max:255'],
             'company_name'   => ['sometimes', 'nullable', 'string', 'max:255'],
@@ -80,6 +101,7 @@ class UpdateCustomerClient extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, CustomerClient $customerClient, ActionRequest $request): CustomerClient
     {
+        $this->customerClient = $customerClient;
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($customerClient, $this->validatedData);
@@ -91,6 +113,7 @@ class UpdateCustomerClient extends OrgAction
         if (!$audit) {
             CustomerClient::disableAuditing();
         }
+        $this->customerClient = $customerClient;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
         $this->initialisationFromShop($customerClient->shop, $modelData);
