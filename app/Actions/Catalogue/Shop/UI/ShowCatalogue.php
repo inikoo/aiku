@@ -127,7 +127,7 @@ class ShowCatalogue extends OrgAction
                         [
                             'label' => __('Top Department'),
                             'icon'  => 'fal fa-folder-tree',
-                            'value' => DepartmentResource::make($topDepartment),
+                            'value' => $topDepartment ? DepartmentResource::make($topDepartment) : null,
                         ],
                     ],
                     'sub_departments' => [
@@ -160,11 +160,6 @@ class ShowCatalogue extends OrgAction
                             'label' => __('Sub Departments In Process'),
                             'icon'  => 'fal fa-folder-tree',
                             'value' => $shop->stats->number_sub_departments_state_in_process,
-                        ],
-                        [
-                            'label' => __('Top Department'),
-                            'icon'  => 'fal fa-folder-tree',
-                            'value' => $topDepartment,
                         ],
                     ],
                     'families' => [
@@ -206,7 +201,7 @@ class ShowCatalogue extends OrgAction
                         [
                             'label' => __('Top Family'),
                             'icon'  => 'fal fa-folder-tree',
-                            'value' => FamilyResource::make($topFamily),
+                            'value' => $topFamily ? FamilyResource::make($topFamily) : null,
                         ],
                     ],
                     'products' => [
@@ -243,7 +238,7 @@ class ShowCatalogue extends OrgAction
                         [
                             'label' => __('Top Product'),
                             'icon'  => 'fal fa-folder-tree',
-                            'value' => ProductResource::make($topProduct),
+                            'value' => $topProduct ? ProductResource::make($topProduct) : null,
                         ],
                         [
                             'out_of_stock' => $percentageWithZeroQuantity
