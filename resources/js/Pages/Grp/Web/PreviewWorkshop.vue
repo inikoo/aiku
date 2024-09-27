@@ -5,68 +5,77 @@
   -->
 
 <script setup lang="ts">
-import Notification from '@/Components/Utils/Notification.vue'
-import IrisHeader from '@/Layouts/Iris/Header.vue'
-import NavigationMenu from '@/Layouts/Iris/NavigationMenu.vue'
-import Footer from '@/Layouts/Iris/Footer.vue'
-import { useColorTheme } from '@/Composables/useStockList'
-import { v4 as uuidv4 } from 'uuid';
-import { data as headerData, bluprintForm as bluprintFormHeader} from '@/Components/Websites/Header/HeaderTemplates/Header1/descriptor'
-import { data as footerData, bluprintForm as bluprintFormFooter } from '@/Components/Websites/Footer/FooterTemplates/Footer1/descriptor'
-import { navigation as navigationData } from '@/Components/Websites/Menu/Descriptor'
-import { usePage } from '@inertiajs/vue3'
-import ScreenWarning from '@/Components/Utils/ScreenWarning.vue'
-import {defineComponent, inject} from 'vue'
-import { layoutStructure } from '@/Composables/useLayoutStructure'
-import FamilyPage1 from '@/Components/Iris/AW/FamilyPage1.vue'
-import ProductPage1 from '@/Components/Iris/AW/ProductPage1.vue'
-import Layout from "@/Layouts/GrpAuth.vue";
+import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
+import { ref } from 'vue'
 import WebPreview from "@/Layouts/WebPreview.vue";
+import axios from 'axios'
+import debounce from 'lodash/debounce'
+import EmptyState from "@/Components/Utils/EmptyState.vue"
 
-const props = defineProps<{}>()
 
 defineOptions({ layout: WebPreview })
-const layout = inject('layout', WebPreview)
+const props = defineProps<{
+    webpage: Object
+    webBlockTypes: {
+        data: Array
+    }
+}>()
+
+const data = ref({...props.webpage})
+const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block),1000,{ leading: false, trailing: true })
 
 
-const header = usePage().props?.iris?.header ? usePage().props?.iris?.header : { key : "header1" , data : headerData, bluprint : bluprintFormHeader }
-const footer =  usePage().props?.iris?.footer ? usePage().props?.iris?.footer :  { key : "footer1" , data : footerData, bluprint : bluprintFormFooter }
-const navigation =  usePage().props?.iris?.menu ? usePage().props?.iris?.menu : { key : "menu1" , data : navigationData }
-const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color :  {color : [...useColorTheme[2]]}
-const keyTemplate = uuidv4()
+const sendBlockUpdate = async (block) => {
+    try {
+        const response = await axios.patch(
+            route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
+            { layout: block.web_block.layout }
+        )
+        const set = { ...response.data.data }
+        data.value = set
+    } catch (error: any) {
+        console.error('error', error)
+    }
+}
 
 
+const onUpdatedBlock = (block) => {
+    debouncedSendUpdate(block)
+}
 
 </script>
 
 <template>
     <div class="relative">
-        <div  class="container max-w-7xl mx-auto shadow-xl">
-            <!-- <IrisHeader :data="header" /> -->
-            <IrisHeader :data="header" :colorThemed="colorThemed"/>
-
-            <!-- Section: Navigation Tab -->
-            <NavigationMenu :data="navigation" :colorThemed="colorThemed"/>
-
-            <!-- Main Content -->
-            <main
-                class="text-gray-700">
-                <slot />
-            </main>
-
-            <Footer :data="footer" :colorThemed="colorThemed"/>
+        <div class="container max-w-7xl mx-auto">          
+          <div class="h-full overflow-auto w-full ">
+                    <div v-if="data.layout.web_blocks?.length">
+                        <TransitionGroup tag="div" name="zzz" class="relative">
+                            <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks" 
+                                :style="{
+                                    paddingTop: `${activityItem?.web_block?.layout?.data?.blockLayout?.paddingTop?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.paddingTop?.unit}`, 
+                                    paddingBottom: `${activityItem?.web_block?.layout?.data?.blockLayout?.paddingBottom?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.paddingBottom?.unit}`, 
+                                    paddingRight: `${activityItem?.web_block?.layout?.data?.blockLayout?.paddingRight?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.paddingRight?.unit}`,
+                                    paddingLeft: `${activityItem?.web_block?.layout?.data?.blockLayout?.paddingLeft?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.paddingLeft?.unit}`,
+                                    marginTop: `${activityItem?.web_block?.layout?.data?.blockLayout?.marginTop?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.marginTop?.unit}`,
+                                    marginBottom: `${activityItem?.web_block?.layout?.data?.blockLayout?.marginBottom?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.marginBottom?.unit}`,
+                                    marginRight: `${activityItem?.web_block?.layout?.data?.blockLayout?.marginRight?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.marginRight?.unit}`,
+                                    marginLeft: `${activityItem?.web_block?.layout?.data?.blockLayout?.marginLeft?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.marginLeft?.unit}`
+                                }"
+                                :key="activityItem.id"  class="w-full">
+                                <component :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
+                                    :key="activityItemIdx" :webpageData="webpage" v-bind="activityItem"
+                                    v-model="activityItem.web_block.layout.data.fieldValue" :isEditable="true"
+                                    @autoSave="() => onUpdatedBlock(activityItem)"/>
+                            </section>
+                        </TransitionGroup>
+                     
+                    </div>
+                    <div v-else>
+                        <EmptyState :data="{ title: 'Pick First Block For Your Website', description: 'Pick block from list' }">
+                        </EmptyState>
+                    </div>
+                </div>
         </div>
-
-        <!-- <div class="flex flex-col gap-y-4 divide-y-1 divide-gray-500 mx-auto max-w-7xl py-16" >
-            <ProductPage1 />
-            <FamilyPage1 />
-        </div> -->
     </div>
-
-    <!-- Global declaration: Notification -->
-    <notifications dangerously-set-inner-html :max="3" width="500" classes="custom-style-notification" :pauseOnHover="true">
-        <template #body="props">
-            <Notification :notification="props" />
-        </template>
-    </notifications>
 </template>

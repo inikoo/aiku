@@ -27,7 +27,7 @@ const screenView = ref(props.currentView)
             @click="screenView = 'mobile', $emit('screenView', 'mobile')"
             v-tooltip="'Mobile view'"
         >
-            <FontAwesomeIcon icon='fal fa-mobile-android-alt' class='' aria-hidden='true' />
+            <FontAwesomeIcon icon='fal fa-mobile-android-alt'  :class="[screenView == 'mobile' ? 'text-indigo-300' : '']" aria-hidden='true' />
         </div>
         <div
             class="py-1 px-2 cursor-pointer" title="Tablet view"
@@ -35,7 +35,7 @@ const screenView = ref(props.currentView)
             @click="screenView = 'tablet', $emit('screenView', 'tablet')"
             v-tooltip="'Tablet view'"
         >
-            <FontAwesomeIcon icon='fal fa-tablet-android-alt' class='' aria-hidden='true' />
+            <FontAwesomeIcon icon='fal fa-tablet-android-alt' :class="[screenView == 'tablet' ? 'text-indigo-300' : '']" aria-hidden='true' />
         </div>
         <div
             class="py-1 px-2 cursor-pointer" title="Desktop view"
@@ -43,7 +43,7 @@ const screenView = ref(props.currentView)
             @click="screenView = 'desktop', $emit('screenView', 'desktop')"
             v-tooltip="'Desktop view'"
         >
-            <FontAwesomeIcon icon='fal fa-desktop' class='' aria-hidden='true' />
+            <FontAwesomeIcon icon='fal fa-desktop' class='' aria-hidden='true' :class="[screenView == 'desktop' ? 'text-indigo-300' : '']" />
         </div>
     </div>
 </template>

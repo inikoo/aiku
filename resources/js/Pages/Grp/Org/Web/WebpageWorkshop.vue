@@ -9,7 +9,7 @@ import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars } from '@fal'
 import draggable from "vuedraggable"
 import BlockGap from '@/Components/Websites/Fields/BlockGap.vue'
@@ -25,6 +25,13 @@ import { notify } from "@kyvg/vue3-notification"
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
+import ScreenView from "@/Components/ScreenView.vue"
+
+
+
+import { Root, Daum } from '@/types/webBlockTypes'
+import { Root as RootWebpage } from '@/types/webpageTypes'
+import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
@@ -32,23 +39,25 @@ library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
 const props = defineProps<{
     title: string,
     pageHead: PageHeadingTypes,
-    webpage: Object
-    webBlockTypes: {
-        data: Array
-    }
+    webpage: RootWebpage
+    webBlockTypes: Root
 }>()
 
 const isModalBlocksList = ref(false)
 const comment = ref("")
 const isLoading = ref<string | boolean>(false)
 const isAddBlockLoading = ref<string | boolean>(false)
-const selectedBlock = ref(null)
-const data = ref({
-    ...props.webpage
-})
+const iframeSrc = ref(route('grp.websites.preview', [route().params['website'], route().params['webpage']]))
+const data = ref({ ...props.webpage })
+const iframeClass = ref('w-full h-full')
+const isIframeLoading = ref(true)
 
+const reloadIframe = () => {
+    iframeSrc.value = `${route('grp.websites.preview', [route().params['website'], route().params['webpage']])}?reload=${new Date().getTime()}`;
+    isIframeLoading.value = true
+}
 
-const sendNewBlock = async (block) => {
+const sendNewBlock = async (block: Daum) => {
     try {
         const response = await axios.post(
             route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
@@ -56,6 +65,7 @@ const sendNewBlock = async (block) => {
         )
         const set = { ...response.data.data }
         data.value = set
+        reloadIframe()
     } catch (error: any) {
         console.error('error', error)
     }
@@ -63,7 +73,7 @@ const sendNewBlock = async (block) => {
 
 }
 
-const sendBlockUpdate = async (block) => {
+const sendBlockUpdate = async (block: Daum) => {
     try {
         const response = await axios.patch(
             route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
@@ -71,12 +81,13 @@ const sendBlockUpdate = async (block) => {
         )
         const set = { ...response.data.data }
         data.value = set
+        reloadIframe()
     } catch (error: any) {
         console.error('error', error)
     }
 }
 
-const sendOrderBlock = async (block) => {
+const sendOrderBlock = async (block : Object) => {
     try {
         const response = await axios.post(
             route(props.webpage.reorder_web_blocks_route.name, props.webpage.reorder_web_blocks_route.parameters),
@@ -84,12 +95,13 @@ const sendOrderBlock = async (block) => {
         )
         const set = { ...response.data.data }
         data.value = set
+        reloadIframe()
     } catch (error: any) {
         console.error('error', error)
     }
 }
 
-const sendDeleteBlock = async (block) => {
+const sendDeleteBlock = async (block: Daum) => {
     // console.log('block', block)
     isLoading.value = 'deleteBlock' + block.id
     try {
@@ -98,6 +110,7 @@ const sendDeleteBlock = async (block) => {
         )
         const set = { ...response.data.data }
         data.value = set
+        reloadIframe()
     } catch (error: any) {
         console.error('error', error)
     }
@@ -111,19 +124,19 @@ const debouncedSendUpdate = debounce(
     { leading: false, trailing: true }
 )
 
-const onUpdatedBlock = (block) => {
+const onUpdatedBlock = (block: Daum) => {
     debouncedSendUpdate(block)
 }
 
 
-const onPickBlock = async (block) => {
+const onPickBlock = async (block: Daum) => {
     isAddBlockLoading.value = true
     await sendNewBlock(block)
     isModalBlocksList.value = false
 
 }
 
-const onChangeOrderBlock = (moved) => {
+const onChangeOrderBlock = () => {
     let payload = {}
     data.value.layout.web_blocks.map((item, index) => {
         payload[item.web_block.id] = { position: index }
@@ -131,12 +144,8 @@ const onChangeOrderBlock = (moved) => {
     sendOrderBlock(payload)
 }
 
-const setData = () => {
-    console.log(data.value)
-}
 
-
-const onPublish = async (action : {},popover : {}) => {
+const onPublish = async (action: {}, popover: {}) => {
     try {
         // Ensure action is defined and has necessary properties
         if (!action || !action.method || !action.name || !action.parameters) {
@@ -150,14 +159,12 @@ const onPublish = async (action : {},popover : {}) => {
             comment: comment.value,
             publishLayout: { blocks: data.value.layout }
         })
-
+        reloadIframe()
         popover.close()
 
     } catch (error) {
         // Ensure the error is logged properly
         console.error('Error:', error)
-
-        // Ensure the error notification is user-friendly
         const errorMessage = error.response?.data?.message || error.message || 'Unknown error occurred'
         notify({
             title: 'Something went wrong.',
@@ -165,131 +172,115 @@ const onPublish = async (action : {},popover : {}) => {
             type: 'error',
         })
     } finally {
-        // Ensure loading state is updated
         isLoading.value = false
     }
 };
 
+const setIframeView = (view: String) => {
+    if (view === 'mobile') {
+        iframeClass.value = 'w-[375px] h-[667px] mx-auto'; // iPhone 6/7/8 size
+    } else if (view === 'tablet') {
+        iframeClass.value = 'w-[768px] h-[1024px] mx-auto'; // iPad size
+    } else {
+        iframeClass.value = 'w-full h-full'; // Full width for desktop
+    }
+}
+
+const handleIframeError = () => {
+    console.error('Failed to load iframe content.');
+}
 
 
 </script>
 
 <template>
-
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
-            <!--  <Action v-if="action" :action="action" :dataToSubmit="data" /> -->
             <Publish :isLoading="isLoading" :is_dirty="data.is_dirty" v-model="comment"
-                @onPublish="(popover)=>onPublish(action.route,popover)" />
+                @onPublish="(popover) => onPublish(action.route, popover)" />
         </template>
     </PageHeading>
 
-    <div class="mx-auto px-4 py-4 sm:px-6 lg:px-8 w-full h-[85vh]">
-        <div class="mx-auto grid grid-cols-4 gap-1 lg:mx-0 lg:max-w-none h-full">
-            <div class="h-full overflow-auto border-2 border-dashed p-2" :class="data.layout.web_blocks?.length > 0 ? 'col-span-3' : 'col-span-4'">
-                <div v-if="data.layout.web_blocks?.length">
-                    <TransitionGroup tag="div" name="zzz" class="relative">
-                        <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks" 
-                            :style="{
-                                paddingTop : `${activityItem?.web_block?.layout?.data?.blockLayout?.paddingTop?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.paddingTop?.unit}`, 
-                                paddingBottom : `${activityItem?.web_block?.layout?.data?.blockLayout?.paddingBottom?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.paddingBottom?.unit}`, 
-                                paddingRight : `${activityItem?.web_block?.layout?.data?.blockLayout?.paddingRight?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.paddingRight?.unit}` ,
-                                paddingLeft : `${activityItem?.web_block?.layout?.data?.blockLayout?.paddingLeft?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.paddingLeft?.unit}`,
-                                marginTop : `${activityItem?.web_block?.layout?.data?.blockLayout?.marginTop?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.marginTop?.unit}`,
-                                marginBottom : `${activityItem?.web_block?.layout?.data?.blockLayout?.marginBottom?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.marginBottom?.unit}`,
-                                marginRight : `${activityItem?.web_block?.layout?.data?.blockLayout?.marginRight?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.marginRight?.unit}`,
-                                marginLeft : `${activityItem?.web_block?.layout?.data?.blockLayout?.marginLeft?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.marginLeft?.unit}`,
-                            }"
-                            :key="activityItem.id" @click="() => selectedBlock = activityItem" class="w-full">
-                            <component :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
-                                :key="activityItemIdx" :webpageData="webpage" v-bind="activityItem"
-                                v-model="activityItem.web_block.layout.data.fieldValue" :isEditable="true"
-                                @autoSave="() => onUpdatedBlock(activityItem)"/>
-                        </section>
-                    </TransitionGroup>
+    <div class="grid grid-cols-5 h-[85vh]">
+        <div class="col-span-1 h-full border-2 bg-gray-200 p-3">
+            <div class="flex justify-between">
+                <h2 class="text-sm font-semibold leading-6">Block List</h2>
+                <Button icon="fas fa-plus" size="xs" @click="() => (isModalBlocksList = true)" />
+            </div>
+            <div class="px-3">
+                <draggable v-if="data?.layout?.web_blocks.length > 0" :list="data.layout.web_blocks" handle=".handle"
+                    @change="onChangeOrderBlock" ghost-class="ghost" group="column" itemKey="column_id"
+                    class="mt-2 space-y-1">
+                    <template #item="{ element }">
+                        <div>
+                            <Disclosure v-slot="{ open }">
+                                <DisclosureButton :class="open ? 'rounded-t-lg' : 'rounded'"
+                                    class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 w-full cursor-pointer hover:bg-gray-100 bg-slate-50">
+                                    <div class="flex gap-x-2">
+                                        <div class="flex items-center justify-center">
+                                            <FontAwesomeIcon icon="fal fa-bars"
+                                                class="handle text-xs text-gray-700 cursor-grab pr-3 mr-2" />
+                                            <FontAwesomeIcon :icon='element?.web_block?.layout?.data?.icon'
+                                                class='text-xs' fixed-width aria-hidden='true' />
+                                        </div>
+                                        <h3 class="text-sm font-medium">
+                                            {{ element.web_block.layout.name }}
+                                        </h3>
+                                    </div>
 
-                    <div v-if="isAddBlockLoading" class="w-full h-32 skeleton">
-                    </div>
-                </div>
-
-                <div v-else>
-                    <EmptyState :data="{ title: 'Pick Frist Block For Your Website', description: 'Pick block from list' }">
-                        <template #button-empty-state>
-                        <div class="mt-4 block">
-                            <Button @click="() => isModalBlocksList = true" label="Select block" type="tertiary" icon="fal fa-plus" />
+                                    <div v-tooltip="'Delete this block'"
+                                        class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer"
+                                        @click="(e) => { e.stopPropagation(), sendDeleteBlock(element) }">
+                                        <LoadingIcon v-if="isLoading === ('deleteBlock' + element.id)"
+                                            class="text-gray-400" />
+                                        <FontAwesomeIcon v-else icon='fal fa-times' fixed-width aria-hidden='true' />
+                                    </div>
+                                </DisclosureButton>
+                                <DisclosurePanel
+                                    class="border border-gray-300 px-3 py-2 w-full rounded-b-lg border-t-0 mt-[-2px] text-gray-500 bg-white">
+                                    <BlockGap v-model="element.web_block.layout.data.blockLayout"
+                                        @update:modelValue="() => onUpdatedBlock(element)" />
+                                </DisclosurePanel>
+                            </Disclosure>
                         </div>
-                        </template>
-                    </EmptyState>
+                    </template>
+                </draggable>
+                <div v-else class="flex flex-col justify-center items-center mt-4 rounded-lg p-4 text-center h-[90%]">
+                    <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
+                    <span class="mt-2 block text-sm font-semibold text-gray-600">You don't have any
+                        blocks</span>
                 </div>
-      </div>
-
-      <div v-if="data.layout.web_blocks?.length > 0" class="col-span-1 h-screen">
-        <div class="border-2 bg-gray-200 p-3 h-full">
-          <div class="flex justify-between">
-            <h2 class="text-sm font-semibold leading-6">Block List</h2>
-            <Button icon="fas fa-plus" size="xs" @click="() => (isModalBlocksList = true)" />
-          </div>
-          <div class="px-3">
-          <draggable v-if="data?.layout?.web_blocks.length > 0" :list="data.layout.web_blocks" handle=".handle"
-            @change="onChangeOrderBlock" ghost-class="ghost" group="column" itemKey="column_id" class="mt-2 space-y-1">
-            <template #item="{ element, index }">
-              <div>
-                <Disclosure v-slot="{ open }">
-                  <DisclosureButton
-                    :class="open ? 'rounded-t-lg' : 'rounded'"
-                    class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 w-full  cursor-pointer hover:bg-gray-100 bg-slate-50">
-                    <div class="flex gap-x-2">
-                      <div class="flex items-center justify-center">
-                        <!-- <pre>{{element }}</pre> -->
-                        <FontAwesomeIcon icon="fal fa-bars"
-                                class="handle text-xs  text-gray-700 cursor-grab pr-3 mr-2" />
-                        <FontAwesomeIcon :icon='element?.web_block?.layout?.data?.icon' class='text-xs' fixed-width
-                          aria-hidden='true' />
-                      </div>
-                      <h3 class="text-sm font-medium">
-                        {{ element.web_block.layout.name }}
-                      </h3>
-                    </div>
-
-                    <div v-tooltip="'Delete this block'" class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer"
-                        @click="(e) => {e.stopPropagation(), sendDeleteBlock(element)}">
-                        <LoadingIcon v-if="isLoading === ('deleteBlock' + element.id)" class="text-gray-400" />
-                        <FontAwesomeIcon v-else icon='fal fa-times' class='' fixed-width aria-hidden='true' />
-                    </div>
-
-                  </DisclosureButton>
-                  <DisclosurePanel
-                    class="border border-gray-300 px-3 py-2 w-full rounded-b-lg border-t-0 mt-[-2px] text-gray-500 bg-white">
-                <BlockGap v-model="element.web_block.layout.data.blockLayout"  @update:modelValue="() => onUpdatedBlock(element)" />
-                  </DisclosurePanel>
-                </Disclosure>
-              </div>
-            </template>
-          </draggable>
-
-          <!-- Section: if no blocks selected -->
-          <div v-else class="flex flex-col justify-center items-center mt-4 rounded-lg p-4 text-center h-[90%]">
-                            <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
-                            <span class="mt-2 block text-sm font-semibold text-gray-600">You dont have block</span>
-                        </div>
-          </div>
-
-          <!--  <Button
-                        type="dashed"
-                        icon="fal fa-plus"
-                        label="Add block"
-                        full
-                        size="s"
-                        class="mt-2"
-                        @click="() => (isModalBlocksList = true)"
-                    /> -->
+            </div>
         </div>
-      </div>
+
+        <div class="col-span-4 h-full flex flex-col bg-gray-200">
+            <ScreenView @screenView="setIframeView" />
+            <div class="border-2 h-full w-full">
+                <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
+                    <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
+                </div>
+
+                <div class="h-full w-full bg-white">
+                    <iframe :src="iframeSrc" :title="props.title" :class="[iframeClass, isIframeLoading ? 'hidden' : '' ]" 
+                        @error="handleIframeError" @load="isIframeLoading = false"/>
+                </div>
+            </div>
+        </div>
+
+        
     </div>
-  </div>
-  <Modal :isOpen="isModalBlocksList" @onClose="isModalBlocksList = false">
-    <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" />
-  </Modal>
-  <div @click="setData">see data</div>
+
+
+    <Modal :isOpen="isModalBlocksList" @onClose="isModalBlocksList = false">
+        <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" />
+    </Modal>
 </template>
+
+<style scoped>
+iframe {
+    height: 100%;
+    transition: width 0.3s ease;
+    /* Smooth transition when changing width */
+}
+</style>

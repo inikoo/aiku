@@ -28,8 +28,6 @@ const navigation =  usePage().props?.iris?.menu ? usePage().props?.iris?.menu : 
 const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color :  {color : [...useColorTheme[2]]}
 const keyTemplate = uuidv4()
 
-
-
 </script>
 
 <template>
@@ -37,10 +35,10 @@ const keyTemplate = uuidv4()
         <ScreenWarning v-if="layout.app.environment === 'staging'" />
         <div  class="container max-w-7xl mx-auto shadow-xl">
             <!-- <IrisHeader :data="header" /> -->
-            <IrisHeader :data="header" :colorThemed="colorThemed"/>
+            <!-- <IrisHeader :data="header" :colorThemed="colorThemed"/> -->
 
             <!-- Section: Navigation Tab -->
-            <NavigationMenu :data="navigation" :colorThemed="colorThemed"/>
+           <!--  <NavigationMenu :data="navigation" :colorThemed="colorThemed"/> -->
             
             <!-- Main Content -->
             <main
@@ -48,7 +46,7 @@ const keyTemplate = uuidv4()
                 <slot />
             </main>
 
-            <Footer :data="footer" :colorThemed="colorThemed"/>
+          <!--   <Footer :data="footer" :colorThemed="colorThemed"/> -->
         </div>
 
         <!-- <div class="flex flex-col gap-y-4 divide-y-1 divide-gray-500 mx-auto max-w-7xl py-16" >
