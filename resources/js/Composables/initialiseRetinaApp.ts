@@ -113,6 +113,10 @@ export const initialiseRetinaApp = () => {
         // let moduleName = (layout.currentRoute || "").split(".")
         // layout.currentModule = moduleName.length > 1 ? moduleName[1] : ""
 
+        if (usePage().props.auth?.user) {
+            layout.user = usePage().props.auth.user
+        }
+
         if (usePage().props.auth?.user?.avatar_thumbnail) {
             layout.avatar_thumbnail = usePage().props.auth.user.avatar_thumbnail
         }
