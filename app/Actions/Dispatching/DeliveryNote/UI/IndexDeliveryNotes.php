@@ -117,7 +117,7 @@ class IndexDeliveryNotes extends OrgAction
                 ->withEmptyState(
                     [
                         'title' => $noResults,
-                        'count' => $stats->number_delivery_notes
+                        'count' => $stats->number_delivery_notes ?? 0
                     ]
                 );
 
