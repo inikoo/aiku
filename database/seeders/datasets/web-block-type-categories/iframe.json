@@ -5,6 +5,7 @@
 		"value": ""
 	},
 	"scope": "webpage",
+    "category" : "iframe",
 	"webBlockTypes": [
 		{
 			"code": "iframe",

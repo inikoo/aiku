@@ -58,7 +58,7 @@
     socketConnection.actions.unsubscribe();
   });
   
-
+console.log(props)
   </script>
   
 

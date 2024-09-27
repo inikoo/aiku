@@ -5,6 +5,7 @@
 		"value": ""
 	},
 	"scope": "webpage",
+    "category" : "productList",
 	"webBlockTypes": [
 		{
 			"code": "products",

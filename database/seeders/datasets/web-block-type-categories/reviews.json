@@ -5,6 +5,7 @@
 		"value": ""
 	},
 	"scope": "webpage",
+    "category" : "reviews",
 	"webBlockTypes": [
 		{
 			"code": "order_reviews",
