@@ -30,11 +30,6 @@ class UserHydrateAuthorisedModels
         $authorisedWarehouses    = [];
         $authorisedProductions   = [];
 
-        if ($user->getAllPermissions()->count()) {
-            //   dd($user->getAllPermissions());
-        }
-
-
         foreach ($user->getAllPermissions() as $permission) {
             if ($permission->scope_type === 'Organisation') {
                 $authorisedOrganisations[$permission->scope_id] = ['org_id' => $permission->scope_id];
@@ -46,27 +41,23 @@ class UserHydrateAuthorisedModels
                 $fulfilment                                            = Fulfilment::find($permission->scope_id);
                 $authorisedFulfilments[$permission->scope_id]          = ['org_id' => $fulfilment->organisation_id];
                 $authorisedOrganisations[$fulfilment->organisation_id] = ['org_id' => $fulfilment->organisation_id];
-
             } elseif ($permission->scope_type === 'Warehouse') {
                 $warehouse                                            = Warehouse::find($permission->scope_id);
                 $authorisedWarehouses[$permission->scope_id]          = ['org_id' => $warehouse->organisation_id];
                 $authorisedOrganisations[$warehouse->organisation_id] = ['org_id' => $warehouse->organisation_id];
-
             } elseif ($permission->scope_type === 'Production') {
                 $production                                            = Production::find($permission->scope_id);
                 $authorisedProductions[$permission->scope_id]          = ['org_id' => $production->organisation_id];
                 $authorisedOrganisations[$production->organisation_id] = ['org_id' => $production->organisation_id];
-
             }
         }
-
-
 
         $user->authorisedOrganisations()->sync($authorisedOrganisations);
         $user->authorisedShops()->sync($authorisedShops);
         $user->authorisedFulfilments()->sync($authorisedFulfilments);
         $user->authorisedWarehouses()->sync($authorisedWarehouses);
         $user->authorisedProductions()->sync($authorisedProductions);
+
 
         $stats = [
             'number_authorised_organisations' => count($authorisedOrganisations),
@@ -89,10 +80,7 @@ class UserHydrateAuthorisedModels
         }
 
         $user->givePermissionTo(array_keys($directPermissions));
-
-
     }
-
 
 
     public string $commandSignature = 'user:hydrate-authorised-models {user : User slug}';

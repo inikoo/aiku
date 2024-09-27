@@ -9,6 +9,9 @@ namespace App\Actions\Catalogue\Shop\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\UI\WithInertia;
+use App\Http\Resources\Catalogue\DepartmentResource;
+use App\Http\Resources\Catalogue\FamilyResource;
+use App\Http\Resources\Catalogue\ProductResource;
 use App\Http\Resources\Catalogue\ShopResource;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -54,14 +57,20 @@ class ShowCatalogue extends OrgAction
         })->first();
 
         $topProduct = $shop->products()
-            // Join with the sales_intervals table to access the shop_amount_all column
             ->join('product_sales_intervals', 'products.id', '=', 'product_sales_intervals.product_id')
-            // Select only the necessary columns
             ->select('products.id', 'products.name', 'product_sales_intervals.shop_amount_all')
-            // Order by sales amount descending to get the top product
             ->orderByDesc('product_sales_intervals.shop_amount_all')
-            // Fetch only the top result
             ->first();
+
+        $totalProducts = $shop->stats->number_products;
+
+        $productsWithZeroQuantity = $shop->products()
+            ->where('available_quantity', 0)
+            ->count();
+
+        $percentageWithZeroQuantity = ($totalProducts > 0) 
+            ? round(($productsWithZeroQuantity / $totalProducts) * 100, 2) 
+            : 0;
 
         return Inertia::render(
             'Org/Catalogue/Catalogue',
@@ -83,171 +92,185 @@ class ShowCatalogue extends OrgAction
                     ],
 
                 ],
-
-
-                // 'dashboard' => [
-                //     'departments' => [
-                //         [
-                //             'label' => __('Departments'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_departments,
-                //         ],
-                //         [
-                //             'label' => __('Current Departments'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_current_departments,
-                //         ],
-                //         [
-                //             'label' => __('Active Departments'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_departments_state_active,
-                //         ],
-                //         [
-                //             'label' => __('Discontinued Departments'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_departments_state_discontinued,
-                //         ],
-                //         [
-                //             'label' => __('Discontinuing Departments'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_departments_state_discontinuing,
-                //         ],
-                //         [
-                //             'label' => __('Departments In Process'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_departments_state_in_process,
-                //         ],
-                //     ],
-                //     'sub_departments' => [
-                //         [
-                //             'label' => __('Sub Departments'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_sub_departments,
-                //         ],
-                //         [
-                //             'label' => __('Current Sub Departments'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_current_sub_departments,
-                //         ],
-                //         [
-                //             'label' => __('Active Sub Departments'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_sub_departments_state_active,
-                //         ],
-                //         [
-                //             'label' => __('Discontinued Sub Departments'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_sub_departments_state_discontinued,
-                //         ],
-                //         [
-                //             'label' => __('Discontinuing Sub Departments'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_sub_departments_state_discontinuing,
-                //         ],
-                //         [
-                //             'label' => __('Sub Departments In Process'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_sub_departments_state_in_process,
-                //         ],
-                //         [
-                //             'label' => __('Top Department'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $topDepartment,
-                //         ],
-                //     ],
-                //     'families' => [
-                //         [
-                //             'label' => __('Families'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_families,
-                //         ],
-                //         [
-                //             'label' => __('Current Families'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_current_families,
-                //         ],
-                //         [
-                //             'label' => __('Active Families'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_families_state_active,
-                //         ],
-                //         [
-                //             'label' => __('Discontinued Families'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_families_state_discontinued,
-                //         ],
-                //         [
-                //             'label' => __('Discontinuing Families'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_families_state_discontinuing,
-                //         ],
-                //         [
-                //             'label' => __('Families In Process'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_families_state_in_process,
-                //         ],
-                //         [
-                //             'label' => __('Top Family'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $topFamily,
-                //         ],
-                //     ],
-                //     'products' => [
-                //         [
-                //             'label' => __('Products'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_products,
-                //         ],
-                //         [
-                //             'label' => __('Current Products'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_current_products,
-                //         ],
-                //         [
-                //             'label' => __('Active Products'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_products_state_active,
-                //         ],
-                //         [
-                //             'label' => __('Discontinued Products'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_products_state_discontinued,
-                //         ],
-                //         [
-                //             'label' => __('Discontinuing Products'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_products_state_discontinuing,
-                //         ],
-                //         [
-                //             'label' => __('Products In Process'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_products_state_in_process,
-                //         ],
-                //         [
-                //             'label' => __('Top Product'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $topProduct,
-                //         ],
-                //     ],
-                //     'collections' => [
-                //         [
-                //             'label' => __('Collection'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_collections,
-                //         ],
-                //         [
-                //             'label' => __('Collection Categories'),
-                //             'icon'  => 'fal fa-folder-tree',
-                //             'value' => $shop->stats->number_collection_categories,
-                //         ],
-                //     ],
-                // ],
+                'dashboard' => [
+                    'departments' => [
+                        [
+                            'label' => __('Departments'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_departments,
+                        ],
+                        [
+                            'label' => __('Current Departments'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_current_departments,
+                        ],
+                        [
+                            'label' => __('Active Departments'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_departments_state_active,
+                        ],
+                        [
+                            'label' => __('Discontinued Departments'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_departments_state_discontinued,
+                        ],
+                        [
+                            'label' => __('Discontinuing Departments'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_departments_state_discontinuing,
+                        ],
+                        [
+                            'label' => __('Departments In Process'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_departments_state_in_process,
+                        ],
+                        [
+                            'label' => __('Top Department'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => DepartmentResource::make($topDepartment),
+                        ],
+                    ],
+                    'sub_departments' => [
+                        [
+                            'label' => __('Sub Departments'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_sub_departments,
+                        ],
+                        [
+                            'label' => __('Current Sub Departments'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_current_sub_departments,
+                        ],
+                        [
+                            'label' => __('Active Sub Departments'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_sub_departments_state_active,
+                        ],
+                        [
+                            'label' => __('Discontinued Sub Departments'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_sub_departments_state_discontinued,
+                        ],
+                        [
+                            'label' => __('Discontinuing Sub Departments'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_sub_departments_state_discontinuing,
+                        ],
+                        [
+                            'label' => __('Sub Departments In Process'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_sub_departments_state_in_process,
+                        ],
+                        [
+                            'label' => __('Top Department'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $topDepartment,
+                        ],
+                    ],
+                    'families' => [
+                        [
+                            'label' => __('Families'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_families,
+                        ],
+                        [
+                            'label' => __('Current Families'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_current_families,
+                        ],
+                        [
+                            'label' => __('Active Families'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_families_state_active,
+                        ],
+                        [
+                            'label' => __('Discontinued Families'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_families_state_discontinued,
+                        ],
+                        [
+                            'label' => __('Discontinuing Families'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_families_state_discontinuing,
+                        ],
+                        [
+                            'label' => __('Families In Process'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_families_state_in_process,
+                        ],
+                        [
+                            'label' => __('Top Family'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $topFamily,
+                        ],
+                        [
+                            'label' => __('Top Family'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => FamilyResource::make($topFamily),
+                        ],
+                    ],
+                    'products' => [
+                        [
+                            'label' => __('Products'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_products,
+                        ],
+                        [
+                            'label' => __('Current Products'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_current_products,
+                        ],
+                        [
+                            'label' => __('Active Products'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_products_state_active,
+                        ],
+                        [
+                            'label' => __('Discontinued Products'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_products_state_discontinued,
+                        ],
+                        [
+                            'label' => __('Discontinuing Products'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_products_state_discontinuing,
+                        ],
+                        [
+                            'label' => __('Products In Process'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_products_state_in_process,
+                        ],
+                        [
+                            'label' => __('Top Product'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => ProductResource::make($topProduct),
+                        ],
+                        [
+                            'out_of_stock' => $percentageWithZeroQuantity
+                        ]
+                    ],
+                    'collections' => [
+                        [
+                            'label' => __('Collection'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_collections,
+                        ],
+                        [
+                            'label' => __('Collection Categories'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_collection_categories,
+                        ],
+                    ],
+                ],
                 'stats' => [
                     [
                         'label' => __('Department'),
                         'route' => [
-                            'name'  => 'grp.profile.visit-logs.index',        // TODO
-                            'parameters'    => 'zzzzzzzz'
+                            'name'  => 'grp.org.shops.show.catalogue.departments.index',        // TODO
+                            'parameters'    => [
+                                'organisation' => $shop->organisation->slug,
+                                'shop'         => $shop->slug
+                            ]
                         ],
                         'icon'  => 'fal fa-folder-tree',
                         "color" => "#a3e635",
@@ -256,18 +279,24 @@ class ShowCatalogue extends OrgAction
                     [
                         'label' => __('Families'),
                         'route' => [
-                            'name'  => 'grp.profile.visit-logs.index',        // TODO
-                            'parameters'    => 'zzzzzzzz'
+                            'name'  => 'grp.org.shops.show.catalogue.families.index',        // TODO
+                            'parameters'    => [
+                                'organisation' => $shop->organisation->slug,
+                                'shop'         => $shop->slug
+                            ]
                         ],
                         'icon'  => 'fal fa-folder',
                         "color" => "#facc15",
                         'value' => $shop->stats->number_families,
                     ],
                     [
-                        'label' => __('Products'),
+                        'label' => __('Current Products'),
                         'route' => [
-                            'name'  => 'grp.profile.visit-logs.index',        // TODO
-                            'parameters'    => 'zzzzzzzz'
+                            'name'  => 'grp.org.shops.show.catalogue.products.current_products.index',        // TODO
+                            'parameters'    => [
+                                'organisation' => $shop->organisation->slug,
+                                'shop'         => $shop->slug
+                            ]
                         ],
                         'icon'  => 'fal fa-cube',
                         "color" => "#38bdf8",
@@ -308,8 +337,11 @@ class ShowCatalogue extends OrgAction
                     [
                         'label' => __('Collections'),
                         'route' => [
-                            'name'  => 'grp.profile.visit-logs.index',        // TODO
-                            'parameters'    => 'zzzzzzzz'
+                            'name'  => 'grp.org.shops.show.catalogue.collections.index',        // TODO
+                            'parameters'    => [
+                                'organisation' => $shop->organisation->slug,
+                                'shop'         => $shop->slug
+                            ]
                         ],
                         'icon'  => 'fal fa-album-collection',
                         "color" => "#4f46e5",

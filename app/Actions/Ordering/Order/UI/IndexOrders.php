@@ -161,7 +161,7 @@ class IndexOrders extends OrgAction
                 ->withEmptyState(
                     [
                         'title' => $noResults,
-                        'count' => $stats->number_orders
+                        'count' => $stats->number_orders ?? 0
                     ]
                 );
 

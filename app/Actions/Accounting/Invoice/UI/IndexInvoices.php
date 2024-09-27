@@ -138,7 +138,7 @@ class IndexInvoices extends OrgAction
                 ->withEmptyState(
                     [
                         'title' => $noResults,
-                        'count' => $stats->number_invoices,
+                        'count' => $stats->number_invoices ?? 0,
                     ]
                 );
 
