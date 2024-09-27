@@ -22,41 +22,53 @@ class ImportEmployees
 {
     use WithImportModel;
 
-    public function handle(Organisation|Workplace $parent, $file): Upload
+    /**
+     * @var \App\Models\SysAdmin\Organisation
+     */
+    private Organisation|Workplace $parent;
+
+    public function handle($file): Upload
     {
         $upload = StoreUploads::run($file, Employee::class);
 
         if ($this->isSync) {
             ImportUpload::run(
                 $file,
-                new EmployeeImport($parent, $upload)
+                new EmployeeImport($this->parent, $upload)
             );
             $upload->refresh();
         } else {
             ImportUpload::dispatch(
                 $this->tmpPath.$upload->filename,
-                new EmployeeImport($parent, $upload)
+                new EmployeeImport($this->parent, $upload)
             );
         }
 
         return $upload;
-
-
     }
 
-    public string $commandSignature = 'employee:import {--g|g_drive} {filename}';
+    public string $commandSignature = 'employee:import {org} {--g|g_drive} {filename}';
 
-    public function asController(Organisation $organisation, ActionRequest $request): Upload
+    public function rumImport($file, $command): Upload
     {
+        $this->parent = Organisation::where('slug', $command->argument('org'))->first();
+
+        return $this->handle($file);
+    }
+
+    public function asController(Organisation $parent, ActionRequest $request): Upload
+    {
+        $this->parent = $parent;
         $request->validate();
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);
 
-        return $this->handle($organisation, $file);
+        return $this->handle($file);
     }
 
     public function inWorkplace(Workplace $workplace, ActionRequest $request): Upload
     {
+        $this->parent = $workplace;
         $request->validate();
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);

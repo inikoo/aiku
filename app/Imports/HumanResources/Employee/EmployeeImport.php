@@ -28,8 +28,9 @@ class EmployeeImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
 
     protected Organisation|Workplace $parent;
 
-    public function __construct(Organisation|Workplace $parent)
+    public function __construct(Organisation|Workplace $parent, $upload)
     {
+        $this->upload = $upload;
         $this->parent = $parent;
     }
 
@@ -101,17 +102,17 @@ class EmployeeImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
     public function rules(): array
     {
         return [
-            'worker_number'  => ['required', 'max:64', 'iunique:employees', 'alpha_dash:ascii'],
+            'worker_number'  => ['required', 'max:64', 'unique:employees', 'alpha_dash:ascii'],
             'date_of_birth'  => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
             'work_email'     => ['sometimes', 'required', 'email'],
-            'alias'          => ['required', 'iunique:employees', 'string', 'max:16'],
+            'alias'          => ['required', 'unique:employees', 'string', 'max:16'],
             'name'           => ['required', 'string', 'max:256'],
             'job_title'      => ['required', 'string', 'max:256'],
             'positions'      => ['required', 'array'],
-            'positions.*'    => ['exists:job_positions,slug'],
+//            'positions.*'    => ['exists:job_positions,slug'],
             'starting_date'  => ['required', 'date'],
-            'workplace'      => ['required', 'nullable', 'string', 'exists:workplaces,slug'],
-            'username'       => ['sometimes', 'iunique:organisation_users', 'alpha_dash:ascii'],
+//            'workplace'      => ['required', 'nullable', 'string', 'exists:workplaces,slug'],
+            'username'       => ['sometimes', 'unique:users', 'alpha_dash:ascii'],
             'password'       => ['sometimes', 'string', 'min:8', 'max:64'],
             'reset_password' => ['sometimes', 'boolean'],
             'state'          => ['required', new Enum(EmployeeStateEnum::class)]
