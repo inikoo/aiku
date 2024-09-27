@@ -368,7 +368,7 @@ test('UI Index timesheets', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'timesheets')
+                        ->where('title', 'Timesheets')
                         ->etc()
             )
             ->has('data');
