@@ -8,8 +8,8 @@
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\CRM\Customer\AttachCustomerToPlatform;
-use App\Actions\CRM\CustomerClient\StoreCustomerClient;
-use App\Actions\CRM\CustomerClient\UpdateCustomerClient;
+use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
+use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
