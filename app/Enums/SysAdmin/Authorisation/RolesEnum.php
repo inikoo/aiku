@@ -477,7 +477,6 @@ enum RolesEnum: string
     public function scopeTypes(): array
     {
         return match ($this) {
-            RolesEnum::ORG_ADMIN,
             RolesEnum::FULFILMENT_SHOP_SUPERVISOR,
             RolesEnum::FULFILMENT_SHOP_CLERK,
             RolesEnum::FULFILMENT_WAREHOUSE_SUPERVISOR,
@@ -487,9 +486,8 @@ enum RolesEnum: string
             RolesEnum::MANUFACTURING_LINE_MANAGER,
             RolesEnum::MANUFACTURING_OPERATOR,
             RolesEnum::MANUFACTURING_PRODUCT_DEVELOPER,
-
-
             => [OrganisationTypeEnum::SHOP],
+
             RolesEnum::SEO_SUPERVISOR,
             RolesEnum::SEO_CLERK,
             RolesEnum::PPC_SUPERVISOR,
