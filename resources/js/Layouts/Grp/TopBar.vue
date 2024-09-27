@@ -62,7 +62,7 @@ import {
   faSign,
   faClipboardListCheck,
   faClipboardList,
-  faPiggyBank, faTruckContainer, faNarwhal, faUsersClass, faAlbumCollection,faBooks
+  faPiggyBank, faTruckContainer, faNarwhal, faUsersClass, faAlbumCollection,faBooks, faUserTie
 } from "@fal";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { library } from "@fortawesome/fontawesome-svg-core";
@@ -75,7 +75,7 @@ import ScreenWarning from "@/Components/Utils/ScreenWarning.vue";
 library.add(faChevronDown, faTerminal, faUserAlien, faCog, faCity, faBuilding, faNetworkWired, faUserHardHat, faCalendar, faStopwatch, faStoreAlt, faWarehouseAlt, faChartNetwork, faFolderTree, faFolder, faCube, faUserPlus,
   faBox, faBoxesAlt, faMoneyCheckAlt, faCashRegister, faCoins, faFileInvoiceDollar, faReceipt, faPersonDolly, faPeopleArrows, faStream,
   faConciergeBell, faGarage, faHamsa, faCodeMerge, faSortShapesDownAlt, faHatChef, faTags, faCommentDollar, faNewspaper, faMailBulk, faBell, faLaptopHouse, faHandHoldingBox,
-  faShippingFast, faChessClock, faBallot, faHouseDamage, faSign, faClipboardListCheck, faClipboardList, faPiggyBank, faTruckContainer, faNarwhal, faUsersClass, faAlbumCollection, faBooks
+  faShippingFast, faChessClock, faBallot, faHouseDamage, faSign, faClipboardListCheck, faClipboardList, faPiggyBank, faTruckContainer, faNarwhal, faUsersClass, faAlbumCollection, faBooks, faUserTie
 );
 
 defineProps<{
@@ -197,16 +197,16 @@ console.log("environment:", usePage().props.environment);
                                             }]"
                                          menuKey="group"
                                          :imageSkeleton="imageSkeleton"
-                                         :label="trans('groups')"
-                                         icon="fal fa-city"
+                                         :label="trans('corporates')"
+                                         icon="fal fa-user-tie"
                     />
 
                     <!-- Dropdown: Organisation -->
                     <TopBarDropdownScope v-if="layoutStore.organisations.data.length"
                                          :menuItems="layoutStore.organisations.data"
                                          :imageSkeleton="imageSkeleton"
-                                         :label="trans('organisations')"
-                                         icon="fal fa-building"
+                                         :label="trans('E-commerce')"
+                                         icon="fal fa-cash-register"
                     />
 
 
