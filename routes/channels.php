@@ -52,3 +52,7 @@ Broadcast::channel('retina.active.users', function (Webuser $webUser) {
         'alias' => $webUser->slug,
     ];
 });
+
+Broadcast::channel('webpage.{webpage}.preview', function (User $user) {
+    return true;
+});

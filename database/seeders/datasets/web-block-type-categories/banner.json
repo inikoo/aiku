@@ -4,6 +4,7 @@
     "blueprint": {
         "value": "default_value"
     },
+    "category": "banner",
     "scope": "webpage",
     "webBlockTypes": [
         {

@@ -9,7 +9,7 @@ import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { ref, inject } from 'vue'
+import { ref, watch } from 'vue'
 import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars } from '@fal'
 import draggable from "vuedraggable"
 import BlockGap from '@/Components/Websites/Fields/BlockGap.vue'
@@ -17,12 +17,10 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Modal from "@/Components/Utils/Modal.vue"
 import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
-import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
 import axios from 'axios'
 import debounce from 'lodash/debounce'
 import Publish from '@/Components/Publish.vue'
 import { notify } from "@kyvg/vue3-notification"
-import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import ScreenView from "@/Components/ScreenView.vue"
@@ -32,6 +30,7 @@ import ScreenView from "@/Components/ScreenView.vue"
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
+import Webpage from './Webpage.vue'
 
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
@@ -65,7 +64,7 @@ const sendNewBlock = async (block: Daum) => {
         )
         const set = { ...response.data.data }
         data.value = set
-        reloadIframe()
+       /*  reloadIframe() */
     } catch (error: any) {
         console.error('error', error)
     }
@@ -191,6 +190,7 @@ const handleIframeError = () => {
 }
 
 
+
 </script>
 
 <template>
@@ -267,8 +267,6 @@ const handleIframeError = () => {
                 </div>
             </div>
         </div>
-
-        
     </div>
 
 

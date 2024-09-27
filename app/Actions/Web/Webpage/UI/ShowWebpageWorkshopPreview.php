@@ -9,11 +9,11 @@ namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
-use App\Http\Resources\Web\WebBlockTypesResource;
+use App\Http\Resources\Web\WebBlockTypeCategoryResource;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Web\WebBlockType;
+use App\Models\Web\WebBlockTypeCategory;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Inertia\Inertia;
@@ -58,7 +58,7 @@ class ShowWebpageWorkshopPreview extends OrgAction
             [
 //                'blocks' => $home->unpublishedSnapshot->layout
                 'webpage'       => WebpageResource::make($webpage)->getArray(),
-                'webBlockTypes' => WebBlockTypesResource::collection(WebBlockType::all())
+                'webBlockTypeCategories' => WebBlockTypeCategoryResource::collection(WebBlockTypeCategory::all())
             ]
         );
     }
