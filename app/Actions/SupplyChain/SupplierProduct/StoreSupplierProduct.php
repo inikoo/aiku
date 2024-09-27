@@ -77,7 +77,7 @@ class StoreSupplierProduct extends GrpAction
     public function rules(): array
     {
         $rules = [
-            'code'                   => [
+            'code' => [
                 'required',
                 $this->strict ? 'max:64' : 'max:255',
                 $this->strict ? new AlphaDashDotSpaceSlashParenthesisPlus() : 'string',
@@ -88,24 +88,22 @@ class StoreSupplierProduct extends GrpAction
                         ['column' => 'supplier_id', 'value' => $this->supplier_id],
                     ]
                 ),
-
             ],
-            'stock_id'                   => [
+            'stock_id' => [
                 'required',
                 Rule::exists('stocks', 'id')->where(function (Builder $query) {
                     return $query->where('group_id', $this->group->id);
                 }),
-
             ],
-            'name'                   => ['required', 'string', 'max:255'],
-            'state'                  => ['sometimes', 'required', Rule::enum(SupplierProductStateEnum::class)],
-            'is_available'           => ['sometimes', 'required', 'boolean'],
-            'cost'                   => ['required'],
-            'source_id'              => ['sometimes', 'nullable', 'string'],
-            'source_slug'            => ['sometimes', 'nullable', 'string'],
-            'source_slug_inter_org'  => ['sometimes', 'nullable', 'string'],
+            'name' => ['required', 'string', 'max:255'],
+            'state' => ['sometimes', 'required', Rule::enum(SupplierProductStateEnum::class)],
+            'is_available' => ['sometimes', 'required', 'boolean'],
+            'cost' => ['required'],
+            'source_id' => ['sometimes', 'nullable', 'string'],
+            'source_slug' => ['sometimes', 'nullable', 'string'],
+            'source_slug_inter_org' => ['sometimes', 'nullable', 'string'],
             'source_organisation_id' => ['sometimes', 'nullable'],
-            'fetched_at'             => ['sometimes', 'date'],
+            'fetched_at' => ['sometimes', 'date'],
         ];
 
         if (!$this->strict) {
@@ -116,6 +114,8 @@ class StoreSupplierProduct extends GrpAction
             $rules['fetched_at'] = ['sometimes', 'date'];
         }
 
+        return $rules;
+    }
 
     public function action(Supplier $supplier, array $modelData, bool $skipHistoric = false, int $hydratorsDelay = 0, bool $strict = true): SupplierProduct
     {
@@ -129,6 +129,4 @@ class StoreSupplierProduct extends GrpAction
 
         return $this->handle($supplier, $this->validatedData);
     }
-
-
 }
