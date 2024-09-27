@@ -27,5 +27,6 @@ enum WebBlockTypeCategorySlugEnum: string
     case PRODUCTS = 'products';
     case REVIEWS  = 'reviews';
     case IFRAME   = 'iframe';
+    case BENTO_GRID   = 'bento-grid';
 
 }

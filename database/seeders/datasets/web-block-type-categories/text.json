@@ -5,7 +5,6 @@
 		"value": ""
 	},
 	"scope": "webpage",
-    "category" : "text",
 	"webBlockTypes": [
 		{
 			"code": "text",

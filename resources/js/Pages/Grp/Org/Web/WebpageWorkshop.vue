@@ -10,7 +10,7 @@ import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { ref, watch } from 'vue'
-import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars } from '@fal'
+import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faExpandWide } from '@fal'
 import draggable from "vuedraggable"
 import BlockGap from '@/Components/Websites/Fields/BlockGap.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -39,7 +39,7 @@ const props = defineProps<{
     title: string,
     pageHead: PageHeadingTypes,
     webpage: RootWebpage
-    webBlockTypes: Root
+    webBlockTypeCategories: Root
 }>()
 
 const isModalBlocksList = ref(false)
@@ -51,11 +51,6 @@ const data = ref({ ...props.webpage })
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 
-const reloadIframe = () => {
-    iframeSrc.value = `${route('grp.websites.preview', [route().params['website'], route().params['webpage']])}?reload=${new Date().getTime()}`;
-    isIframeLoading.value = true
-}
-
 const sendNewBlock = async (block: Daum) => {
     try {
         const response = await axios.post(
@@ -64,7 +59,6 @@ const sendNewBlock = async (block: Daum) => {
         )
         const set = { ...response.data.data }
         data.value = set
-       /*  reloadIframe() */
     } catch (error: any) {
         console.error('error', error)
     }
@@ -80,13 +74,12 @@ const sendBlockUpdate = async (block: Daum) => {
         )
         const set = { ...response.data.data }
         data.value = set
-        reloadIframe()
     } catch (error: any) {
         console.error('error', error)
     }
 }
 
-const sendOrderBlock = async (block : Object) => {
+const sendOrderBlock = async (block: Object) => {
     try {
         const response = await axios.post(
             route(props.webpage.reorder_web_blocks_route.name, props.webpage.reorder_web_blocks_route.parameters),
@@ -94,7 +87,6 @@ const sendOrderBlock = async (block : Object) => {
         )
         const set = { ...response.data.data }
         data.value = set
-        reloadIframe()
     } catch (error: any) {
         console.error('error', error)
     }
@@ -109,7 +101,6 @@ const sendDeleteBlock = async (block: Daum) => {
         )
         const set = { ...response.data.data }
         data.value = set
-        reloadIframe()
     } catch (error: any) {
         console.error('error', error)
     }
@@ -189,11 +180,14 @@ const handleIframeError = () => {
     console.error('Failed to load iframe content.');
 }
 
-
+const openFullScreenPreview = () => {
+    window.open(iframeSrc.value ,'_blank')
+}
 
 </script>
 
 <template>
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
@@ -203,12 +197,12 @@ const handleIframeError = () => {
     </PageHeading>
 
     <div class="grid grid-cols-5 h-[85vh]">
-        <div class="col-span-1 h-full border-2 bg-gray-200 p-3">
+        <div class="col-span-1 h-full border-2 bg-gray-200 px-3 py-1">
             <div class="flex justify-between">
                 <h2 class="text-sm font-semibold leading-6">Block List</h2>
-                <Button icon="fas fa-plus" size="xs" @click="() => (isModalBlocksList = true)" />
+                <Button icon="fas fa-plus" type="dashed" size="xs" @click="() => (isModalBlocksList = true)" />
             </div>
-            <div class="px-3">
+            <div>
                 <draggable v-if="data?.layout?.web_blocks.length > 0" :list="data.layout.web_blocks" handle=".handle"
                     @change="onChangeOrderBlock" ghost-class="ghost" group="column" itemKey="column_id"
                     class="mt-2 space-y-1">
@@ -248,22 +242,33 @@ const handleIframeError = () => {
                 </draggable>
                 <div v-else class="flex flex-col justify-center items-center mt-4 rounded-lg p-4 text-center h-[90%]">
                     <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
-                    <span class="mt-2 block text-sm font-semibold text-gray-600">You don't have any
-                        blocks</span>
+                    <span class="mt-2 block text-sm font-semibold text-gray-600">You don't have any blocks</span>
                 </div>
             </div>
         </div>
 
         <div class="col-span-4 h-full flex flex-col bg-gray-200">
-            <ScreenView @screenView="setIframeView" />
+            <div class="flex">
+                <ScreenView @screenView="setIframeView" />
+                <div 
+                    class="py-1 px-2 cursor-pointer" 
+                    title="Desktop view" 
+                    v-tooltip="'Preview'"
+                    @click="openFullScreenPreview"
+                >
+                    <FontAwesomeIcon :icon='faExpandWide' aria-hidden='true' />
+                </div>
+            </div>
+
             <div class="border-2 h-full w-full">
                 <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
                     <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
                 </div>
 
                 <div class="h-full w-full bg-white">
-                    <iframe :src="iframeSrc" :title="props.title" :class="[iframeClass, isIframeLoading ? 'hidden' : '' ]" 
-                        @error="handleIframeError" @load="isIframeLoading = false"/>
+                    <iframe :src="iframeSrc" :title="props.title"
+                        :class="[iframeClass, isIframeLoading ? 'hidden' : '']" @error="handleIframeError"
+                        @load="isIframeLoading = false" />
                 </div>
             </div>
         </div>
@@ -271,7 +276,7 @@ const handleIframeError = () => {
 
 
     <Modal :isOpen="isModalBlocksList" @onClose="isModalBlocksList = false">
-        <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" />
+        <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypeCategories" />
     </Modal>
 </template>
 

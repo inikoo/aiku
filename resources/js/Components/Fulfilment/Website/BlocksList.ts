@@ -12,6 +12,7 @@ import CTA2 from '@/Components/Fulfilment/Website/Block/CTA2.vue'
 import CTA3 from '@/Components/Fulfilment/Website/Block/CTA3.vue'
 import Gallery from '@/Components/Fulfilment/Website/Block/Gallery.vue'
 import Iframe from '@/Components/Fulfilment/Website/Block/Iframe.vue'
+import BentoGrid from '@/Components/Fulfilment/Website/Block/BentoGrid.vue'
 import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundComponent.vue'
 import Action from "@/Components/Forms/Fields/Action.vue"
 
@@ -30,7 +31,8 @@ export const getComponent = (componentName: string) => {
         'Reviews': Rewiews,
         'Image': Image,
         'Gallery': Gallery,
-        "Iframe": Iframe
+        "Iframe": Iframe,
+        "BentoGrid" : BentoGrid
     }
 
     return components[componentName] ?? NotFoundComponents

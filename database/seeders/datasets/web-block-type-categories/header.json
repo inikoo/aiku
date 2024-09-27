@@ -1,7 +1,6 @@
 {
     "slug": "header",
     "name": "Website header",
-    "category" : "header",
     "blueprint": {
         "defaultParameters": {
             "navigation": {
