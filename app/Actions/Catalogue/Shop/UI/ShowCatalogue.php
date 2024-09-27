@@ -45,18 +45,14 @@ class ShowCatalogue extends OrgAction
 
     public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
-        // $topFamily = $shop->families()->sortByDesc(function ($family) {
-        //     return $family->stats->shop_amount_all;
-        // })->first();
-
-        // $topDepartment = $shop->departments()->sortByDesc(function ($department) {
-        //     return $department->stats->shop_amount_all;
-        // })->first();
-
-        // $topProduct = $shop->products()->sortByDesc(function ($product) {
-        //     return $product->salesIntervals->shop_amount_all;
-        // })->first();
-
+        $topFamily = $shop->families()->sortByDesc(function ($family) {
+            return $family->stats->shop_amount_all;
+        })->first();
+        
+        $topDepartment = $shop->departments()->sortByDesc(function ($department) {
+            return $department->stats->shop_amount_all;
+        })->first();
+        
         return Inertia::render(
             'Org/Catalogue/Catalogue',
             [
