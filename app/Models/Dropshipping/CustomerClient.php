@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -62,6 +63,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read Collection<int, Order> $orders
  * @property-read Organisation $organisation
  * @property-read Shop|null $shop
+ * @property-read \App\Models\Dropshipping\CustomerClientStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Dropshipping\CustomerClientFactory factory($count = null, $state = [])
  * @method static Builder|CustomerClient newModelQuery()
@@ -133,6 +135,11 @@ class CustomerClient extends Model implements Auditable
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(CustomerClientStats::class);
     }
 
 }

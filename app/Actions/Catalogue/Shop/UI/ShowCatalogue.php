@@ -68,8 +68,8 @@ class ShowCatalogue extends OrgAction
             ->where('available_quantity', 0)
             ->count();
 
-        $percentageWithZeroQuantity = ($totalProducts > 0) 
-            ? round(($productsWithZeroQuantity / $totalProducts) * 100, 2) 
+        $percentageWithZeroQuantity = ($totalProducts > 0)
+            ? round(($productsWithZeroQuantity / $totalProducts) * 100, 2)
             : 0;
 
         return Inertia::render(

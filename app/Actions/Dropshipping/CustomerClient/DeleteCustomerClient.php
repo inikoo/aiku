@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 07 Jun 2024 11:21:47 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Created: Fri, 27 Sept 2024 11:46:47 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\CustomerClient;
+namespace App\Actions\Dropshipping\CustomerClient;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\Traits\WithActionUpdate;

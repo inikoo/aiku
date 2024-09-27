@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 07 Jun 2024 11:21:47 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Created: Fri, 27 Sept 2024 11:46:47 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\CustomerClient;
+namespace App\Actions\Dropshipping\CustomerClient;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
-use App\Actions\CRM\CustomerClient\Search\CustomerClientRecordSearch;
+use App\Actions\Dropshipping\CustomerClient\Search\CustomerClientRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Models\CRM\Customer;
@@ -37,7 +37,6 @@ class StoreCustomerClient extends OrgAction
         Arr::forget($modelData, 'address');
 
         data_set($modelData, 'ulid', Str::ulid());
-
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
         data_set($modelData, 'shop_id', $customer->shop_id);
@@ -46,6 +45,7 @@ class StoreCustomerClient extends OrgAction
         $customerClient = DB::transaction(function () use ($customer, $modelData, $address) {
             /** @var CustomerClient $customerClient */
             $customerClient = $customer->clients()->create($modelData);
+            $customerClient->stats()->create();
 
             return $this->addAddressToModel(
                 model: $customerClient,

@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 10 Sept 2024 22:50:11 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Fri, 27 Sept 2024 11:46:47 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\CustomerClient\Search;
+namespace App\Actions\Dropshipping\CustomerClient\Search;
 
 use App\Models\Dropshipping\CustomerClient;
 use Lorisleiva\Actions\Concerns\AsAction;
