@@ -15,7 +15,7 @@ trait WithWorkplaceSubNavigation
     {
         return [
             [
-                'anchor' => true,
+                'isAnchor' => true,
                 'label'    => __('Workplace'),
                 'href'     => [
                     'name'       => 'grp.org.hr.workplaces.show',

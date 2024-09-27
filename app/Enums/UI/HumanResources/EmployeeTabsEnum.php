@@ -17,11 +17,8 @@ enum EmployeeTabsEnum: string
 
     case SHOWCASE                       = 'showcase';
     case HISTORY                        = 'history';
-    // case DATA                           = 'data';
-    // case TIMESHEETS                     = 'timesheets';
     case ATTACHMENTS                    = 'attachments';
     case IMAGES                         = 'images';
-    // case JOB_POSITIONS                  = 'job_positions';
 
 
     public function blueprint(): array
@@ -47,8 +44,8 @@ enum EmployeeTabsEnum: string
                 'align' => 'right',
             ],
             EmployeeTabsEnum::SHOWCASE => [
-                'title' => __('employee'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('overview'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
         };
     }

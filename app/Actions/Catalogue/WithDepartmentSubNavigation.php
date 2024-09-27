@@ -15,7 +15,7 @@ trait WithDepartmentSubNavigation
     {
         return [
             [
-                'anchor'   => true,
+                'isAnchor'   => true,
                 'label'    => __('Department'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.catalogue.departments.show',

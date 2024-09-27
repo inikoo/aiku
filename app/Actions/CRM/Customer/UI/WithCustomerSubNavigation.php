@@ -17,7 +17,7 @@ trait WithCustomerSubNavigation
     {
         return [
             [
-                'anchor'   => true,
+                'isAnchor'   => true,
                 'label'    => __('Customer'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show',
@@ -86,7 +86,7 @@ trait WithCustomerSubNavigation
     {
         return [
             [
-                'anchor' => true,
+                'isAnchor' => true,
                 'label'    => __('Customer'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show',
@@ -179,7 +179,7 @@ trait WithCustomerSubNavigation
     {
         return [
             [
-                'anchor' => true,
+                'isAnchor' => true,
                 'label'    => __('Client'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.show',

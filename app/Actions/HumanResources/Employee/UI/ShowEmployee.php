@@ -8,24 +8,15 @@
 namespace App\Actions\HumanResources\Employee\UI;
 
 use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\HumanResources\JobPosition\UI\IndexJobPositions;
-use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
-use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\UI\HumanResources\EmployeeTabsEnum;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\HumanResources\EmployeeHanResource;
-use App\Http\Resources\HumanResources\EmployeeResource;
-use App\Http\Resources\HumanResources\JobPositionsResource;
-use App\Http\Resources\HumanResources\TimesheetsResource;
-use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -45,15 +36,6 @@ class ShowEmployee extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($request->user() instanceof ClockingMachine) {
-            $employeeWorkplace = $this->employee->workplaces()
-                    ->wherePivot('workplace_id', $request->user()->workplace_id)
-                    ->count() > 0;
-
-            return ($this->organisation->id === $request->user()->organisation_id)
-                && $employeeWorkplace && $this->employee->state === EmployeeStateEnum::WORKING;
-        }
-
         $this->canEdit   = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
         $this->canDelete = $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.view");
 
@@ -69,22 +51,28 @@ class ShowEmployee extends OrgAction
 
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
+        // Uncomment this to test the error page
+        //valid values 500, 503, 404, 403, 422
+        //abort(500);
+
         return Inertia::render(
             'Org/HumanResources/Employee',
             [
                 'title'       => __('employee'),
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    employee: $employee,
+                    routeParameters: $request->route()->originalParameters()
+                ),
                 'navigation'  => [
                     'previous' => $this->getPrevious($employee, $request),
                     'next'     => $this->getNext($employee, $request),
                 ],
                 'pageHead'    => [
-                    'icon'    => [
+                    'icon'          => [
                         'title' => __('Employee'),
                         'icon'  => 'fal fa-user-hard-hat'
                     ],
                     'title'         => $employee->contact_name,
-                    'model'         => __('employee'),
                     'subNavigation' => $this->getEmployeeSubNavigation($employee, $request),
                     'meta'          => [
                         [
@@ -95,27 +83,8 @@ class ShowEmployee extends OrgAction
                                 'tooltip' => __('Worker number')
                             ]
                         ],
-
-                        [
-                            'label'    => Arr::get(explode(':', $employee->pin), 1),
-                            'key'      => 'pin',
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-key',
-                                'tooltip' => __('Pin')
-                            ]
-                        ],
-
-                        $employee->user ?
-                            [
-                                'label'    => $employee->user->username,
-                                'key'      => 'user',
-                                'leftIcon' => [
-                                    'icon'    => 'fal fa-user',
-                                    'tooltip' => __('User')
-                                ]
-                            ] : []
                     ],
-                    'actions' => [
+                    'actions'       => [
                         $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],
@@ -125,22 +94,7 @@ class ShowEmployee extends OrgAction
                     'navigation' => EmployeeTabsEnum::navigation()
                 ],
 
-                /*
-                EmployeeTabsEnum::TIMESHEETS->value => $this->tab == EmployeeTabsEnum::TIMESHEETS->value ?
-                    fn() => TimesheetsResource::collection(IndexTimesheets::run($employee, EmployeeTabsEnum::TIMESHEETS->value))
-                    : Inertia::lazy(fn() => TimesheetsResource::collection(IndexTimesheets::run($employee, EmployeeTabsEnum::TIMESHEETS->value))),
 
-
-                EmployeeTabsEnum::DATA->value => $this->tab == EmployeeTabsEnum::DATA->value ?
-                    fn() => $this->getData($employee)
-                    : Inertia::lazy(fn() => $this->getData($employee)),
-
-                 EmployeeTabsEnum::JOB_POSITIONS->value => $this->tab == EmployeeTabsEnum::JOB_POSITIONS->value ?
-                    fn() => JobPositionsResource::collection(IndexJobPositions::run($employee, EmployeeTabsEnum::JOB_POSITIONS->value, true))
-                    : Inertia::lazy(fn() => JobPositionsResource::collection(IndexJobPositions::run($employee, EmployeeTabsEnum::JOB_POSITIONS->value, true))),
-
-
-                */
                 EmployeeTabsEnum::HISTORY->value => $this->tab == EmployeeTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($employee))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($employee))),
@@ -148,80 +102,11 @@ class ShowEmployee extends OrgAction
 
             ]
         )->table(IndexHistory::make()->tableStructure(prefix: EmployeeTabsEnum::HISTORY->value));
-        /*
-        ->table(IndexTimesheets::make()->tableStructure(
-                parent: $employee,
-                modelOperations: [
-                    'createLink' => [
-                        [
-                            'type'   => 'button',
-                            'style'  => 'primary',
-                            'icon'   => 'fal fa-file-export',
-                            'id'     => 'pdf-export',
-                            'label'  => 'Excel',
-                            'key'    => 'action',
-                            'target' => '_blank',
-                            'route'  => [
-                                'name'       => 'grp.org.hr.employees.timesheets.export',
-                                'parameters' => [
-                                    'organisation' => $employee->organisation->slug,
-                                    'employee'     => $employee->slug,
-                                    'type'         => 'xlsx'
-                                ]
-                            ]
-                        ]
-                    ],
-                ],
-                prefix: EmployeeTabsEnum::TIMESHEETS->value
-            ))
-        ->table(IndexJobPositions::make()->tableStructure(prefix: EmployeeTabsEnum::JOB_POSITIONS->value));
-        */
     }
 
-    public function getData(Employee $employee): array
+
+    public function getBreadcrumbs(Employee $employee, array $routeParameters, $suffix = null): array
     {
-        return Arr::except($employee->toArray(), ['id', 'source_id', 'working_hours', 'errors', 'salary', 'data']);
-    }
-
-    public function rules(): array
-    {
-        $rules = [];
-        if (request()->user() instanceof ClockingMachine) {
-            $rules = [
-                'pin' => ['required', 'string', Rule::exists('employees', 'pin')]
-            ];
-        }
-
-        return $rules;
-    }
-
-    public function han(Employee $employee, ActionRequest $request): Employee
-    {
-        $this->han = true;
-
-        if ($request->user()->organisation_id !== $employee->organisation_id) {
-            abort(404);
-        }
-        if (in_array($employee->state, [EmployeeStateEnum::HIRED,EmployeeStateEnum::LEFT])) {
-            abort(405);
-        }
-
-        return $this->handle($employee);
-    }
-
-    public function jsonResponse(Employee $employee): EmployeeResource|EmployeeHanResource
-    {
-        if ($this->han) {
-            return new EmployeeHanResource($employee);
-        }
-
-        return new EmployeeResource($employee);
-    }
-
-    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
-    {
-        $employee = Employee::where('slug', $routeParameters['employee'])->first();
-
         return array_merge(
             (new ShowHumanResourcesDashboard())->getBreadcrumbs($routeParameters),
             [

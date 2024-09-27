@@ -54,10 +54,10 @@ class FetchAuroraProduct extends FetchAurora
         }
 
         $state = match ($this->auroraModelData->{'Product Status'}) {
-            'InProcess'     => ProductStateEnum::IN_PROCESS,
+            'InProcess' => ProductStateEnum::IN_PROCESS,
             'Discontinuing' => ProductStateEnum::DISCONTINUING,
-            'Discontinued'  => ProductStateEnum::DISCONTINUED,
-            default         => ProductStateEnum::ACTIVE
+            'Discontinued' => ProductStateEnum::DISCONTINUED,
+            default => ProductStateEnum::ACTIVE
         };
 
 
@@ -81,6 +81,10 @@ class FetchAuroraProduct extends FetchAurora
 
         $code = $this->cleanTradeUnitReference($this->auroraModelData->{'Product Code'});
 
+        $name = $this->auroraModelData->{'Product Name'};
+        if (!$name) {
+            $name = $code;
+        }
 
         $this->parsedData['product'] = [
             'is_main'                => true,
@@ -88,7 +92,7 @@ class FetchAuroraProduct extends FetchAurora
             'owner_type'             => $owner_type,
             'owner_id'               => $owner_id,
             'code'                   => $code,
-            'name'                   => $this->auroraModelData->{'Product Name'},
+            'name'                   => $name,
             'price'                  => round($unit_price, 2),
             'status'                 => $status,
             'unit'                   => $this->auroraModelData->{'Product Unit Label'},

@@ -17,7 +17,7 @@ trait WithEmployeeSubNavigation
         $subNavigation = [];
 
         $subNavigation[] = [
-            'anchor' => true,
+            'isAnchor' => true,
             'href' => [
                 'name'      => 'grp.org.hr.employees.show',
                 'parameters' => $request->route()->originalParameters()
@@ -40,7 +40,7 @@ trait WithEmployeeSubNavigation
 
             'label'     => __('Responsibilities'),
             'leftIcon'  => [
-                'icon'    => 'fal fa-clipboard-list-checked',
+                'icon'    => 'fal fa-clipboard-list-check',
                 'tooltip' => __('Responsibilities'),
             ],
             'number' => $employee->stats->number_job_positions
@@ -56,7 +56,7 @@ trait WithEmployeeSubNavigation
 
             'label'     => __('Timesheets'),
             'leftIcon'  => [
-                'icon'    => 'fal fa-clock',
+                'icon'    => 'fal fa-stopwatch',
                 'tooltip' => __('Timesheets'),
             ],
             'number' => $employee->stats->number_timesheets

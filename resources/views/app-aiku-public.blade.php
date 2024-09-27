@@ -3,12 +3,9 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        @env(['staging', 'production'])
-        @include('new-relic', ['appID' => Config::get('new-relic.application_id.public')])
-        @endenv
         <title inertia>{{ config('app.name', 'Aiku') }}</title>
         <link rel="icon" type="image/png" href="{{ url('favicons/favicon.png') }}">
-        <link rel="icon" href="{{ url('favicons/favicon.svg') }}" type="image/svg+xml">
+        <link rel="icon" href="{{ url('favicon.svg') }}" type="image/svg+xml">
         @routes('aiku-public')
         {{Vite::useHotFile('aiku-public.hot')->useBuildDirectory('aiku-public')->withEntryPoints(['resources/js/app-aiku-public.js'])}}
         @inertiaHead

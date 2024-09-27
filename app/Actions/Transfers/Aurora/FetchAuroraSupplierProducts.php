@@ -55,8 +55,6 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
     public function fetchSupplierProduct($supplierProductData, $organisationSource)
     {
         if ($supplierProductData) {
-            // print_r($supplierProductData);
-
 
             $found           = false;
             $supplierProduct = null;

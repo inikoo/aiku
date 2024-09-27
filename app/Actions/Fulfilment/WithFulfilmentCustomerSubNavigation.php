@@ -18,7 +18,7 @@ trait WithFulfilmentCustomerSubNavigation
         $subNavigation = [];
 
         $subNavigation[] = [
-            'anchor' => true,
+            'isAnchor' => true,
             'href' => [
                 'name'      => 'grp.org.fulfilments.show.crm.customers.show',
                 'parameters' => $request->route()->originalParameters()

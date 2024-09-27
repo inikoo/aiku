@@ -7,6 +7,7 @@
 
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisation;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::prefix("")
     ->name("dashboard.")
@@ -56,3 +57,10 @@ Route::prefix("settings")
 
 
 Route::get('/show', ShowOrganisation::class)->name('show');
+
+Route::fallback(function () {
+    $status = 404;
+    return Inertia::render('Errors/Error404', compact('status'))
+        ->toResponse(request())
+        ->setStatusCode($status);
+})->name('fallback');
