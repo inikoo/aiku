@@ -9,6 +9,10 @@ use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\ShopifyUser;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\Broadcast;
+use App\Models\Web\WebBlockType;
+use App\Models\Web\Webpage;
+use App\Http\Resources\Web\WebBlockTypesResource;
+use App\Http\Resources\Web\WebpageResource;
 
 Broadcast::channel('shopify.upload-product.{shopifyUserId}', function (ShopifyUser $user, int $shopifyUserId) {
     return true;
@@ -51,4 +55,8 @@ Broadcast::channel('retina.active.users', function (Webuser $webUser) {
         'id'    => $webUser->id,
         'alias' => $webUser->slug,
     ];
+});
+
+Broadcast::channel('webpage.{webpage}.preview', function (User $user) {
+    return true;
 });

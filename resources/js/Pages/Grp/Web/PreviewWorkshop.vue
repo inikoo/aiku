@@ -4,46 +4,63 @@
   - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
-<script setup lang="ts">
-import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
-import { ref } from 'vue'
-import WebPreview from "@/Layouts/WebPreview.vue";
-import axios from 'axios'
-import debounce from 'lodash/debounce'
-import EmptyState from "@/Components/Utils/EmptyState.vue"
+  <script setup lang="ts">
+  import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
+  import { ref, onMounted, onUnmounted } from 'vue'
+  import WebPreview from "@/Layouts/WebPreview.vue";
+  import axios from 'axios'
+  import debounce from 'lodash/debounce'
+  import EmptyState from "@/Components/Utils/EmptyState.vue"
+  import { webBlock as socketWeblock } from '@/Composables/SocketWebBlock.ts'
+  
+  
+  import { Root, Daum } from '@/types/webBlockTypes'
+  import { Root as RootWebpage, WebBlock } from '@/types/webpageTypes'
+  
+  
+  defineOptions({ layout: WebPreview })
+  const props = defineProps<{
+      webpage: RootWebpage
+      webBlockTypes: Root
+  }>()
+  
+  const data = ref({...props.webpage})
+  const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block),1000,{ leading: false, trailing: true })
+  
+  const onUpdatedBlock = (block : Daum) => {
+      debouncedSendUpdate(block)
+  }
+  
+  const sendBlockUpdate = async (block : WebBlock) => {
+      try {
+          const response = await axios.patch(
+              route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
+              { layout: block.web_block.layout }
+          )
+          const set = { ...response.data.data }
+          data.value = set
+      } catch (error: any) {
+          console.error('error', error)
+      }
+  }
+  
+  // Initialize the socket connection and subscribe to the channel
+  const socketConnection = socketWeblock(props.webpage.slug);
+  
+  // Subscribe when the component mounts
+  onMounted(() => {
+    socketConnection.actions.subscribe();
+    console.log("Subscribed to channel", socketConnection);
+  });
+  
+  // Unsubscribe when the component unmounts
+  onUnmounted(() => {
+    socketConnection.actions.unsubscribe();
+  });
+  
 
-
-defineOptions({ layout: WebPreview })
-const props = defineProps<{
-    webpage: Object
-    webBlockTypes: {
-        data: Array
-    }
-}>()
-
-const data = ref({...props.webpage})
-const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block),1000,{ leading: false, trailing: true })
-
-
-const sendBlockUpdate = async (block) => {
-    try {
-        const response = await axios.patch(
-            route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
-            { layout: block.web_block.layout }
-        )
-        const set = { ...response.data.data }
-        data.value = set
-    } catch (error: any) {
-        console.error('error', error)
-    }
-}
-
-
-const onUpdatedBlock = (block) => {
-    debouncedSendUpdate(block)
-}
-
-</script>
+  </script>
+  
 
 <template>
     <div class="relative">
