@@ -20,7 +20,7 @@ class DetectWebsiteFromDomain
      */
     public function handle($domain): Website
     {
-        if (app()->environment('staging')) {
+        if (app()->environment('local')) {
             if ($domain == 'fulfilment.test') {
                 $domain = config('app.local.retina_fulfilment_domain');
             } elseif ($domain == 'ds.test') {
