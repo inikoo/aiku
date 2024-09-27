@@ -5,6 +5,7 @@
 		"value": ""
 	},
 	"scope": "webpage",
+    "category" : "image",
 	"webBlockTypes": [
 		{
 			"code": "image",

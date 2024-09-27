@@ -1,6 +1,22 @@
 {
     "slug": "footer",
     "name": "Website footer",
+    "scope": "website",
+    "category" : "footer",
+    "webBlockTypes": [
+        {
+            "code": "FooterTheme1",
+            "name": "Footer 1"
+        },
+        {
+            "code": "FooterTheme2",
+            "name": "Footer 2"
+        },
+        {
+            "code": "FooterTheme3",
+            "name": "Footer 3"
+        }
+    ],
     "blueprint": {
         "defaultParameters": {
             "navigations": [
@@ -104,20 +120,6 @@
                 }
             ]
         }
-    },
-    "scope": "website",
-    "webBlockTypes": [
-        {
-            "code": "FooterTheme1",
-            "name": "Footer 1"
-        },
-        {
-            "code": "FooterTheme2",
-            "name": "Footer 2"
-        },
-        {
-            "code": "FooterTheme3",
-            "name": "Footer 3"
-        }
-    ]
+    }
+   
 }
