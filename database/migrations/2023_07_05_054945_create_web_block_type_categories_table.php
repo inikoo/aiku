@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table->string('category')->index();
+            $table->string('category')->index()->nullable();
             $table->string('scope')->index();
             $table->string('slug')->unique()->index();
             $table->string('name');

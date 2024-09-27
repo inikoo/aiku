@@ -27,7 +27,10 @@ class DeleteGuest
     public function handle(Guest $guest): Guest
     {
         $guest->delete();
-        DeleteUser::run($guest->user);
+
+        foreach ($guest->users as $user) {
+            DeleteUser::run($user);
+        }
         GroupHydrateGuests::dispatch($guest->group);
 
         return $guest;

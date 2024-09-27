@@ -29,7 +29,7 @@ beforeAll(function () {
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->adminGuest   = createAdminGuest($this->organisation->group);
-    $this->user         = $this->adminGuest->user;
+    $this->user         = $this->adminGuest->getUser();
 
     Config::set(
         'inertia.testing.page_paths',

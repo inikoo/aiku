@@ -76,7 +76,7 @@ beforeEach(function () {
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
     );
-    actingAs($this->adminGuest->user);
+    actingAs($this->adminGuest->getUser());
     setPermissionsTeamId($this->organisation->group->id);
 });
 

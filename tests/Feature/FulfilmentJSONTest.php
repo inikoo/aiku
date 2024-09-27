@@ -159,12 +159,14 @@ beforeEach(function () {
 
     $this->physicalGoods = $physicalGoods;
 
-    $this->adminGuest->user->refresh();
+    $user = $this->adminGuest->getUser();
+
+    $user->refresh();
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
     );
-    actingAs($this->adminGuest->user);
+    actingAs($user);
 });
 
 test('UI Index fulfilment services (delivery)', function () {

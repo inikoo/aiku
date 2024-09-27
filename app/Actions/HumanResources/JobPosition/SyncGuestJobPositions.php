@@ -20,6 +20,8 @@ class SyncGuestJobPositions
     public function handle(Guest $guest, array $jobPositions): void
     {
 
+
+
         $jobPositionsIds = array_keys($jobPositions);
 
         $currentJobPositions = $guest->jobPositions()->pluck('job_positions.id')->all();
@@ -43,8 +45,8 @@ class SyncGuestJobPositions
 
 
         if (count($newJobPositionsIds) || count($removeJobPositions)) {
-            if ($guest->user) {
-                SyncRolesFromJobPositions::run($guest->user);
+            if ($guest->getUser()) {
+                SyncRolesFromJobPositions::run($guest->getUser());
             }
 
             foreach ($removeJobPositions as $jobPositionId) {

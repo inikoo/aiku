@@ -23,13 +23,13 @@ return new class () extends Migration {
             $table->boolean('status')->default(true);
             $table->string('username')->unique();
             $table->string('password')->nullable();
-            $table->string('type')->nullable()->comment('same as parent_type excluding Organisation, for use in UI');
+            // $table->string('type')->nullable()->comment('same as parent_type excluding Organisation, for use in UI');
             $table->string('auth_type')->default(UserAuthTypeEnum::DEFAULT->value);
             $table->string('contact_name')->nullable()->comment('no-normalised depends on parent');
             $table->string('email')->nullable()->comment('mirror group_users.email');
             $table->text('about')->nullable();
-            $table->string('parent_type')->nullable();
-            $table->unsignedInteger('parent_id')->nullable();
+            //            $table->string('parent_type')->nullable();
+            //            $table->unsignedInteger('parent_id')->nullable();
             $table->unsignedSmallInteger('number_authorised_organisations')->default(0);
             $table->unsignedSmallInteger('number_authorised_shops')->default(0);
             $table->unsignedSmallInteger('number_authorised_fulfilments')->default(0);

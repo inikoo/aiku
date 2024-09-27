@@ -133,7 +133,7 @@ beforeEach(function () {
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
     );
-    actingAs($this->adminGuest->user);
+    actingAs($this->adminGuest->getUser());
 });
 
 test('create fulfilment shop', function () {

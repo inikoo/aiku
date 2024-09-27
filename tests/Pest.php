@@ -136,7 +136,7 @@ function createShop(): array
 
     return [
         $organisation,
-        $adminGuest->user,
+        $adminGuest->getUser(),
         $shop
     ];
 }

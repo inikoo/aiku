@@ -25,26 +25,30 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreUser extends GrpAction
 {
+    private Employee|Guest $parent;
+
     public function handle(Guest|Employee|Supplier|Agent $parent, array $modelData = []): User
     {
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'contact_name', $parent->contact_name);
 
-        $type = match (class_basename($parent)) {
-            'Guest', 'Employee', 'Supplier', 'Agent' => strtolower(class_basename($parent)),
-            default => null
-        };
-
-        data_set($modelData, 'type', $type);
+        //        $type = match (class_basename($parent)) {
+        //            'Guest', 'Employee', 'Supplier', 'Agent' => strtolower(class_basename($parent)),
+        //            default => null
+        //        };
+        //
+        //        data_set($modelData, 'type', $type);
 
         /** @var User $user */
-        $user = $parent->user()->create($modelData);
-
+        $user = User::create($modelData);
         $user->stats()->create();
         $user->refresh();
 
-        SetIconAsUserImage::run($user);
+        $parent->users()->sync([$user->id]);
 
+
+
+        SetIconAsUserImage::run($user);
         UserRecordSearch::dispatch($user);
 
 
@@ -66,6 +70,8 @@ class StoreUser extends GrpAction
 
         return $request->user()->hasPermissionTo("sysadmin.edit");
     }
+
+
 
     public function rules(): array
     {
@@ -108,6 +114,10 @@ class StoreUser extends GrpAction
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
+        if ($this->parent->users()->count() > 0) {
+            $validator->errors()->add('user', __('This record already has a user associated with it.'));
+        }
+
         if ($this->get('username') != strtolower($this->get('username'))) {
             $validator->errors()->add('user', __('Username must be lowercase.'));
         }
@@ -118,6 +128,7 @@ class StoreUser extends GrpAction
     {
         $this->asAction = true;
         $this->strict   = $strict;
+        $this->parent = $parent;
 
         $this->initialisation($parent->group, $modelData);
 

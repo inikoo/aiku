@@ -30,6 +30,7 @@ class UserHydrateAuthorisedModels
         $authorisedWarehouses    = [];
         $authorisedProductions   = [];
 
+
         foreach ($user->getAllPermissions() as $permission) {
             if ($permission->scope_type === 'Organisation') {
                 $authorisedOrganisations[$permission->scope_id] = ['org_id' => $permission->scope_id];
@@ -89,6 +90,7 @@ class UserHydrateAuthorisedModels
     public function asCommand(Command $command): int
     {
         try {
+            /** @var User $user */
             $user = User::where('slug', $command->argument('user'))->firstOrFail();
         } catch (Exception) {
             $command->error("User {$command->argument('user')} not found");

@@ -8,6 +8,7 @@
 namespace App\Actions\SysAdmin\Guest;
 
 use App\Actions\GrpAction;
+use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SysAdmin\GuestResource;
 use App\Models\SysAdmin\Guest;
@@ -33,11 +34,9 @@ class UpdateGuest extends GrpAction
 
         if ($guest->wasChanged('status')) {
             if (!$guest->status) {
-                $guest->user->update(
-                    [
-                        'status' => $guest->status
-                    ]
-                );
+                foreach ($guest->users as $user) {
+                    UpdateUser::make()->action($user, ['status' => false]);
+                }
             }
         }
 
@@ -63,7 +62,7 @@ class UpdateGuest extends GrpAction
 
 
         return [
-            'code'                    => [
+            'code'                     => [
                 'sometimes',
                 'string',
                 'max:12',

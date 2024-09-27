@@ -23,57 +23,62 @@ beforeAll(function () {
     loadDB();
 });
 
-beforeEach(function () {
+beforeEach(
+    /**
+     * @throws \Throwable
+     */
+    function () {
 
-    $this->organisation = createOrganisation();
-    $this->adminGuest   = createAdminGuest($this->organisation->group);
-    $this->warehouse    = createWarehouse();
-    $location           = $this->warehouse->locations()->first();
-    if (!$location) {
-        StoreLocation::run(
-            $this->warehouse,
-            Location::factory()->definition()
+        $this->organisation = createOrganisation();
+        $this->adminGuest   = createAdminGuest($this->organisation->group);
+        $this->warehouse    = createWarehouse();
+        $location           = $this->warehouse->locations()->first();
+        if (!$location) {
+            StoreLocation::run(
+                $this->warehouse,
+                Location::factory()->definition()
+            );
+            StoreLocation::run(
+                $this->warehouse,
+                Location::factory()->definition()
+            );
+        }
+
+        $shop = Shop::first();
+        if (!$shop) {
+            $storeData = Shop::factory()->definition();
+            data_set($storeData, 'type', ShopTypeEnum::DROPSHIPPING);
+            data_set($storeData, 'warehouses', [$this->warehouse->id]);
+
+            $shop = StoreShop::make()->action(
+                $this->organisation,
+                $storeData
+            );
+        }
+        $this->shop = $shop;
+
+        $this->shop = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
+
+        $customer = Customer::first();
+        if (!$customer) {
+            $storeData = Customer::factory()->definition();
+
+            $customer = StoreCustomer::make()->action(
+                $this->shop,
+                $storeData
+            );
+        }
+        $this->customer = $customer;
+
+        $this->adminGuest->refresh();
+
+        Config::set(
+            'inertia.testing.page_paths',
+            [resource_path('js/Pages/Grp')]
         );
-        StoreLocation::run(
-            $this->warehouse,
-            Location::factory()->definition()
-        );
+        actingAs($this->adminGuest->getUser());
     }
-
-    $shop = Shop::first();
-    if (!$shop) {
-        $storeData = Shop::factory()->definition();
-        data_set($storeData, 'type', ShopTypeEnum::DROPSHIPPING);
-        data_set($storeData, 'warehouses', [$this->warehouse->id]);
-
-        $shop = StoreShop::make()->action(
-            $this->organisation,
-            $storeData
-        );
-    }
-    $this->shop = $shop;
-
-    $this->shop = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
-
-    $customer = Customer::first();
-    if (!$customer) {
-        $storeData = Customer::factory()->definition();
-
-        $customer = StoreCustomer::make()->action(
-            $this->shop,
-            $storeData
-        );
-    }
-    $this->customer = $customer;
-
-    $this->adminGuest->refresh();
-
-    Config::set(
-        'inertia.testing.page_paths',
-        [resource_path('js/Pages/Grp')]
-    );
-    actingAs($this->adminGuest->user);
-});
+);
 
 test('UI Index customers', function () {
     $response = $this->get(route('grp.org.shops.show.crm.customers.index', [$this->organisation->slug, $this->shop->slug]));

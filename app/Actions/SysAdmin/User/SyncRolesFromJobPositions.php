@@ -11,9 +11,7 @@ use App\Actions\SysAdmin\User\Hydrators\UserHydrateAuthorisedModels;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
-use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
-use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Role;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -26,27 +24,27 @@ class SyncRolesFromJobPositions
     {
         $roles = [];
 
-        /** @var Employee|Guest $parent */
-        $parent = $user->parent;
 
-        foreach ($parent->jobPositions as $jobPosition) {
-            $jobPosition->refresh();
-            if ($jobPosition->scope == JobPositionScopeEnum::ORGANISATION || $jobPosition->scope == JobPositionScopeEnum::GROUP) {
-                $roles = array_merge($roles, $jobPosition->roles()->pluck('id')->all());
-            } else {
-                $roles = array_merge(
-                    $roles,
-                    $this->getRoles($jobPosition)
-                );
+
+        foreach ($user->employees as $employee) {
+            foreach ($employee->jobPositions as $jobPosition) {
+                $roles = $this->getRoles($roles, $jobPosition);
             }
         }
 
 
 
+        foreach ($user->guests as $guest) {
+            foreach ($guest->jobPositions as $jobPosition) {
+
+                $roles = $this->getRoles($roles, $jobPosition);
+            }
+        }
+
+
         $user->syncRoles($roles);
 
         if ($user->roles()->where('name', RolesEnum::GROUP_ADMIN->value)->exists()) {
-
             foreach ($user->group->organisations as $organisation) {
                 UserAddRoles::run($user, [
                     Role::where('name', RolesEnum::getRoleName(RolesEnum::ORG_ADMIN->value, $organisation))->first()
@@ -77,7 +75,6 @@ class SyncRolesFromJobPositions
                     Role::where('name', RolesEnum::getRoleName(RolesEnum::MANUFACTURING_ADMIN->value, $production))->first()
                 ]);
             }
-
         }
 
 
@@ -87,7 +84,23 @@ class SyncRolesFromJobPositions
         $user->refresh();
     }
 
-    private function getRoles(JobPosition $jobPosition): array
+
+    private function getRoles($roles, JobPosition $jobPosition): array
+    {
+        $jobPosition->refresh();
+        if ($jobPosition->scope == JobPositionScopeEnum::ORGANISATION || $jobPosition->scope == JobPositionScopeEnum::GROUP) {
+            $roles = array_merge($roles, $jobPosition->roles()->pluck('id')->all());
+        } else {
+            $roles = array_merge(
+                $roles,
+                $this->getRolesFromJobPosition($jobPosition)
+            );
+        }
+
+        return $roles;
+    }
+
+    private function getRolesFromJobPosition(JobPosition $jobPosition): array
     {
         $roles = [];
         $jobPosition->refresh();
@@ -101,4 +114,5 @@ class SyncRolesFromJobPositions
 
         return $roles;
     }
+
 }

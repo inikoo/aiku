@@ -79,6 +79,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property array $migration_data
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\HumanResources\Clocking> $clockings
@@ -96,7 +97,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\HumanResources\TimeTracker> $timeTrackers
  * @property-read Collection<int, \App\Models\HumanResources\Timesheet> $timesheets
  * @property-read UniversalSearch|null $universalSearch
- * @property-read User|null $user
+ * @property-read Collection<int, User> $users
  * @property-read Collection<int, \App\Models\HumanResources\Workplace> $workplaces
  * @method static \Database\Factories\HumanResources\EmployeeFactory factory($count = null, $state = [])
  * @method static Builder|Employee newModelQuery()
@@ -124,6 +125,7 @@ class Employee extends Model implements HasMedia, Auditable
         'errors'             => 'array',
         'salary'             => 'array',
         'working_hours'      => 'array',
+        'migration_data'     => 'array',
         'date_of_birth'      => 'datetime:Y-m-d',
         'gender'             => GenderEnum::class,
         'state'              => EmployeeStateEnum::class,
@@ -134,10 +136,11 @@ class Employee extends Model implements HasMedia, Auditable
     ];
 
     protected $attributes = [
-        'data'          => '{}',
-        'errors'        => '{}',
-        'salary'        => '{}',
-        'working_hours' => '{}',
+        'data'           => '{}',
+        'errors'         => '{}',
+        'salary'         => '{}',
+        'working_hours'  => '{}',
+        'migration_data' => '{}'
     ];
 
     protected $guarded = [];
@@ -209,10 +212,16 @@ class Employee extends Model implements HasMedia, Auditable
     }
 
 
-    public function user(): MorphOne
+    //    public function user(): MorphOne
+    //    {
+    //        return $this->morphOne(User::class, 'parent');
+    //    }
+
+    public function users(): MorphToMany
     {
-        return $this->morphOne(User::class, 'parent');
+        return $this->morphToMany(User::class, 'model', 'user_has_models')->withTimestamps();
     }
+
 
     public function getRouteKeyName(): string
     {

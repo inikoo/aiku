@@ -7,7 +7,6 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\SysAdmin\User\UserTypeEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasSysAdminStats
@@ -27,10 +26,6 @@ trait HasSysAdminStats
         $table->unsignedSmallInteger('number_users')->default(0);
         $table->unsignedSmallInteger('number_users_status_active')->default(0);
         $table->unsignedSmallInteger('number_users_status_inactive')->default(0);
-
-        foreach (UserTypeEnum::cases() as $userType) {
-            $table->unsignedSmallInteger('number_users_type_'.$userType->snake())->default(0);
-        }
 
         return $table;
     }

@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -64,7 +64,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TimeTracker> $timeTrackers
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Timesheet> $timesheets
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @property-read \App\Models\SysAdmin\User|null $user
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
  * @method static \Database\Factories\SysAdmin\GuestFactory factory($count = null, $state = [])
  * @method static Builder|Guest newModelQuery()
  * @method static Builder|Guest newQuery()
@@ -125,9 +125,14 @@ class Guest extends Model implements HasMedia, Auditable
             ->doNotGenerateSlugsOnUpdate();
     }
 
-    public function user(): MorphOne
+    public function getUser(): ?User
     {
-        return $this->morphOne(User::class, 'parent');
+        return $this->morphToMany(User::class, 'model', 'user_has_models')->withTimestamps()->first();
+    }
+
+    public function users(): MorphToMany
+    {
+        return $this->morphToMany(User::class, 'model', 'user_has_models')->withTimestamps();
     }
 
     public function registerMediaCollections(): void
@@ -149,7 +154,7 @@ class Guest extends Model implements HasMedia, Auditable
 
     public function jobPositions(): BelongsToMany
     {
-        return $this->belongsToMany(JobPosition::class, 'guest_has_job_positions')
+        return $this->belongsToMany(JobPosition::class, 'guest_has_job_positions')->withTimestamps()
             ->using(GuestHasJobPositions::class);
     }
 

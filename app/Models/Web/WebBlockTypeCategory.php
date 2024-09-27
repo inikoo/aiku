@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property int $id
  * @property int $group_id
+ * @property string|null $category
  * @property WebBlockTypeCategoryScopeEnum $scope
  * @property WebBlockTypeCategorySlugEnum $slug
  * @property string $name

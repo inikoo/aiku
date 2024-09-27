@@ -12,7 +12,6 @@ use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\SysAdmin\UserRequest\IndexUserRequestLogs;
 use App\Actions\SysAdmin\WithSysAdminAuthorization;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;
-use App\Enums\SysAdmin\User\UserTypeEnum;
 use App\Enums\UI\SysAdmin\UsersTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\SysAdmin\UserRequestLogsResource;
@@ -55,16 +54,6 @@ class IndexUsers extends GrpAction
                         $query->where('status', array_pop($elements) === 'active');
                     }
 
-                ],
-                'type'   => [
-                    'label'    => __('Type'),
-                    'elements' => array_merge_recursive(
-                        UserTypeEnum::labels(),
-                        UserTypeEnum::count($group)
-                    ),
-                    'engine'   => function ($query, $elements) {
-                        $query->whereIn('type', $elements);
-                    }
                 ],
             ];
     }

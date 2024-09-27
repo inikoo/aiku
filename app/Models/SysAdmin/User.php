@@ -13,6 +13,7 @@ use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Production;
 use App\Models\Traits\HasEmail;
@@ -22,7 +23,6 @@ use App\Models\Traits\IsUserable;
 use App\Models\Traits\WithPushNotifications;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -38,13 +38,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $status
  * @property string $username
  * @property mixed|null $password
- * @property string|null $type same as parent_type excluding Organisation, for use in UI
  * @property UserAuthTypeEnum $auth_type
  * @property string|null $contact_name no-normalised depends on parent
  * @property string|null $email mirror group_users.email
  * @property string|null $about
- * @property string|null $parent_type
- * @property int|null $parent_id
  * @property int $number_authorised_organisations
  * @property int $number_authorised_shops
  * @property int $number_authorised_fulfilments
@@ -71,15 +68,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedShopOrganisations
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $authorisedShops
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $authorisedWarehouses
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Employee> $employees
  * @property-read \App\Models\Notifications\FcmToken|null $fcmToken
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Notifications\FcmToken> $fcmTokens
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read \App\Models\Helpers\Language $language
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
- * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent|null $parent
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read \App\Models\SysAdmin\UserStats|null $stats
@@ -174,9 +172,14 @@ class User extends Authenticatable implements HasMedia, Auditable
     }
 
 
-    public function parent(): MorphTo
+    public function employees(): MorphToMany
     {
-        return $this->morphTo()->withTrashed();
+        return $this->morphedByMany(Employee::class, 'model', 'user_has_models');
+    }
+
+    public function guests(): MorphToMany
+    {
+        return $this->morphedByMany(Guest::class, 'model', 'user_has_models');
     }
 
 
@@ -235,4 +238,6 @@ class User extends Authenticatable implements HasMedia, Auditable
     {
         return $this->morphToMany(Task::class, 'taskable', 'users_has_tasks');
     }
+
+
 }

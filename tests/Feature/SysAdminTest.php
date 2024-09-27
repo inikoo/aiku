@@ -90,8 +90,8 @@ test('create group', function () {
     $group = StoreGroup::make()->action($modelData);
     expect($group)->toBeInstanceOf(Group::class)
         ->and($group->roles()->count())->toBe(5)
-        ->and($group->webBlockTypeCategories()->count())->toBe(11)
-        ->and($group->webBlockTypes()->count())->toBe(18)
+        ->and($group->webBlockTypeCategories()->count())->toBe(12)
+        ->and($group->webBlockTypes()->count())->toBe(20)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 
     return $group;
@@ -257,26 +257,25 @@ test('create guest', function (Group $group, Organisation $organisation) {
         $guestData
     );
 
+    $user = $guest->getUser();
+
     expect($guest)->toBeInstanceOf(Guest::class)
-        ->and($guest->user)->toBeInstanceOf(User::class)
-        ->and($guest->user->username)->toBe('hello')
-        ->and($guest->user->contact_name)->toBe($guest->contact_name)
-        ->and($guest->user->authorisedOrganisations()->count())->toBe(1)
+        ->and($user)->toBeInstanceOf(User::class)
+        ->and($user->username)->toBe('hello')
+        ->and($user->contact_name)->toBe($guest->contact_name)
+        ->and($user->authorisedOrganisations()->count())->toBe(1)
         ->and($guest->phone)->toBe('+6281212121212')
         ->and($group->sysadminStats->number_guests)->toBe(1)
         ->and($group->sysadminStats->number_guests_status_active)->toBe(1)
         ->and($group->sysadminStats->number_users)->toBe(1)
         ->and($group->sysadminStats->number_users_status_active)->toBe(1)
-        ->and($group->sysadminStats->number_users_status_inactive)->toBe(0)
-        ->and($group->sysadminStats->number_users_type_guest)->toBe(1);
-
-
+        ->and($group->sysadminStats->number_users_status_inactive)->toBe(0);
     return $guest;
 })->depends('create group', 'create organisation type shop');
 
 test('UserHydrateAuthorisedModels command', function (Guest $guest) {
     $this->artisan('user:hydrate-authorised-models', [
-        'user' => $guest->user->slug,
+        'user' => $guest->getUser()->slug,
     ])->assertSuccessful();
 })->depends('create guest');
 
@@ -308,7 +307,7 @@ test('create guest from command', function (Group $group) {
     /** @var Guest $guest */
     $guest = $group->guests()->where('code', 'pika')->firstOrFail();
     $group->refresh();
-    expect($guest->user->username)->toBe('pika')
+    expect($guest->getUser()->username)->toBe('pika')
         ->and($group->sysadminStats->number_guests)->toBe(2)
         ->and($group->sysadminStats->number_guests_status_active)->toBe(2)
         ->and($group->sysadminStats->number_users)->toBe(2);
@@ -353,8 +352,8 @@ test('fail to create guest with invalid usernames', function (Group $group) {
 })->depends('create group');
 
 
-test('update user password', function ($guest) {
-    $user = UpdateUser::make()->action($guest->user, [
+test('update user password', function (Guest $guest) {
+    $user = UpdateUser::make()->action($guest->getUser(), [
         'password' => 'secret'
     ]);
 
@@ -375,41 +374,41 @@ test('update user username', function (User $user) {
     return $user;
 })->depends('update user password');
 
-test('add user roles', function ($guest) {
+test('add user roles', function (Guest $guest) {
     app()->instance('group', $guest->group);
     setPermissionsTeamId($guest->group->id);
-    expect($guest->user->hasRole(['supply-chain']))->toBeTrue();
+    expect($guest->getUser()->hasRole(['supply-chain']))->toBeTrue();
 
-    $user = UserAddRoles::make()->action($guest->user, ['system-admin']);
+    $user = UserAddRoles::make()->action($guest->getUser(), ['system-admin']);
 
     expect($user->hasRole(['supply-chain', 'system-admin']))->toBeTrue();
 })->depends('create guest');
 
-test('remove user roles', function ($guest) {
+test('remove user roles', function (Guest $guest) {
     app()->instance('group', $guest->group);
     setPermissionsTeamId($guest->group->id);
-    $user = UserRemoveRoles::make()->action($guest->user, ['group-admin', 'system-admin']);
+    $user = UserRemoveRoles::make()->action($guest->getUser(), ['group-admin', 'system-admin']);
 
     expect($user->hasRole(['group-admin', 'system-admin']))->toBeFalse();
 })->depends('create guest');
 
-test('sync user roles', function ($guest) {
+test('sync user roles', function (Guest $guest) {
     app()->instance('group', $guest->group);
     setPermissionsTeamId($guest->group->id);
-    $user = UserSyncRoles::make()->action($guest->user, ['group-admin', 'system-admin']);
+    $user = UserSyncRoles::make()->action($guest->getUser(), ['group-admin', 'system-admin']);
 
     expect($user->hasRole(['group-admin', 'system-admin']))->toBeTrue();
 })->depends('create guest');
 
 
-test('user status change', function ($user) {
+test('user status change', function (User $user) {
     expect($user->status)->toBeTrue();
     $user = UpdateUserStatus::make()->action($user, false);
     expect($user->status)->toBeFalse();
 })->depends('update user password');
 
-test('delete guest', function ($user) {
-    $guest = DeleteGuest::make()->action($user->parent);
+test('delete guest', function (User $user) {
+    $guest = DeleteGuest::make()->action($user->guests()->first());
     expect($guest->deleted_at)->toBeInstanceOf(Carbon::class);
 })->depends('update user password');
 
@@ -428,27 +427,27 @@ test('can show app login', function () {
 
 test('can not login with wrong credentials', function (Guest $guest) {
     $response = $this->post(route('grp.login.store'), [
-        'username' => $guest->user->username,
+        'username' => $guest->getUser()->username,
         'password' => 'wrong password',
     ]);
 
     $response->assertRedirect('http://app.'.config('app.domain'));
     $response->assertSessionHasErrors('username');
 
-    $user = $guest->user;
+    $user = $guest->getUser();
     $user->refresh();
     expect($user->stats->number_failed_logins)->toBe(1);
 })->depends('create guest');
 
 test('can login', function (Guest $guest) {
     $response = $this->post(route('grp.login.store'), [
-        'username' => $guest->user->username,
+        'username' => $guest->getUser()->username,
         'password' => 'secret-password',
     ]);
     $response->assertRedirect(route('grp.dashboard.show'));
-    $this->assertAuthenticatedAs($guest->user);
+    $this->assertAuthenticatedAs($guest->getUser());
 
-    $user = $guest->user;
+    $user = $guest->getUser();
     $user->refresh();
     expect($user->stats->number_logins)->toBe(1);
 })->depends('create guest');
@@ -463,7 +462,7 @@ test('can show hr dashboard', function (Guest $guest) {
         Guest::factory()->definition()
     );
 
-    actingAs($guest->user);
+    actingAs($guest->getUser());
 
     $response = get(route('grp.sysadmin.dashboard'));
 
@@ -512,7 +511,7 @@ test('can show media', function (Guest $guest) {
 
     /** @var Media $media */
     $media = $group->images()->where('mime_type', 'image/png')->first();
-    actingAs($guest->user);
+    actingAs($guest->getUser());
     $response = get(route('grp.media.show', $media->ulid));
     $response->assertOk();
     $response->assertHeader('Content-Type', 'image/png');
@@ -560,8 +559,8 @@ test('update search', function () {
 test('update web block types', function (Group $group) {
     $this->artisan('group:seed-web-block-types')->assertSuccessful();
     $group->refresh();
-    expect($group->webBlockTypeCategories()->count())->toBe(11)
-        ->and($group->webBlockTypes()->count())->toBe(18);
+    expect($group->webBlockTypeCategories()->count())->toBe(12)
+        ->and($group->webBlockTypes()->count())->toBe(20);
 })->depends('create group');
 
 test('show log in', function () {
@@ -613,6 +612,6 @@ test('employee job position in another organisation', function () {
     );
 
     /** @var Employee $employee */
-    $employee = $user->parent;
+    $employee = $user->employees()->first();
     expect($employee->otherOrganisationJobPositions()->count())->toBe(1);
 });

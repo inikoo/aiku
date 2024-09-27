@@ -35,13 +35,15 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
 
     public function handle(User $user, Organisation $otherOrganisation, array $modelData): User
     {
-        $employee     = $user->parent;
-        if (Arr::exists($modelData, 'positions')) {
-            $jobPositions = $this->generatePositions($employee->organisation, $modelData);
-            SyncEmployeeOtherOrganisationJobPositions::run($employee, $otherOrganisation, $jobPositions);
-            Arr::forget($modelData, 'positions');
+        foreach ($user->employees as $employee) {
+            if (Arr::exists($modelData, 'positions')) {
+                $jobPositions = $this->generatePositions($employee->organisation, $modelData);
+                SyncEmployeeOtherOrganisationJobPositions::run($employee, $otherOrganisation, $jobPositions);
+                Arr::forget($modelData, 'positions');
+            }
         }
 
+        $user->refresh();
 
         return $user;
     }
@@ -82,7 +84,7 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
     public function prepareForValidation(ActionRequest $request): void
     {
         $this->preparePositionsForValidation();
-        if (!$this->user->parent instanceof Employee) {
+        if ($this->user->employees()->count() === 0) {
             abort(419);
         }
     }
@@ -93,6 +95,7 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
         $this->otherOrganisation = $organisation;
 
         $this->initialisation(app('group'), $request);
+
         return $this->handle($user, $organisation, $this->validatedData);
     }
 
