@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 05 Jul 2023 14:36:52 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Wed, 05 Jul 2023 14:36:52 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -16,6 +16,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('category')->index();
             $table->string('scope')->index();
             $table->string('slug')->unique()->index();
             $table->string('name');
