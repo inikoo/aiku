@@ -4,7 +4,6 @@
 	"blueprint": {
 		"value": ""
 	},
-	"category": "cta",
 	"scope": "webpage",
 	"webBlockTypes": [
 		{

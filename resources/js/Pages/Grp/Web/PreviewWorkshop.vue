@@ -11,7 +11,7 @@
   import axios from 'axios'
   import debounce from 'lodash/debounce'
   import EmptyState from "@/Components/Utils/EmptyState.vue"
-  import { webBlock as socketWeblock } from '@/Composables/SocketWebBlock.ts'
+  import { webBlock as socketWeblock } from '@/Composables/SocketWebBlock'
   
   
   import { Root, Daum } from '@/types/webBlockTypes'
@@ -43,22 +43,23 @@
           console.error('error', error)
       }
   }
-  
-  // Initialize the socket connection and subscribe to the channel
   const socketConnection = socketWeblock(props.webpage.slug);
-  
-  // Subscribe when the component mounts
   onMounted(() => {
-    socketConnection.actions.subscribe();
-    console.log("Subscribed to channel", socketConnection);
-  });
-  
-  // Unsubscribe when the component unmounts
+    // Subscribe to the private Echo channel
+    const channel = window.Echo.private(`webpage.${props.webpage.slug}.preview`)
+        .listen('.WebpagePreview', (eventData) => {          
+            if (eventData) {
+                data.value = { ...eventData.webpage }
+            } else {
+                console.error('No data received from event')
+            }
+        })
+})
+
   onUnmounted(() => {
     socketConnection.actions.unsubscribe();
   });
   
-console.log(props)
   </script>
   
 
