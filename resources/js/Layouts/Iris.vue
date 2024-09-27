@@ -41,8 +41,7 @@ const keyTemplate = uuidv4()
            <!--  <NavigationMenu :data="navigation" :colorThemed="colorThemed"/> -->
             
             <!-- Main Content -->
-            <main
-                class="text-gray-700">
+            <main class="text-gray-700">aaaaaaaaaaaaaaaaaaaaaaaaaaaa
                 <slot />
             </main>
 
