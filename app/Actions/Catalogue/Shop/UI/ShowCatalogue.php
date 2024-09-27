@@ -48,11 +48,21 @@ class ShowCatalogue extends OrgAction
         $topFamily = $shop->families()->sortByDesc(function ($family) {
             return $family->stats->shop_amount_all;
         })->first();
-        
+
         $topDepartment = $shop->departments()->sortByDesc(function ($department) {
             return $department->stats->shop_amount_all;
         })->first();
-        
+
+        $topProduct = $shop->products()
+            // Join with the sales_intervals table to access the shop_amount_all column
+            ->join('product_sales_intervals', 'products.id', '=', 'product_sales_intervals.product_id')
+            // Select only the necessary columns
+            ->select('products.id', 'products.name', 'product_sales_intervals.shop_amount_all')
+            // Order by sales amount descending to get the top product
+            ->orderByDesc('product_sales_intervals.shop_amount_all')
+            // Fetch only the top result
+            ->first();
+
         return Inertia::render(
             'Org/Catalogue/Catalogue',
             [
