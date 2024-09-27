@@ -15,6 +15,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { useTruncate } from '@/Composables/useTruncate'
 import { Link } from '@inertiajs/vue3'
 import { useIsFutureIsAPast } from '@/Composables/useFormatTime'
+import { trans } from 'laravel-vue-i18n'
 library.add(faTimes, faPencil)
 
 const layout = useLayoutStore()
@@ -40,7 +41,7 @@ const onClickRemoveBar = (tabName: 'activeUsers') => {
             <!-- Online Users -->
             <li v-if="layout.rightSidebar.activeUsers.show" class="px-2 py-2" key="1">
                 <div class="pl-2 pr-1.5 bg-slate-300/80 text-slate-700 text-xs font-semibold rounded flex justify-between leading-none">
-                    <span class="py-1">Active Users</span>
+                    <span class="py-1">{{( trans('Active Users'))}}</span>
                     <div @click="onClickRemoveBar('activeUsers')" class="flex justify-center items-center cursor-pointer px-1.5 text-slate-400 hover:text-slate-600">
                         <FontAwesomeIcon icon='fal fa-times' class='' aria-hidden='true' />
                     </div>

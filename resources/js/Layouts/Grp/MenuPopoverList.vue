@@ -42,7 +42,7 @@ const layout = inject('layout', layoutStructure)
                         showare.slug == layout.organisationsState?.[layout.currentParams.organisation]?.[`current${capitalize(navKey)}`] && (navKey == layout.organisationsState?.[layout.currentParams.organisation]?.currentType)
                             ? 'navigationDropdownActive'
                             : 'rounded text-slate-600 hover:bg-slate-200/30 cursor-pointer',
-                        'group flex gap-x-2 w-full justify-start items-center px-2 py-2 text-sm',
+                        'group flex gap-x-2 w-full justify-between items-center px-2 py-2 text-sm',
                     ]">
                         <!-- <div class="h-5 rounded-full overflow-hidden ring-1 ring-slate-200 bg-slate-50">
                             <Image v-show="imageSkeleton[idxSH]" :src="item.logo" @onLoadImage="() => imageSkeleton[idxSH] = true"/>
