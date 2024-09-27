@@ -12,6 +12,7 @@ use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Events\BroadcastPreviewWebpage;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Dropshipping\ModelHasWebBlocks;
 use App\Models\Web\WebBlockType;
@@ -47,6 +48,8 @@ class StoreModelHasWebBlock extends OrgAction
             ]
         );
         UpdateWebpageContent::run($webpage->refresh());
+
+        BroadcastPreviewWebpage::dispatch($webpage);
 
         return $modelHasWebBlock;
     }

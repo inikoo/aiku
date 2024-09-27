@@ -12,6 +12,7 @@ use Illuminate\Http\Response;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request as RequestHttp;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Throwable;
@@ -60,6 +61,21 @@ class Handler extends ExceptionHandler
                 app('sentry')->captureException($e);
             }
         });
+
+
+        /*        $this->reportable(function (Response $response, Throwable $exception, RequestHttp $request) {
+                    if (! app()->environment(['local', 'staging']) && in_array($response->getStatusCode(), [500, 503, 404, 403])) {
+                        return Inertia::render('Error', ['status' => $response->getStatusCode()])
+                            ->toResponse($request)
+                            ->setStatusCode($response->getStatusCode());
+                    } elseif ($response->getStatusCode() === 419) {
+                        return back()->with([
+                            'message' => 'The page expired, please try again.',
+                        ]);
+                    }
+
+                    return $response;
+                });*/
     }
 
     protected function loadErrorMiddleware($request, $callback)

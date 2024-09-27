@@ -9,6 +9,7 @@ namespace App\Actions\Web\Webpage;
 
 use App\Actions\GrpAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Events\BroadcastPreviewWebpage;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Web\Webpage;
@@ -25,6 +26,8 @@ class ReorderWebBlocks extends GrpAction
         $webpage->webBlocks()->syncWithoutDetaching($modelData);
 
         UpdateWebpageContent::run($webpage->refresh());
+
+        BroadcastPreviewWebpage::dispatch($webpage);
 
         return $webpage;
     }

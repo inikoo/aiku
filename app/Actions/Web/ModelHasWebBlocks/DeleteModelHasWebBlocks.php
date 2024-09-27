@@ -10,6 +10,7 @@ namespace App\Actions\Web\ModelHasWebBlocks;
 use App\Actions\GrpAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
+use App\Events\BroadcastPreviewWebpage;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Dropshipping\ModelHasWebBlocks;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -30,6 +31,8 @@ class DeleteModelHasWebBlocks extends GrpAction
         $modelHasWebBlocks->delete();
 
         UpdateWebpageContent::run($modelHasWebBlocks->webpage);
+
+        BroadcastPreviewWebpage::dispatch($modelHasWebBlocks->webpage);
 
         return $modelHasWebBlocks;
     }
