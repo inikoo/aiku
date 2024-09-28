@@ -105,9 +105,6 @@ class Handler extends ExceptionHandler
 
 
             return $this->loadErrorMiddleware($request, function ($request) use ($e, $response, $app) {
-                //$user = $request->user();
-                //$host = Request::getHost();
-
 
                 if (Auth::check()) {
                     $route = $request->route();

@@ -54,6 +54,8 @@ class EditEmployee extends OrgAction
      */
     public function htmlResponse(Employee $employee, ActionRequest $request): Response
     {
+        $user = $employee->getUser();
+
         $jobPositionsData = (object)$employee->jobPositions->map(function ($jobPosition) {
             $scopes = collect($jobPosition->pivot->scopes)->mapWithKeys(function ($scopeIds, $scope) use ($jobPosition) {
                 return match ($scope) {
@@ -201,7 +203,7 @@ class EditEmployee extends OrgAction
                 'username' => [
                     'type'  => 'input',
                     'label' => __('username'),
-                    'value' => $employee->user ? $employee->user->username : ''
+                    'value' => $user ? $user->username : ''
 
                 ],
                 'password' => [

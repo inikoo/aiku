@@ -10,7 +10,6 @@ use App\Actions\HumanResources\ClockingMachine\GetClockingMachineAppQRCode;
 use App\Actions\HumanResources\ClockingMachine\HydrateClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
-use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
@@ -173,18 +172,6 @@ test('update employee working hours', function (Employee $employee) {
     return $employee;
 })->depends('create employee successful');
 
-test('create user from employee', function (Employee $employee) {
-
-    $user = CreateUserFromEmployee::run($employee);
-    expect($user)->toBeInstanceOf(User::class)
-        ->and($user->contact_name)->toBe($employee->contact_name);
-    return $employee;
-})->depends('create employee successful');
-
-
-
-
-
 test('create clocking machines', function ($workplace) {
     $arrayData = [
         'name' => 'ABC',
@@ -268,7 +255,7 @@ test('can show list of employees', function () {
 
 test('can show employee', function () {
     $employee = Employee::first();
-    expect($employee->user)->toBeInstanceOf(User::class);
+    expect($employee->getUser())->toBeInstanceOf(User::class);
 
     $response = get(route('grp.org.hr.employees.show', [$this->organisation->slug, $employee->slug]));
 

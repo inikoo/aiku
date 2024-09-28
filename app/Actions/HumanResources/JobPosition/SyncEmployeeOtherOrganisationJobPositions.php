@@ -44,8 +44,8 @@ class SyncEmployeeOtherOrganisationJobPositions
         }
 
         if (count($newJobPositionsIds) || count($removeJobPositions)) {
-            if ($employee->user) {
-                SyncRolesFromJobPositions::run($employee->user);
+            if ($user = $employee->getUser()) {
+                SyncRolesFromJobPositions::run($user);
             }
 
 

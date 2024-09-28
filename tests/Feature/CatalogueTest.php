@@ -101,7 +101,7 @@ test('create shop', function () {
         ->and($shopPermissions->count())->toBe(28);
 
 
-    $user = $this->guest->user;
+    $user = $this->guest->getUser();
     $user->refresh();
 
     expect($user->getAllPermissions()->count())->toBe(37)

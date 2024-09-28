@@ -15,7 +15,6 @@ use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
 use App\Actions\Helpers\Media\HydrateMedia;
 use App\Actions\Helpers\ReindexSearch;
 use App\Actions\Helpers\TimeZone\UI\GetTimeZonesOptions;
-use App\Actions\HumanResources\Employee\CreateUserFromEmployee;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeOtherOrganisationJobPositions;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
@@ -118,10 +117,14 @@ test('set group logo by command', function (Group $group) {
 })->depends('create group');
 
 test('create group by command', function () {
+
+    /** @var Currency $currency */
+    $currency = Currency::where('code', 'USD')->firstOrFail();
+
     $this->artisan('group:create', [
         'code'          => 'TEST2',
         'name'          => 'Test Group',
-        'currency_code' => Currency::where('code', 'USD')->firstOrFail()->code,
+        'currency_code' => $currency->code,
         'country_code'  => 'US'
     ])->assertSuccessful();
     $group = Group::where('code', 'TEST')->firstOrFail();
@@ -270,6 +273,7 @@ test('create guest', function (Group $group, Organisation $organisation) {
         ->and($group->sysadminStats->number_users)->toBe(1)
         ->and($group->sysadminStats->number_users_status_active)->toBe(1)
         ->and($group->sysadminStats->number_users_status_inactive)->toBe(0);
+
     return $guest;
 })->depends('create group', 'create organisation type shop');
 
@@ -478,7 +482,6 @@ test('can show hr dashboard', function (Guest $guest) {
 })->depends('create guest');
 
 test('Hydrate group', function (Group $group) {
-
     HydrateGroup::run($group);
 
     $this->artisan('hydrate:groups '.$group->slug)->assertSuccessful();
@@ -587,8 +590,17 @@ test('employee job position in another organisation', function () {
     $org2  = $group->organisations()->skip(1)->first();
 
 
-    $employee = StoreEmployee::make()->action($org1, Employee::factory()->definition());
-    $user     = CreateUserFromEmployee::run($employee);
+    $employee = StoreEmployee::make()->action(
+        $org1,
+        array_merge(
+            Employee::factory()->definition(),
+            [
+                'username' => 'username-123',
+                'password' => 'password-123',
+            ]
+        )
+    );
+    $user     = $employee->getUser();
 
     $jobPosition1 = $org2->jobPositions()->where('code', 'hr-c')->first();
 

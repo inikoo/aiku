@@ -36,8 +36,8 @@ class AddJobPositionToEmployee
             ]
         );
 
-        if ($employee->user) {
-            SyncRolesFromJobPositions::run($employee->user);
+        if ($user = $employee->getUser()) {
+            SyncRolesFromJobPositions::run($user);
         }
         EmployeeHydrateJobPositionsShare::run($employee);
         JobPositionHydrateEmployees::run($jobPosition);

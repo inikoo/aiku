@@ -12,6 +12,7 @@ use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployeeWorkingHours;
+use App\Actions\SysAdmin\User\AttachEmployeeToUser;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
@@ -58,53 +59,73 @@ class FetchAuroraEmployees extends FetchAuroraAction
             UpdateEmployeeWorkingHours::run($employee, $employeeData['working_hours']);
 
 
+
             if (Arr::has($employeeData, 'user')) {
-                if ($employee->user) {
 
 
 
-                    try {
+
+
+                $updateUser = true;
+                $user = $employee->getUser();
+                if (!$user) {
+                    $user = $employee->group->users()->where('username', $employeeData['user']['username'])
+                        ->first();
+                    if ($user) {
+                        $updateUser = false;
+                        $user       = AttachEmployeeToUser::run($user, $employee);
+                    }
+                }
+
+
+
+                if ($user) {
+                    if ($updateUser) {
+                        // try {
                         UpdateUser::make()->action(
-                            $employee->user,
+                            $employee->getUser(),
                             [
                                 'legacy_password' => (string)Arr::get($employeeData, 'user.legacy_password'),
                                 'status'          => Arr::get($employeeData, 'user.status'),
                             ],
                             strict: false
                         );
-                    } catch (Exception $e) {
-                        $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'update');
-                        return null;
+                        //                    } catch (Exception $e) {
+                        //
+                        //                        $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'update');
+                        //                        return null;
+                        //                    }
                     }
                 } else {
-                    try {
-                        StoreUser::make()->action(
-                            $employee,
-                            array_merge(
-                                $employeeData['user'],
-                                [
-                                    'password'       => wordwrap(Str::random(), 4, '-', true),
-                                    'contact_name'   => $employee->contact_name,
-                                    'email'          => $employee->work_email,
-                                    'reset_password' => true,
-                                    'auth_type'      => UserAuthTypeEnum::AURORA,
-                                ]
-                            ),
-                            strict: false
-                        );
-                    } catch (Exception $e) {
-                        $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'store');
-
-                        return null;
-                    }
+                    //dd($employeeData['user']);
+                    //   try {
+                    StoreUser::make()->action(
+                        $employee,
+                        array_merge(
+                            $employeeData['user'],
+                            [
+                                'password'       => wordwrap(Str::random(), 4, '-', true),
+                                'contact_name'   => $employee->contact_name,
+                                'email'          => $employee->work_email,
+                                'reset_password' => true,
+                                'auth_type'      => UserAuthTypeEnum::AURORA,
+                            ]
+                        ),
+                        strict: false
+                    );
+                    //                    } catch (Exception $e) {
+                    //                        $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'store');
+                    //
+                    //                        return null;
+                    //                    }
                 }
             }
 
-            if ($employee->user) {
+            if ($employee->getUser()) {
                 foreach ($employeeData['photo'] ?? [] as $profileImage) {
                     if (isset($profileImage['image_path']) and isset($profileImage['filename'])) {
                         SaveModelImage::run(
-                            $employee->user,
+                            $employee->getUser(),
                             [
                                 'path'         => $profileImage['image_path'],
                                 'originalName' => $profileImage['filename'],

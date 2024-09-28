@@ -47,7 +47,6 @@ class StoreUser extends GrpAction
         $parent->users()->sync([$user->id]);
 
 
-
         SetIconAsUserImage::run($user);
         UserRecordSearch::dispatch($user);
 
@@ -72,17 +71,25 @@ class StoreUser extends GrpAction
     }
 
 
-
     public function rules(): array
     {
         return [
             'username'        => [
                 'required',
-                new AlphaDashDot(),
+                $this->strict ? new AlphaDashDot() : 'string',
                 new IUnique(
                     table: 'users',
                     column: 'username',
+                    extraConditions: [
+
+                        [
+                            'column'   => 'group_id',
+                            'value'    => $this->group->id
+                        ],
+                    ]
                 ),
+
+
                 Rule::notIn(['export', 'create'])
             ],
             'password'        => ['required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
@@ -128,7 +135,7 @@ class StoreUser extends GrpAction
     {
         $this->asAction = true;
         $this->strict   = $strict;
-        $this->parent = $parent;
+        $this->parent   = $parent;
 
         $this->initialisation($parent->group, $modelData);
 

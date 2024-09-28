@@ -64,7 +64,10 @@ class UpdateUser extends GrpAction
                                   new IUnique(
                                       table: 'users',
                                       extraConditions: [
-
+                                          [
+                                              'column'   => 'group_id',
+                                              'value'    => $this->group->id
+                                          ],
                                           [
                                               'column'   => 'id',
                                               'operator' => '!=',

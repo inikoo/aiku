@@ -59,9 +59,9 @@ class ShowCalendar extends InertiaAction
                             ]
                         ],
 
-                        $employee->user ?
+                        $employee->getUser() ?
                             [
-                                'name'     => $employee->user->username,
+                                'name'     => $employee->getUser()?->username,
                                 'leftIcon' => [
                                     'icon'    => 'fal fa-user',
                                     'tooltip' => __('User')

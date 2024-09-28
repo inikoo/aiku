@@ -32,7 +32,7 @@ class EmployeeResource extends JsonResource
             'employment_start_at' => $employee->employment_start_at,
             'employment_end_at'   => $employee->employment_end_at,
             'salary'              => $employee->salary,
-            'user'                => $employee->user?->only('username', 'status'),
+            'user'                => $employee->getUser()?->only('username', 'status'),
             'job_positions'       => JobPositionLightResource::collection($employee->jobPositions),
             'emergency_contact'   => $employee->emergency_contact,
 

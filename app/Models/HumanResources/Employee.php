@@ -31,7 +31,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
-use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
@@ -212,10 +211,10 @@ class Employee extends Model implements HasMedia, Auditable
     }
 
 
-    //    public function user(): MorphOne
-    //    {
-    //        return $this->morphOne(User::class, 'parent');
-    //    }
+    public function getUser(): ?User
+    {
+        return $this->morphToMany(User::class, 'model', 'user_has_models')->withTimestamps()->first();
+    }
 
     public function users(): MorphToMany
     {

@@ -64,8 +64,8 @@ class UpdateEmployee extends OrgAction
             OrganisationHydrateEmployees::dispatch($employee->organisation);
         }
 
-        if ($employee->user) {
-            UpdateUser::run($employee->user, $credentials);
+        if ($user = $employee->getUser()) {
+            UpdateUser::run($user, $credentials);
         }
 
         return $employee;
@@ -153,7 +153,7 @@ class UpdateEmployee extends OrgAction
             'last_fetched_at'                       => ['sometimes', 'date'],
         ];
 
-        if ($this->employee->user) {
+        if ($user = $this->employee->getUser()) {
             $rules['username'] = [
                 'sometimes',
                 'required',
@@ -168,7 +168,7 @@ class UpdateEmployee extends OrgAction
                         [
                             'column'   => 'id',
                             'operator' => '!=',
-                            'value'    => $this->employee->user->id
+                            'value'    => $user->id
                         ],
                     ]
                 ),

@@ -45,7 +45,10 @@ test('create production', function () {
             'name' => 'testName',
         ]
     );
-    $this->guest->user->refresh();
+
+    $user = $this->guest->getUser();
+    $user->refresh();
+
     expect($production)->toBeInstanceOf(Production::class)
         ->and($this->organisation->manufactureStats->number_productions)->toBe(1)
         ->and($this->organisation->manufactureStats->number_productions_state_in_process)->toBe(1)
@@ -55,8 +58,8 @@ test('create production', function () {
         ->and($this->organisation->group->manufactureStats->number_productions)->toBe(1)
         ->and($this->organisation->group->manufactureStats->number_productions_state_in_process)->toBe(1)
         ->and($this->organisation->group->manufactureStats->number_productions_state_open)->toBe(0)
-        ->and($this->guest->user->authorisedProductions()->where('organisation_id', $this->organisation->id)->count())->toBe(1)
-        ->and($this->guest->user->number_authorised_productions)->toBe(1);
+        ->and($user->authorisedProductions()->where('organisation_id', $this->organisation->id)->count())->toBe(1)
+        ->and($user->number_authorised_productions)->toBe(1);
 
 
     return $production;

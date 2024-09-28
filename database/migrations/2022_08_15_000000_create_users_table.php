@@ -43,6 +43,7 @@ return new class () extends Migration {
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
             $table->string('legacy_password')->nullable()->index()->comment('source password');
+            $table->unique(['group_id', 'username']);
 
         });
         DB::statement('CREATE INDEX ON users USING gin (contact_name gin_trgm_ops) ');

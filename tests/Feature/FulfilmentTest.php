@@ -163,7 +163,7 @@ test('create fulfilment shop', function () {
         ->and($warehouseRoles->count())->toBe(8)
         ->and($warehousePermissions->count())->toBe(20);
 
-    $user = $this->adminGuest->user;
+    $user = $this->adminGuest->getUser();
     $user->refresh();
 
     expect($user->getAllPermissions()->count())->toBe(25)

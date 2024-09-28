@@ -8,7 +8,6 @@
 namespace App\Http\Resources\SysAdmin;
 
 use App\Actions\SysAdmin\User\LogUserRequest;
-use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -27,9 +26,7 @@ class UserShowcaseResource extends JsonResource
             'avatar'                  => $user->imageSources(48, 48),
             'email'                   => $user->email,
             'about'                   => $user->about,
-            'parent_type'             => $user->parent_type,
             'contact_name'            => $user->contact_name,
-            // 'authorizedOrganisations' => OrganisationsResource::collection($user->authorisedOrganisations),
             'authorizedOrganisations' => $user->authorisedOrganisations->map(fn ($organisation) => [
                 'slug' => $organisation->slug,
                 'name' => $organisation->name,
