@@ -30,8 +30,6 @@ class UpdateUser extends GrpAction
     public function handle(User $user, array $modelData): User
     {
 
-
-
         if (Arr::exists($modelData, 'password')) {
             $this->set('auth_type', UserAuthTypeEnum::DEFAULT);
         }
@@ -40,7 +38,7 @@ class UpdateUser extends GrpAction
         $user = $this->update($user, $modelData, ['profile', 'settings']);
 
         if ($user->wasChanged('status')) {
-            GroupHydrateUsers::run($user->group);
+            GroupHydrateUsers::run($user->group)->delay($this->hydratorsDelay);
         }
 
         return $user;
@@ -57,7 +55,7 @@ class UpdateUser extends GrpAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'username'        => ['sometimes','required', 'lowercase',new AlphaDashDot(),
 
                                    Rule::notIn(['export', 'create']),
@@ -81,7 +79,6 @@ class UpdateUser extends GrpAction
 
             ],
             'password'        => ['sometimes','required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
-            'legacy_password' => ['sometimes', 'string'],
             'email'           => ['sometimes', 'nullable', 'email',
                                   new IUnique(
                                       table: 'employees',
@@ -104,6 +101,15 @@ class UpdateUser extends GrpAction
             'status'          => ['sometimes', 'boolean'],
             'language_id'     => ['sometimes', 'required', 'exists:languages,id'],
         ];
+
+        if (!$this->strict) {
+            $rules['deleted_at'] = [ 'sometimes', 'date'];
+            $rules['created_at'] = [ 'sometimes', 'date'];
+            $rules['last_fetched_at'] = [ 'sometimes', 'date'];
+            $rules['source_id'] = ['sometimes', 'string', 'max:255'];
+            $rules['legacy_password'] = ['sometimes', 'string'];
+        }
+        return $rules;
     }
 
     public function asController(User $user, ActionRequest $request): User
@@ -113,11 +119,16 @@ class UpdateUser extends GrpAction
         return $this->handle($user, $this->validatedData);
     }
 
-    public function action(User $user, array $modelData, bool $strict = true): User
+    public function action(User $user, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): User
     {
+        $this->strict = $strict;
+        if (!$audit) {
+            User::disableAuditing();
+        }
+
         $this->user     = $user;
         $this->asAction = true;
-        $this->strict   = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($user->group, $modelData);
 
         return $this->handle($user, $this->validatedData);

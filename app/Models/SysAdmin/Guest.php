@@ -127,12 +127,12 @@ class Guest extends Model implements HasMedia, Auditable
 
     public function getUser(): ?User
     {
-        return $this->morphToMany(User::class, 'model', 'user_has_models')->withTimestamps()->first();
+        return $this->morphToMany(User::class, 'model', 'user_has_models')->wherePivot('status', true)->withTimestamps()->first();
     }
 
     public function users(): MorphToMany
     {
-        return $this->morphToMany(User::class, 'model', 'user_has_models')->withTimestamps();
+        return $this->morphToMany(User::class, 'model', 'user_has_models')->withTimestamps()->withPivot('status');
     }
 
     public function registerMediaCollections(): void

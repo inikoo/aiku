@@ -146,7 +146,14 @@ class StoreShop extends OrgAction
         ProspectQuerySeeder::run($shop);
         SeedShopOutboxes::run($shop);
         SeedJobPositions::run($organisation);
-        SetIconAsShopLogo::run($shop);
+
+        if ($this->hydratorsDelay) {
+            SetIconAsShopLogo::run($shop)->delay($this->hydratorsDelay);
+        } else {
+            SetIconAsShopLogo::run($shop);
+        }
+
+
 
         if ($shop->type == ShopTypeEnum::B2B) {
             SeedOfferCampaigns::run($shop);

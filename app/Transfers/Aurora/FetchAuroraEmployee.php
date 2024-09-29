@@ -121,6 +121,24 @@ class FetchAuroraEmployee extends FetchAurora
         }
 
 
+        $createdAt = $this->auroraModelData->{'Staff Valid From'};
+        if (!$createdAt) {
+
+
+            $firstAction = DB::connection('aurora')->table('History Dimension')
+                ->select('History Date as date')
+                ->where('Subject', 'Staff')
+                ->where('Subject Key', $this->auroraModelData->{'Staff Key'})
+                ->orderBy('History Date')->first();
+
+            if ($firstAction) {
+                $createdAt = $firstAction->date;
+            }
+
+
+        }
+
+
         $this->parsedData['employee'] = [
             'alias'                    => $this->auroraModelData->{'Staff Alias'},
             'contact_name'             => $this->auroraModelData->{'Staff Name'},
@@ -129,7 +147,6 @@ class FetchAuroraEmployee extends FetchAurora
             'identity_document_number' => $this->auroraModelData->{'Staff Official ID'} ?: null,
             'date_of_birth'            => $this->parseDate($this->auroraModelData->{'Staff Birthday'}),
             'worker_number'            => $workerNumber,
-            'created_at'               => $this->auroraModelData->{'Staff Valid From'},
             'emergency_contact'        => $this->auroraModelData->{'Staff Next of Kind'} ?: null,
             'job_title'                => $this->auroraModelData->{'Staff Job Title'} ?: null,
             'salary'                   => $salary,
@@ -137,7 +154,7 @@ class FetchAuroraEmployee extends FetchAurora
             'employment_end_at'        => $this->parseDate($this->auroraModelData->{'Staff Valid To'}),
             'type'                     => Str::snake($this->auroraModelData->{'Staff Type'}, '-'),
             'state'                    => match ($this->auroraModelData->{'Staff Currently Working'}) {
-                'No'    => EmployeeStateEnum::LEFT,
+                'No' => EmployeeStateEnum::LEFT,
                 default => EmployeeStateEnum::WORKING
             },
             'data'                     => $data,
@@ -145,8 +162,11 @@ class FetchAuroraEmployee extends FetchAurora
             'source_id'                => $this->organisation->id.':'.$this->auroraModelData->{'Staff Key'},
             'fetched_at'               => now(),
             'last_fetched_at'          => now()
-
         ];
+
+        if ($createdAt) {
+            $this->parsedData['employee']['created_at'] = $createdAt;
+        }
     }
 
     private function parseUser(): void
@@ -173,14 +193,25 @@ class FetchAuroraEmployee extends FetchAurora
             }
 
 
+            $status = $auroraUserData->{'User Active'} == 'Yes';
+
+            $employeeState = Arr::get($this->parsedData, 'employee.state');
+            if ($employeeState == EmployeeStateEnum::LEFT) {
+                $status = false;
+            }
+
+
             $this->parsedData['user'] = [
-                'source_id'       => $this->organisation->id.':'.$auroraUserData->{'User Key'},
-                'username'        => Str::kebab(Str::lower($username)),
-                'status'          => $auroraUserData->{'User Active'} == 'Yes',
-                'created_at'      => $auroraUserData->{'User Created'},
-                'legacy_password' => $legacyPassword,
-                'language_id'     => $this->parseLanguageID($auroraUserData->{'User Preferred Locale'}),
-                'reset_password'  => false
+                'source_id'         => $this->organisation->id.':'.$auroraUserData->{'User Key'},
+                'username'          => Str::kebab(Str::lower($username)),
+                'status'            => true,
+                'user_model_status' => $status,
+                'created_at'        => $auroraUserData->{'User Created'},
+                'legacy_password'   => $legacyPassword,
+                'language_id'       => $this->parseLanguageID($auroraUserData->{'User Preferred Locale'}),
+                'reset_password'    => false,
+                'fetched_at'        => now(),
+                'last_fetched_at'   => now()
             ];
         }
     }
@@ -238,18 +269,18 @@ class FetchAuroraEmployee extends FetchAurora
     protected function parseJobPosition($isSupervisor, $sourceCode): string
     {
         return match ($sourceCode) {
-            'WAHM'  => 'wah-m',
+            'WAHM' => 'wah-m',
             'WAHSK' => 'wah-sk',
             'WAHSC' => 'wah-sc',
-            'PICK'  => 'dist-pik,dist-pak',
+            'PICK' => 'dist-pik,dist-pak',
             'OHADM' => 'dist-m',
             'PRODM' => 'prod-m',
             'PRODO' => 'prod-w',
-            'CUSM'  => 'cus-m',
-            'CUS'   => 'cus-c',
-            'MRK'   => $isSupervisor ? 'mrk-m' : 'mrk-c',
-            'WEB'   => $isSupervisor ? 'shk-m' : 'shk-c',
-            'HR'    => $isSupervisor ? 'hr-m' : 'hr-c',
+            'CUSM' => 'cus-m',
+            'CUS' => 'cus-c',
+            'MRK' => $isSupervisor ? 'mrk-m' : 'mrk-c',
+            'WEB' => $isSupervisor ? 'shk-m' : 'shk-c',
+            'HR' => $isSupervisor ? 'hr-m' : 'hr-c',
             default => strtolower($sourceCode)
         };
     }

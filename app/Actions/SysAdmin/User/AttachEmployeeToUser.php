@@ -7,6 +7,8 @@
 
 namespace App\Actions\SysAdmin\User;
 
+use App\Actions\SysAdmin\User\Hydrators\UserHydrateAuthorisedModels;
+use App\Actions\SysAdmin\User\Hydrators\UserHydrateModels;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -19,6 +21,8 @@ class AttachEmployeeToUser
     {
 
         $user->employees()->syncWithoutDetaching([$employee->id]);
+        UserHydrateAuthorisedModels::run($user);
+        UserHydrateModels::dispatch($user);
 
         return $user;
     }

@@ -16,6 +16,7 @@ return new class () extends Migration {
             $table->unsignedInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->string('model_type')->index();
+            $table->boolean('status')->default(true);
             $table->unsignedSmallInteger('model_id');
             $table->timestampsTz();
             $table->unique(['user_id', 'model_type', 'model_id']);

@@ -27,6 +27,12 @@ return new class () extends Migration {
             $table->string('contact_name')->nullable()->comment('no-normalised depends on parent');
             $table->string('email')->nullable()->comment('mirror group_users.email');
             $table->text('about')->nullable();
+            $table->unsignedSmallInteger('number_models')->default(0);
+            $table->unsignedSmallInteger('number_active_models')->default(0);
+            $table->unsignedSmallInteger('number_employees')->default(0);
+            $table->unsignedSmallInteger('number_active_employees')->default(0);
+            $table->unsignedSmallInteger('number_guests')->default(0);
+            $table->unsignedSmallInteger('number_active_guests')->default(0);
             $table->unsignedSmallInteger('number_authorised_organisations')->default(0);
             $table->unsignedSmallInteger('number_authorised_shops')->default(0);
             $table->unsignedSmallInteger('number_authorised_fulfilments')->default(0);
@@ -40,6 +46,8 @@ return new class () extends Migration {
             $table->foreign('language_id')->references('id')->on('languages');
             $table->unsignedInteger('image_id')->nullable();
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
             $table->string('legacy_password')->nullable()->index()->comment('source password');

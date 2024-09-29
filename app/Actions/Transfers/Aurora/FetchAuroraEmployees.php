@@ -42,18 +42,20 @@ class FetchAuroraEmployees extends FetchAuroraAction
                 $employee = UpdateEmployee::make()->action(
                     employee: $employee,
                     modelData: $employeeData['employee'],
+                    hydratorsDelay: 60,
+                    strict: false,
                     audit: false
                 );
             } else {
-
                 /* @var $workplace Workplace */
                 $workplace = $organisationSource->getOrganisation()->workplaces()->first();
 
                 $employee = StoreEmployee::make()->action(
                     parent: $workplace,
                     modelData: $employeeData['employee'],
+                    hydratorsDelay: 60,
+                    strict: false
                 );
-
             }
 
             UpdateEmployeeWorkingHours::run($employee, $employeeData['working_hours']);
@@ -61,13 +63,8 @@ class FetchAuroraEmployees extends FetchAuroraAction
 
 
             if (Arr::has($employeeData, 'user')) {
-
-
-
-
-
                 $updateUser = true;
-                $user = $employee->getUser();
+                $user       = $employee->getUser();
                 if (!$user) {
                     $user = $employee->group->users()->where('username', $employeeData['user']['username'])
                         ->first();
@@ -77,47 +74,44 @@ class FetchAuroraEmployees extends FetchAuroraAction
                     }
                 }
 
-
-
                 if ($user) {
                     if ($updateUser) {
-                        // try {
-                        UpdateUser::make()->action(
-                            $employee->getUser(),
-                            [
-                                'legacy_password' => (string)Arr::get($employeeData, 'user.legacy_password'),
-                                'status'          => Arr::get($employeeData, 'user.status'),
-                            ],
-                            strict: false
-                        );
-                        //                    } catch (Exception $e) {
-                        //
-                        //                        $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'update');
-                        //                        return null;
-                        //                    }
+                        try {
+                            UpdateUser::make()->action(
+                                $employee->getUser(),
+                                [
+                                    'legacy_password' => (string)Arr::get($employeeData, 'user.legacy_password'),
+                                    'status'          => Arr::get($employeeData, 'user.status'),
+                                ],
+                                strict: false
+                            );
+                        } catch (Exception $e) {
+                            $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'update');
+
+                            return null;
+                        }
                     }
                 } else {
-                    //dd($employeeData['user']);
-                    //   try {
-                    StoreUser::make()->action(
-                        $employee,
-                        array_merge(
-                            $employeeData['user'],
-                            [
-                                'password'       => wordwrap(Str::random(), 4, '-', true),
-                                'contact_name'   => $employee->contact_name,
-                                'email'          => $employee->work_email,
-                                'reset_password' => true,
-                                'auth_type'      => UserAuthTypeEnum::AURORA,
-                            ]
-                        ),
-                        strict: false
-                    );
-                    //                    } catch (Exception $e) {
-                    //                        $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'store');
-                    //
-                    //                        return null;
-                    //                    }
+                    try {
+                        StoreUser::make()->action(
+                            $employee,
+                            array_merge(
+                                $employeeData['user'],
+                                [
+                                    'password'       => wordwrap(Str::random(), 4, '-', true),
+                                    'contact_name'   => $employee->contact_name,
+                                    'email'          => $employee->work_email,
+                                    'reset_password' => true,
+                                    'auth_type'      => UserAuthTypeEnum::AURORA,
+                                ]
+                            ),
+                            strict: false
+                        );
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'store');
+
+                        return null;
+                    }
                 }
             }
 
@@ -140,7 +134,6 @@ class FetchAuroraEmployees extends FetchAuroraAction
             if (in_array('attachments', $this->with)) {
                 $sourceData = explode(':', $employee->source_id);
                 foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
-
                     SaveModelAttachment::run(
                         $employee,
                         $attachmentData['fileData'],
@@ -160,10 +153,13 @@ class FetchAuroraEmployees extends FetchAuroraAction
 
     private function parseAttachments($staffKey): array
     {
-        $attachments            = $this->getModelAttachmentsCollection(
+        $attachments = $this->getModelAttachmentsCollection(
             'Staff',
             $staffKey
-        )->map(function ($auroraAttachment) {return $this->fetchAttachment($auroraAttachment);});
+        )->map(function ($auroraAttachment) {
+            return $this->fetchAttachment($auroraAttachment);
+        });
+
         return $attachments->toArray();
     }
 

@@ -47,11 +47,9 @@ class UpdateEmployee extends OrgAction
         }
 
 
-        $credentials = Arr::only($modelData, ['username', 'password', 'auth_type']);
+        $credentials = Arr::only($modelData, ['username', 'password', 'auth_type','user_model_status']);
 
-        data_forget($modelData, 'username');
-        data_forget($modelData, 'password');
-        data_forget($modelData, 'auth_type');
+        data_forget($modelData, ['username', 'password', 'auth_type','user_model_status']);
 
         $employee = $this->update($employee, $modelData, ['data', 'salary']);
 
@@ -60,11 +58,17 @@ class UpdateEmployee extends OrgAction
         }
 
         if (Arr::hasAny($employee->getChanges(), ['state'])) {
-            GroupHydrateEmployees::dispatch($employee->group);
-            OrganisationHydrateEmployees::dispatch($employee->organisation);
+            GroupHydrateEmployees::dispatch($employee->group)->delay($this->hydratorsDelay);
+            OrganisationHydrateEmployees::dispatch($employee->organisation)->delay($this->hydratorsDelay);
         }
 
         if ($user = $employee->getUser()) {
+
+            if (Arr::exists($credentials, 'user_model_status')) {
+                $employee->users()->updateExistingPivot($user->id, ['status' => $credentials['user_model_status']]);
+                data_forget($credentials, 'user_model_status');
+            }
+
             UpdateUser::run($user, $credentials);
         }
 
@@ -149,9 +153,15 @@ class UpdateEmployee extends OrgAction
             'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
             'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
             'email'                                 => ['sometimes', 'nullable', 'email'],
-            'source_id'                             => ['sometimes', 'string', 'max:64'],
-            'last_fetched_at'                       => ['sometimes', 'date'],
+
         ];
+
+        if (!$this->strict) {
+            $rules['deleted_at'] = ['sometimes', 'date'];
+            $rules['created_at'] = ['sometimes', 'date'];
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules['source_id'] = ['sometimes', 'string', 'max:64'];
+        }
 
         if ($user = $this->employee->getUser()) {
             $rules['username'] = [
@@ -176,20 +186,24 @@ class UpdateEmployee extends OrgAction
 
             ];
             $rules['password'] = ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()];
+
+            $rules['user_model_status'] = ['sometimes', 'boolean'];
+
         }
 
 
         return $rules;
     }
 
-    public function action(Employee $employee, array $modelData, bool $audit = true): Employee
+    public function action(Employee $employee, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Employee
     {
+        $this->strict = $strict;
         if (!$audit) {
             Employee::disableAuditing();
         }
         $this->asAction = true;
         $this->employee = $employee;
-
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($employee->organisation, $modelData);
 
         return $this->handle($employee, $this->validatedData);

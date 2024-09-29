@@ -42,6 +42,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $contact_name no-normalised depends on parent
  * @property string|null $email mirror group_users.email
  * @property string|null $about
+ * @property int $number_models
+ * @property int $number_active_models
+ * @property int $number_employees
+ * @property int $number_active_employees
+ * @property int $number_guests
+ * @property int $number_active_guests
  * @property int $number_authorised_organisations
  * @property int $number_authorised_shops
  * @property int $number_authorised_fulfilments
@@ -55,6 +61,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
@@ -174,12 +182,12 @@ class User extends Authenticatable implements HasMedia, Auditable
 
     public function employees(): MorphToMany
     {
-        return $this->morphedByMany(Employee::class, 'model', 'user_has_models');
+        return $this->morphedByMany(Employee::class, 'model', 'user_has_models')->withTimestamps();
     }
 
     public function guests(): MorphToMany
     {
-        return $this->morphedByMany(Guest::class, 'model', 'user_has_models');
+        return $this->morphedByMany(Guest::class, 'model', 'user_has_models')->withTimestamps();
     }
 
 

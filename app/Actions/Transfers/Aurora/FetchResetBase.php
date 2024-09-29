@@ -65,11 +65,10 @@ class FetchResetBase
                 DB::connection('aurora')->table('User Dimension')
                     ->update([$aikuIdField => null]);
 
-                //todo: delete this because i think we will not fetch
-                /*
+
                 DB::connection('aurora')->table('User Deleted Dimension')
                     ->update([$aikuIdField => null]);
-                */
+
 
 
                 $command->line('✅ sysadmins');

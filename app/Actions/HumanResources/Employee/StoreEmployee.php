@@ -44,9 +44,9 @@ class StoreEmployee extends OrgAction
 
         data_set($modelData, 'group_id', $organisation->group_id);
 
-        $credentials = Arr::only($modelData, ['username', 'password', 'reset_password']);
+        $credentials = Arr::only($modelData, ['username', 'password', 'reset_password','user_model_status']);
 
-        Arr::forget($modelData, ['username', 'password', 'reset_password']);
+        Arr::forget($modelData, ['username', 'password', 'reset_password','user_model_status']);
 
         $positions = Arr::get($modelData, 'positions', []);
         data_forget($modelData, 'positions');
@@ -73,7 +73,8 @@ class StoreEmployee extends OrgAction
                     'contact_name'   => $employee->contact_name,
                     'email'          => $employee->work_email,
                     'reset_password' => Arr::get($credentials, 'reset_password', true),
-                ]
+                    'user_model_status'         => Arr::get($credentials, 'user_model_status', true),
+                ],
             );
         }
 
@@ -111,7 +112,7 @@ class StoreEmployee extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'worker_number'                           => [
                 'required',
                 'max:64',
@@ -171,16 +172,26 @@ class StoreEmployee extends OrgAction
             ],
             'password'                                => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
             'reset_password'                          => ['exclude_if:username,null', 'sometimes', 'boolean'],
-            'source_id'                               => ['sometimes', 'string', 'max:64'],
-            'deleted_at'                              => ['sometimes', 'nullable', 'date'],
-            'fetched_at'                              => ['sometimes', 'date'],
+            'user_model_status'                       => ['exclude_if:username,null', 'sometimes', 'boolean'],
         ];
+
+        if (!$this->strict) {
+            $rules['created_at'] = ['sometimes', 'date'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+        }
+
+        return $rules;
     }
 
-    public function action(Organisation|Workplace $parent, $modelData): Employee
+    public function action(Organisation|Workplace $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Employee
     {
-        $this->asAction = true;
 
+
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         if (class_basename($parent) === 'Workplace') {
             $organisation = $parent->organisation;
         } else {

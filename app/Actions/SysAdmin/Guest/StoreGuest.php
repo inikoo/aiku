@@ -59,6 +59,7 @@ class StoreGuest extends GrpAction
                 'contact_name'   => $guest->contact_name,
                 'email'          => $guest->email,
                 'reset_password' => Arr::get($modelData, 'reset_password', false),
+                'status'         => true,
             ]
         );
 
@@ -110,7 +111,7 @@ class StoreGuest extends GrpAction
 
 
         return [
-            'code'        => [
+            'code'         => [
                 'required',
                 'string',
                 'max:32',
@@ -186,12 +187,12 @@ class StoreGuest extends GrpAction
 
 
         $fields = [
-            'positions'     => $positions,
-            'contact_name'  => $command->argument('name'),
-            'email'         => $command->option('email'),
-            'phone'         => $command->option('phone'),
-            'username'      => $command->argument('username'),
-            'password'      => $command->option('password') ?? (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
+            'positions'    => $positions,
+            'contact_name' => $command->argument('name'),
+            'email'        => $command->option('email'),
+            'phone'        => $command->option('phone'),
+            'username'     => $command->argument('username'),
+            'password'     => $command->option('password') ?? (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
         ];
 
         $this->fill($fields);
