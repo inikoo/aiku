@@ -9,10 +9,6 @@ namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\GetWebsiteWorkshopFooter;
-use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\SysAdmin\Organisation;
-use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -22,10 +18,6 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class ShowFooterPreview extends OrgAction
 {
     use AsAction;
-
-    private Website $website;
-    private Webpage|Website $parent;
-    private Fulfilment|Shop $scope;
 
     public function handle(Website $website): Website
     {
@@ -42,10 +34,9 @@ class ShowFooterPreview extends OrgAction
         );
     }
 
-    public function asController(Organisation $organisation, Fulfilment $fulfilment, Website $website, ActionRequest $request): Website
+    public function asController(Website $website, ActionRequest $request): Website
     {
-        $this->parent = $website;
-        $this->initialisationFromFulfilment($fulfilment, $request);
+        $this->initialisation($website->organisation, $request);
 
         return $website;
     }
