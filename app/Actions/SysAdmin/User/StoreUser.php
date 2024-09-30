@@ -42,16 +42,18 @@ class StoreUser extends GrpAction
 
 
         if ($parent instanceof Employee) {
-            AttachEmployeeToUser::make()->action($user, $parent, [
+            $user = AttachEmployeeToUser::make()->action($user, $parent, [
                 'status'    => $userModelStatus,
                 'source_id' => $user->source_id
             ]);
         } else {
-            AttachGuestToUser::make()->action($user, $parent, [
+            $user = AttachGuestToUser::make()->action($user, $parent, [
                 'status'    => $userModelStatus,
                 'source_id' => $user->source_id
             ]);
         }
+
+
 
 
         if ($this->hydratorsDelay) {

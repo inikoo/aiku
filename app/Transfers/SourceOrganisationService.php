@@ -151,4 +151,6 @@ interface SourceOrganisationService
 
     public function fetchDeletedUser($id);
 
+    public function fetchUser($id);
+
 }

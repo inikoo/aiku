@@ -31,11 +31,8 @@ class SyncRolesFromJobPositions
             }
         }
 
-        foreach ($user->guests as $guest) {
-            foreach ($guest->jobPositions as $jobPosition) {
-
-                $roles = $this->getRoles($roles, $jobPosition);
-            }
+        foreach ($user->pseudoJobPositions as $jobPosition) {
+            $roles = $this->getRoles($roles, $jobPosition);
         }
 
 

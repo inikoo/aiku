@@ -41,7 +41,7 @@ beforeAll(function () {
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->group        = $this->organisation->group;
-    $this->user         = createAdminGuest($this->group)->user;
+    $this->user         = createAdminGuest($this->group)->getUser();
 
 
     $shop = Shop::first();

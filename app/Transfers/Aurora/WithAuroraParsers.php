@@ -525,11 +525,12 @@ trait WithAuroraParsers
     public function parseEmployee($sourceId): ?Employee
     {
         $employee = Employee::withTrashed()->where('source_id', $sourceId)->first();
+        $sourceData     = explode(':', $sourceId);
         if (!$employee) {
-            $employee = FetchAuroraEmployees::run($this->organisationSource, $sourceId);
+            $employee = FetchAuroraEmployees::run($this->organisationSource, $sourceData[1]);
         }
         if (!$employee) {
-            $employee = FetchAuroraDeletedEmployees::run($this->organisationSource, $sourceId);
+            $employee = FetchAuroraDeletedEmployees::run($this->organisationSource, $sourceData[1]);
         }
 
         return $employee;
