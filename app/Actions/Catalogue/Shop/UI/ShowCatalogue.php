@@ -251,7 +251,7 @@ class ShowCatalogue extends OrgAction
                 'totm'  => [
                     'family'    => [
                         'label' => __('Top Family'),
-                        'icon'  => 'fal fa-folder-tree',
+                        'icon'  => 'fal fa-folder',
                         'value' => $topFamily ? FamilyResource::make($topFamily)->toArray(request()) : null,
                     ],
                     'department'   => [
