@@ -11,5 +11,5 @@ use App\Actions\Web\Webpage\UI\ShowHeaderPreview;
 use App\Actions\Web\Webpage\UI\ShowWebpageWorkshopPreview;
 
 Route::get('{website}/webpages/{webpage}/workshop/preview', [ShowWebpageWorkshopPreview::class, 'inWebsite'])->name('preview');
-Route::get('{website}/webpages/{webpage}/footer/preview', ShowFooterPreview::class)->name('footer.preview');
-Route::get('{website}/webpages/{webpage}/header/preview', ShowHeaderPreview::class)->name('header.preview');
+Route::get('{website}/footer/preview', ShowFooterPreview::class)->name('footer.preview');
+Route::get('{website}/header/preview', ShowHeaderPreview::class)->name('header.preview');
