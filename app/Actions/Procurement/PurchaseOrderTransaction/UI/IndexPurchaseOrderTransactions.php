@@ -8,9 +8,11 @@
 namespace App\Actions\Procurement\PurchaseOrderTransaction\UI;
 
 use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\PurchaseOrderTransactionResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use App\Services\QueryBuilder;
 use Closure;
@@ -19,9 +21,9 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexPurchaseOrderTransactions extends InertiaAction
+class IndexPurchaseOrderTransactions extends OrgAction
 {
-    public function handle($prefix = null): LengthAwarePaginator
+    public function handle(PurchaseOrder $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->whereHas('supplierProduct', function ($query) use ($value) {
@@ -34,8 +36,14 @@ class IndexPurchaseOrderTransactions extends InertiaAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        return QueryBuilder::for(PurchaseOrderTransaction::class)
-            ->defaultSort('purchase_order_items.id')
+        $query = QueryBuilder::for(PurchaseOrderTransaction::class);
+
+        if ($parent instanceof PurchaseOrder)
+        {
+            $query->where('purchase_order_transactions.purchase_order_id', $parent->id);
+        }
+
+        return $query->defaultSort('purchase_order_transactions.id')
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -73,11 +81,11 @@ class IndexPurchaseOrderTransactions extends InertiaAction
             );
     }
 
-    public function asController(ActionRequest $request): LengthAwarePaginator
+    public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): LengthAwarePaginator
     {
 
-        $this->initialisation($request);
-        return $this->handle();
+        $this->initialisation($purchaseOrder->organisation, $request);
+        return $this->handle($purchaseOrder);
     }
 
     public function jsonResponse(LengthAwarePaginator $purchaseOrders): AnonymousResourceCollection
