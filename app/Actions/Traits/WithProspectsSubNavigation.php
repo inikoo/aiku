@@ -64,10 +64,10 @@ trait WithProspectsSubNavigation
         ];
 
         $meta[] = [
-            // 'href'     => [
-            //     'name'       => 'grp.org.shops.show.crm.prospects.tags.index',
-            //     'parameters' => $request->route()->originalParameters()
-            // ],
+            'href'     => [
+                'name'       => 'grp.org.shops.show.crm.prospects.tags.index',
+                'parameters' => $request->route()->originalParameters()
+            ],
             'number'   => $this->parent->crmStats->number_tags,
             'label'    => __('Tags'),
             'leftIcon' => [

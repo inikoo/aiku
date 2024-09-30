@@ -36,7 +36,7 @@ class StoreMailshot extends OrgAction
         /** @var Mailshot $mailshot */
         $mailshot = $parent->mailshots()->create($modelData);
         $mailshot->stats()->create();
-        
+
 
         if ($parent instanceof Outbox) {
             OutboxHydrateMailshots::run($parent);

@@ -7,6 +7,7 @@
 
 namespace App\Actions\CRM\Prospect\UI;
 
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Prospect\Mailshots\UI\IndexProspectMailshots;
 use App\Actions\CRM\Prospect\Queries\UI\IndexProspectQueries;
 use App\Actions\Helpers\History\IndexHistory;
@@ -99,10 +100,10 @@ class IndexProspects extends OrgAction
             InertiaTable::updateQueryBuilderParameters($prefix);
         }
 
-        $query = QueryBuilder::for(Prospect::class);
+        $queryBuilder = QueryBuilder::for(Prospect::class);
 
         foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $query->whereElementGroup(
+            $queryBuilder->whereElementGroup(
                 key: $key,
                 allowedElements: array_keys($elementGroup['elements']),
                 engine: $elementGroup['engine'],
@@ -110,13 +111,12 @@ class IndexProspects extends OrgAction
             );
         }
 
-        if (class_basename($parent) == 'Shop') {
-            $query->where('shop_id', $parent->id);
+        if ($parent instanceof Shop) {
+            $queryBuilder->where('prospects.shop_id', $parent->id);
         }
 
-        return $query
+        return $queryBuilder
             ->defaultSort('prospects.name')
-            ->with('shop')
             ->allowedSorts(['name', 'email', 'phone', 'contact_website'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -290,8 +290,6 @@ class IndexProspects extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return [];
-
         $headCrumb = function (array $routeParameters = []) {
             return [
                 [
@@ -318,11 +316,22 @@ class IndexProspects extends OrgAction
                     ]
                 ),
             ),
-            'grp.org.shops.show.crm.prospects.index',
             'grp.org.shops.show.crm.prospects.uploads.index' =>
             array_merge(
                 (new ShowCRMDashboard())->getBreadcrumbs(
                     'org.crm.shop.dashboard',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.crm.prospects.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.org.shops.show.crm.prospects.index' =>
+            array_merge(
+                ShowShop::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(

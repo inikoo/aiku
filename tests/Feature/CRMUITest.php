@@ -193,3 +193,36 @@ test('UI Index customer portfolios', function () {
             ->has('data');
     });
 });
+
+    test('can show list of mailshots', function () {
+        $shop     = $this->shop;
+        $organisation = $this->organisation;
+        $response = get(route('grp.org.shops.show.marketing.mailshots.index', [$organisation->slug, $shop->slug]));
+        $response->assertInertia(function (AssertableInertia $page) {
+            $page
+                ->component('Mail/Mailshots')
+                ->has('title');
+        });
+    });
+
+    test('can show list of prospects', function () {
+        $shop     = $this->shop;
+        $organisation = $this->organisation;
+        $response = get(route('grp.org.shops.show.crm.prospects.index', [$organisation->slug, $shop->slug]));
+        $response->assertInertia(function (AssertableInertia $page) {
+            $page
+                ->component('Org/Shop/CRM/Prospects')
+                ->has('title');
+        });
+    });
+
+    test('can show list of tags', function () {
+        $shop     = $this->shop;
+        $organisation = $this->organisation;
+        $response = get(route('grp.org.shops.show.crm.prospects.tags.index', [$organisation->slug, $shop->slug]));
+        $response->assertInertia(function (AssertableInertia $page) {
+            $page
+                ->component('Org/Shop/CRM/Tags')
+                ->has('title');
+        });
+    });
