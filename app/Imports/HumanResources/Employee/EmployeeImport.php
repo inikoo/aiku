@@ -21,6 +21,7 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class EmployeeImport implements ToCollection, WithHeadingRow, SkipsOnFailure, WithValidation, WithEvents
 {
@@ -83,7 +84,7 @@ class EmployeeImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
 
     public function prepareForValidation($data)
     {
-        $data['starting_date'] = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($data['starting_date'])->format('Y-m-d');
+        $data['starting_date'] = Date::excelToDateTimeObject($data['starting_date'])->format('Y-m-d');
 
         if (Arr::exists($data, 'username')) {
             $data['username'] = Str::lower($data['username']);
@@ -109,9 +110,7 @@ class EmployeeImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
             'name'           => ['required', 'string', 'max:256'],
             'job_title'      => ['required', 'string', 'max:256'],
             'positions'      => ['required', 'array'],
-//            'positions.*'    => ['exists:job_positions,slug'],
             'starting_date'  => ['required', 'date'],
-//            'workplace'      => ['required', 'nullable', 'string', 'exists:workplaces,slug'],
             'username'       => ['sometimes', 'unique:users', 'alpha_dash:ascii'],
             'password'       => ['sometimes', 'string', 'min:8', 'max:64'],
             'reset_password' => ['sometimes', 'boolean'],
