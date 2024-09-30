@@ -230,7 +230,7 @@ class IndexEmployees extends OrgAction
                         'upload'  => [
                             'name'  => 'grp.models.employees.import',
                             'parameters' => [
-                                'organisation' => $this->parent->slug,
+                                'organisation' => $this->parent->id,
                             ],
                             'method' => 'post'
                         ],
