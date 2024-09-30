@@ -5,23 +5,36 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 
 import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
-import { computed, defineAsyncComponent, ref } from 'vue'
+import { computed, defineAsyncComponent, inject, ref } from 'vue'
 import type { Component } from 'vue'
 
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 // import FileShowcase from '@/xxxxxxxxxxxx'
+import CountUp from 'vue-countup-v3'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import {  } from '@fas'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { trans } from 'laravel-vue-i18n'
+library.add()
 
 const props = defineProps<{
     title: string,
     pageHead: TSPageHeading
     tabs: TSTabs
+    stats: {
+        label: string
+        count: number
+        icon: string
+    }[]
 
     
 }>()
 
 const currentTab = ref(props.tabs.current)
+const locale = inject('locale', aikuLocaleStructure)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
@@ -40,7 +53,26 @@ const component = computed(() => {
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
-    <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" />
+    <!-- <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate" /> -->
 
-    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
+    <!-- <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" /> -->
+    <div class="flex gap-x-3 gap-y-4 p-4 flex-wrap">
+        <div v-for="zzz in stats" class="bg-gray-50 min-w-64 border border-gray-300 rounded-md p-6">
+            <div class="flex justify-between items-center mb-1">
+                <div class="">{{ zzz.label }}</div>
+                <FontAwesomeIcon :icon='zzz.icon' class=' text-xl text-gray-400' fixed-width aria-hidden='true' />
+            </div>
+
+            <div class="mb-1 text-2xl font-semibold">
+                <CountUp
+                    :endVal="zzz.count"
+                    :duration="1.5"
+                    :scrollSpyOnce="true"
+                    :options="{
+                        formattingFn: (value: number) => locale.number(value)
+                    }"
+                />
+            </div>
+        </div>        
+    </div>
 </template>
