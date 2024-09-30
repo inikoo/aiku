@@ -12,7 +12,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Support\Carbon;
 use Spatie\Permission\Models\Role as SpatieRole;
 
 /**
@@ -24,8 +23,8 @@ use Spatie\Permission\Models\Role as SpatieRole;
  * @property string $guard_name
  * @property string $scope_type
  * @property int $scope_id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Collection<int, JobPosition> $jobPositions
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read Collection<int, \App\Models\SysAdmin\User> $users

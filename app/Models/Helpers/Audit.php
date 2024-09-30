@@ -30,6 +30,9 @@ namespace App\Models\Helpers;
  * @property string|null $user_agent
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
+ * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $auditable
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent|null $user
  * @method static \Illuminate\Database\Eloquent\Builder|Audit newModelQuery()

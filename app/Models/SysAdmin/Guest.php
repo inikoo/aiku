@@ -8,7 +8,6 @@
 namespace App\Models\SysAdmin;
 
 use App\Models\HumanResources\Clocking;
-use App\Models\HumanResources\JobPosition;
 use App\Models\HumanResources\Timesheet;
 use App\Models\HumanResources\TimeTracker;
 use App\Models\Traits\HasHistory;
@@ -18,12 +17,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -45,20 +42,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $phone
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
- * @property Carbon|null $date_of_birth
+ * @property \Illuminate\Support\Carbon|null $date_of_birth
  * @property string|null $gender
  * @property array $data
  * @property int|null $image_id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Clocking> $clockings
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read \App\Models\SysAdmin\GuestHasJobPositions $pivot
- * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \App\Models\SysAdmin\GuestStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TimeTracker> $timeTrackers
@@ -149,13 +144,6 @@ class Guest extends Model implements HasMedia, Auditable
     public function getRouteKeyName(): string
     {
         return 'slug';
-    }
-
-
-    public function jobPositions(): BelongsToMany
-    {
-        return $this->belongsToMany(JobPosition::class, 'guest_has_job_positions')->withTimestamps()
-            ->using(GuestHasJobPositions::class);
     }
 
     public function group(): BelongsTo

@@ -24,7 +24,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Ordering\Transaction
@@ -60,11 +59,11 @@ use Illuminate\Support\Carbon;
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
  * @property array $data
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property string|null $source_alt_id to be used in no products transactions
  * @property-read Asset|null $asset

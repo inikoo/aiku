@@ -12,16 +12,19 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('employee_has_other_organisation_job_positions', function (Blueprint $table) {
+        Schema::create('user_has_pseudo_job_positions', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->unsignedSmallInteger('user_id')->index()->nullable();
+
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('cascade');
+
             $table->unsignedSmallInteger('organisation_id')->index()->nullable();
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedSmallInteger('employee_id')->index()->nullable();
-            $table->foreign('employee_id')->references('id')->on('employees')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedSmallInteger('other_organisation_id')->index()->nullable();
-            $table->foreign('other_organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+
+
             $table->unsignedSmallInteger('job_position_id')->index()->nullable();
             $table->foreign('job_position_id')->references('id')->on('job_positions')->onUpdate('cascade')->onDelete('cascade');
             $table->double('share')->nullable();
@@ -32,6 +35,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('employee_has_other_organisation_job_positions');
+        Schema::dropIfExists('user_has_pseudo_job_positions');
     }
 };

@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Inventory\WarehouseAreaStats
@@ -83,8 +82,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_stored_items_state_active
  * @property int $number_stored_items_state_discontinuing
  * @property int $number_stored_items_state_discontinued
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouse
  * @method static Builder|WarehouseAreaStats newModelQuery()
  * @method static Builder|WarehouseAreaStats newQuery()

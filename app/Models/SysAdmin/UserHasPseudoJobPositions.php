@@ -12,12 +12,12 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 /**
  *
  *
- * @method static \Illuminate\Database\Eloquent\Builder|GuestHasJobPositions newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GuestHasJobPositions newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GuestHasJobPositions query()
+ * @method static \Illuminate\Database\Eloquent\Builder|UserHasPseudoJobPositions newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|UserHasPseudoJobPositions newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|UserHasPseudoJobPositions query()
  * @mixin \Eloquent
  */
-class GuestHasJobPositions extends Pivot
+class UserHasPseudoJobPositions extends Pivot
 {
     protected $guarded = [];
 

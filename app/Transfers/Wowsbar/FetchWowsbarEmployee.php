@@ -43,7 +43,6 @@ class FetchWowsbarEmployee extends FetchWowsbar
         ];
     }
 
-
     private function parseJobPositions(): void
     {
 
@@ -62,7 +61,6 @@ class FetchWowsbarEmployee extends FetchWowsbar
 
 
     }
-
 
     protected function fetchData($id): object|null
     {

@@ -42,7 +42,7 @@ class FetchAuroraTimesheet extends FetchAurora
         }
 
         if ($this->auroraModelData->{'Staff Type'} == 'Employee') {
-            $this->parsedData['employee'] = $this->parseEmployee($this->auroraModelData->{'Timesheet Staff Key'});
+            $this->parsedData['employee'] = $this->parseEmployee($this->organisation->id.':'.$this->auroraModelData->{'Timesheet Staff Key'});
         } else {
             return;
         }

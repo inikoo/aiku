@@ -10,44 +10,45 @@ namespace App\Actions\HumanResources\JobPosition;
 use App\Actions\HumanResources\JobPosition\Hydrators\JobPositionHydrateGuests;
 use App\Actions\SysAdmin\User\SyncRolesFromJobPositions;
 use App\Models\HumanResources\JobPosition;
-use App\Models\SysAdmin\Guest;
+use App\Models\SysAdmin\User;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class SyncGuestJobPositions
+class SyncUserJobPositions
 {
     use AsAction;
 
-    public function handle(Guest $guest, array $jobPositions): void
+    public function handle(User $user, array $jobPositions): void
     {
-
-
-
         $jobPositionsIds = array_keys($jobPositions);
 
-        $currentJobPositions = $guest->jobPositions()->pluck('job_positions.id')->all();
+        $currentJobPositions = $user->pseudoJobPositions()->pluck('job_positions.id')->all();
         $newJobPositionsIds  = array_diff($jobPositionsIds, $currentJobPositions);
         $removeJobPositions  = array_diff($currentJobPositions, $jobPositionsIds);
 
-        $guest->jobPositions()->detach($removeJobPositions);
+        $user->pseudoJobPositions()->detach($removeJobPositions);
 
 
         foreach ($newJobPositionsIds as $jobPositionId) {
+            $pseudJobPositionsData = [
+                'group_id'        => $user->group_id,
+                'scopes'          => $jobPositions[$jobPositionId]['scopes'],
+                'organisation_id' => $jobPositions[$jobPositionId]['organisation_id']
+            ];
 
-            $guest->jobPositions()->attach(
+
+            $user->pseudoJobPositions()->attach(
                 [
-                    $jobPositionId => [
-                        'group_id' => $guest->group_id,
-                        'scopes'   => $jobPositions[$jobPositionId]
-                    ]
+                    $jobPositionId => $pseudJobPositionsData
                 ],
             );
         }
+        $user->refresh();
 
 
         if (count($newJobPositionsIds) || count($removeJobPositions)) {
-            if ($guest->getUser()) {
-                SyncRolesFromJobPositions::run($guest->getUser());
-            }
+
+            SyncRolesFromJobPositions::run($user);
+
 
             foreach ($removeJobPositions as $jobPositionId) {
                 $jobPosition = JobPosition::find($jobPositionId);
@@ -58,8 +59,6 @@ class SyncGuestJobPositions
                 $jobPosition = JobPosition::find($jobPositionId);
                 JobPositionHydrateGuests::dispatch($jobPosition);
             }
-
-
         }
     }
 }

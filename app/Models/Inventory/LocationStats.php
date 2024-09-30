@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Inventory\LocationStats
@@ -75,8 +74,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_stored_items_state_active
  * @property int $number_stored_items_state_discontinuing
  * @property int $number_stored_items_state_discontinued
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Inventory\Location $location
  * @method static Builder|LocationStats newModelQuery()
  * @method static Builder|LocationStats newQuery()

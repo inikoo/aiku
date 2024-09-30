@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Catalogue\ShopStats
@@ -84,8 +83,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_adjustments_type_error_net
  * @property int $number_adjustments_type_error_tax
  * @property int $number_adjustments_type_credit
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Shop $shop
  * @method static Builder|ShopStats newModelQuery()
  * @method static Builder|ShopStats newQuery()

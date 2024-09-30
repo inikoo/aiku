@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Web\WebpageStats
@@ -58,8 +57,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_webpages_purpose_content
  * @property int $number_webpages_purpose_other_small_print
  * @property int $number_webpages_purpose_shop
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Web\Webpage $webpage
  * @method static Builder|WebpageStats newModelQuery()
  * @method static Builder|WebpageStats newQuery()

@@ -159,24 +159,17 @@ test('prospect query count', function () {
 test('create prospect mailshot', function () {
     $shop         = $this->shop;
     $organisation = $this->organisation;
+    $outbox       = Outbox::where('shop_id', $shop->id)->where('type', OutboxTypeEnum::SHOP_PROSPECT)->first();
     $dataModel    = [
         'subject'    => 'hello',
         'type'       => MailshotTypeEnum::PROSPECT_MAILSHOT,
-        'outbox_id'  => Outbox::where('shop_id', $shop->id)->where('type', OutboxTypeEnum::SHOP_PROSPECT)->pluck('id')->first(),
         'recipients' => []
 
     ];
-    $mailshot     = StoreMailshot::make()->action($shop, $dataModel);
+    $mailshot     = StoreMailshot::make()->action($outbox, $dataModel);
     expect($mailshot)->toBeInstanceOf(Mailshot::class)
-        ->and($organisation->mailStats->number_mailshots)->toBe(1)
-        ->and($organisation->mailStats->number_mailshots_type_prospect_mailshot)->toBe(1)
-        ->and($organisation->mailStats->number_mailshots_state_in_process)->toBe(1)
-        ->and($organisation->mailStats->number_mailshots_type_prospect_mailshot_state_in_process)->toBe(1)
-        ->and($shop->mailStats->number_mailshots)->toBe(1)
-        ->and($shop->mailStats->number_mailshots_type_prospect_mailshot)->toBe(1)
-        ->and($shop->mailStats->number_mailshots_state_in_process)->toBe(1)
-        ->and($shop->mailStats->number_mailshots_type_prospect_mailshot_state_in_process)->toBe(1);
-})->todo();
+        ->and($outbox->stats->number_mailshots)->toBe(1);
+});
 
 test('can show list of prospects', function () {
     $shop     = $this->shop;

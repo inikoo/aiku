@@ -11,7 +11,6 @@ use App\Enums\Mail\EmailTrackingEvent\EmailTrackingEventTypeEnum;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Mail\EmailTrackingEvent
@@ -21,8 +20,8 @@ use Illuminate\Support\Carbon;
  * @property int $dispatched_email_id
  * @property EmailTrackingEventTypeEnum $type
  * @property array $data
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $source_id
  * @method static Builder|EmailTrackingEvent newModelQuery()
  * @method static Builder|EmailTrackingEvent newQuery()

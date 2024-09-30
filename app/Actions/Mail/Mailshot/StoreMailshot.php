@@ -8,6 +8,7 @@
 namespace App\Actions\Mail\Mailshot;
 
 use App\Actions\Mail\Mailshot\UI\HasUIMailshots;
+use App\Actions\Mail\Outbox\Hydrators\OutboxHydrateMailshots;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Models\Catalogue\Shop;
@@ -35,6 +36,11 @@ class StoreMailshot extends OrgAction
         /** @var Mailshot $mailshot */
         $mailshot = $parent->mailshots()->create($modelData);
         $mailshot->stats()->create();
+        
+
+        if ($parent instanceof Outbox) {
+            OutboxHydrateMailshots::run($parent);
+        }
 
         return $mailshot;
     }
