@@ -29,7 +29,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -54,18 +53,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $unpublished_snapshot_id
  * @property int|null $live_snapshot_id
  * @property array $published_layout
- * @property Carbon|null $ready_at
- * @property Carbon|null $live_at
- * @property Carbon|null $closed_at
+ * @property \Illuminate\Support\Carbon|null $ready_at
+ * @property \Illuminate\Support\Carbon|null $live_at
+ * @property \Illuminate\Support\Carbon|null $closed_at
  * @property string|null $published_checksum
  * @property bool $is_dirty
  * @property array $data
  * @property array $settings
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $fetched_at
- * @property Carbon|null $last_fetched_at
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits

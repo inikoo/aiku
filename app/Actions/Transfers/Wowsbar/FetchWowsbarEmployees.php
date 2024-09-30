@@ -22,20 +22,22 @@ class FetchWowsbarEmployees extends FetchWowsbarAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Employee
     {
         if ($employeeData = $organisationSource->fetchEmployee($organisationSourceId)) {
-
             if ($employee = Employee::where('source_id', $employeeData['employee']['source_id'])->first()) {
                 $employee = UpdateEmployee::make()->action(
                     employee: $employee,
-                    modelData: $employeeData['employee']
+                    modelData: $employeeData['employee'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
                 );
             } else {
                 /* @var $workplace Workplace */
                 $workplace = $organisationSource->getOrganisation()->workplaces()->first();
-
-
-                $employee = StoreEmployee::make()->action(
+                $employee  = StoreEmployee::make()->action(
                     parent: $workplace,
                     modelData: $employeeData['employee'],
+                    hydratorsDelay: 60,
+                    strict: false
                 );
             }
 
@@ -52,7 +54,6 @@ class FetchWowsbarEmployees extends FetchWowsbarAction
             ->table('employees')
             ->select('id as source_id')
             ->orderBy('source_id');
-
     }
 
     public function count(): ?int

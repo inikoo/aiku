@@ -7,24 +7,42 @@
 
 namespace App\Actions\SysAdmin\User;
 
+use App\Actions\OrgAction;
 use App\Actions\SysAdmin\User\Hydrators\UserHydrateAuthorisedModels;
 use App\Actions\SysAdmin\User\Hydrators\UserHydrateModels;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\User;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class AttachEmployeeToUser
+class AttachEmployeeToUser extends OrgAction
 {
-    use AsAction;
-
-    public function handle(User $user, Employee $employee): User
+    public function handle(User $user, Employee $employee, array $modelData): User
     {
+        data_set($modelData, 'group_id', $employee->group_id);
+        data_set($modelData, 'organisation_id', $employee->organisation_id);
 
-        $user->employees()->syncWithoutDetaching([$employee->id]);
+        $user->employees()->syncWithoutDetaching([
+            $employee->id =>
+                $modelData
+        ]);
         UserHydrateAuthorisedModels::run($user);
         UserHydrateModels::dispatch($user);
 
         return $user;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'source_id' => ['sometimes', 'nullable', 'string'],
+            'status'    => ['required', 'bool']
+        ];
+    }
+
+    public function action(User $user, Employee $employee, array $modelData): User
+    {
+        $this->initialisation($employee->organisation, $modelData);
+
+        return $this->handle($user, $employee, $modelData);
     }
 
 }

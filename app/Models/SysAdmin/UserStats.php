@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\SysAdmin\UserStats
@@ -25,8 +24,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_failed_logins
  * @property string|null $last_failed_login_ip
  * @property string|null $last_failed_login_at
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\User $user
  * @method static Builder|UserStats newModelQuery()
  * @method static Builder|UserStats newQuery()

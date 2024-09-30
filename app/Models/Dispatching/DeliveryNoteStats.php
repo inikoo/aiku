@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Dispatching\DeliveryNoteStats
@@ -19,8 +18,8 @@ use Illuminate\Support\Carbon;
  * @property int $id
  * @property int $delivery_note_id
  * @property int $number_items current number of items
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Dispatching\DeliveryNote $deliveryNote
  * @method static Builder|DeliveryNoteStats newModelQuery()
  * @method static Builder|DeliveryNoteStats newQuery()

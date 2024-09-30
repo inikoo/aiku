@@ -33,19 +33,21 @@ class JobPositionHydrateGuests
     public function handle(JobPosition $jobPosition): void
     {
 
-        $numberGuests        = $jobPosition->guests()->count();
-        $numberGuestsWorkTime = $jobPosition->employees()->sum('share');
+        //todo
 
-        $jobPosition->stats()->update(
-            [
-                'number_guests'           => $numberGuests,
-                'number_guests_work_time' => $numberGuestsWorkTime
-            ]
-        );
-
-        if ($jobPosition->organisation_id) {
-            OrganisationHydrateJobPositionsShare::run($jobPosition->organisation);
-        }
+        //        $numberGuests        = $jobPosition->guests()->count();
+        //        $numberGuestsWorkTime = $jobPosition->employees()->sum('share');
+        //
+        //        $jobPosition->stats()->update(
+        //            [
+        //                'number_guests'           => $numberGuests,
+        //                'number_guests_work_time' => $numberGuestsWorkTime
+        //            ]
+        //        );
+        //
+        //        if ($jobPosition->organisation_id) {
+        //            OrganisationHydrateJobPositionsShare::run($jobPosition->organisation);
+        //        }
 
 
     }

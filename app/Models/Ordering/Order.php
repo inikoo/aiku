@@ -38,7 +38,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
@@ -70,7 +69,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $collection_address_id
  * @property int|null $billing_country_id
  * @property int|null $delivery_country_id
- * @property Carbon $date
+ * @property \Illuminate\Support\Carbon $date
  * @property string|null $submitted_at
  * @property string|null $in_warehouse_at
  * @property string|null $handling_at
@@ -104,9 +103,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, Address> $addresses
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $attachments

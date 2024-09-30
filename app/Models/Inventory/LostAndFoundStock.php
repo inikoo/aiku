@@ -9,7 +9,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Inventory\LostAndFoundStock
@@ -20,8 +19,8 @@ use Illuminate\Support\Carbon;
  * @property string $quantity
  * @property string $stock_value
  * @property string $type
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property LostAndFoundOrgStockStateEnum $state
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Inventory\LostAndFoundStockFactory factory($count = null, $state = [])

@@ -219,12 +219,35 @@ class IndexEmployees extends OrgAction
                         ] : false
                     ]
                 ],
-                'uploadRoute' => [
-                    'name'  => 'grp.models.employees.import',
-                    'parameters' => [
-                        'organisation' => $this->parent->slug,
+                'upload_spreadsheet' => [
+                    'event'             => 'action-progress',
+                    'channel'           => 'grp.personal.' . $this->organisation->id,
+                    'required_fields'   => ['worker_number', 'alias', 'job_title', 'positions', 'starting_date', 'state'],
+                    'template'          => [
+                        'label' => 'Download template (.xlsx)',
                     ],
-                    'method' => 'post'
+                    'route' => [
+                        'upload'  => [
+                            'name'  => 'grp.models.employees.import',
+                            'parameters' => [
+                                'organisation' => $this->parent->id,
+                            ],
+                            'method' => 'post'
+                        ],
+                        'history'  => [
+                            'name'  => 'grp.org.hr.employees.history-uploads',
+                            'parameters' => [
+                                'organisation' => $this->parent->slug,
+                            ],
+                            'method' => 'get'
+                        ],
+                        'download' => [
+                            'name'  => 'grp.org.hr.employees.uploads.templates',
+                            'parameters' => [
+                                'organisation' => $this->parent->slug
+                            ]
+                        ]
+                    ],
                 ],
                 'data'        => EmployeesResource::collection($employees),
             ]

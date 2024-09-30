@@ -29,7 +29,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -65,18 +64,18 @@ use Spatie\Tags\Tag;
  * @property bool $can_contact_by_phone
  * @property bool $can_contact_by_address
  * @property array $data
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $contacted_at
- * @property Carbon|null $last_contacted_at
- * @property Carbon|null $last_opened_at
- * @property Carbon|null $last_clicked_at
- * @property Carbon|null $dont_contact_me_at
- * @property Carbon|null $failed_at
- * @property Carbon|null $registered_at
- * @property Carbon|null $invoiced_at
- * @property Carbon|null $last_soft_bounced_at
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $last_contacted_at
+ * @property \Illuminate\Support\Carbon|null $last_opened_at
+ * @property \Illuminate\Support\Carbon|null $last_clicked_at
+ * @property \Illuminate\Support\Carbon|null $dont_contact_me_at
+ * @property \Illuminate\Support\Carbon|null $failed_at
+ * @property \Illuminate\Support\Carbon|null $registered_at
+ * @property \Illuminate\Support\Carbon|null $invoiced_at
+ * @property \Illuminate\Support\Carbon|null $last_soft_bounced_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read Address|null $address

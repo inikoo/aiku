@@ -74,16 +74,13 @@ class IndexUsers extends GrpAction
         }
 
 
-        $queryBuilder = QueryBuilder::for(User::class)
-            ->whereNotNull('type');
+        $queryBuilder = QueryBuilder::for(User::class);
 
         if ($scope == 'active') {
             $queryBuilder->where('status', true);
         } elseif ($scope == 'suspended') {
             $queryBuilder->where('status', false);
-        }
-
-        if ($scope == 'all') {
+        } elseif ($scope == 'all') {
             foreach ($this->getElementGroups($group) as $key => $elementGroup) {
                 $queryBuilder->whereElementGroup(
                     key: $key,
@@ -94,10 +91,10 @@ class IndexUsers extends GrpAction
             }
         }
 
-        return $queryBuilder->with('parent')
+        return $queryBuilder
             ->defaultSort('username')
-            ->select(['username', 'parent_type', 'parent_id', 'email', 'contact_name', 'image_id', 'status'])
-            ->allowedSorts(['username', 'email', 'parent_type', 'contact_name'])
+            ->select(['username', 'email', 'contact_name', 'image_id', 'status'])
+            ->allowedSorts(['username', 'email', 'contact_name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();

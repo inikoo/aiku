@@ -10,7 +10,6 @@ namespace App\Models\SysAdmin;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Carbon;
 use Spatie\Permission\Models\Permission as SpatiePermission;
 
 /**
@@ -21,8 +20,8 @@ use Spatie\Permission\Models\Permission as SpatiePermission;
  * @property string $guard_name
  * @property string $scope_type
  * @property int $scope_id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Collection<int, SpatiePermission> $permissions
  * @property-read Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read Collection<int, \App\Models\SysAdmin\User> $users

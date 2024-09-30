@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Inventory\StockStats
@@ -31,8 +30,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_organisations_quantity_status_critical
  * @property int $number_organisations_quantity_status_out_of_stock
  * @property int $number_organisations_quantity_status_error
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SupplyChain\Stock $stock
  * @method static Builder|StockStats newModelQuery()
  * @method static Builder|StockStats newQuery()

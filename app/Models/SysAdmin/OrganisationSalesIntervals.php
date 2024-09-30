@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\SysAdmin\OrganisationSalesStats
@@ -270,8 +269,8 @@ use Illuminate\Support\Carbon;
  * @property string $new_customers_pq3
  * @property string $new_customers_pq4
  * @property string $new_customers_pq5
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @method static Builder|OrganisationSalesIntervals newModelQuery()
  * @method static Builder|OrganisationSalesIntervals newQuery()

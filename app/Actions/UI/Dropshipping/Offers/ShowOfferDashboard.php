@@ -54,6 +54,18 @@ class ShowOfferDashboard extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => OffersTabsEnum::navigation()
                 ],
+                'stats'     => [
+                    [
+                        'label'     => __('Campaigns'),
+                        'count'     => $this->shop->discountsStats->number_current_offer_campaigns,
+                        'icon'      => 'fal fa-comment-dollar'
+                    ],
+                    [
+                        'label'     => __('Offers'),
+                        'count'     => $this->shop->discountsStats->number_offers,
+                        'icon'      => 'fal fa-badge-percent'
+                    ],
+                ]
 
 
             ]

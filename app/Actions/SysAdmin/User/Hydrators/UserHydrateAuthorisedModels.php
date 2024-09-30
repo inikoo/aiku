@@ -60,6 +60,8 @@ class UserHydrateAuthorisedModels
         $user->authorisedProductions()->sync($authorisedProductions);
 
 
+
+
         $stats = [
             'number_authorised_organisations' => count($authorisedOrganisations),
             'number_authorised_shops'         => count($authorisedShops),
