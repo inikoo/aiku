@@ -219,6 +219,13 @@ class IndexEmployees extends OrgAction
                         ] : false
                     ]
                 ],
+                'uploadRoute' => [
+                    'name'  => 'grp.models.employees.import',
+                    'parameters' => [
+                        'organisation' => $this->parent->slug,
+                    ],
+                    'method' => 'post'
+                ],
                 'data'        => EmployeesResource::collection($employees),
             ]
         )->table($this->tableStructure($this->parent));
