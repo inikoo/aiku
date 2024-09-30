@@ -7,7 +7,6 @@
 
 namespace App\Actions\Procurement\PurchaseOrderTransaction\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\PurchaseOrderTransactionResource;
@@ -38,8 +37,7 @@ class IndexPurchaseOrderTransactions extends OrgAction
 
         $query = QueryBuilder::for(PurchaseOrderTransaction::class);
 
-        if ($parent instanceof PurchaseOrder)
-        {
+        if ($parent instanceof PurchaseOrder) {
             $query->where('purchase_order_transactions.purchase_order_id', $parent->id);
         }
 

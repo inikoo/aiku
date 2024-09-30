@@ -25,7 +25,6 @@ use App\Transfers\Aurora\FetchAuroraDeletedLocation;
 use App\Transfers\Aurora\FetchAuroraDeletedStock;
 use App\Transfers\Aurora\FetchAuroraDeletedSupplier;
 use App\Transfers\Aurora\FetchAuroraDeletedSupplierProduct;
-use App\Transfers\Aurora\FetchAuroraDeletedUser;
 use App\Transfers\Aurora\FetchAuroraDeliveryNote;
 use App\Transfers\Aurora\FetchAuroraDeliveryNoteTransaction;
 use App\Transfers\Aurora\FetchAuroraDepartment;
