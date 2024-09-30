@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Payments\PaymentServiceProviderStats
@@ -59,8 +58,8 @@ use Illuminate\Support\Carbon;
  * @property string $group_amount Group currency, amount_successfully_paid-amount_returned
  * @property string $group_amount_successfully_paid
  * @property string $group_amount_refunded
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @method static Builder|PaymentServiceProviderStats newModelQuery()
  * @method static Builder|PaymentServiceProviderStats newQuery()

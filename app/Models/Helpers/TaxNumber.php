@@ -14,7 +14,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Helpers\TaxNumber
@@ -32,12 +31,12 @@ use Illuminate\Support\Carbon;
  * @property bool $historic
  * @property int $usage
  * @property string|null $checksum hash of country_code,number,status
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $checked_at Last time was validated online
  * @property string|null $invalid_checked_at Last time was validated online with tax number invalid
  * @property string|null $external_service_failed_at Last time on;ine validation fail due external service down
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Helpers\Country|null $country
  * @method static Builder|TaxNumber newModelQuery()
  * @method static Builder|TaxNumber newQuery()

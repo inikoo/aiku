@@ -14,7 +14,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  *
@@ -24,7 +23,7 @@ use Illuminate\Support\Carbon;
  * @property int $organisation_id
  * @property int $warehouse_id
  * @property int|null $warehouse_area_id
- * @property Carbon $date
+ * @property \Illuminate\Support\Carbon $date
  * @property string $class
  * @property OrgStockMovementTypeEnum $type
  * @property OrgStockMovementFlowEnum $flow
@@ -38,8 +37,8 @@ use Illuminate\Support\Carbon;
  * @property string $amount
  * @property string $group_amount
  * @property array $data
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at
  * @property string|null $source_id

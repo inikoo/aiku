@@ -70,7 +70,14 @@ class FetchAuroraEmployees extends FetchAuroraAction
                         ->first();
                     if ($user) {
                         $updateUser = false;
-                        $user       = AttachEmployeeToUser::run($user, $employee);
+                        $user       = AttachEmployeeToUser::make()->action(
+                            $user,
+                            $employee,
+                            [
+                                'status' => $employeeData['user']['user_model_status'],
+                                'source_id' => $employeeData['user']['source_id'],
+                            ]
+                        );
                     }
                 }
 

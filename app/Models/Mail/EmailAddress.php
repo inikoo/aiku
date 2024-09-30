@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Mail\EmailAddress
@@ -21,8 +20,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $soft_bounced_at
  * @property string|null $hard_bounced_at
  * @property int $number_dispatches
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Mail\Mailshot|null $mailshot
  * @method static Builder|EmailAddress newModelQuery()
  * @method static Builder|EmailAddress newQuery()

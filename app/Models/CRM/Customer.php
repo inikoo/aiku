@@ -54,7 +54,6 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection;
@@ -86,9 +85,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property CustomerTradeStateEnum $trade_state number of invoices
  * @property bool $is_fulfilment
  * @property bool $is_dropshipping
- * @property Carbon|null $last_submitted_order_at
- * @property Carbon|null $last_dispatched_delivery_at
- * @property Carbon|null $last_invoiced_at
+ * @property \Illuminate\Support\Carbon|null $last_submitted_order_at
+ * @property \Illuminate\Support\Carbon|null $last_dispatched_delivery_at
+ * @property \Illuminate\Support\Carbon|null $last_invoiced_at
  * @property array $data
  * @property array $settings
  * @property string|null $internal_notes
@@ -96,11 +95,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $warehouse_public_notes
  * @property int|null $prospects_sender_email_id
  * @property int|null $image_id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $fetched_at
- * @property Carbon|null $last_fetched_at
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property array $migration_data

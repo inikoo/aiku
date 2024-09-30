@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\SysAdmin\OrganisationInventoryStats
@@ -72,8 +71,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_org_stock_audit_delta_type_addition
  * @property int $number_org_stock_audit_delta_type_subtraction
  * @property int $number_org_stock_audit_delta_type_no_change
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @method static Builder|OrganisationInventoryStats newModelQuery()
  * @method static Builder|OrganisationInventoryStats newQuery()
