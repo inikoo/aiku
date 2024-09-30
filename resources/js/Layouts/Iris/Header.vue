@@ -1,5 +1,7 @@
 <script setup lang='ts'>
 import { getRenderComponent } from "@/Components/Websites/Header/Content"
+import NavigationMenu from '@/Layouts/Iris/NavigationMenu.vue'
+import { routeType } from "@/types/route"
 
 
 const props = defineProps<{
@@ -9,18 +11,26 @@ const props = defineProps<{
         bluprint: object
         loginRoute?: routeType
     }
-  
+    menu : {
+        key: string,
+        data: object,
+        bluprint: object
+    }
     colorThemed: object
 }>()
-
-console.log('sssa',props)
-
 
 </script>
 
 <template>
     <div>
-        <component :is="getRenderComponent(data.key)" :loginMode="false" :loginRoute="data.loginRoute" :data="data.data" :colorThemed="colorThemed" />
+        <component 
+            :is="getRenderComponent(data.key)" 
+            :loginMode="false" 
+            :loginRoute="data.loginRoute" 
+            :data="data.data" 
+            :colorThemed="colorThemed"
+            :menu="menu"
+        />
+        <NavigationMenu :data="menu" :colorThemed="colorThemed" class="hidden md:block" />
     </div>
-
 </template>
