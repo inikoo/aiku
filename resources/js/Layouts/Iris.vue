@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import Notification from '@/Components/Utils/Notification.vue'
 import IrisHeader from '@/Layouts/Iris/Header.vue'
-import NavigationMenu from '@/Layouts/Iris/NavigationMenu.vue'
+
 import Footer from '@/Layouts/Iris/Footer.vue'
 import { useColorTheme } from '@/Composables/useStockList'
-import { v4 as uuidv4 } from 'uuid';
 import { data as headerData, bluprintForm as bluprintFormHeader} from '@/Components/Websites/Header/HeaderTemplates/Header1/descriptor'
 import { data as footerData, bluprintForm as bluprintFormFooter } from '@/Components/Websites/Footer/FooterTemplates/Footer1/descriptor'
 import { navigation as navigationData } from '@/Components/Websites/Menu/Descriptor'
@@ -12,8 +11,6 @@ import { usePage } from '@inertiajs/vue3'
 import ScreenWarning from '@/Components/Utils/ScreenWarning.vue'
 import { inject } from 'vue'
 import { layoutStructure } from '@/Composables/useLayoutStructure'
-import FamilyPage1 from '@/Components/Iris/AW/FamilyPage1.vue'
-import ProductPage1 from '@/Components/Iris/AW/ProductPage1.vue'
 
 
 const props = defineProps<{}>()
@@ -26,7 +23,6 @@ const header = usePage().props?.iris?.header ? usePage().props?.iris?.header : {
 const footer =  usePage().props?.iris?.footer ? usePage().props?.iris?.footer :  { key : "footer1" , data : footerData, bluprint : bluprintFormFooter }
 const navigation =  usePage().props?.iris?.menu ? usePage().props?.iris?.menu : { key : "menu1" , data : navigationData }
 const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color :  {color : [...useColorTheme[2]]}
-const keyTemplate = uuidv4()
 
 </script>
 
@@ -34,10 +30,8 @@ const keyTemplate = uuidv4()
     <div class="relative">
         <ScreenWarning v-if="layout.app.environment === 'staging'" />
         <div  class="container max-w-7xl mx-auto shadow-xl">
-            <IrisHeader :data="header" :colorThemed="colorThemed"/>
+            <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation"/>
 
-            <!-- Section: Navigation Tab -->
-            <NavigationMenu :data="navigation" :colorThemed="colorThemed"/>
             
             <!-- Main Content -->
             <main class="text-gray-700">

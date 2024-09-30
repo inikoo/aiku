@@ -5,32 +5,24 @@
   -->
 
 <script setup lang="ts">
-import { Head, router } from '@inertiajs/vue3'
+import { ref, defineExpose } from 'vue'
+import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { ref, watch } from 'vue'
-import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faExternalLink } from '@fal'
-import draggable from "vuedraggable"
-import BlockGap from '@/Components/Websites/Fields/BlockGap.vue'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import Button from '@/Components/Elements/Buttons/Button.vue'
-import Modal from "@/Components/Utils/Modal.vue"
-import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
 import axios from 'axios'
-import debounce from 'lodash/debounce'
 import Publish from '@/Components/Publish.vue'
 import { notify } from "@kyvg/vue3-notification"
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import ScreenView from "@/Components/ScreenView.vue"
-
-
+import WebpageSideEditor from "@/Components/Websites/WebpageSideEditor.vue"
+import Drawer from 'primevue/drawer';
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
-import Webpage from './Webpage.vue'
+
+import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faExternalLink } from '@fal'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { library } from '@fortawesome/fontawesome-svg-core'
 
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
@@ -42,14 +34,15 @@ const props = defineProps<{
     webBlockTypeCategories: Root
 }>()
 
-const isModalBlocksList = ref(false)
 const comment = ref("")
 const isLoading = ref<string | boolean>(false)
+const openDrawer = ref<string | boolean>(false)
 const isAddBlockLoading = ref<string | boolean>(false)
 const iframeSrc = ref(route('grp.websites.preview', [route().params['website'], route().params['webpage']]))
 const data = ref({ ...props.webpage })
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
+const _WebpageSideEditor = ref(null)
 
 const sendNewBlock = async (block: Daum) => {
     try {
@@ -63,7 +56,6 @@ const sendNewBlock = async (block: Daum) => {
         console.error('error', error)
     }
     isAddBlockLoading.value = false
-
 }
 
 const sendBlockUpdate = async (block: Daum) => {
@@ -105,33 +97,6 @@ const sendDeleteBlock = async (block: Daum) => {
         console.error('error', error)
     }
     isLoading.value = false
-}
-
-
-const debouncedSendUpdate = debounce(
-    (block) => sendBlockUpdate(block),
-    1000,
-    { leading: false, trailing: true }
-)
-
-const onUpdatedBlock = (block: Daum) => {
-    debouncedSendUpdate(block)
-}
-
-
-const onPickBlock = async (block: Daum) => {
-    isAddBlockLoading.value = true
-    await sendNewBlock(block)
-    isModalBlocksList.value = false
-
-}
-
-const onChangeOrderBlock = () => {
-    let payload = {}
-    data.value.layout.web_blocks.map((item, index) => {
-        payload[item.web_block.id] = { position: index }
-    })
-    sendOrderBlock(payload)
 }
 
 
@@ -181,7 +146,7 @@ const handleIframeError = () => {
 }
 
 const openFullScreenPreview = () => {
-    window.open(iframeSrc.value ,'_blank')
+    window.open(iframeSrc.value, '_blank')
 }
 
 </script>
@@ -192,71 +157,35 @@ const openFullScreenPreview = () => {
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
             <Publish :isLoading="isLoading" :is_dirty="data.is_dirty" v-model="comment"
-                @onPublish="(popover) => onPublish(action.route, popover)" />
+                @onPublish="(popover) => onPublish(action.route, popover)" ref="_WebpageSideEditor"/>
         </template>
     </PageHeading>
 
+
+    <!--   side editor -->
     <div class="grid grid-cols-5 h-[85vh]">
-        <div class="col-span-1 h-full border-2 bg-gray-200 px-3 py-1">
-            <div class="flex justify-between">
-                <h2 class="text-sm font-semibold leading-6">Block List</h2>
-                <Button icon="fas fa-plus" type="dashed" size="xs" @click="() => (isModalBlocksList = true)" />
-            </div>
-            <div>
-                <draggable v-if="data?.layout?.web_blocks.length > 0" :list="data.layout.web_blocks" handle=".handle"
-                    @change="onChangeOrderBlock" ghost-class="ghost" group="column" itemKey="column_id"
-                    class="mt-2 space-y-1">
-                    <template #item="{ element }">
-                        <div>
-                            <Disclosure v-slot="{ open }">
-                                <DisclosureButton :class="open ? 'rounded-t-lg' : 'rounded'"
-                                    class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 w-full cursor-pointer hover:bg-gray-100 bg-slate-50">
-                                    <div class="flex gap-x-2">
-                                        <div class="flex items-center justify-center">
-                                            <FontAwesomeIcon icon="fal fa-bars"
-                                                class="handle text-xs text-gray-700 cursor-grab pr-3 mr-2" />
-                                            <FontAwesomeIcon :icon='element?.web_block?.layout?.data?.icon'
-                                                class='text-xs' fixed-width aria-hidden='true' />
-                                        </div>
-                                        <h3 class="text-sm font-medium">
-                                            {{ element.web_block.layout.name }}
-                                        </h3>
-                                    </div>
-
-                                    <div v-tooltip="'Delete this block'"
-                                        class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer"
-                                        @click="(e) => { e.stopPropagation(), sendDeleteBlock(element) }">
-                                        <LoadingIcon v-if="isLoading === ('deleteBlock' + element.id)"
-                                            class="text-gray-400" />
-                                        <FontAwesomeIcon v-else icon='fal fa-times' fixed-width aria-hidden='true' />
-                                    </div>
-                                </DisclosureButton>
-                                <DisclosurePanel
-                                    class="border border-gray-300 px-3 py-2 w-full rounded-b-lg border-t-0 mt-[-2px] text-gray-500 bg-white">
-                                    <BlockGap v-model="element.web_block.layout.data.blockLayout"
-                                        @update:modelValue="() => onUpdatedBlock(element)" />
-                                </DisclosurePanel>
-                            </Disclosure>
-                        </div>
-                    </template>
-                </draggable>
-                <div v-else class="flex flex-col justify-center items-center mt-4 rounded-lg p-4 text-center h-[90%]">
-                    <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
-                    <span class="mt-2 block text-sm font-semibold text-gray-600">You don't have any blocks</span>
-                </div>
-            </div>
+        <div class="col-span-1 md:block hidden h-full border-2 bg-gray-200 px-3 py-1 ">
+            <WebpageSideEditor :webpage="data" :webBlockTypeCategories="webBlockTypeCategories"
+                @update="sendBlockUpdate" @delete="sendDeleteBlock" @add="sendNewBlock" @order="sendOrderBlock"/>
         </div>
+        <!--   main editor -->
+        <div class="md:col-span-4 col-span-5  h-full flex flex-col bg-gray-200">
+            <div class="flex justify-between">
+                <div class="py-1 px-2 cursor-pointer md:hidden block" title="Desktop view" v-tooltip="'Navigation'">
+                    <FontAwesomeIcon :icon='faBars' aria-hidden='true' @click="()=>openDrawer = true" />
+                    <Drawer v-model:visible="openDrawer" :header="''" :dismissable="true">
+                        <WebpageSideEditor ref="_WebpageSideEditor" :webpage="data" :webBlockTypeCategories="webBlockTypeCategories"
+                            @update="sendBlockUpdate" @delete="sendDeleteBlock" @add="sendNewBlock"
+                            @order="sendOrderBlock"  @openBlockList="()=>{openDrawer = false, _WebpageSideEditor.isModalBlocksList = true}" />
+                    </Drawer>
+                </div>
+                <div class="flex">
+                    <ScreenView @screenView="setIframeView" />
+                    <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
+                        @click="openFullScreenPreview">
+                        <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
+                    </div>
 
-        <div class="col-span-4 h-full flex flex-col bg-gray-200">
-            <div class="flex">
-                <ScreenView @screenView="setIframeView" />
-                <div 
-                    class="py-1 px-2 cursor-pointer" 
-                    title="Desktop view" 
-                    v-tooltip="'Preview'"
-                    @click="openFullScreenPreview"
-                >
-                    <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
                 </div>
             </div>
 
@@ -273,11 +202,6 @@ const openFullScreenPreview = () => {
             </div>
         </div>
     </div>
-
-
-    <Modal :isOpen="isModalBlocksList" @onClose="isModalBlocksList = false">
-        <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypeCategories" />
-    </Modal>
 </template>
 
 <style scoped>
