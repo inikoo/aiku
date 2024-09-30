@@ -241,6 +241,12 @@ class IndexEmployees extends OrgAction
                             ],
                             'method' => 'get'
                         ],
+                        'download' => [
+                            'name'  => 'grp.org.hr.employees.uploads.templates',
+                            'parameters' => [
+                                'organisation' => $this->parent->slug
+                            ]
+                        ]
                     ],
                 ],
                 'data'        => EmployeesResource::collection($employees),

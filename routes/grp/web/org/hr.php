@@ -18,6 +18,7 @@ use App\Actions\HumanResources\ClockingMachine\UI\CreateClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UI\EditClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UI\IndexClockingMachines;
 use App\Actions\HumanResources\ClockingMachine\UI\ShowClockingMachine;
+use App\Actions\HumanResources\Employee\DownloadEmployeesTemplate;
 use App\Actions\HumanResources\Employee\ExportEmployees;
 use App\Actions\HumanResources\Employee\ExportEmployeeTimesheets;
 use App\Actions\HumanResources\Employee\UI\CreateEmployee;
@@ -45,6 +46,7 @@ Route::prefix('employees')->as('employees.')->group(function () {
     Route::get('create', CreateEmployee::class)->name('create');
     Route::get('export', ExportEmployees::class)->name('export');
     Route::get('history-uploads', [HistoryUploads::class, 'inEmployee'])->name('history-uploads');
+    Route::get('template', DownloadEmployeesTemplate::class)->name('uploads.templates');
 
     Route::prefix('{employee}')->group(function () {
         Route::get('', ShowEmployee::class)->name('show');
