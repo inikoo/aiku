@@ -238,9 +238,9 @@ const compHistoryList = computed(() => {
                 
                     <!-- Section: Excel preview -->
                     <Transition name="headlessui">
-                        <div v-if="csvData?.length" class="text-xxs mt-3 max-w-3xl">
+                        <div v-if="csvData?.length" class="text-xxs mt-3 max-w-3xl overflow-x-hidden">
                             <div class="text-sm py-1 flex justify-between">
-                                <div>Preview your data</div>
+                                <div>{{ trans('Preview your data') }}</div>
                                 
                                 <div v-if="additionalDataToSend?.includes('stored_items')" class="text-xxs flex items-center gap-x-1 text-gray-500 hover:text-gray-600 italic">
                                     <label for="include_stored_items" class="select-none cursor-pointer">Include stored items</label>
@@ -248,16 +248,17 @@ const compHistoryList = computed(() => {
                                         class="h-3.5 w-3.5 rounded-sm text-indigo-600 focus:ring-0 cursor-pointer" />
                                 </div>
                             </div>
-                            <div class="max-w-full border border-gray-300 rounded-md overflow-hidden">
+
+                            <div class="w-full border border-gray-300 rounded-md overflow-x-auto">
                                 <table class="w-full">
                                     <thead class="">
-                                        <tr class="bg-green-400 rounded-t-xl border border-green-700">
+                                        <tr class="rounded-t-xl">
                                             <template v-for="(header, index) in csvData[0]">
                                                 <Transition name="slide-to-up">
                                                     <th v-if="index != compIndexStoredItemInPreview || isIncludeStoreItems" :key="index"
                                                         class="whitespace-nowrap overflow-ellipsis pl-3 pr-1"
                                                         :class="upload_spreadsheet?.required_fields?.length ? upload_spreadsheet?.required_fields.includes(header.trim().replace(/ /g,'_').toLowerCase()) ? 'bg-green-100' : 'bg-red-100 hover:bg-red-200' : 'bg-gray-100'"
-                                                        v-tooltip="upload_spreadsheet?.required_fields?.includes(header) ? 'Correct column.' : 'This column is not match, will not be processed.'"
+                                                        v-tooltip="upload_spreadsheet?.required_fields?.includes(header) ? trans('Correct column') : trans('This column is not match, will not be processed')"
                                                     >
                                                         {{ header }} 
                                                         <FontAwesomeIcon v-if="upload_spreadsheet?.required_fields?.includes(header.trim().replace(/ /g,'_').toLowerCase())" icon='fas fa-check-circle' class='text-green-600' fixed-width aria-hidden='true' />
@@ -278,11 +279,11 @@ const compHistoryList = computed(() => {
                                     </tbody>
                                 </table>
                                 <div v-if="csvData?.length > 6" class="py-1 text-center bg-gray-100">
-                                    and {{ csvData.length-6 }} more
+                                    {{ trans('and') }} {{ csvData.length-6 }} {{ trans('more') }}
                                 </div>
                             </div>
                             <div class="flex justify-end mt-3 w-full">
-                                <Button @click="() => submitUpload()" label="Submit" size="s" :loading="isLoadingUpload" />
+                                <Button @click="() => submitUpload()" label="Submit" size="s" full :loading="isLoadingUpload" />
                             </div>
                         </div>
                         <div v-else />
