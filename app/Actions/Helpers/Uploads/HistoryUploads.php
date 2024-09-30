@@ -15,6 +15,7 @@ use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Helpers\Upload;
+use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -78,6 +79,13 @@ class HistoryUploads
     public function inPalletReturnRetina(Organisation $organisation, Fulfilment $fulfilment, FulfilmentCustomer $fulfilmentCustomer, PalletReturn $palletReturn, ActionRequest $request): array|Collection
     {
         return $this->handle(class_basename(PalletReturnItem::class), [
+            'key'   => 'user_id',
+            'value' => $request->user()->id
+        ]);
+    }
+    public function inEmployee(Organisation $organisation, ActionRequest $request): array|Collection
+    {
+        return $this->handle(class_basename(Employee::class), [
             'key'   => 'user_id',
             'value' => $request->user()->id
         ]);

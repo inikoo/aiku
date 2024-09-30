@@ -8,16 +8,18 @@
 use App\Actions\HumanResources\Clocking\StoreClocking;
 use App\Actions\HumanResources\ClockingMachine\DisconnectClockingMachineFromHan;
 use App\Actions\HumanResources\ClockingMachine\ConnectClockingMachineToHan;
-use App\Actions\HumanResources\Employee\UI\ShowEmployee;
+use App\Actions\HumanResources\Employee\ValidatePinEmployee;
 use Illuminate\Support\Facades\Route;
 
 Route::name('han.')->group(function () {
     Route::middleware(['auth:sanctum'])->group(function () {
-        Route::get('employee/{employee:pin}', [ShowEmployee::class, 'han'])->name('employee.show');
-        Route::post('employee/{employee:id}/clocking', [StoreClocking::class, 'han'])->name('employee.clocking.store');
+        Route::prefix('employee')->group(function () {
+            Route::get('{employee:pin}/pin', ValidatePinEmployee::class)->name('employee.pin.validate');
+            Route::post('{employee:id}/clocking', [StoreClocking::class, 'han'])->name('employee.clocking.store');
+        });
+
         Route::delete('disconnect', DisconnectClockingMachineFromHan::class)->name('disconnect');
     });
 
     Route::post('connect', ConnectClockingMachineToHan::class)->name('connect');
-
 });

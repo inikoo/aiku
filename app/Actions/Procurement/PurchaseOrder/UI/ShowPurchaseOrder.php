@@ -225,7 +225,7 @@ class ShowPurchaseOrder extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($purchaseOrder))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($purchaseOrder)))
             ]
-        )->table(IndexPurchaseOrderTransactions::make()->tableStructure())
+        )->table(IndexPurchaseOrderTransactions::make()->tableStructure(prefix: PurchaseOrderTabsEnum::ITEMS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: PurchaseOrderTabsEnum::HISTORY->value));
     }
 
