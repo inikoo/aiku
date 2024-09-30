@@ -8,7 +8,6 @@
 namespace App\Models\Procurement;
 
 use App\Models\Inventory\OrgStock;
-use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -18,7 +17,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Carbon;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -34,8 +32,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $state
  * @property bool $is_available
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $source_id
  * @property-read Group $group
  * @property-read \App\Models\Procurement\OrgAgent|null $orgAgent

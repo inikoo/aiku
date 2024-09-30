@@ -9,12 +9,9 @@ namespace App\Actions\SysAdmin\User;
 
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateUsers;
-use App\Actions\SysAdmin\User\Hydrators\UserHydrateModels;
 use App\Actions\SysAdmin\User\Search\UserRecordSearch;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\HumanResources\Employee;
-use App\Models\SupplyChain\Agent;
-use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
 use App\Rules\AlphaDashDot;
@@ -29,7 +26,7 @@ class StoreUser extends GrpAction
 {
     private Employee|Guest $parent;
 
-    public function handle(Guest|Employee|Supplier|Agent $parent, array $modelData = []): User
+    public function handle(Guest|Employee $parent, array $modelData = []): User
     {
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'contact_name', $parent->contact_name);
@@ -43,11 +40,21 @@ class StoreUser extends GrpAction
         $user->stats()->create();
         $user->refresh();
 
-        $parent->users()->attach([
-            $user->id => [
-                'status' => $userModelStatus
-            ]
-        ]);
+
+        if ($parent instanceof Employee) {
+            $user = AttachEmployeeToUser::make()->action($user, $parent, [
+                'status'    => $userModelStatus,
+                'source_id' => $user->source_id
+            ]);
+        } else {
+            $user = AttachGuestToUser::make()->action($user, $parent, [
+                'status'    => $userModelStatus,
+                'source_id' => $user->source_id
+            ]);
+        }
+
+
+
 
         if ($this->hydratorsDelay) {
             SetIconAsUserImage::dispatch($user)->delay($this->hydratorsDelay);
@@ -55,12 +62,10 @@ class StoreUser extends GrpAction
             SetIconAsUserImage::run($user);
         }
 
-        UserHydrateModels::dispatch($user);
         UserRecordSearch::dispatch($user);
 
-        if ($parent instanceof Employee or $parent instanceof Guest) {
-            SyncRolesFromJobPositions::run($user);
-        }
+
+
 
         GroupHydrateUsers::dispatch($user->group)->delay($this->hydratorsDelay);
 
@@ -81,7 +86,7 @@ class StoreUser extends GrpAction
     public function rules(): array
     {
         $rules = [
-            'username'       => [
+            'username'          => [
                 'required',
                 $this->strict ? new AlphaDashDot() : 'string',
                 new IUnique(
@@ -99,8 +104,8 @@ class StoreUser extends GrpAction
 
                 Rule::notIn(['export', 'create'])
             ],
-            'password'       => ['required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
-            'email'          => [
+            'password'          => ['required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
+            'email'             => [
                 'sometimes',
                 'nullable',
                 'email',
@@ -115,12 +120,12 @@ class StoreUser extends GrpAction
                 ),
 
             ],
-            'contact_name'   => ['sometimes', 'string', 'max:255'],
-            'reset_password' => ['sometimes', 'boolean'],
-            'auth_type'      => ['sometimes', Rule::enum(UserAuthTypeEnum::class)],
-            'status'         => ['required', 'boolean'],
-            'user_model_status'   => ['sometimes', 'boolean'],
-            'language_id'    => ['sometimes', 'required', 'exists:languages,id'],
+            'contact_name'      => ['sometimes', 'string', 'max:255'],
+            'reset_password'    => ['sometimes', 'boolean'],
+            'auth_type'         => ['sometimes', Rule::enum(UserAuthTypeEnum::class)],
+            'status'            => ['required', 'boolean'],
+            'user_model_status' => ['sometimes', 'boolean'],
+            'language_id'       => ['sometimes', 'required', 'exists:languages,id'],
         ];
 
         if (!$this->strict) {

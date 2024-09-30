@@ -14,6 +14,7 @@ use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\HumanResources\Employee;
+use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Production;
 use App\Models\Traits\HasEmail;
@@ -22,6 +23,7 @@ use App\Models\Traits\HasRoles;
 use App\Models\Traits\IsUserable;
 use App\Models\Traits\WithPushNotifications;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -87,6 +89,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \Illuminate\Notifications\DatabaseNotificationCollection<int, \Illuminate\Notifications\DatabaseNotification> $notifications
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Permission> $permissions
+ * @property-read \App\Models\SysAdmin\UserHasPseudoJobPositions $pivot
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, JobPosition> $pseudoJobPositions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read \App\Models\SysAdmin\UserStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Task> $tasks
@@ -247,5 +251,10 @@ class User extends Authenticatable implements HasMedia, Auditable
         return $this->morphToMany(Task::class, 'taskable', 'users_has_tasks');
     }
 
+    public function pseudoJobPositions(): BelongsToMany
+    {
+        return $this->belongsToMany(JobPosition::class, 'user_has_pseudo_job_positions')->withTimestamps()
+            ->using(UserHasPseudoJobPositions::class);
+    }
 
 }

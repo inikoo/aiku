@@ -44,9 +44,9 @@ class StoreEmployee extends OrgAction
 
         data_set($modelData, 'group_id', $organisation->group_id);
 
-        $credentials = Arr::only($modelData, ['username', 'password', 'reset_password','user_model_status']);
+        $credentials = Arr::only($modelData, ['username', 'password', 'reset_password', 'user_model_status']);
 
-        Arr::forget($modelData, ['username', 'password', 'reset_password','user_model_status']);
+        Arr::forget($modelData, ['username', 'password', 'reset_password', 'user_model_status']);
 
         $positions = Arr::get($modelData, 'positions', []);
         data_forget($modelData, 'positions');
@@ -64,16 +64,17 @@ class StoreEmployee extends OrgAction
             StoreUser::make()->action(
                 $employee,
                 [
-                    'username'       => Arr::get($credentials, 'username'),
-                    'password'       => Arr::get(
+                    'username'          => Arr::get($credentials, 'username'),
+                    'password'          => Arr::get(
                         $credentials,
                         'password',
                         (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
                     ),
-                    'contact_name'   => $employee->contact_name,
-                    'email'          => $employee->work_email,
-                    'reset_password' => Arr::get($credentials, 'reset_password', true),
-                    'user_model_status'         => Arr::get($credentials, 'user_model_status', true),
+                    'contact_name'      => $employee->contact_name,
+                    'email'             => $employee->work_email,
+                    'reset_password'    => Arr::get($credentials, 'reset_password', true),
+                    'status'            => true,
+                    'user_model_status' => Arr::get($credentials, 'user_model_status', true),
                 ],
             );
         }
@@ -187,8 +188,6 @@ class StoreEmployee extends OrgAction
 
     public function action(Organisation|Workplace $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Employee
     {
-
-
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;

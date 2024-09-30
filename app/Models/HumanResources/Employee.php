@@ -33,7 +33,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -55,7 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $phone
  * @property string|null $identity_document_type
  * @property string|null $identity_document_number
- * @property Carbon|null $date_of_birth
+ * @property \Illuminate\Support\Carbon|null $date_of_birth
  * @property GenderEnum|null $gender
  * @property string|null $worker_number
  * @property string|null $job_title
@@ -71,11 +70,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $errors
  * @property string|null $pin
  * @property int|null $image_id
- * @property Carbon|null $fetched_at
- * @property Carbon|null $last_fetched_at
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property array $migration_data

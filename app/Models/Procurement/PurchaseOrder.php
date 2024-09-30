@@ -26,7 +26,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
@@ -47,15 +46,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property PurchaseOrderStateEnum $state
  * @property PurchaseOrderStatusEnum $status
- * @property Carbon $date latest relevant date
- * @property Carbon|null $submitted_at
- * @property Carbon|null $confirmed_at
- * @property Carbon|null $manufactured_at
- * @property Carbon|null $dispatched_at
- * @property Carbon|null $received_at
- * @property Carbon|null $checked_at
- * @property Carbon|null $settled_at
- * @property Carbon|null $cancelled_at
+ * @property \Illuminate\Support\Carbon $date latest relevant date
+ * @property \Illuminate\Support\Carbon|null $submitted_at
+ * @property \Illuminate\Support\Carbon|null $confirmed_at
+ * @property \Illuminate\Support\Carbon|null $manufactured_at
+ * @property \Illuminate\Support\Carbon|null $dispatched_at
+ * @property \Illuminate\Support\Carbon|null $received_at
+ * @property \Illuminate\Support\Carbon|null $checked_at
+ * @property \Illuminate\Support\Carbon|null $settled_at
+ * @property \Illuminate\Support\Carbon|null $cancelled_at
  * @property int $currency_id
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
@@ -71,11 +70,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $agent_id
  * @property int|null $supplier_id
  * @property int|null $partner_id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $fetched_at
- * @property Carbon|null $last_fetched_at
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses

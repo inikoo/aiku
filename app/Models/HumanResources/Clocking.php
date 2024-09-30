@@ -15,7 +15,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -30,14 +29,14 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property int|null $subject_id
  * @property int|null $time_tracker_id
  * @property int|null $clocking_machine_id
- * @property Carbon $clocked_at
+ * @property \Illuminate\Support\Carbon $clocked_at
  * @property string|null $generator_type
  * @property int|null $generator_id
  * @property string|null $notes
  * @property int|null $image_id
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $deleted_by_type
  * @property int|null $deleted_by_id
  * @property string|null $source_id

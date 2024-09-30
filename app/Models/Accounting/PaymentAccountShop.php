@@ -10,7 +10,6 @@ namespace App\Models\Accounting;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Pivot;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Accounting\PaymentAccountShop
@@ -20,8 +19,8 @@ use Illuminate\Support\Carbon;
  * @property int $payment_account_id
  * @property int $currency_id
  * @property array $data
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static Builder|PaymentAccountShop newModelQuery()
  * @method static Builder|PaymentAccountShop newQuery()
  * @method static Builder|PaymentAccountShop query()

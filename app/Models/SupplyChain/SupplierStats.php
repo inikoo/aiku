@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\SupplyChain\SupplierStats
@@ -51,8 +50,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_stock_deliveries_status_processing
  * @property int $number_stock_deliveries_status_settled_placed
  * @property int $number_stock_deliveries_status_settled_cancelled
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SupplyChain\Supplier $supplier
  * @method static Builder|SupplierStats newModelQuery()
  * @method static Builder|SupplierStats newQuery()

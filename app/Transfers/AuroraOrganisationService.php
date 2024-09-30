@@ -71,6 +71,7 @@ use App\Transfers\Aurora\FetchAuroraTimesheet;
 use App\Transfers\Aurora\FetchAuroraTradeUnit;
 use App\Transfers\Aurora\FetchAuroraTradeUnitImages;
 use App\Transfers\Aurora\FetchAuroraTransaction;
+use App\Transfers\Aurora\FetchAuroraUser;
 use App\Transfers\Aurora\FetchAuroraWarehouse;
 use App\Transfers\Aurora\FetchAuroraWarehouseArea;
 use App\Transfers\Aurora\FetchAuroraWebpage;

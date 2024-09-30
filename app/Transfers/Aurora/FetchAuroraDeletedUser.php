@@ -44,7 +44,9 @@ class FetchAuroraDeletedUser extends FetchAurora
                 'language_id'     => $this->parseLanguageID($auroraDeletedData->{'User Preferred Locale'}),
                 'reset_password'  => false,
                 'data'            => $data,
-                'deleted_at'      => $this->auroraModelData->{'User Deleted Date'}
+                'deleted_at'      => $this->auroraModelData->{'User Deleted Date'},
+                'fetched_at'        => now(),
+                'last_fetched_at'   => now()
             ];
     }
 

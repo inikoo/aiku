@@ -34,7 +34,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -65,24 +64,24 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_picks
  * @property int|null $picker_id Main picker
  * @property int|null $packer_id Main packer
- * @property Carbon $date
+ * @property \Illuminate\Support\Carbon $date
  * @property string|null $submitted_at
  * @property string|null $in_queue_at
  * @property string|null $picker_assigned_at
- * @property Carbon|null $picking_at
- * @property Carbon|null $picked_at
- * @property Carbon|null $packing_at
- * @property Carbon|null $packed_at
+ * @property \Illuminate\Support\Carbon|null $picking_at
+ * @property \Illuminate\Support\Carbon|null $picked_at
+ * @property \Illuminate\Support\Carbon|null $packing_at
+ * @property \Illuminate\Support\Carbon|null $packed_at
  * @property string|null $finalised_at
  * @property string|null $settled_at
- * @property Carbon|null $dispatched_at
- * @property Carbon|null $cancelled_at
+ * @property \Illuminate\Support\Carbon|null $dispatched_at
+ * @property \Illuminate\Support\Carbon|null $cancelled_at
  * @property array $data
- * @property Carbon|null $fetched_at
- * @property Carbon|null $last_fetched_at
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
- * @property Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses

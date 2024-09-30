@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Inventory\WarehouseStats
@@ -162,8 +161,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_recurring_bills
  * @property int $number_recurring_bills_status_current
  * @property int $number_recurring_bills_status_former
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @method static Builder|WarehouseStats newModelQuery()
  * @method static Builder|WarehouseStats newQuery()
