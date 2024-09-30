@@ -17,8 +17,29 @@ import * as Sentry from '@sentry/vue';
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 import IrisLayout from '@/Layouts/Iris.vue'
+import PrimeVue from 'primevue/config';
+import Aura from '@primevue/themes/aura';
+import { definePreset } from '@primevue/themes';
 
 const appName = 'Iris';
+
+const MyPreset = definePreset(Aura, {
+  semantic: {
+      primary: {
+          50: '{gray.50}',
+          100: '{gray.100}',
+          200: '{gray.200}',
+          300: '{gray.300}',
+          400: '{gray.400}',
+          500: '{gray.500}',
+          600: '{gray.600}',
+          700: '{gray.700}',
+          800: '{gray.800}',
+          900: '{gray.900}',
+          950: '{gray.950}'
+      }
+  }
+});
 
 createInertiaApp(
     {
@@ -51,6 +72,14 @@ createInertiaApp(
             .use(ZiggyVue, Ziggy)
             .use(Notifications)
             .use(FloatingVue)
+            .use(PrimeVue, {
+              theme: {
+                preset: MyPreset,
+                options: {
+                  darkModeSelector: '.my-app-dark',  // dark mode of Primevue depends .my-add-dark in <html>
+                }
+              }
+            })
             .use(i18nVue, {
               resolve: async (lang) => {
                 const languages = import.meta.glob(
