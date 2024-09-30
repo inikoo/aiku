@@ -58,7 +58,6 @@ class ShowCatalogue extends OrgAction
 
         $topProduct = $shop->products()
             ->join('product_sales_intervals', 'products.id', '=', 'product_sales_intervals.product_id')
-            ->select('products.id', 'products.name', 'product_sales_intervals.shop_amount_all')
             ->orderByDesc('product_sales_intervals.shop_amount_all')
             ->first();
 
