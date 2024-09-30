@@ -19,7 +19,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Helpers\Issue
@@ -29,9 +28,9 @@ use Illuminate\Support\Carbon;
  * @property string $date
  * @property string|null $description
  * @property array $data
- * @property Carbon|null $deleted_at
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Collection<int, Customer> $customer
  * @property-read Collection<int, Employee> $employee
  * @property-read Collection<int, Shipper> $shipper

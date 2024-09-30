@@ -6,18 +6,15 @@
 
 <script setup lang="ts">
 import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
-import { ref, onMounted, onUnmounted, inject } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import WebPreview from "@/Layouts/WebPreview.vue";
 import axios from 'axios'
 import debounce from 'lodash/debounce'
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { webBlock as socketWeblock } from '@/Composables/SocketWebBlock'
-import Notification from '@/Components/Utils/Notification.vue'
 import IrisHeader from '@/Layouts/Iris/Header.vue'
-import NavigationMenu from '@/Layouts/Iris/NavigationMenu.vue'
 import Footer from '@/Layouts/Iris/Footer.vue'
 import { usePage } from '@inertiajs/vue3'
-import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { data as headerData, bluprintForm as bluprintFormHeader } from '@/Components/Websites/Header/HeaderTemplates/Header1/descriptor'
 import { data as footerData, bluprintForm as bluprintFormFooter } from '@/Components/Websites/Footer/FooterTemplates/Footer1/descriptor'
 import { navigation as navigationData } from '@/Components/Websites/Menu/Descriptor'
@@ -35,11 +32,6 @@ const props = defineProps<{
 
 const data = ref({ ...props.webpage })
 const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block), 1000, { leading: false, trailing: true })
-
-const layout = inject('layout', layoutStructure)
-
-
-
 const header = usePage().props?.iris?.header ? usePage().props?.iris?.header : { key: "header1", data: headerData, bluprint: bluprintFormHeader }
 const footer = usePage().props?.iris?.footer ? usePage().props?.iris?.footer : { key: "footer1", data: footerData, bluprint: bluprintFormFooter }
 const navigation = usePage().props?.iris?.menu ? usePage().props?.iris?.menu : { key: "menu1", data: navigationData }
@@ -61,9 +53,10 @@ const sendBlockUpdate = async (block: WebBlock) => {
         console.error('error', error)
     }
 }
+
 const socketConnection = socketWeblock(props.webpage.slug);
+
 onMounted(() => {
-    // Subscribe to the private Echo channel
     const channel = window.Echo.private(`webpage.${props.webpage.slug}.preview`)
         .listen('.WebpagePreview', (eventData) => {
             if (eventData) {
@@ -82,12 +75,8 @@ onUnmounted(() => {
 
 
 <template>
-
     <div class="container max-w-7xl mx-auto shadow-xl">
-        <IrisHeader :data="header" :colorThemed="colorThemed" />
-
-        <!-- Section: Navigation Tab -->
-        <NavigationMenu :data="navigation" :colorThemed="colorThemed" />
+        <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation" />
 
         <div class="relative">
             <div class="container max-w-7xl mx-auto">
@@ -123,6 +112,4 @@ onUnmounted(() => {
 
         <Footer :data="footer" :colorThemed="colorThemed" />
     </div>
-
-
 </template>

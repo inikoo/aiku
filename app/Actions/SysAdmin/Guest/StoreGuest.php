@@ -8,7 +8,7 @@
 namespace App\Actions\SysAdmin\Guest;
 
 use App\Actions\GrpAction;
-use App\Actions\HumanResources\JobPosition\SyncGuestJobPositions;
+use App\Actions\HumanResources\JobPosition\SyncUserJobPositions;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateUniversalSearch;
 use App\Actions\SysAdmin\User\StoreUser;
@@ -51,7 +51,7 @@ class StoreGuest extends GrpAction
 
         GuestHydrateUniversalSearch::dispatch($guest);
 
-        StoreUser::make()->action(
+        $user = StoreUser::make()->action(
             $guest,
             [
                 'username'       => Arr::get($modelData, 'username'),
@@ -66,10 +66,17 @@ class StoreGuest extends GrpAction
         $jobPositions = [];
         foreach ($positions as $positionData) {
             $jobPosition                    = JobPosition::firstWhere('slug', $positionData['slug']);
-            $jobPositions[$jobPosition->id] = $positionData['scopes'];
+            $jobPositions[$jobPosition->id] = [
+                'scopes' => $positionData['scopes'],
+                'organisation_id' => $jobPosition->organisation_id
+            ];
+
+
         }
 
-        SyncGuestJobPositions::run($guest, $jobPositions);
+        SyncUserJobPositions::run($user, $jobPositions);
+
+
         GroupHydrateGuests::dispatch($group);
 
         return $guest;

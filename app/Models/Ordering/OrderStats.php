@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Ordering\OrderStats
@@ -34,8 +33,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_transactions_status_creating
  * @property int $number_transactions_status_processing
  * @property int $number_transactions_status_settled
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Ordering\Order $order
  * @method static Builder|OrderStats newModelQuery()
  * @method static Builder|OrderStats newQuery()

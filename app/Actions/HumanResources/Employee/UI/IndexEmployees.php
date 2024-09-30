@@ -207,17 +207,26 @@ class IndexEmployees extends OrgAction
                         'icon'  => 'fal fa-user-hard-hat'
                     ],
                     'title'   => __('employees'),
-                    'actions' => [
+                    'actions' =>
                         $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'label' => __('employee'),
-                            'route' => [
-                                'name'       => 'grp.org.hr.employees.create',
-                                'parameters' => $request->route()->originalParameters()
-                            ]
-                        ] : false
-                    ]
+                            [
+                                'key'   => 'btn_upload',
+                                'type'  => 'button',
+                                'style' => 'secondary',
+                                'label' => 'zxczxcxz',
+                                'icon'    => ['fal', 'fa-upload'],
+                            ],
+                            [
+                                'type'  => 'button',
+                                'style' => 'create',
+                                'label' => __('employee'),
+                                'route' => [
+                                    'name'       => 'grp.org.hr.employees.create',
+                                    'parameters' => $request->route()->originalParameters()
+                                ]
+                            ],
+                        ]
+                        : false
                 ],
                 'upload_spreadsheet' => [
                     'event'             => 'action-progress',
@@ -230,7 +239,7 @@ class IndexEmployees extends OrgAction
                         'upload'  => [
                             'name'  => 'grp.models.employees.import',
                             'parameters' => [
-                                'organisation' => $this->parent->slug,
+                                'organisation' => $this->parent->id,
                             ],
                             'method' => 'post'
                         ],

@@ -12,7 +12,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Helpers\Address
@@ -34,8 +33,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $checksum
  * @property bool $is_fixed Directly related to the model class, (no model_has_addresses entry)
  * @property string|null $fixed_scope Key where address can be shared if have same checksum
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Helpers\Country|null $country
  * @property-read string $formatted_address
  * @property-read Model|\Eloquent $owner

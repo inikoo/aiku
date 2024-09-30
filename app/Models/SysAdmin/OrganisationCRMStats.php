@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\SysAdmin\OrganisationCRMStats
@@ -52,8 +51,8 @@ use Illuminate\Support\Carbon;
  * @property int $number_prospect_queries
  * @property int $number_customer_queries
  * @property int $number_surveys
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @method static Builder|OrganisationCRMStats newModelQuery()
  * @method static Builder|OrganisationCRMStats newQuery()

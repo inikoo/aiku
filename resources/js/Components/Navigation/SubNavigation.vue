@@ -43,7 +43,7 @@ const isSubNavActive = (subNav: SubNav) => {
 
 <template>
     <div
-        class="relative select-none w-full flex pl-2 pr-4 sm:mt-1 lg:mt-0 border-b border-gray-300 sm:gap-y-1 items-end text-gray-400 text-xs">
+        class="relative select-none w-full flex pr-4 sm:mt-1 lg:mt-0 border-b border-gray-300 sm:gap-y-1 items-end text-gray-400 text-xs">
         <!-- Tab: Home/dashboard -->
         <!-- <div v-if="dataNavigation.length && false"
     class="py-1 flex items-center transition-all"
@@ -96,8 +96,8 @@ const isSubNavActive = (subNav: SubNav) => {
                     <component v-if="subNav.align !== 'right'" :is="subNav.href?.name ? Link : 'div'"
                         :href="subNav.href?.name ? route(subNav.href.name, subNav.href.parameters) : '#'"
                         @start="() => isLoading = itemIdx" @finish="() => isLoading = false"
-                        class="group pt-2 pb-1.5 px-3 flex w-fit items-center gap-x-2 transition-all" :class="[
-                            isSubNavActive(subNav) ? subNav.isAnchor ? 'tabSubNavActive bg-gray-200' : 'tabSubNavActive' : subNav.isAnchor ? 'bg-gray-100 tabSubNav' : 'tabSubNav',
+                        class="group pt-2 pb-1.5 px-3 flex w-fit items-center gap-x-2" :class="[
+                            isSubNavActive(subNav) ? subNav.isAnchor ? 'anchorSubnavActive mr-3' : 'tabSubNavActive' : subNav.isAnchor ? 'anchorSubnavNotActive mr-3' : 'tabSubNav',
                         ]">
                         <div class="flex items-center">
                             <FontAwesomeIcon v-if="isLoading === itemIdx" icon="fad fa-spinner-third"
@@ -178,15 +178,82 @@ const isSubNavActive = (subNav: SubNav) => {
 // }
 
 .tabSubNavActive {
-  border-bottom: v-bind('`1px solid ${layout.app.theme[0]}`');
-  color: v-bind('`${layout?.app?.theme[0]}`') !important;
+    border-bottom: v-bind('`1px solid ${layout.app.theme[0]}`');
+    color: v-bind('`${layout?.app?.theme[0]}`') !important;
 }
 
 .tabSubNav {
-  @apply text-gray-500 border-b border-transparent;
-
-
+    @apply text-gray-500 border-b border-transparent;
 }
 
+
+.anchorSubnavActive {
+    background: v-bind('`color-mix(in srgb, ${layout?.app?.theme[0]} 15%, transparent)`') !important;
+    color: v-bind('`${layout?.app?.theme[0]}`') !important;
+    outline: none !important;
+    position: relative;
+    text-decoration: none;
+}
+
+.anchorSubnavActive:focus:after,
+.anchorSubnavActive:focus,
+.anchorSubnavActive:hover {
+    background: v-bind('`color-mix(in srgb, ${layout?.app?.theme[0]} 30%, transparent)`') !important;
+}
+
+.anchorSubnavActive:hover:after {
+    background: v-bind('`color-mix(in srgb, ${layout?.app?.theme[0]} 18%, transparent)`') !important;
+}
+
+.anchorSubnavActive:after,
+.anchorSubnavActive:before {
+    // background: v-bind('`color-mix(in srgb, ${layout?.app?.theme[0]} 15%, transparent)`') !important;
+    bottom: 0;
+    clip-path: polygon(50% 50%, -50% -50%, 0 100%);
+    content: "";
+    left: 100%;
+    position: absolute;
+    top: 0;
+    width: 20px;
+    z-index: 1;
+}
+
+.anchorSubnavActive:before {
+    background: v-bind('`color-mix(in srgb, ${layout?.app?.theme[0]} 15%, transparent)`') !important;
+}
+
+.anchorSubnavNotActive {
+    @apply text-gray-500 bg-gray-200;
+
+    outline: none;
+    position: relative;
+    text-decoration: none;
+}
+
+
+.anchorSubnavNotActive:focus:after,
+.anchorSubnavNotActive:focus,
+.anchorSubnavNotActive:hover:after,
+.anchorSubnavNotActive:hover {
+    background: #e1e1e1 !important;
+}
+
+.anchorSubnavNotActive:after,
+.anchorSubnavNotActive:before {
+    @apply bg-gray-200;
+
+    bottom: 0;
+    clip-path: polygon(50% 50%, -50% -50%, 0 100%);
+    content: "";
+    left: 99.3%;
+    position: absolute;
+    top: 0;
+    width: 20px;
+    z-index: 1;
+}
+
+.anchorSubnavNotActive:before {
+    @apply bg-gray-300;
+}
 
 </style>

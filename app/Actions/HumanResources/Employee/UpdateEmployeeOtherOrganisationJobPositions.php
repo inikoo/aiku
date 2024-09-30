@@ -38,7 +38,7 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
         foreach ($user->employees as $employee) {
             if (Arr::exists($modelData, 'positions')) {
                 $jobPositions = $this->generatePositions($employee->organisation, $modelData);
-                SyncEmployeeOtherOrganisationJobPositions::run($employee, $otherOrganisation, $jobPositions);
+                //SyncEmployeeOtherOrganisationJobPositions::run($employee, $otherOrganisation, $jobPositions);
                 Arr::forget($modelData, 'positions');
             }
         }

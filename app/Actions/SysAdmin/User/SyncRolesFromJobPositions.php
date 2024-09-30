@@ -25,20 +25,14 @@ class SyncRolesFromJobPositions
         $roles = [];
 
 
-
         foreach ($user->employees as $employee) {
             foreach ($employee->jobPositions as $jobPosition) {
                 $roles = $this->getRoles($roles, $jobPosition);
             }
         }
 
-
-
-        foreach ($user->guests as $guest) {
-            foreach ($guest->jobPositions as $jobPosition) {
-
-                $roles = $this->getRoles($roles, $jobPosition);
-            }
+        foreach ($user->pseudoJobPositions as $jobPosition) {
+            $roles = $this->getRoles($roles, $jobPosition);
         }
 
 
