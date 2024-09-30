@@ -57,12 +57,12 @@ class ShowOfferDashboard extends OrgAction
                 'stats'     => [
                     [
                         'label'     => __('Campaigns'),
-                        'count'     => 44445, // TODO
+                        'count'     => $this->shop->discountsStats->number_current_offer_campaigns,
                         'icon'      => 'fal fa-comment-dollar'
                     ],
                     [
                         'label'     => __('Offers'),
-                        'count'     => 3323432, // TODO
+                        'count'     => $this->shop->discountsStats->number_offers,
                         'icon'      => 'fal fa-badge-percent'
                     ],
                 ]
