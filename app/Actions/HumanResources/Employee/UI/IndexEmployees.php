@@ -230,7 +230,7 @@ class IndexEmployees extends OrgAction
                 ],
                 'upload_spreadsheet' => [
                     'event'             => 'action-progress',
-                    'channel'           => 'grp.personal.' . $this->organisation->id,
+                    'channel'           => 'grp.personal.' . $request->user()->id,
                     'required_fields'   => ['worker_number', 'alias', 'job_title', 'positions', 'starting_date', 'state'],
                     'template'          => [
                         'label' => 'Download template (.xlsx)',

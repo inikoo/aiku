@@ -12,6 +12,7 @@ use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Imports\WithImport;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
@@ -84,7 +85,7 @@ class EmployeeImport implements ToCollection, WithHeadingRow, SkipsOnFailure, Wi
 
     public function prepareForValidation($data)
     {
-        $data['starting_date'] = Date::excelToDateTimeObject($data['starting_date'])->format('Y-m-d');
+        $data['starting_date'] = Carbon::createFromFormat('d-M-y', $data['starting_date'])->format('Y-m-d');
 
         if (Arr::exists($data, 'username')) {
             $data['username'] = Str::lower($data['username']);
