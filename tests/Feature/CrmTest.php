@@ -171,42 +171,12 @@ test('create prospect mailshot', function () {
         ->and($outbox->stats->number_mailshots)->toBe(1);
 });
 
-test('can show list of prospects', function () {
-    $shop     = $this->shop;
-    $response = get(route('grp.org.shops.show.crm.prospects.index', [$shop->slug]));
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('CRM/Prospects')
-            ->has('title');
-    });
-})->todo();
-
-test('can show list of mailshots', function () {
-    $shop     = $this->shop;
-    $response = get(route('grp.org.shops.show.crm.prospects.mailshots.index', [$shop->slug]));
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('CRM/Prospects/Mailshots')
-            ->has('title');
-    });
-})->todo();
-
 test('can show list of prospects lists', function () {
     $shop     = $this->shop;
     $response = get(route('grp.org.shops.show.crm.prospects.lists.index', [$shop->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CRM/Prospects/Queries')
-            ->has('title');
-    });
-})->todo();
-
-test('can show list of tags', function () {
-    $shop     = $this->shop;
-    $response = get(route('grp.org.shops.show.crm.prospects.tags.index', [$shop->slug]));
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('CRM/Prospects/Tags')
             ->has('title');
     });
 })->todo();

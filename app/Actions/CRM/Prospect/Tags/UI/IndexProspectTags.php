@@ -7,6 +7,7 @@
 
 namespace App\Actions\CRM\Prospect\Tags\UI;
 
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Prospect\IndexProspects;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
@@ -35,13 +36,10 @@ class IndexProspectTags extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('crm.prospects.edit');
+        $this->canEdit = $request->user()->hasPermissionTo("crm.{$this->shop->id}.prospects.edit");
 
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('crm.prospects.view')
-            );
+        return  $request->user()->hasPermissionTo("crm.{$this->shop->id}.prospects.view");
+
     }
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
@@ -116,7 +114,7 @@ class IndexProspectTags extends OrgAction
         $subNavigation = $this->getSubNavigation($request);
 
         return Inertia::render(
-            'CRM/Prospects/Tags',
+            'Org/Shop/CRM/Tags',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -167,29 +165,31 @@ class IndexProspectTags extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
+        $headCrumb = function (array $routeParameters = []) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __('Tags'),
+                        'icon'  => 'fal fa-transporter'
+                    ],
+                ],
+            ];
+        };
         return match ($routeName) {
             'grp.org.shops.show.crm.prospects.tags.index',
             'org.crm.shop.customers.tags.index' =>
             array_merge(
-                (new IndexProspects())->getBreadcrumbs(
-                    'grp.org.shops.show.crm.prospects.index',
+                  ShowShop::make()->getBreadcrumbs(
                     $routeParameters
                 ),
-                [
+                $headCrumb(
                     [
-                        'type'   => 'simple',
-                        'simple' => [
-                            'route' => [
-                                'name'       => 'grp.org.shops.show.crm.prospects.tags.index',
-                                'parameters' => $routeParameters
-                            ],
-                            'label' => __('Tags'),
-                            'icon'  => 'fal fa-bars',
-                        ],
-                        'suffix' => $suffix
-
+                        'name'       => 'grp.org.shops.show.crm.prospects.tags.index',
+                        'parameters' => $routeParameters
                     ]
-                ]
+                )
             ),
             default => []
         };
