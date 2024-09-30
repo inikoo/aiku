@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
+use App\Actions\Helpers\Uploads\HistoryUploads;
 use App\Actions\HumanResources\Calendar\IndexCalendars;
 use App\Actions\HumanResources\Calendar\ShowCalendar;
 use App\Actions\HumanResources\Clocking\UI\CreateClocking;
@@ -44,6 +44,7 @@ Route::prefix('employees')->as('employees.')->group(function () {
     Route::get('', IndexEmployees::class)->name('index');
     Route::get('create', CreateEmployee::class)->name('create');
     Route::get('export', ExportEmployees::class)->name('export');
+    Route::get('history-uploads', [HistoryUploads::class, 'inEmployee'])->name('history-uploads');
 
     Route::prefix('{employee}')->group(function () {
         Route::get('', ShowEmployee::class)->name('show');

@@ -234,14 +234,14 @@ class IndexEmployees extends OrgAction
                             ],
                             'method' => 'post'
                         ],
+                        'history'  => [
+                            'name'  => 'grp.org.hr.employees.history-uploads',
+                            'parameters' => [
+                                'organisation' => $this->parent->slug,
+                            ],
+                            'method' => 'get'
+                        ],
                     ],
-                ],
-                'uploadRoute' => [
-                    'name'  => 'grp.models.employees.import',
-                    'parameters' => [
-                        'organisation' => $this->parent->slug,
-                    ],
-                    'method' => 'post'
                 ],
                 'data'        => EmployeesResource::collection($employees),
             ]
