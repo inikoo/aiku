@@ -9,6 +9,7 @@ namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
+use App\Actions\Web\Website\GetWebsiteWorkshopMenu;
 use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -29,7 +30,8 @@ class ShowHeaderPreview extends OrgAction
         return Inertia::render(
             'Web/PreviewWorkshop',
             [
-                'header' => GetWebsiteWorkshopHeader::run($website)
+                'header' => GetWebsiteWorkshopHeader::run($website),
+                'navigation' => GetWebsiteWorkshopMenu::run($website)
             ]
         );
     }

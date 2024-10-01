@@ -30,7 +30,7 @@ const screenView = ref(props.currentView)
             <FontAwesomeIcon icon='fal fa-mobile-android-alt'  :class="[screenView == 'mobile' ? 'text-indigo-300' : '']" aria-hidden='true' />
         </div>
         <div
-            class="py-1 px-2 cursor-pointer" title="Tablet view"
+            class="py-1 px-2 cursor-pointer  md:block hidden" title="Tablet view"
             :class="[screenView == 'tablet' ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']"
             @click="screenView = 'tablet', $emit('screenView', 'tablet')"
             v-tooltip="'Tablet view'"
@@ -38,7 +38,7 @@ const screenView = ref(props.currentView)
             <FontAwesomeIcon icon='fal fa-tablet-android-alt' :class="[screenView == 'tablet' ? 'text-indigo-300' : '']" aria-hidden='true' />
         </div>
         <div
-            class="py-1 px-2 cursor-pointer" title="Desktop view"
+            class="py-1 px-2 cursor-pointer lg:block hidden" title="Desktop view"
             :class="[screenView == 'desktop' ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']"
             @click="screenView = 'desktop', $emit('screenView', 'desktop')"
             v-tooltip="'Desktop view'"

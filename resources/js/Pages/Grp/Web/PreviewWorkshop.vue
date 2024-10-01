@@ -11,14 +11,12 @@ import WebPreview from "@/Layouts/WebPreview.vue";
 import axios from 'axios'
 import debounce from 'lodash/debounce'
 import EmptyState from "@/Components/Utils/EmptyState.vue"
-import { webBlock as socketWeblock } from '@/Composables/SocketWebBlock'
+import { socketWeblock, SocketHeader, SocketFooter , SocketNavigation  } from '@/Composables/SocketWebBlock'
 import IrisHeader from '@/Layouts/Iris/Header.vue'
 import Footer from '@/Layouts/Iris/Footer.vue'
 import { usePage } from '@inertiajs/vue3'
-import { data as headerData, bluprintForm as bluprintFormHeader } from '@/Components/Websites/Header/HeaderTemplates/Header1/descriptor'
-import { data as footerData, bluprintForm as bluprintFormFooter } from '@/Components/Websites/Footer/FooterTemplates/Footer1/descriptor'
-import { navigation as navigationData } from '@/Components/Websites/Menu/Descriptor'
 import { useColorTheme } from '@/Composables/useStockList'
+import { cloneDeep } from 'lodash'
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage, WebBlock } from '@/types/webpageTypes'
@@ -26,15 +24,20 @@ import { Root as RootWebpage, WebBlock } from '@/types/webpageTypes'
 
 defineOptions({ layout: WebPreview })
 const props = defineProps<{
-    webpage: RootWebpage
-    webBlockTypes: Root
+    webpage?: RootWebpage
+    webBlockTypes?: Root
+    header : Object,
+    footer : Object,
+    navigation : Object,
 }>()
 
-const data = ref({ ...props.webpage })
+
 const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block), 1000, { leading: false, trailing: true })
-const header = usePage().props?.iris?.header ? usePage().props?.iris?.header : { key: "header1", data: headerData, bluprint: bluprintFormHeader }
-const footer = usePage().props?.iris?.footer ? usePage().props?.iris?.footer : { key: "footer1", data: footerData, bluprint: bluprintFormFooter }
-const navigation = usePage().props?.iris?.menu ? usePage().props?.iris?.menu : { key: "menu1", data: navigationData }
+
+const data = ref(cloneDeep(props.webpage))
+const header = ref(cloneDeep(props.header.header))
+const footer = ref(cloneDeep(props.footer))
+const navigation = ref(cloneDeep(props.navigation.menu))
 const colorThemed = usePage().props?.iris?.color ? usePage().props?.iris?.color : { color: [...useColorTheme[2]] }
 
 const onUpdatedBlock = (block: Daum) => {
@@ -54,34 +57,38 @@ const sendBlockUpdate = async (block: WebBlock) => {
     }
 }
 
-const socketConnection = socketWeblock(props.webpage.slug);
+const socketConnectionWebpage = props.webpage ? socketWeblock(props.webpage.slug) : null;
+const socketConnectionHeader = SocketHeader(route().params['website']);
+const socketConnectionFooter = SocketFooter(route().params['website']);
+const socketConnectionNavigation = SocketNavigation(route().params['website']);
 
 onMounted(() => {
-    const channel = window.Echo.private(`webpage.${props.webpage.slug}.preview`)
-        .listen('.WebpagePreview', (eventData) => {
-            if (eventData) {
-                data.value = { ...eventData.webpage }
-            } else {
-                console.error('No data received from event')
-            }
-        })
-})
+    if(socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value : Root) => { data.value = {...value}});
+    if(socketConnectionHeader) socketConnectionHeader.actions.subscribe((value : Object) => { header.value = {...value}});
+    if(socketConnectionFooter) socketConnectionFooter.actions.subscribe((value : Object) => { footer.value = {...value}});
+    if(socketConnectionNavigation) socketConnectionNavigation.actions.subscribe((value : Object) => { navigation.value = {...value}});
+});
+
 
 onUnmounted(() => {
-    socketConnection.actions.unsubscribe();
+    if(socketConnectionWebpage) socketConnectionWebpage.actions.unsubscribe();
+    if(socketConnectionHeader) socketConnectionHeader.actions.unsubscribe();
+    if(socketConnectionFooter) socketConnectionFooter.actions.unsubscribe();
+    if(socketConnectionNavigation) socketConnectionNavigation.actions.unsubscribe();
 });
+
 
 </script>
 
 
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
-        <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation" />
+        <IrisHeader v-if="header" :data="header" :colorThemed="colorThemed" :menu="navigation" />
 
-        <div class="relative">
+        <div v-if="data" class="relative">
             <div class="container max-w-7xl mx-auto">
                 <div class="h-full overflow-auto w-full ">
-                    <div v-if="data.layout.web_blocks?.length">
+                    <div v-if="data?.layout?.web_blocks?.length">
                         <TransitionGroup tag="div" name="zzz" class="relative">
                             <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks" :style="{
                                 paddingTop: `${activityItem?.web_block?.layout?.data?.blockLayout?.paddingTop?.value}${activityItem?.web_block?.layout?.data?.blockLayout?.paddingTop?.unit}`,
@@ -110,6 +117,6 @@ onUnmounted(() => {
             </div>
         </div>
 
-        <Footer :data="footer" :colorThemed="colorThemed" />
+        <Footer v-if="footer" :data="footer" :colorThemed="colorThemed" />
     </div>
 </template>

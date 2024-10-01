@@ -21,6 +21,7 @@ use App\Models\Web\Website;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use App\Actions\Web\Website\GetWebsiteWorkshopMenu;
 
 class ShowWebpageWorkshopPreview extends OrgAction
 {
@@ -62,7 +63,8 @@ class ShowWebpageWorkshopPreview extends OrgAction
                 'webpage'       => WebpageResource::make($webpage)->getArray(),
                 'webBlockTypeCategories' => WebBlockTypeCategoryResource::collection(WebBlockTypeCategory::all()),
                 'header' => GetWebsiteWorkshopHeader::run($website),
-                'footer' => GetWebsiteWorkshopFooter::run($website)
+                'footer' => GetWebsiteWorkshopFooter::run($website),
+                'navigation' => GetWebsiteWorkshopMenu::run($website)
             ]
         );
     }
