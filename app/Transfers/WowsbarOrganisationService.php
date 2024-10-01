@@ -394,14 +394,4 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
-
-    #[\Override] public function fetchDeletedUser($id)
-    {
-        // TODO: Implement fetchDeletedUser() method.
-    }
-
-    #[\Override] public function fetchUser($id)
-    {
-        // TODO: Implement fetchUser() method.
-    }
 }

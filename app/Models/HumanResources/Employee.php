@@ -123,7 +123,7 @@ class Employee extends Model implements HasMedia, Auditable
         'errors'             => 'array',
         'salary'             => 'array',
         'working_hours'      => 'array',
-        // 'migration_data'     => 'array',
+        'migration_data'     => 'array',
         'date_of_birth'      => 'datetime:Y-m-d',
         'gender'             => GenderEnum::class,
         'state'              => EmployeeStateEnum::class,
@@ -219,7 +219,6 @@ class Employee extends Model implements HasMedia, Auditable
     {
         return $this->morphToMany(User::class, 'model', 'user_has_models')->withTimestamps()->withPivot('status');
     }
-
 
     public function getRouteKeyName(): string
     {

@@ -50,6 +50,7 @@ return new class () extends Migration {
             $table->datetimeTz('last_fetched_at')->nullable();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
+            $table->jsonb('sources');
             $table->string('legacy_password')->nullable()->index()->comment('source password');
             $table->unique(['group_id', 'username']);
 

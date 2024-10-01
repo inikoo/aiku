@@ -21,12 +21,14 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
     public string $commandSignature = 'fetch:deleted-users {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?User
     {
         if ($userData = $organisationSource->fetchDeletedUser($organisationSourceId)) {
             if ($userData['user']) {
-                if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])
-                    ->first()) {
+                if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
                     if (Arr::get($user->data, 'deleted.source') == 'aurora') {
                         try {
                             $user = UpdateUser::make()->action(
@@ -43,27 +45,46 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
                             return null;
                         }
                     }
-                } else {
-                    try {
-                        $user = StoreUser::make()->action(
-                            parent: $userData['shop'],
-                            modelData: $userData['user'],
-                            hydratorsDelay: $this->hydrateDelay,
-                            strict: false
-                        );
+                } elseif (!$userData['parent']) {
+                    $group_id = $organisationSource->getOrganisation()->group_id;
 
-                        $this->recordNew($organisationSource);
-                    } catch (Exception $e) {
-                        $this->recordError($organisationSource, $e, $userData['user'], 'DeletedUser', 'store');
+                    $user = User::withTrashed()->where('group_id', $group_id)->where('username', $userData['related_username'])->first();
 
-                        return null;
+                    if ($user) {
+                        $sourceData = explode(':', $userData['user']['source_id']);
+                        DB::connection('aurora')->table('User Deleted Dimension')
+                            ->where('User Deleted Key', $sourceData[1])
+                            ->update(['aiku_related_id' => $user->id]);
+
+
+                        DB::transaction(function () use ($user, $userData) {
+                            $sources   = $user->sources;
+                            $sources[] = $userData['user']['source_id'];
+                            $sources   = array_unique($sources);
+                            $user->updateQuietly(['sources' => $sources]);
+                        });
                     }
+                } else {
+                    //   try {
+                    $user = StoreUser::make()->action(
+                        parent: $userData['parent'],
+                        modelData: $userData['user'],
+                        hydratorsDelay: $this->hydrateDelay,
+                        strict: false
+                    );
+
+                    $sourceData = explode(':', $user->source_id);
+                    DB::connection('aurora')->table('User Deleted Dimension')
+                        ->where('User Deleted Key', $sourceData[1])
+                        ->update(['aiku_id' => $user->id]);
+
+                    $this->recordNew($organisationSource);
+                    //   } catch (Exception $e) {
+                    //       $this->recordError($organisationSource, $e, $userData['user'], 'DeletedUser', 'store');
+                    //       return null;
+                    //   }
                 }
 
-                $sourceData = explode(':', $user->source_id);
-                DB::connection('aurora')->table('User Deleted Dimension')
-                    ->where('User Key', $sourceData[1])
-                    ->update(['aiku_id' => $user->id]);
 
                 return $user;
             }
@@ -83,8 +104,7 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('User Deleted Dimension');
+
         return $query->count();
     }
-
-
 }

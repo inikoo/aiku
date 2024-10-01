@@ -42,7 +42,6 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
-use Google\Service\Sasportal\Resource\CustomersNodes;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -111,6 +110,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read Collection<int, CreditTransaction> $creditTransactions
+ * @property-read Collection<int, \App\Models\CRM\CustomerNote> $customerNotes
  * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
  * @property-read \App\Models\CRM\CustomerDropshippingStat|null $dropshippingStats
@@ -396,6 +396,6 @@ class Customer extends Model implements HasMedia, Auditable
 
     public function customerNotes(): HasMany
     {
-        return $this->hasMany(CustomersNodes::class);
+        return $this->hasMany(CustomerNote::class);
     }
 }
