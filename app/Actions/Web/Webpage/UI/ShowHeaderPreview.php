@@ -29,7 +29,7 @@ class ShowHeaderPreview extends OrgAction
         return Inertia::render(
             'Web/PreviewWorkshop',
             [
-                'data' => GetWebsiteWorkshopHeader::run($website)
+                'header' => GetWebsiteWorkshopHeader::run($website)
             ]
         );
     }
