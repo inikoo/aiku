@@ -164,24 +164,28 @@ console.log("environment:", usePage().props.environment);
                     || (layoutStore.organisations.data?.find(organisation => organisation.slug == layoutStore.currentParams.organisation) && ((route(layoutStore.currentRoute, layoutStore.currentParams)).includes('shops') || layoutStore.currentRoute.includes('grp.org.dashboard.')))
                     || (layoutStore.navigation.org?.[layoutStore.currentParams.organisation]?.warehouses_navigation && (route(layoutStore.currentRoute, layoutStore.currentParams)).includes('warehouse'))
                 "
-                 class="flex border border-gray-300 rounded-md">
-              <!-- Dropdown: Topbar -->
-              <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1)" as="div" class="relative inline-block text-left">
-                <TopBarSelectButton
-                  :icon="
+                class="flex border border-gray-300 rounded-md"
+            >
+                <!-- Dropdown: Topbar -->
+                <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1)" as="div" class="relative inline-block text-left">
+                    <TopBarSelectButton
+                        :icon="
                                         layoutStore.currentParams?.organisation
                                             ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
                                                 ? 'fal fa-building'
                                                 : layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
                                                     ? 'fal fa-people-arrows'
-                                                    : 'fal fa-city'
+                                                    : layoutStore.digital_agency.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                        ? 'fal fa-laptop-house'
+                                                        : 'fal fa-city'
                                             : 'fal fa-city'
                                     "
-                  :activeButton="!!(layoutStore.organisations.data?.find((item) => item.slug == layoutStore.currentParams?.organisation)) || !!layoutStore.agents.data?.find((item) => item.slug == layoutStore.currentParams?.organisation)"
-                  :label="
+                        :activeButton="!!(layoutStore.organisations.data?.find((item) => item.slug == layoutStore.currentParams?.organisation)) || !!layoutStore.agents.data?.find((item) => item.slug == layoutStore.currentParams?.organisation)"
+                        :label="
                                         layoutStore.currentParams?.organisation
                                             ? layoutStore.organisations.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
                                                 ?? layoutStore.agents.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
+                                                ?? layoutStore.digital_agency.data.find((item) => item.slug == layoutStore.currentParams?.organisation)?.label
                                                 ?? layoutStore.group?.label
                                             : layoutStore.group?.label
                                     "
