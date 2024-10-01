@@ -140,7 +140,7 @@ test('can not find employees from another organisation', function () {
         ->and($otherOrganisation->id)->not->toBe($this->organisation->id)
         ->and($employeeOtherOrganisation)->toBeInstanceOf(Employee::class);
 
-    $response = $this->getJson(route('han.employee.pin.validate', ['employee' => $employeeOtherOrganisation->pin]));
+    $response = $this->getJson(route('han.employee.pin.validate'));
     $response->assertStatus(404);
 });
 
