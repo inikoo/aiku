@@ -22,7 +22,6 @@ use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class EmployeeImport implements ToCollection, WithHeadingRow, SkipsOnFailure, WithValidation, WithEvents
 {

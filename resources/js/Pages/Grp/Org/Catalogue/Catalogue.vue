@@ -118,11 +118,11 @@ const layout = inject('layout', layoutStructure)
     </div>
 
     <!-- Section: Top of the Month -->
-    <div class="p-6">
+    <div v-if="totm.product.value || totm.department.value || totm.family.value" class="p-6">
         <div class="text-xl font-semibold py-1 border-b border-gray-200">Top of the month (TotM)</div>
         <dl class="isolate mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:grid-rows-2 h-72">
             <!-- TotM: Product -->
-            <div class="row-span-2 example-2 rounded-md">
+            <div v-if="totm.product.value" class="row-span-2 example-2 rounded-md">
                 <div class="inner group bg-gray-100 h-full rounded-md px-8 py-8 flex gap-x-4"
                     :style="{
                         background: `color-mix(in srgb, ${layout?.app?.theme[0]} 10%, white)`
@@ -130,28 +130,28 @@ const layout = inject('layout', layoutStructure)
                 >
                     <div class="aspect-square h-1/2 lg:h-full w-fit flex-shrink-0 rounded-md overflow-hidden">
                         <!-- <img src="https://www.ancientwisdom.biz/wi.php?id=1857494&s=705x705" class="h-full w-auto z-10" /> -->
-                        <Image :src="totm.product.value.images.data[0].source" />
+                        <Image :src="totm.product.value?.images?.data?.[0]?.source" />
                     </div>
 
                     <div class="flex flex-col justify-between gap-y-1">
                         <div>
                             <div class="text-indigo-600 text-sm animate-pulse">Product of the month</div>
                             <h3 class="text-xl font-semibold">
-                                {{ totm.product.value.name }}
+                                {{ totm.product.value?.name }}
                             </h3>
-                            <div class="text-gray-400 text-sm">{{ totm.product.value.code || '-' }}</div>
+                            <div class="text-gray-400 text-sm">{{ totm.product.value?.code || '-' }}</div>
                         </div>
                         <div>
-                            <p aria-hidden="true" class="text-gray-500">{{ trans('Sold this month') }}: {{ totm.product.value.sold_on_month || '-' }}</p>
-                            <p aria-hidden="true" class="text-gray-500">{{ trans('Stock') }}: {{ totm.product.value.stock || '-' }}</p>
-                            <p aria-hidden="true" class="text-gray-500">{{ trans('Price') }}: {{ totm.product.value.price || '-' }}</p>
+                            <p aria-hidden="true" class="text-gray-500">{{ trans('Sold this month') }}: {{ totm.product.value?.sold_on_month || '-' }}</p>
+                            <p aria-hidden="true" class="text-gray-500">{{ trans('Stock') }}: {{ totm.product.value?.stock || '-' }}</p>
+                            <p aria-hidden="true" class="text-gray-500">{{ trans('Price') }}: {{ totm.product.value?.price || '-' }}</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- TotM: Department -->
-            <div class="bg-gray-50 border-gray-200 border rounded-md flex items-center p-6">
+            <div v-if="totm.department.value" class="bg-gray-50 border-gray-200 border rounded-md flex items-center p-6">
                 <div class="flex gap-x-2 items-center">
                     <div class="p-3 rounded">
                         <FontAwesomeIcon icon='fal fa-folder-tree' class='text-indigo-500 text-xl' v-tooltip="trans('Department')" fixed-width aria-hidden='true' />
@@ -174,7 +174,7 @@ const layout = inject('layout', layoutStructure)
             </div>
 
             <!-- TotM: Family -->
-            <div class="bg-gray-50 border-gray-200 border rounded-md flex items-center p-6">
+            <div v-if="totm.family.value" class="bg-gray-50 border-gray-200 border rounded-md flex items-center p-6">
                 <div class="flex gap-x-2 items-center">
                     <div class="p-3 rounded">
                         <FontAwesomeIcon :icon='totm.family.icon' class='text-indigo-500 text-xl' v-tooltip="trans('Family')" fixed-width aria-hidden='true' />
@@ -197,8 +197,6 @@ const layout = inject('layout', layoutStructure)
                 </div>
             </div>
 
-            <div class="bg-gray-100 rounded-md">
-            </div>
         </dl>
     </div>
 
