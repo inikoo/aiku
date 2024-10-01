@@ -9,6 +9,8 @@ namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Actions\Web\Website\GetWebsiteWorkshopFooter;
+use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
 use App\Http\Resources\Web\WebBlockTypeCategoryResource;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Fulfilment\Fulfilment;
@@ -58,7 +60,9 @@ class ShowWebpageWorkshopPreview extends OrgAction
             [
 //                'blocks' => $home->unpublishedSnapshot->layout
                 'webpage'       => WebpageResource::make($webpage)->getArray(),
-                'webBlockTypeCategories' => WebBlockTypeCategoryResource::collection(WebBlockTypeCategory::all())
+                'webBlockTypeCategories' => WebBlockTypeCategoryResource::collection(WebBlockTypeCategory::all()),
+                'header' => GetWebsiteWorkshopHeader::run($website),
+                'footer' => GetWebsiteWorkshopFooter::run($website)
             ]
         );
     }

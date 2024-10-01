@@ -29,7 +29,7 @@ class ShowFooterPreview extends OrgAction
         return Inertia::render(
             'Web/PreviewWorkshop',
             [
-                'data' => GetWebsiteWorkshopFooter::run($website)
+                'footer' => GetWebsiteWorkshopFooter::run($website)
             ]
         );
     }
