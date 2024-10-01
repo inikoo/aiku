@@ -439,4 +439,13 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraOffer($this))->fetch($id);
     }
 
+    public function fetchDeletedUser($id)
+    {
+        // TODO: Implement fetchDeletedUser() method.
+    }
+
+    public function fetchUser($id)
+    {
+        // TODO: Implement fetchUser() method.
+    }
 }

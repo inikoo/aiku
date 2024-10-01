@@ -8,7 +8,6 @@
 namespace App\Actions\CRM\Prospect\Tags\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\CRM\Prospect\IndexProspects;
 use App\Actions\Helpers\History\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithProspectsSubNavigation;
@@ -181,7 +180,7 @@ class IndexProspectTags extends OrgAction
             'grp.org.shops.show.crm.prospects.tags.index',
             'org.crm.shop.customers.tags.index' =>
             array_merge(
-                  ShowShop::make()->getBreadcrumbs(
+                ShowShop::make()->getBreadcrumbs(
                     $routeParameters
                 ),
                 $headCrumb(
