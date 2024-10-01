@@ -39,7 +39,6 @@ class FetchAuroraEmployees extends FetchAuroraAction
 
         if ($employeeData = $organisationSource->fetchEmployee($organisationSourceId)) {
 
-
             $sourceId = $employeeData['employee']['source_id'];
 
             if ($employee = Employee::where('source_id', $sourceId)->first()) {

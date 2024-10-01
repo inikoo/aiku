@@ -700,6 +700,7 @@ trait WithAuroraParsers
         $rawJobPositions = $this->parseJobPositions();
 
 
+
         $shops = [];
 
 
@@ -713,6 +714,8 @@ trait WithAuroraParsers
             $jobPosition = $this->organisation->jobPositions()->where('code', $jobPositionCode)->firstOrFail();
             $scopes      = [];
             $add         = true;
+
+
             if ($jobPosition->scope == JobPositionScopeEnum::SHOPS) {
                 $scopes = ['shops' => ['slug' => $shops]];
                 if (count($shops) == 0) {
@@ -733,16 +736,37 @@ trait WithAuroraParsers
                         ]
                 ];
             } elseif ($jobPosition->scope == JobPositionScopeEnum::ORGANISATION) {
-                $scopes = ['organisations' => [$this->organisation->id]];
+                $scopes = [
+                    'organisations' =>
+                        [
+                            'slug' => [$this->organisation->slug]
+                        ]
+
+                ];
+            } elseif ($jobPosition->scope == JobPositionScopeEnum::FULFILMENTS || $jobPosition->scope == JobPositionScopeEnum::FULFILMENTS_WAREHOUSES) {
+                $scopes = [
+                    'fulfilments' =>
+                        [
+                            'slug' => $this->organisation->fulfilments()->pluck('slug')->all()
+                        ],
+                    'warehouses'  =>
+                        [
+                            'slug' => $this->organisation->warehouses()->pluck('slug')->all()
+                        ]
+
+                ];
             }
+
 
             if ($add) {
                 $positions[] = [
-                    'code'   => $jobPosition->code,
+                    'slug'   => $jobPosition->slug,
                     'scopes' => $scopes
                 ];
             }
         }
+
+
 
 
         return $positions;
@@ -853,9 +877,7 @@ trait WithAuroraParsers
 
 
         foreach (
-            DB::connection('aurora')
-                ->table('User Right Scope Bridge')
-                ->where('User Key', $userID)->get() as $rawScope
+            DB::connection('aurora')->table('User Right Scope Bridge')->where('User Key', $userID)->get() as $rawScope
         ) {
             if ($rawScope->{'Scope'} == 'Store') {
                 $shop               = $this->parseShop($this->organisation->id.':'.$rawScope->{'Scope Key'});
@@ -875,12 +897,13 @@ trait WithAuroraParsers
 
     protected function parseUserPhoto(): array
     {
-        $profileImages             = $this->getModelImagesCollection(
+        $profileImages = $this->getModelImagesCollection(
             'Staff',
             $this->auroraModelData->{'Staff Key'}
         )->map(function ($auroraImage) {
             return $this->fetchImage($auroraImage);
         });
+
         return $profileImages->toArray();
     }
 

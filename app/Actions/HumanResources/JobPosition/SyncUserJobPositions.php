@@ -32,10 +32,12 @@ class SyncUserJobPositions
 
         foreach ($newJobPositionsIds as $jobPositionId) {
 
+            $jobPosition = JobPosition::find($jobPositionId);
+
             $pseudoJobPositionsData = [
                 'group_id'        => $user->group_id,
-                'scopes'          => $jobPositions[$jobPositionId]['scopes'],
-                'organisation_id' => $jobPositions[$jobPositionId]['organisation_id']
+                'scopes'          => $jobPositions[$jobPositionId],
+                'organisation_id' => $jobPosition->organisation_id
             ];
 
 

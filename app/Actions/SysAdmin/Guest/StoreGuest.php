@@ -12,7 +12,8 @@ use App\Actions\HumanResources\JobPosition\SyncUserJobPositions;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
 use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateUniversalSearch;
 use App\Actions\SysAdmin\User\StoreUser;
-use App\Models\HumanResources\JobPosition;
+use App\Actions\Traits\WithPreparePositionsForValidation;
+use App\Actions\Traits\WithReorganisePositions;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use App\Rules\AlphaDashDot;
@@ -23,20 +24,23 @@ use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreGuest extends GrpAction
 {
+    use WithPreparePositionsForValidation;
+    use WithReorganisePositions;
     private bool $validatePhone = false;
 
     public function handle(Group $group, array $modelData): Guest
     {
         $positions = Arr::get($modelData, 'positions', []);
         data_forget($modelData, 'positions');
+        $positions = $this->reorganisePositionsSlugsToIds($positions);
 
 
         /** @var Guest $guest */
@@ -63,18 +67,9 @@ class StoreGuest extends GrpAction
             ]
         );
 
-        $jobPositions = [];
-        foreach ($positions as $positionData) {
-            $jobPosition                    = JobPosition::firstWhere('slug', $positionData['slug']);
-            $jobPositions[$jobPosition->id] = [
-                'scopes' => $positionData['scopes'],
-                'organisation_id' => $jobPosition->organisation_id
-            ];
 
 
-        }
-
-        SyncUserJobPositions::run($user, $jobPositions);
+        SyncUserJobPositions::run($user, $positions);
 
 
         GroupHydrateGuests::dispatch($group);
@@ -99,6 +94,13 @@ class StoreGuest extends GrpAction
         if ($this->get('phone')) {
             $this->set('phone', preg_replace('/[^0-9+]/', '', $this->get('phone')));
         }
+
+        if ($this->get('positions')) {
+            $this->set('phone', preg_replace('/[^0-9+]/', '', $this->get('phone')));
+        }
+
+        $this->preparePositionsForValidation();
+
     }
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
@@ -139,7 +141,7 @@ class StoreGuest extends GrpAction
             'email'        => ['sometimes', 'nullable', 'email'],
             'positions'    => ['sometimes', 'array'],
 
-            'positions.*.code'   => ['sometimes', 'string'],
+            'positions.*.slug'   => ['sometimes', 'string'],
             'positions.*.scopes' => ['sometimes', 'array'],
 
             'positions.*.scopes.organisations.slug.*' => ['sometimes', Rule::exists('organisations', 'slug')->where('group_id', $this->group->id)],

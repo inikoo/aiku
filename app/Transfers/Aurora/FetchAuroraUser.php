@@ -77,7 +77,7 @@ class FetchAuroraUser extends FetchAurora
     {
         return DB::connection('aurora')
             ->table('User Dimension')
-            ->leftJoin('Staff Dimension','Staff Key','User Parent Key')
+            ->leftJoin('Staff Dimension', 'Staff Key', 'User Parent Key')
             ->selectRaw('*,(select GROUP_CONCAT(`Role Code`) from `Staff Role Bridge` SRB where (SRB.`Staff Key`=`Staff Dimension`.`Staff Key`) ) as staff_positions')
             ->selectRaw('(select GROUP_CONCAT(`User Group Key`) from `User Group User Bridge` UGUB where (UGUB.`User Key`=`User Dimension`.`User Key`) ) as staff_groups')
 

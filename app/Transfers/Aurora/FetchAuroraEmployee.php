@@ -8,8 +8,6 @@
 namespace App\Transfers\Aurora;
 
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
-use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
-use App\Models\HumanResources\JobPosition;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -116,12 +114,22 @@ class FetchAuroraEmployee extends FetchAurora
             }
 
 
-            $this->parsedData['user']  = $this->parseUser();
-            $this->parsedData['photo'] =$this->parseUserPhoto();
+            $userData = $this->parseUser();
+            //            if ($userData) {
+            //                $this->parsedData['employee']['username']          = $userData['username'];
+            //                $this->parsedData['employee']['legacy_password']   = $userData['legacy_password'];
+            //                $this->parsedData['employee']['reset_password']    = $userData['reset_password'];
+            //                $this->parsedData['employee']['user_model_status'] = $userData['user_model_status'];
+            //                $this->parsedData['employee']['password']          = $userData['password'];
+            //            }
+
+
+            $this->parsedData['user'] = $userData;
+
+            $this->parsedData['photo'] = $this->parseUserPhoto();
 
 
             $userId = null;
-
 
 
             if (Arr::has($this->parsedData, 'user.source_id')) {
@@ -134,7 +142,7 @@ class FetchAuroraEmployee extends FetchAurora
         }
 
 
-        return $this->parsedData;;
+        return $this->parsedData;
     }
 
 
@@ -177,6 +185,7 @@ class FetchAuroraEmployee extends FetchAurora
                 'user_model_status' => $status,
                 'created_at'        => $auroraUserData->{'User Created'},
                 'legacy_password'   => $legacyPassword,
+                'password'          => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true)),
                 'language_id'       => $this->parseLanguageID($auroraUserData->{'User Preferred Locale'}),
                 'reset_password'    => false,
                 'fetched_at'        => now(),

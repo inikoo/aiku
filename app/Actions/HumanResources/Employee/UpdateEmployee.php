@@ -8,13 +8,14 @@
 namespace App\Actions\HumanResources\Employee;
 
 use App\Actions\HumanResources\Employee\Search\EmployeeRecordSearch;
-use App\Actions\HumanResources\Employee\Traits\HasEmployeePositionGenerator;
 use App\Actions\HumanResources\JobPosition\SyncEmployeeJobPositions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\User\UpdateUser;
+use App\Actions\Traits\WithPreparePositionsForValidation;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithReorganisePositions;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
@@ -31,8 +32,8 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateEmployee extends OrgAction
 {
     use WithActionUpdate;
-    use HasPositionsRules;
-    use HasEmployeePositionGenerator;
+    use WithPreparePositionsForValidation;
+    use WithReorganisePositions;
 
     protected bool $asAction = false;
 
@@ -40,16 +41,22 @@ class UpdateEmployee extends OrgAction
 
     public function handle(Employee $employee, array $modelData): Employee
     {
-        if (Arr::exists($modelData, 'positions')) {
-            $jobPositions = $this->generatePositions($employee->organisation, $modelData);
-            SyncEmployeeJobPositions::run($employee, $jobPositions);
-            Arr::forget($modelData, 'positions');
-        }
 
+        $positions = Arr::get($modelData, 'positions', []);
+        data_forget($modelData, 'positions');
+        $positions = $this->reorganisePositionsSlugsToIds($positions);
+
+        SyncEmployeeJobPositions::run($employee, $positions);
 
         $credentials = Arr::only($modelData, ['username', 'password', 'auth_type','user_model_status']);
 
-        data_forget($modelData, ['username', 'password', 'auth_type','user_model_status']);
+        data_forget($modelData, 'username');
+        data_forget($modelData, 'password');
+        data_forget($modelData, 'auth_type');
+        data_forget($modelData, 'user_model_status');
+
+
+
 
         $employee = $this->update($employee, $modelData, ['data', 'salary']);
 
@@ -147,7 +154,7 @@ class UpdateEmployee extends OrgAction
             'job_title'                             => ['sometimes', 'nullable', 'string', 'max:256'],
             'state'                                 => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
             'positions'                             => ['sometimes', 'array'],
-            'positions.*.code'                      => ['sometimes', 'string'],
+            'positions.*.slug'                      => ['sometimes', 'string'],
             'positions.*.scopes'                    => ['sometimes', 'array'],
             'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
             'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
@@ -186,7 +193,6 @@ class UpdateEmployee extends OrgAction
 
             ];
             $rules['password'] = ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()];
-
             $rules['user_model_status'] = ['sometimes', 'boolean'];
 
         }

@@ -1,15 +1,15 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 14 May 2024 22:15:37 British Summer Time, Sheffield, UK
+ * Created: Tue, 01 Oct 2024 10:50:08 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Employee;
+namespace App\Actions\Traits;
 
 use Illuminate\Support\Arr;
 
-trait HasPositionsRules
+trait WithPreparePositionsForValidation
 {
     public function preparePositionsForValidation(): void
     {
@@ -39,6 +39,9 @@ trait HasPositionsRules
 
             $this->fill($positions);
         }
+
+
+
     }
 
 }

@@ -7,8 +7,8 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-use App\Actions\HumanResources\Employee\Traits\HasEmployeePositionGenerator;
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithPreparePositionsForValidation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\HumanResources\EmployeeHanResource;
 use App\Models\HumanResources\Employee;
@@ -17,8 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ValidatePinEmployee extends OrgAction
 {
     use WithActionUpdate;
-    use HasPositionsRules;
-    use HasEmployeePositionGenerator;
+    use WithPreparePositionsForValidation;
 
     protected bool $asAction = false;
 

@@ -7,7 +7,6 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\SysAdmin\User\AttachEmployeeToUser;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\SysAdmin\User\UpdateUsersPseudoJobPositions;
@@ -24,6 +23,7 @@ class FetchAuroraUsers extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?User
     {
+        setPermissionsTeamId($organisationSource->getOrganisation()->group_id);
         if ($userData = $organisationSource->fetchUser($organisationSourceId)) {
 
             if ($userData['user']) {
@@ -44,12 +44,12 @@ class FetchAuroraUsers extends FetchAuroraAction
                     }
                 }
 
-                if ($foundUserData=Db::table('user_has_models')
+                if ($foundUserData = Db::table('user_has_models')
                     ->select('user_id')
                     ->where('group_id', $organisationSource->getOrganisation()->group_id)
                     ->where('source_id', $userData['user']['source_id'])->first()) {
 
-                    $user=User::where('id', $foundUserData->user_id)->first();
+                    $user = User::where('id', $foundUserData->user_id)->first();
 
 
 
