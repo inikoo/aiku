@@ -57,21 +57,24 @@ const sendBlockUpdate = async (block: WebBlock) => {
     }
 }
 
-const socketConnectionWebpage = socketWeblock(props.webpage.slug);
+const socketConnectionWebpage = props.webpage ? socketWeblock(props.webpage.slug) : null;
 const socketConnectionHeader = SocketHeader(route().params['website']);
 const socketConnectionFooter = SocketFooter(route().params['website']);
 const socketConnectionNavigation = SocketNavigation(route().params['website']);
 
 onMounted(() => {
-    socketConnectionWebpage.actions.subscribe((value) => { data.value = {...value}});
-    socketConnectionHeader.actions.subscribe((value) => { data.header = {...value}});
-    socketConnectionFooter.actions.subscribe((value) => { data.footer = {...value}});
-    socketConnectionNavigation.actions.subscribe((value) => { data.navigation = {...value}});
+    if(socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value : Root) => { data.value = {...value}});
+    if(socketConnectionHeader) socketConnectionHeader.actions.subscribe((value : Object) => { header.value = {...value}});
+    if(socketConnectionFooter) socketConnectionFooter.actions.subscribe((value : Object) => { footer.value = {...value}});
+    if(socketConnectionNavigation) socketConnectionNavigation.actions.subscribe((value : Object) => { navigation.value = {...value}});
 });
 
 
 onUnmounted(() => {
-    socketConnectionWebpage.actions.unsubscribe();
+    if(socketConnectionWebpage) socketConnectionWebpage.actions.unsubscribe();
+    if(socketConnectionHeader) socketConnectionHeader.actions.unsubscribe();
+    if(socketConnectionFooter) socketConnectionFooter.actions.unsubscribe();
+    if(socketConnectionNavigation) socketConnectionNavigation.actions.unsubscribe();
 });
 
 
