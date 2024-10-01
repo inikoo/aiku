@@ -14,11 +14,17 @@ use Illuminate\Support\Str;
 
 class FetchAuroraUser extends FetchAurora
 {
+    use WithAuroraImages;
+
     protected function parseModel(): void
     {
+        if (!in_array($this->auroraModelData->{'User Type'}, ['Staff', 'Contractor'])) {
+            return;
+        }
+
         $parent                          = null;
         $this->parsedData['parent_type'] = 'Guest';
-        if ($this->auroraModelData->{'User Parent Type'} == 'Staff') {
+        if ($this->auroraModelData->{'User Type'} == 'Staff') {
             $this->parsedData['parent_type'] = 'Staff';
 
             $parent = $this->parseEmployee($this->organisation->id.':'.$this->auroraModelData->{'User Parent Key'});
@@ -45,6 +51,8 @@ class FetchAuroraUser extends FetchAurora
 
         $this->parsedData['parent'] = $parent;
 
+
+
         $this->parsedData['user'] =
             [
 
@@ -57,8 +65,11 @@ class FetchAuroraUser extends FetchAurora
                 'language_id'       => $this->parseLanguageID($this->auroraModelData->{'User Preferred Locale'}),
                 'reset_password'    => false,
                 'fetched_at'        => now(),
-                'last_fetched_at'   => now()
+                'last_fetched_at'   => now(),
+                'positions'         => $this->parsePositions($this->auroraModelData->{'User Key'})
             ];
+
+        $this->parseUserPhoto();
     }
 
 
@@ -66,6 +77,10 @@ class FetchAuroraUser extends FetchAurora
     {
         return DB::connection('aurora')
             ->table('User Dimension')
+            ->leftJoin('Staff Dimension', 'Staff Key', 'User Parent Key')
+            ->selectRaw('*,(select GROUP_CONCAT(`Role Code`) from `Staff Role Bridge` SRB where (SRB.`Staff Key`=`Staff Dimension`.`Staff Key`) ) as staff_positions')
+            ->selectRaw('(select GROUP_CONCAT(`User Group Key`) from `User Group User Bridge` UGUB where (UGUB.`User Key`=`User Dimension`.`User Key`) ) as staff_groups')
+
             ->where('User Key', $id)->first();
     }
 }

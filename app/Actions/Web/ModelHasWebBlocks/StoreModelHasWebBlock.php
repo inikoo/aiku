@@ -64,7 +64,7 @@ class StoreModelHasWebBlock extends OrgAction
         ];
     }
 
-    public function asController(Webpage $webpage, ActionRequest $request): ModelHasWebBlocks
+    public function asController(Webpage $webpage, ActionRequest $request): void
     {
         $this->webpage = $webpage;
         if ($webpage->shop->type == ShopTypeEnum::FULFILMENT) {
@@ -76,7 +76,7 @@ class StoreModelHasWebBlock extends OrgAction
         }
 
 
-        return $this->handle($webpage, $this->validatedData);
+        $this->handle($webpage, $this->validatedData);
     }
 
     public function action(Webpage $webpage, array $modelData): ModelHasWebBlocks

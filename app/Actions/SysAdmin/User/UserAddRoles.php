@@ -93,10 +93,5 @@ class UserAddRoles
         return $this->handle($user, $this->get('roles'));
     }
 
-    public string $commandSignature = 'user:add-roles {user : User slug} {roles* : list of roles}';
-
-
-
-
 
 }

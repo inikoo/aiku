@@ -14,9 +14,10 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\User\StoreUser;
+use App\Actions\Traits\WithPreparePositionsForValidation;
+use App\Actions\Traits\WithReorganisePositions;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Models\HumanResources\Employee;
-use App\Models\HumanResources\JobPosition;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
@@ -31,10 +32,12 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreEmployee extends OrgAction
 {
-    use HasPositionsRules;
+    use WithPreparePositionsForValidation;
+    use WithReorganisePositions;
 
     public function handle(Organisation|Workplace $parent, array $modelData): Employee
     {
+
         if (class_basename($parent) === 'Workplace') {
             $organisation = $parent->organisation;
             data_set($modelData, 'organisation_id', $organisation->id);
@@ -50,6 +53,8 @@ class StoreEmployee extends OrgAction
 
         $positions = Arr::get($modelData, 'positions', []);
         data_forget($modelData, 'positions');
+        $positions = $this->reorganisePositionsSlugsToIds($positions);
+
 
         /** @var Employee $employee */
         $employee = $parent->employees()->create($modelData);
@@ -61,6 +66,7 @@ class StoreEmployee extends OrgAction
 
 
         if (Arr::get($credentials, 'username')) {
+
             StoreUser::make()->action(
                 $employee,
                 [
@@ -79,13 +85,8 @@ class StoreEmployee extends OrgAction
             );
         }
 
-        $jobPositions = [];
-        foreach ($positions as $positionData) {
-            $jobPosition                    = JobPosition::firstWhere('slug', $positionData['slug']);
-            $jobPositions[$jobPosition->id] = $positionData['scopes'];
-        }
+        SyncEmployeeJobPositions::run($employee, $positions);
 
-        SyncEmployeeJobPositions::run($employee, $jobPositions);
         EmployeeHydrateWeekWorkingHours::dispatch($employee);
         GroupHydrateEmployees::dispatch($employee->group);
         OrganisationHydrateEmployees::dispatch($organisation);
@@ -106,6 +107,7 @@ class StoreEmployee extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
+        $this->preparePositionsForValidation();
         if (!$this->get('username')) {
             $this->set('username', null);
         }
@@ -188,6 +190,7 @@ class StoreEmployee extends OrgAction
 
     public function action(Organisation|Workplace $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Employee
     {
+
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;

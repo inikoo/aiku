@@ -53,20 +53,14 @@ class StoreUser extends GrpAction
             ]);
         }
 
-
-
-
         if ($this->hydratorsDelay) {
             SetIconAsUserImage::dispatch($user)->delay($this->hydratorsDelay);
         } else {
             SetIconAsUserImage::run($user);
         }
 
+        SyncRolesFromJobPositions::run($user);
         UserRecordSearch::dispatch($user);
-
-
-
-
         GroupHydrateUsers::dispatch($user->group)->delay($this->hydratorsDelay);
 
 

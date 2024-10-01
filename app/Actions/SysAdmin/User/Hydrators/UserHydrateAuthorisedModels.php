@@ -31,6 +31,7 @@ class UserHydrateAuthorisedModels
         $authorisedProductions   = [];
 
 
+
         foreach ($user->getAllPermissions() as $permission) {
             if ($permission->scope_type === 'Organisation') {
                 $authorisedOrganisations[$permission->scope_id] = ['org_id' => $permission->scope_id];
@@ -69,6 +70,7 @@ class UserHydrateAuthorisedModels
             'number_authorised_warehouses'    => count($authorisedWarehouses),
             'number_authorised_productions'   => count($authorisedProductions),
         ];
+
         $user->update($stats);
 
         foreach ($user->group->organisations as $organisation) {

@@ -18,6 +18,7 @@ use App\Transfers\Aurora\FetchAuroraClockingMachine;
 use App\Transfers\Aurora\FetchAuroraCredit;
 use App\Transfers\Aurora\FetchAuroraCustomer;
 use App\Transfers\Aurora\FetchAuroraCustomerClient;
+use App\Transfers\Aurora\FetchAuroraCustomerNote;
 use App\Transfers\Aurora\FetchAuroraDeletedCustomer;
 use App\Transfers\Aurora\FetchAuroraDeletedEmployee;
 use App\Transfers\Aurora\FetchAuroraDeletedInvoice;
@@ -25,6 +26,7 @@ use App\Transfers\Aurora\FetchAuroraDeletedLocation;
 use App\Transfers\Aurora\FetchAuroraDeletedStock;
 use App\Transfers\Aurora\FetchAuroraDeletedSupplier;
 use App\Transfers\Aurora\FetchAuroraDeletedSupplierProduct;
+use App\Transfers\Aurora\FetchAuroraDeletedUser;
 use App\Transfers\Aurora\FetchAuroraDeliveryNote;
 use App\Transfers\Aurora\FetchAuroraDeliveryNoteTransaction;
 use App\Transfers\Aurora\FetchAuroraDepartment;
@@ -71,6 +73,7 @@ use App\Transfers\Aurora\FetchAuroraTimesheet;
 use App\Transfers\Aurora\FetchAuroraTradeUnit;
 use App\Transfers\Aurora\FetchAuroraTradeUnitImages;
 use App\Transfers\Aurora\FetchAuroraTransaction;
+use App\Transfers\Aurora\FetchAuroraUser;
 use App\Transfers\Aurora\FetchAuroraWarehouse;
 use App\Transfers\Aurora\FetchAuroraWarehouseArea;
 use App\Transfers\Aurora\FetchAuroraWebpage;
@@ -439,13 +442,20 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraOffer($this))->fetch($id);
     }
 
-    public function fetchDeletedUser($id)
+    public function fetchCustomerNote($id): ?array
     {
-        // TODO: Implement fetchDeletedUser() method.
+        return (new FetchAuroraCustomerNote($this))->fetch($id);
     }
 
-    public function fetchUser($id)
+    public function fetchDeletedUser($id): ?array
     {
-        // TODO: Implement fetchUser() method.
+        return (new FetchAuroraDeletedUser($this))->fetch($id);
     }
+
+    public function fetchUser($id): ?array
+    {
+        return (new FetchAuroraUser($this))->fetch($id);
+    }
+
+
 }

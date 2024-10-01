@@ -21,13 +21,14 @@ use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraCustomers extends FetchAuroraAction
 {
     use WithAuroraAttachments;
     use WithAuroraParsers;
 
-    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users attachments portfolio} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users attachments portfolio full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
@@ -61,7 +62,11 @@ class FetchAuroraCustomers extends FetchAuroraAction
                     );
 
                     $this->recordNew($organisationSource);
-                } catch (Exception $e) {
+                    $sourceData = explode(':', $customer->source_id);
+                    DB::connection('aurora')->table('Customer Dimension')
+                        ->where('Customer Key', $sourceData[1])
+                        ->update(['aiku_id' => $customer->id]);
+                } catch (Exception|Throwable $e) {
                     $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');
 
                     return null;
@@ -71,7 +76,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
 
             $sourceData = explode(':', $customer->source_id);
 
-            if (in_array('products', $with)) {
+            if (in_array('products', $with) || in_array('full', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Product Dimension')
@@ -84,7 +89,12 @@ class FetchAuroraCustomers extends FetchAuroraAction
             }
 
 
-            if ($customer->shop->type == ShopTypeEnum::DROPSHIPPING and in_array('clients', $with)) {
+            if ($customer->shop->type == ShopTypeEnum::DROPSHIPPING and
+                (
+                    in_array('clients', $with) || in_array('full', $with)
+                )
+
+            ) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Customer Client Dimension')
@@ -96,7 +106,11 @@ class FetchAuroraCustomers extends FetchAuroraAction
                 }
             }
 
-            if ($customer->shop->type == ShopTypeEnum::DROPSHIPPING and in_array('portfolio', $with)) {
+            if ($customer->shop->type == ShopTypeEnum::DROPSHIPPING and
+                (
+                    in_array('portfolio', $with) || in_array('full', $with)
+                )
+            ) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Customer Portfolio Fact')
@@ -108,7 +122,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
                 }
             }
 
-            if (in_array('orders', $with)) {
+            if (in_array('orders', $with) || in_array('full', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Order Dimension')
@@ -121,7 +135,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
             }
 
 
-            if (in_array('web-users', $with)) {
+            if (in_array('web-users', $with) || in_array('full', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Website User Dimension')
@@ -134,12 +148,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
             }
 
 
-            DB::connection('aurora')->table('Customer Dimension')
-                ->where('Customer Key', $sourceData[1])
-                ->update(['aiku_id' => $customer->id]);
-
-
-            if (in_array('attachments', $this->with)) {
+            if (in_array('attachments', $this->with) || in_array('full', $with)) {
                 $sourceData = explode(':', $customer->source_id);
                 foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
                     SaveModelAttachment::run(

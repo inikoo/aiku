@@ -17,39 +17,33 @@
 				},
 				"properties": {
                     "padding": {
+                        "unit": "px",
                         "top" :  {
-                            "value": "0",
-                            "unit": "px"
+                            "value": "0"
                         },
                         "left":{
-                            "value": "0",
-                            "unit": "px"
+                            "value": "0"
                         },
                         "right" :  {
-                            "value": "0",
-                            "unit": "px"
+                            "value": "0"
                         },
                         "bottom" :  {
-                            "value": "0",
-                            "unit": "px"
+                            "value": "0"
                         }
                     },
                     "margin": {
+                        "unit": "px",
                         "top" :  {
-                            "value": "0",
-                            "unit": "px"
+                            "value": "0"
                         },
                         "left":{
-                            "value": "0",
-                            "unit": "px"
+                            "value": "0"
                         },
                         "right" :  {
-                            "value": "0",
-                            "unit": "px"
+                            "value": "0"
                         },
                         "bottom" :  {
-                            "value": "0",
-                            "unit": "px"
+                            "value": "0"
                         }
                     }
                 }

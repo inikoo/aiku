@@ -1,16 +1,17 @@
 <?php
 /*
- *  Author: Raul Perusquia <raul@inikoo.com>
- *  Created: Fri, 26 Aug 2022 00:49:45 Malaysia Time, Kuala Lumpur, Malaysia
- *  Copyright (c) 2022, Raul A Perusquia F
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 30 Sept 2024 18:51:48 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\HumanResources\Employee;
+namespace App\Actions\SysAdmin\User;
 
 use App\Actions\GrpAction;
-use App\Actions\HumanResources\Employee\Traits\HasEmployeePositionGenerator;
-use App\Actions\HumanResources\JobPosition\SyncEmployeeOtherOrganisationJobPositions;
+use App\Actions\HumanResources\JobPosition\SyncUserJobPositions;
+use App\Actions\Traits\WithPreparePositionsForValidation;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Traits\WithReorganisePositions;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
@@ -19,11 +20,11 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
+class UpdateUsersPseudoJobPositions extends GrpAction
 {
     use WithActionUpdate;
-    use HasPositionsRules;
-    use HasEmployeePositionGenerator;
+    use WithPreparePositionsForValidation;
+    use WithReorganisePositions;
 
     protected bool $asAction = false;
 
@@ -31,17 +32,19 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
 
     private User $user;
 
-    private Organisation $otherOrganisation;
 
-    public function handle(User $user, Organisation $otherOrganisation, array $modelData): User
+    private Organisation $organisation;
+
+    public function handle(User $user, Organisation $organisation, array $modelData): User
     {
-        foreach ($user->employees as $employee) {
-            if (Arr::exists($modelData, 'positions')) {
-                $jobPositions = $this->generatePositions($employee->organisation, $modelData);
-                //SyncEmployeeOtherOrganisationJobPositions::run($employee, $otherOrganisation, $jobPositions);
-                Arr::forget($modelData, 'positions');
-            }
-        }
+
+
+        $positions = Arr::get($modelData, 'positions', []);
+        $positions = $this->reorganisePositionsSlugsToIds($positions);
+
+
+
+        SyncUserJobPositions::run($user, $positions);
 
         $user->refresh();
 
@@ -64,9 +67,9 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
             'positions'                             => ['sometimes', 'array'],
             'positions.*.slug'                      => ['sometimes', 'string'],
             'positions.*.scopes'                    => ['sometimes', 'array'],
-            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->otherOrganisation->id)],
-            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->otherOrganisation->id)],
-            'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->otherOrganisation->id)],
+            'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
+            'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
         ];
     }
 
@@ -74,7 +77,7 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
     {
         $this->asAction          = true;
         $this->user              = $user;
-        $this->otherOrganisation = $otherOrganisation;
+        $this->organisation = $otherOrganisation;
 
         $this->initialisation($user->group, $modelData);
 
@@ -84,7 +87,7 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
     public function prepareForValidation(ActionRequest $request): void
     {
         $this->preparePositionsForValidation();
-        if ($this->user->employees()->count() === 0) {
+        if ($this->user->employees()->where('user_has_models.organisation_id', $this->organisation->id)->exists()) {
             abort(419);
         }
     }
@@ -92,7 +95,7 @@ class UpdateEmployeeOtherOrganisationJobPositions extends GrpAction
     public function asController(User $user, Organisation $organisation, ActionRequest $request): User
     {
         $this->user              = $user;
-        $this->otherOrganisation = $organisation;
+        $this->organisation = $organisation;
 
         $this->initialisation(app('group'), $request);
 

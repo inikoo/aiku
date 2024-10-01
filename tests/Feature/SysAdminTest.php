@@ -16,7 +16,6 @@ use App\Actions\Helpers\Media\HydrateMedia;
 use App\Actions\Helpers\ReindexSearch;
 use App\Actions\Helpers\TimeZone\UI\GetTimeZonesOptions;
 use App\Actions\HumanResources\Employee\StoreEmployee;
-use App\Actions\HumanResources\Employee\UpdateEmployeeOtherOrganisationJobPositions;
 use App\Actions\SysAdmin\Admin\StoreAdmin;
 use App\Actions\SysAdmin\Group\HydrateGroup;
 use App\Actions\SysAdmin\Group\StoreGroup;
@@ -27,6 +26,7 @@ use App\Actions\SysAdmin\Guest\UpdateGuest;
 use App\Actions\SysAdmin\Organisation\HydrateOrganisations;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
+use App\Actions\SysAdmin\User\UpdateUsersPseudoJobPositions;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\SysAdmin\User\UpdateUserStatus;
 use App\Actions\SysAdmin\User\UserAddRoles;
@@ -612,7 +612,7 @@ test('employee job position in another organisation', function () {
         ->and($jobPosition1)->toBeInstanceOf(JobPosition::class);
 
 
-    $user = UpdateEmployeeOtherOrganisationJobPositions::make()->action(
+    $user = UpdateUsersPseudoJobPositions::make()->action(
         $user,
         $org2,
         [
