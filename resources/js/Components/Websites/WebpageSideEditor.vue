@@ -20,6 +20,7 @@ import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
+import { Collapse } from 'vue-collapsed'
 
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
@@ -82,10 +83,10 @@ const openModalBlockList = () => {
 }
 
 defineExpose({
-     isModalBlocksList
+    isModalBlocksList
 })
 
-
+const selectedBlockOpenPanel = ref(false)
 </script>
 
 <template>
@@ -93,46 +94,56 @@ defineExpose({
         <h2 class="text-sm font-semibold leading-6">Block List</h2>
         <Button icon="fas fa-plus" type="dashed" size="xs" @click="openModalBlockList" />
     </div>
+    
     <div>
-        <draggable v-if="webpage?.layout?.web_blocks.length > 0" :list="webpage.layout.web_blocks" handle=".handle"
-            @change="onChangeOrderBlock" ghost-class="ghost" group="column" itemKey="column_id" class="mt-2 space-y-1">
+        <draggable v-if="webpage?.layout?.web_blocks.length > 0"
+            :list="webpage.layout.web_blocks"
+            handle=".handle"
+            @change="onChangeOrderBlock"
+            ghost-class="ghost"
+            group="column"
+            itemKey="column_id"
+            class="mt-2 space-y-1"
+        >
             <template #item="{ element }">
                 <div>
-                    <Disclosure v-slot="{ open }">
-                        <DisclosureButton :class="open ? 'rounded-t-lg' : 'rounded'"
-                            class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 w-full cursor-pointer hover:bg-gray-100 bg-slate-50">
-                            <div class="flex gap-x-2">
-                                <div class="flex items-center justify-center">
-                                    <FontAwesomeIcon icon="fal fa-bars"
-                                        class="handle text-xs text-gray-700 cursor-grab pr-3 mr-2" />
-                                    <FontAwesomeIcon :icon='element?.web_block?.layout?.webpage?.icon' class='text-xs'
-                                        fixed-width aria-hidden='true' />
-                                </div>
-                                <h3 class="text-sm font-medium">
-                                    {{ element.web_block.layout.name }}
-                                </h3>
+                    <div @click="() => selectedBlockOpenPanel = !selectedBlockOpenPanel" :class="true ? 'rounded-t-lg' : 'rounded'"
+                        class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 w-full cursor-pointer hover:bg-gray-100 bg-slate-50">
+                        <div class="flex gap-x-2">
+                            <div class="flex items-center justify-center">
+                                <FontAwesomeIcon icon="fal fa-bars"
+                                    class="handle text-xs text-gray-700 cursor-grab pr-3 mr-2" />
+                                <FontAwesomeIcon :icon='element?.web_block?.layout?.webpage?.icon' class='text-xs'
+                                    fixed-width aria-hidden='true' />
                             </div>
+                            <h3 class="text-sm font-medium">
+                                {{ element.web_block.layout.name }}
+                            </h3>
+                        </div>
 
-                            <div v-tooltip="'Delete this block'"
-                                class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer"
-                                @click="(e) => { e.stopPropagation(), sendDeleteBlock(element) }">
-                                <LoadingIcon v-if="isLoading === ('deleteBlock' + element.id)" class="text-gray-400" />
-                                <FontAwesomeIcon v-else icon='fal fa-times' fixed-width aria-hidden='true' />
-                            </div>
-                        </DisclosureButton>
-                        <DisclosurePanel
-                            class="border border-gray-300 px-3 py-2 w-full rounded-b-lg border-t-0 mt-[-2px] text-gray-500 bg-white">
-                            <BlockGap v-model="element.web_block.layout.webpage.blockLayout"
-                                @update:modelValue="() => onUpdatedBlock(element)" />
-                        </DisclosurePanel>
-                    </Disclosure>
+                        <div v-tooltip="'Delete this block'"
+                            class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer"
+                            @click="(e) => { e.stopPropagation(), sendDeleteBlock(element) }">
+                            <LoadingIcon v-if="isLoading === ('deleteBlock' + element.id)" class="text-gray-400" />
+                            <FontAwesomeIcon v-else icon='fal fa-times' fixed-width aria-hidden='true' />
+                        </div>
+                    </div>
+
+                    <Collapse as="section" :when="selectedBlockOpenPanel">
+                        <pre>{{ element.web_block.layout.data?.blockLayout }}</pre>
+                        <!-- <BlockGap v-model="element.web_block.layout.webpage.blockLayout" @update:modelValue="() => onUpdatedBlock(element)" /> -->
+                    </Collapse>
                 </div>
             </template>
         </draggable>
+
         <div v-else class="flex flex-col justify-center items-center mt-4 rounded-lg p-4 text-center h-[90%]">
             <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
             <span class="mt-2 block text-sm font-semibold text-gray-600">You don't have any blocks</span>
         </div>
+
+        <Button icon="fas fa-plus" class="mt-3" full type="dashed" @click="openModalBlockList" />
+
     </div>
 
 
