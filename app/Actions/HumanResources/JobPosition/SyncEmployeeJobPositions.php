@@ -41,11 +41,12 @@ class SyncEmployeeJobPositions
             );
         }
 
+        foreach ($employee->users as $user) {
+            SyncRolesFromJobPositions::run($user);
+        }
 
         if (count($newJobPositionsIds) || count($removeJobPositions)) {
-            if ($user = $employee->getUser()) {
-                SyncRolesFromJobPositions::run($user);
-            }
+
 
             EmployeeHydrateJobPositionsShare::run($employee);
 

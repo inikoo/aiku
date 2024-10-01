@@ -38,7 +38,10 @@ class FetchAuroraEmployees extends FetchAuroraAction
 
 
         if ($employeeData = $organisationSource->fetchEmployee($organisationSourceId)) {
-            if ($employee = Employee::where('source_id', $employeeData['employee']['source_id'])->first()) {
+
+            $sourceId = $employeeData['employee']['source_id'];
+
+            if ($employee = Employee::where('source_id', $sourceId)->first()) {
                 $employee = UpdateEmployee::make()->action(
                     employee: $employee,
                     modelData: $employeeData['employee'],
@@ -61,20 +64,18 @@ class FetchAuroraEmployees extends FetchAuroraAction
             UpdateEmployeeWorkingHours::run($employee, $employeeData['working_hours']);
 
 
-
-            if (Arr::has($employeeData, 'user')) {
+            if (Arr::has($employeeData, 'user.source_id')) {
                 $updateUser = true;
                 $user       = $employee->getUser();
                 if (!$user) {
-                    $user = $employee->group->users()->where('username', $employeeData['user']['username'])
-                        ->first();
+                    $user = $employee->group->users()->where('username', $employeeData['user']['username'])->first();
                     if ($user) {
                         $updateUser = false;
                         $user       = AttachEmployeeToUser::make()->action(
                             $user,
                             $employee,
                             [
-                                'status' => $employeeData['user']['user_model_status'],
+                                'status'    => $employeeData['user']['user_model_status'],
                                 'source_id' => $employeeData['user']['source_id'],
                             ]
                         );

@@ -167,7 +167,7 @@ class EditUser extends InertiaAction
                                 'organisation_list' => $organisationList,
                                 'updateRoute'       => [
                                     'method'     => 'patch',
-                                    "name"       => "grp.models.user.other-organisation.update",
+                                    "name"       => "grp.models.user.pseudo-job-positions.update",
                                     'parameters' => [
                                         'user' => $user->id
                                         ]

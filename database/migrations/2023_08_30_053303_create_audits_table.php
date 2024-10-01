@@ -36,6 +36,9 @@ class CreateAuditsTable extends Migration
             $table->ipAddress()->nullable();
             $table->string('user_agent', 1023)->nullable();
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->string('source_id')->nullable()->unique();
             $table->index([$morphPrefix.'_id', $morphPrefix.'_type']);
         });
     }

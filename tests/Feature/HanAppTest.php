@@ -90,7 +90,9 @@ test('connect clocking machine to han', function () {
 test('find employee by pin', function () {
     Sanctum::actingAs($this->clockingMachine);
 
-    $response = $this->getJson(route('han.employee.pin.validate', ['employee' => $this->employee->pin]));
+    $response = $this->postJson(route('han.employee.pin.validate'), [
+        'pin' => $this->employee->pin
+    ]);
 
     $response
         ->assertStatus(200)
@@ -126,8 +128,10 @@ test('save clocking', function () {
 
 test('do not find employee using wrong pin', function () {
     Sanctum::actingAs($this->clockingMachine);
-    $response = $this->getJson(route('han.employee.pin.validate', ['employee' => 'XX11XX']));
-    $response->assertStatus(404);
+    $response = $this->postJson(route('han.employee.pin.validate'), [
+        'pin' => 'XX11XX'
+    ]);
+    $response->assertStatus(422);
 
 });
 
@@ -140,7 +144,9 @@ test('can not find employees from another organisation', function () {
         ->and($otherOrganisation->id)->not->toBe($this->organisation->id)
         ->and($employeeOtherOrganisation)->toBeInstanceOf(Employee::class);
 
-    $response = $this->getJson(route('han.employee.pin.validate', ['employee' => $employeeOtherOrganisation->pin]));
+    $response = $this->postJson(route('han.employee.pin.validate'), [
+        'pin' => $employeeOtherOrganisation->pin
+    ]);
     $response->assertStatus(404);
 });
 
@@ -149,6 +155,8 @@ test('find employee fail if employee status is left', function () {
 
     UpdateEmployee::make()->action($this->employee, ['state' => EmployeeStateEnum::LEFT]);
     $this->employee->refresh();
-    $response = $this->getJson(route('han.employee.pin.validate', ['employee' => $this->employee->pin]));
-    $response->assertStatus(405);
+    $response = $this->postJson(route('han.employee.pin.validate'), [
+        'pin' => $this->employee->pin
+    ]);
+    $response->assertStatus(404);
 });

@@ -138,7 +138,7 @@ class Employee extends Model implements HasMedia, Auditable
         'errors'         => '{}',
         'salary'         => '{}',
         'working_hours'  => '{}',
-        // 'migration_data' => '{}'
+        'migration_data' => '{}'
     ];
 
     protected $guarded = [];

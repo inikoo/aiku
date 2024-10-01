@@ -298,7 +298,7 @@ const optionsJob = reactive<optionsJob>({
 
     mrk: {
         key: 'mrk',
-        department: trans("Discounts"),
+        department: trans("Marketing"),
         icon: "fal fa-bullhorn",
         scope: 'shop',
         subDepartment: [

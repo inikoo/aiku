@@ -14,6 +14,8 @@ use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Role;
 use App\Models\SysAdmin\User;
+use Exception;
+use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SyncRolesFromJobPositions
@@ -24,19 +26,26 @@ class SyncRolesFromJobPositions
     {
         $roles = [];
 
+        if ($user->status) {
 
-        foreach ($user->employees as $employee) {
-            foreach ($employee->jobPositions as $jobPosition) {
+            foreach ($user->employees as $employee) {
+
+                foreach ($employee->jobPositions as $jobPosition) {
+                    $roles = $this->getRoles($roles, $jobPosition);
+                }
+            }
+
+            foreach ($user->pseudoJobPositions as $jobPosition) {
                 $roles = $this->getRoles($roles, $jobPosition);
             }
         }
 
-        foreach ($user->pseudoJobPositions as $jobPosition) {
-            $roles = $this->getRoles($roles, $jobPosition);
-        }
+
 
 
         $user->syncRoles($roles);
+
+
 
         if ($user->roles()->where('name', RolesEnum::GROUP_ADMIN->value)->exists()) {
             foreach ($user->group->organisations as $organisation) {
@@ -81,32 +90,52 @@ class SyncRolesFromJobPositions
 
     private function getRoles($roles, JobPosition $jobPosition): array
     {
+
         $jobPosition->refresh();
         if ($jobPosition->scope == JobPositionScopeEnum::ORGANISATION || $jobPosition->scope == JobPositionScopeEnum::GROUP) {
             $roles = array_merge($roles, $jobPosition->roles()->pluck('id')->all());
         } else {
             $roles = array_merge(
                 $roles,
-                $this->getRolesFromJobPosition($jobPosition)
+                $this->getRolesOrganisationScopes($jobPosition)
             );
         }
 
         return $roles;
     }
 
-    private function getRolesFromJobPosition(JobPosition $jobPosition): array
+    private function getRolesOrganisationScopes(JobPosition $jobPosition): array
     {
+
         $roles = [];
         $jobPosition->refresh();
         foreach ($jobPosition->roles as $role) {
             if (in_array($role->scope_id, $jobPosition->pivot->scopes[$role->scope_type])) {
                 $roles[] = $role->id;
             }
-
-            return $roles;
         }
 
         return $roles;
     }
+
+    public string $commandSignature = 'user:sync-roles-from-positions {user : User slug}';
+
+    public function asCommand(Command $command): int
+    {
+
+        try {
+            /** @var User $user */
+            $user = User::where('slug', $command->argument('user'))->firstOrFail();
+        } catch (Exception) {
+            $command->error('User not found');
+
+            return 1;
+        }
+        setPermissionsTeamId($user->group->id);
+        $this->handle($user);
+
+        return 0;
+    }
+
 
 }
