@@ -80,9 +80,14 @@ class StoreEmployee extends OrgAction
         }
 
         $jobPositions = [];
+
         foreach ($positions as $positionData) {
-            $jobPosition                    = JobPosition::firstWhere('slug', $positionData['slug']);
-            $jobPositions[$jobPosition->id] = $positionData['scopes'];
+
+            /** @var JobPosition $jobPosition */
+            $jobPosition                    =  $this->organisation->jobPositions()->firstWhere('code', $positionData['code']);
+            if($jobPosition){
+                $jobPositions[$jobPosition->id] = $positionData['scopes'];
+            }
         }
 
         SyncEmployeeJobPositions::run($employee, $jobPositions);
@@ -154,7 +159,7 @@ class StoreEmployee extends OrgAction
             'job_title'                               => ['sometimes', 'nullable', 'string', 'max:256'],
             'state'                                   => ['required', Rule::enum(EmployeeStateEnum::class)],
             'positions'                               => ['sometimes', 'array'],
-            'positions.*.slug'                        => ['sometimes', 'string'],
+            'positions.*.code'                        => ['sometimes', 'string'],
             'positions.*.scopes'                      => ['sometimes', 'array'],
             'positions.*.scopes.organisations.slug.*' => ['sometimes', Rule::exists('organisations', 'slug')->where('group_id', $this->organisation->group_id)],
             'positions.*.scopes.warehouses.slug.*'    => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
@@ -188,6 +193,7 @@ class StoreEmployee extends OrgAction
 
     public function action(Organisation|Workplace $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Employee
     {
+
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
@@ -205,6 +211,9 @@ class StoreEmployee extends OrgAction
 
     public function asController(Organisation $organisation, ActionRequest $request): Employee
     {
+
+
+
         $this->initialisation($organisation, $request);
 
         return $this->handle($organisation, $this->validatedData);

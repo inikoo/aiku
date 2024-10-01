@@ -16,6 +16,9 @@ class FetchAuroraDeletedEmployee extends FetchAurora
     {
         $auDeletedModel = json_decode(gzuncompress($this->auroraModelData->{'Staff Deleted Metadata'}));
 
+        if($auDeletedModel->data->{'Staff Type'} == 'Contractor'){
+            return;
+        }
 
         $this->parsedData['employee'] =
             [

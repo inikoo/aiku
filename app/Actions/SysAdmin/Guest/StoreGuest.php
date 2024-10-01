@@ -139,7 +139,7 @@ class StoreGuest extends GrpAction
             'email'        => ['sometimes', 'nullable', 'email'],
             'positions'    => ['sometimes', 'array'],
 
-            'positions.*.slug'   => ['sometimes', 'string', Rule::exists('job_positions', 'slug')->where('group_id', $this->group->id)],
+            'positions.*.code'   => ['sometimes', 'string'],
             'positions.*.scopes' => ['sometimes', 'array'],
 
             'positions.*.scopes.organisations.slug.*' => ['sometimes', Rule::exists('organisations', 'slug')->where('group_id', $this->group->id)],

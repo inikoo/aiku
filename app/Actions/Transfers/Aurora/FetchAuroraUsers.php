@@ -10,6 +10,7 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\SysAdmin\User\AttachEmployeeToUser;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
+use App\Actions\SysAdmin\User\UpdateUsersPseudoJobPositions;
 use App\Models\SysAdmin\User;
 use App\Transfers\SourceOrganisationService;
 use Exception;
@@ -24,6 +25,7 @@ class FetchAuroraUsers extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?User
     {
         if ($userData = $organisationSource->fetchUser($organisationSourceId)) {
+
             if ($userData['user']) {
                 if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
                     try {
@@ -42,39 +44,38 @@ class FetchAuroraUsers extends FetchAuroraAction
                     }
                 }
 
-                if (Db::table('user_has_model')
+                if ($foundUserData=Db::table('user_has_models')
                     ->select('user_id')
                     ->where('group_id', $organisationSource->getOrganisation()->group_id)
                     ->where('source_id', $userData['user']['source_id'])->first()) {
-                    return User::where('id', $user->id)->first();
-                }
 
+                    $user=User::where('id', $foundUserData->user_id)->first();
+
+
+
+                    return $user;
+                }
 
 
                 $user = $organisationSource->getOrganisation()->group->users()->where('username', $userData['user']['username'])->first();
 
-                if (!$user) {
 
+
+                if ($user) {
+
+
+                    $user = UpdateUsersPseudoJobPositions::make()->action(
+                        $user,
+                        $organisationSource->getOrganisation(),
+                        [
+                            'positions' => $userData['user']['positions']
+                        ]
+                    );
                 } else {
-                    // User found
-
-                    if ($userData['parent_type'] == 'Staff') {
-                        $user = AttachEmployeeToUser::run(
-                            $user,
-                            $userData['parent'],
-                            [
-                                'status' => $userData['user']['user_model_status'],
-                                'source_id' => $userData['user']['source_id'],
-                            ]
-                        );
-                        $this->updateAurora($user);
-                        return $user;
-                    }
-
-
+                    // User not found
+                    // todo add as a guest
+                    //dd($userData['user']);
                 }
-
-
 
 
                 //                elseif($userData['parent_type']=='Staff'){
@@ -98,10 +99,7 @@ class FetchAuroraUsers extends FetchAuroraAction
 
             }
 
-            $sourceData = explode(':', $user->source_id);
-            DB::connection('aurora')->table('User Deleted Dimension')
-                ->where('User Key', $sourceData[1])
-                ->update(['aiku_id' => $user->id]);
+
 
             return $user;
         }
@@ -113,7 +111,6 @@ class FetchAuroraUsers extends FetchAuroraAction
 
     private function updateAurora($user): void
     {
-
         $sourceData = explode(':', $user->source_id);
         DB::connection('aurora')->table('User Deleted Dimension')
             ->where('User Key', $sourceData[1])

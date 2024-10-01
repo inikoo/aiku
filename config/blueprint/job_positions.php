@@ -148,7 +148,8 @@ return [
             'scope'              => JobPositionScopeEnum::SHOPS,
             'roles'              => [
                 RolesEnum::SHOPKEEPER_SUPERVISOR,
-                RolesEnum::WEBMASTER_SUPERVISOR
+                RolesEnum::WEBMASTER_SUPERVISOR,
+                RolesEnum::DISCOUNTS_SUPERVISOR
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -162,7 +163,8 @@ return [
             'department'         => 'products',
             'roles'              => [
                 RolesEnum::SHOPKEEPER_CLERK,
-                RolesEnum::WEBMASTER_CLERK
+                RolesEnum::WEBMASTER_CLERK,
+                RolesEnum::DISCOUNTS_CLERK
             ],
             'organisation_types' => [
                 OrganisationTypeEnum::SHOP,
@@ -171,7 +173,7 @@ return [
         ],
         'mrk-m'    => [
             'code'               => 'mrk-m',
-            'name'               => 'Deals supervisor',
+            'name'               => 'Marketing supervisor',
             'scope'              => JobPositionScopeEnum::SHOPS,
             'department'         => 'products',
             'roles'              => [
@@ -184,7 +186,7 @@ return [
         ],
         'mrk-c'    => [
             'code'               => 'mrk-c',
-            'name'               => 'Deals clerk',
+            'name'               => 'Marketing clerk',
             'scope'              => JobPositionScopeEnum::SHOPS,
             'department'         => 'products',
             'roles'              => [

@@ -147,7 +147,7 @@ class UpdateEmployee extends OrgAction
             'job_title'                             => ['sometimes', 'nullable', 'string', 'max:256'],
             'state'                                 => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
             'positions'                             => ['sometimes', 'array'],
-            'positions.*.slug'                      => ['sometimes', 'string'],
+            'positions.*.code'                      => ['sometimes', 'string'],
             'positions.*.scopes'                    => ['sometimes', 'array'],
             'positions.*.scopes.warehouses.slug.*'  => ['sometimes', Rule::exists('warehouses', 'slug')->where('organisation_id', $this->organisation->id)],
             'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],

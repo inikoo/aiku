@@ -25,16 +25,26 @@ class SyncRolesFromJobPositions
         $roles = [];
 
 
+
+
         foreach ($user->employees as $employee) {
             foreach ($employee->jobPositions as $jobPosition) {
+
+
+
                 $roles = $this->getRoles($roles, $jobPosition);
             }
         }
 
+
         foreach ($user->pseudoJobPositions as $jobPosition) {
+
+
             $roles = $this->getRoles($roles, $jobPosition);
         }
 
+
+        print_r($roles);
 
         $user->syncRoles($roles);
 
@@ -81,6 +91,10 @@ class SyncRolesFromJobPositions
 
     private function getRoles($roles, JobPosition $jobPosition): array
     {
+
+       // print '>>>>>>>'.$jobPosition->code." <<<\n";
+       // print_r($jobPosition->pivot->scopes);
+
         $jobPosition->refresh();
         if ($jobPosition->scope == JobPositionScopeEnum::ORGANISATION || $jobPosition->scope == JobPositionScopeEnum::GROUP) {
             $roles = array_merge($roles, $jobPosition->roles()->pluck('id')->all());
@@ -96,9 +110,14 @@ class SyncRolesFromJobPositions
 
     private function getRolesFromJobPosition(JobPosition $jobPosition): array
     {
+
+        //print '*******'.$jobPosition->code>" <<<\n";
+
         $roles = [];
         $jobPosition->refresh();
         foreach ($jobPosition->roles as $role) {
+
+
             if (in_array($role->scope_id, $jobPosition->pivot->scopes[$role->scope_type])) {
                 $roles[] = $role->id;
             }

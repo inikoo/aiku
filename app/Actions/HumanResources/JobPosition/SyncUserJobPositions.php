@@ -28,8 +28,11 @@ class SyncUserJobPositions
         $user->pseudoJobPositions()->detach($removeJobPositions);
 
 
+
+
         foreach ($newJobPositionsIds as $jobPositionId) {
-            $pseudJobPositionsData = [
+
+            $pseudoJobPositionsData = [
                 'group_id'        => $user->group_id,
                 'scopes'          => $jobPositions[$jobPositionId]['scopes'],
                 'organisation_id' => $jobPositions[$jobPositionId]['organisation_id']
@@ -38,7 +41,7 @@ class SyncUserJobPositions
 
             $user->pseudoJobPositions()->attach(
                 [
-                    $jobPositionId => $pseudJobPositionsData
+                    $jobPositionId => $pseudoJobPositionsData
                 ],
             );
         }

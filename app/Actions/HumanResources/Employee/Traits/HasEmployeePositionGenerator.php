@@ -15,28 +15,39 @@ trait HasEmployeePositionGenerator
 {
     public function generatePositions(Organisation $organisation, array $modelData): array
     {
-        $jobPositions = [];
+
+
+        $rawJobPositions = [];
         foreach (Arr::get($modelData, 'positions', []) as $positionData) {
+
+
             /** @var JobPosition $jobPosition */
-            if (in_array($positionData['slug'], [
+            if (in_array($positionData['code'], [
                 'group_admin',
                 'group_sysadmin',
                 'group_procurement'
             ])) {
-                $jobPosition                    = $organisation->group->jobPositions()->firstWhere('code', $positionData['slug']);
+                $jobPosition                    = $organisation->group->jobPositions()->firstWhere('code', $positionData['code']);
 
             } else {
-                $jobPosition                    = $organisation->jobPositions()->firstWhere('code', $positionData['slug']);
+                $jobPosition                    = $organisation->jobPositions()->firstWhere('code', $positionData['code']);
             }
 
 
-            $jobPositions[$jobPosition->id] = [];
+
+
+
+            $rawJobPositions[$jobPosition->id] = [];
             foreach (Arr::get($positionData, 'scopes', []) as $key => $scopes) {
+
+
+
+
                 $scopeData = match ($key) {
                     'shops' => [
                         'Shop' => $organisation->shops->whereIn('slug', $scopes['slug'])->pluck('id')->toArray()
                     ],
-                    'warehouses' => [
+                    'warehouses'=> [
                         'Warehouse' => $organisation->warehouses->whereIn('slug', $scopes['slug'])->pluck('id')->toArray()
                     ],
                     'fulfilments' => [
@@ -45,18 +56,29 @@ trait HasEmployeePositionGenerator
                     default => []
                 };
 
-                if (isset($jobPositions[$jobPosition->id])) {
-                    $jobPositions[$jobPosition->id] = array_merge_recursive($jobPositions[$jobPosition->id], $scopeData);
+                if (isset($rawJobPositions[$jobPosition->id])) {
+                    $rawJobPositions[$jobPosition->id] = array_merge_recursive($rawJobPositions[$jobPosition->id], $scopeData);
                 } else {
-                    $jobPositions[$jobPosition->id] = $scopeData;
+                    $rawJobPositions[$jobPosition->id] = $scopeData;
                 }
             }
         }
 
-        foreach ($jobPositions as $id => $scopes) {
+
+
+        $jobPositions=[];
+        foreach ($rawJobPositions as $id => $scopes) {
+
             foreach ($scopes as $scopeKey => $ids) {
-                $jobPositions[$id][$scopeKey] = array_values(array_unique($ids));
+                $rawJobPositions[$id][$scopeKey] = array_values(array_unique($ids));
             }
+
+            $jobPositions[$id] = [
+                'scopes'=>$rawJobPositions[$id],
+                'organisation_id'=>$organisation->id
+            ];
+
+
         }
 
         return $jobPositions;
