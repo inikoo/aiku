@@ -9,7 +9,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { ref } from 'vue'
 import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars } from '@fal'
 import draggable from "vuedraggable"
-import BlockGap from '@/Components/Websites/Fields/BlockGap.vue'
+import PanelProperties from '@/Components/Websites/Fields/PanelProperties.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import debounce from 'lodash/debounce'
@@ -28,6 +28,8 @@ library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
 const props = defineProps<{
     webpage: RootWebpage
     webBlockTypeCategories: Root
+    isLoadingDelete: string | null
+    isAddBlockLoading: string | null
 }>()
 
 const emits = defineEmits<{
@@ -86,7 +88,7 @@ defineExpose({
     isModalBlocksList
 })
 
-const selectedBlockOpenPanel = ref(false)
+const selectedBlockOpenPanel = ref<number | null >(null)
 </script>
 
 <template>
@@ -96,46 +98,55 @@ const selectedBlockOpenPanel = ref(false)
     </div>
     
     <div>
-        <draggable v-if="webpage?.layout?.web_blocks.length > 0"
-            :list="webpage.layout.web_blocks"
-            handle=".handle"
-            @change="onChangeOrderBlock"
-            ghost-class="ghost"
-            group="column"
-            itemKey="column_id"
-            class="mt-2 space-y-1"
-        >
-            <template #item="{ element }">
-                <div>
-                    <div @click="() => selectedBlockOpenPanel = !selectedBlockOpenPanel" :class="true ? 'rounded-t-lg' : 'rounded'"
-                        class="group flex justify-between items-center gap-x-2 relative border border-gray-300 px-3 py-2 w-full cursor-pointer hover:bg-gray-100 bg-slate-50">
-                        <div class="flex gap-x-2">
-                            <div class="flex items-center justify-center">
-                                <FontAwesomeIcon icon="fal fa-bars"
-                                    class="handle text-xs text-gray-700 cursor-grab pr-3 mr-2" />
-                                <FontAwesomeIcon :icon='element?.web_block?.layout?.webpage?.icon' class='text-xs'
-                                    fixed-width aria-hidden='true' />
+        <template v-if="webpage?.layout?.web_blocks.length > 0 || isAddBlockLoading">
+            <draggable
+                :list="webpage.layout.web_blocks"
+                handle=".handle"
+                @change="onChangeOrderBlock"
+                ghost-class="ghost"
+                group="column"
+                itemKey="column_id"
+                class="mt-2 space-y-1"
+            >
+                <template #item="{ element, index }">
+                    <div class="bg-slate-50 border border-gray-300 ">
+                        <div @click="() => selectedBlockOpenPanel === index ? selectedBlockOpenPanel = null : selectedBlockOpenPanel = index"
+                            class="group flex justify-between items-center gap-x-2 relative px-3 py-2 w-full cursor-pointer"
+                            :class="selectedBlockOpenPanel === index ? 'bg-gray-600 text-white' : 'hover:bg-gray-100'"    
+                        >
+                            <div class="flex gap-x-2">
+                                <div class="flex items-center justify-center">
+                                    <FontAwesomeIcon icon="fal fa-bars" class="handle text-sm cursor-grab pr-3 mr-2" />
+                                    <FontAwesomeIcon :icon='element?.web_block?.layout?.webpage?.icon' class='text-xs' fixed-width aria-hidden='true' />
+                                </div>
+                                <h3 class="text-sm font-medium select-none">
+                                    {{ element.web_block.layout.name }}
+                                </h3>
                             </div>
-                            <h3 class="text-sm font-medium">
-                                {{ element.web_block.layout.name }}
-                            </h3>
+                            
+                            <div v-tooltip="'Delete this block'"
+                                class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer"
+                                @click="(e) => { e.stopPropagation(), sendDeleteBlock(element) }">
+                                <LoadingIcon v-if="isLoadingDelete === ('deleteBlock' + element.id)" class="text-gray-400" />
+                                <FontAwesomeIcon v-else icon='fal fa-times' fixed-width aria-hidden='true' />
+                            </div>
                         </div>
 
-                        <div v-tooltip="'Delete this block'"
-                            class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer"
-                            @click="(e) => { e.stopPropagation(), sendDeleteBlock(element) }">
-                            <LoadingIcon v-if="isLoading === ('deleteBlock' + element.id)" class="text-gray-400" />
-                            <FontAwesomeIcon v-else icon='fal fa-times' fixed-width aria-hidden='true' />
-                        </div>
+                        <!-- Section: Properties panel -->
+                        <Collapse as="section" :when="selectedBlockOpenPanel === index">
+                            <!-- {{ index }} -->
+                            <!-- <pre>{{ element.web_block.layout.data?.properties }}</pre> -->
+                            <PanelProperties
+                                v-model="element.web_block.layout.data.properties"
+                                @update:modelValue="() => (console.log('zzz'), debouncedSendUpdate(element))"
+                            />
+                        </Collapse>
                     </div>
+                </template>
+            </draggable>
 
-                    <Collapse as="section" :when="selectedBlockOpenPanel">
-                        <pre>{{ element.web_block.layout.data?.blockLayout }}</pre>
-                        <!-- <BlockGap v-model="element.web_block.layout.webpage.blockLayout" @update:modelValue="() => onUpdatedBlock(element)" /> -->
-                    </Collapse>
-                </div>
-            </template>
-        </draggable>
+            <div v-if="isAddBlockLoading" class="mt-2 skeleton h-12 w-full rounded-md" />
+        </template>
 
         <div v-else class="flex flex-col justify-center items-center mt-4 rounded-lg p-4 text-center h-[90%]">
             <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />

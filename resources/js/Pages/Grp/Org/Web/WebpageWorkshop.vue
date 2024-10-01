@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { ref, defineExpose } from 'vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import axios from 'axios'
@@ -23,6 +23,8 @@ import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
 import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faExternalLink } from '@fal'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { trans } from 'laravel-vue-i18n'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
@@ -37,66 +39,116 @@ const props = defineProps<{
 const comment = ref("")
 const isLoading = ref<string | boolean>(false)
 const openDrawer = ref<string | boolean>(false)
-const isAddBlockLoading = ref<string | boolean>(false)
 const iframeSrc = ref(route('grp.websites.preview', [route().params['website'], route().params['webpage']]))
 const data = ref({ ...props.webpage })
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const _WebpageSideEditor = ref(null)
 
-const sendNewBlock = async (block: Daum) => {
-    try {
-        const response = await axios.post(
-            route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
-            { web_block_type_id: block.id }
-        )
-        const set = { ...response.data.data }
-        data.value = set
-    } catch (error: any) {
-        console.error('error', error)
-    }
-    isAddBlockLoading.value = false
+const isAddBlockLoading = ref<string | null>(null)
+const addNewBlock = async (block: Daum) => {
+    // try {
+    //     const response = router.post(
+    //         route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
+    //         { web_block_type_id: block.id }
+    //     )
+    //     const set = { ...response.data.data }
+    //     data.value = set
+    // } catch (error: any) {
+    //     console.error('error', error)
+    // }
+    // isAddBlockLoading.value = null
+    router.post(
+        route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
+        { web_block_type_id: block.id },
+        {
+            onStart: () => isAddBlockLoading.value = 'addBlock' + block.id,
+            onFinish: () => isAddBlockLoading.value = null,
+            onError: (error) => {
+                notify({
+                    title: trans('Something went wrong'),
+                    text: error.message,
+                    type: 'error',
+                })
+            }
+        }
+    )
 }
 
+const isSavingBlock = ref(false)
 const sendBlockUpdate = async (block: Daum) => {
-    try {
-        const response = await axios.patch(
-            route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
-            { layout: block.web_block.layout }
-        )
-        const set = { ...response.data.data }
-        data.value = set
-    } catch (error: any) {
-        console.error('error', error)
-    }
+    // try {
+    //     const response = router.patch(
+    //         route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
+    //         { layout: block.web_block.layout }
+    //     )
+    //     const set = { ...response.data.data }
+    //     data.value = set
+    // } catch (error: any) {
+    //     console.error('error', error)
+    // }
+    // console.log('on send block update')
+    
+    router.patch(
+        route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
+        { layout: block.web_block.layout },
+        {
+            onStart: () => isSavingBlock.value = true,
+            onFinish: () => isSavingBlock.value = false,
+            onError: (error) => {
+                notify({
+                    title: trans('Something went wrong'),
+                    text: error.message,
+                    type: 'error',
+                })
+            },
+            preserveScroll: true
+        },
+    )
 }
 
 const sendOrderBlock = async (block: Object) => {
     try {
-        const response = await axios.post(
+        const response = await router.post(
             route(props.webpage.reorder_web_blocks_route.name, props.webpage.reorder_web_blocks_route.parameters),
             { positions: block }
         )
-        const set = { ...response.data.data }
-        data.value = set
+        // const set = { ...response.data.data }
+        // data.value = set
     } catch (error: any) {
         console.error('error', error)
     }
 }
 
+const isLoadingDelete = ref<string | null>(null)
 const sendDeleteBlock = async (block: Daum) => {
     // console.log('block', block)
-    isLoading.value = 'deleteBlock' + block.id
-    try {
-        const response = await axios.delete(
-            route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id })
-        )
-        const set = { ...response.data.data }
-        data.value = set
-    } catch (error: any) {
-        console.error('error', error)
-    }
-    isLoading.value = false
+    // isLoading.value = 'deleteBlock' + block.id
+    // try {
+    //     const response = await axios.delete(
+    //         route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id })
+    //     )
+    //     const set = { ...response.data.data }
+    //     data.value = set
+    // } catch (error: any) {
+    //     console.error('error', error)
+    // }
+
+    router.delete(
+        route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
+        {
+            onStart: () => isLoadingDelete.value = 'deleteBlock' + block.id,
+            onFinish: () => isLoadingDelete.value = null,
+            onError: (error) => {
+                notify({
+                    title: trans('Something went wrong'),
+                    text: error.message,
+                    type: 'error',
+                })
+            }
+        }
+    )
+    // isLoading.value = false
 }
 
 
@@ -156,8 +208,17 @@ const openFullScreenPreview = () => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
-            <Publish :isLoading="isLoading" :is_dirty="data.is_dirty" v-model="comment"
-                @onPublish="(popover) => onPublish(action.route, popover)" ref="_WebpageSideEditor"/>
+            <Publish
+                :isLoading="isLoading"
+                :is_dirty="data.is_dirty"
+                v-model="comment"
+                @onPublish="(popover) => onPublish(action.route, popover)"
+                ref="_WebpageSideEditor"
+            />
+        </template>
+
+        <template #afterTitle v-if="isSavingBlock">
+            <LoadingIcon v-tooltip="trans('Saving..')" />
         </template>
     </PageHeading>
 
@@ -165,17 +226,26 @@ const openFullScreenPreview = () => {
     <!--   side editor -->
     <div class="grid grid-cols-5 h-[85vh]">
         <div class="col-span-1 md:block hidden h-full border-2 bg-gray-200 px-3 py-1 ">
-            <WebpageSideEditor :webpage="data" :webBlockTypeCategories="webBlockTypeCategories"
-                @update="sendBlockUpdate" @delete="sendDeleteBlock" @add="sendNewBlock" @order="sendOrderBlock"/>
+            <WebpageSideEditor
+                :isLoadingDelete
+                :isAddBlockLoading
+                :webpage="props.webpage"
+                :webBlockTypeCategories="webBlockTypeCategories"
+                @update="sendBlockUpdate"
+                @delete="sendDeleteBlock"
+                @add="addNewBlock"
+                @order="sendOrderBlock"
+            />
         </div>
+
         <!--   main editor -->
-        <div class="md:col-span-4 col-span-5  h-full flex flex-col bg-gray-200">
+        <div v-if="false" class="md:col-span-4 col-span-5  h-full flex flex-col bg-gray-200">
             <div class="flex justify-between">
                 <div class="py-1 px-2 cursor-pointer md:hidden block" title="Desktop view" v-tooltip="'Navigation'">
                     <FontAwesomeIcon :icon='faBars' aria-hidden='true' @click="()=>openDrawer = true" />
                     <Drawer v-model:visible="openDrawer" :header="''" :dismissable="true">
                         <WebpageSideEditor ref="_WebpageSideEditor" :webpage="data" :webBlockTypeCategories="webBlockTypeCategories"
-                            @update="sendBlockUpdate" @delete="sendDeleteBlock" @add="sendNewBlock"
+                            @update="sendBlockUpdate" @delete="sendDeleteBlock" @add="addNewBlock"
                             @order="sendOrderBlock"  @openBlockList="()=>{openDrawer = false, _WebpageSideEditor.isModalBlocksList = true}" />
                     </Drawer>
                 </div>
