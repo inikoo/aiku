@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
 Route::name('han.')->group(function () {
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::prefix('employee')->group(function () {
-            Route::get('pin', ValidatePinEmployee::class)->name('employee.pin.validate');
+            Route::post('pin', ValidatePinEmployee::class)->name('employee.pin.validate');
             Route::post('{employee:id}/clocking', [StoreClocking::class, 'han'])->name('employee.clocking.store');
         });
 
