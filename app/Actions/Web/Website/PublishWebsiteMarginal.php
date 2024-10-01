@@ -13,6 +13,7 @@ use App\Actions\Helpers\Snapshot\UpdateSnapshot;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
+use App\Events\BroadcastPreviewHeaderFooter;
 use App\Models\Helpers\Snapshot;
 use App\Models\Web\Website;
 use Illuminate\Support\Arr;
@@ -86,6 +87,8 @@ class PublishWebsiteMarginal extends OrgAction
         }
 
         $website->update($updateData);
+
+        BroadcastPreviewHeaderFooter::dispatch($website);
 
         return $website;
     }
