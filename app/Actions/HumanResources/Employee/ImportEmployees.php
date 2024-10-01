@@ -56,9 +56,9 @@ class ImportEmployees
         return $this->handle($file);
     }
 
-    public function asController(Organisation $parent, ActionRequest $request): Upload
+    public function asController(Organisation $organisation, ActionRequest $request): Upload
     {
-        $this->parent = $parent;
+        $this->parent = $organisation;
         $request->validate();
         $file = $request->file('file');
         Storage::disk('local')->put($this->tmpPath, $file);
