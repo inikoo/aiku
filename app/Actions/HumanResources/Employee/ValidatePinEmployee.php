@@ -10,6 +10,7 @@ namespace App\Actions\HumanResources\Employee;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithPreparePositionsForValidation;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Http\Resources\HumanResources\EmployeeHanResource;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
@@ -29,7 +30,10 @@ class ValidatePinEmployee extends OrgAction
 
     public function handle(Organisation $organisation, array $modalData)
     {
-        return $organisation->employees()->where('pin', Arr::get($modalData, 'pin'))->first();
+        $employee = $organisation->employees()
+        ->where('state', '!=', EmployeeStateEnum::LEFT->value)
+        ->where('pin', Arr::get($modalData, 'pin'))->firstOrFail();
+        return $employee;
     }
 
     public function authorize(): bool
