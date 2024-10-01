@@ -56,3 +56,11 @@ Broadcast::channel('retina.active.users', function (Webuser $webUser) {
 Broadcast::channel('webpage.{webpage}.preview', function (User $user) {
     return true;
 });
+
+Broadcast::channel('header.{website}.preview', function (User $user) {
+    return true;
+});
+
+Broadcast::channel('footer.{website}.preview', function (User $user) {
+    return true;
+});

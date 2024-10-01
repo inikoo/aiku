@@ -13,14 +13,13 @@ use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Events\BroadcastPreviewWebpage;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Dropshipping\ModelHasWebBlocks;
-use Illuminate\Http\Resources\Json\JsonResource;
 
 class DeleteModelHasWebBlocks extends GrpAction
 {
     use HasWebAuthorisation;
 
 
-    public function handle(ModelHasWebBlocks $modelHasWebBlocks): ModelHasWebBlocks
+    public function handle(ModelHasWebBlocks $modelHasWebBlocks): void
     {
         $webBlockUsed = ModelHasWebBlocks::where('web_block_id', $modelHasWebBlocks->web_block_id)->count();
 
@@ -34,20 +33,20 @@ class DeleteModelHasWebBlocks extends GrpAction
 
         BroadcastPreviewWebpage::dispatch($modelHasWebBlocks->webpage);
 
-        return $modelHasWebBlocks;
+        // return $modelHasWebBlocks;
     }
 
-    public function jsonResponse(ModelHasWebBlocks $modelHasWebBlocks): JsonResource
+    public function jsonResponse(ModelHasWebBlocks $modelHasWebBlocks): void
     {
-        return WebpageResource::make($modelHasWebBlocks->webpage);
+        WebpageResource::make($modelHasWebBlocks->webpage);
     }
 
-    public function action(ModelHasWebBlocks $modelHasWebBlocks, array $modelData): ModelHasWebBlocks
+    public function action(ModelHasWebBlocks $modelHasWebBlocks, array $modelData): void
     {
         $this->asAction = true;
 
         $this->initialisation($modelHasWebBlocks->group, $modelData);
 
-        return $this->handle($modelHasWebBlocks);
+        $this->handle($modelHasWebBlocks);
     }
 }

@@ -28,13 +28,9 @@ class ValidatePinEmployee extends OrgAction
         return $employee;
     }
 
-    public function authorize(ActionRequest $request): bool
+    public function authorize(): bool
     {
-        if ($this->asAction) {
-            return true;
-        }
-
-        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
+        return true;
     }
 
     public function action(Employee $employee, array $modelData, bool $audit = true): Employee

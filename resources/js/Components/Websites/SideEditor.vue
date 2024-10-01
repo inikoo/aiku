@@ -1,19 +1,17 @@
 <script setup lang="ts">
 import type { Component } from 'vue'
 
+import Accordion from 'primevue/accordion';
+import AccordionPanel from 'primevue/accordionpanel';
+import AccordionHeader from 'primevue/accordionheader';
+import AccordionContent from 'primevue/accordioncontent';
+
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import PureInput from '@/Components/Pure/PureInput.vue'
 import UploadImage from '@/Components/Pure/UploadImage.vue'
 import Payments from '@/Components/Websites/Fields/Payment.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import socialMedia from '@/Components/Websites/Fields/SocialMedia.vue'
-
-import { faPresentation, faCube, faText, faPaperclip } from "@fal"
-import { library } from "@fortawesome/fontawesome-svg-core"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faHeart } from '@far';
-import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle, faImage } from '@fas';
-library.add(faPresentation, faCube, faText, faImage, faPaperclip, faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle)
 
 
 const props = defineProps<{
@@ -33,7 +31,6 @@ const getComponent = (componentName: string) => {
         'payment_templates' : Payments,
         'editor' : Editor,
         'socialMedia' : socialMedia
-        
     }
 
     return components[componentName]
@@ -49,15 +46,12 @@ const onUpdateValue = (field,value) => {
 </script>
 
 <template>
-    <div class="p-4 mb-3">
-        <div v-for="field in bluprint" :key="field.key" class="mx-auto w-full max-w-md rounded-2xl bg-white mb-2">
+      <!--   <div v-for="field in bluprint" :key="field.key" class="mx-auto w-full max-w-md ">
             <Disclosure v-slot="{ open }">
-                <DisclosureButton
-                    class="flex w-full justify-between rounded-lg px-4 py-2 text-left text-sm font-medium text-purple-900 hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500/75"
-                >
-                    <span class="font-medium text-sm">{{ field.name }}</span>
+                <DisclosureButton class="flex w-full justify-between px-4 py-4 text-left text-sm font-medium border-b border-white bg-[#D1D5DB]" >
+                    <span class="font-medium text-sm font-bold">{{ field.name }}</span>
                 </DisclosureButton>
-                <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500">
+                <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500 bg-[#D1D5DB]">
                     <section class="w-full">
                         <component
                             :is="getComponent(field.type)"
@@ -70,8 +64,23 @@ const onUpdateValue = (field,value) => {
                     </section>
                 </DisclosurePanel>
             </Disclosure>
-        </div>
-    </div>
+        </div> -->
+
+        <Accordion v-for="(field,index) in bluprint" :key="index" >
+            <AccordionPanel :value="index">
+                <AccordionHeader>{{ field.name }}</AccordionHeader>
+                <AccordionContent>
+                    <component
+                            :is="getComponent(field.type)"
+                            :key="field.key"
+                            v-model="modelValue[field.key]"
+                            @update:modelValue="value => onUpdateValue(field, value)"
+                            :uploadRoutes="uploadImageRoute"
+                            v-bind="field?.props_data"
+                        />
+                </AccordionContent>
+            </AccordionPanel>
+        </Accordion>
 </template>
 
 
@@ -80,6 +89,4 @@ const onUpdateValue = (field,value) => {
     background-color: white;
     border: solid;
 }
-
-
 </style>

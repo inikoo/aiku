@@ -37,9 +37,9 @@ class ReorderWebBlocks extends GrpAction
         return WebpageResource::make($webpage);
     }
 
-    public function asController(Webpage $webpage, ActionRequest $request): Webpage
+    public function asController(Webpage $webpage, ActionRequest $request): void
     {
-        return $this->handle($webpage, $request->input('positions'));
+        $this->handle($webpage, $request->input('positions'));
     }
 
     public function action(Webpage $webpage, array $modelData): Webpage
