@@ -22,6 +22,8 @@ const setActiveId = (value: Daum) => {
     active.value = value;
 };
 
+console.log(props)
+
 </script>
 
 <template>

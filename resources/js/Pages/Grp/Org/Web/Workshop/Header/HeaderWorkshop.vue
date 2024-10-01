@@ -18,9 +18,9 @@ import Publish from '@/Components/Publish.vue'
 import axios from 'axios'
 import { debounce } from 'lodash'
 import { useColorTheme } from '@/Composables/useStockList'
+import ScreenView from "@/Components/ScreenView.vue"
 
-
-import { faPresentation, faCube, faText, faPaperclip } from "@fal"
+import { faPresentation, faCube, faText, faPaperclip, faExternalLink } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faHeart } from '@far'
@@ -33,7 +33,7 @@ const props = defineProps<{
     title: string
     uploadImageRoute: routeType
     data: {}
-    autosaveRoute : routeType
+    autosaveRoute: routeType
 }>()
 
 console.log(props)
@@ -45,8 +45,10 @@ const usedTemplates = ref(props.data.header)
 const keyTemplates = ref(uuidv4())
 const isLoading = ref(false)
 const comment = ref('')
-const colorThemed = props.data?.color ? props.data?.color : {color : [...useColorTheme[0]]}
-
+const iframeClass = ref('w-full h-full')
+const isIframeLoading = ref(true)
+const colorThemed = props.data?.color ? props.data?.color : { color: [...useColorTheme[0]] }
+const iframeSrc = ref(route('grp.websites.header.preview', [route().params['website']]))
 
 const onPickTemplate = (header) => {
     isModalOpen.value = false
@@ -54,7 +56,7 @@ const onPickTemplate = (header) => {
     usedTemplates.value = { key: header.key, ...data }
 }
 
-const onPublish = async (action,popover) => {
+const onPublish = async (action, popover) => {
     try {
         // Ensure action is defined and has necessary properties
         if (!action || !action.method || !action.name || !action.parameters) {
@@ -66,7 +68,7 @@ const onPublish = async (action,popover) => {
         // Make sure route and axios are defined and used correctly
         const response = await axios[action.method](route(action.name, action.parameters), {
             comment: comment.value,
-            layout : usedTemplates.value
+            layout: usedTemplates.value
         })
         popover.close()
         console.log(response)
@@ -88,6 +90,7 @@ const onPublish = async (action,popover) => {
 };
 
 const autoSave = async (data) => {
+    console.log(data)
     try {
         const response = await axios.patch(
             route(props.autosaveRoute.name, props.autosaveRoute.parameters),
@@ -104,7 +107,25 @@ const onUpdatedBlock = (data) => {
     keyTemplates.value = uuidv4()
 }
 
-// Watch for changes in usedTemplates to trigger autoSave
+const setIframeView = (view: String) => {
+    if (view === 'mobile') {
+        iframeClass.value = 'w-[375px] h-[667px] mx-auto'; // iPhone 6/7/8 size
+    } else if (view === 'tablet') {
+        iframeClass.value = 'w-[768px] h-[1024px] mx-auto'; // iPad size
+    } else {
+        iframeClass.value = 'w-full h-full'; // Full width for desktop
+    }
+}
+
+const openFullScreenPreview = () => {
+    window.open(iframeSrc.value, '_blank')
+}
+
+const handleIframeError = () => {
+    console.error('Failed to load iframe content.');
+}
+
+
 watch(usedTemplates, (newVal) => {
     if (newVal) {
         debouncedSendUpdate(newVal.data)
@@ -120,93 +141,52 @@ watch(usedTemplates, (newVal) => {
         <template #button-publish="{ action }">
             <!--  <Action v-if="action" :action="action" :dataToSubmit="data" /> -->
             <Publish :isLoading="isLoading" :is_dirty="true" v-model="comment"
-                @onPublish="(popover)=>onPublish(action.route,popover)" />
+                @onPublish="(popover) => onPublish(action.route, popover)" />
         </template>
     </PageHeading>
 
-    <!-- <div @click="()=>console.log(usedTemplates)">see data</div> -->
+    <div class="h-[85vh] grid grid-flow-row-dense grid-cols-5">
+        <div v-if="usedTemplates?.key"
+            class="col-span-1 bg-[#F9F9F9] flex flex-col justify-between h-full border-r border-gray-300">
+            <div class="">
+                <div class="py-2 px-2 font-bold text-lg">Form Editing</div>
+                <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint"
+                    @update:modelValue="onUpdatedBlock(usedTemplates)" :uploadImageRoute="uploadImageRoute" />
+            </div>
+        </div>
 
-    <div class="h-screen grid grid-flow-row-dense grid-cols-4">
-        <div v-if="usedTemplates?.key" class="col-span-1 bg-slate-200 px-3 py-2 flex flex-col justify-between h-full">
-            <div>
-                <div class="flex justify-between">
-                    <div class="font-bold text-sm">
-                        <Switch @click="loginMode = !loginMode"
-                            class="pr-1 relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors bg-white ring-1 ring-slate-300 duration-200 shadow ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-                            <span aria-hidden="true"
-                                :class="loginMode ? 'translate-x-6 bg-indigo-500' : 'translate-x-0 bg-slate-300'"
-                                class="pointer-events-none inline-block h-full w-1/2 transform rounded-full  shadow-lg ring-0 transition duration-200 ease-in-out"></span>
-                        </Switch>
-                        <div class="text-xs leading-none font-medium cursor-pointer select-none"
-                            :class="loginMode ? 'text-indigo-500' : ' text-gray-400'">
-                            Login Mode
+        <div :class="usedTemplates?.key ? 'col-span-4' : 'col-span-5'">
+            <div v-if="usedTemplates?.key" class="h-full w-full bg-white">
+                <div class="flex justify-between bg-slate-200 border border-b-gray-300">
+                    <div class="flex">
+                        <ScreenView @screenView="setIframeView" />
+                        <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
+                            @click="openFullScreenPreview">
+                            <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
                         </div>
                     </div>
-                    <div>
-                        <Button
-                            type="tertiary"
-                            label="List Templates"
-                            size="xs"
-                            icon="fas fa-th-large"
-                            @click="isModalOpen = true"
-                        />
+                    <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'"
+                        @click="isModalOpen = true">
+                        <FontAwesomeIcon icon="fas fa-th-large" aria-hidden='true' />
                     </div>
                 </div>
+                <iframe :src="iframeSrc" :title="props.title" :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
+                    @error="handleIframeError" @load="isIframeLoading = false" />
 
-                <SideEditor
-                    v-if="usedTemplates?.key"
-                    v-model="usedTemplates.data"
-                    :bluprint="usedTemplates.bluprint"
-                    @update:modelValue="onUpdatedBlock(usedTemplates)"
-                    :uploadImageRoute="uploadImageRoute"
-                />
             </div>
-        </div>
-
-        <div class="bg-gray-100 px-6 py-6 h-full overflow-auto"
-            :class="usedTemplates?.key ? 'col-span-3' : 'col-span-4'">
-            <div :class="usedTemplates?.key ? 'bg-white' : ''">
-                <section v-if="usedTemplates?.key">
-                    <component
-                        :is="getComponent(usedTemplates.key)"
-                        :loginMode="loginMode"
-                        :previewMode="previewMode"
-                        v-model="usedTemplates.data"
-                        :uploadImageRoute="uploadImageRoute"
-                        :colorThemed="colorThemed"
-                    />
-                </section>
-                <section v-else>
-                    <EmptyState
-                        :data="{ description: 'You need pick a template from list', title: 'Pick Header Templates' }">
-                        <template #button-empty-state>
-                            <div class="mt-4 block">
-                                <Button type="secondary" label="Templates" icon="fas fa-th-large"
-                                    @click="isModalOpen = true"></Button>
-                            </div>
-                        </template>
-                    </EmptyState>
-                </section>
-                <DummyCanvas v-if="usedTemplates?.key"></DummyCanvas>
-            </div>
+            <section v-else>
+                <EmptyState
+                    :data="{ description: 'You need pick a template from list', title: 'Pick Header Templates' }">
+                    <template #button-empty-state>
+                        <div class="mt-4 block">
+                            <Button type="secondary" label="Templates" icon="fas fa-th-large"
+                                @click="isModalOpen = true"></Button>
+                        </div>
+                    </template>
+                </EmptyState>
+            </section>
         </div>
     </div>
-    <div v-if="usedTemplates?.key" class="bg-gray-300 p-4 text-white text-center fixed bottom-5 w-full">
-        <div class="flex items-center gap-x-2">
-            <Switch @click="previewMode = !previewMode"
-                class="pr-1 relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors bg-white ring-1 ring-slate-300 duration-200 shadow ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-                <span aria-hidden="true"
-                    :class="previewMode ? 'translate-x-6 bg-indigo-500' : 'translate-x-0 bg-slate-300'"
-                    class="pointer-events-none inline-block h-full w-1/2 transform rounded-full  shadow-lg ring-0 transition duration-200 ease-in-out"></span>
-            </Switch>
-            <div class="text-xs leading-none font-medium cursor-pointer select-none"
-                :class="previewMode ? 'text-indigo-500' : ' text-gray-400'">
-                Preview Mode
-            </div>
-        </div>
-    </div>
-
-
 
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-2/5">
         <div tag="div"
@@ -222,8 +202,7 @@ watch(usedTemplates, (newVal) => {
             </div>
         </div>
     </Modal>
-
 </template>
 
 
-<style scss></style>
+<style scss scoped></style>

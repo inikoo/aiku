@@ -114,7 +114,6 @@ const onPublish = async (action: {}, popover: {}) => {
             comment: comment.value,
             publishLayout: { blocks: data.value.layout }
         })
-        reloadIframe()
         popover.close()
 
     } catch (error) {

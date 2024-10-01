@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
+use App\Events\BroadcastPreviewHeaderFooter;
 use App\Events\BroadcastPreviewWebpage;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Dropshipping\ModelHasWebBlocks;
@@ -29,6 +30,7 @@ class UpdateModelHasWebBlocks extends OrgAction
         UpdateWebpageContent::run($modelHasWebBlocks->webpage);
 
         BroadcastPreviewWebpage::dispatch($modelHasWebBlocks->webpage);
+        BroadcastPreviewHeaderFooter::dispatch($modelHasWebBlocks->website);
 
         return $modelHasWebBlocks;
 
