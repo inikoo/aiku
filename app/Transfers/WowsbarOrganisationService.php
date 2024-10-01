@@ -379,5 +379,20 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchCustomerNote($id): ?array
+    {
+        return null;
+    }
+
+    public function fetchDeletedUser($id): ?array
+    {
+        return null;
+    }
+
+    public function fetchUser($id): ?array
+    {
+        return null;
+    }
+
 
 }
