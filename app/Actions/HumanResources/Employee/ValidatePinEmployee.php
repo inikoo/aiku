@@ -13,8 +13,8 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\HumanResources\EmployeeHanResource;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class ValidatePinEmployee extends OrgAction
@@ -27,9 +27,9 @@ class ValidatePinEmployee extends OrgAction
     private Employee $employee;
     private ClockingMachine $clockingMachine;
 
-    public function handle(ClockingMachine $clockingMachine, array $modalData): Employee
+    public function handle(Organisation $organisation, array $modalData)
     {
-        return $clockingMachine->workplace->employees()->where('pin', Arr::get($modalData, 'pin'))->first();
+        return $organisation->employees()->where('pin', Arr::get($modalData, 'pin'))->first();
     }
 
     public function authorize(): bool
@@ -37,7 +37,7 @@ class ValidatePinEmployee extends OrgAction
         return true;
     }
 
-    public function action(ClockingMachine $clockingMachine, array $modelData, bool $audit = true): Employee
+    public function action(ClockingMachine $clockingMachine, array $modelData, bool $audit = true)
     {
         $this->clockingMachine = $clockingMachine;
 
@@ -48,23 +48,17 @@ class ValidatePinEmployee extends OrgAction
 
         $this->initialisation($clockingMachine->organisation, $modelData);
 
-        return $this->handle($clockingMachine, $modelData);
+        return $this->handle($clockingMachine->organisation, $modelData);
     }
 
     public function rules(): array
     {
-        $clockingMachineId = $this->clockingMachine->id;
-
         return [
-            'pin' => ['required', Rule::exists('employees', 'pin')->where(function ($query) use ($clockingMachineId) {
-                $query->whereHas('workplaces', function ($query) use ($clockingMachineId) {
-                    $query->where('clocking_machine_id', $clockingMachineId);
-                });
-            })]
+            'pin' => ['required', 'exists:employees,pin']
         ];
     }
 
-    public function asController(ActionRequest $request): Employee
+    public function asController(ActionRequest $request)
     {
         /** @var ClockingMachine $clockingMachine */
         $clockingMachine = $request->user();
@@ -72,7 +66,7 @@ class ValidatePinEmployee extends OrgAction
 
         $this->initialisation($clockingMachine->organisation, $request);
 
-        return $this->handle($clockingMachine, $this->validatedData);
+        return $this->handle($clockingMachine->organisation, $this->validatedData);
     }
 
     public function jsonResponse(Employee $employee): EmployeeHanResource
