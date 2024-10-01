@@ -19,6 +19,9 @@ import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
 import CountUp from 'vue-countup-v3'
 import BackgroundBox from '@/Components/BackgroundBox.vue'
 import Icon from '@/Components/Icon.vue'
+import { trans } from 'laravel-vue-i18n'
+import Image from '@/Components/Image.vue'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 
 library.add(faCheckCircle, faTimesCircle )
 
@@ -45,6 +48,7 @@ const props = defineProps<{
 
 
 const locale = inject('locale', aikuLocaleStructure)
+const layout = inject('layout', layoutStructure)
 
 // const stats = [
 //     { id: 1, label: 'Total Subscribers', stat: '71,897', change: '122', changeType: 'increase' },
@@ -61,6 +65,7 @@ const locale = inject('locale', aikuLocaleStructure)
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
 
+    <!-- Stats: box -->
     <div class="p-6">
         <dl class="grid grid-cols-1 gap-2 lg:gap-5 sm:grid-cols-2 lg:grid-cols-4">
             <Link
@@ -112,41 +117,139 @@ const locale = inject('locale', aikuLocaleStructure)
         </dl>
     </div>
 
-    <div class="p-6">
+    <!-- Section: Top of the Month -->
+    <div v-if="totm.product.value || totm.department.value || totm.family.value" class="p-6">
         <div class="text-xl font-semibold py-1 border-b border-gray-200">Top of the month (TotM)</div>
-        <dl class="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:grid-rows-2 h-72">
-            <div class="isolate relative group bg-gray-100 h-full row-span-2 rounded-md overflow-hidden px-8 py-8 flex gap-x-4">
-                <div class="h-full flex flex-col gap-y-1">
-                    <div class="aspect-square h-full w-fit rounded-md overflow-hidden">
-                        <img src="https://www.ancientwisdom.biz/wi.php?id=1857494&s=705x705" class="h-full w-auto z-10" />
+        <dl class="isolate mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:grid-rows-2 h-72">
+            <!-- TotM: Product -->
+            <div v-if="totm.product.value" class="row-span-2 example-2 rounded-md">
+                <div class="inner group bg-gray-100 h-full rounded-md px-8 py-8 flex gap-x-4"
+                    :style="{
+                        background: `color-mix(in srgb, ${layout?.app?.theme[0]} 10%, white)`
+                    }"
+                >
+                    <div class="aspect-square h-1/2 lg:h-full w-fit flex-shrink-0 rounded-md overflow-hidden">
+                        <!-- <img src="https://www.ancientwisdom.biz/wi.php?id=1857494&s=705x705" class="h-full w-auto z-10" /> -->
+                        <Image :src="totm.product.value?.images?.data?.[0]?.source" />
+                    </div>
+
+                    <div class="flex flex-col justify-between gap-y-1">
+                        <div>
+                            <div class="text-indigo-600 text-sm animate-pulse">Product of the month</div>
+                            <h3 class="text-xl font-semibold">
+                                {{ totm.product.value?.name }}
+                            </h3>
+                            <div class="text-gray-400 text-sm">{{ totm.product.value?.code || '-' }}</div>
+                        </div>
+                        <div>
+                            <p aria-hidden="true" class="text-gray-500">{{ trans('Sold this month') }}: {{ totm.product.value?.sold_on_month || '-' }}</p>
+                            <p aria-hidden="true" class="text-gray-500">{{ trans('Stock') }}: {{ totm.product.value?.stock || '-' }}</p>
+                            <p aria-hidden="true" class="text-gray-500">{{ trans('Price') }}: {{ totm.product.value?.price || '-' }}</p>
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="flex flex-col justify-between gap-y-1">
-                    <div>
-                        <div class="text-indigo-600 text-sm animate-pulse">Product of the month</div>
-                        <h3 class="text-xl font-semibold">
-                            Vintage Orange Mint Hand Carved Buddha Statue - 30cm - Happy Buddha
-                        </h3>
-                        <div class="text-gray-400 text-sm">AT48441546</div>
+            <!-- TotM: Department -->
+            <div v-if="totm.department.value" class="bg-gray-50 border-gray-200 border rounded-md flex items-center p-6">
+                <div class="flex gap-x-2 items-center">
+                    <div class="p-3 rounded">
+                        <FontAwesomeIcon icon='fal fa-folder-tree' class='text-indigo-500 text-xl' v-tooltip="trans('Department')" fixed-width aria-hidden='true' />
                     </div>
-                    <div>
-                        <p aria-hidden="true" class="text-gray-500">Sold this month: 1,684 pcs</p>
-                        <p aria-hidden="true" class="text-gray-500">Stock: 8,652</p>
-                        <p aria-hidden="true" class="text-gray-500">Price: $62/pcs</p>
+                    <div class="">
+                        <div class="text-xl font-medium">{{ totm.department.value.name }}</div>
+                        <div class="flex gap-x-10">
+                            <div class="text-gray-500">
+                                <FontAwesomeIcon icon='fal fa-folder' class='text-gray-400' fixed-width aria-hidden='true' />
+                                {{ totm.department.value.current_families }}
+                            </div>
+                            <div class="text-gray-500">
+                                <FontAwesomeIcon icon='fal fa-cube' class='text-gray-400' fixed-width aria-hidden='true' />
+                                {{ totm.department.value.current_products }}
+                            </div>
+                        </div>
                     </div>
+                    
                 </div>
             </div>
 
-            <div class="bg-gray-100 rounded-md">
+            <!-- TotM: Family -->
+            <div v-if="totm.family.value" class="bg-gray-50 border-gray-200 border rounded-md flex items-center p-6">
+                <div class="flex gap-x-2 items-center">
+                    <div class="p-3 rounded">
+                        <FontAwesomeIcon :icon='totm.family.icon' class='text-indigo-500 text-xl' v-tooltip="trans('Family')" fixed-width aria-hidden='true' />
+                    </div>
+
+                    <div class="">
+                        <div class="text-xl font-medium">{{ totm.family.value.name }}</div>
+                        <!-- <div class="flex gap-x-10">
+                            <div class="text-gray-500">
+                                <FontAwesomeIcon icon='fal fa-folder' class='text-gray-400' fixed-width aria-hidden='true' />
+                                {{ totm.department.value.current_families }}
+                            </div>
+                            <div class="text-gray-500">
+                                <FontAwesomeIcon icon='fal fa-cube' class='text-gray-400' fixed-width aria-hidden='true' />
+                                {{ totm.department.value.current_products }}
+                            </div>
+                        </div> -->
+                    </div>
+                    
+                </div>
             </div>
 
-            <div class="bg-gray-100 rounded-md">
-            </div>
         </dl>
     </div>
 
-    <!-- <pre>{{ totm.product }}</pre> -->
+    <!-- <pre>{{ totm }}</pre> -->
 
 
 </template>
+
+<style lang="scss">
+.example-2 {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1px;
+}
+
+.example-2 .inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+.example-2 .inner {
+  margin: 0px;
+}
+.example-2::before {
+  content: "";
+  display: block;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    v-bind('`color-mix(in srgb, ${layout?.app?.theme[0]} 100%, transparent)`') 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  height: 150%;
+  width: 300px;
+  transform: translate(0);
+  position: absolute;
+  animation: rotate 3s linear forwards infinite;
+  z-index: 0;
+  top: 50%;
+  transform-origin: top center;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+</style>
