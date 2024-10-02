@@ -8,6 +8,7 @@
 
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
+use App\Actions\Procurement\OrgAgent\UpdateOrgAgent;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
@@ -156,8 +157,22 @@ test('create org-agent', function ($agent) {
     expect($orgAgent)->toBeInstanceOf(OrgAgent::class)
         ->and($orgAgent->stats)->toBeInstanceOf(OrgAgentStats::class);
 
-    return $agent;
+    return $orgAgent;
 })->depends('create agent');
+
+test('update org-agent', function ($orgAgent) {
+    $updatedOrgAgent = UpdateOrgAgent::make()->action(
+        $orgAgent,
+        [
+            'status' => false
+        ]
+    );
+
+    expect($updatedOrgAgent)->toBeInstanceOf(OrgAgent::class)
+        ->and($updatedOrgAgent->status)->toBe(false);
+
+    return $updatedOrgAgent;
+})->depends('create org-agent');
 
 test('create org-supplier', function ($supplier) {
     $orgSupplier = StoreOrgSupplier::make()->action(
