@@ -13,35 +13,41 @@ use App\Actions\RetinaAction;
 use App\Actions\Catalogue\Product\UI\IndexProducts as IndexUIProducts;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
+use App\Models\Dropshipping\ShopifyUser;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
 class IndexDropshippingRetinaProducts extends RetinaAction
 {
+    public function handle(ShopifyUser $shopifyUser): ShopifyUser
+    {
+        return $shopifyUser;
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->is_root;
     }
 
-    public function asController(ActionRequest $request): ActionRequest
+    public function asController(ActionRequest $request): ShopifyUser
     {
         $this->initialisation($request);
 
-        return $request;
+        $shopifyUser = $request->user()->customer->shopifyUser;
+
+        return $this->handle($shopifyUser);
     }
 
-    public function htmlResponse(ActionRequest $request): Response
+    public function htmlResponse(ShopifyUser $shopifyUser): Response
     {
-        $shop = $request->get('website')->shop;
-
         return Inertia::render(
             'Dropshipping/Products',
             [
                 // 'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('Products'),
+                'title'       => __('Portfolios'),
                 'pageHead'    => [
-                    'title' => __('Products'),
+                    'title' => __('Portfolios'),
                     'icon'  => 'fal fa-cube'
                 ],
                 'tabs' => [
@@ -49,9 +55,9 @@ class IndexDropshippingRetinaProducts extends RetinaAction
                     'navigation' => ProductTabsEnum::navigation()
                 ],
 
-                'products' => ProductsResource::collection(IndexUIProducts::run($shop, 'products'))
+                'products' => ProductsResource::collection(IndexUIProducts::run($shopifyUser, 'products'))
             ]
-        )->table(IndexUIProducts::make()->tableStructure($shop, prefix: 'products'));
+        )->table(IndexUIProducts::make()->tableStructure($shopifyUser, prefix: 'products'));
     }
 
     // public function getBreadcrumbs(): array

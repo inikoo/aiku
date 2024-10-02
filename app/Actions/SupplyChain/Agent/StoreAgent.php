@@ -70,7 +70,7 @@ class StoreAgent extends GrpAction
 
         GroupHydrateAgents::run($group);
         AgentHydrateUniversalSearch::dispatch($agent);
-        
+
 
         return $agent;
     }

@@ -51,7 +51,7 @@ beforeEach(function () {
 
     $this->orgAgent = $orgAgent;
 
-    
+
     $supplier = Supplier::first();
     if (!$supplier) {
         $storeData = Supplier::factory()->definition();
