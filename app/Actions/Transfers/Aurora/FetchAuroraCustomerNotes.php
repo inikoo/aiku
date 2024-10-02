@@ -24,49 +24,40 @@ class FetchAuroraCustomerNotes extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?CustomerNote
     {
         if ($customerNoteData = $organisationSource->fetchCustomerNote($organisationSourceId)) {
-
-
             if ($customerNote = CustomerNote::where('source_id', $customerNoteData['customer_note']['source_id'])
                 ->first()) {
+                try {
+                    $customerNote = UpdateCustomerNote::make()->action(
+                        customerNote: $customerNote,
+                        modelData: $customerNoteData['customer_note'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+                    $this->recordChange($organisationSource, $customerNote->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $customerNoteData['customer_note'], 'CustomerNote', 'update');
 
-
-                //   try {
-
-                $customerNote = UpdateCustomerNote::make()->action(
-                    customerNote: $customerNote,
-                    modelData: $customerNoteData['customer_note'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
-                $this->recordChange($organisationSource, $customerNote->wasChanged());
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $customerNoteData['customer_note'], 'CustomerNote', 'update');
-                //
-                //                    return null;
-                //                }
+                    return null;
+                }
             } else {
+                try {
+                    $customerNote = StoreCustomerNote::make()->action(
+                        customer: $customerNoteData['customer'],
+                        modelData: $customerNoteData['customer_note'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
 
-                //     try {
-                $customerNote = StoreCustomerNote::make()->action(
-                    customer: $customerNoteData['customer'],
-                    modelData: $customerNoteData['customer_note'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
+                    $sourceData = explode(':', $customerNote->source_id);
+                    DB::connection('aurora')->table('History Dimension')
+                        ->where('History Key', $sourceData[1])
+                        ->update(['aiku_notes_id' => $customerNote->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $customerNoteData['customer_note'], 'CustomerNote', 'store');
 
-                $sourceData = explode(':', $customerNote->source_id);
-                DB::connection('aurora')->table('History Dimension')
-                    ->where('History Key', $sourceData[1])
-                    ->update(['aiku_notes_id' => $customerNote->id]);
-
-
-
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $customerNoteData['customer_note'], 'CustomerNote', 'store');
-                //                    return null;
-                //                }
+                    return null;
+                }
             }
-
 
 
             return $customerNote;
@@ -82,11 +73,12 @@ class FetchAuroraCustomerNotes extends FetchAuroraAction
             ->where('Direct Object', 'Note')
             ->where('Indirect Object', 'Customer')
             ->select('History Key as source_id')
-            ->orderBy('source_id');
+            ->orderBy('History Date');
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_notes_id');
         }
+
 
         return $query;
     }
@@ -98,7 +90,6 @@ class FetchAuroraCustomerNotes extends FetchAuroraAction
             ->where('Indirect Object', 'Customer');
 
         if ($this->onlyNew) {
-
             $query->whereNull('aiku_notes_id');
         }
 

@@ -35,7 +35,7 @@ beforeEach(function () {
     $this->adminGuest   = createAdminGuest($this->organisation->group);
 
     $otherOrg = Organisation::skip(1)->take(1)->first();
-    if(!$otherOrg){
+    if (!$otherOrg) {
         $orgData = Organisation::factory()->definition();
         data_set($orgData, 'code', 'acmo');
         data_set($orgData, 'type', OrganisationTypeEnum::SHOP);

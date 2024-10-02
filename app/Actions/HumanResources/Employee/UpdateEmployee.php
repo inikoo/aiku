@@ -17,6 +17,7 @@ use App\Actions\Traits\WithPreparePositionsForValidation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithReorganisePositions;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Http\Resources\HumanResources\EmployeeResource;
 use App\Models\HumanResources\Employee;
@@ -41,21 +42,18 @@ class UpdateEmployee extends OrgAction
 
     public function handle(Employee $employee, array $modelData): Employee
     {
-
         $positions = Arr::get($modelData, 'positions', []);
         data_forget($modelData, 'positions');
         $positions = $this->reorganisePositionsSlugsToIds($positions);
 
         SyncEmployeeJobPositions::run($employee, $positions);
 
-        $credentials = Arr::only($modelData, ['username', 'password', 'auth_type','user_model_status']);
+        $credentials = Arr::only($modelData, ['username', 'password', 'auth_type', 'user_model_status']);
 
         data_forget($modelData, 'username');
         data_forget($modelData, 'password');
         data_forget($modelData, 'auth_type');
         data_forget($modelData, 'user_model_status');
-
-
 
 
         $employee = $this->update($employee, $modelData, ['data', 'salary']);
@@ -70,7 +68,6 @@ class UpdateEmployee extends OrgAction
         }
 
         if ($user = $employee->getUser()) {
-
             if (Arr::exists($credentials, 'user_model_status')) {
                 $employee->users()->updateExistingPivot($user->id, ['status' => $credentials['user_model_status']]);
                 data_forget($credentials, 'user_model_status');
@@ -115,7 +112,7 @@ class UpdateEmployee extends OrgAction
                 ),
 
             ],
-            'state.employment_start_at'                   => ['sometimes', 'nullable', 'date'],
+            'state.employment_start_at'             => ['sometimes', 'nullable', 'date'],
             'work_email'                            => [
                 'sometimes',
                 'nullable',
@@ -160,18 +157,20 @@ class UpdateEmployee extends OrgAction
             'positions.*.scopes.fulfilments.slug.*' => ['sometimes', Rule::exists('fulfilments', 'slug')->where('organisation_id', $this->organisation->id)],
             'positions.*.scopes.shops.slug.*'       => ['sometimes', Rule::exists('shops', 'slug')->where('organisation_id', $this->organisation->id)],
             'email'                                 => ['sometimes', 'nullable', 'email'],
+            'type'                                  => ['sometimes', Rule::enum(EmployeeTypeEnum::class)]
+
 
         ];
 
         if (!$this->strict) {
-            $rules['deleted_at'] = ['sometimes', 'date'];
-            $rules['created_at'] = ['sometimes', 'date'];
+            $rules['deleted_at']      = ['sometimes', 'date'];
+            $rules['created_at']      = ['sometimes', 'date'];
             $rules['last_fetched_at'] = ['sometimes', 'date'];
-            $rules['source_id'] = ['sometimes', 'string', 'max:64'];
+            $rules['source_id']       = ['sometimes', 'string', 'max:64'];
         }
 
         if ($user = $this->employee->getUser()) {
-            $rules['username'] = [
+            $rules['username']          = [
                 'sometimes',
                 'required',
                 'lowercase',
@@ -192,9 +191,8 @@ class UpdateEmployee extends OrgAction
 
 
             ];
-            $rules['password'] = ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()];
+            $rules['password']          = ['sometimes', 'required', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()];
             $rules['user_model_status'] = ['sometimes', 'boolean'];
-
         }
 
 
@@ -207,8 +205,8 @@ class UpdateEmployee extends OrgAction
         if (!$audit) {
             Employee::disableAuditing();
         }
-        $this->asAction = true;
-        $this->employee = $employee;
+        $this->asAction       = true;
+        $this->employee       = $employee;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($employee->organisation, $modelData);
 

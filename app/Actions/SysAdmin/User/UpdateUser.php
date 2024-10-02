@@ -38,7 +38,7 @@ class UpdateUser extends GrpAction
         $user = $this->update($user, $modelData, ['profile', 'settings']);
 
         if ($user->wasChanged('status')) {
-            GroupHydrateUsers::run($user->group)->delay($this->hydratorsDelay);
+            GroupHydrateUsers::dispatch($user->group)->delay($this->hydratorsDelay);
         }
 
         return $user;
@@ -56,7 +56,9 @@ class UpdateUser extends GrpAction
     public function rules(): array
     {
         $rules = [
-            'username'        => ['sometimes','required', 'lowercase',new AlphaDashDot(),
+            'username'        => ['sometimes','required', 'lowercase',
+
+                                  $this->strict ? new AlphaDashDot() : 'string',
 
                                    Rule::notIn(['export', 'create']),
                                   new IUnique(

@@ -36,6 +36,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
         $with = $this->with;
 
         if ($customerData = $organisationSource->fetchCustomer($organisationSourceId)) {
+
             if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                 ->first()) {
                 try {

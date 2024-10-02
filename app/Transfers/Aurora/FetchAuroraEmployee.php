@@ -156,7 +156,9 @@ class FetchAuroraEmployee extends FetchAurora
             ->where('users.aiku_ignore', 'No')
             ->where('User Parent Key', $this->auroraModelData->{'Staff Key'})->first();
 
+
         if ($auroraUserData) {
+
             $legacyPassword = $auroraUserData->{'User Password'};
             if (app()->isLocal()) {
                 $legacyPassword = hash('sha256', 'hello');
@@ -181,7 +183,7 @@ class FetchAuroraEmployee extends FetchAurora
             return [
                 'source_id'         => $this->organisation->id.':'.$auroraUserData->{'User Key'},
                 'username'          => Str::kebab(Str::lower($username)),
-                'status'            => true,
+                'status'            => $status,
                 'user_model_status' => $status,
                 'created_at'        => $auroraUserData->{'User Created'},
                 'legacy_password'   => $legacyPassword,

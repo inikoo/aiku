@@ -32,19 +32,14 @@ class FetchAuroraDeletedEmployee extends FetchAurora
                 'employment_start_at'      => $this->parseDate($auDeletedModel->data->{'Staff Valid From'}),
                 'employment_end_at'        => $this->parseDate($auDeletedModel->data->{'Staff Valid To'}),
                 'type'                     => Str::snake($auDeletedModel->data->{'Staff Type'}, '-'),
-
-
-                'source_id'       => $this->organisation->id.':'.$auDeletedModel->data->{'Staff Key'},
-                'state'           => match ($auDeletedModel->data->{'Staff Currently Working'}) {
-                    'No'    => 'left',
-                    default => 'working'
-                },
-                'data'            => [
+                'source_id'                => $this->organisation->id.':'.$auDeletedModel->data->{'Staff Key'},
+                'state'                    => 'left',
+                'data'                     => [
                     'address' => $auDeletedModel->data->{'Staff Address'},
                 ],
-                'deleted_at'      => $this->auroraModelData->{'Staff Deleted Date'},
-                'fetched_at'      => now(),
-                'last_fetched_at' => now(),
+                'deleted_at'               => $this->auroraModelData->{'Staff Deleted Date'},
+                'fetched_at'               => now(),
+                'last_fetched_at'          => now(),
             ];
     }
 

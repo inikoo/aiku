@@ -39,13 +39,20 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
                                 audit: false
                             );
                             $this->recordChange($organisationSource, $user->wasChanged());
+
+                            return $user;
                         } catch (Exception $e) {
                             $this->recordError($organisationSource, $e, $userData['user'], 'DeletedUser', 'update');
 
                             return null;
                         }
                     }
-                } elseif (!$userData['parent']) {
+
+                    return $user;
+                }
+
+
+                if (!$userData['parent']) {
                     $group_id = $organisationSource->getOrganisation()->group_id;
 
                     $user = User::withTrashed()->where('group_id', $group_id)->where('username', $userData['related_username'])->first();
@@ -58,32 +65,47 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
 
 
                         DB::transaction(function () use ($user, $userData) {
-                            $sources   = $user->sources;
-                            $sources[] = $userData['user']['source_id'];
-                            $sources   = array_unique($sources);
-                            $user->updateQuietly(['sources' => $sources]);
+                            $sourcesUsers   = Arr::get($user->sources, 'users', []);
+                            $sourcesParents = Arr::get($user->sources, 'parents', []);
+
+
+                            $sourcesUsers[] = $userData['user']['source_id'];
+                            if ($userData['parentSource']) {
+                                $sourcesParents[] = $userData['parentSource'];
+                            }
+                            $sourcesUsers   = array_unique($sourcesUsers);
+                            $sourcesParents = array_unique($sourcesParents);
+                            $user->updateQuietly([
+                                'sources' => [
+                                    'users'   => $sourcesUsers,
+                                    'parents' => $sourcesParents
+                                ]
+                            ]);
                         });
                     }
-                } else {
-                    //   try {
-                    $user = StoreUser::make()->action(
-                        parent: $userData['parent'],
-                        modelData: $userData['user'],
-                        hydratorsDelay: $this->hydrateDelay,
-                        strict: false
-                    );
 
-                    $sourceData = explode(':', $user->source_id);
-                    DB::connection('aurora')->table('User Deleted Dimension')
-                        ->where('User Deleted Key', $sourceData[1])
-                        ->update(['aiku_id' => $user->id]);
-
-                    $this->recordNew($organisationSource);
-                    //   } catch (Exception $e) {
-                    //       $this->recordError($organisationSource, $e, $userData['user'], 'DeletedUser', 'store');
-                    //       return null;
-                    //   }
+                    return $user;
                 }
+
+
+                //   try {
+                $user = StoreUser::make()->action(
+                    parent: $userData['parent'],
+                    modelData: $userData['user'],
+                    hydratorsDelay: $this->hydrateDelay,
+                    strict: false
+                );
+
+                $sourceData = explode(':', $user->source_id);
+                DB::connection('aurora')->table('User Deleted Dimension')
+                    ->where('User Deleted Key', $sourceData[1])
+                    ->update(['aiku_id' => $user->id]);
+
+                $this->recordNew($organisationSource);
+                //   } catch (Exception $e) {
+                //       $this->recordError($organisationSource, $e, $userData['user'], 'DeletedUser', 'store');
+                //       return null;
+                //   }
 
 
                 return $user;
