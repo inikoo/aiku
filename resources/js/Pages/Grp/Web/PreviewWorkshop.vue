@@ -82,7 +82,7 @@ onUnmounted(() => {
     <div class="container max-w-7xl mx-auto shadow-xl">
         <!--   <IrisHeader v-if="header" :data="layout.header" :colorThemed="layout.colorThemed" :menu="layout.navigation" /> -->
         <component
-            :is="getComponentsHeader(layout.header.data.key)"
+            :is="getComponentsHeader(layout?.header?.data?.key)"
             :loginMode="true"
             :previewMode="false"
             v-model="layout.header.data"

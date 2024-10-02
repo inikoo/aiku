@@ -57,7 +57,18 @@
                     "border": {
                         "color":  "#000000",
                         "rounded": {
-                            "value": 0
+                            "topright" :  {
+                                "value": 0
+                            },
+                            "topleft":{
+                                "value": 0
+                            },
+                            "bottomright" :  {
+                                "value": 0
+                            },
+                            "bottomleft" :  {
+                                "value": 0
+                            }
                         },
                         "top" :  {
                             "value": 0
