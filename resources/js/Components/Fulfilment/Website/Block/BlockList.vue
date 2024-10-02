@@ -27,15 +27,19 @@ console.log(props)
 </script>
 
 <template>
-    <div class="flex border rounded-xl">
-        <nav class="w-1/5 bg-gray-100 p-4 rounded-l-lg" aria-label="Sidebar">
-            <ul role="list" class="-mx-2 space-y-1">
-                <li v-for="item in webBlockTypes.data" :key="item.id">
-                    <span :class="[
-                        item.id === active.id ? 'bg-gray-50 text-indigo-600' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600',
-                        'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6']" @click="setActiveId(item)">
-                        {{ item.name }}
-                    </span>
+    <div class="flex border rounded-xl overflow-hidden">
+        <nav class="w-1/5 bg-gray-100 py-4" aria-label="Sidebar">
+            <ul role="list" class="space-y-1">
+                <li v-for="item in webBlockTypes.data"
+                    :key="item.id"
+                    :class="[
+                        item.id === active.id ? 'bg-white text-indigo-600' : 'hover:bg-white/50 hover:text-indigo-600',
+                    ]"
+                    @click="setActiveId(item)"
+                    class="group flex items-center gap-x-2 p-3 text-sm font-semibold cursor-pointer"
+                >
+                    <FontAwesomeIcon v-if="item.icon" :icon='item.icon' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
+                    {{ item.name }}
                 </li>
             </ul>
         </nav>

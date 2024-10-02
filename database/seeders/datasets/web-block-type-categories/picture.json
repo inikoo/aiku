@@ -1,6 +1,7 @@
 {
 	"slug": "picture",
 	"name": "Picture",
+    "icon": "fal fa-images",
 	"blueprint": {
 		"value": ""
 	},

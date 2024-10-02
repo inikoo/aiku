@@ -1,6 +1,7 @@
 {
     "slug": "banner",
     "name": "Banner",
+    "icon": "fal fa-presentation",
     "blueprint": {
         "value": "default_value"
     },    
