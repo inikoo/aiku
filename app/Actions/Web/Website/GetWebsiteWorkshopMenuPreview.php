@@ -3,6 +3,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Models\Web\Website;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetWebsiteWorkshopMenuPreview
@@ -12,7 +13,7 @@ class GetWebsiteWorkshopMenuPreview
     public function handle(Website $website): array
     {
         return [
-            'menu'    => $website->unpublishedHeaderSnapshot // need fix later
+            'menu'    => Arr::get($website->published_layout, 'menu', [])
         ];
     }
 }

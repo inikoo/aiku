@@ -14,12 +14,14 @@ use App\Actions\UI\Retina\Dropshipping\IndexDropshippingRetinaProducts;
 use App\Actions\UI\Retina\Dropshipping\ShowProduct;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', ShowDropshipping::class)->name('dashboard');
-Route::get('/products', IndexDropshippingRetinaProducts::class)->name('products.index');
-Route::get('/products/{product}', ShowProduct::class)->name('products.show');
+Route::prefix('platform')->as('platform.')->group(function () {
+    Route::get('/', ShowDropshipping::class)->name('dashboard');
+    Route::get('/portfolios', IndexDropshippingRetinaProducts::class)->name('portfolios.index');
+    Route::get('/portfolios/{portfolio}', ShowProduct::class)->name('portfolios.show');
 
-Route::post('shopify-user', StoreShopifyUser::class)->name('shopify_user.store');
-Route::delete('shopify-user', DeleteShopifyUser::class)->name('shopify_user.delete');
+    Route::post('shopify-user', StoreShopifyUser::class)->name('shopify_user.store');
+    Route::delete('shopify-user', DeleteShopifyUser::class)->name('shopify_user.delete');
+});
 
 // Route::get('/users', IndexUsers::class)->name('web-users.index');
 // Route::get('/users/{user}', ShowUser::class)->name('web-users.show');

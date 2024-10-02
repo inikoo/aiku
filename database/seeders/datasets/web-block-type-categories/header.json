@@ -1,176 +1,38 @@
 {
-    "slug": "header",
-    "name": "Website header",
-    "blueprint": {
-        "defaultParameters": {
-            "navigation": {
-                "categories": [
-                    {
-                        "name": "Home",
-                        "featured": [
-                            {
-                                "name": "About us",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Contact",
-                                "href": "#"
-                            },
-                            {
-                                "name": "ShowRoom",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Trems & Conditions",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Delivery",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Operation Hours",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Freedom Fund",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Business Ethics",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Catalogue",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Retruns Policy",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Dropshiping Sevices",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Working with local businesses",
-                                "href": "#"
-                            },
-                            {
-                                "name": "sustainable palm oil",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Privacy Policy",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Cookies Policy",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Travel Blog",
-                                "href": "#"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Departements",
-                        "featured": [
-                            {
-                                "name": "New Arrivals",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Basic Tees",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Accessories",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Carry",
-                                "href": "#"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Incentives & Inspiration",
-                        "featured": [
-                            {
-                                "name": "New Arrivals",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Basic Tees",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Accessories",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Carry",
-                                "href": "#"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Delivery",
-                        "featured": [
-                            {
-                                "name": "New Arrivals",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Basic Tees",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Accessories",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Carry",
-                                "href": "#"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "New & Notetable",
-                        "featured": [
-                            {
-                                "name": "New Arrivals",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Basic Tees",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Accessories",
-                                "href": "#"
-                            },
-                            {
-                                "name": "Carry",
-                                "href": "#"
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
-    },
-    "scope": "website",
-    "webBlockTypes": [
-        {
-            "code": "DarkHeader",
-            "name": "Header 1"
-        },
-        {
-            "code": "LightHeader",
-            "name": "Header 2"
-        }
-    ]
+	"slug": "header",
+	"name": "Website header",
+	"scope": "website",
+	"webBlockTypes": [
+		{
+			"code": "DarkHeader",
+			"name": "Header 1",
+			"data": {
+				"bluprint": [
+					{
+						"name": "Title",
+						"key": "headerText",
+						"type": "text",
+						"props_data": {}
+					},
+					{
+						"name": "Chip",
+						"key": "chip_text",
+						"type": "text"
+					},
+					{
+						"name": "Logo",
+						"key": "logo",
+						"type": "upload_image"
+					}
+				],
+				"header": {
+					"key": "header1",
+					"logo": null,
+					"headerText": "FAIRLY TRADING WHOLESALE GIFTS SINCE 1995",
+					"chip_text": "Become a Gold Reward Member",
+					"chip_background_color": "#57534E"
+				}
+			}
+		}
+	]
 }

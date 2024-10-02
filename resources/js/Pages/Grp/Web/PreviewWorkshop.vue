@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, reactive } from 'vue'
 import WebPreview from "@/Layouts/WebPreview.vue";
 import axios from 'axios'
 import debounce from 'lodash/debounce'
@@ -35,12 +35,12 @@ const props = defineProps<{
 const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block), 1000, { leading: false, trailing: true })
 
 const data = ref(cloneDeep(props.webpage))
-const layout = ref ({
-    header : {...props.header.header},
-    footer : {...props.footer},
-    navigation : {...props.navigation},
-    colorThemed : usePage().props?.iris?.color ? usePage().props?.iris?.color : { color: [...useColorTheme[2]] }
-})
+const layout = reactive({
+    header: {...props.header.header},
+    footer: {...props.footer},
+    navigation: {...props.navigation},
+    colorThemed: usePage().props?.iris?.color ? usePage().props?.iris?.color : { color: [...useColorTheme[2]] }
+});
 
 const onUpdatedBlock = (block: Daum) => {
     debouncedSendUpdate(block)
@@ -64,7 +64,12 @@ const socketLayout = SocketHeaderFooter(route().params['website']);
 
 onMounted(() => {
     if(socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value : Root) => { data.value = {...value}});
-    if(socketLayout) socketLayout.actions.subscribe((value : Object) => { console.log('ddd',value)});
+    if (socketLayout) socketLayout.actions.subscribe((value) => {
+        console.log('sssd',value)
+        layout.header = value.header.header;
+        layout.footer = value.footer;
+        layout.navigation = value.navigation;
+    });
 });
 
 
@@ -73,46 +78,45 @@ onUnmounted(() => {
     if(socketLayout) socketLayout.actions.unsubscribe();
 });
 
-
+console.log('preview',props)
 
 </script>
 
 
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
-        <!--   <IrisHeader v-if="header" :data="layout.header" :colorThemed="layout.colorThemed" :menu="layout.navigation" /> -->
-        <component
-            :is="getComponentsHeader(layout?.header?.data?.key)"
-            :loginMode="true"
-            :previewMode="false"
-            v-model="layout.header.data"
-            :uploadImageRoute="layout.header.uploadImageRoute"
-            :colorThemed="layout.colorThemed"
-        />
+      <component
+        :is="getComponentsHeader(layout.header.data.key)"
+        :loginMode="true"
+        :previewMode="true"
+        v-model="layout.header.data"
+        :uploadImageRoute="layout.header.uploadImageRoute"
+        :colorThemed="layout.colorThemed"
+      />
+        <div v-if="data" class="relative">
+            <div class="container max-w-7xl mx-auto">
+                <div class="h-full overflow-auto w-full ">
+                    <div v-if="data?.layout?.web_blocks?.length">
+                        <TransitionGroup tag="div" name="zzz" class="relative">
+                            <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks" :key="activityItem.id" class="w-full">
+                                <component 
+                                    :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
+                                    :webpageData="webpage"
+                                    v-bind="activityItem"
+                                    v-model="activityItem.web_block.layout.data.fieldValue" 
+                                    :isEditable="true"
+                                    :style="{ width : '100%'}"
+                                    @autoSave="() => onUpdatedBlock(activityItem)" />
+                            </section>
+                        </TransitionGroup>
 
-        <div v-if="data" class="relative h-full overflow-auto container max-w-7xl mx-auto">
-            <div v-if="data?.layout?.web_blocks?.length">
-                <TransitionGroup tag="div" name="zzz" class="relative">
-                    <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks" :key="activityItem.id" class="w-full">
-                    <!-- <pre>{{ activityItem?.web_block?.layout?.data.properties }}</pre> -->
-                        <component
-                            :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
-                            :key="activityItemIdx"
-                            :properties="activityItem?.web_block?.layout?.data.properties"
-                            :webpageData="webpage"
-                            v-bind="activityItem"
-                            v-model="activityItem.web_block.layout.data.fieldValue"
-                            :isEditable="true"
-                            @autoSave="() => onUpdatedBlock(activityItem)"
-                        />
-                    </section>
-                </TransitionGroup>
-            </div>
-
-            <div v-else>
-                <EmptyState
-                    :data="{ title: 'Pick First Block For Your Website', description: 'Pick block from list' }">
-                </EmptyState>
+                    </div>
+                    <div v-else>
+                        <EmptyState
+                            :data="{ title: 'Pick First Block For Your Website', description: 'Pick block from list' }">
+                        </EmptyState>
+                    </div>
+                </div>
             </div>
         </div>
 

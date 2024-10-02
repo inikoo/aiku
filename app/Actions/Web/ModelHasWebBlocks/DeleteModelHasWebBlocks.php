@@ -19,7 +19,7 @@ class DeleteModelHasWebBlocks extends GrpAction
     use HasWebAuthorisation;
 
 
-    public function handle(ModelHasWebBlocks $modelHasWebBlocks): void
+    public function handle(ModelHasWebBlocks $modelHasWebBlocks): ModelHasWebBlocks
     {
         $webBlockUsed = ModelHasWebBlocks::where('web_block_id', $modelHasWebBlocks->web_block_id)->count();
 
@@ -33,7 +33,7 @@ class DeleteModelHasWebBlocks extends GrpAction
 
         BroadcastPreviewWebpage::dispatch($modelHasWebBlocks->webpage);
 
-        // return $modelHasWebBlocks;
+        return $modelHasWebBlocks;
     }
 
     public function jsonResponse(ModelHasWebBlocks $modelHasWebBlocks): void
@@ -41,12 +41,12 @@ class DeleteModelHasWebBlocks extends GrpAction
         WebpageResource::make($modelHasWebBlocks->webpage);
     }
 
-    public function action(ModelHasWebBlocks $modelHasWebBlocks, array $modelData): void
+    public function action(ModelHasWebBlocks $modelHasWebBlocks, array $modelData): ModelHasWebBlocks
     {
         $this->asAction = true;
 
         $this->initialisation($modelHasWebBlocks->group, $modelData);
 
-        $this->handle($modelHasWebBlocks);
+        return $this->handle($modelHasWebBlocks);
     }
 }

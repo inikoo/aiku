@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { ref, watch, defineProps } from 'vue'
-import { Head } from '@inertiajs/vue3'
+import { Head, router  } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Modal from '@/Components/Utils/Modal.vue'
-import { getDescriptor } from '@/Components/Websites/Header/Content'
-import ListHeader from '@/Components/Websites/Header/ListHeader'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
 import SideEditor from '@/Components/Websites/SideEditor.vue'
 import { notify } from "@kyvg/vue3-notification"
@@ -14,11 +12,9 @@ import Publish from '@/Components/Publish.vue'
 import axios from 'axios'
 import { debounce } from 'lodash'
 import ScreenView from "@/Components/ScreenView.vue"
-import ToggleButton from 'primevue/togglebutton';
-
+import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
 
 import { routeType } from "@/types/route"
-
 
 import { faPresentation, faCube, faText, faPaperclip, faExternalLink } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -34,8 +30,8 @@ const props = defineProps<{
     uploadImageRoute: routeType
     data: {}
     autosaveRoute: routeType
+    webBlockTypeCategories : Object
 }>()
-
 
 const isModalOpen = ref(false)
 const usedTemplates = ref({...props.data.header})
@@ -47,10 +43,8 @@ const iframeSrc = ref(route('grp.websites.header.preview', [route().params['webs
 const loginMode = ref(true)
 
 
-const onPickTemplate = (header : object) => {
-    isModalOpen.value = false
-    const data = getDescriptor(header.key)
-    usedTemplates.value = data
+const onPickTemplate = (data : object) => {
+    usedTemplates.value = data.data
 }
 
 const onPublish = async (action : routeType, popover : Function) => {
@@ -86,25 +80,31 @@ const onPublish = async (action : routeType, popover : Function) => {
 };
 
 const autoSave = async (data : object) => {
-    try {
-        const response = await axios.patch(
-            route(props.autosaveRoute.name, props.autosaveRoute.parameters),
-            { layout: data }
-        )
-    } catch (error: any) {
-        console.error('error', error)
-    }
+    router.patch(
+        route(props.autosaveRoute.name, props.autosaveRoute.parameters),
+        { layout: data },
+        {
+            /* onStart: () => isAddBlockLoading.value = 'addBlock' + block.id,
+            onFinish: () => isAddBlockLoading.value = null, */
+            onError: (error) => {
+                notify({
+                    title: trans('Something went wrong'),
+                    text: error.message,
+                    type: 'error',
+                })
+            }
+        }
+    )
 }
 
-const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
 
 const setIframeView = (view: String) => {
     if (view === 'mobile') {
-        iframeClass.value = 'w-[375px] h-[667px] mx-auto'; // iPhone 6/7/8 size
+        iframeClass.value = 'w-[375px] h-[667px] mx-auto';
     } else if (view === 'tablet') {
-        iframeClass.value = 'w-[768px] h-[1024px] mx-auto'; // iPad size
+        iframeClass.value = 'w-[768px] h-[1024px] mx-auto';
     } else {
-        iframeClass.value = 'w-full h-full'; // Full width for desktop
+        iframeClass.value = 'w-full h-full';
     }
 }
 
@@ -116,11 +116,9 @@ const handleIframeError = () => {
     console.error('Failed to load iframe content.');
 }
 
-
+const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
 watch(usedTemplates, (newVal) => {
-    if (newVal) {
-        debouncedSendUpdate(newVal)
-    }
+    if (newVal) debouncedSendUpdate(newVal)
 }, { deep: true })
 
 </script>
@@ -135,15 +133,14 @@ watch(usedTemplates, (newVal) => {
         </template>
     </PageHeading>
 
-
     <div class="h-[85vh] grid grid-flow-row-dense grid-cols-5">
-        <div v-if="usedTemplates?.data?.key"
+        <div v-if="usedTemplates?.header?.key"
             class="col-span-1 bg-[#F9F9F9] flex flex-col justify-between h-full border-r border-gray-300">
             <div class="">
                 <div class="py-2 px-2 font-bold text-lg">Form Editing</div>
                 <SideEditor 
-                    v-if="usedTemplates.data.key" 
-                    v-model="usedTemplates.data" 
+                    v-if="usedTemplates.header.key" 
+                    v-model="usedTemplates.header" 
                     :bluprint="usedTemplates.bluprint"
                     :uploadImageRoute="uploadImageRoute" 
                 />
@@ -151,8 +148,8 @@ watch(usedTemplates, (newVal) => {
         </div>
   
 
-        <div :class="usedTemplates?.data?.key ? 'col-span-4' : 'col-span-5'">
-            <div v-if="usedTemplates?.data?.key" class="h-full w-full bg-white">
+        <div :class="usedTemplates?.header?.key ? 'col-span-4' : 'col-span-5'">
+            <div v-if="usedTemplates?.header?.key" class="h-full w-full bg-white">
                 <div class="flex justify-between bg-slate-200 border border-b-gray-300">
                     <div class="flex">
                         <ScreenView @screenView="setIframeView" />
@@ -167,6 +164,10 @@ watch(usedTemplates, (newVal) => {
                         <FontAwesomeIcon icon="fas fa-th-large" aria-hidden='true' />
                     </div>
                 </div>
+                </div>
+                
+                <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
+                    <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
                 </div>
                 <iframe :src="iframeSrc" :title="props.title" :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
                     @error="handleIframeError" @load="isIframeLoading = false" />
@@ -186,19 +187,12 @@ watch(usedTemplates, (newVal) => {
         </div>
     </div>
 
-    <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-2/5">
-        <div tag="div"
-            class="relative grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-3 gap-x-4 overflow-y-auto overflow-x-hidden">
-            <div v-for="header in ListHeader.listTemplate" :key="header.key" @click="() => onPickTemplate(header)"
-                class="group flex items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded cursor-pointer hover:bg-gray-100">
-                <div class="flex items-center justify-center">
-                    <FontAwesomeIcon :icon='header.icon' class='' fixed-width aria-hidden='true' />
-                </div>
-                <h3 class="text-sm font-medium">
-                    {{ header.name }}
-                </h3>
-            </div>
-        </div>
+    <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
+        <BlockList 
+            :onPickBlock="onPickTemplate" 
+            :webBlockTypes="webBlockTypeCategories"  
+            scope="website"
+        />
     </Modal>
 </template>
 

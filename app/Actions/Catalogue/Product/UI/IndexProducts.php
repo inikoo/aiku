@@ -24,6 +24,7 @@ use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
+use App\Models\Dropshipping\ShopifyUser;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -45,7 +46,7 @@ class IndexProducts extends OrgAction
 
     private Shop|ProductCategory|Organisation|Collection $parent;
 
-    protected function getElementGroups(Shop|ProductCategory|Organisation|Collection $parent, $bucket = null): array
+    protected function getElementGroups(Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent, $bucket = null): array
     {
         return [
 
@@ -64,7 +65,7 @@ class IndexProducts extends OrgAction
         ];
     }
 
-    public function handle(Shop|ProductCategory|Organisation|Collection $parent, $prefix = null, $bucket = null): LengthAwarePaginator
+    public function handle(Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
         if ($bucket) {
             $this->bucket = $bucket;
@@ -131,11 +132,16 @@ class IndexProducts extends OrgAction
                     ->where('model_has_collections.model_type', '=', 'Product')
                     ->where('model_has_collections.collection_id', '=', $parent->id);
             });
+        } elseif ($parent instanceof ShopifyUser) {
+            $queryBuilder->join('shopify_user_has_products', function ($join) use ($parent) {
+                $join->on('products.id', '=', 'shopify_user_has_products.product_id')
+                    ->where('shopify_user_has_products.shopify_user_id', '=', $parent->id);
+            });
         } else {
             abort(419);
         }
 
-        if (class_basename($parent) != 'Shop') {
+        if (class_basename($parent) != 'Shop' && class_basename($parent) != 'ShopifyUser') {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $queryBuilder->whereElementGroup(
                     key: $key,
@@ -145,7 +151,6 @@ class IndexProducts extends OrgAction
                 );
             }
         }
-
 
         $queryBuilder
             ->defaultSort('products.code')
@@ -167,7 +172,7 @@ class IndexProducts extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Shop|ProductCategory|Organisation|Collection $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false, string $bucket = null): Closure
+    public function tableStructure(Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent, ?array $modelOperations = null, $prefix = null, $canEdit = false, string $bucket = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix, $canEdit, $bucket) {
             if ($prefix) {
@@ -186,7 +191,7 @@ class IndexProducts extends OrgAction
                         );
                     }
                 }
-            } else {
+            } elseif (class_basename($parent) != 'ShopifyUser') {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(
                         key: $key,

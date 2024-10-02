@@ -45,12 +45,12 @@ class ShowDropshipping extends RetinaAction
                 ],
                 'shopify_url' => '.' . config('shopify-app.myshopify_domain'),
                 'createRoute' => [
-                    'name'       => 'retina.dropshipping.shopify_user.store',
+                    'name'       => 'retina.dropshipping.platform.shopify_user.store',
                     'parameters' => [],
                     'method'     => 'post'
                 ],
                 'unlinkRoute' => [
-                    'name'       => 'retina.dropshipping.shopify_user.delete',
+                    'name'       => 'retina.dropshipping.platform.shopify_user.delete',
                     'parameters' => [],
                     'method'     => 'delete'
                 ],

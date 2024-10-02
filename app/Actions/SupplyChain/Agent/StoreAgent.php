@@ -66,7 +66,7 @@ class StoreAgent extends GrpAction
         /** @var Agent $agent */
         $agent = $organisation->agent()->create(Arr::only($modelData, ['name', 'code', 'created_at', 'source_id', 'source_slug', 'group_id']));
         $agent->stats()->create();
-
+        $agent->refresh();
 
         GroupHydrateAgents::run($group);
         AgentHydrateUniversalSearch::dispatch($agent);
