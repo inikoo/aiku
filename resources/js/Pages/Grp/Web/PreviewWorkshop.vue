@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, reactive } from 'vue'
 import WebPreview from "@/Layouts/WebPreview.vue";
 import axios from 'axios'
 import debounce from 'lodash/debounce'
@@ -35,12 +35,12 @@ const props = defineProps<{
 const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block), 1000, { leading: false, trailing: true })
 
 const data = ref(cloneDeep(props.webpage))
-const layout = ref ({
-    header : {...props.header.header},
-    footer : {...props.footer},
-    navigation : {...props.navigation},
-    colorThemed : usePage().props?.iris?.color ? usePage().props?.iris?.color : { color: [...useColorTheme[2]] }
-})
+const layout = reactive({
+    header: {...props.header.header},
+    footer: {...props.footer},
+    navigation: {...props.navigation},
+    colorThemed: usePage().props?.iris?.color ? usePage().props?.iris?.color : { color: [...useColorTheme[2]] }
+});
 
 const onUpdatedBlock = (block: Daum) => {
     debouncedSendUpdate(block)
@@ -64,7 +64,12 @@ const socketLayout = SocketHeaderFooter(route().params['website']);
 
 onMounted(() => {
     if(socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value : Root) => { data.value = {...value}});
-    if(socketLayout) socketLayout.actions.subscribe((value : Object) => { console.log('ddd',value)});
+    if (socketLayout) socketLayout.actions.subscribe((value) => {
+        console.log('sssd',value)
+        layout.header = value.header.header;
+        layout.footer = value.footer;
+        layout.navigation = value.navigation;
+    });
 });
 
 
@@ -73,22 +78,19 @@ onUnmounted(() => {
     if(socketLayout) socketLayout.actions.unsubscribe();
 });
 
-
-
 </script>
 
 
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
-      <!--   <IrisHeader v-if="header" :data="layout.header" :colorThemed="layout.colorThemed" :menu="layout.navigation" /> -->
       <component
-                        :is="getComponentsHeader(layout.header.data.key)"
-                        :loginMode="true"
-                        :previewMode="false"
-                        v-model="layout.header.data"
-                        :uploadImageRoute="layout.header.uploadImageRoute"
-                        :colorThemed="layout.colorThemed"
-                    />
+        :is="getComponentsHeader(layout.header.data.key)"
+        :loginMode="true"
+        :previewMode="false"
+        v-model="layout.header.data"
+        :uploadImageRoute="layout.header.uploadImageRoute"
+        :colorThemed="layout.colorThemed"
+      />
         <div v-if="data" class="relative">
             <div class="container max-w-7xl mx-auto">
                 <div class="h-full overflow-auto w-full ">
