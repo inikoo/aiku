@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { faPresentation, faCube, faText, faImage, faImages, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -7,12 +7,16 @@ import { trans } from "laravel-vue-i18n"
 
 import { Root, Daum } from "@/types/webBlockTypes"
 
-
 library.add(faPresentation, faCube, faText, faImage, faImages, faPaperclip)
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     onPickBlock: Function
     webBlockTypes: Root
-}>();
+    scope?: String /* all|website|webpage */
+}>(), {
+    scope: "all",
+})
+
+const data = ref<Daum[]>([])
 
 // Define active item state
 const active = ref<Daum>(props.webBlockTypes.data[0]);
@@ -22,7 +26,17 @@ const setActiveId = (value: Daum) => {
     active.value = value;
 };
 
-console.log(props)
+// Filter webBlockTypes based on scope and save in data
+onMounted(() => {
+    if (props.scope === 'all') {
+        data.value = props.webBlockTypes.data; // Use all items if scope is 'all'
+    } else {
+        // Filter based on scope (e.g., 'website', 'webpage', etc.)
+        data.value = props.webBlockTypes.data.filter(item => item.scope === props.scope);
+    }
+    active.value = data.value[0] || null; // Set default active item from filtered data
+});
+
 
 </script>
 
@@ -30,11 +44,9 @@ console.log(props)
     <div class="flex border rounded-xl overflow-hidden">
         <nav class="w-1/5 bg-gray-100 py-4" aria-label="Sidebar">
             <ul role="list" class="space-y-1">
-                <li v-for="item in webBlockTypes.data"
+                <li v-for="item in data"
                     :key="item.id"
-                    :class="[
-                        item.id === active.id ? 'bg-white text-indigo-600' : 'hover:bg-white/50 hover:text-indigo-600',
-                    ]"
+                    :class="[item.id === active.id ? 'bg-white text-indigo-600' : 'hover:bg-white/50 hover:text-indigo-600']"
                     @click="setActiveId(item)"
                     class="group flex items-center gap-x-2 p-3 text-sm font-semibold cursor-pointer"
                 >
@@ -69,6 +81,3 @@ console.log(props)
     </div>
 </template>
 
-<style lang="scss" scoped>
-/* You can add additional scoped styles here if needed */
-</style>

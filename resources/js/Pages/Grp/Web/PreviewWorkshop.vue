@@ -78,6 +78,8 @@ onUnmounted(() => {
     if(socketLayout) socketLayout.actions.unsubscribe();
 });
 
+console.log('preview',props)
+
 </script>
 
 
@@ -86,7 +88,7 @@ onUnmounted(() => {
       <component
         :is="getComponentsHeader(layout.header.data.key)"
         :loginMode="true"
-        :previewMode="false"
+        :previewMode="true"
         v-model="layout.header.data"
         :uploadImageRoute="layout.header.uploadImageRoute"
         :colorThemed="layout.colorThemed"
@@ -97,9 +99,12 @@ onUnmounted(() => {
                     <div v-if="data?.layout?.web_blocks?.length">
                         <TransitionGroup tag="div" name="zzz" class="relative">
                             <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks" :key="activityItem.id" class="w-full">
-                                <component :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
+                                <component 
+                                    :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
                                     :key="activityItemIdx" :webpageData="webpage" v-bind="activityItem"
-                                    v-model="activityItem.web_block.layout.data.fieldValue" :isEditable="true"
+                                    v-model="activityItem.web_block.layout.data.fieldValue" 
+                                    :isEditable="true"
+                                    :style="{ width : '100%'}"
                                     @autoSave="() => onUpdatedBlock(activityItem)" />
                             </section>
                         </TransitionGroup>

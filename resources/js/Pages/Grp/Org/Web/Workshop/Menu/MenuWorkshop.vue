@@ -97,6 +97,8 @@ const onPickTemplate = (menu) => {
     usedTemplates.value = menu.key
 }
 
+
+console.log(props)
 </script>
 
 <template>
