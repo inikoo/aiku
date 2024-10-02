@@ -13,7 +13,7 @@ export const socketWeblock = (webpage) => {
                         if (event && event.webpage) {
                             eventData = { ...event.webpage };
                             if (callback) {
-                                callback(eventData); 
+                                callback(eventData);
                             }
                         }
                     });
@@ -22,10 +22,10 @@ export const socketWeblock = (webpage) => {
     };
 };
 
-  
+
   export const SocketHeaderFooter = (website: String) => {
     let eventData = null
-    
+
     return {
       eventData,
       actions: {
@@ -35,6 +35,7 @@ export const socketWeblock = (webpage) => {
         subscribe: (callback) => {
           const channel = window.Echo.private(`header-footer.${website}.preview`)
               .listen('.WebpagePreview', (event) => {
+                  console.log('data', event)
                   if (event && event.webpage) {
                       eventData = { ...event.webpage };
                       if (callback) {

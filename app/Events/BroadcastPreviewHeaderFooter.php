@@ -7,8 +7,8 @@
 
 namespace App\Events;
 
-use App\Actions\Web\Website\GetWebsiteWorkshopFooterPreview;
-use App\Actions\Web\Website\GetWebsiteWorkshopHeaderPreview;
+use App\Actions\Web\Website\GetWebsiteWorkshopFooter;
+use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
 use App\Actions\Web\Website\GetWebsiteWorkshopMenuPreview;
 use App\Models\Web\Website;
 use Illuminate\Broadcasting\InteractsWithSockets;
@@ -34,8 +34,8 @@ class BroadcastPreviewHeaderFooter implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'header' => GetWebsiteWorkshopHeaderPreview::run($this->website),
-            'footer' => GetWebsiteWorkshopFooterPreview::run($this->website),
+            'header' => GetWebsiteWorkshopHeader::run($this->website),
+            'footer' => GetWebsiteWorkshopFooter::run($this->website),
             'navigation' => GetWebsiteWorkshopMenuPreview::run($this->website)
         ];
     }
