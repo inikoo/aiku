@@ -5,9 +5,11 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
+use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
@@ -38,6 +40,18 @@ beforeEach(function () {
 
     $this->agent = $agent;
 
+    $orgAgent = OrgAgent::first();
+    if (!$orgAgent) {
+        $orgAgent     = StoreOrgAgent::make()->action(
+            $this->organisation,
+            $this->agent,
+            []
+        );
+    }
+
+    $this->orgAgent = $orgAgent;
+
+    
     $supplier = Supplier::first();
     if (!$supplier) {
         $storeData = Supplier::factory()->definition();
@@ -58,7 +72,6 @@ beforeEach(function () {
     }
 
     $this->orgSupplier = $orgSupplier;
-
 
     Config::set(
         'inertia.testing.page_paths',
@@ -100,7 +113,7 @@ test('UI show org supplier', function () {
     });
 })->todo();
 
-test('UI Index agents', function () {
+test('UI Index org agents', function () {
     $response = $this->get(route('grp.org.procurement.org_agents.index', [$this->organisation->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
@@ -108,6 +121,24 @@ test('UI Index agents', function () {
             ->component('Procurement/OrgAgents')
             ->has('title')
             ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI show org agents', function () {
+    $response = $this->get(route('grp.org.procurement.org_agents.show', [$this->organisation->slug, $this->orgAgent->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Procurement/OrgAgent')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->orgAgent->agent->organisation->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
     });
 });
 
