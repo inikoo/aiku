@@ -22,12 +22,14 @@ class FetchAuroraUser extends FetchAurora
             return;
         }
 
-        $parent                          = null;
-        $this->parsedData['parent_type'] = 'Guest';
+
+
         if ($this->auroraModelData->{'User Type'} == 'Staff') {
-            $this->parsedData['parent_type'] = 'Staff';
 
             $parent = $this->parseEmployee($this->organisation->id.':'.$this->auroraModelData->{'User Parent Key'});
+        } else {
+            return;
+
         }
 
         $legacyPassword = $this->auroraModelData->{'User Password'};

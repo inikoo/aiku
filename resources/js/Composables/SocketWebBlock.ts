@@ -23,17 +23,17 @@ export const socketWeblock = (webpage) => {
 };
 
   
-  export const SocketHeader = (website: String) => {
+  export const SocketHeaderFooter = (website: String) => {
     let eventData = null
     
     return {
       eventData,
       actions: {
         unsubscribe() {
-          window.Echo.leave(`header.${website}.preview`);
+          window.Echo.leave(`header-footer.${website}.preview`);
         },
         subscribe: (callback) => {
-          const channel = window.Echo.private(`footer.${website}.preview`)
+          const channel = window.Echo.private(`header-footer.${website}.preview`)
               .listen('.WebpagePreview', (event) => {
                   if (event && event.webpage) {
                       eventData = { ...event.webpage };
@@ -42,58 +42,10 @@ export const socketWeblock = (webpage) => {
                       }
                   }
               });
+
+              console.log('dfd',channel)
       },
       },
     };
   };
 
-
-  export const SocketFooter = (website: String) => {
-    let eventData = null  // To store event data from the channel
-    
-    return {
-      eventData,
-      actions: {
-        unsubscribe() {
-          window.Echo.leave(`footer.${website}.preview`);
-        },
-        subscribe: (callback) => {
-          const channel = window.Echo.private(`footer.${website}.preview`)
-              .listen('.WebpagePreview', (event) => {
-                  if (event && event.webpage) {
-                      eventData = { ...event.webpage };
-                      if (callback) {
-                          callback(eventData);
-                      }
-                  }
-              });
-      },
-      },
-    };
-  };
-  
-
-  export const SocketNavigation = (website: String) => {
-    let eventData = null  // To store event data from the channel
-    
-    return {
-      eventData,
-      actions: {
-        unsubscribe() {
-          window.Echo.leave(`footer.${website}.preview`);
-        },
-        subscribe: (callback) => {
-          const channel = window.Echo.private(`footer.${website}.preview`)
-              .listen('.WebpagePreview', (event) => {
-                  if (event && event.webpage) {
-                      eventData = { ...event.webpage };
-                      if (callback) {
-                          callback(eventData);
-                      }
-                  }
-              });
-      },
-      },
-    };
-  };
-  

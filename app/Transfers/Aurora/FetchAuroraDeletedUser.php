@@ -15,12 +15,18 @@ class FetchAuroraDeletedUser extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $this->parsedData['employee'] = null;
+
         if (!$this->auroraModelData->{'User Deleted Metadata'}) {
             $auroraDeletedData = new stdClass();
         } else {
             $auroraDeletedData = json_decode(gzuncompress($this->auroraModelData->{'User Deleted Metadata'}));
             $auroraDeletedData = $auroraDeletedData->data;
+        }
+
+        $parent = null;
+        if ($auroraDeletedData->{'User Type'} == 'Staff') {
+            //  $this->parsedData['parent_type'] = 'Staff';
+            $parent = $this->parseEmployee($this->organisation->id.':'.$auroraDeletedData->{'User Parent Key'});
         }
 
 
@@ -29,7 +35,18 @@ class FetchAuroraDeletedUser extends FetchAurora
         ];
 
 
+        $relatedUsername = $this->auroraModelData->{'User Deleted Handle'};
+        if ($this->auroraModelData->aiku_alt_username) {
+            $relatedUsername = $this->auroraModelData->aiku_alt_username;
+        }
+
+        $this->parsedData['related_username'] = $relatedUsername;
+
         $username = $auroraDeletedData->{'User Handle'}.'-deleted_aurora_'.$this->organisation->id.'_'.$this->auroraModelData->{'User Deleted Key'};
+
+
+        $this->parsedData['parent'] = $parent;
+
 
 
         $this->parsedData['user'] =
@@ -46,7 +63,8 @@ class FetchAuroraDeletedUser extends FetchAurora
                 'data'            => $data,
                 'deleted_at'      => $this->auroraModelData->{'User Deleted Date'},
                 'fetched_at'        => now(),
-                'last_fetched_at'   => now()
+                'last_fetched_at'   => now(),
+                'password'         => Str::random(60),
             ];
     }
 

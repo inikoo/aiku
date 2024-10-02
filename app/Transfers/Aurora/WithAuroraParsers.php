@@ -385,6 +385,7 @@ trait WithAuroraParsers
         if (!$sourceId) {
             return null;
         }
+
         $customer = Customer::withTrashed()->where('source_id', $sourceId)->first();
         if (!$customer) {
             $sourceData = explode(':', $sourceId);

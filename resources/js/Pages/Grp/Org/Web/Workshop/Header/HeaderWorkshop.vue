@@ -3,22 +3,22 @@ import { ref, watch, defineProps } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
-
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import { Switch } from '@headlessui/vue'
 import Modal from '@/Components/Utils/Modal.vue'
-import { getComponent, getDescriptor } from '@/Components/Websites/Header/Content'
+import { getDescriptor } from '@/Components/Websites/Header/Content'
 import ListHeader from '@/Components/Websites/Header/ListHeader'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
 import SideEditor from '@/Components/Websites/SideEditor.vue'
-import { v4 as uuidv4 } from 'uuid'
-import DummyCanvas from '@/Components/Websites/Header/DummyCanvas.vue'
 import { notify } from "@kyvg/vue3-notification"
 import Publish from '@/Components/Publish.vue'
 import axios from 'axios'
 import { debounce } from 'lodash'
-import { useColorTheme } from '@/Composables/useStockList'
 import ScreenView from "@/Components/ScreenView.vue"
+import ToggleButton from 'primevue/togglebutton';
+
+
+import { routeType } from "@/types/route"
+
 
 import { faPresentation, faCube, faText, faPaperclip, faExternalLink } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -36,27 +36,24 @@ const props = defineProps<{
     autosaveRoute: routeType
 }>()
 
-console.log(props)
 
-const previewMode = ref(false)
-const loginMode = ref(true)
 const isModalOpen = ref(false)
-const usedTemplates = ref(props.data.header)
-const keyTemplates = ref(uuidv4())
+const usedTemplates = ref({...props.data.header})
 const isLoading = ref(false)
 const comment = ref('')
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
-const colorThemed = props.data?.color ? props.data?.color : { color: [...useColorTheme[0]] }
 const iframeSrc = ref(route('grp.websites.header.preview', [route().params['website']]))
+const loginMode = ref(true)
 
-const onPickTemplate = (header) => {
+
+const onPickTemplate = (header : object) => {
     isModalOpen.value = false
     const data = getDescriptor(header.key)
-    usedTemplates.value = { key: header.key, ...data }
+    usedTemplates.value = data
 }
 
-const onPublish = async (action, popover) => {
+const onPublish = async (action : routeType, popover : Function) => {
     try {
         // Ensure action is defined and has necessary properties
         if (!action || !action.method || !action.name || !action.parameters) {
@@ -71,7 +68,6 @@ const onPublish = async (action, popover) => {
             layout: usedTemplates.value
         })
         popover.close()
-        console.log(response)
     } catch (error) {
         // Ensure the error is logged properly
         console.error('Error:', error)
@@ -89,8 +85,7 @@ const onPublish = async (action, popover) => {
     }
 };
 
-const autoSave = async (data) => {
-    console.log(data)
+const autoSave = async (data : object) => {
     try {
         const response = await axios.patch(
             route(props.autosaveRoute.name, props.autosaveRoute.parameters),
@@ -102,10 +97,6 @@ const autoSave = async (data) => {
 }
 
 const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
-
-const onUpdatedBlock = (data) => {
-    keyTemplates.value = uuidv4()
-}
 
 const setIframeView = (view: String) => {
     if (view === 'mobile') {
@@ -128,14 +119,13 @@ const handleIframeError = () => {
 
 watch(usedTemplates, (newVal) => {
     if (newVal) {
-        debouncedSendUpdate(newVal.data)
+        debouncedSendUpdate(newVal)
     }
 }, { deep: true })
 
 </script>
 
 <template>
-
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
@@ -145,18 +135,24 @@ watch(usedTemplates, (newVal) => {
         </template>
     </PageHeading>
 
+
     <div class="h-[85vh] grid grid-flow-row-dense grid-cols-5">
-        <div v-if="usedTemplates?.key"
+        <div v-if="usedTemplates?.data?.key"
             class="col-span-1 bg-[#F9F9F9] flex flex-col justify-between h-full border-r border-gray-300">
             <div class="">
                 <div class="py-2 px-2 font-bold text-lg">Form Editing</div>
-                <SideEditor v-if="usedTemplates?.key" v-model="usedTemplates.data" :bluprint="usedTemplates.bluprint"
-                    @update:modelValue="onUpdatedBlock(usedTemplates)" :uploadImageRoute="uploadImageRoute" />
+                <SideEditor 
+                    v-if="usedTemplates.data.key" 
+                    v-model="usedTemplates.data" 
+                    :bluprint="usedTemplates.bluprint"
+                    :uploadImageRoute="uploadImageRoute" 
+                />
             </div>
         </div>
+  
 
-        <div :class="usedTemplates?.key ? 'col-span-4' : 'col-span-5'">
-            <div v-if="usedTemplates?.key" class="h-full w-full bg-white">
+        <div :class="usedTemplates?.data?.key ? 'col-span-4' : 'col-span-5'">
+            <div v-if="usedTemplates?.data?.key" class="h-full w-full bg-white">
                 <div class="flex justify-between bg-slate-200 border border-b-gray-300">
                     <div class="flex">
                         <ScreenView @screenView="setIframeView" />
@@ -165,10 +161,12 @@ watch(usedTemplates, (newVal) => {
                             <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
                         </div>
                     </div>
+                    <div class="flex">
                     <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'"
                         @click="isModalOpen = true">
                         <FontAwesomeIcon icon="fas fa-th-large" aria-hidden='true' />
                     </div>
+                </div>
                 </div>
                 <iframe :src="iframeSrc" :title="props.title" :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
                     @error="handleIframeError" @load="isIframeLoading = false" />
@@ -205,4 +203,5 @@ watch(usedTemplates, (newVal) => {
 </template>
 
 
-<style scss scoped></style>
+<style scss scoped>
+</style>
