@@ -8,7 +8,7 @@
 namespace App\Actions\Inventory\OrgStock\UI;
 
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Inventory\HasInventoryAuthorisation;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Actions\OrgAction;

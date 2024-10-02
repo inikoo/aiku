@@ -394,4 +394,9 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchHistory($id): ?array
+    {
+        return null;
+    }
+
 }

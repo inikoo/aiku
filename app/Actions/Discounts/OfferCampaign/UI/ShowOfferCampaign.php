@@ -9,7 +9,7 @@ namespace App\Actions\Discounts\OfferCampaign\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Discounts\Offer\UI\IndexOffers;
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Enums\UI\Deals\OfferCampaignTabsEnum;
 use App\Http\Resources\Catalogue\OfferCampaignResource;

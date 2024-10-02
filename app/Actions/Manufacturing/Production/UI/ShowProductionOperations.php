@@ -7,7 +7,7 @@
 
 namespace App\Actions\Manufacturing\Production\UI;
 
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\Traits\Actions\WithActionButtons;

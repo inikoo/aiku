@@ -8,7 +8,7 @@
 namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Enums\UI\Organisation\OrgTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationResource;

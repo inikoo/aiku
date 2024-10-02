@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Prospect\Tags\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\Helpers\Tag\TagsTabsEnum;

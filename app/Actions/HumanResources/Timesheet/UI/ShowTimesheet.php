@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Timesheet\UI;
 
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\HumanResources\Clocking\UI\IndexClockings;
 use App\Actions\HumanResources\Employee\UI\ShowEmployee;
 use App\Actions\HumanResources\TimeTracker\UI\IndexTimeTrackers;

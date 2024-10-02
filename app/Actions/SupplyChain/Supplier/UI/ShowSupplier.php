@@ -8,7 +8,7 @@
 namespace App\Actions\SupplyChain\Supplier\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\SupplyChain\Agent\UI\ShowAgent;

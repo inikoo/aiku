@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\WarehouseArea\UI;
 
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Inventory\Location\UI\IndexLocations;
 use App\Actions\Inventory\Warehouse\UI\ShowWarehouse;
 use App\Actions\OrgAction;

@@ -7,10 +7,7 @@
 
 namespace App\Actions\Retina\Storage\RecurringBill\UI;
 
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
-use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
-use App\Actions\Fulfilment\Pallet\UI\IndexPallets;
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Billing\UI\ShowBillingDashboard;
 use App\Enums\UI\Fulfilment\RecurringBillTabsEnum;

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\OrgAgent\UI;
 
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
 use App\Actions\Procurement\OrgSupplierProducts\UI\IndexOrgSupplierProducts;
