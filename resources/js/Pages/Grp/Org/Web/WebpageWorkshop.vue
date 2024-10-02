@@ -88,7 +88,7 @@ const sendBlockUpdate = async (block: Daum) => {
     //     console.error('error', error)
     // }
     // console.log('on send block update')
-    
+
     router.patch(
         route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
         { layout: block.web_block.layout },
@@ -222,8 +222,8 @@ const openFullScreenPreview = () => {
     </PageHeading>
 
 
-    <!--   side editor -->
     <div class="grid grid-cols-5 h-[85vh]">
+        <!-- Section: Side editor -->
         <div class="col-span-1 md:block hidden h-full border-2 bg-gray-200 px-3 py-1 ">
             <WebpageSideEditor
                 :isLoadingDelete

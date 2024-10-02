@@ -1,6 +1,7 @@
 {
 	"slug": "text",
 	"name": "Text",
+    "icon": "fal fa-text",
 	"blueprint": {
 		"value": ""
 	},

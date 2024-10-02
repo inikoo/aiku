@@ -21,6 +21,7 @@ class WebBlockTypeCategoryResource extends JsonResource
 
         return [
             'id' => $webBlockTypeCategory->id,
+            'icon' => $webBlockTypeCategory->icon,
             'name' => $webBlockTypeCategory->name,
             'scope' => $webBlockTypeCategory->scope,
             'webBlockTypes' => WebBlockTypesResource::collection($webBlockTypeCategory->webBlockTypes)

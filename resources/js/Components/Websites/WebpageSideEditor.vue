@@ -7,13 +7,12 @@
 <script setup lang="ts">
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { ref } from 'vue'
-import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars } from '@fal'
+import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText } from '@fal'
 import draggable from "vuedraggable"
 import PanelProperties from '@/Components/Websites/Fields/PanelProperties.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import debounce from 'lodash/debounce'
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import Modal from "@/Components/Utils/Modal.vue"
 import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
@@ -21,9 +20,10 @@ import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
 import { Collapse } from 'vue-collapsed'
+import { trans } from 'laravel-vue-i18n'
 
 
-library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars)
+library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText)
 
 const props = defineProps<{
     webpage: RootWebpage
@@ -93,7 +93,7 @@ const selectedBlockOpenPanel = ref<number | null >(null)
 
 <template>
     <div class="flex justify-between">
-        <h2 class="text-sm font-semibold leading-6">Block List</h2>
+        <h2 class="text-sm font-semibold leading-6">Blocks List</h2>
         <Button icon="fas fa-plus" type="dashed" size="xs" @click="openModalBlockList" />
     </div>
     
@@ -112,12 +112,12 @@ const selectedBlockOpenPanel = ref<number | null >(null)
                     <div class="bg-slate-50 border border-gray-300 ">
                         <div @click="() => selectedBlockOpenPanel === index ? selectedBlockOpenPanel = null : selectedBlockOpenPanel = index"
                             class="group flex justify-between items-center gap-x-2 relative px-3 py-2 w-full cursor-pointer"
-                            :class="selectedBlockOpenPanel === index ? 'bg-gray-600 text-white' : 'hover:bg-gray-100'"    
+                            :class="selectedBlockOpenPanel === index ? 'bg-indigo-500 text-white' : 'hover:bg-gray-100'"    
                         >
                             <div class="flex gap-x-2">
                                 <div class="flex items-center justify-center">
                                     <FontAwesomeIcon icon="fal fa-bars" class="handle text-sm cursor-grab pr-3 mr-2" />
-                                    <FontAwesomeIcon :icon='element?.web_block?.layout?.webpage?.icon' class='text-xs' fixed-width aria-hidden='true' />
+                                    <FontAwesomeIcon :icon='element.web_block.layout.data.icon' class='text-xs' fixed-width aria-hidden='true' />
                                 </div>
                                 <h3 class="text-sm font-medium select-none">
                                     {{ element.web_block.layout.name }}
@@ -141,6 +141,8 @@ const selectedBlockOpenPanel = ref<number | null >(null)
                                 @update:modelValue="() => (console.log('zzz'), debouncedSendUpdate(element))"
                             />
                         </Collapse>
+
+                        <!-- <pre>{{ element.web_block.layout.data.properties }}</pre> -->
                     </div>
                 </template>
             </draggable>
@@ -153,7 +155,12 @@ const selectedBlockOpenPanel = ref<number | null >(null)
             <span class="mt-2 block text-sm font-semibold text-gray-600">You don't have any blocks</span>
         </div>
 
-        <Button icon="fas fa-plus" class="mt-3" full type="dashed" @click="openModalBlockList" />
+        <Button label="add new block" class="mt-3" full type="dashed" @click="openModalBlockList">
+            <div class="text-gray-500">
+                <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
+                {{ trans('Add block') }}
+            </div>
+        </Button>
 
     </div>
 
