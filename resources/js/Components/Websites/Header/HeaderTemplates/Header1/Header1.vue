@@ -2,7 +2,8 @@
 import { ref } from 'vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
-/* import { useColorTheme } from '@/Composables/useStockList' */
+import MobileMenu from '@/Components/MobileMenu.vue'
+import Menu from 'primevue/menu'
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -48,10 +49,32 @@ const openGalleryImages = () => {
     if(props.previewMode) isOpenGalleryImages.value = true
 }
 
+const _menu = ref();
+const items = ref([
+    {
+        label: 'Register',
+        icon: faUserCircle
+    },
+    {
+        label: 'Login',
+        icon: faSignInAlt
+    },
+    {
+        label: 'Log out',
+        icon: faSignOutAlt
+    }
+]
+);
+
+const toggle = (event) => {
+    _menu.value.toggle(event)
+};
+
 </script>
 
 <template>
     <!-- Top Bar -->
+    <div class="hidden md:block">
     <div class="grid grid-cols-3 text-white  justify-between items-center p-2 text-xs" :style="{ backgroundColor : selectedColor[0]}">
         <div></div>
         <div class="font-bold text-center">
@@ -109,6 +132,41 @@ const openGalleryImages = () => {
                     <FontAwesomeIcon icon='fas fa-chevron-right' class='pt-1' fixed-width aria-hidden='true' />
                 </button>
             </div>
+        </div>
+    </div>
+    </div>
+
+
+      <!-- Mobile view (hidden on desktop) -->
+      <div class="block md:hidden p-2" :style="{ backgroundColor: selectedColor[0] }">
+        <div class="flex justify-between items-center">
+            <MobileMenu :header="modelValue" :menu="modelValue" />
+
+            <!-- Logo -->
+            <img v-if="!modelValue.logo"
+                src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
+                alt="Ancient Wisdom Logo" class="h-12">
+
+            <Image v-else :src="modelValue?.logo?.source" class="h-12"></Image>
+
+            <!-- Profile Icon -->
+            <div @click="toggle" class="flex items-center">
+                <FontAwesomeIcon icon="fas fa-user-circle" class="text-white text-xl" />
+                <Menu ref="_menu" id="overlay_menu" :model="items" :popup="true">
+                    <template #itemicon="{ item }">
+                        <!-- Using FontAwesomeIcon component for custom icons -->
+                        <FontAwesomeIcon :icon="item.icon" />
+                    </template>
+                </Menu>
+
+            </div>
+        </div>
+
+        <!-- Optional mobile search bar below logo (if needed) -->
+        <div class="relative mt-2">
+            <input type="text" placeholder="Search Products" class="border border-gray-400 py-1 px-4 text-sm w-full">
+            <FontAwesomeIcon icon="fas fa-search" class=" absolute top-1/2 -translate-y-1/2 right-4 text-gray-400"
+                fixed-width aria-hidden='true' />
         </div>
     </div>
 

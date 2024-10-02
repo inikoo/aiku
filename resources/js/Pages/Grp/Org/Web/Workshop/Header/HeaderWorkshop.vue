@@ -117,6 +117,7 @@ const handleIframeError = () => {
 }
 
 
+console.log(props)
 watch(usedTemplates, (newVal) => {
     if (newVal) {
         debouncedSendUpdate(newVal)
