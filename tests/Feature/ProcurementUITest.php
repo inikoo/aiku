@@ -121,7 +121,7 @@ test('UI Index org suppliers', function () {
 test('UI show org supplier', function () {
     // dd($this->orgSupplier);
     $this->withoutExceptionHandling();
-    $response = get(route('grp.org.procurement.org_suppliers.show', [$this->organisation->slug, $this->orgSupplier->id]));
+    $response = get(route('grp.org.procurement.org_suppliers.show', [$this->organisation->slug, $this->orgSupplier->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Procurement/OrgSupplier')
@@ -130,13 +130,13 @@ test('UI show org supplier', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->orgSupplier->name)
+                        ->where('title', $this->orgSupplier->supplier->name)
                         ->etc()
             )
             ->has('tabs');
 
     });
-})->todo();
+});
 
 test('UI Index org agents', function () {
     $response = $this->get(route('grp.org.procurement.org_agents.index', [$this->organisation->slug]));
