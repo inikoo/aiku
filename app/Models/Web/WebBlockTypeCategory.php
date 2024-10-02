@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property WebBlockTypeCategoryScopeEnum $scope
  * @property WebBlockTypeCategorySlugEnum $slug
  * @property string $name
+ * @property string|null $icon
  * @property array $blueprint
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
