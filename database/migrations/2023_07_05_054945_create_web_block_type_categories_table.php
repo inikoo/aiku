@@ -20,6 +20,7 @@ return new class () extends Migration {
             $table->string('scope')->index();
             $table->string('slug')->unique()->index();
             $table->string('name');
+            $table->string('icon')->nullable();
             $table->jsonb('blueprint');
             $table->jsonb('data');
             $table->timestampsTz();
