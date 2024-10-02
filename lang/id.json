@@ -1217,7 +1217,7 @@
     "assets dashboard": "dasbor aset",
     "assets list": "daftar aset",
     "attachments": "lampiran",
-    "auth.failed": "auth.failed",
+    "auth.failed": "Kredensial tidak valid dengan data kami",
     "auth.password": "auth.password",
     "auth.throttle": "auth.throttle",
     "authorisation": "otorisasi",

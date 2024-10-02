@@ -1217,7 +1217,7 @@
     "assets dashboard": "assets dashboard",
     "assets list": "assets list",
     "attachments": "attachments",
-    "auth.failed": "auth.failed",
+    "auth.failed": "These credentials do not match our records.",
     "auth.password": "auth.password",
     "auth.throttle": "auth.throttle",
     "authorisation": "authorisation",
