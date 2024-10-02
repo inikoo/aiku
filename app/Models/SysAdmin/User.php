@@ -68,6 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property array $sources
  * @property string|null $legacy_password source password
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\Organisation> $authorisedAgentsOrganisations
@@ -128,6 +129,7 @@ class User extends Authenticatable implements HasMedia, Auditable
     protected $casts = [
         'data'      => 'array',
         'settings'  => 'array',
+        'sources'   => 'array',
         'status'    => 'boolean',
         'auth_type' => UserAuthTypeEnum::class,
         'password'  => 'hashed',
@@ -137,6 +139,7 @@ class User extends Authenticatable implements HasMedia, Auditable
     protected $attributes = [
         'data'     => '{}',
         'settings' => '{}',
+        'sources'  => '{}',
     ];
 
     public function generateTags(): array

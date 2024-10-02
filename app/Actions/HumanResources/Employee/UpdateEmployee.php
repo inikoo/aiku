@@ -58,7 +58,7 @@ class UpdateEmployee extends OrgAction
 
 
 
-        $employee = $this->update($employee, $modelData['state'], ['data', 'salary']);
+        $employee = $this->update($employee, $modelData, ['data', 'salary']);
 
         if (Arr::hasAny($employee->getChanges(), ['worker_number', 'worker_number', 'contact_name', 'work_email', 'job_title', 'email'])) {
             EmployeeRecordSearch::dispatch($employee);
@@ -152,7 +152,7 @@ class UpdateEmployee extends OrgAction
             'contact_name'                          => ['sometimes', 'string', 'max:256'],
             'date_of_birth'                         => ['sometimes', 'nullable', 'date', 'before_or_equal:today'],
             'job_title'                             => ['sometimes', 'nullable', 'string', 'max:256'],
-            'state.state'                                 => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
+            'state'                                 => ['sometimes', 'required', new Enum(EmployeeStateEnum::class)],
             'positions'                             => ['sometimes', 'array'],
             'positions.*.slug'                      => ['sometimes', 'string'],
             'positions.*.scopes'                    => ['sometimes', 'array'],

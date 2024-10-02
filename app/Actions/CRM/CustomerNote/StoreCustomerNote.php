@@ -12,6 +12,7 @@ use App\Actions\Traits\WithModelAddressActions;
 use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerNote;
 use App\Models\SysAdmin\User;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use OwenIt\Auditing\Resolvers\IpAddressResolver;
@@ -22,6 +23,7 @@ use OwenIt\Auditing\Resolvers\UserResolver;
 class StoreCustomerNote extends OrgAction
 {
     use WithModelAddressActions;
+    use WithNotesDetails;
 
 
     public function handle(Customer $customer, array $modelData): CustomerNote
@@ -34,19 +36,24 @@ class StoreCustomerNote extends OrgAction
         data_set($modelData, 'shop_id', $customer->shop_id);
         data_set($modelData, 'customer_id', $customer->id);
 
-        data_set($modelData, 'user_type', class_basename($user), overwrite: false);
-        data_set($modelData, 'user_id', $user->id, overwrite: false);
+
+        if ($this->strict) {
+            data_set($modelData, 'user_type', class_basename($user));
+            data_set($modelData, 'user_id', $user->id);
+        }
 
         data_set($modelData, 'auditable_type', 'Customer');
         data_set($modelData, 'auditable_id', $customer->id);
 
-        data_set($modelData, 'tags', ['customer_notes']);
-        data_set($modelData, 'event', 'note_created');
-        data_set($modelData, 'new_values', ['note' => $modelData['note']]);
+
+        $modelData = $this->processNotes($modelData);
 
         data_set($modelData, 'url', UrlResolver::resolve($customer));
         data_set($modelData, 'ip_address', IpAddressResolver::resolve($customer));
         data_set($modelData, 'user_agent', UserAgentResolver::resolve($customer));
+
+        data_set($modelData, 'event', Arr::get($modelData, 'event', 'customer_note'), overwrite: false);
+        data_set($modelData, 'tags', Arr::get($modelData, 'tags', ['customer_notes']), overwrite: false);
 
 
         /** @var CustomerNote $CustomerNote */
@@ -72,8 +79,16 @@ class StoreCustomerNote extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['user_type'] = ['sometimes', Rule::in(['User', 'WebUser'])];
-            $rules['user_id']   = ['required', 'integer'];
+            $rules['user_type']         = ['sometimes', Rule::in(['User', 'WebUser'])];
+            $rules['user_id']           = ['sometimes', 'required', 'integer'];
+            $rules['source_id']         = ['sometimes', 'string'];
+            $rules['note']              = ['sometimes', 'string', 'max:4096'];
+            $rules['note_details_html'] = ['sometimes', 'string', 'max:4096'];
+            $rules['note_details']      = ['sometimes', 'string', 'max:4096'];
+            $rules['created_at']        = ['sometimes', 'date'];
+            $rules['new_values']        = ['sometimes', 'array'];
+            $rules['event']             = ['sometimes', 'string'];
+            $rules['tags']              = ['sometimes', 'array'];
         }
 
         return $rules;

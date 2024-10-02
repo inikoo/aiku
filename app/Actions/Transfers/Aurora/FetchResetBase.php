@@ -46,6 +46,22 @@ class FetchResetBase
                 $this->timeLastStep = microtime(true);
 
 
+                DB::connection('aurora')->table('History Dimension')
+                    ->whereNotNull('aiku_notes_id')
+                    ->update(
+                        [
+                            'aiku_notes_id' => null
+                        ]
+                    );
+
+                DB::connection('aurora')->table('History Dimension')
+                    ->whereNotNull($aikuIdField)
+                    ->update(
+                        [
+                            $aikuIdField => null,
+                        ]
+                    );
+
                 DB::connection('aurora')->table('Staff Dimension')
                     ->update(
                         [
@@ -70,7 +86,6 @@ class FetchResetBase
                     ->update([$aikuIdField => null]);
 
 
-
                 $command->line('✅ sysadmins');
 
                 DB::connection('aurora')->table('Store Dimension')
@@ -80,10 +95,13 @@ class FetchResetBase
                     ->update([$aikuIdField => null]);
 
                 DB::connection('aurora')->table('Product Dimension')
+                    ->whereNotNull($aikuIdField)
                     ->update([$aikuIdField => null]);
 
                 DB::connection('aurora')->table('Product History Dimension')
-                    ->update([$aikuIdField => null]);
+                    ->update([
+                        $aikuIdField => null,
+                    ]);
 
                 DB::connection('aurora')->table('Category Dimension')
                     ->update(
@@ -123,12 +141,14 @@ class FetchResetBase
                     );
 
                 DB::connection('aurora')->table('Supplier Dimension')
+                    ->whereNotNull($aikuIdField)
                     ->update(
                         [
                             $aikuIdField => null,
                         ]
                     );
                 DB::connection('aurora')->table('Supplier Deleted Dimension')
+                    ->whereNotNull($aikuIdField)
                     ->update(
                         [
                             $aikuIdField => null,
@@ -139,15 +159,20 @@ class FetchResetBase
 
 
                 DB::connection('aurora')->table('Attachment Bridge')
+                    ->whereNotNull($aikuIdField)
                     ->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Image Subject Bridge')
+                    ->whereNotNull($aikuIdField)
                     ->update([$aikuIdField => null]);
 
                 DB::connection('aurora')->table('Customer Dimension')
+                    ->whereNotNull($aikuIdField)
                     ->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Customer Deleted Dimension')
+                    ->whereNotNull($aikuIdField)
                     ->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Customer Client Dimension')
+                    ->whereNotNull($aikuIdField)
                     ->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Website User Dimension')
                     ->update([$aikuIdField => null]);
@@ -173,6 +198,7 @@ class FetchResetBase
                     ->update([$aikuIdField => null]);
 
                 DB::connection('aurora')->table('Part Dimension')
+                    ->whereNotNull($aikuIdField)
                     ->update([
                         //  'aiku_unit_id' => null,
                         $aikuIdField => null
@@ -197,6 +223,7 @@ class FetchResetBase
                 DB::connection('aurora')->table('Website User Dimension')
                     ->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Prospect Dimension')
+                    ->whereNotNull($aikuIdField)
                     ->update([$aikuIdField => null]);
                 $command->line("✅ customers \t\t".$this->stepTime());
 
@@ -215,38 +242,84 @@ class FetchResetBase
                 $command->line("✅ HR \t\t\t".$this->stepTime());
 
 
-                DB::connection('aurora')->table('Order Dimension')->update([$aikuIdField => null]);
-                DB::connection('aurora')->table('Order Transaction Fact')->update(
+                DB::connection('aurora')->table('Order Dimension')
+                    ->whereNotNull($aikuIdField)
+                    ->update([$aikuIdField => null]);
+                DB::connection('aurora')->table('Order Transaction Fact')
+                    ->whereNotNull($aikuIdField)
+                    ->update(
+                        [
+                            $aikuIdField => null,
+                        ]
+                    );
+                DB::connection('aurora')->table('Order Transaction Fact')
+                    ->whereNotNull('aiku_basket_id')
+                    ->update(
+                        [
+                            'aiku_basket_id' => null,
+                        ]
+                    );
+
+                DB::connection('aurora')->table('Order Transaction Fact')
+                    ->whereNotNull('aiku_invoice_id')
+                    ->update(
+                        [
+                            'aiku_invoice_id' => null
+                        ]
+                    );
+
+
+                DB::connection('aurora')->table('Order No Product Transaction Fact')->update(
                     [
                         $aikuIdField      => null,
                         'aiku_basket_id'  => null,
                         'aiku_invoice_id' => null
                     ]
                 );
-                DB::connection('aurora')->table('Order No Product Transaction Fact')->update(
-                    [
-                        $aikuIdField => null,
-                        'aiku_basket_id' => null,
-                        'aiku_invoice_id' => null
-                    ]
-                );
-                DB::connection('aurora')->table('Order Dimension')->update([$aikuIdField => null]);
+
                 $command->line("✅ orders \t\t".$this->stepTime());
 
-                DB::connection('aurora')->table('Delivery Note Dimension')->update([$aikuIdField => null]);
-                DB::connection('aurora')->table('Inventory Transaction Fact')->update(
-                    [
+                DB::connection('aurora')->table('Delivery Note Dimension')
+                    ->whereNotNull($aikuIdField)
+                    ->update([$aikuIdField => null]);
+
+
+
+                DB::connection('aurora')->table('Inventory Transaction Fact')
+                    ->whereNotNull($aikuIdField)
+                    ->update(
+                        [
                         $aikuIdField      => null,
+
+                    ]
+                    );
+
+                DB::connection('aurora')->table('Inventory Transaction Fact')
+                    ->whereNotNull('aiku_dn_item_id')
+                    ->update(
+                        [
                         'aiku_dn_item_id' => null,
+                    ]
+                    );
+
+                DB::connection('aurora')->table('Inventory Transaction Fact')
+                    ->whereNotNull('aiku_picking_id')
+                    ->update(
+                        [
                         'aiku_picking_id' => null
                     ]
-                );
+                    );
+
+
 
 
                 $command->line("✅ delivery notes \t\t".$this->stepTime());
 
 
-                DB::connection('aurora')->table('Invoice Dimension')->update([$aikuIdField => null]);
+                DB::connection('aurora')
+                    ->table('Invoice Dimension')
+                    ->whereNotNull($aikuIdField)
+                    ->update([$aikuIdField => null]);
                 //DB::connection('aurora')->table('Invoice Deleted Dimension')->update([$aikuIdField => null]);
 
 

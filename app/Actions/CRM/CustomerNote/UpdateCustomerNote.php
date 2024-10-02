@@ -17,9 +17,13 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateCustomerNote extends OrgAction
 {
     use WithActionUpdate;
+    use WithNotesDetails;
 
     public function handle(CustomerNote $customerNote, array $modelData): CustomerNote
     {
+        $modelData = $this->processNotes($modelData);
+
+
         return $this->update($customerNote, $modelData, ['data']);
     }
 
@@ -40,6 +44,8 @@ class UpdateCustomerNote extends OrgAction
 
         if (!$this->strict) {
             $rules['note'] = ['sometimes', 'string', 'max:4096'];
+            $rules['note_details_html'] = ['sometimes', 'string', 'max:4096'];
+            $rules['note_details'] = ['sometimes', 'string', 'max:4096'];
         }
 
         return $rules;
