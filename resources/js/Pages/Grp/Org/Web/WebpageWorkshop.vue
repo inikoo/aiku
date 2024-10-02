@@ -237,8 +237,8 @@ const openFullScreenPreview = () => {
             />
         </div>
 
-        <!--   main editor -->
-        <div v-if="false" class="md:col-span-4 col-span-5  h-full flex flex-col bg-gray-200">
+        <!-- Section: Preview -->
+        <div v-if="true" class="md:col-span-4 col-span-5  h-full flex flex-col bg-gray-200">
             <div class="flex justify-between">
                 <div class="py-1 px-2 cursor-pointer md:hidden block" title="Desktop view" v-tooltip="'Navigation'">
                     <FontAwesomeIcon :icon='faBars' aria-hidden='true' @click="()=>openDrawer = true" />
@@ -248,13 +248,14 @@ const openFullScreenPreview = () => {
                             @order="sendOrderBlock"  @openBlockList="()=>{openDrawer = false, _WebpageSideEditor.isModalBlocksList = true}" />
                     </Drawer>
                 </div>
+
+                <!-- Section: Screenview -->
                 <div class="flex">
                     <ScreenView @screenView="setIframeView" />
                     <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
                         @click="openFullScreenPreview">
                         <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
                     </div>
-
                 </div>
             </div>
 

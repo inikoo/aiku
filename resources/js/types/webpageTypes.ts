@@ -55,6 +55,22 @@ export interface Root {
     component: string
     fieldValue: FieldValue
     blockLayout: BlockLayout
+    properties: {
+      padding?: {
+        top: number | null
+        bottom: number | null
+        left: number | null
+        right: number | null
+        unit: string
+      }
+      margin?: {
+        top: number | null
+        bottom: number | null
+        left: number | null
+        right: number | null
+        unit: string
+      }
+    }
   }
   
   export interface FieldValue {

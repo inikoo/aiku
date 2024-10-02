@@ -11,7 +11,6 @@ library.add(faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOu
 
 const model = defineModel()
 const props = defineProps<{
-    label: string
     scope: string
 }>()
 
@@ -36,8 +35,7 @@ const changePaddingToSameValue = (newVal: number) => {
 </script>
 
 <template>
-    <div class="flex flex-col bg-gray-100 shadow-md pt-1 pb-3 border-t border-gray-300">
-        <div class="w-full text-center py-1 font-semibold select-none">{{ label }}</div>
+    <div class="flex flex-col pt-1 pb-3">
 
         <div class="pb-2">
             <div class="px-3 flex justify-between items-center mb-2">

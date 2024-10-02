@@ -80,35 +80,39 @@ onUnmounted(() => {
 
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
-      <!--   <IrisHeader v-if="header" :data="layout.header" :colorThemed="layout.colorThemed" :menu="layout.navigation" /> -->
-      <component
-                        :is="getComponentsHeader(layout.header.data.key)"
-                        :loginMode="true"
-                        :previewMode="false"
-                        v-model="layout.header.data"
-                        :uploadImageRoute="layout.header.uploadImageRoute"
-                        :colorThemed="layout.colorThemed"
-                    />
-        <div v-if="data" class="relative">
-            <div class="container max-w-7xl mx-auto">
-                <div class="h-full overflow-auto w-full ">
-                    <div v-if="data?.layout?.web_blocks?.length">
-                        <TransitionGroup tag="div" name="zzz" class="relative">
-                            <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks" :key="activityItem.id" class="w-full">
-                                <component :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
-                                    :key="activityItemIdx" :webpageData="webpage" v-bind="activityItem"
-                                    v-model="activityItem.web_block.layout.data.fieldValue" :isEditable="true"
-                                    @autoSave="() => onUpdatedBlock(activityItem)" />
-                            </section>
-                        </TransitionGroup>
+        <!--   <IrisHeader v-if="header" :data="layout.header" :colorThemed="layout.colorThemed" :menu="layout.navigation" /> -->
+        <component
+            :is="getComponentsHeader(layout.header.data.key)"
+            :loginMode="true"
+            :previewMode="false"
+            v-model="layout.header.data"
+            :uploadImageRoute="layout.header.uploadImageRoute"
+            :colorThemed="layout.colorThemed"
+        />
 
-                    </div>
-                    <div v-else>
-                        <EmptyState
-                            :data="{ title: 'Pick First Block For Your Website', description: 'Pick block from list' }">
-                        </EmptyState>
-                    </div>
-                </div>
+        <div v-if="data" class="relative h-full overflow-auto container max-w-7xl mx-auto">
+            <div v-if="data?.layout?.web_blocks?.length">
+                <TransitionGroup tag="div" name="zzz" class="relative">
+                    <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks" :key="activityItem.id" class="w-full">
+                    <!-- <pre>{{ activityItem?.web_block?.layout?.data.properties }}</pre> -->
+                        <component
+                            :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
+                            :key="activityItemIdx"
+                            :properties="activityItem?.web_block?.layout?.data.properties"
+                            :webpageData="webpage"
+                            v-bind="activityItem"
+                            v-model="activityItem.web_block.layout.data.fieldValue"
+                            :isEditable="true"
+                            @autoSave="() => onUpdatedBlock(activityItem)"
+                        />
+                    </section>
+                </TransitionGroup>
+            </div>
+
+            <div v-else>
+                <EmptyState
+                    :data="{ title: 'Pick First Block For Your Website', description: 'Pick block from list' }">
+                </EmptyState>
             </div>
         </div>
 
