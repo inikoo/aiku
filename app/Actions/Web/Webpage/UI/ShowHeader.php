@@ -18,6 +18,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use App\Http\Resources\Web\WebBlockTypeCategoryResource;
+use App\Models\Web\WebBlockTypeCategory;
 
 class ShowHeader extends OrgAction
 {
@@ -103,7 +105,8 @@ class ShowHeader extends OrgAction
                     ]
                 ],
 
-                'data' => GetWebsiteWorkshopHeader::run($website)
+                'data' => GetWebsiteWorkshopHeader::run($website),
+                'webBlockTypeCategories' => WebBlockTypeCategoryResource::collection(WebBlockTypeCategory::all())
             ]
         );
     }
