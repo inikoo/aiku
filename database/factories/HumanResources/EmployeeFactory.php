@@ -8,6 +8,7 @@
 namespace Database\Factories\HumanResources;
 
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class EmployeeFactory extends Factory
@@ -21,6 +22,7 @@ class EmployeeFactory extends Factory
             'date_of_birth' => fake()->date,
             'email'         => fake()->email,
             'worker_number' => fake()->unique()->numberBetween(1000, 9999),
+            'type'          => EmployeeTypeEnum::EMPLOYEE,
         ];
     }
 }
