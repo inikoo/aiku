@@ -90,14 +90,9 @@ class CreateCustomerClient extends RetinaAction
                                 ]
                             ]
                         ],
-                    // 'route'     => [
-                    //     'name'      => 'grp.models.org.shop.customer.client.store',
-                    //     'parameters' => [
-                    //         'organisation' => $customer->organisation_id,
-                    //         'shop'         => $customer->shop_id,
-                    //         'customer'     => $customer->id
-                    //         ]
-                    // ]
+                    'route'     => [
+                        'name'      => 'retina.models.customer-client.store'
+                    ]
                 ]
 
             ]
