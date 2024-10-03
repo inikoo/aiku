@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Retina\Dropshipping;
+namespace App\Actions\UI\Retina\Dropshipping\Client;
 
 use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
@@ -110,20 +110,15 @@ class IndexCustomerClients extends RetinaAction
                             'title'       => __("No clients found"),
                             'description' => __("You can add your client 🤷🏽‍♂️"),
                             'count'       => $parent->stats->number_clients,
-                            // 'action'      => [
-                            //     'type'    => 'button',
-                            //     'style'   => 'create',
-                            //     'tooltip' => __('new client'),
-                            //     'label'   => __('client'),
-                            //     'route'   => [
-                            //         'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.create',
-                            //         'parameters' => [
-                            //             'organisation' => $parent->organisation->slug,
-                            //             'shop'         => $parent->shop->slug,
-                            //             'customer'     => $parent->slug
-                            //         ]
-                            //     ]
-                            // ]
+                            'action'      => [
+                                'type'    => 'button',
+                                'style'   => 'create',
+                                'tooltip' => __('new client'),
+                                'label'   => __('client'),
+                                'route'   => [
+                                    'name'       => 'retina.dropshipping.client.create',
+                                ]
+                            ]
                         ],
                         default => null
                     }
@@ -167,22 +162,17 @@ class IndexCustomerClients extends RetinaAction
                     'afterTitle'    => $afterTitle,
                     'iconRight'     => $iconRight,
                     'icon'          => $icon,
-                    // 'actions'       => [
-                    //     [
-                    //         'type'    => 'button',
-                    //         'style'   => 'create',
-                    //         'tooltip' => __('New Client'),
-                    //         'label'   => __('New Client'),
-                    //         'route'   => [
-                    //             'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.create',
-                    //             'parameters' => [
-                    //                 'organisation' => $scope->organisation->slug,
-                    //                 'shop'         => $scope->shop->slug,
-                    //                 'customer'     => $scope->slug
-                    //             ]
-                    //         ]
-                    //     ],
-                    // ],
+                    'actions'       => [
+                        [
+                            'type'    => 'button',
+                            'style'   => 'create',
+                            'tooltip' => __('New Client'),
+                            'label'   => __('New Client'),
+                            'route'   => [
+                                'name'       => 'retina.dropshipping.client.create',
+                            ]
+                        ],
+                    ],
 
                 ],
                 'data'        => CustomerClientResource::collection($customerClients),
