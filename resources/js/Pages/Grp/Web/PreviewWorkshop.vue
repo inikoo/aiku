@@ -86,7 +86,7 @@ console.log('preview',props)
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
       <component
-        :is="getComponentsHeader(layout.header.header.key)"
+        :is="getComponentsHeader(layout?.header?.header?.key)"
         :loginMode="true"
         :previewMode="true"
         v-model="layout.header.header"
@@ -102,6 +102,7 @@ console.log('preview',props)
                                 <component 
                                     :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
                                     :webpageData="webpage"
+                                    :properties="activityItem?.web_block?.layout?.data.properties"
                                     v-bind="activityItem"
                                     v-model="activityItem.web_block.layout.data.fieldValue" 
                                     :isEditable="true"
