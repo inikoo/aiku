@@ -45,8 +45,8 @@ class DeleteModelHasWebBlocks extends OrgAction
 
     public function asController(ModelHasWebBlocks $modelHasWebBlocks, ActionRequest $request): void
     {
-        $this->initialisation($modelHasWebBlocks->organisation, $request);
         $this->scope = $modelHasWebBlocks->organisation;
+        $this->initialisation($modelHasWebBlocks->organisation, $request);
         $this->handle($modelHasWebBlocks);
     }
 
