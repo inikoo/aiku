@@ -7,14 +7,15 @@
 
 namespace App\Actions\Web\ModelHasWebBlocks;
 
-use App\Actions\GrpAction;
+use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Events\BroadcastPreviewWebpage;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Dropshipping\ModelHasWebBlocks;
+use Lorisleiva\Actions\ActionRequest;
 
-class DeleteModelHasWebBlocks extends GrpAction
+class DeleteModelHasWebBlocks extends OrgAction
 {
     use HasWebAuthorisation;
 
@@ -41,11 +42,18 @@ class DeleteModelHasWebBlocks extends GrpAction
         WebpageResource::make($modelHasWebBlocks->webpage);
     }
 
+    public function asController(ModelHasWebBlocks $modelHasWebBlocks, ActionRequest $request): void
+    {
+        $this->scope = $modelHasWebBlocks->organisation;
+        $this->initialisation($modelHasWebBlocks->organisation, $request);
+        $this->handle($modelHasWebBlocks);
+    }
+
     public function action(ModelHasWebBlocks $modelHasWebBlocks, array $modelData): ModelHasWebBlocks
     {
         $this->asAction = true;
 
-        $this->initialisation($modelHasWebBlocks->group, $modelData);
+        $this->initialisation($modelHasWebBlocks->organisation, $modelData);
 
         return $this->handle($modelHasWebBlocks);
     }

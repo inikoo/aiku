@@ -80,21 +80,18 @@ const onPublish = async (action : routeType, popover : Function) => {
 };
 
 const autoSave = async (data : object) => {
-    router.patch(
-        route(props.autosaveRoute.name, props.autosaveRoute.parameters),
-        { layout: data },
-        {
-            /* onStart: () => isAddBlockLoading.value = 'addBlock' + block.id,
-            onFinish: () => isAddBlockLoading.value = null, */
-            onError: (error) => {
-                notify({
-                    title: trans('Something went wrong'),
-                    text: error.message,
-                    type: 'error',
-                })
-            }
-        }
-    )
+    try {
+        const response = await axios.patch(
+            route(props.autosaveRoute.name, props.autosaveRoute.parameters),
+            { layout: data }
+        )
+    } catch (error: any) {
+        notify({
+            title: 'Something went wrong.',
+            text: errorMessage,
+            type: 'error',
+        })
+    }
 }
 
 
@@ -133,7 +130,7 @@ watch(usedTemplates, (newVal) => {
         </template>
     </PageHeading>
 
-    <div class="h-[85vh] grid grid-flow-row-dense grid-cols-5">
+    <div class="h-[85vh] grid grid-flow-row-dense grid-cols-6">
         <div v-if="usedTemplates?.header?.key"
             class="col-span-1 bg-[#F9F9F9] flex flex-col justify-between h-full border-r border-gray-300">
             <div class="">
@@ -148,7 +145,7 @@ watch(usedTemplates, (newVal) => {
         </div>
   
 
-        <div :class="usedTemplates?.header?.key ? 'col-span-4' : 'col-span-5'">
+        <div :class="usedTemplates?.header?.key ? 'col-span-5' : 'col-span-8'">
             <div v-if="usedTemplates?.header?.key" class="h-full w-full bg-white">
                 <div class="flex justify-between bg-slate-200 border border-b-gray-300">
                     <div class="flex">
@@ -197,5 +194,5 @@ watch(usedTemplates, (newVal) => {
 </template>
 
 
-<style scss scoped>
+<style lang="scss" scoped>
 </style>

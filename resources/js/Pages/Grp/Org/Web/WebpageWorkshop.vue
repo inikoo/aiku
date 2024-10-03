@@ -238,7 +238,7 @@ const openFullScreenPreview = () => {
         </div>
 
         <!-- Section: Preview -->
-        <div v-if="false" class="md:col-span-4 col-span-5  h-full flex flex-col bg-gray-200">
+        <div v-if="true" class="md:col-span-4 col-span-5  h-full flex flex-col bg-gray-200">
             <div class="flex justify-between">
                 <div class="py-1 px-2 cursor-pointer md:hidden block" title="Desktop view" v-tooltip="'Navigation'">
                     <FontAwesomeIcon :icon='faBars' aria-hidden='true' @click="()=>openDrawer = true" />

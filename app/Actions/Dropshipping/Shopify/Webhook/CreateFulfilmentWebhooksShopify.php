@@ -50,18 +50,24 @@ class CreateFulfilmentWebhooksShopify extends OrgAction
             'billing_address'  => new Address($deliveryAddress),
         ]);
 
-        $productIds     = collect($modelData['line_items'])->pluck('product_id');
-        $historicAssets = $shopifyUser->organisation->assets()
-            ->whereIn('id', function ($query) use ($productIds) {
-                $query->select('asset_id')
-                    ->from('products')
-                    ->whereIn('id', $productIds);
-            })->chunkMap(function ($asset) {
-                return $asset->historicAsset;
-            }, 100);
+        $shopifyProducts     = collect($modelData['line_items']);
+        $productIds = collect($shopifyProducts)->pluck('product_id');
 
-        foreach ($historicAssets as $historicAsset) {
-            StoreTransaction::make()->action($order, $historicAsset, []);
+        $products = $shopifyUser->products()->whereIn('shopify_product_id', $productIds)->get()->keyBy('shopify_product_id');
+        $assets = $shopifyUser->organisation->assets()->whereIn('id', $products->pluck('id'))->get()->keyBy('id');
+
+        foreach ($shopifyProducts as $shopifyProduct) {
+            $product = $products->get($shopifyProduct['product_id']);
+
+            if ($product) {
+                $asset = $assets->get($product->id);
+
+                if ($asset) {
+                    StoreTransaction::make()->action($order, $asset->historicAsset, [
+                        'quantity_ordered' => $shopifyProduct['quantity'],
+                    ]);
+                }
+            }
         }
 
         $shopifyUser->orders()->attach($order->id, [
@@ -74,6 +80,6 @@ class CreateFulfilmentWebhooksShopify extends OrgAction
     {
         $this->initialisation($shopifyUser->organisation, $request);
 
-        $this->handle($shopifyUser, $this->validatedData);
+        $this->handle($shopifyUser, $request->all());
     }
 }

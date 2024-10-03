@@ -164,7 +164,7 @@ class ShowOrgSupplier extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($orgSupplier))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($orgSupplier)))
             ]
-        )->table(IndexOrgSupplierProducts::make()->tableStructure($orgSupplier))
+        )->table(IndexOrgSupplierProducts::make()->tableStructure(parent: $orgSupplier, prefix: SupplierTabsEnum::SUPPLIER_PRODUCTS->value))
             ->table(IndexPurchaseOrders::make()->tableStructure())
             ->table(IndexStockDeliveries::make()->tableStructure())
             ->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value));

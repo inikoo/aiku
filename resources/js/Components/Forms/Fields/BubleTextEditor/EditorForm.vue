@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
+import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import TextStyle from '@tiptap/extension-text-style'
 import Underline from '@tiptap/extension-underline'
@@ -14,12 +14,10 @@ import Highlight from '@tiptap/extension-highlight'
 import { Color } from '@tiptap/extension-color'
 import FontSize from 'tiptap-extension-font-size'
 import Link from '@tiptap/extension-link'
-import MenuEditor from './MenuEditor.vue'
+import MenuEditorForm from './MenuEditorForm.vue'
 import Placeholder from '@tiptap/extension-placeholder'
 import FontFamily from '@tiptap/extension-font-family'
 
-import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faText, faUndoAlt, faRedoAlt } from '@far'
 import { faHorizontalRule, faQuoteRight, faMarker } from '@fas'
@@ -30,17 +28,14 @@ library.add(faBold, faQuoteRight, faMarker, faHorizontalRule, faItalic, faUnderl
 const props = withDefaults(defineProps<{
     modelValue: string,
     toogle?: string[],
-    type?: string,
     editable?:boolean
     placeholder?:any | String
 }>(),{
     editable : true,
-    type: 'Bubble',
     placeholder : '',
     toogle: () => [
-        'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',
-        'orderedList', 'blockquote', 'divider', 'alignLeft', 'alignRight',
-        'alignCenter', 'link', 'undo', 'redo', 'highlight', 'color', 'clear'
+        'bold', 'italic', 'underline','alignLeft', 'alignRight',
+        'alignCenter', 'link', 'highlight', 'color', 'clear', 'fontSize'
     ]
 })
 
@@ -84,6 +79,7 @@ const editor = useEditor({
         TextStyle,
         BulletList,
         ListItem,
+        Color,
         FontFamily.configure({
             types: ['textStyle'],
         }),
@@ -99,9 +95,6 @@ const editor = useEditor({
         }),
         Highlight.configure({
             multicolor: true
-        }),
-        Color.configure({
-            types: ['textStyle'],
         }),
         FontSize.configure({
             types: ['textStyle'],
@@ -181,7 +174,6 @@ onMounted(() => {
     toggleList.value = toggleList.value.filter(item => props.toogle?.includes(item.key))
 })
 
-// Listen to v-model from parent (so no need re-render the component)
 watch(() => props.modelValue, (newValue, oldValue) => {
     const isSame = newValue === oldValue
     if (isSame) {
@@ -194,18 +186,15 @@ watch(() => props.modelValue, (newValue, oldValue) => {
 </script>
 
 <template>
-    <div v-if="editable" class="">
-        <BubbleMenu v-if="type == 'Bubble' && editor" :editor="editor" :tippy-options="{ duration: 100 }">
-            <section class="buttons text-gray-700 flex text-xs items-center flex-wrap gap-x-4 border-t border-l border-r border-gray-400 p-1 bg-gray-200 min-w-52 max-w-[400px]">
-                <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
-            </section>
-        </BubbleMenu>
-
-        <section v-else-if="type == 'basic' && editor" class="buttons text-xs text-gray-700 flex items-center flex-wrap gap-x-4 border border-gray-400 p-2 rounded-t-lg bg-white">
-            <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
+    <div v-if="editable">
+        <section v-if="editor">
+            <MenuEditorForm 
+                :toggleList="toggleList" 
+                :editor="editor"
+            />
         </section>
 
-        <EditorContent :editor="editor" :class="type == 'basic' ? 'basic-content' : ''"/>
+        <EditorContent :editor="editor" class="border rounded-sm p-2"/>
     </div>
     <div v-else id="blockTextContent"><div v-html="modelValue"/></div>
 </template>
@@ -213,11 +202,8 @@ watch(() => props.modelValue, (newValue, oldValue) => {
 
 
 <style lang="scss">
-/* Basic editor styles */
+
 .tiptap {
-  /*   >*+* {
-        margin-top: 0.75em;
-    } */
 
     blockquote {
         padding-left: 1rem;
