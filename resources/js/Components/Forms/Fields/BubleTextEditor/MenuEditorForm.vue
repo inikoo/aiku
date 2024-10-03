@@ -109,7 +109,8 @@ const fontfamilies = ref([
 </template>
 
 <style lang="scss" scoped>
-.p-select-label {
-    padding : 0px
+:deep(.p-select-label) {
+    padding : 0px;
+    width : 100px
 }
 </style>
