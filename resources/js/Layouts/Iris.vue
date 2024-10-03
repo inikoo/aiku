@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Notification from '@/Components/Utils/Notification.vue'
 import IrisHeader from '@/Layouts/Iris/Header.vue'
+import IrisLoginInformation from '@/Layouts/Iris/IrisLoginInformation.vue'
 
 import Footer from '@/Layouts/Iris/Footer.vue'
 import { useColorTheme } from '@/Composables/useStockList'
@@ -30,6 +31,7 @@ const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color
     <div class="relative">
         <ScreenWarning v-if="layout.app.environment === 'staging'" />
         <div  class="container max-w-7xl mx-auto shadow-xl">
+            <IrisLoginInformation />
             <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation"/>
 
             
