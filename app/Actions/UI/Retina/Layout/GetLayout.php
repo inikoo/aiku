@@ -28,6 +28,7 @@ class GetLayout
             'navigation' => match ($request->get('website')->type->value) {
                 'fulfilment' => GetRetinaFulfilmentNavigation::run($webUser),
                 'dropshipping' => GetRetinaDropshippingNavigation::run($webUser),
+                'b2b' => GetRetinaB2bNavigation::run($webUser),
                 default      => []
             },
         ];

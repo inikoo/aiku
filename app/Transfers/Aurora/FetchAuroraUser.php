@@ -18,19 +18,17 @@ class FetchAuroraUser extends FetchAurora
 
     protected function parseModel(): void
     {
+
         if (!in_array($this->auroraModelData->{'User Type'}, ['Staff', 'Contractor'])) {
             return;
         }
-
-
-
+        $parent = null;
         if ($this->auroraModelData->{'User Type'} == 'Staff') {
-
             $parent = $this->parseEmployee($this->organisation->id.':'.$this->auroraModelData->{'User Parent Key'});
-        } else {
-            return;
-
         }
+        $parentSource = $this->organisation->id.':'.$this->auroraModelData->{'User Parent Key'};
+
+
 
         $legacyPassword = $this->auroraModelData->{'User Password'};
         if (app()->isLocal()) {
@@ -52,15 +50,19 @@ class FetchAuroraUser extends FetchAurora
         }
 
         $this->parsedData['parent'] = $parent;
+        $this->parsedData['parentSource'] = $parentSource;
 
-
+        $relatedUsername = $this->auroraModelData->{'User Handle'};
+        if ($this->auroraModelData->aiku_alt_username) {
+            $relatedUsername = $this->auroraModelData->aiku_alt_username;
+        }
+        $this->parsedData['related_username'] = Str::kebab(Str::lower($relatedUsername));
 
         $this->parsedData['user'] =
             [
-
                 'source_id'         => $this->organisation->id.':'.$this->auroraModelData->{'User Key'},
                 'username'          => Str::kebab(Str::lower($username)),
-                'status'            => true,
+                'status'            => $status,
                 'user_model_status' => $status,
                 'created_at'        => $this->auroraModelData->{'User Created'},
                 'legacy_password'   => $legacyPassword,

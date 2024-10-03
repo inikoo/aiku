@@ -7,11 +7,11 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\SysAdmin\User\UpdateUsersPseudoJobPositions;
 use App\Models\SysAdmin\User;
 use App\Transfers\SourceOrganisationService;
+use Arr;
 use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
@@ -23,9 +23,9 @@ class FetchAuroraUsers extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?User
     {
+        $user = null;
         setPermissionsTeamId($organisationSource->getOrganisation()->group_id);
         if ($userData = $organisationSource->fetchUser($organisationSourceId)) {
-
             if ($userData['user']) {
                 if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
                     try {
@@ -48,57 +48,60 @@ class FetchAuroraUsers extends FetchAuroraAction
                     ->select('user_id')
                     ->where('group_id', $organisationSource->getOrganisation()->group_id)
                     ->where('source_id', $userData['user']['source_id'])->first()) {
+                    return User::where('id', $foundUserData->user_id)->first();
+                }
 
-                    $user = User::where('id', $foundUserData->user_id)->first();
+
+                if (!$userData['parent']) {
 
 
+                    $group_id = $organisationSource->getOrganisation()->group_id;
+                    $user     = User::withTrashed()->where('group_id', $group_id)->where('username', $userData['related_username'])->first();
+
+                    //  dd($user->id);
+                    //dd($userData['related_username']);
+
+                    if ($user) {
+
+
+
+
+                        if ($userData['user']['status']) {
+                            $user = UpdateUsersPseudoJobPositions::make()->action(
+                                $user,
+                                $organisationSource->getOrganisation(),
+                                [
+                                    'positions' => $userData['user']['positions']
+                                ]
+                            );
+                        }
+
+
+                        DB::transaction(function () use ($user, $userData) {
+                            $sourcesUsers   = Arr::get($user->sources, 'users', []);
+                            $sourcesParents = Arr::get($user->sources, 'parents', []);
+                            $sourcesUsers[] = $userData['user']['source_id'];
+                            if ($userData['parentSource']) {
+                                $sourcesParents[] = $userData['parentSource'];
+                            }
+                            $sourcesUsers   = array_unique($sourcesUsers);
+                            $sourcesParents = array_unique($sourcesParents);
+                            $user->updateQuietly([
+                                'sources' => [
+                                    'users'   => $sourcesUsers,
+                                    'parents' => $sourcesParents
+                                ]
+                            ]);
+                        });
+                    }
 
                     return $user;
                 }
 
 
-                $user = $organisationSource->getOrganisation()->group->users()->where('username', $userData['user']['username'])->first();
-
-
-
-                if ($user) {
-
-
-                    $user = UpdateUsersPseudoJobPositions::make()->action(
-                        $user,
-                        $organisationSource->getOrganisation(),
-                        [
-                            'positions' => $userData['user']['positions']
-                        ]
-                    );
-                } else {
-                    // User not found
-                    // todo add as a guest
-                    //dd($userData['user']);
-                }
-
-
-                //                elseif($userData['parent_type']=='Staff'){
-                //                        try {
-                //                            $user = StoreUser::make()->action(
-                //                                parent: $userData['parent'],
-                //                                modelData: $userData['user'],
-                //                                hydratorsDelay: $this->hydrateDelay,
-                //                                strict: false
-                //                            );
-                //
-                //                            $this->recordNew($organisationSource);
-                //                        } catch
-                //                        (Exception $e) {
-                //                            $this->recordError($organisationSource, $e, $userData['user'], 'DeletedUser', 'store');
-                //
-                //                            return null;
-                //                        }
-                //                    }
 
 
             }
-
 
 
             return $user;

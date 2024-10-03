@@ -17,6 +17,7 @@ use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\Traits\WithPreparePositionsForValidation;
 use App\Actions\Traits\WithReorganisePositions;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
@@ -37,7 +38,6 @@ class StoreEmployee extends OrgAction
 
     public function handle(Organisation|Workplace $parent, array $modelData): Employee
     {
-
         if (class_basename($parent) === 'Workplace') {
             $organisation = $parent->organisation;
             data_set($modelData, 'organisation_id', $organisation->id);
@@ -67,6 +67,9 @@ class StoreEmployee extends OrgAction
 
         if (Arr::get($credentials, 'username')) {
 
+
+            $status = Arr::get($credentials, 'user_model_status', true);
+
             StoreUser::make()->action(
                 $employee,
                 [
@@ -79,8 +82,8 @@ class StoreEmployee extends OrgAction
                     'contact_name'      => $employee->contact_name,
                     'email'             => $employee->work_email,
                     'reset_password'    => Arr::get($credentials, 'reset_password', true),
-                    'status'            => true,
-                    'user_model_status' => Arr::get($credentials, 'user_model_status', true),
+                    'status'            => $status,
+                    'user_model_status' => $status
                 ],
             );
         }
@@ -176,6 +179,7 @@ class StoreEmployee extends OrgAction
             'password'                                => ['exclude_if:username,null', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
             'reset_password'                          => ['exclude_if:username,null', 'sometimes', 'boolean'],
             'user_model_status'                       => ['exclude_if:username,null', 'sometimes', 'boolean'],
+            'type'                                    => ['required', Rule::enum(EmployeeTypeEnum::class)]
         ];
 
         if (!$this->strict) {
@@ -190,7 +194,6 @@ class StoreEmployee extends OrgAction
 
     public function action(Organisation|Workplace $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Employee
     {
-
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;

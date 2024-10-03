@@ -14,8 +14,6 @@ class FetchAuroraCustomerNote extends FetchAurora
 {
     protected function parseModel(): void
     {
-        //   print_r($this->auroraModelData);
-
         if ($this->auroraModelData->{'Direct Object'} != 'Note') {
             return;
         }
@@ -23,7 +21,6 @@ class FetchAuroraCustomerNote extends FetchAurora
         if ($this->auroraModelData->{'Indirect Object'} != 'Customer') {
             return;
         }
-
 
         $details = '';
         if ($this->auroraModelData->{'History Details'}) {
@@ -39,62 +36,60 @@ class FetchAuroraCustomerNote extends FetchAurora
         } elseif ($note == 'Contact data imported from Act') {
             $event = 'migration';
         } elseif ($note == 'Old Database Note (Field Changed)') {
+            $historyDetails = $this->auroraModelData->{'History Details'};
+            $historyDetails = preg_replace('/-------------------------------------------/', ';', $historyDetails);
+
+            if ($historyDetails == '') {
+                return;
+            }
+
             $event   = 'updated';
             $tags    = ['crm'];
             $details = null;
 
-            $note          = '';
+            $note = '';
 
-
-            $historyDetails = $this->auroraModelData->{'History Details'};
-            $historyDetails = preg_replace('/-------------------------------------------/', ';', $historyDetails);
 
             $changedFields = preg_split('/;\n/', $historyDetails);
             foreach ($changedFields as $changedField) {
-
-
-
-                //  $changedField = preg_replace('/ID\/Status - Customer - /', 'ID/Status - ', $changedField);
-
                 $changedField = trim($changedField);
-
                 $changedField = preg_replace('/ -$/', ' - ', $changedField);
 
-                /*
-                                if($changedField=='ID/Status -'){
-                                    $changedField='ID/Status - ';
-                                }elseif($changedField=='Gold Reward Member -'){
-                                    $changedField='Gold Reward Member - ';
-                                }elseif($changedField=='Trade Name -'){
-                                    $changedField='Trade Name - ';
-                                }
-                */
+                if ($changedField == 'ID/Status - Customer') {
+                    continue;
+                }
+                if ($changedField == 'Not interested') {
+                    $changedField = 'ID/Status - Not interested';
+                }
 
+                if ($changedField == '') {
+                    continue;
+                }
 
-                // print ">>>$changedField<<<\n";
-
-
+                if (!str_contains($changedField, ' - ')) {
+                    $changedField = 'Legacy Note - '.$changedField;
+                }
 
                 list($fieldName, $fieldValue) = explode(' - ', $changedField, 2);
 
-                //  $fieldData = explode(' - ', $changedField);
-
-                //                if (count($fieldData) != 2) {
-                //                    dd($this->auroraModelData);
-                //                }
                 $fieldName  = trim($fieldName);
                 $fieldValue = trim(preg_replace('/;$/', '', $fieldValue));
 
-
-                //print_r($fieldData);
-
-                //  $fieldName  = trim($fieldData[0]);
-                //  $fieldValue = trim(preg_replace('/;$/', '', $fieldData[1]));
+                if (in_array($fieldValue, ['.', ',', ':', ';'])) {
+                    continue;
+                }
 
                 if ($fieldName == 'Gold Reward Member') {
                     continue;
                 }
-                if ($fieldName == 'Email Check' and $fieldValue == '') {
+                if ($fieldName == 'Email Check' and in_array($fieldValue, ['', 'Good'])) {
+                    continue;
+                }
+                if ($fieldName == 'ID/Status' and in_array($fieldValue, ['', 'O', '0'])) {
+                    continue;
+                }
+
+                if ($fieldName == 'Trade Name' and in_array($fieldValue, ['', '0', '.'])) {
                     continue;
                 }
 
@@ -106,11 +101,14 @@ class FetchAuroraCustomerNote extends FetchAurora
             }
         }
 
-        // dd($newValues);
 
         $customer = $this->parseCustomer(
             $this->organisation->id.':'.$this->auroraModelData->{'Indirect Object Key'}
         );
+
+        if (!$customer) {
+            return;
+        }
 
         $this->parsedData['customer'] = $customer;
 
@@ -122,39 +120,35 @@ class FetchAuroraCustomerNote extends FetchAurora
                 $this->organisation->id.':'.$this->auroraModelData->{'Subject Key'}
             );
 
-            if (!$employee) {
-                dd($this->auroraModelData);
-            }
 
-            $user = $employee->getUser();
+            if ($employee) {
+                $user = $employee->getUser();
+                if (!$user) {
+                    $userHasModel = DB::table('user_has_models')
+                        ->where('model_id', $employee->id)
+                        ->where('model_type', 'Employee')
+                        ->first();
 
 
-            if (!$user) {
-                $userHasModel = DB::table('user_has_models')
-                    ->where('model_id', $employee->id)
-                    ->where('model_type', 'Employee')
-                    ->first();
-                if ($userHasModel) {
-                    $user = User::withTrashed()->find($userHasModel->user_id);
+                    if ($userHasModel) {
+                        $user = User::withTrashed()->find($userHasModel->user_id);
+                    }
                 }
-
             }
 
-            if (!$user) {
-                DB::connection('aurora')
-                    ->table('User Deleted Dimension')
-                    ->select('aiku_related_id')
-                     ->where('User Parent Key', $this->auroraModelData->{'Subject Key'})
-                     ->update(['aiku_related_id' => $employee->id]);
 
+            if (!$user) {
+                $user = User::withTrashed()
+                    ->where('group_id', $this->organisation->group_id)
+                    ->whereJsonContains('sources->parents', $this->organisation->id.':'.$this->auroraModelData->{'Subject Key'})
+                    ->first();
             }
 
             if (!$user) {
                 dd($this->auroraModelData);
             }
-
-
         }
+
 
         $this->parsedData['customer_note'] =
             [

@@ -23,12 +23,12 @@ class FetchAuroraDeletedUser extends FetchAurora
             $auroraDeletedData = $auroraDeletedData->data;
         }
 
+
         $parent = null;
         if ($auroraDeletedData->{'User Type'} == 'Staff') {
-            //  $this->parsedData['parent_type'] = 'Staff';
             $parent = $this->parseEmployee($this->organisation->id.':'.$auroraDeletedData->{'User Parent Key'});
         }
-
+        $parentSource = $this->organisation->id.':'.$auroraDeletedData->{'User Parent Key'};
 
         $data = [
             'deleted' => ['source' => 'aurora']
@@ -39,19 +39,17 @@ class FetchAuroraDeletedUser extends FetchAurora
         if ($this->auroraModelData->aiku_alt_username) {
             $relatedUsername = $this->auroraModelData->aiku_alt_username;
         }
-
-        $this->parsedData['related_username'] = $relatedUsername;
+        $this->parsedData['related_username'] = Str::kebab(Str::lower($relatedUsername));
 
         $username = $auroraDeletedData->{'User Handle'}.'-deleted_aurora_'.$this->organisation->id.'_'.$this->auroraModelData->{'User Deleted Key'};
 
 
         $this->parsedData['parent'] = $parent;
-
+        $this->parsedData['parentSource'] = $parentSource;
 
 
         $this->parsedData['user'] =
             [
-
                 'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'User Deleted Key'},
                 'username'        => Str::kebab(Str::lower($username)),
                 'status'          => false,

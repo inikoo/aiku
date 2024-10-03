@@ -22,8 +22,6 @@ class UpdateCustomerNote extends OrgAction
     public function handle(CustomerNote $customerNote, array $modelData): CustomerNote
     {
         $modelData = $this->processNotes($modelData);
-
-
         return $this->update($customerNote, $modelData, ['data']);
     }
 
@@ -39,13 +37,17 @@ class UpdateCustomerNote extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'note'      => ['sometimes', 'string', 'max:1024'],
+            'note' => ['sometimes', 'string', 'max:1024'],
         ];
 
         if (!$this->strict) {
-            $rules['note'] = ['sometimes', 'string', 'max:4096'];
+            $rules['note']              = ['sometimes', 'string', 'max:4096'];
             $rules['note_details_html'] = ['sometimes', 'string', 'max:4096'];
-            $rules['note_details'] = ['sometimes', 'string', 'max:4096'];
+            $rules['note_details']      = ['sometimes', 'string', 'max:4096'];
+            $rules['created_at']        = ['sometimes', 'date'];
+            $rules['new_values']        = ['sometimes', 'array'];
+            $rules['event']             = ['sometimes', 'string'];
+            $rules['tags']              = ['sometimes', 'array'];
         }
 
         return $rules;
@@ -61,8 +63,8 @@ class UpdateCustomerNote extends OrgAction
 
     public function action(CustomerNote $customerNote, array $modelData, int $hydratorsDelay = 0, bool $strict = true): CustomerNote
     {
-        $this->asAction = true;
-        $this->strict = $strict;
+        $this->asAction       = true;
+        $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->setRawAttributes($modelData);
         $this->initialisationFromShop($customerNote->shop, $modelData);

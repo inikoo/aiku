@@ -6,6 +6,9 @@ const props = withDefaults(defineProps<{
         value: string
     }
     isEditable?: boolean
+    properties: {
+
+    }
 }>(), {
     isEditable: true
 })
@@ -17,13 +20,26 @@ const emits = defineEmits<{
 </script>
 
 <template>
-    <div class="relative" id="blockTextContent">
+    <div class="relative" id="blockTextContent"
+        :style="{
+            paddingTop: (properties.padding.top.value || 0) + properties.padding.unit, 
+            paddingBottom: (properties.padding.bottom.value || 0) + properties.padding.unit, 
+            paddingRight: (properties.padding.right.value || 0) + properties.padding.unit, 
+            paddingLeft: (properties.padding.left.value || 0) + properties.padding.unit,
+            marginTop: (properties.margin.top.value || 0) + properties.margin.unit, 
+            marginBottom: (properties.margin.bottom.value || 0) + properties.margin.unit, 
+            marginRight: (properties.margin.right.value || 0) + properties.margin.unit, 
+            marginLeft: (properties.margin.left.value || 0) + properties.margin.unit,
+        }"
+    >
         <Editor
             v-if="isEditable"
             v-model="modelValue.value"
             @update:modelValue="() => emits('autoSave')"
         />
-        <div v-else v-html="modelValue?.value"></div>
+        <div v-else v-html="modelValue?.value"
+            
+        ></div>
     </div>
 </template>
 

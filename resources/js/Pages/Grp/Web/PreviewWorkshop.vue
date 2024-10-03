@@ -101,7 +101,8 @@ console.log('preview',props)
                             <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks" :key="activityItem.id" class="w-full">
                                 <component 
                                     :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
-                                    :key="activityItemIdx" :webpageData="webpage" v-bind="activityItem"
+                                    :webpageData="webpage"
+                                    v-bind="activityItem"
                                     v-model="activityItem.web_block.layout.data.fieldValue" 
                                     :isEditable="true"
                                     :style="{ width : '100%'}"

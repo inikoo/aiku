@@ -65,11 +65,13 @@ class FetchAuroraEmployees extends FetchAuroraAction
 
 
             if (Arr::has($employeeData, 'user.source_id')) {
+
                 $updateUser = true;
                 $user       = $employee->getUser();
                 if (!$user) {
                     $user = $employee->group->users()->where('username', $employeeData['user']['username'])->first();
                     if ($user) {
+
                         $updateUser = false;
                         $user       = AttachEmployeeToUser::make()->action(
                             $user,
@@ -81,6 +83,8 @@ class FetchAuroraEmployees extends FetchAuroraAction
                         );
                     }
                 }
+
+
 
                 if ($user) {
                     if ($updateUser) {

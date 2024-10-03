@@ -10,11 +10,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 library.add(faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter, faLink, faUnlink)
 
 const model = defineModel()
-const props = defineProps<{
-    label: string
-    scope: string
-}>()
-
 
 const arePaddingValuesSame = (padding) => {
     if (!padding) return false
@@ -25,19 +20,18 @@ const arePaddingValuesSame = (padding) => {
     // Check if all values are the same
     return values.every(value => value === values[0]);
 }
-const isPaddingUnitLinked = ref(arePaddingValuesSame(model.value?.[props.scope]))
+const isPaddingUnitLinked = ref(arePaddingValuesSame(model.value))
 const changePaddingToSameValue = (newVal: number) => {
-    for (let key in model.value[props.scope]) {
-        if (model.value[props.scope][key].hasOwnProperty('value')) {
-            model.value[props.scope][key].value = newVal; // Set value to 99
+    for (let key in model.value) {
+        if (model.value[key].hasOwnProperty('value')) {
+            model.value[key].value = newVal; // Set value to 99
         }
     }
 }
 </script>
 
 <template>
-    <div class="flex flex-col bg-gray-100 shadow-md pt-1 pb-3 border-t border-gray-300">
-        <div class="w-full text-center py-1 font-semibold select-none">{{ label }}</div>
+    <div class="flex flex-col pt-1 pb-3">
 
         <div class="pb-2">
             <div class="px-3 flex justify-between items-center mb-2">
@@ -47,7 +41,7 @@ const changePaddingToSameValue = (newVal: number) => {
                         :class="open ? 'text-indigo-500' : ''"
                         class="underline"
                     >
-                        {{ model[props.scope].unit }}
+                        {{ model.unit }}
                     </PopoverButton>
 
                     <transition
@@ -59,8 +53,8 @@ const changePaddingToSameValue = (newVal: number) => {
                         leave-to-class="translate-y-1 opacity-0"
                     >
                         <PopoverPanel v-slot="{ close }" class="bg-white shadow mt-3 absolute top-full right-0 z-10 w-32 transform rounded overflow-hidden">
-                            <div @click="() => {model[props.scope].unit = 'px', close()}" class="px-4 py-1.5 cursor-pointer" :class="model[props.scope].unit == 'px' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">px</div>
-                            <div @click="() => {model[props.scope].unit = '%', close()}" class="px-4 py-1.5 cursor-pointer" :class="model[props.scope].unit == '%' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">%</div>
+                            <div @click="() => {model.unit = 'px', close()}" class="px-4 py-1.5 cursor-pointer" :class="model.unit == 'px' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">px</div>
+                            <div @click="() => {model.unit = '%', close()}" class="px-4 py-1.5 cursor-pointer" :class="model.unit == '%' ? 'bg-indigo-500 text-white' : 'hover:bg-indigo-100'">%</div>
                         </PopoverPanel>
                     </transition>
                 </Popover>
@@ -89,7 +83,7 @@ const changePaddingToSameValue = (newVal: number) => {
                             <div class="grid grid-cols-5 items-center">
                                 <FontAwesomeIcon icon='fad fa-border-outer' v-tooltip="trans('Padding all')" class='' fixed-width aria-hidden='true' />
                                 <div class="col-span-4">
-                                    <PureInputNumber v-model="model[props.scope].top.value" @update:modelValue="(newVal) => isPaddingUnitLinked ? changePaddingToSameValue(newVal) : false" class="" :suffix="model[props.scope].unit" />
+                                    <PureInputNumber v-model="model.top.value" @update:modelValue="(newVal) => isPaddingUnitLinked ? changePaddingToSameValue(newVal) : false" class="" :suffix="model.unit" />
                                 </div>
                             </div>
                         </div>
@@ -98,25 +92,25 @@ const changePaddingToSameValue = (newVal: number) => {
                             <div class="grid grid-cols-5 items-center">
                                 <FontAwesomeIcon icon='fad fa-border-top' v-tooltip="trans('Padding top')" class='' fixed-width aria-hidden='true' />
                                 <div class="col-span-4">
-                                    <PureInputNumber v-model="model[props.scope].top.value" class="" :suffix="model[props.scope].unit" />
+                                    <PureInputNumber v-model="model.top.value" class="" :suffix="model.unit" />
                                 </div>
                             </div>
                             <div class="grid grid-cols-5 items-center">
                                 <FontAwesomeIcon icon='fad fa-border-bottom' v-tooltip="trans('Padding bottom')" class='' fixed-width aria-hidden='true' />
                                 <div class="col-span-4">
-                                    <PureInputNumber v-model="model[props.scope].bottom.value" class="" :suffix="model[props.scope].unit" />
+                                    <PureInputNumber v-model="model.bottom.value" class="" :suffix="model.unit" />
                                 </div>
                             </div>
                             <div class="grid grid-cols-5 items-center">
                                 <FontAwesomeIcon icon='fad fa-border-left' v-tooltip="trans('Padding left')" class='' fixed-width aria-hidden='true' />
                                 <div class="col-span-4">
-                                    <PureInputNumber v-model="model[props.scope].left.value" class="" :suffix="model[props.scope].unit" />
+                                    <PureInputNumber v-model="model.left.value" class="" :suffix="model.unit" />
                                 </div>
                             </div>
                             <div class="grid grid-cols-5 items-center">
                                 <FontAwesomeIcon icon='fad fa-border-right' v-tooltip="trans('Padding right')" class='' fixed-width aria-hidden='true' />
                                 <div class="col-span-4">
-                                    <PureInputNumber v-model="model[props.scope].right.value" class="" :suffix="model[props.scope].unit" />
+                                    <PureInputNumber v-model="model.right.value" class="" :suffix="model.unit" />
                                 </div>
                             </div>
                         </div>

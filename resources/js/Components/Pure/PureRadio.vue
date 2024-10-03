@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { layoutStructure } from '@/Composables/useLayoutStructure'
 import { RadioGroup, RadioGroupLabel, RadioGroupOption, RadioGroupDescription } from '@headlessui/vue'
+import { inject } from 'vue'
 // import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 // import { faCheck } from '@far'
 // import { library } from '@fortawesome/fontawesome-svg-core'
@@ -11,10 +13,13 @@ const props = defineProps<{
     by?: string
 }>()
 
+const model = defineModel()
+
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string): void
 }>()
 
+const layout = inject('layout', layoutStructure)
 </script>
 
 <template>
@@ -27,8 +32,7 @@ const emits = defineEmits<{
                 <!-- Mode Radio: Normal -->
                 <div v-if="mode === 'compact'">
                     <RadioGroup class="mt-2"
-                        :modelValue="modelValue"
-                        @update:modelValue="value => emits('update:modelValue', value)"
+                        v-model="model"
                         :by="by ?? 'name'"
                     >
                         <RadioGroupLabel class="sr-only">Choose the radio</RadioGroupLabel>
@@ -52,8 +56,7 @@ const emits = defineEmits<{
                 <div v-else-if="mode === 'card'">
                 <!-- <pre>{{ form[fieldName] }}</pre> -->
                     <RadioGroup
-                        :modelValue="modelValue"
-                        @update:modelValue="value => emits('update:modelValue', value)"
+                        v-model="model"
                         :by="by ?? 'name'"
                     >
                         <RadioGroupLabel class="text-base font-semibold leading-6 text-gray-700 sr-only">Select the radio</RadioGroupLabel>
@@ -80,12 +83,20 @@ const emits = defineEmits<{
 
                 <!-- Radio: Default -->
                 <div v-else v-for="(option, index) in options"
-                    :key="option.label + index" class="inline-flex gap-x-2.5 items-center">
-                    <input :value="modelValue" @input="(event: any) => console.log('masukkkkkk')" :id="option.label + index" :key="option.label + index"
-                        name="radioDefault" type="radio" :checked="option.value == modelValue"
-                        class="h-4 w-4 border-gray-300 text-orange-600 focus:ring-0 focus:outline-none focus:ring-transparent cursor-pointer"
+                    :key="`${option.label}${index}`" class="inline-flex gap-x-2.5 items-center">
+                    <input
+                        v-model="model"
+                        :value="option[by] || option"
+                        :id="option.label + index"
+                        name="radioDefault"
+                        type="radio"
+                        :checked="(option[by] || option) == model"
+                        class="h-4 w-4 border-gray-300 focus:ring-0 focus:outline-none focus:ring-transparent cursor-pointer"
+                        :style="{
+                            color: layout?.app?.theme?.[0] || '#4F46E5'
+                        }"
                     />
-                    <label :for="option.label + index" class="flex items-center gap-x-1.5 cursor-pointer">
+                    <label v-if="option.value || option.label" :for="option.label + index" class="flex items-center gap-x-1.5 cursor-pointer">
                         <p class="text-sm font-medium leading-6 text-gray-700 capitalize">
                             {{ option.value }}
                         </p>

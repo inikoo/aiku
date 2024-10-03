@@ -90,7 +90,7 @@ test('create group', function () {
     expect($group)->toBeInstanceOf(Group::class)
         ->and($group->roles()->count())->toBe(5)
         ->and($group->webBlockTypeCategories()->count())->toBe(12)
-        ->and($group->webBlockTypes()->count())->toBe(20)
+        ->and($group->webBlockTypes()->count())->toBe(19)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 
     return $group;
@@ -565,7 +565,7 @@ test('update web block types', function (Group $group) {
     $this->artisan('group:seed-web-block-types')->assertSuccessful();
     $group->refresh();
     expect($group->webBlockTypeCategories()->count())->toBe(12)
-        ->and($group->webBlockTypes()->count())->toBe(20);
+        ->and($group->webBlockTypes()->count())->toBe(19);
 })->depends('create group');
 
 test('show log in', function () {
