@@ -13,6 +13,7 @@ use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Events\BroadcastPreviewWebpage;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Dropshipping\ModelHasWebBlocks;
+use Lorisleiva\Actions\ActionRequest;
 
 class DeleteModelHasWebBlocks extends GrpAction
 {
@@ -39,6 +40,13 @@ class DeleteModelHasWebBlocks extends GrpAction
     public function jsonResponse(ModelHasWebBlocks $modelHasWebBlocks): void
     {
         WebpageResource::make($modelHasWebBlocks->webpage);
+    }
+
+    public function asController(ModelHasWebBlocks $modelHasWebBlocks, ActionRequest $request): void
+    {
+        $this->initialisation($modelHasWebBlocks->group, $request);
+
+        $this->handle($modelHasWebBlocks);
     }
 
     public function action(ModelHasWebBlocks $modelHasWebBlocks, array $modelData): ModelHasWebBlocks
