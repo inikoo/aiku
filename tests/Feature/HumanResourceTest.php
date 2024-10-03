@@ -19,6 +19,7 @@ use App\Actions\HumanResources\Workplace\UpdateWorkplace;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
+use App\Enums\HumanResources\Employee\EmployeeTypeEnum;
 use App\Enums\HumanResources\TimeTracker\TimeTrackerStatusEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
 use App\Models\Helpers\Address;
@@ -116,6 +117,7 @@ test('create employee successful', function () {
         'work_email'          => null,
         'email'               => null,
         'username'            => null,
+        'type'                => EmployeeTypeEnum::EMPLOYEE,
     ];
     $employee  = StoreEmployee::make()->action($this->organisation, $arrayData);
 
