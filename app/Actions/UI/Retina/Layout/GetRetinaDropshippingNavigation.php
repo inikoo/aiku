@@ -8,13 +8,14 @@
 namespace App\Actions\UI\Retina\Layout;
 
 use App\Models\CRM\WebUser;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetRetinaDropshippingNavigation
 {
     use AsAction;
 
-    public function handle(WebUser $webUser): array
+    public function handle(WebUser $webUser, $request): array
     {
         $groupNavigation = [];
 
@@ -39,14 +40,16 @@ class GetRetinaDropshippingNavigation
             ]
         ];
 
-        $groupNavigation['portfolios'] = [
-            'label' => __('Portfolios'),
-            'icon' => ['fal', 'fa-cube'],
-            'root' => 'retina.dropshipping.portfolios.',
-            'route' => [
-                'name' => 'retina.dropshipping.portfolios.index'
-            ]
-        ];
+        if ($request->user()->customer->shopifyUser) {
+            $groupNavigation['portfolios'] = [
+                'label' => __('Portfolios'),
+                'icon' => ['fal', 'fa-cube'],
+                'root' => 'retina.dropshipping.portfolios.',
+                'route' => [
+                    'name' => 'retina.dropshipping.portfolios.index'
+                ]
+            ];
+        }
 
         $groupNavigation['client'] = [
             'label' => __('Client'),
