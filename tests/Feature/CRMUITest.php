@@ -8,11 +8,13 @@
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Inventory\Location;
 use Inertia\Testing\AssertableInertia;
 
@@ -69,6 +71,17 @@ beforeEach(
             );
         }
         $this->customer = $customer;
+
+        $customerClient = CustomerClient::first();
+        if (!$customerClient) {
+            $storeData = CustomerClient::factory()->definition();
+
+            $customerClient = StoreCustomerClient::make()->action(
+                $this->customer,
+                $storeData
+            );
+        }
+        $this->customerClient = $customerClient;
 
         $this->adminGuest->refresh();
 
@@ -181,6 +194,25 @@ test('UI Index customer clients', function () {
                         ->etc()
             )
             ->has('data');
+    });
+});
+
+test('UI Show customer client', function () {
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.customer-clients.show', [$this->organisation->slug, $this->shop->slug, $this->customer->slug, $this->customerClient->ulid]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/Customer')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->customerClient->name)
+                        ->has('subNavigation')
+                        ->etc()
+            );
     });
 });
 
