@@ -7,7 +7,6 @@
 
 namespace App\Actions\Web\ModelHasWebBlocks;
 
-use App\Actions\GrpAction;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
