@@ -51,3 +51,10 @@ const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color
         </template>
     </notifications>
 </template>
+
+<style>
+@font-face {
+    font-family: 'Raleway';
+    src: url("@/Assets/raleway.woff2");
+}
+</style>

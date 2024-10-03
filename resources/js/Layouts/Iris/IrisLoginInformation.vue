@@ -9,7 +9,7 @@ import { inject } from 'vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 library.add(faHeart, faShoppingCart, faSignOut, faUser, faSignIn, faUserPlus)
 
-const isLoggedIn = ref(false)
+const isLoggedIn = ref(true)
 const isDropshipping = ref(false)
 
 const locale = inject('locale', aikuLocaleStructure)
@@ -17,7 +17,7 @@ const locale = inject('locale', aikuLocaleStructure)
 </script>
 
 <template>
-    <div id="top_bar" class="bg-[rgb(75,80,88)] text-white py-1 px-4 flex justify-between">
+    <div id="top_bar" class="bg-[rgb(75,80,88)] text-white py-1 px-4 flex justify-between font-[Raleway]">
         <div class="flex">
             <div>Hello,</div>
 
@@ -57,7 +57,7 @@ const locale = inject('locale', aikuLocaleStructure)
                     <span class="ordered_products_number">11</span>
                     <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')" fixed-width aria-hidden='true' />
                     <span class="order_amount" title="" style="font-weight: 600; font-size: 1.1rem;">
-                        {{  }}
+                        ${{ 4561237486 }}
                     </span>
                 </a>
             </template>
