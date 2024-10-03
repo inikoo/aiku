@@ -7,7 +7,7 @@
 
 namespace App\Actions\Manufacturing\ManufactureTask\UI;
 
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Manufacturing\Production\UI\ShowProductionCrafts;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;

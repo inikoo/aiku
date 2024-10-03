@@ -8,7 +8,7 @@
 namespace App\Actions\UI\Profile;
 
 use App\Actions\GrpAction;
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\SysAdmin\UserRequest\IndexUserRequestLogs;
 use App\Actions\SysAdmin\UserRequest\ShowUserRequestLogs;

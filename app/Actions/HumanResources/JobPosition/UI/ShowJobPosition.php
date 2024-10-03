@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\JobPosition\UI;
 
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\HumanResources\Employee\UI\IndexEmployees;
 use App\Actions\OrgAction;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;

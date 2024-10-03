@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Prospect\Queries\UI;
 
 use App\Actions\CRM\Prospect\UI\IndexProspects;
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\InertiaAction;
 use App\Actions\Traits\WithProspectsSubNavigation;
 use App\Enums\UI\CRM\ProspectsQueriesTabsEnum;

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\OrgStockFamily\UI;
 
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Inventory\HasInventoryAuthorisation;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;

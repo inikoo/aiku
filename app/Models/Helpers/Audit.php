@@ -25,6 +25,7 @@ namespace App\Models\Helpers;
  * @property string|null $comments
  * @property array|null $old_values
  * @property array|null $new_values
+ * @property array|null $data
  * @property string|null $url
  * @property string|null $ip_address
  * @property string|null $user_agent
@@ -42,6 +43,17 @@ namespace App\Models\Helpers;
  */
 class Audit extends \OwenIt\Auditing\Models\Audit
 {
+    protected function casts(): array
+    {
+        return [
+            'data' => 'json',
+        ];
+    }
+
+    protected $attributes = [
+        'data' => '{}',
+    ];
+
     protected static function booted(): void
     {
         static::creating(

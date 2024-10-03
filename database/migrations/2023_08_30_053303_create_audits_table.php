@@ -32,6 +32,7 @@ class CreateAuditsTable extends Migration
             $table->string('comments')->nullable();
             $table->jsonb('old_values')->nullable();
             $table->jsonb('new_values')->nullable();
+            $table->jsonb('data')->nullable();
             $table->text('url')->nullable();
             $table->ipAddress()->nullable();
             $table->string('user_agent', 1023)->nullable();
