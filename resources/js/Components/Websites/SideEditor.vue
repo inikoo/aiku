@@ -74,4 +74,20 @@ const onUpdateValue = (field, value) => {
 .p-inputtext{
     width : 100%
 }
+
+:deep(.p-accordionpanel.p-accordionpanel-active > .p-accordionheader) {
+    background-color: #800080 !important; /* Ungu */
+    color: white !important; /* Warna teks */
+    margin-bottom: 12px !important;
+    border-radius: 0 !important;
+}
+
+:deep(.p-accordionpanel.p-accordionpanel-active > .p-accordionheader:hover) {
+    background-color: #800080 !important; /* Ungu saat hover */
+    color: white !important;
+    border-radius: 0 !important;
+}
+:deep(.p-accordionpanel:not(.p-disabled).p-accordionpanel-active > .p-accordionheader .p-accordionheader-toggle-icon) {
+    color: white !important; /* Warna teks */
+}
 </style>

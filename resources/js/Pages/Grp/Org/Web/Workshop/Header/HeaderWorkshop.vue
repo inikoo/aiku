@@ -80,21 +80,18 @@ const onPublish = async (action : routeType, popover : Function) => {
 };
 
 const autoSave = async (data : object) => {
-    router.patch(
-        route(props.autosaveRoute.name, props.autosaveRoute.parameters),
-        { layout: data },
-        {
-            /* onStart: () => isAddBlockLoading.value = 'addBlock' + block.id,
-            onFinish: () => isAddBlockLoading.value = null, */
-            onError: (error) => {
-                notify({
-                    title: trans('Something went wrong'),
-                    text: error.message,
-                    type: 'error',
-                })
-            }
-        }
-    )
+    try {
+        const response = await axios.patch(
+            route(props.autosaveRoute.name, props.autosaveRoute.parameters),
+            { layout: data }
+        )
+    } catch (error: any) {
+        notify({
+            title: 'Something went wrong.',
+            text: errorMessage,
+            type: 'error',
+        })
+    }
 }
 
 
