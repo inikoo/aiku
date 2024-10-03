@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\Warehouse\UI;
 
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;

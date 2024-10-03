@@ -28,7 +28,7 @@
 				"header": {
 					"key": "header1",
 					"logo": null,
-					"headerText": "FAIRLY TRADING WHOLESALE GIFTS SINCE 1995",
+					"headerText": "<p><span>FAIRLY TRADING WHOLESALE GIFTS SINCE 1995</span></p>",
 					"chip_text": "Become a Gold Reward Member",
 					"chip_background_color": "#57534E"
 				}

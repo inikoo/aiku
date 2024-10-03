@@ -42,7 +42,7 @@ class HandleRetinaInertiaRequests extends Middleware
             $firstLoadOnlyProps,
             [
                 'auth'  => [
-                    'user' => $request->user() ? LoggedWebUserResource::make($request->user())->getArray() : null,
+                    'user' => $webUser ? LoggedWebUserResource::make($webUser)->getArray() : null,
                 ],
                 'flash' => [
                     'notification' => fn () => $request->session()->get('notification')

@@ -37,6 +37,7 @@ use App\Transfers\Aurora\FetchAuroraFamily;
 use App\Transfers\Aurora\FetchAuroraHistoricAsset;
 use App\Transfers\Aurora\FetchAuroraHistoricService;
 use App\Transfers\Aurora\FetchAuroraHistoricSupplierProduct;
+use App\Transfers\Aurora\FetchAuroraHistory;
 use App\Transfers\Aurora\FetchAuroraInvoice;
 use App\Transfers\Aurora\FetchAuroraInvoiceTransaction;
 use App\Transfers\Aurora\FetchAuroraLocation;
@@ -455,6 +456,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchUser($id): ?array
     {
         return (new FetchAuroraUser($this))->fetch($id);
+    }
+
+    public function fetchHistory($id): ?array
+    {
+        return (new FetchAuroraHistory($this))->fetch($id);
     }
 
 

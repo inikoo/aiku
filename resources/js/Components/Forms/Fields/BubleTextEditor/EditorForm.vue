@@ -16,6 +16,7 @@ import FontSize from 'tiptap-extension-font-size'
 import Link from '@tiptap/extension-link'
 import MenuEditorForm from './MenuEditorForm.vue'
 import Placeholder from '@tiptap/extension-placeholder'
+import FontFamily from '@tiptap/extension-font-family'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faText, faUndoAlt, faRedoAlt } from '@far'
@@ -78,6 +79,10 @@ const editor = useEditor({
         TextStyle,
         BulletList,
         ListItem,
+        Color,
+        FontFamily.configure({
+            types: ['textStyle'],
+        }),
         Placeholder.configure({
           // Use a placeholder:
           placeholder: props.placeholder,
@@ -90,9 +95,6 @@ const editor = useEditor({
         }),
         Highlight.configure({
             multicolor: true
-        }),
-        Color.configure({
-            types: ['textStyle'],
         }),
         FontSize.configure({
             types: ['textStyle'],

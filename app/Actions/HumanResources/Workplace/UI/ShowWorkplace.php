@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\Workplace\UI;
 
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\HumanResources\WithWorkplaceSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;

@@ -53,6 +53,7 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
     Route::get('export', ExportOrgSuppliers::class)->name('export');
     Route::get('{orgSupplier}', ShowOrgSupplier::class)->name('show');
     Route::get('{orgSupplier}/edit', EditOrgSupplier::class)->name('edit');
+    Route::get('{orgSupplier}/supplier-products/{orgSupplierProduct}', [ShowOrgSupplierProduct::class, 'inOrgSupplier'])->name('show.supplier_products.show');
     Route::get('{orgSupplier}/purchase-orders/create', [CreatePurchaseOrder::class, 'inOrgSupplier'])->name('show.purchase_orders.create');
 
 });

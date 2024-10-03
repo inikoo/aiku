@@ -7,18 +7,15 @@
 
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrderTransaction\UI\IndexPurchaseOrderTransactions;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\PurchaseOrderTabsEnum;
-use App\Http\Resources\CRM\CustomerResource;
-use App\Http\Resources\Helpers\AddressResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Procurement\PurchaseOrderTransactionResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Models\Helpers\Address;
+use App\Http\Resources\Procurement\PurchaseOrderTransactionResource;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;

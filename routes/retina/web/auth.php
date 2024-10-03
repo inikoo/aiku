@@ -35,6 +35,5 @@ Route::middleware('retina-auth:retina')->group(function () {
     Route::post('logout', Logout::class)->name('logout');
     Route::get('reset/password', ShowResetWebUserPassword::class)->name('reset-password.edit');
     Route::patch('reset/password', UpdateWebUserPassword::class)->name('reset-password.update');
-
     Route::get('prepare-account', ShowPrepareAccount::class)->name('prepare-account.show');
 });

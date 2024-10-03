@@ -7,17 +7,14 @@
 
 namespace App\Actions\Manufacturing\Artefact\UI;
 
-use App\Actions\Helpers\History\IndexHistory;
-use App\Actions\Inventory\Location\UI\IndexLocations;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Manufacturing\Production\UI\ShowProductionCrafts;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\UI\Manufacturing\ArtefactTabsEnum;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Inventory\LocationResource;
 use App\Http\Resources\Manufacturing\ArtefactResource;
 use App\Http\Resources\Manufacturing\ManufactureTasksResource;
-use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\Production;
 use App\Models\SysAdmin\Organisation;

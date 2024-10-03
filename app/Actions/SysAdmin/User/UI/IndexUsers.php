@@ -8,7 +8,7 @@
 namespace App\Actions\SysAdmin\User\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\SysAdmin\UserRequest\IndexUserRequestLogs;
 use App\Actions\SysAdmin\WithSysAdminAuthorization;
 use App\Actions\UI\Grp\SysAdmin\ShowSysAdminDashboard;

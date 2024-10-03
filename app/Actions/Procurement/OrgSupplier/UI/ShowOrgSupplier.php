@@ -7,7 +7,7 @@
 
 namespace App\Actions\Procurement\OrgSupplier\UI;
 
-use App\Actions\Helpers\History\IndexHistory;
+use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgSupplierProducts\UI\IndexOrgSupplierProducts;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
@@ -164,7 +164,7 @@ class ShowOrgSupplier extends OrgAction
                     fn () => HistoryResource::collection(IndexHistory::run($orgSupplier))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($orgSupplier)))
             ]
-        )->table(IndexOrgSupplierProducts::make()->tableStructure($orgSupplier))
+        )->table(IndexOrgSupplierProducts::make()->tableStructure(parent: $orgSupplier, prefix: SupplierTabsEnum::SUPPLIER_PRODUCTS->value))
             ->table(IndexPurchaseOrders::make()->tableStructure())
             ->table(IndexStockDeliveries::make()->tableStructure())
             ->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value));
