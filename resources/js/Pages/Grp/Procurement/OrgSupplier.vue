@@ -27,6 +27,7 @@ import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePu
 import SupplierShowcase from "@/Components/Showcases/Grp/SupplierShowcase.vue";
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import { capitalize } from "@/Composables/capitalize"
+import TableOrgSupplierProducts from '@/Components/Tables/Grp/Org/Procurement/TableOrgSupplierProducts.vue';
 library.add(
     faInventory,
     faWarehouse,
@@ -69,7 +70,7 @@ const component = computed(() => {
     const components = {
         showcase: SupplierShowcase,
         sales: TableSupplierProducts,
-        supplier_products: TableSupplierProducts,
+        supplier_products: TableOrgSupplierProducts,
         purchase_orders: TablePurchaseOrders,
         deliveries: TableStockDeliveries,
         details: ModelDetails,
