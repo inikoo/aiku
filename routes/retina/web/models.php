@@ -8,6 +8,7 @@
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\UpdateCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\UpdateCustomerSettings;
+use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Fulfilment\FulfilmentCustomer\AddDeliveryAddressToFulfilmentCustomer;
 use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
@@ -87,3 +88,5 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
 Route::name('fulfilment-customer.')->prefix('fulfilment-customer/{fulfilmentCustomer:id}')->group(function () {
     Route::post('delivery-address/store', [AddDeliveryAddressToFulfilmentCustomer::class, 'fromRetina'])->name('delivery-address.store');
 });
+
+Route::post('customer-client', [StoreCustomerClient::class, 'fromRetina'])->name('customer-client.store');
