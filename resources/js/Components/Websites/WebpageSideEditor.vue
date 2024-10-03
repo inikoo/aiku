@@ -114,6 +114,7 @@ const selectedBlockOpenPanel = ref<number | null >(null)
                             class="group flex justify-between items-center gap-x-2 relative px-3 py-2 w-full cursor-pointer"
                             :class="selectedBlockOpenPanel === index ? 'bg-indigo-500 text-white' : 'hover:bg-gray-100'"    
                         >
+                        <!-- <pre>{{ element.web_block.layout.data }}</pre> -->
                             <div class="flex gap-x-2">
                                 <div class="flex items-center justify-center">
                                     <FontAwesomeIcon icon="fal fa-bars" class="handle text-sm cursor-grab pr-3 mr-2" />
