@@ -179,27 +179,27 @@ class GetRetinaFulfilmentNavigation
                 ]
             ];
 
-            $groupNavigation['dropshipping'] = [
-                'label'   => __('Dropshipping'),
-                'icon'    => ['fal', 'fa-parachute-box'],
-                'root'    => 'retina.dropshipping.',
-                'route'   => [
-                    'name' => 'retina.dropshipping.dashboard'
-                ],
-                'topMenu' => [
-                    'subSections' => [
-                        [
-                            'label' => __('Products'),
-                            'icon'  => ['fal', 'fa-cube'],
-                            'root'  => 'retina.dropshipping.products.',
-                            'route' => [
-                                'name' => 'retina.dropshipping.products.index',
+            /*            $groupNavigation['dropshipping'] = [
+                            'label'   => __('Dropshipping'),
+                            'icon'    => ['fal', 'fa-parachute-box'],
+                            'root'    => 'retina.dropshipping.',
+                            'route'   => [
+                                'name' => 'retina.dropshipping.dashboard'
+                            ],
+                            'topMenu' => [
+                                'subSections' => [
+                                    [
+                                        'label' => __('Products'),
+                                        'icon'  => ['fal', 'fa-cube'],
+                                        'root'  => 'retina.dropshipping.products.',
+                                        'route' => [
+                                            'name' => 'retina.dropshipping.products.index',
 
+                                        ]
+                                    ],
+                                ]
                             ]
-                        ],
-                    ]
-                ]
-            ];
+                        ];*/
 
         }
 
