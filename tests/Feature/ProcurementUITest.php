@@ -224,6 +224,25 @@ test('UI index org supplier products', function () {
     });
 });
 
+test('UI show org supplier product', function () {
+    $response = $this->get(route('grp.org.procurement.org_supplier_products.show', [$this->organisation->slug, $this->orgSupplierProduct->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Procurement/OrgSupplierProduct')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->orgSupplierProduct->supplierProduct->name)
+                        ->etc()
+            )
+            ->has('tabs');
+
+    });
+});
+
+
 test('UI Index purchase orders', function () {
     $response = $this->get(route('grp.org.procurement.purchase_orders.index', [$this->organisation->slug]));
 
