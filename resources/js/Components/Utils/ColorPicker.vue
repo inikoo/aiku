@@ -43,17 +43,31 @@ const emits = defineEmits<{
     (e: 'changeColor', value: Color): void
 }>()
 
+// Method: change 0.2 to '33' (hexadecimal)
+const opacityToHexCode = (opacity: number) => {
+    if (opacity < 0 || opacity > 1) {
+        return 'ff'
+    }
+
+    // Convert the opacity to a value between 0 and 255
+    const alphaValue = Math.round(opacity * 255);
+    
+    // Return the base color with the new alpha value
+    return alphaValue.toString(16).padStart(2, '0');
+}
+
 </script>
 
 
 <template>
     <Popover v-slot="{ open }" class="relative">
-        <PopoverButton>
-            <div v-bind="$attrs" class="h-12 w-12" :style="{
-                backgroundColor: color
-            }">
-                <slot />
-            </div>
+        <PopoverButton as="template">
+            <slot name="button">
+                <div v-bind="$attrs" class="h-12 w-12 cursor-pointer" :style="{
+                    backgroundColor: color
+                }">
+                </div>
+            </slot>
         </PopoverButton>
 
         <PopoverPanel v-slot="{ close }" class="absolute left-8 top-0 z-10 mt-3">
@@ -64,7 +78,7 @@ const emits = defineEmits<{
                         theme="dark"
                         :color="color"
                         :sucker-hide="true"
-                        @changeColor="(e) => emits('changeColor', e)"
+                        @changeColor="(e) => emits('changeColor', {...e, hex: e.hex + opacityToHexCode(e.rgba.a)})"
                     />
                 </div>
             </div>

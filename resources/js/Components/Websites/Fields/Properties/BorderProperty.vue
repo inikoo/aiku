@@ -6,13 +6,16 @@ import { ref } from 'vue'
 import { faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter } from "@fad"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faLink, faUnlink } from "@fal"
+import { faExclamation } from "@fas"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import ColorPicker from '@/Components/Utils/ColorPicker.vue'
-library.add(faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter, faLink, faUnlink)
+library.add(faExclamation, faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter, faLink, faUnlink)
 
 interface Borderproperty {
     color: string
+    unit: string
     rounded: {
+        unit: string
         topright: {
             value: number
         }
@@ -47,7 +50,7 @@ const model = defineModel<Borderproperty>({
 const isBorderSameValue = ref(false)
 const changeBorderValueToSame = (newVal: number) => {
     for (let key in model.value) {
-        if (model.value[key as keyof Borderproperty].hasOwnProperty('value') && model.value[key as keyof Borderproperty] != 'rounded') {
+        if (model.value[key as keyof Borderproperty].hasOwnProperty('value')) {
             model.value[key as keyof Borderproperty].value = newVal; // Set value to 99
         }
     }
@@ -55,9 +58,9 @@ const changeBorderValueToSame = (newVal: number) => {
 
 const isRoundedSameValue = ref(false)
 const changeRoundedValueToSame = (newVal: number) => {
-    for (let key in model.value) {
-        if (model.value[key as keyof Borderproperty].hasOwnProperty('value') && model.value[key as keyof Borderproperty] != 'rounded') {
-            model.value[key as keyof Borderproperty].value = newVal; // Set value to 99
+    for (let key in model.value.rounded) {
+        if (model.value.rounded[key as keyof Borderproperty].hasOwnProperty('value')) {
+            model.value.rounded[key as keyof Borderproperty].value = newVal; // Set value to 99
         }
     }
 }
@@ -89,10 +92,21 @@ const iconRoundedCorner = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" 
                 <div class="text-xs">{{ trans('Color') }}</div>
                 <ColorPicker
                     :color="model.color"
-                    class="h-8 w-8 rounded-md border border-gray-300"
-                    @changeColor="(newColor)=> model.color = newColor.hex"
+                    @changeColor="(newColor)=> model.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a}`"
                     closeButton
-                />
+                >
+                    <template #button>
+                        <div v-bind="$attrs" class="overflow-hidden h-7 w-7 rounded-md border border-gray-300 cursor-pointer flex justify-center items-center" :style="{
+                            border: `4px solid ${model.color}`
+                        }"
+                            v-tooltip="!(model.top.value || model.right.value || model.bottom.value || model.left.value) ? trans('Will not show due have no border width') : undefined"
+                        >
+                            <Transition name="spin-to-down">
+                                <FontAwesomeIcon v-if="!(model.top.value || model.right.value || model.bottom.value || model.left.value)" icon='fas fa-exclamation' class='text-gray-400 text-xs' fixed-width aria-hidden='true' />
+                            </Transition>
+                        </div>
+                    </template>
+                </ColorPicker>
             </div>
 
             <!-- Toggle: Border same value -->
@@ -152,6 +166,7 @@ const iconRoundedCorner = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" 
                 </Transition>
             </div>
 
+
             <!-- Toggle: Rounded same value -->
             <div class="px-3 flex justify-between items-center mb-2">
                 <div class="text-xs">{{ trans('Rounded same value') }}</div>
@@ -171,12 +186,10 @@ const iconRoundedCorner = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" 
             <!-- Rounded -->
             <div class="pl-2 pr-4 flex items-center relative">
                 <Transition name="slide-to-up">
-                    <div v-if="isRoundedSameValue">
-                        <div class="grid grid-cols-5 items-center">
-                            <FontAwesomeIcon icon='fad fa-border-outer' v-tooltip="trans('Padding all')" class='' fixed-width aria-hidden='true' />
-                            <div class="col-span-4">
-                                <PureInputNumber v-model="model.rounded.topright.value" @update:modelValue="(newVal) => isRoundedSameValue ? changeRoundedValueToSame(newVal) : false" class="" suffix="px" />
-                            </div>
+                    <div v-if="isRoundedSameValue" class="grid grid-cols-5 items-center">
+                        <FontAwesomeIcon icon='fad fa-border-outer' v-tooltip="trans('Padding all')" class='' fixed-width aria-hidden='true' />
+                        <div class="col-span-4">
+                            <PureInputNumber v-model="model.rounded.topright.value" @update:modelValue="(newVal) => isRoundedSameValue ? changeRoundedValueToSame(newVal) : false" class="" suffix="px" />
                         </div>
                     </div>
 

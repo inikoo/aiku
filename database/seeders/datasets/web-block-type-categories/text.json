@@ -58,6 +58,7 @@
                         "color":  "#000000",
                         "unit": "px",
                         "rounded": {
+                            "unit": "px",
                             "topright" :  {
                                 "value": 0
                             },

@@ -20,7 +20,7 @@ const emits = defineEmits<{
 </script>
 
 <template>
-    <div class="relative box-border" id="blockTextContent"
+    <div class="relative box-border overflow-hidden" id="blockTextContent"
         :style="{
             paddingTop: (properties.padding.top.value || 0) + properties.padding.unit, 
             paddingBottom: (properties.padding.bottom.value || 0) + properties.padding.unit, 
@@ -35,6 +35,10 @@ const emits = defineEmits<{
             borderBottom: `${properties.border.bottom.value}${properties.border.unit} solid ${properties.border.color}`,
             borderRight: `${properties.border.right.value}${properties.border.unit} solid ${properties.border.color}`,
             borderLeft: `${properties.border.left.value}${properties.border.unit} solid ${properties.border.color}`,
+            borderTopRightRadius: `${properties.border.rounded.topright.value}${properties.border.rounded.unit}`,
+            borderBottomRightRadius: `${properties.border.rounded.bottomright.value}${properties.border.rounded.unit}`,
+            borderBottomLeftRadius: `${properties.border.rounded.bottomleft.value}${properties.border.rounded.unit}`,
+            borderTopLeftRadius: `${properties.border.rounded.topleft.value}${properties.border.rounded.unit}`,
         }"
     >
         <Editor
@@ -49,7 +53,7 @@ const emits = defineEmits<{
 </template>
 
 
-<style lang="scss">
+<style lang="scss" scoped>
 /* Basic editor styles */
 
 #blockTextContent blockquote {

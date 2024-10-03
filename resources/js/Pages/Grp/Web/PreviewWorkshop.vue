@@ -85,14 +85,14 @@ console.log('preview',props)
 
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
-      <component
-        :is="getComponentsHeader(layout?.header?.header?.key)"
-        :loginMode="true"
-        :previewMode="true"
-        v-model="layout.header.header"
-        :uploadImageRoute="layout.header.uploadImageRoute"
-        :colorThemed="layout.colorThemed"
-      />
+        <component
+            :is="getComponentsHeader(layout?.header?.header?.key)"
+            :loginMode="true"
+            :previewMode="true"
+            v-model="layout.header.header"
+            :uploadImageRoute="layout.header.uploadImageRoute"
+            :colorThemed="layout.colorThemed"
+        />
         <div v-if="data" class="relative">
             <div class="container max-w-7xl mx-auto">
                 <div class="h-full overflow-auto w-full ">

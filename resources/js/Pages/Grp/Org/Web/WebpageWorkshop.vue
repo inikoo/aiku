@@ -188,7 +188,7 @@ const setIframeView = (view: String) => {
     } else if (view === 'tablet') {
         iframeClass.value = 'w-[768px] h-[1024px] mx-auto'; // iPad size
     } else {
-        iframeClass.value = 'w-full h-full'; // Full width for desktop
+        iframeClass.value = 'w-full h-full mx-auto'; // Full width for desktop
     }
 }
 
@@ -265,9 +265,13 @@ const openFullScreenPreview = () => {
                 </div>
 
                 <div class="h-full w-full bg-white">
-                    <iframe :src="iframeSrc" :title="props.title"
-                        :class="[iframeClass, isIframeLoading ? 'hidden' : '']" @error="handleIframeError"
-                        @load="isIframeLoading = false" />
+                    <iframe
+                        :src="iframeSrc"
+                        :title="props.title"
+                        :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
+                        @error="handleIframeError"
+                        @load="isIframeLoading = false"
+                    />
                 </div>
             </div>
         </div>

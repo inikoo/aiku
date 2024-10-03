@@ -89,7 +89,7 @@ const routeList = {
             <ColorPicker
                 :color="model.color"
                 class="h-8 w-8 rounded-md border border-gray-300"
-                @changeColor="(newColor)=> model.color = newColor.hex"
+                @changeColor="(newColor)=> model.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a}`"
                 closeButton
             />
             <!-- <div v-else class="h-8 w-8 rounded-md border border-gray-300 shadow" :style="{background: model.color}" /> -->

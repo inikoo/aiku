@@ -24,9 +24,9 @@ const props = defineProps<{
 <template>
     <div>
         <component 
-            :is="getRenderComponent(data.data.key)" 
+            :is="getRenderComponent(data?.data?.key)" 
             :loginMode="false" 
-            :loginRoute="data.data.loginRoute" 
+            :loginRoute="data?.data?.loginRoute" 
             :data="data.data" 
             :colorThemed="colorThemed"
             :menu="menu"
