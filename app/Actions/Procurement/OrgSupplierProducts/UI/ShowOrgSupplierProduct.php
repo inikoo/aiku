@@ -153,40 +153,40 @@ class ShowOrgSupplierProduct extends OrgAction
         return match ($routeName) {
             'grp.org.procurement.org_supplier_products.show' =>
                 array_merge(
-                (new ShowProcurementDashboard())->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
-                $headCrumb(
-                    $orgSupplierProduct,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.procurement.org_supplier_products.index',
-                            'parameters' => $routeParameters
+                    (new ShowProcurementDashboard())->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
+                    $headCrumb(
+                        $orgSupplierProduct,
+                        [
+                            'index' => [
+                                'name'       => 'grp.org.procurement.org_supplier_products.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'model' => [
+                                'name'       => 'grp.org.procurement.org_supplier_products.show',
+                                'parameters' => $routeParameters
+                            ]
                         ],
-                        'model' => [
-                            'name'       => 'grp.org.procurement.org_supplier_products.show',
-                            'parameters' => $routeParameters
-                        ]
-                    ],
-                    $suffix
-                )
-            ),
+                        $suffix
+                    )
+                ),
             'grp.org.procurement.org_suppliers.show.supplier_products.show' =>
                 array_merge(
-                (new ShowOrgSupplier())->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'orgSupplier'])),
-                $headCrumb(
-                    $orgSupplierProduct,
-                    [
-                        'index' => [
-                            'name'       => 'grp.org.procurement.org_suppliers.show',
-                            'parameters' => $routeParameters
+                    (new ShowOrgSupplier())->getBreadcrumbs(Arr::only($routeParameters, ['organisation', 'orgSupplier'])),
+                    $headCrumb(
+                        $orgSupplierProduct,
+                        [
+                            'index' => [
+                                'name'       => 'grp.org.procurement.org_suppliers.show',
+                                'parameters' => $routeParameters
+                            ],
+                            'model' => [
+                                'name'       => 'grp.org.procurement.org_suppliers.show.supplier_products.show',
+                                'parameters' => $routeParameters
+                            ]
                         ],
-                        'model' => [
-                            'name'       => 'grp.org.procurement.org_suppliers.show.supplier_products.show',
-                            'parameters' => $routeParameters
-                        ]
-                    ],
-                    $suffix
-                )
-            ),
+                        $suffix
+                    )
+                ),
             default => []
         };
     }

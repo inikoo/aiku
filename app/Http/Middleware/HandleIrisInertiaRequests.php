@@ -40,7 +40,7 @@ class HandleIrisInertiaRequests extends Middleware
                     'user' => $webUser ? LoggedWebUserResource::make($webUser)->getArray() : null,
                 ],
                 'flash' => [
-                    'notification' => fn() => $request->session()->get('notification')
+                    'notification' => fn () => $request->session()->get('notification')
                 ],
                 'ziggy' => [
                     'location' => $request->url(),

@@ -8,7 +8,6 @@
 namespace App\Actions\UI\Iris;
 
 use App\Models\Web\Website;
-use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\Concerns\AsController;
