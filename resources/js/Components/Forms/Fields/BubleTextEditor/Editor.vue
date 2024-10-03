@@ -16,6 +16,7 @@ import FontSize from 'tiptap-extension-font-size'
 import Link from '@tiptap/extension-link'
 import MenuEditor from './MenuEditor.vue'
 import Placeholder from '@tiptap/extension-placeholder'
+import FontFamily from '@tiptap/extension-font-family'
 
 import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -83,6 +84,9 @@ const editor = useEditor({
         TextStyle,
         BulletList,
         ListItem,
+        FontFamily.configure({
+            types: ['textStyle'],
+        }),
         Placeholder.configure({
           // Use a placeholder:
           placeholder: props.placeholder,

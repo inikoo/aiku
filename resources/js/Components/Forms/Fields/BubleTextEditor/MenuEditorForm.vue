@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import ColorPicker from 'primevue/colorpicker';
+import Select from 'primevue/select';
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faText, faUndoAlt, faRedoAlt } from '@far'
@@ -26,6 +26,11 @@ const align = ref(props.toggleList.filter((item) => ['alignLeft', 'alignCenter',
 const findAction = (key: string) => {
     return props.toggleList.some(item => item.key === key);
 }
+
+const fontfamily = ref();
+const fontfamilies = ref([
+     'Inter','Comic Sans MS, Comic Sans', 'serif' , 'IST' ,'monospace','cursive'
+]);
 
 </script>
 
@@ -60,7 +65,8 @@ const findAction = (key: string) => {
     <div v-if="editor && findAction('color')" class="mb-4 flex justify-between items-center bg-white">
         <div class="text-sm font-medium text-gray-700">Color</div>
         <div class="flex items-center">
-            <ColorPicker v-model="editor.getAttributes('textStyle').color" @update:modelValue="(color) => editor.chain().setColor(color).run()"/>
+            <input type="color" @input="editor.chain().focus().setColor($event.target.value).run()"
+                :value="editor.getAttributes('textStyle').color">
         </div>
     </div>
 
@@ -79,7 +85,8 @@ const findAction = (key: string) => {
                         <FontAwesomeIcon icon='fal fa-times' class='' fixed-width aria-hidden='true' />
                     </div>
                 </div>
-                <div class="w-min cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
+                <div
+                    class="w-min cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
                     <div v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
                         class="w-full block py-1.5 px-3 leading-none text-left cursor-pointer hover:bg-gray-300"
                         :class="{ 'bg-slate-700 text-white hover:bg-slate-700': parseInt(editor?.getAttributes('textStyle').fontSize, 10) == fontsize }"
@@ -91,4 +98,19 @@ const findAction = (key: string) => {
         </div>
     </div>
 
+
+     <div v-if="editor && findAction('color')" class="mb-4 flex justify-between items-center bg-white">
+        <div class="text-sm font-medium text-gray-700">Font Family</div>
+        <div class="flex items-center">
+            <Select v-model="fontfamily" :options="fontfamilies" @update:modelValue="editor.chain().focus().setFontFamily('Comic Sans MS, Comic Sans').run()" class="p-0"/>
+        </div>
+    </div>
+
 </template>
+
+<style lang="scss" scoped>
+:deep(.p-select-label) {
+    padding : 0px;
+    width : 100px
+}
+</style>
