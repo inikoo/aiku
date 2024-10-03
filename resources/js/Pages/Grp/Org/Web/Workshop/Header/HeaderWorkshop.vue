@@ -88,7 +88,7 @@ const autoSave = async (data : object) => {
     } catch (error: any) {
         notify({
             title: 'Something went wrong.',
-            text: errorMessage,
+            text: error.message,
             type: 'error',
         })
     }

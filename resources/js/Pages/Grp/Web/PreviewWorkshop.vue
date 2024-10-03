@@ -12,7 +12,7 @@ import axios from 'axios'
 import debounce from 'lodash/debounce'
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { socketWeblock, SocketHeaderFooter } from '@/Composables/SocketWebBlock'
-import IrisHeader from '@/Layouts/Iris/Header.vue'
+import RenderHeaderMenu from './RenderHeaderMenu.vue'
 import Footer from '@/Layouts/Iris/Footer.vue'
 import { usePage } from '@inertiajs/vue3'
 import { useColorTheme } from '@/Composables/useStockList'
@@ -85,14 +85,21 @@ console.log('preview',props)
 
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
-      <component
+        <RenderHeaderMenu 
+        :data="layout?.header"
+        :menu="layout?.navigation"
+        :colorThemed="layout.colorThemed"
+        />
+
+      <!-- <component
         :is="getComponentsHeader(layout?.header?.header?.key)"
         :loginMode="true"
         :previewMode="true"
         v-model="layout.header.header"
         :uploadImageRoute="layout.header.uploadImageRoute"
         :colorThemed="layout.colorThemed"
-      />
+      /> -->
+
         <div v-if="data" class="relative">
             <div class="container max-w-7xl mx-auto">
                 <div class="h-full overflow-auto w-full ">

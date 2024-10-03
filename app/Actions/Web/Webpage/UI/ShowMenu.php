@@ -18,6 +18,8 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
+use App\Http\Resources\Web\WebBlockTypeCategoryResource;
+use App\Models\Web\WebBlockTypeCategory;
 
 class ShowMenu extends OrgAction
 {
@@ -103,7 +105,9 @@ class ShowMenu extends OrgAction
                     ]
                 ],
 
-                'data' => GetWebsiteWorkshopMenu::run($website)
+                'data' => GetWebsiteWorkshopMenu::run($website),
+                'webBlockTypeCategories' => WebBlockTypeCategoryResource::collection(WebBlockTypeCategory::all())
+
             ]
         );
     }

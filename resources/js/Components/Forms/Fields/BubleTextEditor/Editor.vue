@@ -177,11 +177,10 @@ const setLink = () => {
     }
 }
 
-onMounted(() => {
+/* onMounted(() => {
     toggleList.value = toggleList.value.filter(item => props.toogle?.includes(item.key))
 })
 
-// Listen to v-model from parent (so no need re-render the component)
 watch(() => props.modelValue, (newValue, oldValue) => {
     const isSame = newValue === oldValue
     if (isSame) {
@@ -189,7 +188,7 @@ watch(() => props.modelValue, (newValue, oldValue) => {
     }
 
     editor.value?.commands.setContent(newValue, false)
-})
+}) */
 
 </script>
 
