@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Component } from 'vue'
+import { ref } from 'vue'
 
 import Accordion from 'primevue/accordion';
 import AccordionPanel from 'primevue/accordionpanel';
@@ -7,10 +7,9 @@ import AccordionHeader from 'primevue/accordionheader';
 import AccordionContent from 'primevue/accordioncontent';
 import InputText from 'primevue/inputtext';
 
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import UploadImage from '@/Components/Pure/UploadImage.vue'
 import Payments from '@/Components/Websites/Fields/Payment.vue'
-import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
+import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorForm.vue"
 import socialMedia from '@/Components/Websites/Fields/SocialMedia.vue'
 
 
@@ -23,6 +22,8 @@ const props = defineProps<{
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
 }>()
+
+const openPanel = ref(0)
 
 const getComponent = (componentName: string) => {
     const components: Component = {
@@ -46,9 +47,11 @@ const onUpdateValue = (field, value) => {
 </script>
 
 <template>
-    <Accordion v-for="(field, index) in bluprint" :key="index">
-        <AccordionPanel :value="index">
-            <AccordionHeader>{{ field.name }}</AccordionHeader>
+    <Accordion>
+        <AccordionPanel v-for="(field, index) in bluprint" :key="index" :value="index"   @click="openPanel = index">
+            <AccordionHeader >
+                {{ field.name }}
+            </AccordionHeader>
             <AccordionContent>
                 <component 
                     :is="getComponent(field.type)" 
@@ -63,9 +66,12 @@ const onUpdateValue = (field, value) => {
 </template>
 
 
-<style scss scoped>
+<style lang="scss" scoped>
 .editor-content {
     background-color: white;
     border: solid;
+}
+.p-inputtext{
+    width : 100%
 }
 </style>
