@@ -127,8 +127,9 @@ test('UI show customer', function () {
     });
 });
 
-test('UI edit employee', function () {
-    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/shops/'.$this->shop->slug.'/crm/customers/'.$this->customer->slug.'/edit?section=properties');
+test('UI edit customer', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.crm.customers.edit', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('EditModel')
@@ -139,11 +140,29 @@ test('UI edit employee', function () {
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
                         ->where('name', 'grp.models.customer.update')
-                        ->where('parameters', $this->customer->id)
+                        ->where('parameters', [$this->customer->id])
             )
             ->has('breadcrumbs', 3);
     });
-})->skip();
+});
+
+// test('UI edit employee', function () {
+//     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/shops/'.$this->shop->slug.'/crm/customers/'.$this->customer->slug.'/edit?section=properties');
+//     $response->assertInertia(function (AssertableInertia $page) {
+//         $page
+//             ->component('EditModel')
+//             ->has('title')
+//             ->has('pageHead')
+//             ->has('formData')
+//             ->has(
+//                 'formData.args.updateRoute',
+//                 fn (AssertableInertia $page) => $page
+//                         ->where('name', 'grp.models.customer.update')
+//                         ->where('parameters', $this->customer->id)
+//             )
+//             ->has('breadcrumbs', 3);
+//     });
+// })->skip();
 
 test('UI Index customer clients', function () {
     $response = $this->get(route('grp.org.shops.show.crm.customers.show.customer-clients.index', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
