@@ -5,18 +5,24 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
 use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
+use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
+use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\Supplier;
+use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Testing\AssertableInertia;
 
@@ -78,6 +84,29 @@ beforeEach(function () {
 
     $this->supplier = $supplier;
 
+    $stock = Stock::first();
+    if (!$stock) {
+        $storeData = Stock::factory()->definition();
+        $stock  = StoreStock::make()->action(
+            $this->organisation->group,
+            $storeData
+        );
+    }
+
+    $this->stock = $stock;
+
+    $supplierProduct = SupplierProduct::first();
+    if (!$supplierProduct) {
+        $storeData = SupplierProduct::factory()->definition();
+        data_set($storeData, 'stock_id', $this->stock->id);
+        $supplierProduct  = StoreSupplierProduct::make()->action(
+            $this->supplier,
+            $storeData
+        );
+    }
+
+    $this->supplierProduct = $supplierProduct;
+
     $orgSupplier = OrgSupplier::first();
     if (!$orgSupplier) {
         $orgSupplier = StoreOrgSupplier::make()->action(
@@ -87,6 +116,17 @@ beforeEach(function () {
     }
 
     $this->orgSupplier = $orgSupplier;
+
+    $orgSupplierProduct = OrgSupplierProduct::first();
+    if (!$orgSupplierProduct) {
+        $orgSupplierProduct = StoreOrgSupplierProduct::make()->action(
+            $this->orgSupplier,
+            $this->supplierProduct,
+            []
+        );
+    }
+
+    $this->orgSupplierProduct = $orgSupplierProduct;
 
     $orgPartner = OrgPartner::first();
     if (!$orgPartner) {
@@ -163,6 +203,23 @@ test('UI show org agents', function () {
                         ->etc()
             )
             ->has('tabs');
+
+    });
+});
+
+test('UI index org supplier products', function () {
+    $response = $this->get(route('grp.org.procurement.org_supplier_products.index', [$this->organisation->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Procurement/OrgSupplierProducts')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'supplier products')
+                        ->etc()
+            );
 
     });
 });
