@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $comments
  * @property array|null $old_values
  * @property array|null $new_values
+ * @property string|null $data
  * @property string|null $url
  * @property string|null $ip_address
  * @property string|null $user_agent
