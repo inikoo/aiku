@@ -52,6 +52,15 @@ class GetRetinaDropshippingNavigation
             ]
         ];
 
+        $groupNavigation['client'] = [
+            'label' => __('Client'),
+            'icon' => ['fal', 'fa-user-friends'],
+            'root' => 'retina.dropshipping.client.',
+            'route' => [
+                'name' => 'retina.dropshipping.client.index'
+            ],
+        ];
+
         return $groupNavigation;
     }
 }
