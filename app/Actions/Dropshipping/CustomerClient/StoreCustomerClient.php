@@ -12,6 +12,7 @@ use App\Actions\Dropshipping\CustomerClient\Search\CustomerClientRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Models\CRM\Customer;
+use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\CustomerClient;
 use App\Rules\IUnique;
 use App\Rules\Phone;
@@ -69,6 +70,11 @@ class StoreCustomerClient extends OrgAction
         if ($this->asAction) {
             return true;
         }
+
+        if ($request->user() instanceof WebUser) {
+            return true;
+        }
+
 
         return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
     }
@@ -134,6 +140,15 @@ class StoreCustomerClient extends OrgAction
         $this->customer         = $customer;
         $this->asAction = true;
         $this->initialisationFromShop($customer->shop, $request);
+
+        return $this->handle($customer, $this->validatedData);
+    }
+
+    public function fromRetina(ActionRequest $request): CustomerClient
+    {
+        $customer = $request->user()->customer;
+        $this->customer         = $customer;
+        $this->initialisation($request->get('website')->organisation, $request);
 
         return $this->handle($customer, $this->validatedData);
     }
