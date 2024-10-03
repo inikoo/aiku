@@ -23,6 +23,10 @@ function supplierProductRoute(supplierProduct: OrgSupplierProduct) {
       return route(
         "grp.org.procurement.suppliers.show.supplier_products.show",
         [supplierProduct.supplier_slug, supplierProduct.slug]);
+    case "grp.org.procurement.org_suppliers.show":
+      return route(
+        "grp.org.procurement.org_suppliers.show.supplier_products.show",
+        [route().params["organisation"], route().params["orgSupplier"], supplierProduct.slug]);
     case "grp.org.procurement.agents.show":
       return route(
         "grp.org.procurement.agents.show.supplier_products.show",
