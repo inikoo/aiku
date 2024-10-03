@@ -11,6 +11,7 @@ use App\Actions\Dropshipping\ShopifyUser\DeleteShopifyUser;
 use App\Actions\Dropshipping\ShopifyUser\StoreShopifyUser;
 use App\Actions\UI\Retina\Dropshipping\Client\CreateCustomerClient;
 use App\Actions\UI\Retina\Dropshipping\Client\IndexCustomerClients;
+use App\Actions\UI\Retina\Dropshipping\Client\ShowCustomerClient;
 use App\Actions\UI\Retina\Dropshipping\ShowDropshipping;
 use App\Actions\UI\Retina\Dropshipping\IndexDropshippingRetinaProducts;
 use App\Actions\UI\Retina\Dropshipping\ShowProduct;
@@ -26,6 +27,7 @@ Route::prefix('platform')->as('platform.')->group(function () {
 Route::prefix('client')->as('client.')->group(function () {
     Route::get('/', IndexCustomerClients::class)->name('index');
     Route::get('create', CreateCustomerClient::class)->name('create');
+    Route::get('{customerClient}/show', ShowCustomerClient::class)->name('show');
 });
 
 Route::prefix('portfolios')->as('portfolios.')->group(function () {

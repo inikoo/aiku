@@ -32,7 +32,10 @@ function customerRoute(customer: FulfilmentCustomer) {
                 "grp.fulfilment.customers.show",
                 [customer.slug])
         case "retina.dropshipping.client.index":
-            return ''
+            return route(
+                "retina.dropshipping.client.show",
+                [customer.ulid]
+            )
         default:
             return route(
                 "grp.org.shops.show.crm.customers.show",
