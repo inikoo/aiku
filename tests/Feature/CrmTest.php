@@ -18,7 +18,6 @@ use App\Enums\Mail\Mailshot\MailshotTypeEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
-use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Query;
 use App\Models\Mail\Mailshot;
@@ -177,8 +176,9 @@ test('create prospect mailshot', function () {
 
 test('add delivery address to customer', function (Customer $customer) {
     $country = Country::latest()->first();
-    $customer = AddDeliveryAddressToCustomer::make()->action($customer,
-                [
+    $customer = AddDeliveryAddressToCustomer::make()->action(
+        $customer,
+        [
                     'delivery_address' => [
                         'address_line_1'      => fake()->streetAddress,
                         'address_line_2'      => fake()->buildingNumber,
@@ -189,7 +189,8 @@ test('add delivery address to customer', function (Customer $customer) {
                         'administrative_area' => fake('en_US')->state() ,
                         'country_id'          => $country->id
                     ]
-                ]);
+                ]
+    );
 
     expect($customer)->toBeInstanceOf(Customer::class)
     ->and($customer->addresses->count())->toBe(2);
