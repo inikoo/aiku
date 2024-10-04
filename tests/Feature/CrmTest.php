@@ -49,6 +49,7 @@ beforeEach(function () {
 
 
 test('create customer', function () {
+
     $customer = StoreCustomer::make()->action(
         $this->shop,
         Customer::factory()->definition(),
@@ -114,6 +115,7 @@ test('create prospect', function () {
 
 test('update prospect', function () {
 
+    /** @var Prospect $prospect */
     $prospect  = Prospect::first();
     $modelData = [
         'contact_name' => 'new name',
@@ -161,7 +163,6 @@ test('prospect query count', function () {
 
 test('create prospect mailshot', function () {
     $shop         = $this->shop;
-    $organisation = $this->organisation;
     $outbox       = Outbox::where('shop_id', $shop->id)->where('type', OutboxTypeEnum::SHOP_PROSPECT)->first();
     $dataModel    = [
         'subject'    => 'hello',
@@ -186,7 +187,7 @@ test('add delivery address to customer', function (Customer $customer) {
                         'postal_code'         => fake()->postcode,
                         'locality'            => fake()->city,
                         'dependent_locality'  => '',
-                        'administrative_area' => fake('en_US')->state() ,
+                        'administrative_area' => '',
                         'country_id'          => $country->id
                     ]
                 ]
