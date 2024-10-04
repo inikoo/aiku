@@ -20,7 +20,14 @@ class ShowDashboard
     public function asController(ActionRequest $request): Response
     {
 
-        return Inertia::render('Dashboard/RetinaDashboard');
+        return Inertia::render(
+            'Dashboard/RetinaDashboard',
+            [
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->originalParameters()
+                ),
+            ]
+        );
     }
 
     public function getBreadcrumbs($label = null): array
@@ -31,7 +38,7 @@ class ShowDashboard
                 'type'   => 'simple',
                 'simple' => [
                     'icon'  => 'fal fa-home',
-                    'label' => $label,
+                    'label' => 'Dashboard',
                     'route' => [
                         'name' => 'retina.dashboard.show'
                     ]
