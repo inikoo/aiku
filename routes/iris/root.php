@@ -20,6 +20,7 @@ use App\Actions\UI\Iris\ShowTnc;
 use App\Actions\UI\Iris\ShowWelcome;
 use App\Actions\UI\Iris\ShowSearchResult;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', ShowHome::class)->name('home');
 Route::get('/about', ShowAbout::class)->name('about');
@@ -31,6 +32,16 @@ Route::get('/shipping', ShowShipping::class)->name('shipping');
 Route::get('/storage', ShowStorage::class)->name('storage');
 Route::get('/tnc', ShowTnc::class)->name('tnc');
 Route::get('/welcome', ShowWelcome::class)->name('welcome');
+Route::get('/login', function () {
+    return Inertia::render(
+        'Login'
+    );
+})->name('login');
+Route::get('/register', function () {
+    return Inertia::render(
+        'Register'
+    );
+})->name('register');
 
 Route::get('/search', ShowSearchResult::class)->name('search');
 

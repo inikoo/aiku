@@ -8,7 +8,7 @@ const props = defineProps<{
     data: {
         key: string,
         data: object,
-        bluprint: object
+        bluprint: object   
         loginRoute?: routeType
     }
     menu : {
@@ -31,6 +31,7 @@ const props = defineProps<{
             :colorThemed="colorThemed"
             :menu="menu"
         />
+        
         <NavigationMenu :data="menu" :colorThemed="colorThemed" class="hidden md:block" />
     </div>
 </template>
