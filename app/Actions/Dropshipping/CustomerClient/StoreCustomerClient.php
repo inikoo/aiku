@@ -113,9 +113,9 @@ class StoreCustomerClient extends OrgAction
         return $rules;
     }
 
-    public function htmlResponse(Customer $customer): RedirectResponse
+    public function htmlResponse(CustomerClient $customerClient): RedirectResponse
     {
-        return Redirect::route('grp.org.shops.show.crm.customers.show.customer-clients.index', [$customer->organisation->slug, $customer->shop->slug, $customer->slug]);
+        return Redirect::route('grp.org.shops.show.crm.customers.show.customer-clients.index', [$customerClient->customer->organisation->slug, $customerClient->shop->slug, $customerClient->customer->slug]);
     }
 
     /**

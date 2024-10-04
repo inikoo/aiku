@@ -37,7 +37,9 @@ class ShowDropshipping extends RetinaAction
         return Inertia::render(
             'Dropshipping/DropshippingDashboard',
             [
-                // 'breadcrumbs' => $this->getBreadcrumbs(),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __('Dropshipping'),
                 'pageHead'    => [
                     'title' => __('Dropshipping'),
@@ -63,22 +65,23 @@ class ShowDropshipping extends RetinaAction
         );
     }
 
-    // public function getBreadcrumbs(): array
-    // {
-    //     return
-    //         array_merge(
-    //             ShowDashboard::make()->getBreadcrumbs(),
-    //             [
-    //                 [
-    //                     'type'   => 'simple',
-    //                     'simple' => [
-    //                         'route' => [
-    //                             'name' => 'retina.sysadmin.dashboard'
-    //                         ],
-    //                         'label'  => __('system administration'),
-    //                     ]
-    //                 ]
-    //             ]
-    //         );
-    // }
+    public function getBreadcrumbs($routeParameters): array
+    {
+        return
+            array_merge(
+                ShowDashboard::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'retina.dropshipping.platform.dashboard',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Platform'),
+                        ]
+                    ]
+                ]
+            );
+    }
 }

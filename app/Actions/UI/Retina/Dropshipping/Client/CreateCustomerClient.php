@@ -26,10 +26,10 @@ class CreateCustomerClient extends RetinaAction
         return Inertia::render(
             'CreateModel',
             [
-                // 'breadcrumbs' => $this->getBreadcrumbs(
-                //     $request->route()->getName(),
-                //     $request->route()->originalParameters()
-                // ),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 'title'       => __('new client'),
                 'pageHead'    => [
                     'title'        => __('new client'),
@@ -113,21 +113,21 @@ class CreateCustomerClient extends RetinaAction
         return $this->handle($request);
     }
 
-    // public function getBreadcrumbs(string $routeName, array $routeParameters): array
-    // {
-    //     return array_merge(
-    //         IndexCustomerClients::make()->getBreadcrumbs(
-    //             routeName: preg_replace('/create$/', 'index', $routeName),
-    //             routeParameters: $routeParameters,
-    //         ),
-    //         [
-    //             [
-    //                 'type'          => 'creatingModel',
-    //                 'creatingModel' => [
-    //                     'label' => __('Creating Client'),
-    //                 ]
-    //             ]
-    //         ]
-    //     );
-    // }
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    {
+        return array_merge(
+            IndexCustomerClients::make()->getBreadcrumbs(
+                routeName: preg_replace('/create$/', 'index', $routeName),
+                routeParameters: $routeParameters,
+            ),
+            [
+                [
+                    'type'          => 'creatingModel',
+                    'creatingModel' => [
+                        'label' => __('Creating Client'),
+                    ]
+                ]
+            ]
+        );
+    }
 }
