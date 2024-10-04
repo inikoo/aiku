@@ -50,6 +50,7 @@ const iframeSrc = ref(route('grp.websites.header.preview', [route().params['webs
 
 
 const onPickTemplate = (footer: Object) => {
+    console.log(footer)
     isModalOpen.value = false
     usedTemplates.value = footer
 }

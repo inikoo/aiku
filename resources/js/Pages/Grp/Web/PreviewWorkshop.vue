@@ -36,7 +36,7 @@ const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block), 1000, { 
 const data = ref(cloneDeep(props.webpage))
 const layout = reactive({
     header: {...props.header.header},
-    footer: {...props.footer},
+    footer: {...props.footer.footer},
     navigation: {...props.navigation},
     colorThemed: usePage().props?.iris?.color ? usePage().props?.iris?.color : { color: [...useColorTheme[2]] }
 });
@@ -66,7 +66,7 @@ onMounted(() => {
     if (socketLayout) socketLayout.actions.subscribe((value) => {
         console.log('sssd',value)
         layout.header = value.header.header;
-        layout.footer = value.footer;
+        layout.footer = value.footer.footer;
         layout.navigation = value.navigation;
     });
 });
@@ -118,12 +118,12 @@ console.log('preview',props)
             </div>
         </div>
 
-       <!--  <component 
-            :is="getComponentFooter(usedTemplates.key)"  
-            v-model="layout.footer.data"
+        <component 
+            :is="getComponentFooter(layout.footer.code)"  
+            v-model="layout.footer.data.footer"
             :keyTemplate="layout.footer" 
             :previewMode="false" 
             :colorThemed="layout.colorThemed" 
-        /> -->
+        />
     </div>
 </template>
