@@ -8,7 +8,6 @@
 namespace App\Actions\UI\Retina\Layout;
 
 use App\Models\CRM\WebUser;
-use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetRetinaDropshippingNavigation
