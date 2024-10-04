@@ -10,7 +10,7 @@ import { data as dataFooter1, bluprintForm as bluprintForm1  } from '@/Component
 
 export const getComponent = (componentName: string) => {
     const components: Component = {
-        'footer1': Footer1,
+        'FooterTheme1': Footer1,
     }
 
     return components[componentName] ?? NotFoundComponents

@@ -24,13 +24,15 @@ use Lorisleiva\Actions\ActionRequest;
 class DeleteCustomerDeliveryAddress extends OrgAction
 {
     protected Address $address;
-    public function handle(Customer $customer, Address $address)
+    public function handle(Customer $customer, Address $address): Customer
     {
         $customer->addresses()->detach($address->id);
 
-        $address->delete();
-
         AddressHydrateUsage::dispatch($address);
+
+        $address->delete();
+        
+        $customer->refresh();
         return $customer;
     }
 
@@ -48,6 +50,13 @@ class DeleteCustomerDeliveryAddress extends OrgAction
         $this->address = $address;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
         $this->handle($fulfilmentCustomer->customer, $address);
+    }
+
+    public function action(Customer $customer, Address $address): Customer
+    {
+        $this->address = $address;
+        $this->initialisationFromShop($customer->shop, []);
+        return $this->handle($customer, $address);
     }
 
     public function inCustomer(Customer $customer, Address $address, ActionRequest $request): void
