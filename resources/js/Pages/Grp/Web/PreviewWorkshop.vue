@@ -13,11 +13,10 @@ import debounce from 'lodash/debounce'
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { socketWeblock, SocketHeaderFooter } from '@/Composables/SocketWebBlock'
 import RenderHeaderMenu from './RenderHeaderMenu.vue'
-import Footer from '@/Layouts/Iris/Footer.vue'
+import { getComponent as getComponentFooter  } from '@/Components/Websites/Footer/Content'
 import { usePage } from '@inertiajs/vue3'
 import { useColorTheme } from '@/Composables/useStockList'
 import { cloneDeep } from 'lodash'
-import { getComponent as getComponentsHeader} from '@/Components/Websites/Header/Content'
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage, WebBlock } from '@/types/webpageTypes'
@@ -91,15 +90,6 @@ console.log('preview',props)
         :colorThemed="layout.colorThemed"
         />
 
-      <!-- <component
-        :is="getComponentsHeader(layout?.header?.header?.key)"
-        :loginMode="true"
-        :previewMode="true"
-        v-model="layout.header.header"
-        :uploadImageRoute="layout.header.uploadImageRoute"
-        :colorThemed="layout.colorThemed"
-      /> -->
-
         <div v-if="data" class="relative">
             <div class="container max-w-7xl mx-auto">
                 <div class="h-full overflow-auto w-full ">
@@ -128,6 +118,12 @@ console.log('preview',props)
             </div>
         </div>
 
-        <Footer v-if="layout.footer" :data="layout.footer" :colorThemed="layout.colorThemed" />
+       <!--  <component 
+            :is="getComponentFooter(usedTemplates.key)"  
+            v-model="layout.footer.data"
+            :keyTemplate="layout.footer" 
+            :previewMode="false" 
+            :colorThemed="layout.colorThemed" 
+        /> -->
     </div>
 </template>

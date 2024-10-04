@@ -14,7 +14,6 @@ class GetWebsiteWorkshopFooter
     {
         return [
             'footer' => Arr::get($website->published_layout, 'footer'),
-            'color'  => Arr::get($website->published_layout, 'color')
         ];
     }
 }
