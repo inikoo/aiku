@@ -8,11 +8,27 @@
 namespace App\Transfers\Aurora;
 
 use App\Models\CRM\WebUser;
+use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\DB;
 
 trait WithAuroraSysAdminParsers
 {
+    protected function parseUser($sourceId): ?User
+    {
+        $user   = User::withTrashed()->where('source_id', $sourceId)->first();
+        $sourceData = explode(':', $sourceId);
+        if (!$user) {
+            $user = FetchAuroraUsers::run($this->organisationSource, $sourceData[1]);
+        }
+        if (!$user) {
+            $user = FetchAuroraDeletedUsers::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $user;
+    }
+
+
     protected function parseUserFromHistory(): User|WebUser|null
     {
 
@@ -37,6 +53,25 @@ trait WithAuroraSysAdminParsers
                 }
             }
 
+            if (!$user) {
+                $guest = Guest::withTrashed()
+                    ->where('group_id', $this->organisation->group_id)
+                    ->where('source_id', $this->organisation->id.':'.$this->auroraModelData->{'Subject Key'})
+                    ->first();
+                if ($guest) {
+                    $userHasModel = DB::table('user_has_models')
+                        ->where('model_id', $guest->id)
+                        ->where('model_type', 'Guest')
+                        ->first();
+                    if ($userHasModel) {
+                        $user = User::withTrashed()->find($userHasModel->user_id);
+                    }
+                }
+
+
+
+
+            }
 
             if (!$user) {
                 $user = User::withTrashed()
@@ -44,6 +79,10 @@ trait WithAuroraSysAdminParsers
                     ->whereJsonContains('sources->parents', $this->organisation->id.':'.$this->auroraModelData->{'Subject Key'})
                     ->first();
             }
+
+
+
+
 
             if (!$user) {
                 dd($this->auroraModelData);
@@ -66,9 +105,9 @@ trait WithAuroraSysAdminParsers
 
         }
 
-
-        return $user;
-    }
+        if ($user) {
+            return $user;
+        }
 
 
     protected function parseUserPhoto(): array

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Models\SysAdmin\User;
@@ -82,6 +83,19 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
                                 ]
                             ]);
                         });
+                    }
+
+                    if ($userData['add_guest']) {
+
+                        $guest = StoreGuest::make()->action(
+                            $organisationSource->getOrganisation()->group,
+                            $userData['guest'],
+                            hydratorsDelay: 60,
+                            strict: false
+                        );
+
+                        return $guest->getUser();
+
                     }
 
                     return $user;

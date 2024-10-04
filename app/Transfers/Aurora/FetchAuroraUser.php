@@ -77,8 +77,6 @@ class FetchAuroraUser extends FetchAurora
 
         if ($this->parsedData['add_guest']) {
             $this->parsedData['guest'] = $this->getGuestData();
-
-            return;
         }
 
         $this->parseUserPhoto();

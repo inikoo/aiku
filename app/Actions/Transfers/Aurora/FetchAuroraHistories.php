@@ -87,9 +87,10 @@ class FetchAuroraHistories extends FetchAuroraAction
     {
         $query = DB::connection('aurora')
             ->table('History Dimension')
-            ->where('Direct Object', 'Customer')
-            //    ->whereIn('Action', ['edited', 'created']);
-            ->whereIn('Action', ['created']);
+            ->where('Direct Object', 'Location')
+            ->whereIn('Action', ['edited', 'created'])
+
+        ;
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
