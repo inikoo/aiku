@@ -65,6 +65,7 @@ use App\Models\Web\WebBlockTypeCategory;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Eloquent;
+use Google\Service\Analytics\Uploads;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -163,6 +164,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
  * @property-read LaravelCollection<int, ShippingZone> $shippingZones
  * @property-read LaravelCollection<int, Shop> $shops
+ * @property-read \App\Models\SysAdmin\GroupStats|null $stats
  * @property-read LaravelCollection<int, StockFamily> $stockFamilies
  * @property-read LaravelCollection<int, Stock> $stocks
  * @property-read LaravelCollection<int, Subscription> $subscriptions
@@ -281,6 +283,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(GroupStats::class);
     }
 
     public function humanResourcesStats(): HasOne
@@ -652,6 +659,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function deliveryNotes(): HasMany
     {
         return $this->hasMany(DeliveryNote::class);
+    }
+
+    public function uploads(): HasMany
+    {
+        return $this->hasMany(Uploads::class);
     }
 
 
