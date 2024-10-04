@@ -7,14 +7,12 @@
 
 namespace App\Actions\UI\Retina\Dropshipping\Client;
 
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
+use App\Actions\UI\Retina\Dashboard\ShowDashboard;
 use App\Http\Resources\CRM\CustomerClientResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
-use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -152,10 +150,10 @@ class IndexCustomerClients extends RetinaAction
         return Inertia::render(
             'Dropshipping/Client/CustomerClients',
             [
-                // 'breadcrumbs' => $this->getBreadcrumbs(
-                //     $request->route()->getName(),
-                //     $request->route()->originalParameters()
-                // ),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->originalParameters(),
+                    $request->route()->getName()
+                ),
                 'title'       => __('customer clients'),
                 'pageHead'    => [
                     'title'         => $title,
@@ -181,36 +179,23 @@ class IndexCustomerClients extends RetinaAction
         )->table($this->tableStructure($this->parent));
     }
 
-    // public function getBreadcrumbs(string $routeName, array $routeParameters): array
-    // {
-    //     $headCrumb = function (array $routeParameters = []) {
-    //         return [
-    //             [
-    //                 'type'   => 'simple',
-    //                 'simple' => [
-    //                     'route' => $routeParameters,
-    //                     'label' => __('Clients'),
-    //                     'icon'  => 'fal fa-bars'
-    //                 ],
-    //             ],
-    //         ];
-    //     };
-
-    //     return match ($routeName) {
-    //         'grp.org.shops.show.crm.customers.show.customer-clients.index' =>
-    //         array_merge(
-    //             ShowCustomer::make()->getBreadcrumbs(
-    //                 'grp.org.shops.show.crm.customers.show',
-    //                 $routeParameters
-    //             ),
-    //             $headCrumb(
-    //                 [
-    //                     'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.index',
-    //                     'parameters' => $routeParameters
-    //                 ]
-    //             )
-    //         ),
-    //         default => []
-    //     };
-    // }
+    public function getBreadcrumbs($routeName, $routeParameters): array
+    {
+        return
+            array_merge(
+                ShowDashboard::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'retina.dropshipping.client.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Clients'),
+                        ]
+                    ]
+                ]
+            );
+    }
 }
