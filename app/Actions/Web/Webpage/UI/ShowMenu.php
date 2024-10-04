@@ -8,7 +8,9 @@
 namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Web\WebBlockTypeCategory\UI\IndexWebBlockTypeCategories;
 use App\Actions\Web\Website\GetWebsiteWorkshopMenu;
+use App\Enums\Web\WebBlockTypeCategory\WebBlockTypeCategorySlugEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -19,7 +21,6 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use App\Http\Resources\Web\WebBlockTypeCategoryResource;
-use App\Models\Web\WebBlockTypeCategory;
 
 class ShowMenu extends OrgAction
 {
@@ -106,8 +107,7 @@ class ShowMenu extends OrgAction
                 ],
 
                 'data' => GetWebsiteWorkshopMenu::run($website),
-                'webBlockTypeCategories' => WebBlockTypeCategoryResource::collection(WebBlockTypeCategory::all())
-
+                'webBlockTypeCategories' => WebBlockTypeCategoryResource::collection(IndexWebBlockTypeCategories::run(WebBlockTypeCategorySlugEnum::MENU->value))
             ]
         );
     }
