@@ -73,6 +73,7 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
+use Google\Service\Analytics\Uploads;
 use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -683,4 +684,10 @@ class Organisation extends Model implements HasMedia, Auditable
     {
         return $this->hasMany(DeliveryNote::class);
     }
+
+    public function uploads(): HasMany
+    {
+        return $this->hasMany(Uploads::class);
+    }
+
 }
