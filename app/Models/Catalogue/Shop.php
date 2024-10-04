@@ -39,6 +39,7 @@ use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Helpers\Timezone;
 use App\Models\Helpers\UniversalSearch;
+use App\Models\Helpers\Upload;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\SenderEmail;
@@ -174,6 +175,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch
+ * @property-read LaravelCollection<int, Upload> $uploads
  * @property-read Website|null $website
  * @method static \Database\Factories\Catalogue\ShopFactory factory($count = null, $state = [])
  * @method static Builder|Shop newModelQuery()
@@ -529,6 +531,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function creditTransactions(): HasMany
     {
         return $this->hasMany(CreditTransaction::class);
+    }
+
+    public function uploads(): HasMany
+    {
+        return $this->hasMany(Upload::class);
     }
 
 }

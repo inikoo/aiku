@@ -7,7 +7,7 @@
 
 namespace App\Actions\Traits;
 
-use App\Actions\Helpers\Uploads\ConvertUploadedFile;
+use App\Actions\Helpers\Upload\ConvertUploadedFile;
 use App\Enums\Helpers\Import\UploadRecordStatusEnum;
 use App\Models\Helpers\Upload;
 use Illuminate\Console\Command;

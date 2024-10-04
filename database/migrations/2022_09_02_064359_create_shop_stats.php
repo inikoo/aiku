@@ -7,6 +7,7 @@
 
 use App\Stubs\Migrations\HasCatalogueStats;
 use App\Stubs\Migrations\HasCreditsStats;
+use App\Stubs\Migrations\HasHelpersStats;
 use App\Stubs\Migrations\HasOrderingStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,7 +17,7 @@ return new class () extends Migration {
     use HasCatalogueStats;
     use HasCreditsStats;
     use HasOrderingStats;
-
+    use HasHelpersStats;
     public function up(): void
     {
         Schema::create('shop_stats', function (Blueprint $table) {
@@ -25,6 +26,9 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table = $this->catalogueStats($table);
             $table = $this->billableFields($table);
+
+            $table = $this->uploadStats($table);
+
             $table->timestampsTz();
         });
     }

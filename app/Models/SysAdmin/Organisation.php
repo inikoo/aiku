@@ -44,6 +44,7 @@ use App\Models\Helpers\Currency;
 use App\Models\Helpers\Language;
 use App\Models\Helpers\Media;
 use App\Models\Helpers\Timezone;
+use App\Models\Helpers\Upload;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
@@ -73,7 +74,6 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
-use Google\Service\Analytics\Uploads;
 use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -193,6 +193,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Task> $tasks
  * @property-read Timezone $timezone
  * @property-read LaravelCollection<int, TopUp> $topUps
+ * @property-read LaravelCollection<int, Upload> $uploads
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
  * @property-read LaravelCollection<int, Warehouse> $warehouses
  * @property-read \App\Models\SysAdmin\OrganisationWebStats|null $webStats
@@ -687,7 +688,7 @@ class Organisation extends Model implements HasMedia, Auditable
 
     public function uploads(): HasMany
     {
-        return $this->hasMany(Uploads::class);
+        return $this->hasMany(Upload::class);
     }
 
 }

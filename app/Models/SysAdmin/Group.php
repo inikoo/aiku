@@ -37,6 +37,7 @@ use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Currency;
+use App\Models\Helpers\Upload;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
@@ -65,7 +66,6 @@ use App\Models\Web\WebBlockTypeCategory;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Eloquent;
-use Google\Service\Analytics\Uploads;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -176,6 +176,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, TradeUnit> $tradeUnits
+ * @property-read LaravelCollection<int, Upload> $uploads
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\User> $users
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
  * @property-read LaravelCollection<int, Warehouse> $warehouses
@@ -663,7 +664,7 @@ class Group extends Authenticatable implements Auditable, HasMedia
 
     public function uploads(): HasMany
     {
-        return $this->hasMany(Uploads::class);
+        return $this->hasMany(Upload::class);
     }
 
 

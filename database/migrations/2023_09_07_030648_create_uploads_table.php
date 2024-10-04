@@ -18,16 +18,19 @@ return new class () extends Migration {
         Schema::create('uploads', function (Blueprint $table) {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('shop_id')->index()->nullable();
+            $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
-            $table->string('type');
+            $table->string('model')->index();
             $table->string('original_filename');
             $table->string('filename');
-            $table->string('path');
+            $table->unsignedBigInteger('filesize')->default(0);
+            $table->string('path')->nullable();
             $table->unsignedInteger('number_rows')->default(0);
             $table->unsignedInteger('number_success')->default(0);
             $table->unsignedInteger('number_fails')->default(0);
-            $table->dateTimeTz('uploaded_at');
+            $table->dateTimeTz('uploaded_at')->nullable()->comment('Date the file was finished store/update actions');
             $table->timestamps();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();

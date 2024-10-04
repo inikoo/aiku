@@ -74,6 +74,7 @@ use App\Transfers\Aurora\FetchAuroraTimesheet;
 use App\Transfers\Aurora\FetchAuroraTradeUnit;
 use App\Transfers\Aurora\FetchAuroraTradeUnitImages;
 use App\Transfers\Aurora\FetchAuroraTransaction;
+use App\Transfers\Aurora\FetchAuroraUpload;
 use App\Transfers\Aurora\FetchAuroraUser;
 use App\Transfers\Aurora\FetchAuroraWarehouse;
 use App\Transfers\Aurora\FetchAuroraWarehouseArea;
@@ -465,7 +466,7 @@ class AuroraOrganisationService implements SourceOrganisationService
 
     public function fetchUpload($id): ?array
     {
-        return null;
+        return (new FetchAuroraUpload($this))->fetch($id);
     }
 
 

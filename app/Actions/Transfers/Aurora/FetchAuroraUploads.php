@@ -10,31 +10,45 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\Helpers\Upload\UpdateUpload;
 use App\Models\Helpers\Upload;
-use App\Models\HumanResources\ClockingMachine;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraUploads extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:uploads {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:uploads {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} ';
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?ClockingMachine
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Upload
     {
-        if ($uploadData = $organisationSource->fetchClockingMachine($organisationSourceId)) {
-
+        if ($uploadData = $organisationSource->fetchUpload($organisationSourceId)) {
             if ($upload = Upload::where('source_id', $uploadData['upload']['source_id'])->first()) {
                 $upload = UpdateUpload::make()->action(
-                    clockingMachine: $upload,
-                    modelData: $uploadData['upload']
+                    upload: $upload,
+                    modelData: $uploadData['upload'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
                 );
             } else {
                 $upload = StoreUpload::make()->action(
-                    workplace: $uploadData['workplace'],
+                    parent: $uploadData['parent'],
                     modelData: $uploadData['upload'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
                 );
 
+                Upload::enableAuditing();
+                $this->saveMigrationHistory(
+                    $upload,
+                    Arr::except($uploadData['upload'], ['fetched_at', 'last_fetched_at'])
+                );
 
+                $sourceData = explode(':', $upload->source_id);
+                DB::connection('aurora')->table('Upload Dimension')
+                    ->where('Upload Key', $sourceData[1])
+                    ->update(['aiku_id' => $upload->id]);
             }
 
             return $upload;
@@ -45,16 +59,25 @@ class FetchAuroraUploads extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Upload Dimension')
-            ->select('Upload Key as source_id')
-            ->orderBy('source_id');
+            ->select('Upload Key as source_id');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query->orderBy('Upload Created');
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Upload Dimension')->count();
-    }
+        $query = DB::connection('aurora')->table('Upload Dimension');
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
 
+        return $query->count();
+    }
 
 }

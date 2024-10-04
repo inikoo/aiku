@@ -69,6 +69,7 @@ class FetchAuroraAction extends FetchAction
             'fetch:deleted-locations',
             'fetch:customer-notes',
             'fetch:histories',
+            'fetch:uploads',
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }
