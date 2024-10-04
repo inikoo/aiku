@@ -70,10 +70,11 @@ class ShowCustomerClient extends RetinaAction
             'Dropshipping/Client/CustomerClient',
             [
                 'title'       => __('customer client'),
-                // 'breadcrumbs' => $this->getBreadcrumbs(
-                //     $request->route()->getName(),
-                //     $request->route()->originalParameters()
-                // ),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $customerClient,
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
                 // 'navigation' => [
                 //     'previous' => $this->getPrevious($customerClient, $request),
                 //     'next'     => $this->getNext($customerClient, $request),
@@ -171,76 +172,25 @@ class ShowCustomerClient extends RetinaAction
         return new CustomerClientResource($customerClient);
     }
 
-    // public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = ''): array
-    // {
-    //     $headCrumb = function (CustomerClient $customerClient, array $routeParameters, string $suffix = null) {
-    //         return [
-    //             [
-
-    //                 'type'           => 'modelWithIndex',
-    //                 'modelWithIndex' => [
-    //                     'index' => [
-    //                         'route' => $routeParameters['index'],
-    //                         'label' => __('Clients')
-    //                     ],
-    //                     'model' => [
-    //                         'route' => $routeParameters['model'],
-    //                         'label' => $customerClient->name,
-    //                     ],
-
-    //                 ],
-    //                 'suffix' => $suffix
-
-    //             ],
-    //         ];
-    //     };
-
-    //     $customerClient = CustomerClient::where('ulid', $routeParameters['customerClient'])->first();
-
-
-    //     return match ($routeName) {
-    //         'grp.org.customers.show',
-    //         => array_merge(
-    //             ShowDashboard::make()->getBreadcrumbs(),
-    //             $headCrumb(
-    //                 $customerClient,
-    //                 [
-    //                     'index' => [
-    //                         'name'       => 'grp.org.customers.index',
-    //                         'parameters' => Arr::only($routeParameters, ['organisation'])
-    //                     ],
-    //                     'model' => [
-    //                         'name'       => 'grp.org.customers.customers.show',
-    //                         'parameters' => Arr::only($routeParameters, ['organisation', 'customer'])
-    //                     ]
-    //                 ],
-    //                 $suffix
-    //             ),
-    //         ),
-
-    //         'grp.org.shops.show.crm.customers.show.customer-clients.show'
-    //          => array_merge(
-    //              (new ShowCustomer())->getBreadcrumbs('grp.org.shops.show.crm.customers.show', $routeParameters),
-    //              $headCrumb(
-    //                  $customerClient,
-    //                  [
-    //                      'index' => [
-    //                          'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.index',
-    //                          'parameters' => $routeParameters
-    //                      ],
-    //                      'model' => [
-    //                          'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.show',
-    //                          'parameters' => $routeParameters
-
-
-    //                      ]
-    //                  ],
-    //                  $suffix
-    //              )
-    //          ),
-    //         default => []
-    //     };
-    // }
+    public function getBreadcrumbs(CustomerClient $customerClient, $routeName, $routeParameters): array
+    {
+        return
+            array_merge(
+                IndexCustomerClients::make()->getBreadcrumbs($routeName, $routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'retina.dropshipping.client.show',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => $customerClient->name,
+                        ]
+                    ]
+                ]
+            );
+    }
 
     // public function getPrevious(CustomerClient $customerClient, ActionRequest $request): ?array
     // {
