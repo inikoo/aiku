@@ -46,6 +46,24 @@ class GetRetinaDropshippingNavigation
                 'root' => 'retina.dropshipping.portfolios.',
                 'route' => [
                     'name' => 'retina.dropshipping.portfolios.index'
+                ],
+                'topMenu' => [
+                    'subSections' => [
+                        [
+                            'label' => __('Products'),
+                            'icon' => ['fal', 'fa-cube'],
+                            'route' => [
+                                'name' => 'retina.dropshipping.portfolios.index'
+                            ],
+                        ],
+                        [
+                            'label' => __('My Portfolio'),
+                            'icon' => ['fal', 'fa-cube'],
+                            'route' => [
+                                'name' => 'retina.dropshipping.portfolios.index'
+                            ],
+                        ]
+                    ]
                 ]
             ];
         }
