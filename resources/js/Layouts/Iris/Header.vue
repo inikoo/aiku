@@ -31,6 +31,7 @@ const props = defineProps<{
             :colorThemed="colorThemed"
             :menu="menu"
         />
+        
         <NavigationMenu :data="menu" :colorThemed="colorThemed" class="hidden md:block" />
     </div>
 </template>
