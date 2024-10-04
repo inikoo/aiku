@@ -7,8 +7,8 @@
 
 namespace App\Actions\CRM\Prospect;
 
-use App\Actions\Helpers\Uploads\ImportUpload;
-use App\Actions\Helpers\Uploads\StoreUploads;
+use App\Actions\Helpers\Upload\ImportUpload;
+use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\Traits\WithImportModel;
 use App\Http\Resources\Helpers\UploadsResource;
 use App\Imports\CRM\ProspectImport;
@@ -24,7 +24,7 @@ class ImportShopProspects
 
     public function handle(Shop $scope, $file): Upload
     {
-        $upload = StoreUploads::run($file, Prospect::class);
+        $upload = StoreUpload::run($file, Prospect::class);
 
         if ($this->isSync) {
             ImportUpload::run(

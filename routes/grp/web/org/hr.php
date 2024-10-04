@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Helpers\Uploads\HistoryUploads;
+use App\Actions\Helpers\Upload\HistoryUploads;
 use App\Actions\HumanResources\Calendar\IndexCalendars;
 use App\Actions\HumanResources\Calendar\ShowCalendar;
 use App\Actions\HumanResources\Clocking\UI\CreateClocking;

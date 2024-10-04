@@ -5,13 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Helpers\Uploads;
+namespace App\Actions\Helpers\Upload;
 
 use App\Models\Helpers\Upload;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class UpdateUploads
+class UpdateUpload
 {
     use AsAction;
     use WithAttributes;

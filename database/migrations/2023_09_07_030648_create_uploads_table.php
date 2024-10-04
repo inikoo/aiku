@@ -5,15 +5,19 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
+
     public function up(): void
     {
         Schema::create('uploads', function (Blueprint $table) {
             $table->increments('id');
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
             $table->string('type');
@@ -25,6 +29,9 @@ return new class () extends Migration {
             $table->unsignedInteger('number_fails')->default(0);
             $table->dateTimeTz('uploaded_at');
             $table->timestamps();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

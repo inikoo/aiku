@@ -14,15 +14,18 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('upload_records', function (Blueprint $table) {
-            $table->increments('id');
-            $table->unsignedSmallInteger('upload_id');
+            $table->id();
+            $table->unsignedInteger('upload_id');
             $table->foreign('upload_id')->references('id')->on('uploads')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedInteger('row_number')->nullable();
+            $table->unsignedBigInteger('row_number')->nullable();
             $table->jsonb('values');
             $table->jsonb('errors');
             $table->string('fail_column')->nullable();
             $table->string('status')->default(UploadRecordStatusEnum::PROCESSING->value);
             $table->timestamps();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

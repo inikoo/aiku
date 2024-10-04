@@ -278,7 +278,7 @@ class StoreProduct extends OrgAction
         return Redirect::route('grp.org.shops.show.catalogue.families.show.products.index', [$organisation->slug, $shop->slug, $family->slug]);
     }
 
-    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, $strict = true): Product
+    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, $strict = true, $audit = true): Product
     {
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;

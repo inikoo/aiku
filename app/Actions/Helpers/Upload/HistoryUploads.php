@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Helpers\Uploads;
+namespace App\Actions\Helpers\Upload;
 
 use App\Http\Resources\Helpers\UploadsResource;
 use App\Models\Fulfilment\Fulfilment;

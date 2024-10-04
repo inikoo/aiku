@@ -9,6 +9,7 @@ namespace App\Models\Helpers;
 
 use App\Models\SysAdmin\User;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,6 +20,8 @@ use OwenIt\Auditing\Contracts\Auditable;
  * App\Models\ExcelUpload
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property int|null $user_id
  * @property string $type
  * @property string $original_filename
@@ -30,7 +33,12 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string $uploaded_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
+ * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\UploadRecord> $records
  * @property-read User|null $user
  * @method static \Illuminate\Database\Eloquent\Builder|Upload newModelQuery()
@@ -42,8 +50,14 @@ class Upload extends Model implements Auditable
 {
     use HasFactory;
     use HasHistory;
+    use inOrganisation;
 
     protected $guarded = [];
+
+    protected $casts = [
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
+    ];
 
     public function generateTags(): array
     {
@@ -58,7 +72,7 @@ class Upload extends Model implements Auditable
 
     public function getFullPath(): string
     {
-        return $this->path . '/' . $this->filename;
+        return $this->path.'/'.$this->filename;
     }
 
     public function records(): HasMany

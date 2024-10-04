@@ -7,8 +7,8 @@
 
 namespace App\Actions\Inventory\WarehouseArea;
 
-use App\Actions\Helpers\Uploads\ImportUpload;
-use App\Actions\Helpers\Uploads\StoreUploads;
+use App\Actions\Helpers\Upload\ImportUpload;
+use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\Traits\WithImportModel;
 use App\Imports\Warehouse\WarehouseAreaImport;
 use App\Models\Helpers\Upload;
@@ -24,7 +24,7 @@ class ImportWarehouseArea
 
     public function handle(Warehouse $warehouse, $file): Upload
     {
-        $upload = StoreUploads::run($file, WarehouseArea::class);
+        $upload = StoreUpload::run($file, WarehouseArea::class);
 
         if ($this->isSync) {
             ImportUpload::run(

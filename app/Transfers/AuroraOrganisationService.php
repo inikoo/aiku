@@ -463,5 +463,10 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraHistory($this))->fetch($id);
     }
 
+    public function fetchUpload($id): ?array
+    {
+        return null;
+    }
+
 
 }

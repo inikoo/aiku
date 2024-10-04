@@ -7,8 +7,8 @@
 
 namespace App\Actions\Inventory\Location;
 
-use App\Actions\Helpers\Uploads\ImportUpload;
-use App\Actions\Helpers\Uploads\StoreUploads;
+use App\Actions\Helpers\Upload\ImportUpload;
+use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\Traits\WithImportModel;
 use App\Imports\Location\LocationImport;
 use App\Models\Helpers\Upload;
@@ -25,7 +25,7 @@ class ImportLocation
 
     public function handle(Warehouse|WarehouseArea|Organisation $parent, $file): Upload
     {
-        $upload = StoreUploads::run($file, Location::class);
+        $upload = StoreUpload::run($file, Location::class);
 
         if ($this->isSync) {
             ImportUpload::run(

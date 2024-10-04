@@ -76,7 +76,7 @@ class FetchAuroraHistory extends FetchAurora
             $this->parsedData['history']['user_id']   = $user->id;
         }
 
-
+        // dd($this->parsedData['history']);
     }
 
 
