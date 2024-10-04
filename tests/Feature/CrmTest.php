@@ -6,6 +6,7 @@
  */
 
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
+use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\HydrateCustomers;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Prospect\StoreProspect;
@@ -192,7 +193,19 @@ test('add delivery address to customer', function (Customer $customer) {
 
     expect($customer)->toBeInstanceOf(Customer::class)
     ->and($customer->addresses->count())->toBe(2);
+
+    return $customer;
 })->depends('create customer');
+
+test('delete delivery address from customer', function (Customer $customer) {
+    $address = $customer->addresses()->skip(1)->first();
+    $customer = DeleteCustomerDeliveryAddress::make()->action($customer, $address);
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+    ->and($customer->addresses->count())->toBe(1);
+
+    return $customer;
+})->depends('add delivery address to customer');
 
 test('can show list of prospects lists', function () {
     $shop     = $this->shop;
