@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\HydrateCustomers;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Prospect\StoreProspect;
@@ -16,6 +17,8 @@ use App\Enums\Mail\Mailshot\MailshotTypeEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
+use App\Models\Helpers\Address;
+use App\Models\Helpers\Country;
 use App\Models\Helpers\Query;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
@@ -170,6 +173,26 @@ test('create prospect mailshot', function () {
     expect($mailshot)->toBeInstanceOf(Mailshot::class)
         ->and($outbox->stats->number_mailshots)->toBe(1);
 });
+
+test('add delivery address to customer', function (Customer $customer) {
+    $country = Country::latest()->first();
+    $customer = AddDeliveryAddressToCustomer::make()->action($customer,
+                [
+                    'delivery_address' => [
+                        'address_line_1'      => fake()->streetAddress,
+                        'address_line_2'      => fake()->buildingNumber,
+                        'sorting_code'        => '',
+                        'postal_code'         => fake()->postcode,
+                        'locality'            => fake()->city,
+                        'dependent_locality'  => '',
+                        'administrative_area' => fake('en_US')->state() ,
+                        'country_id'          => $country->id
+                    ]
+                ]);
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+    ->and($customer->addresses->count())->toBe(2);
+})->depends('create customer');
 
 test('can show list of prospects lists', function () {
     $shop     = $this->shop;
