@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, defineProps } from 'vue'
-import { Head, router  } from '@inertiajs/vue3'
+import { Head  } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -15,13 +15,14 @@ import ScreenView from "@/Components/ScreenView.vue"
 import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
 
 import { routeType } from "@/types/route"
+import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 
 import { faPresentation, faCube, faText, faPaperclip, faExternalLink } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faHeart } from '@far'
 import { faBrowser } from '@fal'
-import { PageHeading as TSPageHeading } from '@/types/PageHeading'
+
 library.add(faBrowser, faPresentation, faCube, faText, faHeart, faPaperclip)
 
 const props = defineProps<{
@@ -130,23 +131,21 @@ watch(usedTemplates, (newVal) => {
         </template>
     </PageHeading>
 
-    <div class="h-[85vh] grid grid-flow-row-dense grid-cols-6">
-        <div v-if="usedTemplates?.header?.key"
-            class="col-span-1 bg-[#F9F9F9] flex flex-col justify-between h-full border-r border-gray-300">
-            <div class="">
+    <div class="h-[84vh] grid grid-flow-row-dense grid-cols-6">
+        <div v-if="usedTemplates?.header"
+            class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
                 <div class="py-2 px-2 font-bold text-lg">Form Editing</div>
                 <SideEditor 
-                    v-if="usedTemplates.header.key" 
+                    v-if="usedTemplates.header" 
                     v-model="usedTemplates.header" 
                     :bluprint="usedTemplates.bluprint"
                     :uploadImageRoute="uploadImageRoute" 
                 />
-            </div>
         </div>
   
 
-        <div :class="usedTemplates?.header?.key ? 'col-span-5' : 'col-span-8'">
-            <div v-if="usedTemplates?.header?.key" class="h-full w-full bg-white">
+        <div :class="usedTemplates?.header ? 'col-span-5' : 'col-span-8'">
+            <div v-if="usedTemplates?.header" class="h-full w-full bg-white">
                 <div class="flex justify-between bg-slate-200 border border-b-gray-300">
                     <div class="flex">
                         <ScreenView @screenView="setIframeView" />
