@@ -70,7 +70,7 @@ class FetchAuroraHistories extends FetchAuroraAction
         //enum('sold_since','last_sold','first_sold','placed','wrote','deleted','edited','cancelled','charged','merged','created','associated','disassociate','register','login','logout','fail_login','password_request','password_reset','search')
         $query = DB::connection('aurora')
             ->table('History Dimension')
-           // ->whereIn('Direct Object', ['Customer','Location'])
+           // ->whereIn('Direct Object', ['Customer','Location','Product'])
            // ->whereIn('Action', ['edited', 'created']);
 
             ->where('Direct Object', 'Location')

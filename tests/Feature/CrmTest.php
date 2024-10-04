@@ -199,7 +199,7 @@ test('add delivery address to customer', function (Customer $customer) {
     return $customer;
 })->depends('create customer');
 
-test('delete delivery address from customer', function (Customer $customer) {
+test('remove delivery address from customer', function (Customer $customer) {
     $address = $customer->addresses()->skip(1)->first();
     $customer = DeleteCustomerDeliveryAddress::make()->action($customer, $address);
 

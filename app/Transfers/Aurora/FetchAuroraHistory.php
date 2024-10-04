@@ -7,6 +7,7 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Models\Catalogue\Product;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Location;
 use Illuminate\Support\Facades\DB;
@@ -88,7 +89,7 @@ class FetchAuroraHistory extends FetchAurora
     }
 
 
-    protected function parseAuditableFromHistory(): Customer|Location|null
+    protected function parseAuditableFromHistory(): Customer|Location|Product|null
     {
         $auditable = null;
 
@@ -103,6 +104,10 @@ class FetchAuroraHistory extends FetchAurora
                     $this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'},
                     $this->organisationSource
                 );
+                break;
+            case 'Product':
+                $auditable = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'});
+                break;
         }
 
 
@@ -115,26 +120,23 @@ class FetchAuroraHistory extends FetchAurora
         $skip = false;
 
 
-
         if ($event == 'updated') {
-
+            $skip = true;
             switch ($auditable) {
                 case $auditable instanceof Customer:
 
                     break;
                 case $auditable instanceof Location:
-                    $skip = !in_array($this->auroraModelData->{'Indirect Object'}, ['Location Code','Location Max Weight','Location Max Volume']);
+                    $skip = !in_array($this->auroraModelData->{'Indirect Object'}, ['Location Code', 'Location Max Weight', 'Location Max Volume']);
                     break;
-
+                case $auditable instanceof Product:
+                    $skip = !in_array($this->auroraModelData->{'Indirect Object'}, ['Product Code', 'Product Price']);
+                    break;
             }
-
-
         }
 
 
-
         return $skip;
-
     }
 
     protected function parseHistoryOldValues($auditable, string $event): array
@@ -142,8 +144,8 @@ class FetchAuroraHistory extends FetchAurora
         if ($event == 'created') {
             return [];
         }
-        return $this->parseHistoryUpdatedOldValues($auditable);
 
+        return $this->parseHistoryUpdatedOldValues($auditable);
     }
 
     protected function parseHistoryNewValues($auditable, string $event): array
@@ -160,12 +162,11 @@ class FetchAuroraHistory extends FetchAurora
 
     private function getField()
     {
-        return  match ($this->auroraModelData->{'Indirect Object'}) {
+        return match ($this->auroraModelData->{'Indirect Object'}) {
             'Location Code' => 'code',
             'Location Max Weight' => 'max_weight',
             'Location Max Volume' => 'max_volume',
             default => $this->auroraModelData->{'Indirect Object'}
-
         };
     }
 
@@ -175,16 +176,13 @@ class FetchAuroraHistory extends FetchAurora
 
         $field = $this->getField();
 
-        $haystack  = $this->auroraModelData->{'History Details'};
+        $haystack = $this->auroraModelData->{'History Details'};
         if (preg_match('/<div class="field tr"><div>Old value:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
-            $value = trim($matches[1]);
+            $value             = trim($matches[1]);
             $newValues[$field] = $value;
-
         }
 
         return $newValues;
-
-
     }
 
     protected function parseHistoryUpdatedNewValues(): array
@@ -193,17 +191,14 @@ class FetchAuroraHistory extends FetchAurora
 
         $field = $this->getField();
 
-        $haystack  = $this->auroraModelData->{'History Details'};
+        $haystack = $this->auroraModelData->{'History Details'};
         if (preg_match('/<div class="field tr"><div>New value:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
-            $value = trim($matches[1]);
+            $value             = trim($matches[1]);
             $newValues[$field] = $value;
-
         }
 
 
         return $newValues;
-
-
     }
 
     protected function parseHistoryCreatedNewValues($auditable): array

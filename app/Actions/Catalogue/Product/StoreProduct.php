@@ -280,6 +280,10 @@ class StoreProduct extends OrgAction
 
     public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, $strict = true, $audit = true): Product
     {
+        if (!$audit) {
+            Product::disableAuditing();
+        }
+
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
         $this->strict         = $strict;
