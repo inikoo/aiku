@@ -111,8 +111,12 @@ class StoreLocation extends OrgAction
         return $this->handle($warehouseArea, $this->validatedData);
     }
 
-    public function action(WarehouseArea|Warehouse $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Location
+    public function action(WarehouseArea|Warehouse $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Location
     {
+        if (!$audit) {
+            Location::disableAuditing();
+        }
+
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;

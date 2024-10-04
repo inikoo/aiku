@@ -7,6 +7,8 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Actions\Transfers\Aurora\FetchAuroraDeletedUsers;
+use App\Actions\Transfers\Aurora\FetchAuroraUsers;
 use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
@@ -108,6 +110,10 @@ trait WithAuroraSysAdminParsers
         if ($user) {
             return $user;
         }
+
+
+        return $this->parseUser($this->organisation->id.':'.$this->auroraModelData->{'User Key'});
+    }
 
 
     protected function parseUserPhoto(): array

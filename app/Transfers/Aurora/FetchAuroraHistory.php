@@ -7,6 +7,8 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Models\CRM\Customer;
+use App\Models\Inventory\Location;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraHistory extends FetchAurora
@@ -73,6 +75,8 @@ class FetchAuroraHistory extends FetchAurora
             $this->parsedData['history']['user_type'] = class_basename($user);
             $this->parsedData['history']['user_id']   = $user->id;
         }
+
+
     }
 
 
@@ -84,7 +88,7 @@ class FetchAuroraHistory extends FetchAurora
     }
 
 
-    protected function parseAuditableFromHistory()
+    protected function parseAuditableFromHistory(): Customer|Location|null
     {
         $auditable = null;
 
@@ -92,6 +96,12 @@ class FetchAuroraHistory extends FetchAurora
             case 'Customer':
                 $auditable = $this->parseCustomer(
                     $this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'}
+                );
+                break;
+            case 'Location':
+                $auditable = $this->parseLocation(
+                    $this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'},
+                    $this->organisationSource
                 );
         }
 
@@ -132,11 +142,11 @@ class FetchAuroraHistory extends FetchAurora
         if ($event == 'created') {
             return [];
         }
+        return $this->parseHistoryUpdatedOldValues($auditable);
 
-        return [];
     }
 
-    protected function parseHistoryNewValues($auditable, string $event)
+    protected function parseHistoryNewValues($auditable, string $event): array
     {
         if ($event == 'created') {
             return $this->parseHistoryCreatedNewValues($auditable);
@@ -222,10 +232,10 @@ class FetchAuroraHistory extends FetchAurora
             $abstract = $this->auroraModelData->{'History Details'};
         }
 
-        if ($abstract == 'Customer  registered' ||
-            $abstract == 'New customer  added' ||
-            $abstract == 'Nouveau Client  ajoute' ||
-            $abstract == 'New customer'
+        if ($abstract == 'Customer  registered'
+            || $abstract == 'New customer  added'
+            || $abstract == 'Nouveau Client  ajoute'
+            || $abstract == 'New customer'
         ) {
             $newValues['name'] = '';
         }

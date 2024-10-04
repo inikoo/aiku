@@ -75,7 +75,8 @@ class UpdateLocation extends OrgAction
             'allow_stocks'           => ['sometimes', 'required', 'boolean'],
             'allow_fulfilment'       => ['sometimes', 'required', 'boolean'],
             'allow_dropshipping'     => ['sometimes', 'required', 'boolean'],
-            'last_fetched_at'        => ['sometimes', 'date'],
+            'max_weight' => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
+            'max_volume' => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
         ];
 
         if (!$this->strict) {
