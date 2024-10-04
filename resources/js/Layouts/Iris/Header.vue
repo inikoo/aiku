@@ -8,7 +8,7 @@ const props = defineProps<{
     data: {
         key: string,
         data: object,
-        bluprint: object
+        bluprint: object   
         loginRoute?: routeType
     }
     menu : {
