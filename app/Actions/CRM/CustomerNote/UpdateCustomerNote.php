@@ -66,7 +66,6 @@ class UpdateCustomerNote extends OrgAction
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->setRawAttributes($modelData);
         $this->initialisationFromShop($customerNote->shop, $modelData);
 
         return $this->handle($customerNote, $this->validatedData);

@@ -84,7 +84,6 @@ class StoreCustomer extends OrgAction
         );
 
         $customer = DB::transaction(function () use ($shop, $modelData, $contactAddressData, $deliveryAddressData, $taxNumberData) {
-
             /** @var Customer $customer */
             $customer = $shop->customers()->create($modelData);
             $customer->stats()->create();
@@ -132,6 +131,7 @@ class StoreCustomer extends OrgAction
                     modelData: $taxNumberData
                 );
             }
+
             return $customer;
         });
 
@@ -252,8 +252,11 @@ class StoreCustomer extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Customer
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Customer
     {
+        if (!$audit) {
+            Customer::disableAuditing();
+        }
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->strict         = $strict;

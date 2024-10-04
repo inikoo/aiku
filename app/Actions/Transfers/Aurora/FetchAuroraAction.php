@@ -67,7 +67,8 @@ class FetchAuroraAction extends FetchAction
             'fetch:portfolios',
             'fetch:stock_movements',
             'fetch:deleted-locations',
-            'fetch:customer-notes'
+            'fetch:customer-notes',
+            'fetch:histories',
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }

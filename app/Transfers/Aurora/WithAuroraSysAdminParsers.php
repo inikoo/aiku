@@ -1,0 +1,86 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 04 Oct 2024 11:58:26 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Transfers\Aurora;
+
+use App\Models\CRM\WebUser;
+use App\Models\SysAdmin\User;
+use Illuminate\Support\Facades\DB;
+
+trait WithAuroraSysAdminParsers
+{
+    protected function parseUserFromHistory(): User|WebUser|null
+    {
+
+
+        $user = null;
+
+        if ($this->auroraModelData->{'Subject'} == 'Staff' and $this->auroraModelData->{'Subject Key'} > 0) {
+            $employee = $this->parseEmployee(
+                $this->organisation->id.':'.$this->auroraModelData->{'Subject Key'}
+            );
+
+            if ($employee) {
+                $user = $employee->getUser();
+                if (!$user) {
+                    $userHasModel = DB::table('user_has_models')
+                        ->where('model_id', $employee->id)
+                        ->where('model_type', 'Employee')
+                        ->first();
+                    if ($userHasModel) {
+                        $user = User::withTrashed()->find($userHasModel->user_id);
+                    }
+                }
+            }
+
+
+            if (!$user) {
+                $user = User::withTrashed()
+                    ->where('group_id', $this->organisation->group_id)
+                    ->whereJsonContains('sources->parents', $this->organisation->id.':'.$this->auroraModelData->{'Subject Key'})
+                    ->first();
+            }
+
+            if (!$user) {
+                dd($this->auroraModelData);
+            }
+        }
+
+
+        if ($this->auroraModelData->{'Subject'} == 'Customer' and $this->auroraModelData->{'Subject Key'} > 0) {
+
+
+            foreach (
+                DB::connection('aurora')
+                    ->table('Website User Dimension')
+                    ->where('Website User Customer Key', $this->auroraModelData->{'Subject Key'})
+                    ->select('Website User Key as source_id')
+                    ->orderBy('source_id')->get() as $webUserData
+            ) {
+                $user = $this->parseWebUser($this->organisation->id.':'.$webUserData->source_id);
+            }
+
+        }
+
+
+        return $user;
+    }
+
+
+    protected function parseUserPhoto(): array
+    {
+        $profileImages = $this->getModelImagesCollection(
+            'Staff',
+            $this->auroraModelData->{'Staff Key'}
+        )->map(function ($auroraImage) {
+            return $this->fetchImage($auroraImage);
+        });
+
+        return $profileImages->toArray();
+    }
+
+}
