@@ -21,10 +21,12 @@ class FetchAuroraUpload extends FetchAurora
         }
 
         // uploads in agent organisation
-        if ($this->organisation->id.':'.$this->auroraModelData->{'Upload User Key'} == '1:238202') {
+        if (
+            $this->organisation->id.':'.$this->auroraModelData->{'Upload User Key'} == '1:238202'
+            || $this->organisation->id.':'.$this->auroraModelData->{'Upload User Key'} == '1:298700'
+        ) {
             return;
         }
-
 
         $this->parsedData['parent'] = $this->organisation;
 
@@ -39,8 +41,6 @@ class FetchAuroraUpload extends FetchAurora
             'fulfilment_asset' => 'Pallet',
             default => null
         };
-
-
 
 
         $user = $this->parseUser($this->organisation->id.':'.$this->auroraModelData->{'Upload User Key'});
