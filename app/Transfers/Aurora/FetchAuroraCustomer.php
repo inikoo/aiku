@@ -43,7 +43,8 @@ class FetchAuroraCustomer extends FetchAurora
         }
 
         $taxNumber = $this->parseTaxNumber(
-            number: $this->auroraModelData->{'Customer Tax Number'},
+            number:
+            preg_replace("/[^a-zA-Z0-9\-]/", "", $this->sanitiseText($this->auroraModelData->{'Customer Tax Number'})),
             countryID: $billingAddress['country_id'],
             rawData: (array)$this->auroraModelData
         );

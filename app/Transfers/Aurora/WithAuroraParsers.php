@@ -245,6 +245,9 @@ trait WithAuroraParsers
         $addressData['locality']            = (string)Str::of($auAddressData->{$prefix.' Address Locality'} ?? null)->limit(187);
         $addressData['dependent_locality']  = (string)Str::of($auAddressData->{$prefix.' Address Dependent Locality'} ?? null)->limit(187);
         $addressData['administrative_area'] = (string)Str::of($auAddressData->{$prefix.' Address Administrative Area'} ?? null)->limit(187);
+        foreach ($addressData as $key => $value) {
+            $addressData[$key] = $this->sanitiseText($value);
+        }
         $addressData['country_id']          = $this->parseCountryID($country, $prefix);
 
         return $addressData;

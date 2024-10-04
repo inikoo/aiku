@@ -48,6 +48,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
@@ -83,6 +85,8 @@ class Guest extends Model implements HasMedia, Auditable
         'data'          => 'array',
         'date_of_birth' => 'datetime:Y-m-d',
         'status'        => 'boolean',
+        'fetched_at'         => 'datetime',
+        'last_fetched_at'    => 'datetime',
     ];
 
     protected $attributes = [
