@@ -7,15 +7,12 @@
 
 namespace App\Actions\UI\Retina\Dropshipping\Client;
 
-use App\Actions\OrgAction;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Dashboard\ShowDashboard;
 use App\Http\Resources\CRM\CustomerClientResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
-use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
