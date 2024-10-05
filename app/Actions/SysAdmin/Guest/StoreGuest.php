@@ -57,11 +57,8 @@ class StoreGuest extends GrpAction
         $guest = $group->guests()->create(Arr::except($modelData, ['user',]));
         $guest->stats()->create();
         $user = StoreUser::make()->action($guest, $userData, $this->hydratorsDelay, strict: $this->strict);
+
         SyncUserJobPositions::run($user, $positions);
-
-
-
-
         GuestHydrateUniversalSearch::dispatch($guest);
         GroupHydrateGuests::dispatch($group);
 

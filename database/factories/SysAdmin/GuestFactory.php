@@ -19,8 +19,11 @@ class GuestFactory extends Factory
             'email'                    => fake()->email,
             'identity_document_number' => fake('en_GB')->vat(),
             'identity_document_type'   => 'passport',
-            'username'                 => fake()->userName,
-            'password'                 => 'password',
+            'user'                     => [
+                'username' => fake()->userName,
+                'password' => 'password',
+            ]
+
         ];
     }
 }
