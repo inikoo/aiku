@@ -1315,7 +1315,7 @@ test('import pallets in return (xlsx)', function (PalletReturn $palletReturn) {
     $palletReturn->refresh();
 
     expect($upload)->toBeInstanceOf(Upload::class)
-        ->and($upload->type)->toBe('PalletReturnItem')
+        ->and($upload->model)->toBe('PalletReturnItem')
         ->and($upload->original_filename)->toBe('returnPalletItems.xlsx')
         ->and($upload->number_rows)->toBe(1)
         ->and($upload->number_success)->toBe(1)
@@ -1341,7 +1341,7 @@ test('import pallets in return (xlsx) again', function (PalletReturn $palletRetu
     $palletReturn->refresh();
 
     expect($upload)->toBeInstanceOf(Upload::class)
-        ->and($upload->type)->toBe('PalletReturnItem')
+        ->and($upload->model)->toBe('PalletReturnItem')
         ->and($upload->original_filename)->toBe('returnPalletItems.xlsx')
         ->and($upload->number_rows)->toBe(1)
         ->and($upload->number_success)->toBe(0)

@@ -28,7 +28,7 @@ class ImportLocation
             $parent instanceof Organisation ? $parent : $parent->organisation,
             $file,
             [
-                'type' => 'Location',
+                'model' => 'Location',
             ]
         );
 

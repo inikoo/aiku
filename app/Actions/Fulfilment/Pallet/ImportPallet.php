@@ -30,7 +30,14 @@ class ImportPallet
 
     public function handle(PalletDelivery $palletDelivery, $file, $includeStoredItem = false): Upload
     {
-        $upload = StoreUpload::run($file, Pallet::class);
+
+        $upload = StoreUpload::make()->fromFile(
+            $palletDelivery->organisation,
+            $file,
+            [
+                'model' => 'Pallet',
+            ]
+        );
 
         if ($this->isSync) {
             ImportUpload::run(

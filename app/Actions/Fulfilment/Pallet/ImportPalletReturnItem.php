@@ -16,6 +16,7 @@ use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Helpers\Upload;
+use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -27,7 +28,14 @@ class ImportPalletReturnItem
 
     public function handle(PalletReturn $palletReturn, $file): Upload
     {
-        $upload = StoreUpload::run($file, PalletReturnItem::class);
+
+        $upload = StoreUpload::make()->fromFile(
+            $palletReturn->organisation,
+            $file,
+            [
+                'model' => 'PalletReturnItem',
+            ]
+        );
 
         if ($this->isSync) {
             ImportUpload::run(
