@@ -15,7 +15,6 @@ use App\Http\Resources\Helpers\UploadsResource;
 use App\Imports\Fulfilment\PalletImport;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Warehouse;
