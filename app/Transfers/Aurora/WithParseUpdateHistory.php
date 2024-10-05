@@ -19,6 +19,10 @@ trait WithParseUpdateHistory
         $field = $this->getField();
 
         $haystack = $this->auroraModelData->{'History Details'};
+
+
+        $haystack = trim(preg_replace('/\s+/', ' ', $haystack));
+
         if (preg_match('/<div class="field tr"><div>Old value:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
             $oldValues = $this->extractFromTable($matches, $oldValues, $field, $auditable);
         } elseif (preg_match('/<div class="field tr"><div>Alter Wert:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
