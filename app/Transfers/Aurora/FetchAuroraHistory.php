@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraHistory extends FetchAurora
 {
+    use WithParseUpdateHistory;
+    use WithParseCreatedHistory;
+
     protected function parseModel(): void
     {
         //  print_r($this->auroraModelData);
@@ -48,14 +51,20 @@ class FetchAuroraHistory extends FetchAurora
 
         $newValues = $this->parseHistoryNewValues($auditable, $event);
         $oldValues = $this->parseHistoryOldValues($auditable, $event);
+        $data = $this->parseHistoryData($auditable, $event);
 
-        if ($event == 'updated' and count($oldValues) == 0) {
+        if ($event == 'updated' and
+            (
+                count($oldValues) == 0 or
+                count($newValues) == 0
+            )
+
+        ) {
+            print_r($oldValues);
+            print_r($newValues);
             dd($this->auroraModelData);
         }
 
-        if (count($newValues) == 0) {
-            dd($this->auroraModelData);
-        }
 
         $this->parsedData['auditable'] = $auditable;
         $this->parsedData['history']   =
@@ -69,6 +78,7 @@ class FetchAuroraHistory extends FetchAurora
                 'tags'            => $tags,
                 'new_values'      => $newValues,
                 'old_values'      => $oldValues,
+                'data'      => $data,
             ];
 
 
@@ -76,8 +86,7 @@ class FetchAuroraHistory extends FetchAurora
             $this->parsedData['history']['user_type'] = class_basename($user);
             $this->parsedData['history']['user_id']   = $user->id;
         }
-
-        // dd($this->parsedData['history']);
+        //dd($this->parsedData['history']);
     }
 
 
@@ -130,7 +139,7 @@ class FetchAuroraHistory extends FetchAurora
                     $skip = !in_array($this->auroraModelData->{'Indirect Object'}, ['Location Code', 'Location Max Weight', 'Location Max Volume']);
                     break;
                 case $auditable instanceof Product:
-                    $skip = !in_array($this->auroraModelData->{'Indirect Object'}, ['Product Code', 'Product Price']);
+                    $skip = !in_array($this->auroraModelData->{'Indirect Object'}, ['Product Code', 'Product Price', 'Product Name', 'Product Status']);
                     break;
             }
         }
@@ -159,139 +168,28 @@ class FetchAuroraHistory extends FetchAurora
         return [];
     }
 
+    protected function parseHistoryData($auditable, string $event): array
+    {
+        if ($event == 'created') {
+            return $this->parseHistoryCreatedData($auditable);
+        }
+
+        return [];
+    }
+
 
     private function getField()
     {
         return match ($this->auroraModelData->{'Indirect Object'}) {
-            'Location Code' => 'code',
+            'Location Code', 'Product Code' => 'code',
             'Location Max Weight' => 'max_weight',
             'Location Max Volume' => 'max_volume',
+            'Product Price' => 'price',
+            'Product Status' => 'state',
+            'Product Name' => 'name',
             default => $this->auroraModelData->{'Indirect Object'}
         };
     }
 
-    protected function parseHistoryUpdatedOldValues(): array
-    {
-        $newValues = [];
-
-        $field = $this->getField();
-
-        $haystack = $this->auroraModelData->{'History Details'};
-        if (preg_match('/<div class="field tr"><div>Old value:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
-            $value             = trim($matches[1]);
-            $newValues[$field] = $value;
-        }
-
-        return $newValues;
-    }
-
-    protected function parseHistoryUpdatedNewValues(): array
-    {
-        $newValues = [];
-
-        $field = $this->getField();
-
-        $haystack = $this->auroraModelData->{'History Details'};
-        if (preg_match('/<div class="field tr"><div>New value:<\/div><div>(.*)<\/div><\/div>/', $haystack, $matches)) {
-            $value             = trim($matches[1]);
-            $newValues[$field] = $value;
-        }
-
-
-        return $newValues;
-    }
-
-    protected function parseHistoryCreatedNewValues($auditable): array
-    {
-        return match (class_basename($auditable)) {
-            'Customer' => $this->parseCustomerHistoryCreatedNewValues($auditable),
-            'Location' => $this->parseLocationHistoryCreatedNewValues($auditable),
-            default => []
-        };
-    }
-
-    protected function parseCustomerHistoryCreatedNewValues($auditable): array
-    {
-        $newValues = [];
-        $abstract  = $this->auroraModelData->{'History Abstract'};
-
-        if ($abstract == 'Customer Created') {
-            $abstract = trim($this->auroraModelData->{'History Details'});
-        }
-
-        if ($abstract == 'Utworzono klienta') {
-            $abstract = $this->auroraModelData->{'History Details'};
-        }
-
-        if ($abstract == 'Compte Client Créé') {
-            $abstract = $this->auroraModelData->{'History Details'};
-        }
-
-        if ($abstract == 'Customer  registered'
-            || $abstract == 'New customer  added'
-            || $abstract == 'Nouveau Client  ajoute'
-            || $abstract == 'New customer'
-        ) {
-            $newValues['name'] = '';
-        }
-
-
-        if (preg_match('/(.+) customer record created$/', $abstract, $matches)) {
-            $newValues['name'] = trim($matches[1]);
-        } elseif (preg_match('/^Customer (.+) registered$/', $abstract, $matches)) {
-            $newValues['name'] = trim($matches[1]);
-        } elseif (preg_match('/^Kunde (.+) erstellt$/', $abstract, $matches)) {
-            $newValues['name'] = trim($matches[1]);
-        } elseif (preg_match('/^New customer (.+) added$/', $abstract, $matches)) {
-            $newValues['name'] = trim($matches[1]);
-        } elseif (preg_match('/^New customer (.+) dodano$/', $abstract, $matches)) {
-            $newValues['name'] = trim($matches[1]);
-        } elseif (preg_match('/^Byl vytvořen zákaznický záznam\s?(.+)$/', $abstract, $matches)) {
-            $newValues['name'] = trim($matches[1]);
-        } elseif (preg_match('/^Bol vytvorený zákaznícky záznam\s?(.+)$/', $abstract, $matches)) {
-            $newValues['name'] = trim($matches[1]);
-        } elseif (preg_match('/^Nouveau Client (.+) soi ajoute$/', $abstract, $matches)) {
-            $newValues['name'] = trim($matches[1]);
-        } elseif (preg_match('/^Nouveau Client (.+) ajoute$/', $abstract, $matches)) {
-            $newValues['name'] = trim($matches[1]);
-        } elseif (preg_match('/^New customer (.+)$/', $abstract, $matches)) {
-            $newValues['name'] = trim($matches[1]);
-        }
-
-
-        return $newValues;
-    }
-
-    protected function parseLocationHistoryCreatedNewValues($auditable): array
-    {
-        $newValues = [];
-        $abstract  = $this->auroraModelData->{'History Abstract'};
-
-        if ($abstract == 'Location Created') {
-            $abstract = trim($this->auroraModelData->{'History Details'});
-        }
-
-
-        switch (class_basename($auditable)) {
-            case 'Location':
-                if (preg_match('/Location (.+) create/', $abstract, $matches)) {
-                    $newValues['code'] = trim($matches[1]);
-                } elseif (preg_match('/(.+) location record created$/', $abstract, $matches)) {
-                    $newValues['code'] = trim($matches[1]);
-                } elseif (preg_match('/^New location (.+) added$/', $abstract, $matches)) {
-                    $newValues['code'] = trim($matches[1]);
-                } elseif (preg_match('/^New location (.+) dodano$/', $abstract, $matches)) {
-                    $newValues['code'] = trim($matches[1]);
-                } elseif (preg_match('/^New location (.+)$/', $abstract, $matches)) {
-                    $newValues['code'] = trim($matches[1]);
-                } elseif (preg_match('/^(.+) location created$/', $abstract, $matches)) {
-                    $newValues['code'] = trim($matches[1]);
-                } elseif (preg_match('/^Poloha(.+) bola vytvorená$/', $abstract, $matches)) {
-                    $newValues['code'] = trim($matches[1]);
-                }
-        }
-
-        return $newValues;
-    }
 
 }

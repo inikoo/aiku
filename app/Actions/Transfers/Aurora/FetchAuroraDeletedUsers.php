@@ -28,6 +28,7 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?User
     {
         if ($userData = $organisationSource->fetchDeletedUser($organisationSourceId)) {
+
             if ($userData['user']) {
                 if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
                     if (Arr::get($user->data, 'deleted.source') == 'aurora') {
@@ -57,6 +58,8 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
                     $group_id = $organisationSource->getOrganisation()->group_id;
 
                     $user = User::withTrashed()->where('group_id', $group_id)->where('username', $userData['related_username'])->first();
+
+
 
                     if ($user) {
                         $sourceData = explode(':', $userData['user']['source_id']);

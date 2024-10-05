@@ -42,6 +42,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraStocks;
 use App\Actions\Transfers\Aurora\FetchAuroraSupplierProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraSuppliers;
 use App\Actions\Transfers\Aurora\FetchAuroraTradeUnits;
+use App\Actions\Transfers\Aurora\FetchAuroraUploads;
 use App\Actions\Transfers\Aurora\FetchAuroraWarehouses;
 use App\Actions\Transfers\Aurora\FetchAuroraWebsites;
 use App\Actions\Transfers\Aurora\FetchAuroraWebUsers;
@@ -69,6 +70,7 @@ use App\Models\Helpers\Currency;
 use App\Models\Helpers\Language;
 use App\Models\Helpers\TaxCategory;
 use App\Models\Helpers\Timezone;
+use App\Models\Helpers\Upload;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
@@ -733,6 +735,21 @@ trait WithAuroraParsers
         };
 
         return TaxCategory::where('source_id', $auroraTaxCategoryId)->firstOrFail();
+    }
+
+    public function parseUpload($sourceId): ?Upload
+    {
+        if (!$sourceId) {
+            return null;
+        }
+
+        $upload = Upload::where('source_id', $sourceId)->first();
+        if (!$upload) {
+            $sourceData    = explode(':', $sourceId);
+            $upload = FetchAuroraUploads::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $upload;
     }
 
 }

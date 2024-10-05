@@ -18,19 +18,19 @@ class UpdateHistory extends GrpAction
 
     public function handle(History $history, array $modelData): History
     {
-        return $this->update($history, $modelData, ['data','new_values','old_values']);
+        return $this->update($history, $modelData);
     }
 
 
     public function rules(): array
     {
         return [
-            'new_values' => ['sometimes', 'array'],
-            'old_values' => ['sometimes', 'array'],
+            'data'            => ['sometimes', 'array'],
+            'new_values'      => ['sometimes', 'array'],
+            'old_values'      => ['sometimes', 'array'],
             'last_fetched_at' => ['required', 'date'],
         ];
     }
-
 
 
     public function action(History $history, array $modelData, int $hydratorsDelay = 0): History
@@ -38,6 +38,7 @@ class UpdateHistory extends GrpAction
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($history->group, $modelData);
+
         return $this->handle($history, $this->validatedData);
     }
 

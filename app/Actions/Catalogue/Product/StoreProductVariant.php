@@ -54,8 +54,11 @@ class StoreProductVariant extends OrgAction
             parent: $product->shop,
             modelData: $modelData,
             hydratorsDelay: $this->hydratorsDelay,
-            strict: $this->strict
+            strict: $this->strict,
+            audit: false
         );
+
+
     }
 
 

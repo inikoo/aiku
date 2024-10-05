@@ -41,8 +41,9 @@ class StoreHistory extends GrpAction
     public function rules(): array
     {
         return [
-            'new_values' => ['required', 'array'],
-            'old_values' => ['sometimes',  'array'],
+            'new_values' => ['sometimes', 'array'],
+            'old_values' => ['sometimes', 'array'],
+            'data'       => ['sometimes', 'array'],
             'user_type'  => ['sometimes', Rule::in(['User', 'WebUser'])],
             'user_id'    => ['sometimes', 'required', 'integer'],
             'source_id'  => ['sometimes', 'string'],

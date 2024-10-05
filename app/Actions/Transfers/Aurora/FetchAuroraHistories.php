@@ -25,36 +25,35 @@ class FetchAuroraHistories extends FetchAuroraAction
     {
         if ($historyData = $organisationSource->fetchHistory($organisationSourceId)) {
             if ($history = History::where('source_id', $historyData['history']['source_id'])->first()) {
-                //   try {
-                $history = UpdateHistory::make()->action(
-                    history: $history,
-                    modelData: $historyData['history'],
-                    hydratorsDelay: 60,
-                );
-                $this->recordChange($organisationSource, $history->wasChanged());
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $historyData['history'], 'History', 'update');
-                //
-                //                    return null;
-                //                }
+                try {
+                    $history = UpdateHistory::make()->action(
+                        history: $history,
+                        modelData: $historyData['history'],
+                        hydratorsDelay: 60,
+                    );
+                    $this->recordChange($organisationSource, $history->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $historyData['history'], 'History', 'update');
+
+                    return null;
+                }
             } else {
-                //     try {
-                $history = StoreHistory::make()->action(
-                    auditable: $historyData['auditable'],
-                    modelData: $historyData['history'],
-                    hydratorsDelay: 60,
-                );
+                try {
+                    $history = StoreHistory::make()->action(
+                        auditable: $historyData['auditable'],
+                        modelData: $historyData['history'],
+                        hydratorsDelay: 60,
+                    );
 
-                $sourceData = explode(':', $history->source_id);
-                DB::connection('aurora')->table('History Dimension')
-                    ->where('History Key', $sourceData[1])
-                    ->update(['aiku_id' => $history->id]);
+                    $sourceData = explode(':', $history->source_id);
+                    DB::connection('aurora')->table('History Dimension')
+                        ->where('History Key', $sourceData[1])
+                        ->update(['aiku_id' => $history->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $historyData['history'], 'History', 'store');
 
-
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $historyData['history'], 'History', 'store');
-                //                    return null;
-                //                }
+                    return null;
+                }
             }
 
 
@@ -70,13 +69,14 @@ class FetchAuroraHistories extends FetchAuroraAction
         //enum('sold_since','last_sold','first_sold','placed','wrote','deleted','edited','cancelled','charged','merged','created','associated','disassociate','register','login','logout','fail_login','password_request','password_reset','search')
         $query = DB::connection('aurora')
             ->table('History Dimension')
-           // ->whereIn('Direct Object', ['Customer','Location','Product'])
-           // ->whereIn('Action', ['edited', 'created']);
-
-            ->where('Direct Object', 'Location')
+            ->whereIn('Direct Object', ['Customer', 'Location', 'Product'])
             ->whereIn('Action', ['edited', 'created'])
+
+            //  ->where('Direct Object', 'Product')
+            //  ->where('Indirect Object', 'Product Status')
+
             ->select('History Key as source_id')
-            ->orderBy('History Date', 'asc');
+            ->orderBy('History Date', 'desc');
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
@@ -89,10 +89,11 @@ class FetchAuroraHistories extends FetchAuroraAction
     {
         $query = DB::connection('aurora')
             ->table('History Dimension')
-            ->where('Direct Object', 'Location')
-            ->whereIn('Action', ['edited', 'created'])
+            ->whereIn('Direct Object', ['Customer', 'Location', 'Product'])
 
-        ;
+            //    ->where('Indirect Object', 'Product Status')
+
+            ->whereIn('Action', ['edited', 'created']);
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }

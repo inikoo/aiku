@@ -55,7 +55,8 @@ class FetchAuroraProducts extends FetchAuroraAction
                         parent: $productData['parent'],
                         modelData: $productData['product'],
                         hydratorsDelay: 120,
-                        strict: false
+                        strict: false,
+                        audit: false
                     );
 
                     Product::enableAuditing();
