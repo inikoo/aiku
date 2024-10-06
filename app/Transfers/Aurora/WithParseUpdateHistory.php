@@ -114,6 +114,7 @@ trait WithParseUpdateHistory
 
 
         if (!$value) {
+            print_r($this->auroraModelData);
             dd($debug);
         }
 
