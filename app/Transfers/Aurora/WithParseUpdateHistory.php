@@ -46,7 +46,6 @@ trait WithParseUpdateHistory
     }
 
 
-
     protected function parseHistoryUpdatedNewValues($auditable): array
     {
         $newValues = [];
@@ -105,9 +104,9 @@ trait WithParseUpdateHistory
         if ($auditable instanceof Product) {
             $value = match ($value) {
                 'InProcess' => ProductStateEnum::IN_PROCESS,
-                'Active', 'Suspended','Aktiv','Aktív','Aktívny','Suspendované','Felfüggesztett' => ProductStateEnum::ACTIVE,
+                'Active', 'Suspended', 'Aktiv', 'Aktív', 'Aktívny', 'Suspendované', 'Felfüggesztett' => ProductStateEnum::ACTIVE,
                 'Discontinuing' => ProductStateEnum::DISCONTINUING,
-                'Discontinued','aus dem Sortiment genommen','Vyradený' => ProductStateEnum::DISCONTINUED,
+                'Discontinued', 'aus dem Sortiment genommen', 'Vyradený' => ProductStateEnum::DISCONTINUED,
                 default => null
             };
         }
@@ -124,6 +123,7 @@ trait WithParseUpdateHistory
 
     protected function extractFromTable($matches, $values, $field, $auditable): array
     {
+        $matches[1] = preg_replace('/<\/div.*$/', '', $matches[1]);
         $value = trim($matches[1]);
         list($value, $extraValues) = $this->postProcessValues($field, $value, $auditable);
         $values[$field] = $value;
