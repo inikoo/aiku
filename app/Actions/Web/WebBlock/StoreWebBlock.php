@@ -29,7 +29,12 @@ class StoreWebBlock extends GrpAction
         return $webBlock;
     }
 
-
+    public function rules ()
+    {
+        return [      
+            'layout'    => ['sometimes', 'array']
+        ];
+    }
 
     public function action(WebBlockType $webBlockType, array $modelData): WebBlock
     {

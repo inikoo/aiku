@@ -98,7 +98,8 @@ class ShowCollection extends OrgAction
                             'icon'  => ["fal", "fa-drafting-compass"],
                             'route' => [
                                 'name'       => 'grp.models.webpages.collection.store',
-                                'parameters' => $collection->id
+                                'parameters' => $collection->id,
+                                'method'     => 'post'
                             ]
                         ],
                         $this->canEdit ? [

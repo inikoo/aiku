@@ -24,9 +24,11 @@ class StoreCollectionWebpage extends OrgAction
     {
         $webpageData = [
                 'code'  => $collection->code,
-                'url'   => $collection->code,
+                'url'   => strtolower($product->code),
                 'purpose'   => WebpagePurposeEnum::COLLECTION,
-                'type'      => WebpageTypeEnum::SHOP
+                'type'      => WebpageTypeEnum::SHOP,
+                'model_type'    => class_basename($collection),
+                'model_id'     => $collection->id 
             ];
         $webpage = StoreWebpage::make()->action(
             $collection->shop->website,
