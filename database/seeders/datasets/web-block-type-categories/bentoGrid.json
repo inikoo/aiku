@@ -1,6 +1,7 @@
 {
 	"slug": "bento-grid",
 	"name": "Bento grid",
+	"icon": "fal  fa-border-all",
 	"blueprint": {
 		"value": ""
 	},

@@ -1,6 +1,7 @@
 {
 	"slug": "cta",
 	"name": "Call to action",
+	"icon": "fal fa-location-arrow",
 	"blueprint": {
 		"value": ""
 	},

@@ -1,3 +1,5 @@
+<?php
+
 /*
  * Author: Ganes <gustiganes@gmail.com>
  * Created on: 07-10-2024, Bali, Indonesia
@@ -6,14 +8,9 @@
  *
 */
 
-<?php
-/*
- * Author: Arya Permana <aryapermana02@gmail.com>
- * Created: Thu, 24 Jun 2024 13:27:40 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
-
+use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
+use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use Inertia\Testing\AssertableInertia;
 
@@ -42,6 +39,15 @@ beforeEach(function () {
     }
     $this->warehouse = $warehouse;
 
+    $location = Location::first();
+    if (!$location) {
+        $location = StoreLocation::make()->action(
+            $warehouse,
+            $storeData
+        );
+    }
+    $this->location = $location;
+
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
@@ -50,7 +56,7 @@ beforeEach(function () {
 });
 
 
-test('UI index locations', function () {
+test('UI Index locations', function () {
     $response = get(route('grp.org.warehouses.show.infrastructure.locations.index', [$this->organisation->slug, $this->warehouse->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -66,5 +72,40 @@ test('UI index locations', function () {
             ->has('tagRoute')
             ->has('tagsList')
             ->has('data');
+    });
+});
+
+test('UI Create location', function () {
+    $response = get(route('grp.org.warehouses.show.infrastructure.locations.create', [$this->organisation->slug, $this->warehouse->slug,]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'new location')
+                        ->etc()
+            )
+            ->has('formData');
+    });
+});
+
+test('UI Show location', function () {
+    $response = get(route('grp.org.warehouses.show.infrastructure.locations.show', [$this->organisation->slug, $this->warehouse->slug, $this->location->slug]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Warehouse/Location')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->location->slug)
+                        ->etc()
+            )
+            ->has('navigation')
+            ->has('tabs');
     });
 });
