@@ -167,6 +167,6 @@ const selectedBlockOpenPanel = ref<number | null >(null)
 
 
     <Modal :isOpen="isModalBlocksList" @onClose="openModalBlockList">
-        <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypeCategories" />
+        <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypeCategories" scope="webpage"/>
     </Modal>
 </template>

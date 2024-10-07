@@ -20,8 +20,9 @@ import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faExternalLink, faLineColumns, faIcons, faMoneyBill } from '@far';
-
+import { faExternalLink, faLineColumns, faIcons, faMoneyBill } from '@fas';
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add( faExternalLink, faLineColumns, faIcons, faMoneyBill )
 
 const props = defineProps<{
     pageHead: TSPageHeading
@@ -36,7 +37,7 @@ const props = defineProps<{
 const previewMode = ref(false)
 const isModalOpen = ref(false)
 const usedTemplates = ref(props.data.footer)
-const tabsBar = ref('column')
+const tabsBar = ref(0)
 const isLoading = ref(false)
 const comment = ref('')
 const iframeClass = ref('w-full h-full')
@@ -60,6 +61,8 @@ const tabs = [
         icon : faMoneyBill
     },
 ]
+
+console.log(props)
 
 
 const onPickTemplate = (footer: Object) => {
@@ -127,6 +130,8 @@ watch(usedTemplates, (newVal) => {
     if (newVal) debouncedSendUpdate(newVal)
 }, { deep: true })
 
+console.log(usedTemplates)
+
 </script>
 
 <template>
@@ -143,18 +148,21 @@ watch(usedTemplates, (newVal) => {
             <div class="flex h-full">
                 <div class="w-[10%] bg-slate-200 ">
                     <div
-                        v-for="(tab) in tabs"
+                        v-for="(tab,index) in usedTemplates?.data.bluprint"
                         class="py-2 px-3 cursor-pointer transition duration-300 ease-in-out transform hover:scale-105"
                         :title="tab.name"
-                        @click="tabsBar = tab.value"
-                        :class="[tabsBar == tab.value ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']"
+                        @click="tabsBar = index"
+                        :class="[tabsBar == tab.key ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']"
                         v-tooltip="tab.name"
                     >
-                        <FontAwesomeIcon :icon="tab.icon" :class="[tabsBar == tab.value ? 'text-indigo-300' : '']" aria-hidden='true' />
+                        <FontAwesomeIcon :icon="tab.icon" :class="[tabsBar == index ? 'text-indigo-300' : '']" aria-hidden='true' />
                     </div>
                 </div>
                 <div class="w-[90%]">
-                    <SideEditor v-model="usedTemplates.data.footer" :bluprint="usedTemplates.data.bluprint" />
+                    <SideEditor 
+                        v-model="usedTemplates.data.footer" 
+                        :bluprint="usedTemplates.data.bluprint[tabsBar].bluprint" 
+                    />
                 </div>
             </div>
             
