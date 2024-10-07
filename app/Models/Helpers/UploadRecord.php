@@ -22,6 +22,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
+ * @property string|null $source_id
  * @property-read \App\Models\Helpers\Upload|null $excel
  * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord newQuery()

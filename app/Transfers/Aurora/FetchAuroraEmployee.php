@@ -114,7 +114,7 @@ class FetchAuroraEmployee extends FetchAurora
             }
 
 
-            $userData = $this->parseUser();
+            $userData = $this->parseUserFromEmployee();
             //            if ($userData) {
             //                $this->parsedData['employee']['username']          = $userData['username'];
             //                $this->parsedData['employee']['legacy_password']   = $userData['legacy_password'];
@@ -146,7 +146,7 @@ class FetchAuroraEmployee extends FetchAurora
     }
 
 
-    private function parseUser(): ?array
+    private function parseUserFromEmployee(): ?array
     {
         $auroraUserData = DB::connection('aurora')
             ->table('User Dimension as users')

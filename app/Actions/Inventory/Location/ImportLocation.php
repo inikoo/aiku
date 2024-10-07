@@ -7,12 +7,11 @@
 
 namespace App\Actions\Inventory\Location;
 
-use App\Actions\Helpers\Uploads\ImportUpload;
-use App\Actions\Helpers\Uploads\StoreUploads;
+use App\Actions\Helpers\Upload\ImportUpload;
+use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\Traits\WithImportModel;
 use App\Imports\Location\LocationImport;
 use App\Models\Helpers\Upload;
-use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\SysAdmin\Organisation;
@@ -25,7 +24,13 @@ class ImportLocation
 
     public function handle(Warehouse|WarehouseArea|Organisation $parent, $file): Upload
     {
-        $upload = StoreUploads::run($file, Location::class);
+        $upload = StoreUpload::make()->fromFile(
+            $parent instanceof Organisation ? $parent : $parent->organisation,
+            $file,
+            [
+                'model' => 'Location',
+            ]
+        );
 
         if ($this->isSync) {
             ImportUpload::run(
@@ -41,13 +46,11 @@ class ImportLocation
         }
 
         return $upload;
-
-
     }
 
     public function rumImport($file, $command): Upload
     {
-        $warehouse     = Warehouse::where('slug', $command->argument('warehouse'))->first();
+        $warehouse = Warehouse::where('slug', $command->argument('warehouse'))->first();
         $warehouseArea = WarehouseArea::where('slug', $command->argument('warehouse'))->first();
 
         if (!$warehouse && !$warehouseArea) {

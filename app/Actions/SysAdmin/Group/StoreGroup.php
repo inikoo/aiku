@@ -42,7 +42,7 @@ class StoreGroup
         SeedWebBlockTypes::run($group);
         SeedPlatforms::run($group);
 
-
+        $group->stats()->create();
         $group->supplyChainStats()->create();
         $group->sysadminStats()->create();
         $group->humanResourcesStats()->create();
@@ -159,10 +159,10 @@ class StoreGroup
             'subdomain'   => $command->option('subdomain') ?? null,
             'limits'      => [
                 'organisations' => $command->option('organisations'),
-                'shops'        => $command->option('shops'),
-                'warehouses'   => $command->option('warehouses'),
-                'manufactures' => $command->option('manufactures'),
-                'agents'       => $command->option('agents')
+                'shops'         => $command->option('shops'),
+                'warehouses'    => $command->option('warehouses'),
+                'manufactures'  => $command->option('manufactures'),
+                'agents'        => $command->option('agents')
             ]
         ]);
 

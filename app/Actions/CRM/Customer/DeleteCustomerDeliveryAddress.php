@@ -31,7 +31,7 @@ class DeleteCustomerDeliveryAddress extends OrgAction
         AddressHydrateUsage::dispatch($address);
 
         $address->delete();
-        
+
         $customer->refresh();
         return $customer;
     }

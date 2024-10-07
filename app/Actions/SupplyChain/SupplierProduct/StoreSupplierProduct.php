@@ -34,7 +34,7 @@ class StoreSupplierProduct extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("procurement.".$this->group->id.".edit");
+        return $request->user()->hasPermissionTo("supply-chain.edit");
     }
 
     public function handle(Supplier $supplier, array $modelData): SupplierProduct
@@ -94,16 +94,12 @@ class StoreSupplierProduct extends GrpAction
                 Rule::exists('stocks', 'id')->where(function (Builder $query) {
                     return $query->where('group_id', $this->group->id);
                 }),
+
             ],
-            'name' => ['required', 'string', 'max:255'],
-            'state' => ['sometimes', 'required', Rule::enum(SupplierProductStateEnum::class)],
-            'is_available' => ['sometimes', 'required', 'boolean'],
-            'cost' => ['required'],
-            'source_id' => ['sometimes', 'nullable', 'string'],
-            'source_slug' => ['sometimes', 'nullable', 'string'],
-            'source_slug_inter_org' => ['sometimes', 'nullable', 'string'],
-            'source_organisation_id' => ['sometimes', 'nullable'],
-            'fetched_at' => ['sometimes', 'date'],
+            'name'                   => ['required', 'string', 'max:255'],
+            'state'                  => ['sometimes', 'required', Rule::enum(SupplierProductStateEnum::class)],
+            'is_available'           => ['sometimes', 'required', 'boolean'],
+            'cost'                   => ['required']
         ];
 
         if (!$this->strict) {

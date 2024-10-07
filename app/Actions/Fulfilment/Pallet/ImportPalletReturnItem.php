@@ -7,14 +7,13 @@
 
 namespace App\Actions\Fulfilment\Pallet;
 
-use App\Actions\Helpers\Uploads\ImportUpload;
-use App\Actions\Helpers\Uploads\StoreUploads;
+use App\Actions\Helpers\Upload\ImportUpload;
+use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\Traits\WithImportModel;
 use App\Http\Resources\Helpers\UploadsResource;
 use App\Imports\Fulfilment\PalletReturnItemImport;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\PalletReturn;
-use App\Models\Fulfilment\PalletReturnItem;
 use App\Models\Helpers\Upload;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
@@ -27,7 +26,14 @@ class ImportPalletReturnItem
 
     public function handle(PalletReturn $palletReturn, $file): Upload
     {
-        $upload = StoreUploads::run($file, PalletReturnItem::class);
+
+        $upload = StoreUpload::make()->fromFile(
+            $palletReturn->organisation,
+            $file,
+            [
+                'model' => 'PalletReturnItem',
+            ]
+        );
 
         if ($this->isSync) {
             ImportUpload::run(

@@ -18,14 +18,14 @@ class CreateAuditsTable extends Migration
 
         Schema::connection($connection)->create($table, function (Blueprint $table) {
             $morphPrefix = config('audit.user.morph_prefix', 'user');
-            $table->increments('id');
-            $table->unsignedInteger('group_id')->nullable()->index();
-            $table->unsignedInteger('organisation_id')->nullable()->index();
-            $table->unsignedInteger('shop_id')->nullable()->index();
-            $table->unsignedInteger('website_id')->nullable()->index();
+            $table->id();
+            $table->unsignedSmallInteger('group_id')->nullable()->index();
+            $table->unsignedSmallInteger('organisation_id')->nullable()->index();
+            $table->unsignedSmallInteger('shop_id')->nullable()->index();
+            $table->unsignedSmallInteger('website_id')->nullable()->index();
             $table->unsignedInteger('customer_id')->nullable()->index();
             $table->string($morphPrefix.'_type')->nullable();
-            $table->unsignedSmallInteger($morphPrefix.'_id')->nullable();
+            $table->unsignedInteger($morphPrefix.'_id')->nullable();
             $table->jsonb('tags');
             $table->morphs('auditable');
             $table->string('event');

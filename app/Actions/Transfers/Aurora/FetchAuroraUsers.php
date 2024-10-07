@@ -7,6 +7,7 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\SysAdmin\User\UpdateUsersPseudoJobPositions;
 use App\Models\SysAdmin\User;
@@ -58,13 +59,8 @@ class FetchAuroraUsers extends FetchAuroraAction
                     $group_id = $organisationSource->getOrganisation()->group_id;
                     $user     = User::withTrashed()->where('group_id', $group_id)->where('username', $userData['related_username'])->first();
 
-                    //  dd($user->id);
-                    //dd($userData['related_username']);
 
                     if ($user) {
-
-
-
 
                         if ($userData['user']['status']) {
                             $user = UpdateUsersPseudoJobPositions::make()->action(
@@ -95,8 +91,27 @@ class FetchAuroraUsers extends FetchAuroraAction
                         });
                     }
 
+
+
+                    if ($userData['add_guest']) {
+
+                        $guest = StoreGuest::make()->action(
+                            $organisationSource->getOrganisation()->group,
+                            $userData['guest'],
+                            hydratorsDelay: 60,
+                            strict: false
+                        );
+
+                        return $guest->getUser();
+
+                    }
+
+
                     return $user;
                 }
+
+
+
 
 
 

@@ -7,8 +7,8 @@
 
 namespace App\Actions\SysAdmin\Guest;
 
-use App\Actions\Helpers\Uploads\ImportUpload;
-use App\Actions\Helpers\Uploads\StoreUploads;
+use App\Actions\Helpers\Upload\ImportUpload;
+use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\Traits\WithImportModel;
 use App\Imports\Auth\GuestImport;
 use App\Models\Helpers\Upload;
@@ -20,7 +20,7 @@ class ImportGuests
 
     public function handle($file): Upload
     {
-        $upload = StoreUploads::run($file, Guest::class);
+        $upload = StoreUpload::run($file, Guest::class);
 
         if ($this->isSync) {
             ImportUpload::run(

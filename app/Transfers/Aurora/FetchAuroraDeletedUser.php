@@ -47,6 +47,7 @@ class FetchAuroraDeletedUser extends FetchAurora
         $this->parsedData['parent'] = $parent;
         $this->parsedData['parentSource'] = $parentSource;
 
+        $this->parsedData['add_guest'] = $this->auroraModelData->aiku_add_guest == 'Yes';
 
         $this->parsedData['user'] =
             [
@@ -64,8 +65,28 @@ class FetchAuroraDeletedUser extends FetchAurora
                 'last_fetched_at'   => now(),
                 'password'         => Str::random(60),
             ];
+
+        if ($this->parsedData['add_guest']) {
+            $this->parsedData['guest'] = $this->getGuestData($auroraDeletedData);
+        }
     }
 
+    protected function getGuestData($auroraDeletedData): array
+    {
+
+
+        return [
+            'code'            => $auroraDeletedData->{'User Handle'},
+            'contact_name'    => $auroraDeletedData->{'User Alias'},
+            'phone'           => $auroraDeletedData->{'User Password Recovery Mobile'},
+            'email'           => $auroraDeletedData->{'User Password Recovery Email'},
+            'source_id'       => $this->organisation->id.':'.$auroraDeletedData->{'User Parent Key'},
+            'status'          => false,
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
+            'user'            => $this->parsedData['user']
+        ];
+    }
 
     protected function fetchData($id): object|null
     {

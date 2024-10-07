@@ -29,6 +29,8 @@ return new class () extends Migration {
             $table->unsignedInteger('image_id')->nullable();
             $table->foreign('image_id')->references('id')->on('media')->onDelete('cascade');
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
         });

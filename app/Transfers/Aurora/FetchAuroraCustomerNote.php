@@ -7,7 +7,6 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Models\SysAdmin\User;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraCustomerNote extends FetchAurora
@@ -113,41 +112,8 @@ class FetchAuroraCustomerNote extends FetchAurora
         $this->parsedData['customer'] = $customer;
 
 
-        $user = null;
+        $user = $this->parseUserFromHistory();
 
-        if ($this->auroraModelData->{'Subject'} == 'Staff' and $this->auroraModelData->{'Subject Key'} > 0) {
-            $employee = $this->parseEmployee(
-                $this->organisation->id.':'.$this->auroraModelData->{'Subject Key'}
-            );
-
-
-            if ($employee) {
-                $user = $employee->getUser();
-                if (!$user) {
-                    $userHasModel = DB::table('user_has_models')
-                        ->where('model_id', $employee->id)
-                        ->where('model_type', 'Employee')
-                        ->first();
-
-
-                    if ($userHasModel) {
-                        $user = User::withTrashed()->find($userHasModel->user_id);
-                    }
-                }
-            }
-
-
-            if (!$user) {
-                $user = User::withTrashed()
-                    ->where('group_id', $this->organisation->group_id)
-                    ->whereJsonContains('sources->parents', $this->organisation->id.':'.$this->auroraModelData->{'Subject Key'})
-                    ->first();
-            }
-
-            if (!$user) {
-                dd($this->auroraModelData);
-            }
-        }
 
 
         $this->parsedData['customer_note'] =

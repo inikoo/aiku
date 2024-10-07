@@ -42,8 +42,11 @@ class FetchAuroraCustomer extends FetchAurora
             $deliveryAddress['country_id'] = $this->parsedData['shop']->country_id;
         }
 
+
+
         $taxNumber = $this->parseTaxNumber(
-            number: $this->auroraModelData->{'Customer Tax Number'},
+            number:
+            preg_replace("/[^a-zA-Z0-9\-]/", "", $this->sanitiseText($this->auroraModelData->{'Customer Tax Number'})),
             countryID: $billingAddress['country_id'],
             rawData: (array)$this->auroraModelData
         );
@@ -107,10 +110,21 @@ class FetchAuroraCustomer extends FetchAurora
                 'tax_number'               => $taxNumber,
                 'fetched_at'               => now(),
                 'last_fetched_at'          => now(),
-                'internal_notes'           => $internalNotes,
-                'warehouse_internal_notes' => $warehouseInternalNotes,
-                'warehouse_public_notes'   => $warehousePublicNotes
             ];
+
+
+        if ($internalNotes != '') {
+            $this->parsedData['customer']['internal_notes'] = $internalNotes;
+        }
+
+        if ($warehouseInternalNotes != '') {
+            $this->parsedData['customer']['warehouse_internal_notes'] = $warehouseInternalNotes;
+        }
+
+        if ($warehousePublicNotes != '') {
+            $this->parsedData['customer']['warehouse_public_notes'] = $warehousePublicNotes;
+        }
+
 
         if ($contactName != '') {
             $this->parsedData['customer']['contact_name'] = $contactName;

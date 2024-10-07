@@ -155,11 +155,10 @@ class AppServiceProvider extends ServiceProvider
                 'Shipping'                      => 'App\Models\Catalogue\Shipping',
                 'Adjustment'                    => 'App\Models\Ordering\Adjustment',
 
-                // Deals
-                'Offer'                         => 'App\Models\Marketing\Offer',
-                'OfferCampaign'                 => 'App\Models\Marketing\OfferCampaign',
-                'OfferComponent'                => 'App\Models\Marketing\OfferComponent',
-
+                // Discounts
+                'Offer'                         => 'App\Models\Discounts\Offer',
+                'OfferCampaign'                 => 'App\Models\Discounts\OfferCampaign',
+                'OfferComponent'                => 'App\Models\Discounts\OfferComponent',
 
                 // Notifications
                 'FcmToken'                      => 'App\Models\Notifications\FcmToken',

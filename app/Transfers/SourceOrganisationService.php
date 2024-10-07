@@ -155,4 +155,6 @@ interface SourceOrganisationService
 
     public function fetchHistory($id);
 
+    public function fetchUpload($id);
+
 }

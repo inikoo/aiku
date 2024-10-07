@@ -14,6 +14,7 @@ use App\Models\Catalogue\Product;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraProducts extends FetchAuroraAction
@@ -54,8 +55,17 @@ class FetchAuroraProducts extends FetchAuroraAction
                         parent: $productData['parent'],
                         modelData: $productData['product'],
                         hydratorsDelay: 120,
-                        strict: false
+                        strict: false,
+                        audit: false
                     );
+
+                    Product::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $product,
+                        Arr::except($productData['product'], ['fetched_at','last_fetched_at'])
+                    );
+
+                    $this->recordNew($organisationSource);
 
                     $sourceData = explode(':', $product->source_id);
 

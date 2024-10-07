@@ -7,8 +7,8 @@
 
 namespace App\Actions\Manufacturing\Artefact;
 
-use App\Actions\Helpers\Uploads\ImportUpload;
-use App\Actions\Helpers\Uploads\StoreUploads;
+use App\Actions\Helpers\Upload\ImportUpload;
+use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithImportModel;
 use App\Http\Resources\Helpers\UploadsResource;
@@ -24,7 +24,7 @@ class ImportArtefact extends OrgAction
 
     public function handle(Production $production, $file): Upload
     {
-        $upload = StoreUploads::run($file, Artefact::class);
+        $upload = StoreUpload::run($file, Artefact::class);
 
         if ($this->isSync) {
             ImportUpload::run(

@@ -90,7 +90,7 @@ test('create group', function () {
     expect($group)->toBeInstanceOf(Group::class)
         ->and($group->roles()->count())->toBe(5)
         ->and($group->webBlockTypeCategories()->count())->toBe(13)
-        ->and($group->webBlockTypes()->count())->toBe(20)
+        ->and($group->webBlockTypes()->count())->toBe(18)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 
     return $group;
@@ -232,8 +232,8 @@ test('create guest', function (Group $group, Organisation $organisation) {
     $jobPosition1 = $group->jobPositions()->where('code', 'gp-sc')->first();
     $jobPosition2 = $group->jobPositions()->where('code', 'org-admin')->where('organisation_id', $organisation->id)->first();
     $guestData    = Guest::factory()->definition();
-    data_set($guestData, 'username', 'hello');
-    data_set($guestData, 'password', 'secret-password');
+    data_set($guestData, 'user.username', 'hello');
+    data_set($guestData, 'user.password', 'secret-password');
     data_set($guestData, 'phone', '+6281212121212');
     data_set(
         $guestData,
@@ -339,7 +339,7 @@ test('fail to create guest with invalid usernames', function (Group $group) {
 
     $guestData = Guest::factory()->definition();
 
-    data_set($guestData, 'username', 'create');
+    data_set($guestData, 'user.username', 'create');
 
     expect(function () use ($guestData, $group) {
         StoreGuest::make()->action(
@@ -348,7 +348,7 @@ test('fail to create guest with invalid usernames', function (Group $group) {
         );
     })->toThrow(ValidationException::class);
 
-    data_set($guestData, 'username', 'export');
+    data_set($guestData, 'user.username', 'export');
     expect(function () use ($guestData, $group) {
         StoreGuest::make()->action(
             $group,
@@ -565,7 +565,7 @@ test('update web block types', function (Group $group) {
     $this->artisan('group:seed-web-block-types')->assertSuccessful();
     $group->refresh();
     expect($group->webBlockTypeCategories()->count())->toBe(13)
-        ->and($group->webBlockTypes()->count())->toBe(20);
+        ->and($group->webBlockTypes()->count())->toBe(18);
 })->depends('create group');
 
 test('show log in', function () {

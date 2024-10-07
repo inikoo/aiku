@@ -19,20 +19,17 @@ class GrpAction
     use WithAttributes;
     use WithTab;
 
-
-
     protected Group $group;
 
+    protected bool $asAction      = false;
     protected bool $canEdit               = false;
     protected bool $canDelete             = false;
 
-    protected bool $asAction      = false;
     public int $hydratorsDelay    = 0;
     protected bool $strict        = true;
 
 
     protected array $validatedData;
-
 
     public function initialisation(Group $group, ActionRequest|array $request): static
     {

@@ -117,7 +117,7 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                     );
                     $this->recordNew($organisationSource);
                 } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'historicSupplierProductSourceID');
+                    $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct');
 
                     return null;
                 }

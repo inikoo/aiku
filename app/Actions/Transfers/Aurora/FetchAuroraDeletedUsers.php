@@ -7,6 +7,7 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Models\SysAdmin\User;
@@ -27,6 +28,7 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?User
     {
         if ($userData = $organisationSource->fetchDeletedUser($organisationSourceId)) {
+
             if ($userData['user']) {
                 if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
                     if (Arr::get($user->data, 'deleted.source') == 'aurora') {
@@ -57,6 +59,8 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
 
                     $user = User::withTrashed()->where('group_id', $group_id)->where('username', $userData['related_username'])->first();
 
+
+
                     if ($user) {
                         $sourceData = explode(':', $userData['user']['source_id']);
                         DB::connection('aurora')->table('User Deleted Dimension')
@@ -82,6 +86,19 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
                                 ]
                             ]);
                         });
+                    }
+
+                    if ($userData['add_guest']) {
+
+                        $guest = StoreGuest::make()->action(
+                            $organisationSource->getOrganisation()->group,
+                            $userData['guest'],
+                            hydratorsDelay: 60,
+                            strict: false
+                        );
+
+                        return $guest->getUser();
+
                     }
 
                     return $user;

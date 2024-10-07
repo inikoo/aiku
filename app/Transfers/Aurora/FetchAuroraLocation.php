@@ -43,7 +43,9 @@ class FetchAuroraLocation extends FetchAurora
             'code'            => $code,
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Location Key'},
             'fetched_at'      => now(),
-            'last_fetched_at' => now()
+            'last_fetched_at' => now(),
+            'max_weight'      => $this->auroraModelData->{'Location Max Weight'} == 0 ? null : $this->auroraModelData->{'Location Max Weight'},
+            'max_volume'      => $this->auroraModelData->{'Location Max Volume'} == 0 ? null : $this->auroraModelData->{'Location Max Volume'},
         ];
     }
 

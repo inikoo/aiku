@@ -83,6 +83,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_adjustments_type_error_net
  * @property int $number_adjustments_type_error_tax
  * @property int $number_adjustments_type_credit
+ * @property int $number_uploads
+ * @property int $number_upload_records
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Shop $shop
