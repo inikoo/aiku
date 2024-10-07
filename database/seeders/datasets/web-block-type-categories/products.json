@@ -1,6 +1,7 @@
 {
 	"slug": "products",
 	"name": "Product showcases",
+    "icon": "fal fa-box-full",
 	"blueprint": {
 		"value": ""
 	},

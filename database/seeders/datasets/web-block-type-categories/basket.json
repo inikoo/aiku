@@ -1,6 +1,7 @@
 {
 	"slug": "basket",
 	"name": "Basket",
+    "icon": "fal fa-shopping-basket",
 	"blueprint": {
 		"value": ""
 	},

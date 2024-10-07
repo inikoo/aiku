@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { faPresentation, faCube, faText, faImage, faImages, faPaperclip } from "@fal"
+import { faPresentation, faCube, faText, faImage, faImages, faPaperclip, faShoppingBasket, faStar, faHandHoldingBox, faBoxFull, faBars, faBorderAll, faLocationArrow} from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { trans } from "laravel-vue-i18n"
 
 import { Root, Daum } from "@/types/webBlockTypes"
 
-library.add(faPresentation, faCube, faText, faImage, faImages, faPaperclip)
+library.add(faPresentation, faCube, faText, faImage, faImages, faPaperclip, faShoppingBasket, faStar, faHandHoldingBox, faBoxFull, faBars, faBorderAll, faLocationArrow)
 const props = withDefaults(defineProps<{
     onPickBlock: Function
     webBlockTypes: Root
@@ -37,13 +37,13 @@ onMounted(() => {
     active.value = data.value[0] || null; // Set default active item from filtered data
 });
 
-
 </script>
 
 <template>
     <div class="flex border rounded-xl overflow-hidden">
         <nav class="w-1/5 bg-gray-100 py-4" aria-label="Sidebar">
             <ul role="list" class="space-y-1">
+            
                 <li v-for="item in data"
                     :key="item.id"
                     :class="[item.id === active.id ? 'bg-white text-indigo-600' : 'hover:bg-white/50 hover:text-indigo-600']"
