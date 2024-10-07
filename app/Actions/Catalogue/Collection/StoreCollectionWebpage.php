@@ -10,12 +10,9 @@ namespace App\Actions\Catalogue\Collection;
 
 use App\Actions\OrgAction;
 use App\Actions\Web\Webpage\StoreWebpage;
-use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Catalogue\Collection;
-use App\Models\Catalogue\Product;
-use App\Models\Catalogue\ProductCategory;
 use App\Models\Web\Webpage;
 
 class StoreCollectionWebpage extends OrgAction
@@ -24,24 +21,22 @@ class StoreCollectionWebpage extends OrgAction
     {
         $webpageData = [
                 'code'  => $collection->code,
-                'url'   => strtolower($product->code),
+                'url'   => strtolower($collection->code),
                 'purpose'   => WebpagePurposeEnum::COLLECTION,
                 'type'      => WebpageTypeEnum::SHOP,
                 'model_type'    => class_basename($collection),
-                'model_id'     => $collection->id 
+                'model_id'     => $collection->id
             ];
-        $webpage = StoreWebpage::make()->action(
+
+        return StoreWebpage::make()->action(
             $collection->shop->website,
             $webpageData
         );
-
-        return $webpage;
     }
 
-    public function asController(Collection $collection)
+    public function asController(Collection $collection): Webpage
     {
         $this->initialisationFromShop($collection->shop, []);
         return $this->handle($collection);
     }
 }
-

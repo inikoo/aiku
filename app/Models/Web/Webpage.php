@@ -43,6 +43,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $shop_id
  * @property int|null $parent_id
  * @property int $website_id
+ * @property string|null $model_type
+ * @property string|null $model_id
  * @property string $slug
  * @property string $code
  * @property string $url
@@ -70,6 +72,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property array $migration_data
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read Model|\Eloquent $context
  * @property-read Collection<int, Deployment> $deployments
  * @property-read Group $group
  * @property-read Collection<int, ModelHasWebBlocks> $modelHasWebBlocks
