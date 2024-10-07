@@ -276,6 +276,25 @@ test('UI Index customer web users', function () {
     });
 });
 
+test('UI Create customer web users', function () {
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.web-users.create', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Create web user')
+                        ->etc()
+            )
+            ->has('formData');
+    });
+});
+
 test('UI Index customer orders', function () {
     $response = $this->get(route('grp.org.shops.show.crm.customers.show.orders.index', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
 
