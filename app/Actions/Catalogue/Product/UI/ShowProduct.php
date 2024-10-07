@@ -122,6 +122,30 @@ class ShowProduct extends OrgAction
                             'title' => __('product')
                         ],
                     'actions' => [
+                        $product->webpage ?
+                        [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'tooltip' => __('Edit Webpage'),
+                            'label'   => __('Edit Webpage'),
+                            'icon'  => ["fal", "fa-drafting-compass"],
+                            'route' => [
+                                'name'       => '',
+                                'parameters' => [
+                                ]
+                            ]
+                        ] : [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'tooltip' => __('Create Webpage'),
+                            'label'   => __('Create Webpage'),
+                            'icon'  => ["fal", "fa-drafting-compass"],
+                            'route' => [
+                                'name'       => '',
+                                'parameters' => [
+                                ]
+                            ]
+                        ],
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',
@@ -137,7 +161,7 @@ class ShowProduct extends OrgAction
                                 'name'       => 'shops.show.products.remove',
                                 'parameters' => $request->route()->originalParameters()
                             ]
-                        ] : false
+                        ] : false,
                     ]
                 ],
                 'tabs'        => [
@@ -256,7 +280,8 @@ class ShowProduct extends OrgAction
                     ' ('.__('Discontinued').')'
                 )
             ),
-            'grp.org.shops.show.catalogue.products.all_products.show' =>
+            'grp.org.shops.show.catalogue.products.all_products.show',
+            'grp.org.shops.show.catalogue.products.all_products.webpage.create' =>
             array_merge(
                 ShowCatalogue::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
