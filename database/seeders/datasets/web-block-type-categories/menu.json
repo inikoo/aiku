@@ -1,6 +1,7 @@
 {
 	"slug": "menu",
 	"name": "Menu",
+	"icon": "fal fa-bars",
 	"blueprint": {
 		"value": ""
 	},

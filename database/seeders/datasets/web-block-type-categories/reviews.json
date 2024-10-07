@@ -1,6 +1,7 @@
 {
 	"slug": "reviews",
 	"name": "Reviews",
+    "icon": "fal fa-star",
 	"blueprint": {
 		"value": ""
 	},
