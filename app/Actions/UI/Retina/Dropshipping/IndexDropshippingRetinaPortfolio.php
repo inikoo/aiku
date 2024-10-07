@@ -11,6 +11,7 @@ namespace App\Actions\UI\Retina\Dropshipping;
 
 use App\Actions\RetinaAction;
 use App\Actions\Catalogue\Product\UI\IndexProducts as IndexUIProducts;
+use App\Actions\UI\Retina\Dashboard\ShowDashboard;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Models\Dropshipping\ShopifyUser;
@@ -44,7 +45,7 @@ class IndexDropshippingRetinaPortfolio extends RetinaAction
         return Inertia::render(
             'Dropshipping/Products',
             [
-                // 'breadcrumbs' => $this->getBreadcrumbs(),
+                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('My Portfolios'),
                 'pageHead'    => [
                     'title' => __('My Portfolios'),
@@ -60,22 +61,22 @@ class IndexDropshippingRetinaPortfolio extends RetinaAction
         )->table(IndexUIProducts::make()->tableStructure($shopifyUser, prefix: 'products'));
     }
 
-    // public function getBreadcrumbs(): array
-    // {
-    //     return
-    //         array_merge(
-    //             ShowDashboard::make()->getBreadcrumbs(),
-    //             [
-    //                 [
-    //                     'type'   => 'simple',
-    //                     'simple' => [
-    //                         'route' => [
-    //                             'name' => 'retina.sysadmin.dashboard'
-    //                         ],
-    //                         'label'  => __('system administration'),
-    //                     ]
-    //                 ]
-    //             ]
-    //         );
-    // }
+    public function getBreadcrumbs(): array
+    {
+        return
+            array_merge(
+                ShowDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'retina.dropshipping.portfolios.index'
+                            ],
+                            'label'  => __('My Portfolio'),
+                        ]
+                    ]
+                ]
+            );
+    }
 }

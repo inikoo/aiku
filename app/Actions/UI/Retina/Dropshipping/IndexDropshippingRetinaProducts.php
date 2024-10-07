@@ -11,6 +11,7 @@ namespace App\Actions\UI\Retina\Dropshipping;
 
 use App\Actions\RetinaAction;
 use App\Actions\Catalogue\Product\UI\IndexProducts as IndexUIProducts;
+use App\Actions\UI\Retina\Dashboard\ShowDashboard;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Models\Dropshipping\ShopifyUser;
@@ -44,7 +45,7 @@ class IndexDropshippingRetinaProducts extends RetinaAction
         return Inertia::render(
             'Dropshipping/Products',
             [
-                // 'breadcrumbs' => $this->getBreadcrumbs(),
+                 'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('Products'),
                 'pageHead'    => [
                     'title' => __('Products'),
@@ -60,22 +61,22 @@ class IndexDropshippingRetinaProducts extends RetinaAction
         )->table(IndexUIProducts::make()->tableStructure($shopifyUser->customer->shop, prefix: 'products'));
     }
 
-    // public function getBreadcrumbs(): array
-    // {
-    //     return
-    //         array_merge(
-    //             ShowDashboard::make()->getBreadcrumbs(),
-    //             [
-    //                 [
-    //                     'type'   => 'simple',
-    //                     'simple' => [
-    //                         'route' => [
-    //                             'name' => 'retina.sysadmin.dashboard'
-    //                         ],
-    //                         'label'  => __('system administration'),
-    //                     ]
-    //                 ]
-    //             ]
-    //         );
-    // }
+    public function getBreadcrumbs(): array
+    {
+        return
+            array_merge(
+                ShowDashboard::make()->getBreadcrumbs(),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'retina.dropshipping.portfolios.products.index'
+                            ],
+                            'label'  => __('Products'),
+                        ]
+                    ]
+                ]
+            );
+    }
 }
