@@ -56,7 +56,8 @@ const props = defineProps<{
   webBlockTypeCategories: Object
 }>()
 
-console.log('sss', props)
+
+console.log(props)
 
 const Navigation = ref(props.data.menu)
 const selectedNav = ref(0)

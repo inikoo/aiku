@@ -15,7 +15,6 @@ enum WebBlockTypeCategorySlugEnum: string
 
     case PRODUCT  = 'product';
     case CATEGORY = 'category';
-    case BASKET   = 'basket';
     case CHECKOUT = 'checkout';
     case FOOTER   = 'footer';
     case HEADER   = 'header';
@@ -29,4 +28,5 @@ enum WebBlockTypeCategorySlugEnum: string
     case IFRAME   = 'iframe';
     case BENTO_GRID   = 'bento-grid';
     case MENU   = 'menu';
+    case GRID   = 'grid';
 }
