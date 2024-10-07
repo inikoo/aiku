@@ -11,6 +11,7 @@ import UploadImage from '@/Components/Pure/UploadImage.vue'
 import Payments from '@/Components/Websites/Fields/Payment.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorForm.vue"
 import socialMedia from '@/Components/Websites/Fields/SocialMedia.vue'
+import FooterColumn from '@/Components/Websites/Fields/FooterColumn.vue';
 
 
 const props = defineProps<{
@@ -31,7 +32,8 @@ const getComponent = (componentName: string) => {
         'upload_image': UploadImage,
         'payment_templates': Payments,
         'editor': Editor,
-        'socialMedia': socialMedia
+        'socialMedia': socialMedia,
+        'footerColumn' : FooterColumn
     }
 
     return components[componentName]
@@ -48,7 +50,7 @@ const onUpdateValue = (field, value) => {
 
 <template>
     <Accordion>
-        <AccordionPanel v-for="(field, index) in bluprint" :key="index" :value="index"   @click="openPanel = index">
+        <AccordionPanel v-for="(field, index) in bluprint" :key="index" :value="index"  @click="openPanel = index">
             <AccordionHeader >
                 {{ field.name }}
             </AccordionHeader>
