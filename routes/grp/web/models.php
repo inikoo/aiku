@@ -562,6 +562,7 @@ require __DIR__."/models/stock/stock.php";
 require __DIR__."/models/accounting/invoice.php";
 require __DIR__."/models/billables/billables.php";
 require __DIR__."/models/hr/hr.php";
+require __DIR__."/models/website/webpages.php";
 
 
 /*

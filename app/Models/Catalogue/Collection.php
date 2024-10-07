@@ -12,9 +12,11 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
+use App\Models\Web\Webpage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -134,6 +136,11 @@ class Collection extends Model implements Auditable
         return $this->morphedByMany(ProductCategory::class, 'model', 'model_has_collections')
                     ->wherePivot('type', 'Family')
                     ->withTimestamps();
+    }
+
+    public function webpage(): MorphOne
+    {
+        return $this->morphOne(Webpage::class, 'model');
     }
 
 }
