@@ -67,11 +67,10 @@ class FetchAuroraWebpages extends FetchAuroraAction
             ->orderBy('source_id');
 
 
-        if (!$this->fetchAll) {
-            $query->where('Webpage Type Code', 'Info');
-            $query->where('Website Status', 'Active');
-            $query->where('Webpage State', 'Online');
-        }
+        $query->where('Website Status', 'Active');
+        $query->where('Webpage State', 'Online');
+        $query->whereIn('Webpage Type Code', ['Info', 'Prods']);
+
 
         if ($this->onlyNew) {
             $query->whereNull('Page Store Dimension.aiku_id');
@@ -95,11 +94,10 @@ class FetchAuroraWebpages extends FetchAuroraAction
             $query->whereNull('Page Store Dimension.aiku_id');
         }
 
-        if (!$this->fetchAll) {
-            $query->where('Webpage Type Code', 'Info');
-            $query->where('Website Status', 'Active');
-            $query->where('Webpage State', 'Online');
-        }
+        $query->where('Website Status', 'Active');
+        $query->where('Webpage State', 'Online');
+
+        $query->whereIn('Webpage Type Code', ['Info', 'Prods']);
 
         if ($this->shop) {
             $sourceData = explode(':', $this->shop->source_id);
