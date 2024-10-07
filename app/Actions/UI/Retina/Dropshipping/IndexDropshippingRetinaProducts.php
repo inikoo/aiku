@@ -56,6 +56,15 @@ class IndexDropshippingRetinaProducts extends RetinaAction
                     'navigation' => ProductTabsEnum::navigation()
                 ],
 
+                'routes' => [
+                    'store_product' => [
+                        'name'       => 'retina.models.dropshipping.shopify_user.product.store',
+                        'parameters' => [
+                            'shopifyUser' => $shopifyUser->id
+                        ]
+                    ],
+                ],
+
                 'products' => ProductsResource::collection(IndexUIProducts::run($shopifyUser->customer->shop, 'products'))
             ]
         )->table(IndexUIProducts::make()->tableStructure($shopifyUser->customer->shop, prefix: 'products'));

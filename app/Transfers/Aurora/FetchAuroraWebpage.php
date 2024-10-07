@@ -36,7 +36,7 @@ class FetchAuroraWebpage extends FetchAurora
             return;
         }
 
-        if($typeData->{'Webpage Type Code'} == 'Prod' and $this->auroraModelData->{'Webpage Scope Key'} == '') {
+        if ($typeData->{'Webpage Type Code'} == 'Prod' and $this->auroraModelData->{'Webpage Scope Key'} == '') {
             return;
         }
 
@@ -116,8 +116,8 @@ class FetchAuroraWebpage extends FetchAurora
                 dd($this->auroraModelData->{'Webpage Scope Key'});
             }
         }
-        $migrationData=null;
-        if($this->auroraModelData->{'Page Store Content Published Data'}) {
+        $migrationData = null;
+        if ($this->auroraModelData->{'Page Store Content Published Data'}) {
             $migrationData = json_decode($this->auroraModelData->{'Page Store Content Published Data'}, true);
         }
 

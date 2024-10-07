@@ -39,4 +39,3 @@ class StoreProductWebpage extends OrgAction
         return $this->handle($product);
     }
 }
-

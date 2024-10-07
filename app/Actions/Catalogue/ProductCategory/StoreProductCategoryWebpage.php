@@ -13,7 +13,6 @@ use App\Actions\Web\Webpage\StoreWebpage;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
-use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Web\Webpage;
 
@@ -22,16 +21,14 @@ class StoreProductCategoryWebpage extends OrgAction
     public function handle(ProductCategory $productCategory): Webpage
     {
 
-        if($productCategory->type == ProductCategoryTypeEnum::FAMILY)
-        {
+        if ($productCategory->type == ProductCategoryTypeEnum::FAMILY) {
             $webpageData = [
                 'code'  => $productCategory->code,
                 'url'   => $productCategory->code,
                 'purpose'   => WebpagePurposeEnum::FAMILY,
                 'type'      => WebpageTypeEnum::SHOP
             ];
-        } elseif ($productCategory->type == ProductCategoryTypeEnum::DEPARTMENT)
-        {
+        } elseif ($productCategory->type == ProductCategoryTypeEnum::DEPARTMENT) {
             $webpageData = [
                 'code'  => $productCategory->code,
                 'url'   => $productCategory->code,
@@ -53,4 +50,3 @@ class StoreProductCategoryWebpage extends OrgAction
         return $this->handle($productCategory);
     }
 }
-

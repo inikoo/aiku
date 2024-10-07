@@ -10,12 +10,9 @@ namespace App\Actions\Catalogue\Collection;
 
 use App\Actions\OrgAction;
 use App\Actions\Web\Webpage\StoreWebpage;
-use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Catalogue\Collection;
-use App\Models\Catalogue\Product;
-use App\Models\Catalogue\ProductCategory;
 use App\Models\Web\Webpage;
 
 class StoreCollectionWebpage extends OrgAction
@@ -42,4 +39,3 @@ class StoreCollectionWebpage extends OrgAction
         return $this->handle($collection);
     }
 }
-
