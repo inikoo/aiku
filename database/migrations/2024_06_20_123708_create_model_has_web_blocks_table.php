@@ -33,8 +33,10 @@ return new class () extends Migration {
             $table->unsignedInteger('model_id');
 
             $table->timestampsTz();
+            $table->string('migration_checksum')->index()->nullable();
 
             $table->index(['model_type','model_id']);
+
 
 
         });
