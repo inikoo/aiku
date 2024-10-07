@@ -29,7 +29,13 @@ class ShowFooterPreview extends OrgAction
         return Inertia::render(
             'Web/PreviewWorkshop',
             [
-                'footer' => GetWebsiteWorkshopFooter::run($website)
+                'footer' => GetWebsiteWorkshopFooter::run($website),
+                'autosaveRoute' => [
+                    'name' => 'grp.models.website.autosave.footer',
+                    'parameters' => [
+                        'website' => $website->id
+                    ],
+                ]
             ]
         );
     }

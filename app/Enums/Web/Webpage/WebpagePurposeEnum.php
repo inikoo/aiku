@@ -15,10 +15,11 @@ enum WebpagePurposeEnum: string
 
     case STOREFRONT = 'storefront';
 
-    case PRODUCT_OVERVIEW = 'product-overview';
-    case PRODUCT_LIST     = 'product-list';
+    case PRODUCT = 'product';
+    case FAMILY     = 'famiy';
 
-    case CATEGORY_PREVIEW = 'category-preview';
+    case DEPARTMENT = 'department';
+    case COLLECTION = 'collection';
 
     case SHOPPING_CART = 'shopping-cart';
 
