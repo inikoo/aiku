@@ -20,7 +20,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="w-full py-12 flex gap-x-10">
+    <div class="w-full py-12 px-8 flex gap-x-10">
         <h2 class="text-2xl font-bold">Reviews:</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-x-10">
             <div v-for="index in 3" class="">

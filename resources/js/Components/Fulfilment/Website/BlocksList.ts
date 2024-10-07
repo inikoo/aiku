@@ -14,11 +14,13 @@ import Gallery from '@/Components/Fulfilment/Website/Block/Gallery.vue'
 import Iframe from '@/Components/Fulfilment/Website/Block/Iframe.vue'
 import BentoGrid from '@/Components/Fulfilment/Website/Block/BentoGrid.vue'
 import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundComponent.vue'
+import Grid1 from '@/Components/Fulfilment/Website/Block/Grid1.vue'
 import Action from "@/Components/Forms/Fields/Action.vue"
 
 
 
 export const getComponent = (componentName: string) => {
+    console.log('in',componentName)
     const components: Component = {
         'bannerWowsbar': WowsbarBanner,
         'ProductPage': ProductPage,
@@ -32,8 +34,9 @@ export const getComponent = (componentName: string) => {
         'Image': Image,
         'Gallery': Gallery,
         "Iframe": Iframe,
-        "BentoGrid" : BentoGrid
-    }
+        "BentoGrid" : BentoGrid,
+        "grid1" : Grid1
+     }
 
     return components[componentName] ?? NotFoundComponents
 }

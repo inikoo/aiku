@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
-
+import { SocketHeaderFooter } from '@/Composables/SocketWebBlock'
+import { Switch } from '@headlessui/vue'
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Modal from '@/Components/Utils/Modal.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue';
@@ -22,7 +23,7 @@ import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faExternalLink, faLineColumns, faIcons, faMoneyBill } from '@fas';
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add( faExternalLink, faLineColumns, faIcons, faMoneyBill )
+library.add(faExternalLink, faLineColumns, faIcons, faMoneyBill)
 
 const props = defineProps<{
     pageHead: TSPageHeading
@@ -43,26 +44,25 @@ const comment = ref('')
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const iframeSrc = ref(route('grp.websites.header.preview', [route().params['website']]))
+const socketLayout = SocketHeaderFooter(route().params['website']);
 
 const tabs = [
     {
-        name : 'Column',
-        value : 'column',
-        icon : faLineColumns
+        name: 'Column',
+        value: 'column',
+        icon: faLineColumns
     },
     {
-        name : "Socials Media",
-        value : 'socialsmedia',
-        icon : faIcons
+        name: "Socials Media",
+        value: 'socialsmedia',
+        icon: faIcons
     },
     {
-        name : 'Payment',
-        value : 'payment',
-        icon : faMoneyBill
+        name: 'Payment',
+        value: 'payment',
+        icon: faMoneyBill
     },
 ]
-
-console.log(props)
 
 
 const onPickTemplate = (footer: Object) => {
@@ -130,11 +130,18 @@ watch(usedTemplates, (newVal) => {
     if (newVal) debouncedSendUpdate(newVal)
 }, { deep: true })
 
-console.log(usedTemplates)
+watch(previewMode, (newVal) => {
+    console.log('n',newVal)
+    if (socketLayout) socketLayout.actions.send({ previewMode : newVal})
+}, { deep: true })
+
+
+
 
 </script>
 
 <template>
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
@@ -147,30 +154,25 @@ console.log(usedTemplates)
         <div v-if="usedTemplates?.data" class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
             <div class="flex h-full">
                 <div class="w-[10%] bg-slate-200 ">
-                    <div
-                        v-for="(tab,index) in usedTemplates?.data.bluprint"
+                    <div v-for="(tab, index) in usedTemplates?.data.bluprint"
                         class="py-2 px-3 cursor-pointer transition duration-300 ease-in-out transform hover:scale-105"
-                        :title="tab.name"
-                        @click="tabsBar = index"
-                        :class="[tabsBar == tab.key ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']"
-                        v-tooltip="tab.name"
-                    >
-                        <FontAwesomeIcon :icon="tab.icon" :class="[tabsBar == index ? 'text-indigo-300' : '']" aria-hidden='true' />
+                        :title="tab.name" @click="tabsBar = index"
+                        :class="[tabsBar == tab.key ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']" v-tooltip="tab.name">
+                        <FontAwesomeIcon :icon="tab.icon" :class="[tabsBar == index ? 'text-indigo-300' : '']"
+                            aria-hidden='true' />
                     </div>
                 </div>
                 <div class="w-[90%]">
-                    <SideEditor 
-                        v-model="usedTemplates.data.footer" 
-                        :bluprint="usedTemplates.data.bluprint[tabsBar].bluprint" 
-                    />
+                    <SideEditor v-model="usedTemplates.data.footer"
+                        :bluprint="usedTemplates.data.bluprint[tabsBar].bluprint" />
                 </div>
             </div>
-            
+
         </div>
 
-        <div class="bg-gray-100 h-full" :class="usedTemplates ? 'col-span-3' : 'col-span-4'">
-            <div  class="h-full w-full bg-white">
-                <div v-if="usedTemplates" class="w-full h-full">
+        <div class="bg-gray-100 h-full" :class="usedTemplates.data ? 'col-span-3' : 'col-span-4'">
+            <div class="h-full w-full bg-white">
+                <div v-if="usedTemplates.data" class="w-full h-full">
                     <div class="flex justify-between bg-slate-200 border border-b-gray-300">
                         <div class="flex">
                             <ScreenView @screenView="setIframeView" />
@@ -179,7 +181,20 @@ console.log(usedTemplates)
                                 <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
                             </div>
                         </div>
-                        <div class="flex">
+                        <div class="flex items-center gap-2">
+                            <div class="text-xs" :class="[
+                                previewMode ? 'text-slate-600' : 'text-slate-300'
+                            ]">Preview</div>
+                            <Switch @click="previewMode = !previewMode" :class="[
+                                previewMode ? 'bg-slate-600' : 'bg-slate-300'
+                            ]"
+                                class="pr-1 relative inline-flex h-3 w-6 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+                                <!-- <span class="sr-only">Use setting</span> -->
+                                <span aria-hidden="true" :class="previewMode ? 'translate-x-3' : 'translate-x-0'"
+                                    class="pointer-events-none inline-block h-full w-1/2 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out">
+                                </span>
+                            </Switch>
+
                             <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'"
                                 @click="isModalOpen = true">
                                 <FontAwesomeIcon icon="fas fa-th-large" aria-hidden='true' />

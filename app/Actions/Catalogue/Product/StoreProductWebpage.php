@@ -20,22 +20,24 @@ class StoreProductWebpage extends OrgAction
     public function handle(Product $product): Webpage
     {
         $webpageData = [
-            'code'  => $product->code,
-            'url'   => $product->code,
-            'purpose'   => WebpagePurposeEnum::PRODUCT,
-            'type'      => WebpageTypeEnum::SHOP
+            'code'       => $product->code,
+            'url'        => strtolower($product->code),
+            'purpose'    => WebpagePurposeEnum::PRODUCT,
+            'type'       => WebpageTypeEnum::SHOP,
+            'model_type' => class_basename($product),
+            'model_id'   => $product->id
         ];
-        $webpage = StoreWebpage::make()->action(
+
+        return StoreWebpage::make()->action(
             $product->shop->website,
             $webpageData
         );
-
-        return $webpage;
     }
 
-    public function asController(Product $product)
+    public function asController(Product $product): Webpage
     {
         $this->initialisationFromShop($product->shop, []);
+
         return $this->handle($product);
     }
 }

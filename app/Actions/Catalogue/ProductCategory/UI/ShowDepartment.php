@@ -94,7 +94,8 @@ class ShowDepartment extends OrgAction
                             'icon'  => ["fal", "fa-drafting-compass"],
                             'route' => [
                                 'name'       => 'grp.models.webpages.product_category.store',
-                                'parameters' => $department->id
+                                'parameters' => $department->id,
+                                'method'     => 'post'
                             ]
                         ],
                         $this->canEdit ? [

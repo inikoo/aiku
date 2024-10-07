@@ -21,19 +21,20 @@ class StoreCollectionWebpage extends OrgAction
     {
         $webpageData = [
                 'code'  => $collection->code,
-                'url'   => $collection->code,
+                'url'   => strtolower($collection->code),
                 'purpose'   => WebpagePurposeEnum::COLLECTION,
-                'type'      => WebpageTypeEnum::SHOP
+                'type'      => WebpageTypeEnum::SHOP,
+                'model_type'    => class_basename($collection),
+                'model_id'     => $collection->id
             ];
-        $webpage = StoreWebpage::make()->action(
+
+        return StoreWebpage::make()->action(
             $collection->shop->website,
             $webpageData
         );
-
-        return $webpage;
     }
 
-    public function asController(Collection $collection)
+    public function asController(Collection $collection): Webpage
     {
         $this->initialisationFromShop($collection->shop, []);
         return $this->handle($collection);
