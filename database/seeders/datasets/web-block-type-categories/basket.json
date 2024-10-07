@@ -4,7 +4,7 @@
 	"blueprint": {
 		"value": ""
 	},
-	"scope": "webpage",
+	"scope": "basket",
 	"webBlockTypes": [
 		{
 			"code": "BasketCompact",

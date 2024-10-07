@@ -132,6 +132,7 @@ class Employee extends Model implements HasMedia, Auditable
         'last_fetched_at'    => 'datetime',
 
     ];
+    //ss
 
     protected $attributes = [
         'data'           => '{}',

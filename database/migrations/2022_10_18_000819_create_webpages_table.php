@@ -27,8 +27,8 @@ return new class () extends Migration {
             $table->foreign('parent_id')->references('id')->on('webpages');
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
-            $table->string('model_typo')->index()->nullable();
-            $table->unsignedInteger('model_id')->nullable();
+            $table->string('model_type')->index()->nullable();
+            $table->string('model_id')->nullable();
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('url')->index()->collation('und_ns');
@@ -53,7 +53,7 @@ return new class () extends Migration {
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
             $table->string('migration_data')->jsonb();
-            $table->index(['model_typo', 'model_id']);
+            $table->index(['model_type', 'model_id']);
         });
 
         Schema::table('websites', function ($table) {

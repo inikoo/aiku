@@ -27,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -67,6 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property array $migration_data
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Deployment> $deployments
  * @property-read Group $group
@@ -103,6 +105,7 @@ class Webpage extends Model implements Auditable
         'data'                   => 'array',
         'settings'               => 'array',
         'published_layout'       => 'array',
+        'migration_data'         => 'array',
         'state'                  => WebpageStateEnum::class,
         'purpose'                => WebpagePurposeEnum::class,
         'type'                   => WebpageTypeEnum::class,
@@ -117,6 +120,7 @@ class Webpage extends Model implements Auditable
         'data'             => '{}',
         'settings'         => '{}',
         'published_layout' => '{}',
+        'migration_data' => '{}'
     ];
 
     protected $guarded = [];
@@ -201,6 +205,12 @@ class Webpage extends Model implements Auditable
             ->withPivot('id', 'position')
             ->withTimestamps();
     }
+
+    public function context(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
 
 
 }

@@ -64,7 +64,6 @@ const socketLayout = SocketHeaderFooter(route().params['website']);
 onMounted(() => {
     if(socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value : Root) => { data.value = {...value}});
     if (socketLayout) socketLayout.actions.subscribe((value) => {
-        console.log('sssd',value)
         layout.header = value.header.header;
         layout.footer = value.footer.footer;
         layout.navigation = value.navigation;
@@ -84,11 +83,11 @@ console.log('preview',props)
 
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
-        <RenderHeaderMenu 
+       <!--  <RenderHeaderMenu 
         :data="layout?.header"
         :menu="layout?.navigation"
         :colorThemed="layout.colorThemed"
-        />
+        /> -->
 
         <div v-if="data" class="relative">
             <div class="container max-w-7xl mx-auto">
@@ -111,7 +110,10 @@ console.log('preview',props)
                     </div>
                     <div v-else>
                         <EmptyState
-                            :data="{ title: 'Pick First Block For Your Website', description: 'Pick block from list' }">
+                            :data="{ 
+                                title: 'Pick First Block For Your Website', 
+                                description: 'Pick block from list' 
+                            }">
                         </EmptyState>
                     </div>
                 </div>
@@ -119,6 +121,7 @@ console.log('preview',props)
         </div>
 
         <component 
+            v-if="layout.footer.data"
             :is="getComponentFooter(layout.footer.code)"  
             v-model="layout.footer.data.footer"
             :keyTemplate="layout.footer" 
