@@ -13,14 +13,14 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('web_blocks', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('web_block_type_category_id');
             $table->foreign('web_block_type_category_id')->references('id')->on('web_block_type_categories')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('web_block_type_id');
             $table->foreign('web_block_type_id')->references('id')->on('web_block_types')->onUpdate('cascade')->onDelete('cascade');
-
+            $table->string('checksum')->index()->nullable();
             $table->jsonb('layout');
             $table->jsonb('data');
             $table->timestampsTz();
