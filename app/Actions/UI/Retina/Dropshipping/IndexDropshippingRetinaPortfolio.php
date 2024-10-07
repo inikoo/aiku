@@ -43,7 +43,7 @@ class IndexDropshippingRetinaPortfolio extends RetinaAction
     public function htmlResponse(ShopifyUser $shopifyUser): Response
     {
         return Inertia::render(
-            'Dropshipping/Products',
+            'Dropshipping/Portfolios',
             [
                  'breadcrumbs' => $this->getBreadcrumbs(),
                 'title'       => __('My Portfolios'),
