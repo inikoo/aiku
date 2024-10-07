@@ -346,6 +346,25 @@ test('UI show customer web users', function () {
     });
 });
 
+test('UI Edit customer web users', function () {
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.web-users.edit', [$this->organisation->slug, $this->shop->slug, $this->customer->slug, $this->webUser->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Edit web user')
+                        ->etc()
+            )
+            ->has('formData');
+    });
+});
+
 test('UI Index customer orders', function () {
     $response = $this->get(route('grp.org.shops.show.crm.customers.show.orders.index', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
 
