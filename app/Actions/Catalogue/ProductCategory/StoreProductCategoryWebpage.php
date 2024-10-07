@@ -26,17 +26,21 @@ class StoreProductCategoryWebpage extends OrgAction
         {
             $webpageData = [
                 'code'  => $productCategory->code,
-                'url'   => $productCategory->code,
+                'url'   => strtolower($productCategory->code),
                 'purpose'   => WebpagePurposeEnum::FAMILY,
-                'type'      => WebpageTypeEnum::SHOP
+                'type'      => WebpageTypeEnum::SHOP,
+                'model_type'    => class_basename($productCategory),
+                'model_id'     => $productCategory->id 
             ];
         } elseif ($productCategory->type == ProductCategoryTypeEnum::DEPARTMENT)
         {
             $webpageData = [
                 'code'  => $productCategory->code,
-                'url'   => $productCategory->code,
+                'url'   => strtolower($productCategory->code),
                 'purpose'   => WebpagePurposeEnum::DEPARTMENT,
-                'type'      => WebpageTypeEnum::SHOP
+                'type'      => WebpageTypeEnum::SHOP,
+                'model_type'    => class_basename($productCategory),
+                'model_id'     => $productCategory->id 
             ];
         }
         $webpage = StoreWebpage::make()->action(

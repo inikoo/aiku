@@ -108,7 +108,8 @@ class ShowFamily extends OrgAction
                             'icon'  => ["fal", "fa-drafting-compass"],
                             'route' => [
                                 'name'       => 'grp.models.webpages.product_category.store',
-                                'parameters' => $family->id
+                                'parameters' => $family->id,
+                                'method'     => 'post'
                             ]
                         ],
                         $this->canEdit ? [

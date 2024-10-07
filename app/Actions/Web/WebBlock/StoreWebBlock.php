@@ -12,6 +12,8 @@ use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Models\Web\WebBlock;
 use App\Models\Web\WebBlockType;
 
+use function PHPSTORM_META\override;
+
 class StoreWebBlock extends GrpAction
 {
     use HasWebAuthorisation;
@@ -22,14 +24,19 @@ class StoreWebBlock extends GrpAction
 
         data_set($modelData, 'group_id', $webBlockType->group_id);
         data_set($modelData, 'web_block_type_category_id', $webBlockType->web_block_type_category_id);
-        data_set($modelData, 'layout', $webBlockType->toArray());
+        data_set($modelData, 'layout', $webBlockType->toArray(), overwrite:false);
 
         /** @var WebBlock $webBlock */
         $webBlock = $webBlockType->webBlocks()->create($modelData);
         return $webBlock;
     }
 
-
+    public function rules ()
+    {
+        return [      
+            'layout'    => ['sometimes', 'array']
+        ];
+    }
 
     public function action(WebBlockType $webBlockType, array $modelData): WebBlock
     {
