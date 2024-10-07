@@ -132,3 +132,25 @@ test("UI Show location (showcase tab)", function () {
             ->has(LocationTabsEnum::SHOWCASE->value);
     });
 });
+
+test("UI Edit location", function () {
+    $response = get(
+        route("grp.org.warehouses.show.infrastructure.locations.edit", [
+            $this->organisation->slug,
+            $this->warehouse->slug,
+            $this->location->slug,
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("EditModel")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->location->code)->etc()
+            )
+            ->has("navigation")
+            ->has("formData");
+    });
+});
