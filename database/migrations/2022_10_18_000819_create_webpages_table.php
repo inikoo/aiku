@@ -28,7 +28,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
             $table->string('model_typo')->index()->nullable();
-            $table->string('model_id')->nullable();
+            $table->unsignedInteger('model_id')->nullable();
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('url')->index()->collation('und_ns');
