@@ -256,6 +256,26 @@ test('UI Index customer portfolios', function () {
     });
 });
 
+test('UI Index customer web users', function () {
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.web-users.index', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/WebUsers')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->customer->name)
+                        ->has('subNavigation')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
+
 test('UI Index customer orders', function () {
     $response = $this->get(route('grp.org.shops.show.crm.customers.show.orders.index', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
 
