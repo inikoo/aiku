@@ -8,7 +8,6 @@ import Button from '@/Components/Elements/Buttons/Button.vue';
 import Modal from '@/Components/Utils/Modal.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue';
 import SideEditor from '@/Components/Websites/SideEditor.vue';
-import { v4 as uuidv4 } from 'uuid';
 import { notify } from "@kyvg/vue3-notification"
 import axios from 'axios'
 import { debounce } from 'lodash'
@@ -21,8 +20,9 @@ import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faExternalLink, faLineColumns, faIcons, faMoneyBill } from '@far';
-
+import { faExternalLink, faLineColumns, faIcons, faMoneyBill } from '@fas';
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add( faExternalLink, faLineColumns, faIcons, faMoneyBill )
 
 const props = defineProps<{
     pageHead: TSPageHeading
@@ -37,12 +37,32 @@ const props = defineProps<{
 const previewMode = ref(false)
 const isModalOpen = ref(false)
 const usedTemplates = ref(props.data.footer)
-const keyTemplates = ref(uuidv4())
+const tabsBar = ref(0)
 const isLoading = ref(false)
 const comment = ref('')
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const iframeSrc = ref(route('grp.websites.header.preview', [route().params['website']]))
+
+const tabs = [
+    {
+        name : 'Column',
+        value : 'column',
+        icon : faLineColumns
+    },
+    {
+        name : "Socials Media",
+        value : 'socialsmedia',
+        icon : faIcons
+    },
+    {
+        name : 'Payment',
+        value : 'payment',
+        icon : faMoneyBill
+    },
+]
+
+console.log(props)
 
 
 const onPickTemplate = (footer: Object) => {
@@ -110,6 +130,7 @@ watch(usedTemplates, (newVal) => {
     if (newVal) debouncedSendUpdate(newVal)
 }, { deep: true })
 
+console.log(usedTemplates)
 
 </script>
 
@@ -121,39 +142,27 @@ watch(usedTemplates, (newVal) => {
                 @onPublish="(popover) => onPublish(action.route, popover)" />
         </template>
     </PageHeading>
-    <!-- <pre>{{ usedTemplates  }}</pre> -->
 
     <div class="h-[84vh] grid grid-flow-row-dense grid-cols-4">
         <div v-if="usedTemplates?.data" class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
             <div class="flex h-full">
                 <div class="w-[10%] bg-slate-200 ">
                     <div
+                        v-for="(tab,index) in usedTemplates?.data.bluprint"
                         class="py-2 px-3 cursor-pointer transition duration-300 ease-in-out transform hover:scale-105"
-                        title="Column"
-                        :class="'bg-gray-300/70 hover:bg-gray-200/60'"
-                        v-tooltip="'Column'"
+                        :title="tab.name"
+                        @click="tabsBar = index"
+                        :class="[tabsBar == tab.key ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']"
+                        v-tooltip="tab.name"
                     >
-                        <FontAwesomeIcon :icon="faLineColumns" :class="'text-indigo-500 w-6 h-6'" aria-hidden='true' />
-                    </div>
-                    <div
-                        class="py-2 px-3 cursor-pointer transition duration-300 ease-in-out transform hover:scale-105"
-                        title="Socials Media"
-                        :class="'bg-gray-300/70 hover:bg-gray-200/60'"
-                        v-tooltip="'Mobile view'"
-                    >
-                        <FontAwesomeIcon :icon="faIcons" :class="'text-indigo-500 w-6 h-6'" aria-hidden='true' />
-                    </div>
-                    <div
-                        class="py-2 px-3 cursor-pointer transition duration-300 ease-in-out transform hover:scale-105"
-                        title="Payment"
-                        :class="'bg-gray-300/70 hover:bg-gray-200/60'"
-                        v-tooltip="'Payment'"
-                    >
-                        <FontAwesomeIcon :icon="faMoneyBill" :class="'text-indigo-500 w-6 h-6'" aria-hidden='true' />
+                        <FontAwesomeIcon :icon="tab.icon" :class="[tabsBar == index ? 'text-indigo-300' : '']" aria-hidden='true' />
                     </div>
                 </div>
                 <div class="w-[90%]">
-                    <SideEditor v-model="usedTemplates.data.footer" :bluprint="usedTemplates.data.bluprint" />
+                    <SideEditor 
+                        v-model="usedTemplates.data.footer" 
+                        :bluprint="usedTemplates.data.bluprint[tabsBar].bluprint" 
+                    />
                 </div>
             </div>
             

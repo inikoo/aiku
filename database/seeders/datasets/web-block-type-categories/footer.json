@@ -330,14 +330,43 @@
 				},
 				"bluprint": [
 					{
+						"name": "Column",
+						"key": "column",
+						"type": "column",
+						"icon" : "fas fa-line-columns",
+						"bluprint" : [
+							{
+								"name": "Column",
+								"key": "column",
+								"type": "column"
+							}
+						]
+					},
+					{
 						"name": "Payments",
 						"key": "PaymentData",
-						"type": "payment_templates"
+						"type": "payment_templates",
+						"icon" : "fas fa-money-bill",
+						"bluprint" : [
+							{
+								"name": "Payments",
+								"key": "PaymentData",
+								"type": "payment_templates"
+							}
+						]
 					},
 					{
 						"name": "Social Media",
 						"key": "socialData",
-						"type": "socialMedia"
+						"type": "socialMedia",
+						"icon" : "fas fa-icons",
+						"bluprint" : [
+							{
+							"name": "Social Media",
+							"key": "socialData",
+							"type": "socialMedia"
+							}
+						]
 					}
 				]
 			}
