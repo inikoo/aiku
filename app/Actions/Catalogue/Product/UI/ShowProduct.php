@@ -145,7 +145,7 @@ class ShowProduct extends OrgAction
                                 'parameters' => $product->id,
                                 'method'     => 'post'
                             ]
-                            
+
                         ],
                         $this->canEdit ? [
                             'type'  => 'button',

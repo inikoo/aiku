@@ -31,9 +31,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_webpages_type_auth
  * @property int $number_webpages_type_blog
  * @property int $number_webpages_purpose_storefront
- * @property int $number_webpages_purpose_product_overview
- * @property int $number_webpages_purpose_product_list
- * @property int $number_webpages_purpose_category_preview
+ * @property int $number_webpages_purpose_product
+ * @property int $number_webpages_purpose_famiy
+ * @property int $number_webpages_purpose_department
+ * @property int $number_webpages_purpose_collection
  * @property int $number_webpages_purpose_shopping_cart
  * @property int $number_webpages_purpose_info
  * @property int $number_webpages_purpose_privacy

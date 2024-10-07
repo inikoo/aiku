@@ -78,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read ProductCategory|null $subDepartment
  * @property-read LaravelCollection<int, ProductCategory> $subDepartments
  * @property-read UniversalSearch|null $universalSearch
+ * @property-read Webpage|null $webpage
  * @method static \Database\Factories\Catalogue\ProductCategoryFactory factory($count = null, $state = [])
  * @method static Builder|ProductCategory newModelQuery()
  * @method static Builder|ProductCategory newQuery()

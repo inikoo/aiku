@@ -53,6 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\CollectionStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
+ * @property-read Webpage|null $webpage
  * @method static \Illuminate\Database\Eloquent\Builder|Collection newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Collection newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Collection onlyTrashed()

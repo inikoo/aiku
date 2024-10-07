@@ -10,8 +10,6 @@
 use App\Actions\Catalogue\Collection\StoreCollectionWebpage;
 use App\Actions\Catalogue\Product\StoreProductWebpage;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategoryWebpage;
-use App\Actions\SysAdmin\User\UpdateUsersPseudoJobPositions;
-use App\Actions\SysAdmin\User\UpdateUser;
 use Illuminate\Support\Facades\Route;
 
 Route::name('webpages.')->prefix('webpages')->group(function () {

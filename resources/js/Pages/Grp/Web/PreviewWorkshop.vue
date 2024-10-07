@@ -34,6 +34,9 @@ const props = defineProps<{
 const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block), 1000, { leading: false, trailing: true })
 
 const data = ref(cloneDeep(props.webpage))
+const editDataTools = ref({
+    previewMode : false
+})
 const layout = reactive({
     header: {...props.header.header},
     footer: {...props.footer.footer},
@@ -68,6 +71,13 @@ onMounted(() => {
         layout.footer = value.footer.footer;
         layout.navigation = value.navigation;
     });
+    window.Echo.join(`header-footer.${route().params['website']}.preview`)
+    .listenForWhisper("otherIsNavigating", (event) => {
+        editDataTools.value = { 
+            ...editDataTools.value,
+            previewMode : event.data.previewMode
+          }
+    });
 });
 
 
@@ -76,14 +86,14 @@ onUnmounted(() => {
     if(socketLayout) socketLayout.actions.unsubscribe();
 });
 
-console.log('preview',props)
+
 
 </script>
 
 
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
-       <!--  <RenderHeaderMenu 
+      <!--   <RenderHeaderMenu 
         :data="layout?.header"
         :menu="layout?.navigation"
         :colorThemed="layout.colorThemed"
@@ -125,7 +135,7 @@ console.log('preview',props)
             :is="getComponentFooter(layout.footer.code)"  
             v-model="layout.footer.data.footer"
             :keyTemplate="layout.footer" 
-            :previewMode="false" 
+            :previewMode="editDataTools.previewMode" 
             :colorThemed="layout.colorThemed" 
         />
     </div>

@@ -13,7 +13,6 @@ use App\Actions\Web\Webpage\StoreWebpage;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
-use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Web\Webpage;
 
@@ -22,39 +21,35 @@ class StoreProductCategoryWebpage extends OrgAction
     public function handle(ProductCategory $productCategory): Webpage
     {
 
-        if($productCategory->type == ProductCategoryTypeEnum::FAMILY)
-        {
+        if ($productCategory->type == ProductCategoryTypeEnum::FAMILY) {
             $webpageData = [
                 'code'  => $productCategory->code,
                 'url'   => strtolower($productCategory->code),
                 'purpose'   => WebpagePurposeEnum::FAMILY,
                 'type'      => WebpageTypeEnum::SHOP,
                 'model_type'    => class_basename($productCategory),
-                'model_id'     => $productCategory->id 
+                'model_id'     => $productCategory->id
             ];
-        } elseif ($productCategory->type == ProductCategoryTypeEnum::DEPARTMENT)
-        {
+        } else {
             $webpageData = [
                 'code'  => $productCategory->code,
                 'url'   => strtolower($productCategory->code),
                 'purpose'   => WebpagePurposeEnum::DEPARTMENT,
                 'type'      => WebpageTypeEnum::SHOP,
                 'model_type'    => class_basename($productCategory),
-                'model_id'     => $productCategory->id 
+                'model_id'     => $productCategory->id
             ];
         }
-        $webpage = StoreWebpage::make()->action(
+
+        return StoreWebpage::make()->action(
             $productCategory->shop->website,
             $webpageData
         );
-
-        return $webpage;
     }
 
-    public function asController(ProductCategory $productCategory)
+    public function asController(ProductCategory $productCategory): Webpage
     {
         $this->initialisationFromShop($productCategory->shop, []);
         return $this->handle($productCategory);
     }
 }
-
