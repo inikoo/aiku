@@ -1,23 +1,31 @@
 {
-	"slug": "product",
-	"name": "Product showcase",
-    "icon": "fal fa-hand-holding-box",
+	"slug": "basket",
+	"name": "Basket",
+    "icon": "fal fa-shopping-basket",
 	"blueprint": {
 		"value": ""
 	},
 	"scope": "webpage",
 	"webBlockTypes": [
 		{
-			"code": "product",
-			"name": "Product showcase A",
+			"code": "BasketCompact",
+			"name": "Basket Compact",
 			"data": {
 				"component": "",
-				"icon": ["fal", "cube"],
+				"icon": ["fal", "presentation"]
+			}
+		},
+		{
+			"code": "BasketStyle",
+			"name": "Basket Style",
+			"data": {
+				"component": "",
+				"icon": ["fal", "presentation"],
 				"fieldValue": {
 					"value": ""
 				},
 				"blockLayout" : {
-                    "paddingTop" :  {
+					"paddingTop" :  {
                         "value": "0",
                         "unit": "px"
                     },
