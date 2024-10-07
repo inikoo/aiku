@@ -24,11 +24,13 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property int $group_id
  * @property int $web_block_type_category_id
  * @property int $web_block_type_id
+ * @property string|null $checksum
  * @property array $layout
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $migration_checksum
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read \App\Models\Web\WebBlockType $webBlockType

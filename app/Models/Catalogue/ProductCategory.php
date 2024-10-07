@@ -16,6 +16,7 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
+use App\Models\Web\Webpage;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as LaravelCollection;
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -76,6 +78,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read ProductCategory|null $subDepartment
  * @property-read LaravelCollection<int, ProductCategory> $subDepartments
  * @property-read UniversalSearch|null $universalSearch
+ * @property-read Webpage|null $webpage
  * @method static \Database\Factories\Catalogue\ProductCategoryFactory factory($count = null, $state = [])
  * @method static Builder|ProductCategory newModelQuery()
  * @method static Builder|ProductCategory newQuery()
@@ -195,5 +198,10 @@ class ProductCategory extends Model implements Auditable, HasMedia
     public function collections(): MorphToMany
     {
         return $this->morphToMany(Collection::class, 'model', 'model_has_collections')->withTimestamps();
+    }
+
+    public function webpage(): MorphOne
+    {
+        return $this->morphOne(Webpage::class, 'model');
     }
 }

@@ -22,14 +22,22 @@ class StoreWebBlock extends GrpAction
 
         data_set($modelData, 'group_id', $webBlockType->group_id);
         data_set($modelData, 'web_block_type_category_id', $webBlockType->web_block_type_category_id);
-        data_set($modelData, 'layout', $webBlockType->toArray());
+        data_set($modelData, 'layout', $webBlockType->toArray(), overwrite:false);
+        data_set($modelData, 'checksum', md5(json_encode($modelData['layout'])));
 
         /** @var WebBlock $webBlock */
         $webBlock = $webBlockType->webBlocks()->create($modelData);
+
+
         return $webBlock;
     }
 
-
+    public function rules()
+    {
+        return [
+            'layout'    => ['sometimes', 'array']
+        ];
+    }
 
     public function action(WebBlockType $webBlockType, array $modelData): WebBlock
     {
