@@ -67,6 +67,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
+ * @property array $migration_data
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Deployment> $deployments
  * @property-read Group $group
@@ -103,6 +104,7 @@ class Webpage extends Model implements Auditable
         'data'                   => 'array',
         'settings'               => 'array',
         'published_layout'       => 'array',
+        'migration_data'         => 'array',
         'state'                  => WebpageStateEnum::class,
         'purpose'                => WebpagePurposeEnum::class,
         'type'                   => WebpageTypeEnum::class,
@@ -117,6 +119,7 @@ class Webpage extends Model implements Auditable
         'data'             => '{}',
         'settings'         => '{}',
         'published_layout' => '{}',
+        'migration_data' => '{}'
     ];
 
     protected $guarded = [];
