@@ -1,3 +1,5 @@
+<?php
+
 /*
  * Author: Ganes <gustiganes@gmail.com>
  * Created on: 07-10-2024, Bali, Indonesia
@@ -5,13 +7,6 @@
  * Copyright: 2024
  *
 */
-
-<?php
-/*
- * Author: Arya Permana <aryapermana02@gmail.com>
- * Created: Thu, 24 Jun 2024 13:27:40 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
- */
 
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Models\Inventory\Warehouse;
@@ -50,7 +45,7 @@ beforeEach(function () {
 });
 
 
-test('UI index locations', function () {
+test('UI Index locations', function () {
     $response = get(route('grp.org.warehouses.show.infrastructure.locations.index', [$this->organisation->slug, $this->warehouse->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -66,5 +61,22 @@ test('UI index locations', function () {
             ->has('tagRoute')
             ->has('tagsList')
             ->has('data');
+    });
+});
+
+test('UI Create location', function () {
+    $response = get(route('grp.org.warehouses.show.infrastructure.locations.create', [$this->organisation->slug, $this->warehouse->slug,]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'new location')
+                        ->etc()
+            )
+            ->has('formData');
     });
 });

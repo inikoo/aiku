@@ -67,7 +67,7 @@ beforeEach(
 
         $this->shop = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
 
-        
+
         $website = Website::first();
         if (!$website) {
             $storeData = Website::factory()->definition();

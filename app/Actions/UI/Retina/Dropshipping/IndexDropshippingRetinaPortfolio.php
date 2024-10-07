@@ -19,7 +19,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class IndexDropshippingRetinaProducts extends RetinaAction
+class IndexDropshippingRetinaPortfolio extends RetinaAction
 {
     public function handle(ShopifyUser $shopifyUser): ShopifyUser
     {
@@ -46,9 +46,9 @@ class IndexDropshippingRetinaProducts extends RetinaAction
             'Dropshipping/Products',
             [
                  'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('Products'),
+                'title'       => __('My Portfolios'),
                 'pageHead'    => [
-                    'title' => __('Products'),
+                    'title' => __('My Portfolios'),
                     'icon'  => 'fal fa-cube'
                 ],
                 'tabs' => [
@@ -56,9 +56,9 @@ class IndexDropshippingRetinaProducts extends RetinaAction
                     'navigation' => ProductTabsEnum::navigation()
                 ],
 
-                'products' => ProductsResource::collection(IndexUIProducts::run($shopifyUser->customer->shop, 'products'))
+                'products' => ProductsResource::collection(IndexUIProducts::run($shopifyUser, 'products'))
             ]
-        )->table(IndexUIProducts::make()->tableStructure($shopifyUser->customer->shop, prefix: 'products'));
+        )->table(IndexUIProducts::make()->tableStructure($shopifyUser, prefix: 'products'));
     }
 
     public function getBreadcrumbs(): array
@@ -71,9 +71,9 @@ class IndexDropshippingRetinaProducts extends RetinaAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'retina.dropshipping.portfolios.products.index'
+                                'name' => 'retina.dropshipping.portfolios.index'
                             ],
-                            'label'  => __('Products'),
+                            'label'  => __('My Portfolio'),
                         ]
                     ]
                 ]

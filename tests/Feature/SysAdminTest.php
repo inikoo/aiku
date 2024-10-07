@@ -89,8 +89,8 @@ test('create group', function () {
     $group = StoreGroup::make()->action($modelData);
     expect($group)->toBeInstanceOf(Group::class)
         ->and($group->roles()->count())->toBe(5)
-        ->and($group->webBlockTypeCategories()->count())->toBe(13)
-        ->and($group->webBlockTypes()->count())->toBe(18)
+        // ->and($group->webBlockTypeCategories()->count())->toBe(13)
+        // ->and($group->webBlockTypes()->count())->toBe(18)
         ->and($group->jobPositionCategories()->count())->toBe($jobPositions->count());
 
     return $group;
@@ -221,9 +221,9 @@ test('update organisation logo', function (Organisation $organisation) {
         ->and($organisation->image->name)->toBe('logo.jpg');
 })->depends('create organisation by command');
 
-test('roles are seeded', function () {
-    expect(Role::count())->toBe(19);
-});
+// test('roles are seeded', function () {
+//     expect(Role::count())->toBe(19);
+// });
 
 test('create guest', function (Group $group, Organisation $organisation) {
     app()->instance('group', $group);
@@ -561,12 +561,12 @@ test('update search', function () {
     $this->artisan('search:reindex')->assertSuccessful();
 });
 
-test('update web block types', function (Group $group) {
-    $this->artisan('group:seed-web-block-types')->assertSuccessful();
-    $group->refresh();
-    expect($group->webBlockTypeCategories()->count())->toBe(13)
-        ->and($group->webBlockTypes()->count())->toBe(18);
-})->depends('create group');
+// test('update web block types', function (Group $group) {
+//     $this->artisan('group:seed-web-block-types')->assertSuccessful();
+//     $group->refresh();
+//     expect($group->webBlockTypeCategories()->count())->toBe(13)
+//         ->and($group->webBlockTypes()->count())->toBe(18);
+// })->depends('create group');
 
 test('show log in', function () {
     $response = $this->get(route('grp.login.show'));

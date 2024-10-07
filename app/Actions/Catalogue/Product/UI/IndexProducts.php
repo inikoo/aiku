@@ -536,6 +536,17 @@ class IndexProducts extends OrgAction
         return $this->handle(parent: $shop, bucket: $this->bucket);
     }
 
+    public function inRetina(ActionRequest $request): LengthAwarePaginator
+    {
+        $this->asAction = true;
+        $this->bucket = 'all';
+        $shop = $request->get('website')->shop;
+        $this->parent = $shop;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $shop, bucket: $this->bucket);
+    }
+
     /** @noinspection PhpUnusedParameterInspection */
     public function current(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
