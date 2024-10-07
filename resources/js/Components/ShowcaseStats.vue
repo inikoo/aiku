@@ -5,7 +5,7 @@
             <dt class="text-xs font-medium text-gray-400 capitalize">{{ stat.label }}</dt>
             <!-- <dd :class="[stat.changeType === 'negative' ? 'text-rose-600' : 'text-gray-700', 'text-xs font-medium']">
                 {{ stat.change }}
-            </dd> -->
+            </dd> --> 
             <dd class="w-full flex-none text-xl font-bold leading-8 tracking-tight text-indigo-700">{{ stat.value }}
             </dd>
         </div>
