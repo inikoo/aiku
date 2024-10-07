@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
     use HasSoftDeletes;
+
     public function up(): void
     {
         Schema::create('webpages', function (Blueprint $table) {
@@ -26,7 +27,8 @@ return new class () extends Migration {
             $table->foreign('parent_id')->references('id')->on('webpages');
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
-
+            $table->string('model_typo')->index()->nullable();
+            $table->string('model_id')->nullable();
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('url')->index()->collation('und_ns');
@@ -49,16 +51,15 @@ return new class () extends Migration {
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
             $table = $this->softDeletes($table);
-
             $table->string('source_id')->nullable()->unique();
-
+            $table->string('migration_data')->jsonb();
+            $table->index(['model_typo', 'model_id']);
         });
 
         Schema::table('websites', function ($table) {
             $table->unsignedInteger('storefront_id')->index()->nullable();
             $table->foreign('storefront_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
         });
-
     }
 
     public function down(): void
