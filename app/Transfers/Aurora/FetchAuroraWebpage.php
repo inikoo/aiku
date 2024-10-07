@@ -84,9 +84,9 @@ class FetchAuroraWebpage extends FetchAurora
 
         $purpose = match ($this->auroraModelData->{'Webpage Scope'}) {
             'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpagePurposeEnum::STOREFRONT,
-            'Asset' => WebpagePurposeEnum::PRODUCT_OVERVIEW,
-            'Category Products' => WebpagePurposeEnum::PRODUCT_LIST,
-            'Category Categories' => WebpagePurposeEnum::CATEGORY_PREVIEW,
+            'Asset' => WebpagePurposeEnum::PRODUCT,
+            'Category Products' => WebpagePurposeEnum::FAMILY,
+            'Category Categories' => WebpagePurposeEnum::DEPARTMENT,
             'Register' => WebpagePurposeEnum::REGISTER,
             'Login', 'ResetPwd' => WebpagePurposeEnum::LOGIN,
             'TandC' => WebpagePurposeEnum::TERMS_AND_CONDITIONS,
