@@ -12,6 +12,7 @@ use App\Actions\Dropshipping\ShopifyUser\StoreShopifyUser;
 use App\Actions\UI\Retina\Dropshipping\Client\CreateCustomerClient;
 use App\Actions\UI\Retina\Dropshipping\Client\IndexCustomerClients;
 use App\Actions\UI\Retina\Dropshipping\Client\ShowCustomerClient;
+use App\Actions\UI\Retina\Dropshipping\IndexDropshippingRetinaPortfolio;
 use App\Actions\UI\Retina\Dropshipping\ShowDropshipping;
 use App\Actions\UI\Retina\Dropshipping\IndexDropshippingRetinaProducts;
 use App\Actions\UI\Retina\Dropshipping\ShowProduct;
@@ -31,7 +32,9 @@ Route::prefix('client')->as('client.')->group(function () {
 });
 
 Route::prefix('portfolios')->as('portfolios.')->group(function () {
-    Route::get('/', IndexDropshippingRetinaProducts::class)->name('index');
+    Route::get('my-portfolio', IndexDropshippingRetinaPortfolio::class)->name('index');
+    Route::get('products', IndexDropshippingRetinaProducts::class)->name('products.index');
+
     Route::get('{portfolio}', ShowProduct::class)->name('show');
 });
 
