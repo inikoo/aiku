@@ -37,7 +37,7 @@ class UploadProgressResource extends JsonResource
             'total'        => $upload->number_rows,
             'done'         => $upload->number_success + $upload->number_fails,
             'data'         => [
-                'type'           => $upload->type,
+                'type'           => $upload->model,
                 'filename'       => $upload->filename,
                 'number_success' => $upload->number_success,
                 'number_fails'   => $upload->number_fails,

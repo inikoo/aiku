@@ -35,15 +35,14 @@ class UpdateUsersPseudoJobPositions extends GrpAction
 
     private Organisation $organisation;
 
-    public function handle(User $user, Organisation $organisation, array $modelData): User
+    public function handle(User $user, array $modelData): User
     {
-
-
         $positions = Arr::get($modelData, 'positions', []);
         $positions = $this->reorganisePositionsSlugsToIds($positions);
 
 
-
+        //todo , this is attach no sync
+        //https://github.com/inikoo/aiku/issues/941
         SyncUserJobPositions::run($user, $positions);
 
         $user->refresh();
@@ -73,33 +72,33 @@ class UpdateUsersPseudoJobPositions extends GrpAction
         ];
     }
 
-    public function action(User $user, Organisation $otherOrganisation, $modelData): User
+    public function action(User $user, Organisation $organisation, $modelData): User
     {
-        $this->asAction          = true;
-        $this->user              = $user;
-        $this->organisation = $otherOrganisation;
+        $this->asAction     = true;
+        $this->user         = $user;
+        $this->organisation = $organisation;
 
         $this->initialisation($user->group, $modelData);
 
-        return $this->handle($user, $otherOrganisation, $this->validatedData);
+        return $this->handle($user, $this->validatedData);
     }
 
     public function prepareForValidation(ActionRequest $request): void
     {
         $this->preparePositionsForValidation();
-        if ($this->user->employees()->where('user_has_models.organisation_id', $this->organisation->id)->exists()) {
-            abort(419);
-        }
+        //todo check if is a valid current model (gust|employee) in user_has_models  if is an active one reject
+
+
     }
 
     public function asController(User $user, Organisation $organisation, ActionRequest $request): User
     {
-        $this->user              = $user;
+        $this->user         = $user;
         $this->organisation = $organisation;
 
         $this->initialisation(app('group'), $request);
 
-        return $this->handle($user, $organisation, $this->validatedData);
+        return $this->handle($user, $this->validatedData);
     }
 
     public function jsonResponse(User $user): EmployeeResource

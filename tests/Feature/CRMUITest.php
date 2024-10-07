@@ -8,16 +8,20 @@
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Ordering\Order\StoreOrder;
+use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
+use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Inventory\Location;
 use App\Models\Ordering\Order;
+use App\Models\Web\Website;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -63,6 +67,20 @@ beforeEach(
 
         $this->shop = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
 
+        
+        $website = Website::first();
+        if (!$website) {
+            $storeData = Website::factory()->definition();
+
+            $website = StoreWebsite::make()->action(
+                $this->shop,
+                $storeData
+            );
+        }
+        $this->website = $website;
+
+        $this->shop->refresh();
+
         $customer = Customer::first();
         if (!$customer) {
             $storeData = Customer::factory()->definition();
@@ -73,6 +91,20 @@ beforeEach(
             );
         }
         $this->customer = $customer;
+
+        $webUser = WebUser::first();
+        if (!$webUser) {
+            $webUser = StoreWebUser::make()->action(
+                $this->customer,
+                [
+                    'email' => 'example@mail.com',
+                    'username' => 'example',
+                    'password' => 'password',
+                    'is_root' => true,
+                ]
+            );
+        }
+        $this->webUser = $webUser;
 
         $customerClient = CustomerClient::first();
         if (!$customerClient) {
@@ -253,6 +285,83 @@ test('UI Index customer portfolios', function () {
                         ->etc()
             )
             ->has('data');
+    });
+});
+
+test('UI Index customer web users', function () {
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.web-users.index', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/WebUsers')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->customer->name)
+                        ->has('subNavigation')
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI Create customer web users', function () {
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.web-users.create', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Create web user')
+                        ->etc()
+            )
+            ->has('formData');
+    });
+});
+
+test('UI show customer web users', function () {
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.web-users.show', [$this->organisation->slug, $this->shop->slug, $this->customer->slug, $this->webUser->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/CRM/WebUser')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->webUser->username)
+                        ->etc()
+            )
+            ->has('data');
+    });
+});
+
+test('UI Edit customer web users', function () {
+    $response = $this->get(route('grp.org.shops.show.crm.customers.show.web-users.edit', [$this->organisation->slug, $this->shop->slug, $this->customer->slug, $this->webUser->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Edit web user')
+                        ->etc()
+            )
+            ->has('formData');
     });
 });
 

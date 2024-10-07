@@ -22,8 +22,10 @@ use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\LazyCollection;
 use Lorisleiva\Actions\Concerns\AsAction;
+use OwenIt\Auditing\Events\AuditCustom;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class FetchAction
@@ -248,6 +250,15 @@ class FetchAction
         UpdateFetch::run($this->organisationSource->fetch, ['finished_at' => now()]);
 
         return 0;
+    }
+
+    protected function saveMigrationHistory($model, $data): void
+    {
+        $model->auditEvent = 'migration';
+        $model->isCustomEvent = true;
+        $model->auditCustomOld = [];
+        $model->auditCustomNew = $data;
+        Event::dispatch(AuditCustom::class, [$model]);
     }
 
 }

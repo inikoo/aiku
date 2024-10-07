@@ -94,17 +94,16 @@ class StoreUser extends GrpAction
                         ],
                     ]
                 ),
-
-
                 Rule::notIn(['export', 'create'])
             ],
             'password'          => ['required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
+            'reset_password'    => ['sometimes', 'boolean'],
             'email'             => [
                 'sometimes',
                 'nullable',
                 'email',
                 new IUnique(
-                    table: 'employees',
+                    table: 'users',
                     extraConditions: [
                         [
                             'column' => 'group_id',
@@ -115,7 +114,6 @@ class StoreUser extends GrpAction
 
             ],
             'contact_name'      => ['sometimes', 'string', 'max:255'],
-            'reset_password'    => ['sometimes', 'boolean'],
             'auth_type'         => ['sometimes', Rule::enum(UserAuthTypeEnum::class)],
             'status'            => ['required', 'boolean'],
             'user_model_status' => ['sometimes', 'boolean'],

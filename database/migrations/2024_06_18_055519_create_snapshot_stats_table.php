@@ -27,7 +27,7 @@ return new class () extends Migration {
             $table->unsignedInteger('number_internal_links')->default(0);
             $table->unsignedInteger('number_external_links')->default(0);
             $table->unsignedInteger('number_images')->default(0);
-            $table->unsignedInteger('filesize')->default(0);
+            $table->unsignedBigInteger('filesize')->default(0);
             $table->unsignedInteger('number_slides')->default(0)->comment('for banners');
             $table->unsignedInteger('number_rows')->default(0)->comment('for emails');
             $table->timestampsTz();

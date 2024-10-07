@@ -7,8 +7,8 @@
 
 namespace App\Actions\HumanResources\Employee;
 
-use App\Actions\Helpers\Uploads\ImportUpload;
-use App\Actions\Helpers\Uploads\StoreUploads;
+use App\Actions\Helpers\Upload\ImportUpload;
+use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\Traits\WithImportModel;
 use App\Imports\HumanResources\Employee\EmployeeImport;
 use App\Models\Helpers\Upload;
@@ -29,7 +29,7 @@ class ImportEmployees
 
     public function handle($file): Upload
     {
-        $upload = StoreUploads::run($file, Employee::class);
+        $upload = StoreUpload::run($file, Employee::class);
 
         if ($this->isSync) {
             ImportUpload::run(

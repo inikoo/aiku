@@ -20,13 +20,9 @@ import ScreenView from "@/Components/ScreenView.vue"
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 
-
-import { faPresentation, faCube, faText, faPaperclip } from "@fal"
-import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faHeart, faExternalLink } from '@far';
-import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle, faImage } from '@fas';
-library.add(faPresentation, faCube, faText, faImage, faPaperclip, faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faUserCircle)
+import { faExternalLink, faLineColumns, faIcons, faMoneyBill } from '@far';
+
 
 const props = defineProps<{
     pageHead: TSPageHeading
@@ -117,8 +113,7 @@ watch(usedTemplates, (newVal) => {
 
 </script>
 
-<template>-
-
+<template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
@@ -128,10 +123,40 @@ watch(usedTemplates, (newVal) => {
     </PageHeading>
     <!-- <pre>{{ usedTemplates  }}</pre> -->
 
-    <div class="h-[84vh]  grid grid-flow-row-dense grid-cols-4">
+    <div class="h-[84vh] grid grid-flow-row-dense grid-cols-4">
         <div v-if="usedTemplates?.data" class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
-            <div class="py-2 px-2 font-bold text-lg">Form Editing</div>
-            <SideEditor v-model="usedTemplates.data.footer" :bluprint="usedTemplates.data.bluprint" />
+            <div class="flex h-full">
+                <div class="w-[10%] bg-slate-200 ">
+                    <div
+                        class="py-2 px-3 cursor-pointer transition duration-300 ease-in-out transform hover:scale-105"
+                        title="Column"
+                        :class="'bg-gray-300/70 hover:bg-gray-200/60'"
+                        v-tooltip="'Column'"
+                    >
+                        <FontAwesomeIcon :icon="faLineColumns" :class="'text-indigo-500 w-6 h-6'" aria-hidden='true' />
+                    </div>
+                    <div
+                        class="py-2 px-3 cursor-pointer transition duration-300 ease-in-out transform hover:scale-105"
+                        title="Socials Media"
+                        :class="'bg-gray-300/70 hover:bg-gray-200/60'"
+                        v-tooltip="'Mobile view'"
+                    >
+                        <FontAwesomeIcon :icon="faIcons" :class="'text-indigo-500 w-6 h-6'" aria-hidden='true' />
+                    </div>
+                    <div
+                        class="py-2 px-3 cursor-pointer transition duration-300 ease-in-out transform hover:scale-105"
+                        title="Payment"
+                        :class="'bg-gray-300/70 hover:bg-gray-200/60'"
+                        v-tooltip="'Payment'"
+                    >
+                        <FontAwesomeIcon :icon="faMoneyBill" :class="'text-indigo-500 w-6 h-6'" aria-hidden='true' />
+                    </div>
+                </div>
+                <div class="w-[90%]">
+                    <SideEditor v-model="usedTemplates.data.footer" :bluprint="usedTemplates.data.bluprint" />
+                </div>
+            </div>
+            
         </div>
 
         <div class="bg-gray-100 h-full" :class="usedTemplates ? 'col-span-3' : 'col-span-4'">

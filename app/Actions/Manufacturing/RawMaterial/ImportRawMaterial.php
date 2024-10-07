@@ -8,8 +8,8 @@
 namespace App\Actions\Manufacturing\RawMaterial;
 
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
-use App\Actions\Helpers\Uploads\ImportUpload;
-use App\Actions\Helpers\Uploads\StoreUploads;
+use App\Actions\Helpers\Upload\ImportUpload;
+use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithImportModel;
 use App\Http\Resources\Helpers\UploadsResource;
@@ -31,7 +31,7 @@ class ImportRawMaterial extends OrgAction
 
     public function handle(Production $production, $file): Upload
     {
-        $upload = StoreUploads::run($file, RawMaterial::class);
+        $upload = StoreUpload::run($file, RawMaterial::class);
 
         if ($this->isSync) {
             ImportUpload::run(

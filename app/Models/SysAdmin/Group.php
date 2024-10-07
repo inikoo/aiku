@@ -37,6 +37,7 @@ use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Currency;
+use App\Models\Helpers\Upload;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
@@ -163,6 +164,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
  * @property-read LaravelCollection<int, ShippingZone> $shippingZones
  * @property-read LaravelCollection<int, Shop> $shops
+ * @property-read \App\Models\SysAdmin\GroupStats|null $stats
  * @property-read LaravelCollection<int, StockFamily> $stockFamilies
  * @property-read LaravelCollection<int, Stock> $stocks
  * @property-read LaravelCollection<int, Subscription> $subscriptions
@@ -174,6 +176,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, TradeUnit> $tradeUnits
+ * @property-read LaravelCollection<int, Upload> $uploads
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\User> $users
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
  * @property-read LaravelCollection<int, Warehouse> $warehouses
@@ -281,6 +284,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(GroupStats::class);
     }
 
     public function humanResourcesStats(): HasOne
@@ -652,6 +660,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function deliveryNotes(): HasMany
     {
         return $this->hasMany(DeliveryNote::class);
+    }
+
+    public function uploads(): HasMany
+    {
+        return $this->hasMany(Upload::class);
     }
 
 

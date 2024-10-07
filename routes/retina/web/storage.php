@@ -9,7 +9,7 @@ use App\Actions\Fulfilment\Pallet\DownloadPalletsTemplate;
 use App\Actions\Fulfilment\Pallet\UI\ShowPallet;
 use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnPallet;
 use App\Actions\Fulfilment\PalletReturn\ExportPalletReturnStoredItem;
-use App\Actions\Helpers\Uploads\HistoryUploads;
+use App\Actions\Helpers\Upload\HistoryUploads;
 use App\Actions\Retina\Storage\Pallet\UI\IndexPallets;
 use App\Actions\Retina\Storage\PalletDelivery\UI\IndexPalletDeliveries;
 use App\Actions\Retina\Storage\PalletDelivery\UI\ShowPalletDelivery;

@@ -26,6 +26,7 @@ use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -36,6 +37,9 @@ class StoreProduct extends OrgAction
 
     private AssetStateEnum|null $state = null;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Shop|ProductCategory $parent, array $modelData): Product
     {
         $status = false;
@@ -47,8 +51,6 @@ class StoreProduct extends OrgAction
 
         $orgStocks = $modelData['org_stocks'];
         data_forget($modelData, 'org_stocks');
-
-
 
 
         if (count($orgStocks) == 1) {
@@ -81,96 +83,100 @@ class StoreProduct extends OrgAction
         data_set($modelData, 'currency_id', $shop->currency_id);
 
 
-        /** @var Product $product */
-        $product = $shop->products()->create($modelData);
+        $product = DB::transaction(function () use ($shop, $modelData, $orgStocks) {
+            /** @var Product $product */
+            $product = $shop->products()->create($modelData);
 
-        if ($product->is_main) {
-            $product->updateQuietly([
-                'main_product_id' => $product->id
-            ]);
-        }
-
-        $product->stats()->create();
-        $product->salesIntervals()->create();
-        ProductHydrateProductVariants::dispatch($product->mainProduct)->delay($this->hydratorsDelay);
-
-        $product->refresh();
-
-
-        $asset = StoreAsset::run(
-            $product,
-            [
-                'type'    => AssetTypeEnum::PRODUCT,
-                'is_main' => $product->is_main,
-                'state'   => match ($product->state) {
-                    ProductStateEnum::IN_PROCESS    => AssetStateEnum::IN_PROCESS,
-                    ProductStateEnum::ACTIVE        => AssetStateEnum::ACTIVE,
-                    ProductStateEnum::DISCONTINUING => AssetStateEnum::DISCONTINUING,
-                    ProductStateEnum::DISCONTINUED  => AssetStateEnum::DISCONTINUED,
-                }
-            ],
-            $this->hydratorsDelay
-        );
-
-        $product->updateQuietly(
-            [
-                'asset_id' => $asset->id
-            ]
-        );
-
-
-        foreach ($orgStocks as $orgStocksId => $orgStockData) {
-            $tradeUnit = OrgStock::find($orgStocksId);
-            $product->orgStocks()->attach(
-                $tradeUnit,
-                [
-                    'quantity' => $orgStockData['quantity'],
-                    'notes'    => Arr::get($orgStockData, 'notes'),
-                ]
-            );
-        }
-        $tradeUnits = [];
-        foreach ($product->orgStocks as $orgStock) {
-            foreach ($orgStock->stock->tradeUnits as $tradeUnit) {
-                $tradeUnits[$tradeUnit->id] = [
-                    'quantity' => $orgStock->pivot->quantity * $tradeUnit->pivot->quantity,
-                ];
+            if ($product->is_main) {
+                $product->updateQuietly([
+                    'main_product_id' => $product->id
+                ]);
             }
-        }
 
-        foreach ($tradeUnits as $tradeUnitId => $tradeUnitData) {
-            $tradeUnit = TradeUnit::find($tradeUnitId);
-            $product->tradeUnits()->attach(
-                $tradeUnit,
+            $product->stats()->create();
+            $product->salesIntervals()->create();
+
+
+            $product->refresh();
+
+
+            $asset = StoreAsset::run(
+                $product,
                 [
-                    'quantity' => $tradeUnitData['quantity'],
-                    'notes'    => Arr::get($tradeUnitData, 'notes'),
+                    'type'    => AssetTypeEnum::PRODUCT,
+                    'is_main' => $product->is_main,
+                    'state'   => match ($product->state) {
+                        ProductStateEnum::IN_PROCESS => AssetStateEnum::IN_PROCESS,
+                        ProductStateEnum::ACTIVE => AssetStateEnum::ACTIVE,
+                        ProductStateEnum::DISCONTINUING => AssetStateEnum::DISCONTINUING,
+                        ProductStateEnum::DISCONTINUED => AssetStateEnum::DISCONTINUED,
+                    }
+                ],
+                $this->hydratorsDelay
+            );
+
+            $product->updateQuietly(
+                [
+                    'asset_id' => $asset->id
                 ]
             );
-        }
 
 
-        $historicAsset = StoreHistoricAsset::run(
-            $product,
-            [
-                'source_id' => $product->historic_source_id
-            ],
-            $this->hydratorsDelay
-        );
+            foreach ($orgStocks as $orgStocksId => $orgStockData) {
+                $tradeUnit = OrgStock::find($orgStocksId);
+                $product->orgStocks()->attach(
+                    $tradeUnit,
+                    [
+                        'quantity' => $orgStockData['quantity'],
+                        'notes'    => Arr::get($orgStockData, 'notes'),
+                    ]
+                );
+            }
+            $tradeUnits = [];
+            foreach ($product->orgStocks as $orgStock) {
+                foreach ($orgStock->stock->tradeUnits as $tradeUnit) {
+                    $tradeUnits[$tradeUnit->id] = [
+                        'quantity' => $orgStock->pivot->quantity * $tradeUnit->pivot->quantity,
+                    ];
+                }
+            }
 
-        $asset->updateQuietly(
-            [
-                'current_historic_asset_id' => $historicAsset->id,
-            ]
-        );
-        $product->updateQuietly(
-            [
-                'current_historic_asset_id' => $historicAsset->id,
-            ]
-        );
+            foreach ($tradeUnits as $tradeUnitId => $tradeUnitData) {
+                $tradeUnit = TradeUnit::find($tradeUnitId);
+                $product->tradeUnits()->attach(
+                    $tradeUnit,
+                    [
+                        'quantity' => $tradeUnitData['quantity'],
+                        'notes'    => Arr::get($tradeUnitData, 'notes'),
+                    ]
+                );
+            }
 
+
+            $historicAsset = StoreHistoricAsset::run(
+                $product,
+                [
+                    'source_id' => $product->historic_source_id
+                ],
+                $this->hydratorsDelay
+            );
+
+            $asset->updateQuietly(
+                [
+                    'current_historic_asset_id' => $historicAsset->id,
+                ]
+            );
+            $product->updateQuietly(
+                [
+                    'current_historic_asset_id' => $historicAsset->id,
+                ]
+            );
+
+            return $product;
+        });
+
+        ProductHydrateProductVariants::dispatch($product->mainProduct)->delay($this->hydratorsDelay);
         $this->productHydrators($product);
-
 
 
         return $product;
@@ -262,6 +268,9 @@ class StoreProduct extends OrgAction
     }
 
 
+    /**
+     * @throws \Throwable
+     */
     public function inShop(Shop $shop, ActionRequest $request): RedirectResponse
     {
         $this->initialisationFromShop($shop, $request);
@@ -270,6 +279,9 @@ class StoreProduct extends OrgAction
         return Redirect::route('grp.org.shops.show.catalogue.products.index', $shop);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function inFamily(Organisation $organisation, Shop $shop, ProductCategory $family, ActionRequest $request): RedirectResponse
     {
         $this->initialisationFromShop($shop, $request);
@@ -278,8 +290,15 @@ class StoreProduct extends OrgAction
         return Redirect::route('grp.org.shops.show.catalogue.families.show.products.index', [$organisation->slug, $shop->slug, $family->slug]);
     }
 
-    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, $strict = true): Product
+    /**
+     * @throws \Throwable
+     */
+    public function action(Shop|ProductCategory $parent, array $modelData, int $hydratorsDelay = 0, $strict = true, $audit = true): Product
     {
+        if (!$audit) {
+            Product::disableAuditing();
+        }
+
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
         $this->strict         = $strict;

@@ -9,6 +9,7 @@ namespace App\Models\Helpers;
 
 use App\Models\SysAdmin\User;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,19 +20,29 @@ use OwenIt\Auditing\Contracts\Auditable;
  * App\Models\ExcelUpload
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property int|null $shop_id
  * @property int|null $user_id
- * @property string $type
+ * @property string $model
  * @property string $original_filename
  * @property string $filename
- * @property string $path
+ * @property int $filesize
+ * @property string|null $path
  * @property int $number_rows
  * @property int $number_success
  * @property int $number_fails
- * @property string $uploaded_at
+ * @property string|null $uploaded_at Date the file was finished store/update actions
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
+ * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\UploadRecord> $records
+ * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read User|null $user
  * @method static \Illuminate\Database\Eloquent\Builder|Upload newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Upload newQuery()
@@ -42,8 +53,14 @@ class Upload extends Model implements Auditable
 {
     use HasFactory;
     use HasHistory;
+    use inShop;
 
     protected $guarded = [];
+
+    protected $casts = [
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
+    ];
 
     public function generateTags(): array
     {
@@ -53,12 +70,13 @@ class Upload extends Model implements Auditable
     }
 
     protected array $auditInclude = [
+        'model',
         'original_filename',
     ];
 
     public function getFullPath(): string
     {
-        return $this->path . '/' . $this->filename;
+        return $this->path.'/'.$this->filename;
     }
 
     public function records(): HasMany

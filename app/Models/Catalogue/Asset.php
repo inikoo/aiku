@@ -14,9 +14,7 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Currency;
-use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
-use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -26,7 +24,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -57,7 +54,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property ProductUnitRelationshipType $unit_relationship_type
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Barcode> $barcode
  * @property-read Currency $currency
  * @property-read \App\Models\SysAdmin\Group $group
@@ -75,7 +71,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Service|null $service
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\AssetStats|null $stats
- * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|Asset newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Asset newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Asset onlyTrashed()
@@ -84,17 +79,16 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|Asset withoutTrashed()
  * @mixin \Eloquent
  */
-class Asset extends Model implements HasMedia, Auditable
+class Asset extends Model implements HasMedia
 {
     use SoftDeletes;
     use HasSlug;
-    use HasUniversalSearch;
     use HasFactory;
     use InShop;
     use HasImage;
-    use HasHistory;
 
     protected $casts = [
+        'units'                  => 'decimal:3',
         'data'                   => 'array',
         'status'                 => 'boolean',
         'type'                   => AssetTypeEnum::class,
@@ -103,37 +97,16 @@ class Asset extends Model implements HasMedia, Auditable
     ];
 
     protected $attributes = [
-        'data'     => '{}',
+        'data' => '{}',
     ];
 
     protected $guarded = [];
 
-    public function generateTags(): array
-    {
-        return [
-            'catalogue',
-        ];
-    }
-
-    protected array $auditInclude = [
-        'is_main',
-        'model_type',
-        'model_id',
-        'status',
-        'state',
-        'code',
-        'name',
-        'price',
-        'currency_id',
-        'units',
-        'unit',
-    ];
 
     public function getRouteKeyName(): string
     {
         return 'slug';
     }
-
 
     public function getSlugOptions(): SlugOptions
     {

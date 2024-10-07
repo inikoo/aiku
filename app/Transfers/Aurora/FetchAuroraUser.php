@@ -18,7 +18,6 @@ class FetchAuroraUser extends FetchAurora
 
     protected function parseModel(): void
     {
-
         if (!in_array($this->auroraModelData->{'User Type'}, ['Staff', 'Contractor'])) {
             return;
         }
@@ -27,7 +26,6 @@ class FetchAuroraUser extends FetchAurora
             $parent = $this->parseEmployee($this->organisation->id.':'.$this->auroraModelData->{'User Parent Key'});
         }
         $parentSource = $this->organisation->id.':'.$this->auroraModelData->{'User Parent Key'};
-
 
 
         $legacyPassword = $this->auroraModelData->{'User Password'};
@@ -49,7 +47,7 @@ class FetchAuroraUser extends FetchAurora
             $status = false;
         }
 
-        $this->parsedData['parent'] = $parent;
+        $this->parsedData['parent']       = $parent;
         $this->parsedData['parentSource'] = $parentSource;
 
         $relatedUsername = $this->auroraModelData->{'User Handle'};
@@ -57,6 +55,9 @@ class FetchAuroraUser extends FetchAurora
             $relatedUsername = $this->auroraModelData->aiku_alt_username;
         }
         $this->parsedData['related_username'] = Str::kebab(Str::lower($relatedUsername));
+
+        $this->parsedData['add_guest'] = $this->auroraModelData->aiku_add_guest == 'Yes';
+
 
         $this->parsedData['user'] =
             [
@@ -68,14 +69,33 @@ class FetchAuroraUser extends FetchAurora
                 'legacy_password'   => $legacyPassword,
                 'language_id'       => $this->parseLanguageID($this->auroraModelData->{'User Preferred Locale'}),
                 'reset_password'    => false,
+                'password'          => Str::random(64),
                 'fetched_at'        => now(),
                 'last_fetched_at'   => now(),
                 'positions'         => $this->parsePositions($this->auroraModelData->{'User Key'})
             ];
 
+        if ($this->parsedData['add_guest']) {
+            $this->parsedData['guest'] = $this->getGuestData();
+        }
+
         $this->parseUserPhoto();
     }
 
+    protected function getGuestData(): array
+    {
+        return [
+            'code'            => $this->auroraModelData->{'User Handle'},
+            'contact_name'    => $this->auroraModelData->{'Staff Name'},
+            'phone'           => $this->auroraModelData->{'Staff Telephone'},
+            'email'           => $this->auroraModelData->{'Staff Email'},
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Staff Key'},
+            'status'          => $this->parsedData['user']['status'],
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
+            'user'            => $this->parsedData['user']
+        ];
+    }
 
     protected function fetchData($id): object|null
     {
@@ -84,7 +104,8 @@ class FetchAuroraUser extends FetchAurora
             ->leftJoin('Staff Dimension', 'Staff Key', 'User Parent Key')
             ->selectRaw('*,(select GROUP_CONCAT(`Role Code`) from `Staff Role Bridge` SRB where (SRB.`Staff Key`=`Staff Dimension`.`Staff Key`) ) as staff_positions')
             ->selectRaw('(select GROUP_CONCAT(`User Group Key`) from `User Group User Bridge` UGUB where (UGUB.`User Key`=`User Dimension`.`User Key`) ) as staff_groups')
-
             ->where('User Key', $id)->first();
     }
+
+
 }

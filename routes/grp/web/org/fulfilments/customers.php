@@ -40,7 +40,7 @@ use App\Actions\Fulfilment\StoredItem\UI\ShowStoredItem;
 use App\Actions\Fulfilment\StoredItemAudit\UI\CreateStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\UI\IndexStoredItemAudits;
 use App\Actions\Fulfilment\StoredItemAudit\UI\ShowStoredItemAudit;
-use App\Actions\Helpers\Uploads\HistoryUploads;
+use App\Actions\Helpers\Upload\HistoryUploads;
 
 //Route::get('', ShowFulfilmentCRMDashboard::class)->name('dashboard');
 

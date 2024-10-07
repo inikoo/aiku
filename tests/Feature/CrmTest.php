@@ -18,7 +18,6 @@ use App\Enums\Mail\Mailshot\MailshotTypeEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
-use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Query;
 use App\Models\Mail\Mailshot;
@@ -50,6 +49,7 @@ beforeEach(function () {
 
 
 test('create customer', function () {
+
     $customer = StoreCustomer::make()->action(
         $this->shop,
         Customer::factory()->definition(),
@@ -115,6 +115,7 @@ test('create prospect', function () {
 
 test('update prospect', function () {
 
+    /** @var Prospect $prospect */
     $prospect  = Prospect::first();
     $modelData = [
         'contact_name' => 'new name',
@@ -162,7 +163,6 @@ test('prospect query count', function () {
 
 test('create prospect mailshot', function () {
     $shop         = $this->shop;
-    $organisation = $this->organisation;
     $outbox       = Outbox::where('shop_id', $shop->id)->where('type', OutboxTypeEnum::SHOP_PROSPECT)->first();
     $dataModel    = [
         'subject'    => 'hello',
@@ -177,8 +177,9 @@ test('create prospect mailshot', function () {
 
 test('add delivery address to customer', function (Customer $customer) {
     $country = Country::latest()->first();
-    $customer = AddDeliveryAddressToCustomer::make()->action($customer,
-                [
+    $customer = AddDeliveryAddressToCustomer::make()->action(
+        $customer,
+        [
                     'delivery_address' => [
                         'address_line_1'      => fake()->streetAddress,
                         'address_line_2'      => fake()->buildingNumber,
@@ -186,10 +187,11 @@ test('add delivery address to customer', function (Customer $customer) {
                         'postal_code'         => fake()->postcode,
                         'locality'            => fake()->city,
                         'dependent_locality'  => '',
-                        'administrative_area' => fake('en_US')->state() ,
+                        'administrative_area' => '',
                         'country_id'          => $country->id
                     ]
-                ]);
+                ]
+    );
 
     expect($customer)->toBeInstanceOf(Customer::class)
     ->and($customer->addresses->count())->toBe(2);
@@ -197,7 +199,7 @@ test('add delivery address to customer', function (Customer $customer) {
     return $customer;
 })->depends('create customer');
 
-test('delete delivery address from customer', function (Customer $customer) {
+test('remove delivery address from customer', function (Customer $customer) {
     $address = $customer->addresses()->skip(1)->first();
     $customer = DeleteCustomerDeliveryAddress::make()->action($customer, $address);
 

@@ -8,14 +8,13 @@
 namespace App\Actions\Fulfilment\Pallet;
 
 use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
-use App\Actions\Helpers\Uploads\ImportUpload;
-use App\Actions\Helpers\Uploads\StoreUploads;
+use App\Actions\Helpers\Upload\ImportUpload;
+use App\Actions\Helpers\Upload\StoreUpload;
 use App\Actions\Traits\WithImportModel;
 use App\Http\Resources\Helpers\UploadsResource;
 use App\Imports\Fulfilment\PalletImport;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
-use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Helpers\Upload;
 use App\Models\Inventory\Warehouse;
@@ -30,7 +29,14 @@ class ImportPallet
 
     public function handle(PalletDelivery $palletDelivery, $file, $includeStoredItem = false): Upload
     {
-        $upload = StoreUploads::run($file, Pallet::class);
+
+        $upload = StoreUpload::make()->fromFile(
+            $palletDelivery->organisation,
+            $file,
+            [
+                'model' => 'Pallet',
+            ]
+        );
 
         if ($this->isSync) {
             ImportUpload::run(

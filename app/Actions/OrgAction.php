@@ -12,6 +12,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Production;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -23,7 +24,7 @@ class OrgAction
     use WithAttributes;
     use WithTab;
 
-
+    protected Group $group;
     protected Organisation $organisation;
     protected Shop $shop;
     protected Fulfilment $fulfilment;
@@ -112,5 +113,17 @@ class OrgAction
         return $this;
     }
 
+    public function initialisationForGroup(Group $group, ActionRequest|array $request): static
+    {
+        $this->group = $group;
+        if (is_array($request)) {
+            $this->setRawAttributes($request);
+        } else {
+            $this->fillFromRequest($request);
+        }
+        $this->validatedData = $this->validateAttributes();
+
+        return $this;
+    }
 
 }

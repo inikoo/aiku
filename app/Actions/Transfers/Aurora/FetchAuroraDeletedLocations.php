@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedLocations extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:deleted-locations {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:deleted-locations {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Location
     {

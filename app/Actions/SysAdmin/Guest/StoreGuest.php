@@ -14,6 +14,7 @@ use App\Actions\SysAdmin\Guest\Hydrators\GuestHydrateUniversalSearch;
 use App\Actions\SysAdmin\User\StoreUser;
 use App\Actions\Traits\WithPreparePositionsForValidation;
 use App\Actions\Traits\WithReorganisePositions;
+use App\Enums\SysAdmin\User\UserAuthTypeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use App\Rules\AlphaDashDot;
@@ -34,6 +35,7 @@ class StoreGuest extends GrpAction
 {
     use WithPreparePositionsForValidation;
     use WithReorganisePositions;
+
     private bool $validatePhone = false;
 
     public function handle(Group $group, array $modelData): Guest
@@ -43,35 +45,21 @@ class StoreGuest extends GrpAction
         $positions = $this->reorganisePositionsSlugsToIds($positions);
 
 
+        data_set($modelData, 'status', true, overwrite: false);
+
+        $userData = Arr::get($modelData, 'user', []);
+        data_set($userData, 'status', $modelData['status'], overwrite: false);
+        data_set($userData, 'contact_name', Arr::get($modelData, 'contact_name'), overwrite: false);
+        data_set($userData, 'email', Arr::get($modelData, 'email'), overwrite: false);
+
+
         /** @var Guest $guest */
-        $guest = $group->guests()->create(
-            Arr::except($modelData, [
-                'username',
-                'password',
-                'reset_password'
-            ])
-        );
+        $guest = $group->guests()->create(Arr::except($modelData, ['user',]));
         $guest->stats()->create();
-
-        GuestHydrateUniversalSearch::dispatch($guest);
-
-        $user = StoreUser::make()->action(
-            $guest,
-            [
-                'username'       => Arr::get($modelData, 'username'),
-                'password'       => Arr::get($modelData, 'password'),
-                'contact_name'   => $guest->contact_name,
-                'email'          => $guest->email,
-                'reset_password' => Arr::get($modelData, 'reset_password', false),
-                'status'         => true,
-            ]
-        );
-
-
+        $user = StoreUser::make()->action($guest, $userData, $this->hydratorsDelay, strict: $this->strict);
 
         SyncUserJobPositions::run($user, $positions);
-
-
+        GuestHydrateUniversalSearch::dispatch($guest);
         GroupHydrateGuests::dispatch($group);
 
         return $guest;
@@ -89,7 +77,7 @@ class StoreGuest extends GrpAction
     public function prepareForValidation(): void
     {
         if (!$this->has('code')) {
-            $this->set('code', $this->get('username'));
+            $this->set('code', $this->get('user.username'));
         }
         if ($this->get('phone')) {
             $this->set('phone', preg_replace('/[^0-9+]/', '', $this->get('phone')));
@@ -100,13 +88,12 @@ class StoreGuest extends GrpAction
         }
 
         $this->preparePositionsForValidation();
-
     }
 
     public function afterValidator(Validator $validator, ActionRequest $request): void
     {
         if ($validator->errors()->has('code')) {
-            $validator->errors()->add('username', $validator->errors()->first('code'));
+            $validator->errors()->add('user.username', $validator->errors()->first('code'));
         }
     }
 
@@ -119,8 +106,8 @@ class StoreGuest extends GrpAction
         }
 
 
-        return [
-            'code'         => [
+        $rules = [
+            'code' => [
                 'required',
                 'string',
                 'max:32',
@@ -128,18 +115,13 @@ class StoreGuest extends GrpAction
                 new IUnique(table: 'guests'),
 
             ],
-            'username'     => [
-                'required',
-                'string',
-                new AlphaDashDot(),
-                Rule::notIn(['export', 'create']),
-                new IUnique(table: 'users'),
-            ],
-            'company_name' => ['nullable', 'string', 'max:255'],
+
+            'company_name' => ['sometimes', 'nullable', 'string', 'max:255'],
             'contact_name' => ['required', 'string', 'max:255'],
             'phone'        => $phoneValidation,
             'email'        => ['sometimes', 'nullable', 'email'],
             'positions'    => ['sometimes', 'array'],
+            'status'       => ['sometimes', 'boolean'],
 
             'positions.*.slug'   => ['sometimes', 'string'],
             'positions.*.scopes' => ['sometimes', 'array'],
@@ -148,10 +130,64 @@ class StoreGuest extends GrpAction
             'positions.*.scopes.warehouses.slug.*'    => ['sometimes', Rule::exists('warehouses', 'slug')->where('group_id', $this->group->id)],
             'positions.*.scopes.fulfilments.slug.*'   => ['sometimes', Rule::exists('fulfilments', 'slug')->where('group_id', $this->group->id)],
             'positions.*.scopes.shops.slug.*'         => ['sometimes', Rule::exists('shops', 'slug')->where('group_id', $this->group->id)],
-            'password'                                => ['sometimes', 'required', 'max:255', app()->isLocal() || app()->environment('testing') ? null : Password::min(8)->uncompromised()],
-            'reset_password'                          => ['sometimes', 'boolean'],
-            'source_id'                               => ['sometimes', 'string'],
+
+
+            'user.username'          => [
+                'required',
+                $this->strict ? new AlphaDashDot() : 'string',
+                new IUnique(
+                    table: 'users',
+                    column: 'username',
+                    extraConditions: [
+
+                        [
+                            'column' => 'group_id',
+                            'value'  => $this->group->id
+                        ],
+                    ]
+                ),
+                Rule::notIn(['export', 'create'])
+            ],
+            'user.password'          => ['required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
+            'user.reset_password'    => ['sometimes', 'boolean'],
+            'user.email'             => [
+                'sometimes',
+                'nullable',
+                'email',
+                new IUnique(
+                    table: 'users',
+                    extraConditions: [
+                        [
+                            'column' => 'group_id',
+                            'value'  => $this->group->id
+                        ],
+                    ]
+                ),
+
+            ],
+            'user.contact_name'      => ['sometimes', 'string', 'max:255'],
+            'user.auth_type'         => ['sometimes', Rule::enum(UserAuthTypeEnum::class)],
+            'user.status'            => ['sometimes', 'required', 'boolean'],
+            'user.user_model_status' => ['sometimes', 'boolean'],
+            'user.language_id'       => ['sometimes', 'required', 'exists:languages,id'],
+
         ];
+
+        if (!$this->strict) {
+            $rules['deleted_at']           = ['sometimes', 'date'];
+            $rules['created_at']           = ['sometimes', 'date'];
+            $rules['fetched_at']           = ['sometimes', 'date'];
+            $rules['source_id']            = ['sometimes', 'string', 'max:255'];
+
+            $rules['user.deleted_at']      = ['sometimes', 'date'];
+            $rules['user.created_at']      = ['sometimes', 'date'];
+            $rules['user.fetched_at']      = ['sometimes', 'date'];
+            $rules['user.source_id']       = ['sometimes', 'string', 'max:255'];
+            $rules['user.legacy_password'] = ['sometimes', 'required', 'string', 'max:255'];
+        }
+
+
+        return $rules;
     }
 
 
@@ -163,8 +199,10 @@ class StoreGuest extends GrpAction
     }
 
 
-    public function action(Group $group, array $modelData): Guest
+    public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Guest
     {
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction = true;
         $this->initialisation($group, $modelData);
 
@@ -200,8 +238,12 @@ class StoreGuest extends GrpAction
             'contact_name' => $command->argument('name'),
             'email'        => $command->option('email'),
             'phone'        => $command->option('phone'),
-            'username'     => $command->argument('username'),
-            'password'     => $command->option('password') ?? (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
+            'user'         => [
+                'username' => $command->argument('username'),
+                'password' => $command->option('password') ?? (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
+
+            ]
+
         ];
 
         $this->fill($fields);

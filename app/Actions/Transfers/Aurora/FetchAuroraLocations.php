@@ -13,6 +13,7 @@ use App\Models\Inventory\Location;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraLocations extends FetchAuroraAction
@@ -44,10 +45,19 @@ class FetchAuroraLocations extends FetchAuroraAction
                         parent: $locationData['parent'],
                         modelData: $locationData['location'],
                         hydratorsDelay: 60,
-                        strict: false
+                        strict: false,
+                        audit: false
                     );
 
+                    Location::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $location,
+                        Arr::except($locationData['customer'], ['fetched_at','last_fetched_at'])
+                    );
+
+
                     $this->recordNew($organisationSource);
+
                     $sourceData = explode(':', $location->source_id);
                     DB::connection('aurora')->table('Location Dimension')
                         ->where('Location Key', $sourceData[1])

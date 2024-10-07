@@ -21,7 +21,7 @@ class UploadsResource extends JsonResource
 
         return [
             'id'                => $upload->id,
-            'type'              => $upload->type,
+            'type'              => $upload->model,
             'uploaded_at'       => $upload->uploaded_at,
             'original_filename' => $upload->original_filename,
             'filename'          => $upload->filename,
