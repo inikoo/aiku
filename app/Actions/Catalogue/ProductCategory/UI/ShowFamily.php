@@ -88,6 +88,29 @@ class ShowFamily extends OrgAction
                         'title' => __('department')
                     ],
                     'actions' => [
+                        $family->webpage ?
+                        [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'tooltip' => __('Edit Webpage'),
+                            'label'   => __('Edit Webpage'),
+                            'icon'  => ["fal", "fa-drafting-compass"],
+                            'route' => [
+                                'name'       => '',
+                                'parameters' => [
+                                ]
+                            ]
+                        ] : [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'tooltip' => __('Create Webpage'),
+                            'label'   => __('Create Webpage'),
+                            'icon'  => ["fal", "fa-drafting-compass"],
+                            'route' => [
+                                'name'       => 'grp.models.webpages.product_category.store',
+                                'parameters' => $family->id
+                            ]
+                        ],
                         $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'edit',

@@ -141,9 +141,8 @@ class ShowProduct extends OrgAction
                             'label'   => __('Create Webpage'),
                             'icon'  => ["fal", "fa-drafting-compass"],
                             'route' => [
-                                'name'       => '',
-                                'parameters' => [
-                                ]
+                                'name'       => 'grp.models.webpages.product.store',
+                                'parameters' => $product->id
                             ]
                         ],
                         $this->canEdit ? [
