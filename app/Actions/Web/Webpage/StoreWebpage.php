@@ -95,7 +95,7 @@ class StoreWebpage extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'url' => [
+            'url'        => [
                 'sometimes',
                 'required',
                 'ascii',
@@ -112,7 +112,7 @@ class StoreWebpage extends OrgAction
                     ]
                 ),
             ],
-            'code'      => [
+            'code'       => [
                 'required',
                 'ascii',
                 'max:64',
@@ -124,12 +124,16 @@ class StoreWebpage extends OrgAction
                     ]
                 ),
             ],
-            'purpose'   => ['required', Rule::enum(WebpagePurposeEnum::class)],
-            'type'      => ['required', Rule::enum(WebpageTypeEnum::class)],
-            'state'     => ['sometimes', Rule::enum(WebpageStateEnum::class)],
-            'is_fixed'  => ['sometimes', 'boolean'],
-            'ready_at'  => ['sometimes', 'date'],
-            'live_at'   => ['sometimes', 'date'],
+            'purpose'    => ['required', Rule::enum(WebpagePurposeEnum::class)],
+            'type'       => ['required', Rule::enum(WebpageTypeEnum::class)],
+            'state'      => ['sometimes', Rule::enum(WebpageStateEnum::class)],
+            'is_fixed'   => ['sometimes', 'boolean'],
+            'ready_at'   => ['sometimes', 'date'],
+            'live_at'    => ['sometimes', 'date'],
+            'model_type' => ['sometimes', 'string'],
+            'model_id'   => ['sometimes', 'integer'],
+
+
         ];
 
         if ($this->parent instanceof Webpage) {
@@ -154,6 +158,8 @@ class StoreWebpage extends OrgAction
         if (!$this->strict) {
             $rules['source_id']  = ['sometimes', 'string'];
             $rules['fetched_at'] = ['sometimes', 'date'];
+
+            $rules['migration_data'] = ['sometimes', 'array'];
         }
 
         return $rules;

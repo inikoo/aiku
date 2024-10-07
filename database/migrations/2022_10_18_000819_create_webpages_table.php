@@ -52,7 +52,7 @@ return new class () extends Migration {
             $table->datetimeTz('last_fetched_at')->nullable();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
-            $table->string('migration_data')->jsonb();
+            $table->jsonb('migration_data');
             $table->index(['model_type', 'model_id']);
         });
 

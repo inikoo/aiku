@@ -26,8 +26,6 @@ class FetchAuroraWebpage extends FetchAurora
 
     protected function parseModel(): void
     {
-
-
         $typeData = DB::connection('aurora')
             ->table('Webpage Type Dimension')
             ->select('Webpage Type Code')
@@ -35,6 +33,10 @@ class FetchAuroraWebpage extends FetchAurora
 
 
         if ($typeData and $typeData->{'Webpage Type Code'} == 'Sys') {
+            return;
+        }
+
+        if($typeData->{'Webpage Type Code'} == 'Prod' and $this->auroraModelData->{'Webpage Scope Key'} == '') {
             return;
         }
 
@@ -58,24 +60,21 @@ class FetchAuroraWebpage extends FetchAurora
             return;
         }
 
-
-
         $this->parsedData['website'] = $this->parseWebsite($this->organisation->id.':'.$this->auroraModelData->{'Webpage Website Key'});
-
 
         if ($this->parsedData['website']->state == WebsiteStateEnum::CLOSED) {
             $status = WebpageStateEnum::CLOSED;
         } elseif ($this->parsedData['website']->state == WebsiteStateEnum::IN_PROCESS) {
             $status = match ($this->auroraModelData->{'Webpage State'}) {
-                'Online'  => WebpageStateEnum::READY,
+                'Online' => WebpageStateEnum::READY,
                 'Offline' => WebpageStateEnum::CLOSED,
-                default   => WebpageStateEnum::IN_PROCESS,
+                default => WebpageStateEnum::IN_PROCESS,
             };
         } else {
             $status = match ($this->auroraModelData->{'Webpage State'}) {
-                'Online'  => WebpageStateEnum::LIVE,
+                'Online' => WebpageStateEnum::LIVE,
                 'Offline' => WebpageStateEnum::CLOSED,
-                default   => WebpageStateEnum::IN_PROCESS,
+                default => WebpageStateEnum::IN_PROCESS,
             };
         }
 
@@ -85,16 +84,15 @@ class FetchAuroraWebpage extends FetchAurora
 
         $purpose = match ($this->auroraModelData->{'Webpage Scope'}) {
             'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpagePurposeEnum::STOREFRONT,
-            'Asset'                => WebpagePurposeEnum::PRODUCT_OVERVIEW,
-            'Category Products'    => WebpagePurposeEnum::PRODUCT_LIST,
-            'Category Categories'  => WebpagePurposeEnum::CATEGORY_PREVIEW,
-            'Register'             => WebpagePurposeEnum::REGISTER,
+            'Asset' => WebpagePurposeEnum::PRODUCT_OVERVIEW,
+            'Category Products' => WebpagePurposeEnum::PRODUCT_LIST,
+            'Category Categories' => WebpagePurposeEnum::CATEGORY_PREVIEW,
+            'Register' => WebpagePurposeEnum::REGISTER,
             'Login', 'ResetPwd' => WebpagePurposeEnum::LOGIN,
             'TandC' => WebpagePurposeEnum::TERMS_AND_CONDITIONS,
             'Basket', 'Top_Up', 'Checkout' => WebpagePurposeEnum::SHOPPING_CART,
             default => WebpagePurposeEnum::CONTENT,
         };
-
 
         $type = match ($this->auroraModelData->{'Webpage Scope'}) {
             'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpageTypeEnum::STOREFRONT,
@@ -105,6 +103,23 @@ class FetchAuroraWebpage extends FetchAurora
             default => WebpageTypeEnum::CONTENT,
         };
 
+
+        $model = null;
+        if ($this->auroraModelData->{'Webpage Scope'} == 'Category Products') {
+            $model = $this->parseFamily($this->organisation->id.':'.$this->auroraModelData->{'Webpage Scope Key'});
+            if (!$model) {
+                dd($this->auroraModelData->{'Webpage Scope Key'});
+            }
+        } elseif ($this->auroraModelData->{'Webpage Scope'} == 'Product') {
+            $model = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Webpage Scope Key'});
+            if (!$model) {
+                dd($this->auroraModelData->{'Webpage Scope Key'});
+            }
+        }
+        $migrationData=null;
+        if($this->auroraModelData->{'Page Store Content Published Data'}) {
+            $migrationData = json_decode($this->auroraModelData->{'Page Store Content Published Data'}, true);
+        }
 
         $this->parsedData['webpage'] =
             [
@@ -118,9 +133,20 @@ class FetchAuroraWebpage extends FetchAurora
                 'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Page Key'},
 
             ];
+
+        if ($migrationData) {
+            $this->parsedData['webpage']['migration_data'] = $migrationData;
+        }
+
         if ($createdAt = $this->parseDate($this->auroraModelData->{'Webpage Creation Date'})) {
             $this->parsedData['webpage']['created_at'] = $createdAt;
         }
+
+        if ($model) {
+            $this->parsedData['webpage']['model_type'] = class_basename($model);
+            $this->parsedData['webpage']['model_id']   = $model->id;
+        }
+        //dd($this->parsedData['webpage']);
 
 
     }
