@@ -21,7 +21,12 @@ class FetchWebpageWeblocks extends OrgAction
                 // dd();
                 $weblockType = WebBlockType::where("slug", "text")->first();
                 $block = $weblockType->toArray();
-                data_set($block, "data.fieldValue", $auroraBlock['text_blocks'][0]['text']);
+                data_set($block, "data.fieldValue.value", $auroraBlock['text_blocks'][0]['text']);
+                data_set($block, "data.properties.padding.unit", "px");
+                data_set($block, "data.properties.padding.left.value", 20);
+                data_set($block, "data.properties.padding.right.value", 20);
+                data_set($block, "data.properties.padding.bottom.value", 20);
+                data_set($block, "data.properties.padding.top.value", 20);
                 $webBlock = StoreWebBlock::make()->action($weblockType, ["layout" => $block]);
                 // dd($webBlock->id);
                 $modelHasWebBlock = $webpage->modelHasWebBlocks()->create(
