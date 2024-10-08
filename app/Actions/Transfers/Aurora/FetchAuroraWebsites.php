@@ -29,7 +29,6 @@ class FetchAuroraWebsites extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Website
     {
         if ($websiteData = $organisationSource->fetchWebsite($organisationSourceId)) {
-
             if ($website = Website::where('source_id', $websiteData['website']['source_id'])
                 ->first()) {
                 $website = UpdateWebsite::make()->action(
@@ -51,31 +50,36 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 if ($websiteData['launch']) {
                     LaunchWebsite::run(website: $website);
                 }
-
             }
 
             // Get Storefront data
-            $auroraModelData=DB::connection('aurora')
+            $auroraModelData = DB::connection('aurora')
                 ->table('Page Store Dimension')
                 ->where('Webpage Code', 'home_logout.sys')->first();
 
 
-            $parsedData=$this->processAuroraWebpage($website->organisation,$auroraModelData);
-            $webpageData=$parsedData['webpage'];
+            $parsedData  = $this->processAuroraWebpage($website->organisation, $auroraModelData);
+            $webpageData = $parsedData['webpage'];
 
-          $website->storefront->updateQuietly(
-              [
-              //    'source_id' => $webpageData['source_id'],
-                  'migration_data'=>$webpageData['migration_data']
-              ]
-          );
+            $website->storefront->updateQuietly(
+                [
+                    'migration_data' => ['loggedOut'=> $webpageData['migration_data']['both'] ]
+                ]
+            );
 
-           // dd($webpageData);
-
-
-
+            $auroraModelData = DB::connection('aurora')
+                ->table('Page Store Dimension')
+                ->where('Webpage Code', 'home.sys')->first();
 
 
+            $parsedData  = $this->processAuroraWebpage($website->organisation, $auroraModelData);
+            $webpageData = $parsedData['webpage'];
+
+            $website->storefront->updateQuietly(
+                [
+                    'migration_data' => ['loggedIn'=> $webpageData['migration_data']['both'] ]
+                ]
+            );
 
             return $website;
         }

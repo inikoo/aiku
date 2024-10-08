@@ -15,7 +15,7 @@ use App\Models\SysAdmin\Organisation;
 
 trait WithAuroraProcessWebpage
 {
-    public function processAuroraWebpage(Organisation $organisation,$auroraModelData): array|null
+    public function processAuroraWebpage(Organisation $organisation, $auroraModelData): array|null
     {
         $website = $this->parseWebsite($organisation->id.':'.$auroraModelData->{'Webpage Website Key'});
 
@@ -94,7 +94,7 @@ trait WithAuroraProcessWebpage
             ];
 
         if ($migrationData) {
-            $webpage['migration_data'] = $migrationData;
+            $webpage['migration_data'] = ['both' => $migrationData];
         }
 
         if ($createdAt = $this->parseDate($auroraModelData->{'Webpage Creation Date'})) {
