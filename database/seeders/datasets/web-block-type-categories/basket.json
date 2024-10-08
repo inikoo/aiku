@@ -1,30 +1,28 @@
 {
-	"slug": "banner",
-	"name": "Banner",
-	"icon": "fal fa-presentation",
+	"slug": "basket",
+	"name": "Basket",
+	"icon": "fal fa-shopping-basket",
 	"blueprint": {
-		"value": "default_value"
+		"value": ""
 	},
 	"scope": "webpage",
 	"webBlockTypes": [
 		{
-			"code": "banner",
-			"name": "Wowsbar banner",
+			"code": "BasketCompact",
+			"name": "Basket Compact",
 			"data": {
+				"component": "",
+				"icon": ["fal", "presentation"]
+			}
+		},
+		{
+			"code": "BasketStyle",
+			"name": "Basket Style",
+			"data": {
+				"component": "",
 				"icon": ["fal", "presentation"],
-				"component": "bannerWowsbar",
 				"fieldValue": {
-					"banner_id": null,
-					"banner_slug": null,
-					"emptyState": true,
-					"height": {
-						"value": "335",
-						"unit": "px"
-					},
-					"width": {
-						"value": "100",
-						"unit": "%"
-					}
+					"value": ""
 				},
 				"properties": {
 					"buttons": {
