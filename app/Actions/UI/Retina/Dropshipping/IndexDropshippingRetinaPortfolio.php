@@ -13,7 +13,7 @@ use App\Actions\RetinaAction;
 use App\Actions\Catalogue\Product\UI\IndexProducts as IndexUIProducts;
 use App\Actions\UI\Retina\Dashboard\ShowDashboard;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
-use App\Http\Resources\Catalogue\ProductsResource;
+use App\Http\Resources\Catalogue\DropshippingPortfolioResource;
 use App\Models\Dropshipping\ShopifyUser;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -56,7 +56,7 @@ class IndexDropshippingRetinaPortfolio extends RetinaAction
                     'navigation' => ProductTabsEnum::navigation()
                 ],
 
-                'products' => ProductsResource::collection(IndexUIProducts::run($shopifyUser, 'products'))
+                'products' => DropshippingPortfolioResource::collection(IndexUIProducts::run($shopifyUser, 'products'))
             ]
         )->table(IndexUIProducts::make()->tableStructure($shopifyUser, prefix: 'products'));
     }

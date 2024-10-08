@@ -13,7 +13,7 @@ use App\Models\ShopifyUserHasProduct;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteProductFromShopify extends OrgAction
+class DeleteShopifyUserHasProduct extends OrgAction
 {
     use AsAction;
     use WithAttributes;

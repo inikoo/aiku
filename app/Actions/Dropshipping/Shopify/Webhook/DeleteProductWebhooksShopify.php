@@ -7,7 +7,7 @@
 
 namespace App\Actions\Dropshipping\Shopify\Webhook;
 
-use App\Actions\Dropshipping\Shopify\Product\DeleteProductFromShopify;
+use App\Actions\Dropshipping\Shopify\Product\DeleteShopifyUserHasProduct;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\ShopifyUser;
@@ -30,7 +30,7 @@ class DeleteProductWebhooksShopify extends OrgAction
             ->where("shopify_product_id", $productId)
             ->firstOrFail();
 
-        DeleteProductFromShopify::run($product);
+        DeleteShopifyUserHasProduct::run($product);
     }
 
     public function asController(ShopifyUser $shopifyUser, ActionRequest $request): void
