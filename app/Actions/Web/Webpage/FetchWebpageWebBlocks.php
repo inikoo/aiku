@@ -73,10 +73,38 @@ class FetchWebpageWebBlocks extends OrgAction
             $block        = $webBlockType->toArray();
             data_set($block, "data.fieldValue.link", $auroraBlock['src']);
             // dd($block);
+        } elseif ($auroraBlock['type'] == 'blackboard') {
+
+            // $webBlockType = WebBlockType::where("slug", "gallery")->first();
+            // $block        = $webBlockType->toArray();
+            $textsArray = [];
+            foreach ($auroraBlock['texts'] as $text) {
+                if (!isset($text['text'])) {
+                    continue;
+                }
+                $textsArray[] = [
+                    'text' => $text['text']
+
+                ];
+            }
+            $textValue['value'] = $textsArray;
+            data_set($block, "data.fieldValue.value.texts", $textValue['value']);
+
+            $imagesArray = [];
+            foreach ($auroraBlock['images'] as $image) {
+                if (!isset($image['src'])) {
+                    continue;
+                }
+                $imagesArray[] = [
+                    'aurora_source' => $image['src']
+
+                ];
+            }
+            $imgValue['value'] = $imagesArray;
+            data_set($block, "data.fieldValue.value.images", $imgValue['value']);
         } else {
             return;
         }
-
         data_set($block, "data.properties.padding.unit", "px");
         data_set($block, "data.properties.padding.left.value", 20);
         data_set($block, "data.properties.padding.right.value", 20);
