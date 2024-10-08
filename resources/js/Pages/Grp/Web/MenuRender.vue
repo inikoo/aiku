@@ -21,5 +21,5 @@ const props = defineProps<{
 
 
 <template>
-       <component :is="getComponent(data.menu.code)" :navigations="data.menu.data.navigation" :colorThemed="colorThemed"/>
+       <component v-if="data.menu?.data?.navigation" :is="getComponent(data.menu.code)" :navigations="data.menu.data.navigation" :colorThemed="colorThemed"/>
 </template>

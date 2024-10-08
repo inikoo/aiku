@@ -11,6 +11,7 @@ use App\Actions\GrpAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Models\Web\WebBlock;
 use App\Models\Web\WebBlockType;
+use Illuminate\Support\Arr;
 
 class StoreWebBlock extends GrpAction
 {
@@ -19,10 +20,21 @@ class StoreWebBlock extends GrpAction
 
     public function handle(WebBlockType $webBlockType, array $modelData): WebBlock
     {
-
         data_set($modelData, 'group_id', $webBlockType->group_id);
         data_set($modelData, 'web_block_type_category_id', $webBlockType->web_block_type_category_id);
-        data_set($modelData, 'layout', $webBlockType->toArray(), overwrite:false);
+        data_set(
+            $modelData,
+            'layout',
+            Arr::only(
+                $webBlockType->toArray(),
+                [
+                    'code','data'
+                ]
+            )
+            ,
+            overwrite: false
+        );
+
         data_set($modelData, 'checksum', md5(json_encode($modelData['layout'])));
 
         /** @var WebBlock $webBlock */
@@ -34,21 +46,20 @@ class StoreWebBlock extends GrpAction
 
     public function rules(): array
     {
-        $rules= [
-            'layout'    => ['sometimes', 'array']
+        $rules = [
+            'layout' => ['sometimes', 'array']
         ];
 
-        if(!$this->strict){
-            $rules['migration_checksum']=['sometimes','string'];
+        if (!$this->strict) {
+            $rules['migration_checksum'] = ['sometimes', 'string'];
         }
 
         return $rules;
-
     }
 
-    public function action(WebBlockType $webBlockType, array $modelData,$strict=true): WebBlock
+    public function action(WebBlockType $webBlockType, array $modelData, $strict = true): WebBlock
     {
-        $this->strict=$strict;
+        $this->strict = $strict;
         $this->asAction = true;
 
         $this->initialisation($webBlockType->group, $modelData);

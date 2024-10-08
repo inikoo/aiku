@@ -11,12 +11,18 @@ use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use App\Models\Web\Website;
+use App\Transfers\Aurora\WithAuroraParsers;
+use App\Transfers\Aurora\WithAuroraProcessWebpage;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebsites extends FetchAuroraAction
 {
+    use WithAuroraParsers;
+    use WithAuroraProcessWebpage;
+
+
     public string $commandSignature = 'fetch:websites {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
@@ -47,6 +53,29 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 }
 
             }
+
+            // Get Storefront data
+            $auroraModelData=DB::connection('aurora')
+                ->table('Page Store Dimension')
+                ->where('Webpage Code', 'home_logout.sys')->first();
+
+
+            $parsedData=$this->processAuroraWebpage($website->organisation,$auroraModelData);
+            $webpageData=$parsedData['webpage'];
+
+          $website->storefront->updateQuietly(
+              [
+              //    'source_id' => $webpageData['source_id'],
+                  'migration_data'=>$webpageData['migration_data']
+              ]
+          );
+
+           // dd($webpageData);
+
+
+
+
+
 
             return $website;
         }
