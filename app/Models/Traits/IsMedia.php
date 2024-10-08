@@ -45,6 +45,7 @@ trait IsMedia
 
     public function getLocalImgProxyFilename(): string
     {
+        dd('xxx');
         $rootPath = '/'.config('app.name').Str::after(Storage::disk($this->disk)->path(''), storage_path());
 
         $prefix   = config('media-library.prefix', '');
