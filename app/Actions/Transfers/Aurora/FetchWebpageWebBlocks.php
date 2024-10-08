@@ -9,18 +9,27 @@ namespace App\Actions\Transfers\Aurora;
 
 use Illuminate\Support\Str;
 use App\Actions\Helpers\Images\GetPictureSources;
+use App\Actions\Helpers\Media\SaveModelImages;
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithOrganisationSource;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Events\BroadcastPreviewWebpage;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
+use App\Transfers\AuroraOrganisationService;
+use App\Transfers\WowsbarOrganisationService;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchWebpageWebBlocks extends OrgAction
 {
+    use WithAuroraOrganisationsArgument;
+    use WithOrganisationSource;
+    protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
+
+
     public function handle(Webpage $webpage): Webpage
     {
         if (isset($webpage->migration_data["both"])) {
@@ -258,9 +267,13 @@ class FetchWebpageWebBlocks extends OrgAction
 
     public string $commandSignature = "fetch:web-blocks {webpage} {--reset}";
 
+    /**
+     * @throws \Exception
+     */
     public function asCommand($command): int
     {
         try {
+            /** @var Webpage $webpage */
             $webpage = Webpage::where("slug", $command->argument("webpage"))->firstOrFail();
         } catch (Exception) {
             $command->error("Webpage not found");
@@ -270,6 +283,10 @@ class FetchWebpageWebBlocks extends OrgAction
         if ($command->option("reset")) {
             $this->reset($webpage);
         }
+
+        $this->organisationSource = $this->getOrganisationSource($webpage->organisation);
+        $this->organisationSource->initialisation($webpage->organisation);
+
 
         $this->handle($webpage);
 
