@@ -7,8 +7,8 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use Illuminate\Support\Str;
 use App\Actions\Helpers\Images\GetPictureSources;
-use App\Actions\Helpers\Media\SaveModelImages;
 use App\Actions\OrgAction;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
@@ -160,70 +160,42 @@ class FetchWebpageWebBlocks extends OrgAction
         ) {
             $imageSources = [];
             $imageRawDatas = [];
-            $imageRawData = "";
+            $imageSourceMain = [];
+            // $imageRawData = "";
             switch ($webBlock->webBlockType->name) {
                 case "Overview":
                     $imageRawDatas = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
                     break;
-                case "Product":
-                    $imageRawDatas =
-                        $webBlock->layout["data"]["fieldValue"]["value"]["other_images"];
+                case "Product showcase A":
+                    $imageRawDatas = $webBlock->layout["data"]["fieldValue"]["value"]["other_images"];
                     $imageRawData = $webBlock->layout["data"]["fieldValue"]["value"]["image"];
+                    $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
+                    $imageSourceMain = ["source" => $imageSource];
                     break;
                 default:
                     $imageRawDatas = $webBlock->layout["data"]["fieldValue"]["value"];
                     break;
             }
 
-            if (isset($imageRawData)) {
-                $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
-                $imageSources[] = ["image" => ["source" => $imageSource]];
-            }
-
             foreach ($imageRawDatas as $imageRawData) {
-                // if (!isset($imageRawData["aurora_source"])) {
-                // 	break;
-                // }
-                // $auroraImage = $imageRawData["aurora_source"];
-
-                // $urlToFile = "https://www." . $webpage->website->domain . $auroraImage;
-                // $content = file_get_contents($urlToFile);
-                // $tempPath = tempnam(sys_get_temp_dir(), "img_");
-
-                // $headers = get_headers($urlToFile, 1);
-                // $mimeType = $headers["Content-Type"];
-
-                // if ($mimeType == "image/jpeg") {
-                // 	$extension = ".jpg";
-                // } elseif ($mimeType == "image/png") {
-                // 	$extension = ".png";
-                // } else {
-                // 	$extension = ".jpg";
-                // }
-
-                // $tempFile = $tempPath . $extension;
-
-                // file_put_contents($tempFile, $content);
-
-                // $media = SaveModelImages::run($webBlock, [
-                // 	"path" => $tempFile,
-                // 	"originalName" => "aurora_image",
-                // ]);
-
-                // $image = $media->getImage();
-                // $imageSource = GetPictureSources::run($image);
-
-                // $imageSources[] = ["image" => ["source" => $imageSource]];
                 $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
                 $imageSources[] = ["image" => ["source" => $imageSource]];
             }
-            dd($imageSources);
 
-            if ($webBlock->webBlockType->name == "Overview") {
-                data_set($block, "data.fieldValue.value.images", $imageSources);
-            } else {
-                data_set($block, "data.fieldValue.value", $imageSources);
+            switch ($webBlock->webBlockType->name) {
+                case "Overview":
+                    data_set($block, "data.fieldValue.value.images", $imageSources);
+                    break;
+                case "Product showcase A":
+                    data_set($block, "data.fieldValue.value.image", $imageSourceMain);
+                    data_set($block, "data.fieldValue.value.other_images", $imageSources);
+                    break;
+                default:
+                    data_set($block, "data.fieldValue.value", $imageSources);
+                    break;
             }
+            dd($block);
+
             $webBlock->update([
                 "layout" => $block,
             ]);
@@ -253,10 +225,13 @@ class FetchWebpageWebBlocks extends OrgAction
         }
         $auroraImage = $imageRawData["aurora_source"];
 
-        $media = FetchWebBlockMedia::run($webBlock, $webpage, $auroraImage);
+        $auroraImage = Str::startsWith($auroraImage, '/') ? $auroraImage : '/' . $auroraImage;
 
+        $media = FetchWebBlockMedia::run($webBlock, $webpage, $auroraImage);
         $image = $media->getImage();
+
         $imageSource = GetPictureSources::run($image);
+
         return $imageSource;
     }
 
