@@ -56,7 +56,7 @@ class UpdateProductCategory extends OrgAction
         $rules = [
             'code'        => [
                 'sometimes',
-                'max:32',
+                $this->strict ? 'max:32' : 'max:255',
                 new AlphaDashDot(),
                 new IUnique(
                     table: 'product_categories',
