@@ -122,6 +122,7 @@ const sendOrderBlock = async (block: Object) => {
 
 const isLoadingDelete = ref<string | null>(null)
 const sendDeleteBlock = async (block: Daum) => {
+    console.log(block)
     // console.log('block', block)
     // isLoading.value = 'deleteBlock' + block.id
     // try {

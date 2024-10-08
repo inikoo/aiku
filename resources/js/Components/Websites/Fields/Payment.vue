@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import { cloneDeep } from 'lodash'
+import { router } from '@inertiajs/vue3'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faShieldAlt, faTimes } from "@fas"
@@ -18,6 +19,18 @@ const props = defineProps<{
 const emits = defineEmits<{
     (e: 'update:modelValue', value: {}): void
 }>();
+
+
+const GetPayment = async () => {
+    try {
+        const response = await axios.get(
+            route('grp.org.accounting.org-payment-service-providers.index', { organisation : route().params['organisation'] }),
+        )
+        console.log(response)
+    } catch (error: any) {
+        console.error('error', error)
+    }
+}
 
 const payments = [
     { label: 'Checkout.com', value: 'checkout.com', image: "https://www.linqto.com/wp-content/uploads/2023/04/logo_2021-11-05_19-04-11.530.png", },
@@ -52,6 +65,11 @@ const deleteSocial = (event,index) => {
     set.splice(index,1)
     emits('update:modelValue',{ data: set });
 }
+
+onMounted(() => {
+    GetPayment()
+});
+
 </script>
 
 <template>
