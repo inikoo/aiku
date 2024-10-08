@@ -66,7 +66,7 @@ class StoreProductCategory extends OrgAction
             'type'                 => ['required', Rule::enum(ProductCategoryTypeEnum::class)],
             'code'                 => [
                 'required',
-                $this->strict?'max:32':'max:255',
+                $this->strict ? 'max:32' : 'max:255',
                 new AlphaDashDot(),
                 new IUnique(
                     table: 'product_categories',
