@@ -81,7 +81,7 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
             'org_code'                    => $this->org_code,
             'name'                        => $this->name,
             'state'                       => $this->state,
-            'logo'                        => GetImgProxyUrl::run($this->media->first()->getImage()),
+            'logo'                        => GetImgProxyUrl::run($this->media->first()?->getImage()),
             'formData'                    => $formData
         ];
     }

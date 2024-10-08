@@ -63,7 +63,7 @@ class FetchAuroraWebsites extends FetchAuroraAction
 
             $website->storefront->updateQuietly(
                 [
-                    'migration_data' => ['loggedOut'=> $webpageData['migration_data']['both'] ]
+                    'migration_data' => ['loggedOut' => $webpageData['migration_data']['both'] ]
                 ]
             );
 
@@ -77,7 +77,7 @@ class FetchAuroraWebsites extends FetchAuroraAction
 
             $website->storefront->updateQuietly(
                 [
-                    'migration_data' => ['loggedIn'=> $webpageData['migration_data']['both'] ]
+                    'migration_data' => ['loggedIn' => $webpageData['migration_data']['both'] ]
                 ]
             );
 
