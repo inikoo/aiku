@@ -20,8 +20,7 @@ trait IsMedia
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return   preg_replace('/\.(png|jpg|jpeg|webp|avif|svg)$/i', '', $this->name)   ;
-
+                return preg_replace('/\.(png|jpg|jpeg|webp|avif|svg)$/i', '', $this->name);
             })
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(24);
@@ -45,17 +44,21 @@ trait IsMedia
 
     public function getLocalImgProxyFilename(): string
     {
+        $rootPath    = '/'.config('app.name');
+        $diskPath    = Storage::disk($this->disk)->path('');
+        $storagePath = storage_path();
+        $rootPath    .= Str::after(
+            $diskPath,
+            $storagePath
+        );
 
-        $rootPath = '/'.config('app.name').Str::after(Storage::disk($this->disk)->path(''), storage_path());
-        dd($rootPath);
 
-        $prefix   = config('media-library.prefix', '');
+        $prefix    = config('media-library.prefix', '');
         $mediaPath = $prefix ? $prefix.'/' : '';
         $mediaPath .= $this->id.'/'.$this->file_name;
 
         return 'local://'.$rootPath.$mediaPath;
     }
-
 
 
 }
