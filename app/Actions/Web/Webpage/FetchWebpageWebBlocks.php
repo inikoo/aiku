@@ -7,14 +7,18 @@
 
 namespace App\Actions\Web\Webpage;
 
+use App\Actions\Helpers\Images\GetImgProxyUrl;
 use App\Actions\OrgAction;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Events\BroadcastPreviewWebpage;
 use App\Models\Dropshipping\ModelHasWebBlocks;
+use App\Models\SysAdmin\Group;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
 use Exception;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class FetchWebpageWebBlocks extends OrgAction
 {
@@ -24,12 +28,66 @@ class FetchWebpageWebBlocks extends OrgAction
 
 
         foreach (Arr::get($webpage->migration_data, "blocks", []) as $auroraBlock) {
+
             $migrationData = md5(json_encode($auroraBlock));
-            if ($auroraBlock['type'] == "text") {
+
+            if ($auroraBlock['type'] == "text") 
+            {
                 $webBlockType = WebBlockType::where("slug", "text")->first();
                 $block        = $webBlockType->toArray();
                 data_set($block, "data.fieldValue.value", $auroraBlock['text_blocks'][0]['text']);
-                data_set($block, "data.properties.padding.unit", "px");
+
+            } elseif ($auroraBlock['type'] == 'images') 
+            {
+
+                $webBlockType = WebBlockType::where("slug", "gallery")->first();
+                $block        = $webBlockType->toArray();
+
+                foreach ($auroraBlock['images'] as $image) {
+                    $urlToFile = 'https://www.ancientwisdom.biz/'.$image['src'];
+
+                    $headers = get_headers($urlToFile, 1);
+                    $mimeType = $headers['Content-Type'];
+
+
+                    if ($mimeType == 'image/jpeg') {
+                        $extension = '.jpg';
+                    } elseif ($mimeType == 'image/png') {
+                        $extension = '.png';
+                    } else {
+                        $extension = '.jpg';
+                    }
+
+                    $safeFileName = uniqid() . $extension;
+
+                    $media = group()->addMediaFromUrl($urlToFile)
+                                    ->usingFileName($safeFileName) 
+                                    ->withProperties(
+                                            [
+                                                'group_id' => group()->id,
+                                                'ulid'     => Str::ulid()
+                                            ],
+                                    )
+                                    ->toMediaCollection('images');
+
+                    $media->refresh();
+                    $image = $media->getImage();
+                    $imageUrl = GetImgProxyUrl::run($image);
+                    $fieldValue['value'][] = [
+                        'id' => $media->id,
+                        'text' => "<h2><span style='font-size: 36px'>blabla</span></h2>",
+                        'image' => [
+                            'source' => [
+                                'original' => $imageUrl
+                            ]
+                        ]
+                    ];
+
+                    data_set($block, "data.fieldValue.value", $fieldValue['value']);
+                }
+            }
+
+            data_set($block, "data.properties.padding.unit", "px");
                 data_set($block, "data.properties.padding.left.value", 20);
                 data_set($block, "data.properties.padding.right.value", 20);
                 data_set($block, "data.properties.padding.bottom.value", 20);
@@ -60,7 +118,6 @@ class FetchWebpageWebBlocks extends OrgAction
                 UpdateWebpageContent::run($webpage->refresh());
 
                 BroadcastPreviewWebpage::dispatch($webpage);
-            }
         }
 
         return $webpage;
@@ -73,15 +130,33 @@ class FetchWebpageWebBlocks extends OrgAction
         return $this->handle($webpage);
     }
 
-    public string $commandSignature = 'fetch:web-blocks {webpage}';
+    public function reset(Webpage $webpage)
+    {
+        $webBlocks = $webpage->webBlocks()->get();
+    
+        foreach ($webBlocks as $block) {
+            $block->delete(); 
+        }
+    
+        $webpage->webBlocks()->detach();
+    }
+    
+    public string $commandSignature = 'fetch:web-blocks {webpage} {--reset}';
 
     public function asCommand($command): int
     {
         try {
             $webpage = Webpage::where('slug', $command->argument('webpage'))->firstOrFail();
+            
         } catch (Exception) {
             $command->error('Webpage not found');
             exit;
+        }
+
+        if ($command->option('reset')) {
+            $this->reset($webpage);
+            $command->info('Web blocks have been reset successfully.');
+            return 0;
         }
 
         $this->handle($webpage);
