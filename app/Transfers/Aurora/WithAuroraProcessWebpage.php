@@ -17,7 +17,7 @@ trait WithAuroraProcessWebpage
 {
     public function processAuroraWebpage(Organisation $organisation,$auroraModelData): array|null
     {
-        $website = $this->parseWebsite($organisation.':'.$auroraModelData->{'Webpage Website Key'});
+        $website = $this->parseWebsite($organisation->id.':'.$auroraModelData->{'Webpage Website Key'});
 
         if ($website->state == WebsiteStateEnum::CLOSED) {
             $status = WebpageStateEnum::CLOSED;
@@ -63,12 +63,12 @@ trait WithAuroraProcessWebpage
 
         $model = null;
         if ($auroraModelData->{'Webpage Scope'} == 'Category Products') {
-            $model = $this->parseFamily($organisation.':'.$auroraModelData->{'Webpage Scope Key'});
+            $model = $this->parseFamily($organisation->id.':'.$auroraModelData->{'Webpage Scope Key'});
             if (!$model) {
                 return null;
             }
         } elseif ($auroraModelData->{'Webpage Scope'} == 'Product') {
-            $model = $this->parseProduct($organisation.':'.$auroraModelData->{'Webpage Scope Key'});
+            $model = $this->parseProduct($organisation->id.':'.$auroraModelData->{'Webpage Scope Key'});
             if (!$model) {
                 dd($auroraModelData->{'Webpage Scope Key'});
             }
@@ -89,7 +89,7 @@ trait WithAuroraProcessWebpage
                 'type'            => $type,
                 'fetched_at'      => now(),
                 'last_fetched_at' => now(),
-                'source_id'       => $organisation.':'.$auroraModelData->{'Page Key'},
+                'source_id'       => $organisation->id.':'.$auroraModelData->{'Page Key'},
 
             ];
 

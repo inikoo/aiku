@@ -8,6 +8,8 @@
 namespace App\Actions\Web\Webpage;
 
 use App\Actions\Helpers\Images\GetImgProxyUrl;
+use App\Actions\Helpers\Images\GetPictureSources;
+use App\Actions\Helpers\Media\SaveModelImages;
 use App\Actions\OrgAction;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Events\BroadcastPreviewWebpage;
@@ -33,55 +35,45 @@ class FetchWebpageWebBlocks extends OrgAction
                 $block        = $webBlockType->toArray();
                 data_set($block, "data.fieldValue.value", $auroraBlock['text_blocks'][0]['text']);
 
-            } elseif ($auroraBlock['type'] == 'images') {
+            } 
+
+
+            if ($auroraBlock['type'] == 'images') {
 
                 $webBlockType = WebBlockType::where("slug", "gallery")->first();
-                $block        = $webBlockType->toArray();
-
+                $block = $webBlockType->toArray();
+            
+                $imagesArray = []; // Collect the image data here
+            
                 foreach ($auroraBlock['images'] as $image) {
-                    $urlToFile = 'https://www.ancientwisdom.biz/'.$image['src'];
 
-                    $headers = get_headers($urlToFile, 1);
-                    $mimeType = $headers['Content-Type'];
-
-
-                    if ($mimeType == 'image/jpeg') {
-                        $extension = '.jpg';
-                    } elseif ($mimeType == 'image/png') {
-                        $extension = '.png';
-                    } else {
-                        $extension = '.jpg';
-                    }
-
-                    $safeFileName = uniqid() . $extension;
-
-                    $media = group()->addMediaFromUrl($urlToFile)
-                                    ->usingFileName($safeFileName)
-                                    ->withProperties(
-                                        [
-                                                'group_id' => group()->id,
-                                                'ulid'     => Str::ulid()
-                                            ],
-                                    )
-                                    ->toMediaCollection('images');
-
-                    $media->refresh();
-                    $image = $media->getImage();
-                    $imageUrl = GetImgProxyUrl::run($image);
-                    $fieldValue['value'][] = [
-                        'id' => $media->id,
+            
+                    // Upload and save the media
+                    // $media = group()->addMediaFromUrl($urlToFile)
+                    //                 ->usingFileName($safeFileName)
+                    //                 ->withProperties(
+                    //                     [
+                    //                         'group_id' => group()->id,
+                    //                         'ulid'     => Str::ulid()
+                    //                     ]
+                    //                 )
+                    //                 ->toMediaCollection('images');
+            
+                    // $media->refresh();
+                    // $image = $media->getImage(); // Assuming this is how you get the image data
+                    // $imageUrl = GetImgProxyUrl::run($image); // Assuming this generates the proxy URL
+            
+                    // Collect the image data into an array
+                    $imagesArray[] = [
+                        // 'id' => $media->id,
                         'text' => "<h2><span style='font-size: 36px'>blabla</span></h2>",
-                        'image' => [
-                            'source' => [
-                                'original' => $imageUrl
-                            ]
-                        ]
+                        'aurora_source' => $image['src']
+                    
                     ];
-
-                    data_set($block, "data.fieldValue.value", $fieldValue['value']);
                 }
+                $fieldValue['value'] = $imagesArray;
+                data_set($block, "data.fieldValue.value", $fieldValue['value']);
             }
-
             data_set($block, "data.properties.padding.unit", "px");
             data_set($block, "data.properties.padding.left.value", 20);
             data_set($block, "data.properties.padding.right.value", 20);
@@ -95,6 +87,43 @@ class FetchWebpageWebBlocks extends OrgAction
                 ],
                 strict: false
             );
+
+            foreach($webBlock->layout['data']['fieldValue']['value'] as $imageRawData)
+            {
+                $auroraImage = $imageRawData['aurora_source'];
+
+                $urlToFile = 'https://www.ancientwisdom.biz/' . $auroraImage;
+                $content = file_get_contents($urlToFile);
+                $tempPath = tempnam(sys_get_temp_dir(), 'img_');
+                
+                $headers = get_headers($urlToFile, 1);
+                $mimeType = $headers['Content-Type'];
+            
+                if ($mimeType == 'image/jpeg') {
+                    $extension = '.jpg';
+                } elseif ($mimeType == 'image/png') {
+                    $extension = '.png';
+                } else {
+                    $extension = '.jpg'; 
+                }
+            
+                $tempFile = $tempPath . $extension;
+            
+                file_put_contents($tempFile, $content);
+
+                $safeFileName = uniqid() . $extension;
+
+                $media = SaveModelImages::run($webBlock, [
+                    'path' => $tempFile,
+                    'originalName' => 'aurora_image'
+                ]);
+
+                $image = $media->getImage();
+                $imageSource = GetPictureSources::run($image);
+                ; 
+            }
+
+
 
             $webpage->modelHasWebBlocks()->create(
                 [
