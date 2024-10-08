@@ -30,8 +30,7 @@ class StoreWebBlock extends GrpAction
                 [
                     'code','data'
                 ]
-            )
-            ,
+            ),
             overwrite: false
         );
 

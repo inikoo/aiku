@@ -55,22 +55,22 @@ class FetchAuroraWebsites extends FetchAuroraAction
             }
 
             // Get Storefront data
-            $auroraModelData=DB::connection('aurora')
+            $auroraModelData = DB::connection('aurora')
                 ->table('Page Store Dimension')
                 ->where('Webpage Code', 'home_logout.sys')->first();
 
 
-            $parsedData=$this->processAuroraWebpage($website->organisation,$auroraModelData);
-            $webpageData=$parsedData['webpage'];
+            $parsedData = $this->processAuroraWebpage($website->organisation, $auroraModelData);
+            $webpageData = $parsedData['webpage'];
 
-          $website->storefront->updateQuietly(
-              [
-              //    'source_id' => $webpageData['source_id'],
-                  'migration_data'=>$webpageData['migration_data']
-              ]
-          );
+            $website->storefront->updateQuietly(
+                [
+                //    'source_id' => $webpageData['source_id'],
+                    'migration_data' => $webpageData['migration_data']
+                ]
+            );
 
-           // dd($webpageData);
+            // dd($webpageData);
 
 
 

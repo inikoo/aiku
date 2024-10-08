@@ -19,7 +19,8 @@ class SaveModelImages
 {
     use AsAction;
 
-    public function handle(Product|WebBlock $model, array $imageData, string $scope = 'image', string $mediaScope = 'images'): Media {
+    public function handle(Product|WebBlock $model, array $imageData, string $scope = 'image', string $mediaScope = 'images'): Media
+    {
         $group_id        = $model->group_id;
         $organisation_id = $model->organisation_id;
 

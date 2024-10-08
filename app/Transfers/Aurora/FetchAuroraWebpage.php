@@ -7,10 +7,6 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
-use App\Enums\Web\Webpage\WebpageStateEnum;
-use App\Enums\Web\Webpage\WebpageTypeEnum;
-use App\Enums\Web\Website\WebsiteStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebpage extends FetchAurora
@@ -63,13 +59,13 @@ class FetchAuroraWebpage extends FetchAurora
             return;
         }
 
-        $parsedData=$this->processAuroraWebpage($this->organisation,$this->auroraModelData);
+        $parsedData = $this->processAuroraWebpage($this->organisation, $this->auroraModelData);
 
-        if(!$parsedData){
+        if (!$parsedData) {
             return;
         }
-        $this->parsedData['website']=$parsedData['website'];
-        $this->parsedData['webpage']=$parsedData['webpage'];
+        $this->parsedData['website'] = $parsedData['website'];
+        $this->parsedData['webpage'] = $parsedData['webpage'];
 
         //dd($this->parsedData['webpage']);
 
