@@ -107,6 +107,7 @@ watch(layout.footer, (newVal) => {
     debouncedSendUpdateFooter(newVal)
 }, { deep: true })
 
+console.log('preview',props)
 
 
 

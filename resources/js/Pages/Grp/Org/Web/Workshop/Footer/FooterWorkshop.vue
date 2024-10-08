@@ -158,9 +158,9 @@ onMounted(() => {
 
         </div>
 
-        <div class="bg-gray-100 h-full" :class="usedTemplates.data ? 'col-span-3' : 'col-span-4'">
+        <div class="bg-gray-100 h-full" :class="usedTemplates?.data ? 'col-span-3' : 'col-span-4'">
             <div class="h-full w-full bg-white">
-                <div v-if="usedTemplates.data" class="w-full h-full">
+                <div v-if="usedTemplates?.data" class="w-full h-full">
                     <div class="flex justify-between bg-slate-200 border border-b-gray-300">
                         <div class="flex">
                             <ScreenView @screenView="setIframeView" />

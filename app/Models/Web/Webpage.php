@@ -131,9 +131,12 @@ class Webpage extends Model implements Auditable
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('code')
+            ->generateSlugsFrom(function () {
+                return $this->code.'-'.$this->shop->code;
+            })
+            ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
-            ->saveSlugsTo('slug');
+            ->slugsShouldBeNoLongerThan(64);
     }
 
     public function getRouteKeyName(): string
