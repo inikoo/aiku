@@ -22,35 +22,45 @@ class FetchWebpageWebBlocks extends OrgAction
 {
     public function handle(Webpage $webpage): Webpage
     {
-        foreach (Arr::get($webpage->migration_data['both'], "blocks", []) as $auroraBlock) {
-            $migrationData = md5(json_encode($auroraBlock));
-            $this->processData($webpage, $auroraBlock, $migrationData);
+        if (isset($webpage->migration_data['both'])) {
+            foreach (Arr::get($webpage->migration_data['both'], "blocks", []) as $index => $auroraBlock) {
+                $migrationData = md5(json_encode($auroraBlock));
+                $this->processData($webpage, $auroraBlock, $migrationData, $index + 1);
+            }
         }
-        foreach (Arr::get($webpage->migration_data['loggedIn'], "blocks", []) as $auroraBlock) {
-            $migrationData = md5(json_encode($auroraBlock));
-            $this->processData($webpage, $auroraBlock, $migrationData, ['loggedIn' => true, 'loggedOut' => false]);
+        if (isset($webpage->migration_data['loggedIn'])) {
+            foreach (Arr::get($webpage->migration_data['loggedIn'], "blocks", []) as $index => $auroraBlock) {
+                $migrationData = md5(json_encode($auroraBlock));
+                $this->processData($webpage, $auroraBlock, $migrationData, $index + 1, ['loggedIn' => true, 'loggedOut' => false]);
+            }
         }
-        foreach (Arr::get($webpage->migration_data['loggedOut'], "blocks", []) as $auroraBlock) {
-            $migrationData = md5(json_encode($auroraBlock));
-            $this->processData($webpage, $auroraBlock, $migrationData, ['loggedIn' => false, 'loggedOut' => true]);
+        if (isset($webpage->migration_data['loggedOut'])) {
+            foreach (Arr::get($webpage->migration_data['loggedOut'], "blocks", []) as $index => $auroraBlock) {
+                $migrationData = md5(json_encode($auroraBlock));
+                $this->processData($webpage, $auroraBlock, $migrationData, $index + 1, ['loggedIn' => false, 'loggedOut' => true]);
+            }
         }
 
 
         return $webpage;
     }
 
-    private function processData(Webpage $webpage, $auroraBlock, $migrationData, $visibility = ['loggedIn' => true, 'loggedOut' => true]): void
+    private function processData(Webpage $webpage, $auroraBlock, $migrationData, int $position, $visibility = ['loggedIn' => true, 'loggedOut' => true]): void
     {
         if ($auroraBlock['type'] == "text") {
             $webBlockType = WebBlockType::where("slug", "text")->first();
             $block        = $webBlockType->toArray();
             data_set($block, "data.fieldValue.value", $auroraBlock['text_blocks'][0]['text']);
         } elseif ($auroraBlock['type'] == 'images') {
+
             $webBlockType = WebBlockType::where("slug", "gallery")->first();
             $block        = $webBlockType->toArray();
 
             $imagesArray = [];
             foreach ($auroraBlock['images'] as $image) {
+                if (!isset($image['src'])) {
+                    continue;
+                }
                 $imagesArray[] = [
                     'aurora_source' => $image['src']
 
@@ -58,8 +68,43 @@ class FetchWebpageWebBlocks extends OrgAction
             }
             $fieldValue['value'] = $imagesArray;
             data_set($block, "data.fieldValue.value", $fieldValue['value']);
-        }
+        } elseif ($auroraBlock["type"] == "iframe") {
+            $webBlockType = WebBlockType::where("slug", "iframe")->first();
+            $block        = $webBlockType->toArray();
+            data_set($block, "data.fieldValue.link", $auroraBlock['src']);
+            // dd($block);
+        } elseif ($auroraBlock['type'] == 'blackboard') {
 
+            // $webBlockType = WebBlockType::where("slug", "gallery")->first();
+            // $block        = $webBlockType->toArray();
+            $textsArray = [];
+            foreach ($auroraBlock['texts'] as $text) {
+                if (!isset($text['text'])) {
+                    continue;
+                }
+                $textsArray[] = [
+                    'text' => $text['text']
+
+                ];
+            }
+            $textValue['value'] = $textsArray;
+            data_set($block, "data.fieldValue.value.texts", $textValue['value']);
+
+            $imagesArray = [];
+            foreach ($auroraBlock['images'] as $image) {
+                if (!isset($image['src'])) {
+                    continue;
+                }
+                $imagesArray[] = [
+                    'aurora_source' => $image['src']
+
+                ];
+            }
+            $imgValue['value'] = $imagesArray;
+            data_set($block, "data.fieldValue.value.images", $imgValue['value']);
+        } else {
+            return;
+        }
         data_set($block, "data.properties.padding.unit", "px");
         data_set($block, "data.properties.padding.left.value", 20);
         data_set($block, "data.properties.padding.right.value", 20);
@@ -125,7 +170,7 @@ class FetchWebpageWebBlocks extends OrgAction
                 'shop_id'            => $webpage->shop_id,
                 'website_id'         => $webpage->website_id,
                 'webpage_id'         => $webpage->id,
-                'position'           => 1,
+                'position'           => $position,
                 'model_id'           => $webpage->id,
                 'model_type'         => class_basename(Webpage::class),
                 'web_block_id'       => $webBlock->id,
