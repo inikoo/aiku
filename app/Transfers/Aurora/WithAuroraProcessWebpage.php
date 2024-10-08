@@ -67,6 +67,11 @@ trait WithAuroraProcessWebpage
             if (!$model) {
                 return null;
             }
+        } elseif ($auroraModelData->{'Webpage Scope'} == 'Category Categories') {
+            $model = $this->parseDepartment($organisation->id.':'.$auroraModelData->{'Webpage Scope Key'});
+            if (!$model) {
+                return null;
+            }
         } elseif ($auroraModelData->{'Webpage Scope'} == 'Product') {
             $model = $this->parseProduct($organisation->id.':'.$auroraModelData->{'Webpage Scope Key'});
             if (!$model) {

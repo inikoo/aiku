@@ -112,7 +112,7 @@ const isLoadingDetach = ref<string[]>([])
                 {{ product['shop_slug'] }}
             </Link>
         </template>
-        
+
         <template #cell(type)="{ item: product }">
             <Icon :data="product['type_icon']" />
             <Icon :data="product['state_icon']" />
@@ -124,6 +124,25 @@ const isLoadingDetach = ref<string[]>([])
                 as="button"
                 :href="route(routes.detach.name, routes.detach.parameters)"
                 :method="routes.detach.method"
+                :data="{
+                    product: item.id
+                }"
+                preserve-scroll
+                @start="() => isLoadingDetach.push('detach' + item.id)"
+                @finish="() => loRemove(isLoadingDetach, (xx) => xx == 'detach' + item.id)"
+            >
+                <Button
+                    icon="fal fa-times"
+                    type="negative"
+                    size="xs"
+                    :loading="isLoadingDetach.includes('detach' + item.id)"
+                />
+            </Link>
+            <Link
+                :v-else="item?.delete_product?.name"
+                as="button"
+                :href="route(item.delete_product.name, item.delete_product.parameters)"
+                :method="item.delete_product.method"
                 :data="{
                     product: item.id
                 }"
