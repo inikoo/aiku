@@ -63,7 +63,7 @@ class FetchAuroraWebpage extends FetchAurora
             return;
         }
 
-        $parsedData=$this->processAuroraWebpage($this->auroraModelData);
+        $parsedData=$this->processAuroraWebpage($this->organisation,$this->auroraModelData);
 
         if(!$parsedData){
             return;
