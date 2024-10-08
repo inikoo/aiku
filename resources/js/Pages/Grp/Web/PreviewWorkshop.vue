@@ -38,7 +38,7 @@ const debouncedSendUpdateFooter = debounce((footer) => autoSave(footer), 1000, {
 
 const data = ref(cloneDeep(props.webpage))
 const editDataTools = ref({
-    previewMode: false
+    previewMode: true
 })
 
 const layout = reactive({
