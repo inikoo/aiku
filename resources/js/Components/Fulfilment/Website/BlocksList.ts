@@ -21,7 +21,6 @@ import Action from "@/Components/Forms/Fields/Action.vue"
 
 
 export const getComponent = (componentName: string) => {
-    console.log('in',componentName)
     const components: Component = {
         'bannerWowsbar': WowsbarBanner,
         'ProductPage': ProductPage,
@@ -35,14 +34,10 @@ export const getComponent = (componentName: string) => {
         'Image': Image,
         'Gallery': Gallery,
         "Iframe": Iframe,
-        "BentoGrid" : BentoGrid,
-<<<<<<< HEAD
-        "Product" : Product
+        "BentoGrid": BentoGrid,
+        "Product": Product,
+        "grid1": Grid1
     }
-=======
-        "grid1" : Grid1
-     }
->>>>>>> 5815e0a4e222654742e306baa189900e1b4d2657
 
     return components[componentName] ?? NotFoundComponents
 }
