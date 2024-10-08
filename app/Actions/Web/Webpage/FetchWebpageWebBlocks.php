@@ -75,8 +75,8 @@ class FetchWebpageWebBlocks extends OrgAction
             // dd($block);
         } elseif ($auroraBlock['type'] == 'blackboard') {
 
-            // $webBlockType = WebBlockType::where("slug", "gallery")->first();
-            // $block        = $webBlockType->toArray();
+            $webBlockType = WebBlockType::where("slug", "overview")->first();
+            $block        = $webBlockType->toArray();
             $textsArray = [];
             foreach ($auroraBlock['texts'] as $text) {
                 if (!isset($text['text'])) {
@@ -120,9 +120,20 @@ class FetchWebpageWebBlocks extends OrgAction
             strict: false
         );
 
-        if ($webBlock->webBlockType->name == 'Gallery') {
+        if ($webBlock->webBlockType->name == 'Gallery' || $webBlock->webBlockType->name == 'Overview') {
             $imageSources = [];
-            foreach ($webBlock->layout['data']['fieldValue']['value'] as $imageRawData) {
+            $imageRawDatas = [];
+            switch ($webBlock->webBlockType->name) {
+                case 'Overview':
+                    $imageRawDatas = $webBlock->layout['data']['fieldValue']['value']["images"];
+                    break;
+
+                default:
+                    $imageRawDatas = $webBlock->layout['data']['fieldValue']['value'];
+                    break;
+            }
+
+            foreach ($imageRawDatas as $imageRawData) {
                 if (!isset($imageRawData['aurora_source'])) {
                     break;
                 }
@@ -154,10 +165,17 @@ class FetchWebpageWebBlocks extends OrgAction
 
                 $image          = $media->getImage();
                 $imageSource    = GetPictureSources::run($image);
+
                 $imageSources[] = ["image" => ["source" => $imageSource]];
             }
 
-            data_set($block, "data.fieldValue.value", $imageSources);
+
+            if ($webBlock->webBlockType->name == 'Overview') {
+                data_set($block, "data.fieldValue.value.images", $imageSources);
+            } else {
+
+                data_set($block, "data.fieldValue.value", $imageSources);
+            }
             $webBlock->update([
                 'layout' => $block,
             ]);
@@ -180,6 +198,11 @@ class FetchWebpageWebBlocks extends OrgAction
         UpdateWebpageContent::run($webpage->refresh());
 
         BroadcastPreviewWebpage::dispatch($webpage);
+    }
+
+    private function extractDataImages()
+    {
+
     }
 
     public function action(Webpage $webpage): Webpage
