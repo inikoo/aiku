@@ -10,7 +10,6 @@ namespace App\Actions\Accounting\OrgPaymentServiceProvider\UI;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
-use App\Http\Resources\Accounting\PaymentServiceProvidersResource;
 use App\Http\Resources\Accounting\SelectOrgPaymentServiceProvidersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -93,7 +92,7 @@ class SelectOrgPaymentServiceProviders extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $paymentServiceProviders): AnonymousResourceCollection
     {
-        return PaymentServiceProvidersResource::collection($paymentServiceProviders);
+        return SelectOrgPaymentServiceProvidersResource::collection($paymentServiceProviders);
     }
 
     public function tableStructure($prefix = null): Closure
