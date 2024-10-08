@@ -11,18 +11,15 @@ use App\Actions\Helpers\Images\GetImgProxyUrl;
 use App\Actions\OrgAction;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Events\BroadcastPreviewWebpage;
-use App\Models\Dropshipping\ModelHasWebBlocks;
-use App\Models\SysAdmin\Group;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
 use Exception;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class FetchWebpageWebBlocks extends OrgAction
 {
-
     public function handle(Webpage $webpage): Webpage
     {
 
@@ -31,14 +28,12 @@ class FetchWebpageWebBlocks extends OrgAction
 
             $migrationData = md5(json_encode($auroraBlock));
 
-            if ($auroraBlock['type'] == "text") 
-            {
+            if ($auroraBlock['type'] == "text") {
                 $webBlockType = WebBlockType::where("slug", "text")->first();
                 $block        = $webBlockType->toArray();
                 data_set($block, "data.fieldValue.value", $auroraBlock['text_blocks'][0]['text']);
 
-            } elseif ($auroraBlock['type'] == 'images') 
-            {
+            } elseif ($auroraBlock['type'] == 'images') {
 
                 $webBlockType = WebBlockType::where("slug", "gallery")->first();
                 $block        = $webBlockType->toArray();
@@ -61,9 +56,9 @@ class FetchWebpageWebBlocks extends OrgAction
                     $safeFileName = uniqid() . $extension;
 
                     $media = group()->addMediaFromUrl($urlToFile)
-                                    ->usingFileName($safeFileName) 
+                                    ->usingFileName($safeFileName)
                                     ->withProperties(
-                                            [
+                                        [
                                                 'group_id' => group()->id,
                                                 'ulid'     => Str::ulid()
                                             ],
@@ -88,36 +83,36 @@ class FetchWebpageWebBlocks extends OrgAction
             }
 
             data_set($block, "data.properties.padding.unit", "px");
-                data_set($block, "data.properties.padding.left.value", 20);
-                data_set($block, "data.properties.padding.right.value", 20);
-                data_set($block, "data.properties.padding.bottom.value", 20);
-                data_set($block, "data.properties.padding.top.value", 20);
-                $webBlock = StoreWebBlock::make()->action(
-                    $webBlockType,
-                    [
-                        'layout'             => $block,
-                        'migration_checksum' => $migrationData
-                    ],
-                    strict: false
-                );
+            data_set($block, "data.properties.padding.left.value", 20);
+            data_set($block, "data.properties.padding.right.value", 20);
+            data_set($block, "data.properties.padding.bottom.value", 20);
+            data_set($block, "data.properties.padding.top.value", 20);
+            $webBlock = StoreWebBlock::make()->action(
+                $webBlockType,
+                [
+                    'layout'             => $block,
+                    'migration_checksum' => $migrationData
+                ],
+                strict: false
+            );
 
-                $webpage->modelHasWebBlocks()->create(
-                    [
-                        'group_id'           => $webpage->group_id,
-                        'organisation_id'    => $webpage->organisation_id,
-                        'shop_id'            => $webpage->shop_id,
-                        'website_id'         => $webpage->website_id,
-                        'webpage_id'         => $webpage->id,
-                        'position'           => 1,
-                        'model_id'           => $webpage->id,
-                        'model_type'         => class_basename(Webpage::class),
-                        'web_block_id'       => $webBlock->id,
-                        'migration_checksum' => $migrationData
-                    ]
-                );
-                UpdateWebpageContent::run($webpage->refresh());
+            $webpage->modelHasWebBlocks()->create(
+                [
+                    'group_id'           => $webpage->group_id,
+                    'organisation_id'    => $webpage->organisation_id,
+                    'shop_id'            => $webpage->shop_id,
+                    'website_id'         => $webpage->website_id,
+                    'webpage_id'         => $webpage->id,
+                    'position'           => 1,
+                    'model_id'           => $webpage->id,
+                    'model_type'         => class_basename(Webpage::class),
+                    'web_block_id'       => $webBlock->id,
+                    'migration_checksum' => $migrationData
+                ]
+            );
+            UpdateWebpageContent::run($webpage->refresh());
 
-                BroadcastPreviewWebpage::dispatch($webpage);
+            BroadcastPreviewWebpage::dispatch($webpage);
         }
 
         return $webpage;
@@ -133,21 +128,20 @@ class FetchWebpageWebBlocks extends OrgAction
     public function reset(Webpage $webpage)
     {
         $webBlocks = $webpage->webBlocks()->get();
-    
+        DB::table("model_has_web_blocks")->where("webpage_id", $webpage->id)->delete();
+
         foreach ($webBlocks as $block) {
-            $block->delete(); 
+            $block->forceDelete();
         }
-    
-        $webpage->webBlocks()->detach();
     }
-    
+
     public string $commandSignature = 'fetch:web-blocks {webpage} {--reset}';
 
     public function asCommand($command): int
     {
         try {
             $webpage = Webpage::where('slug', $command->argument('webpage'))->firstOrFail();
-            
+
         } catch (Exception) {
             $command->error('Webpage not found');
             exit;
@@ -155,8 +149,6 @@ class FetchWebpageWebBlocks extends OrgAction
 
         if ($command->option('reset')) {
             $this->reset($webpage);
-            $command->info('Web blocks have been reset successfully.');
-            return 0;
         }
 
         $this->handle($webpage);
