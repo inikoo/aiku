@@ -57,6 +57,7 @@ class IndexPaymentServiceProviders extends GrpAction
             ->defaultSort('payment_service_providers.code')
             ->select(['code', 'slug', 'number_payment_accounts', 'number_payments','name'])
             ->leftJoin('payment_service_provider_stats', 'payment_service_providers.id', 'payment_service_provider_stats.payment_service_provider_id')
+            ->with('media')
             ->allowedSorts(['code', 'number_payment_accounts', 'number_payments','name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)

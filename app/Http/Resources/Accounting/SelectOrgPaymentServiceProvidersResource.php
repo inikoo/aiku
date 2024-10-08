@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Accounting;
 
+use App\Actions\Helpers\Images\GetImgProxyUrl;
 use App\Actions\UI\Accounting\Traits\HasPaymentServiceProviderFields;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Arr;
@@ -23,6 +24,7 @@ use Illuminate\Support\Arr;
  * @property int $id
  * @property mixed $org_slug
  * @property mixed $org_code
+ *  @property \App\Models\Helpers\Media $media
  * @property \App\Models\SysAdmin\Organisation $organisation
  *
  */
@@ -79,6 +81,7 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
             'org_code'                    => $this->org_code,
             'name'                        => $this->name,
             'state'                       => $this->state,
+            'logo'                        => GetImgProxyUrl::run($this->media->first()->getImage()),
             'formData'                    => $formData
         ];
     }

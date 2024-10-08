@@ -21,6 +21,8 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -54,12 +56,13 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|PaymentServiceProvider withoutTrashed()
  * @mixin Eloquent
  */
-class PaymentServiceProvider extends Model implements Auditable
+class PaymentServiceProvider extends Model implements Auditable, HasMedia
 {
     use SoftDeletes;
     use HasSlug;
     use HasHistory;
     use HasFactory;
+    use InteractsWithMedia;
 
     protected $casts = [
         'data' => 'array',

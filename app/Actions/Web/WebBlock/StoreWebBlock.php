@@ -30,8 +30,7 @@ class StoreWebBlock extends GrpAction
                 [
                     'code','data'
                 ]
-            )
-            ,
+            ),
             overwrite: false
         );
 
@@ -47,7 +46,7 @@ class StoreWebBlock extends GrpAction
     public function rules(): array
     {
         $rules = [
-            'layout' => ['sometimes', 'array']
+            'layout'    => ['sometimes', 'array']
         ];
 
         if (!$this->strict) {

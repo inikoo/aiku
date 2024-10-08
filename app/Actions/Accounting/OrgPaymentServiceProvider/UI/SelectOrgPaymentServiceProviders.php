@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\OrgPaymentServiceProvider\UI;
 use App\Actions\OrgAction;
 use App\Actions\UI\Accounting\ShowAccountingDashboard;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
+use App\Http\Resources\Accounting\PaymentServiceProvidersResource;
 use App\Http\Resources\Accounting\SelectOrgPaymentServiceProvidersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -17,6 +18,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -79,6 +81,7 @@ class SelectOrgPaymentServiceProviders extends OrgAction
                 }
             )
 
+            ->with('media')
 
             //'payment_service_providers.id', 'org_payment_service_providers.payment_service_provider_id'
 
@@ -86,6 +89,11 @@ class SelectOrgPaymentServiceProviders extends OrgAction
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
+    }
+
+    public function jsonResponse(LengthAwarePaginator $paymentServiceProviders): AnonymousResourceCollection
+    {
+        return PaymentServiceProvidersResource::collection($paymentServiceProviders);
     }
 
     public function tableStructure($prefix = null): Closure
