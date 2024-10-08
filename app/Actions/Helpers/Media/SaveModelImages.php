@@ -47,7 +47,7 @@ class SaveModelImages
                     ]
                 ]
             );
-            if ($model->images()->count() == 1) {
+            if (!$model instanceof WebBlock && $model->images()->count() == 1) {
                 $model->updateQuietly(['image_id' => $media->id]);
             }
 
