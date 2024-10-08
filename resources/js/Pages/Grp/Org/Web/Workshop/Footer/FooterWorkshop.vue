@@ -113,46 +113,17 @@ watch(usedTemplates, (newVal) => {
     if (newVal) debouncedSendUpdate(newVal)
 }, { deep: true })
 
+
 watch(previewMode, (newVal) => {
     if (socketLayout) socketLayout.actions.send({ previewMode: newVal })
 }, { deep: true })
 
-/* const exportToJson = () => {
-    window.open(iframeSrc.value, '_blank')
-};
 
-const ImportJson = (event: Event) => {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file) return;
+onMounted(() => {
+    if (socketLayout) socketLayout.actions.send({ previewMode: previewMode })
+});
 
-    const reader = new FileReader();
-    reader.onload = () => {
-        try {
-            const data = JSON.parse(reader.result as string);
-            usedTemplates.value = data;
-            notify({
-                title: 'Import Successful',
-                text: 'Your template has been successfully imported.',
-                type: 'success',
-            });
-        } catch (error) {
-            notify({
-                title: 'Invalid JSON',
-                text: 'The uploaded file is not valid JSON.',
-                type: 'error',
-            });
-        }
-    };
-    reader.onerror = () => {
-        notify({
-            title: 'File Error',
-            text: 'An error occurred while reading the file.',
-            type: 'error',
-        });
-    };
-    reader.readAsText(file);
-};
- */
+
 
 </script>
 

@@ -94,7 +94,7 @@ trait WithAuroraProcessWebpage
             ];
 
         if ($migrationData) {
-            $webpage['migration_data'] = $migrationData;
+            $webpage['migration_data'] = ['both' => $migrationData];
         }
 
         if ($createdAt = $this->parseDate($auroraModelData->{'Webpage Creation Date'})) {
