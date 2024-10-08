@@ -13,7 +13,7 @@ class GetWebsiteWorkshopFooter
     public function handle(Website $website): array
     {
         return [
-            'footer' => Arr::get($website->published_layout, 'footer'),
+            'footer' => Arr::get($website->published_layout, 'footer')
         ];
     }
 }

@@ -8,12 +8,16 @@
 namespace Database\Seeders;
 
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
+use App\Actions\Helpers\Media\StoreMediaFromFile;
+use App\Actions\Traits\WithAttachMediaToModel;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderEnum;
 use App\Models\Accounting\PaymentServiceProvider;
 use Illuminate\Database\Seeder;
 
 class PaymentServiceProviderSeeder extends Seeder
 {
+    use WithAttachMediaToModel;
+
     public function run(): void
     {
         $paymentServiceProvidersData = collect(PaymentServiceProviderEnum::values());
@@ -22,14 +26,24 @@ class PaymentServiceProviderSeeder extends Seeder
             $paymentServiceProvider = PaymentServiceProvider::where('code', $modelData)->first();
 
             if (!$paymentServiceProvider) {
-                StorePaymentServiceProvider::run([
+                $paymentServiceProvider = StorePaymentServiceProvider::run([
                     'code' => $modelData,
                     'type' => PaymentServiceProviderEnum::types()[$modelData],
-                    'name' => PaymentServiceProviderEnum::labels()[$modelData]
+                    'name' => PaymentServiceProviderEnum::labels()[$modelData],
                 ]);
             }
 
+            $imageName = $paymentServiceProvider->code.'.png';
+            $imagePath = storage_path('app/tmp/payment-providers/' . $imageName);
+
+            $imageData = [
+                'path' => $imagePath,
+                'checksum' => md5_file($imagePath),
+                'extension' => 'image/png',
+                'originalName' => $imageName
+            ];
+
+            StoreMediaFromFile::run($paymentServiceProvider, $imageData, 'logo');
         });
     }
-
 }

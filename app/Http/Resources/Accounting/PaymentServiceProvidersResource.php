@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\Accounting;
 
+use App\Actions\Helpers\Images\GetImgProxyUrl;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -16,6 +17,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $slug
  * @property string $code
  * @property mixed $created_at
+ * @property \App\Models\Helpers\Media $media
  * @property \App\Models\SysAdmin\Organisation $organisation
  * @property string $name
  *
@@ -29,6 +31,7 @@ class PaymentServiceProvidersResource extends JsonResource
             'number_payment_accounts' => $this->number_payment_accounts,
             'slug'                    => $this->slug,
             'code'                    => $this->code,
+            'logo'                    => GetImgProxyUrl::run($this->media->getImage()),
             'name'                    => $this->name,
             'created_at'              => $this->created_at,
             'storeRoute'              => [

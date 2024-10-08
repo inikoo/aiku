@@ -170,7 +170,6 @@ class Website extends Model implements Auditable, HasMedia
             ->saveSlugsTo('slug');
     }
 
-
     public function webpages(): HasMany
     {
         return $this->hasMany(Webpage::class);
