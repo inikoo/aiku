@@ -7,7 +7,6 @@
 
 namespace App\Actions\Web\Webpage;
 
-use App\Actions\Helpers\Images\GetImgProxyUrl;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\Helpers\Media\SaveModelImages;
 use App\Actions\OrgAction;
@@ -18,16 +17,13 @@ use App\Models\Web\Webpage;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class FetchWebpageWebBlocks extends OrgAction
 {
     public function handle(Webpage $webpage): Webpage
     {
 
-
         foreach (Arr::get($webpage->migration_data, "blocks", []) as $auroraBlock) {
-
             $migrationData = md5(json_encode($auroraBlock));
 
             if ($auroraBlock['type'] == "text") {
@@ -35,45 +31,24 @@ class FetchWebpageWebBlocks extends OrgAction
                 $block        = $webBlockType->toArray();
                 data_set($block, "data.fieldValue.value", $auroraBlock['text_blocks'][0]['text']);
 
-            } 
-
+            }
 
             if ($auroraBlock['type'] == 'images') {
 
                 $webBlockType = WebBlockType::where("slug", "gallery")->first();
                 $block = $webBlockType->toArray();
-            
-                $imagesArray = []; // Collect the image data here
-            
-                foreach ($auroraBlock['images'] as $image) {
 
-            
-                    // Upload and save the media
-                    // $media = group()->addMediaFromUrl($urlToFile)
-                    //                 ->usingFileName($safeFileName)
-                    //                 ->withProperties(
-                    //                     [
-                    //                         'group_id' => group()->id,
-                    //                         'ulid'     => Str::ulid()
-                    //                     ]
-                    //                 )
-                    //                 ->toMediaCollection('images');
-            
-                    // $media->refresh();
-                    // $image = $media->getImage(); // Assuming this is how you get the image data
-                    // $imageUrl = GetImgProxyUrl::run($image); // Assuming this generates the proxy URL
-            
-                    // Collect the image data into an array
+
+                foreach ($auroraBlock['images'] as $image) {
                     $imagesArray[] = [
-                        // 'id' => $media->id,
-                        'text' => "<h2><span style='font-size: 36px'>blabla</span></h2>",
                         'aurora_source' => $image['src']
-                    
+
                     ];
                 }
                 $fieldValue['value'] = $imagesArray;
                 data_set($block, "data.fieldValue.value", $fieldValue['value']);
             }
+
             data_set($block, "data.properties.padding.unit", "px");
             data_set($block, "data.properties.padding.left.value", 20);
             data_set($block, "data.properties.padding.right.value", 20);
@@ -88,42 +63,48 @@ class FetchWebpageWebBlocks extends OrgAction
                 strict: false
             );
 
-            foreach($webBlock->layout['data']['fieldValue']['value'] as $imageRawData)
-            {
-                $auroraImage = $imageRawData['aurora_source'];
+            if ($webBlock->webBlockType->name == 'Gallery') {
+                $imageSources = [];
+                foreach ($webBlock->layout['data']['fieldValue']['value'] as $imageRawData) {
+                    if (!isset($imageRawData['aurora_source'])) {
+                        break;
+                    }
+                    $auroraImage = $imageRawData['aurora_source'];
 
-                $urlToFile = 'https://www.ancientwisdom.biz/' . $auroraImage;
-                $content = file_get_contents($urlToFile);
-                $tempPath = tempnam(sys_get_temp_dir(), 'img_');
-                
-                $headers = get_headers($urlToFile, 1);
-                $mimeType = $headers['Content-Type'];
-            
-                if ($mimeType == 'image/jpeg') {
-                    $extension = '.jpg';
-                } elseif ($mimeType == 'image/png') {
-                    $extension = '.png';
-                } else {
-                    $extension = '.jpg'; 
+                    $urlToFile = 'https://www.'.$webpage->website->domain.$auroraImage;
+                    $content = file_get_contents($urlToFile);
+                    $tempPath = tempnam(sys_get_temp_dir(), 'img_');
+
+                    $headers = get_headers($urlToFile, 1);
+                    $mimeType = $headers['Content-Type'];
+
+                    if ($mimeType == 'image/jpeg') {
+                        $extension = '.jpg';
+                    } elseif ($mimeType == 'image/png') {
+                        $extension = '.png';
+                    } else {
+                        $extension = '.jpg';
+                    }
+
+                    $tempFile = $tempPath . $extension;
+
+                    file_put_contents($tempFile, $content);
+
+                    $media = SaveModelImages::run($webBlock, [
+                        'path' => $tempFile,
+                        'originalName' => 'aurora_image'
+                    ]);
+
+                    $image = $media->getImage();
+                    $imageSource = GetPictureSources::run($image);
+                    $imageSources[] = ["image" => ["source" => $imageSource]];
                 }
-            
-                $tempFile = $tempPath . $extension;
-            
-                file_put_contents($tempFile, $content);
 
-                $safeFileName = uniqid() . $extension;
-
-                $media = SaveModelImages::run($webBlock, [
-                    'path' => $tempFile,
-                    'originalName' => 'aurora_image'
+                data_set($block, "data.fieldValue.value", $imageSources);
+                $webBlock->update([
+                    'layout'             => $block,
                 ]);
-
-                $image = $media->getImage();
-                $imageSource = GetPictureSources::run($image);
-                ; 
             }
-
-
 
             $webpage->modelHasWebBlocks()->create(
                 [
@@ -143,6 +124,7 @@ class FetchWebpageWebBlocks extends OrgAction
 
             BroadcastPreviewWebpage::dispatch($webpage);
         }
+
 
         return $webpage;
     }
