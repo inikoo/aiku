@@ -142,7 +142,8 @@ class IndexProducts extends OrgAction
 
             $addSelects = [
                 'shopify_user_has_products.id as portfolio_id',
-                'shopify_user_has_products.shopify_product_id'
+                'shopify_user_has_products.shopify_product_id',
+                'shopify_user_has_products.shopify_user_id'
             ];
         } else {
             abort(419);

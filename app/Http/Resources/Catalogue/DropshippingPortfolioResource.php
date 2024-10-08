@@ -52,10 +52,11 @@ class DropshippingPortfolioResource extends JsonResource
             'asset_id'                  => $this->asset_id,
             'stock'                     => $this->available_quantity,
             'delete_product' => [
+                'method' => 'delete',
                 'name'       => 'retina.models.dropshipping.shopify_user.product.delete',
                 'parameters' => [
-                    'shopifyUser' => $this->portfolio_id,
-                    'product' => $this->shopify_product_id
+                    'shopifyUser' => $this->shopify_user_id,
+                    'product' => $this->portfolio_id
                 ]
             ],
         ];

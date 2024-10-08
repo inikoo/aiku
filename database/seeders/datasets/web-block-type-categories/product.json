@@ -14,7 +14,11 @@
 				"component": "Product",
 				"icon": ["fal", "cube"],
 				"fieldValue": {
-					"value": ""
+					"value": {
+						"text": "blavla",
+						"image": "blabla",
+						"other_images": []
+					}
 				},
 				"properties": {
 					"buttons": {
