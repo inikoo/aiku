@@ -51,7 +51,7 @@ const icons = [
 
 ];
 
-const addPayments = () => {
+const add = () => {
     let data = cloneDeep(props.modelValue);
     data.push(
         { 
@@ -126,8 +126,8 @@ const deleteSocial = (event,index) => {
             </Disclosure>
 
         </div>
-        <Button type="dashed" icon="fal fa-plus" label="Add Payments Method" full size="s" class="mt-2"
-            @click="addPayments" />
+        <Button type="dashed" icon="fal fa-plus" label="Add Social Media" full size="s" class="mt-2"
+            @click="add" />
     </div>
 </template>
 

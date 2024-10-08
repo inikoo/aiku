@@ -21,9 +21,9 @@ import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faExternalLink, faLineColumns, faIcons, faMoneyBill } from '@fas';
+import { faExternalLink, faLineColumns, faIcons, faMoneyBill, faUpload, faDownload } from '@fas';
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faExternalLink, faLineColumns, faIcons, faMoneyBill)
+library.add(faExternalLink, faLineColumns, faIcons, faMoneyBill, faUpload, faDownload)
 
 const props = defineProps<{
     pageHead: TSPageHeading
@@ -43,26 +43,9 @@ const isLoading = ref(false)
 const comment = ref('')
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
-const iframeSrc = ref(route('grp.websites.header.preview', [route().params['website']]))
+/* const isUploadOpen = ref(false) */
+const iframeSrc = ref(route('grp.websites.footer.preview', [route().params['website']]))
 const socketLayout = SocketHeaderFooter(route().params['website']);
-
-const tabs = [
-    {
-        name: 'Column',
-        value: 'column',
-        icon: faLineColumns
-    },
-    {
-        name: "Socials Media",
-        value: 'socialsmedia',
-        icon: faIcons
-    },
-    {
-        name: 'Payment',
-        value: 'payment',
-        icon: faMoneyBill
-    },
-]
 
 
 const onPickTemplate = (footer: Object) => {
@@ -131,12 +114,45 @@ watch(usedTemplates, (newVal) => {
 }, { deep: true })
 
 watch(previewMode, (newVal) => {
-    console.log('n',newVal)
-    if (socketLayout) socketLayout.actions.send({ previewMode : newVal})
+    if (socketLayout) socketLayout.actions.send({ previewMode: newVal })
 }, { deep: true })
 
+/* const exportToJson = () => {
+    window.open(iframeSrc.value, '_blank')
+};
 
+const ImportJson = (event: Event) => {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
 
+    const reader = new FileReader();
+    reader.onload = () => {
+        try {
+            const data = JSON.parse(reader.result as string);
+            usedTemplates.value = data;
+            notify({
+                title: 'Import Successful',
+                text: 'Your template has been successfully imported.',
+                type: 'success',
+            });
+        } catch (error) {
+            notify({
+                title: 'Invalid JSON',
+                text: 'The uploaded file is not valid JSON.',
+                type: 'error',
+            });
+        }
+    };
+    reader.onerror = () => {
+        notify({
+            title: 'File Error',
+            text: 'An error occurred while reading the file.',
+            type: 'error',
+        });
+    };
+    reader.readAsText(file);
+};
+ */
 
 </script>
 
@@ -150,6 +166,7 @@ watch(previewMode, (newVal) => {
         </template>
     </PageHeading>
 
+    <!--      <Button label="export test" @click="exportToJson"></Button> -->
     <div class="h-[84vh] grid grid-flow-row-dense grid-cols-4">
         <div v-if="usedTemplates?.data" class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
             <div class="flex h-full">
@@ -195,6 +212,16 @@ watch(previewMode, (newVal) => {
                                 </span>
                             </Switch>
 
+
+
+                           <!--  <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'">
+                                <FontAwesomeIcon @click="exportToJson" :icon="faDownload" aria-hidden='true' />
+                            </div>
+
+                            <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'">
+                                <FontAwesomeIcon :icon="faUpload" aria-hidden='true' @click="isUploadOpen = true" />
+                            </div> -->
+
                             <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'"
                                 @click="isModalOpen = true">
                                 <FontAwesomeIcon icon="fas fa-th-large" aria-hidden='true' />
@@ -227,6 +254,22 @@ watch(previewMode, (newVal) => {
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
         <BlockList :onPickBlock="onPickTemplate" :webBlockTypes="webBlockTypeCategories" scope="website" />
     </Modal>
+
+   <!--  <Modal :isOpen="isUploadOpen" @onClose="isUploadOpen = false" width="w-1/2">
+        <div class="mt-2 flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10">
+            <div class="text-center">
+                <FontAwesomeIcon :icon="faUpload" class="mx-auto h-12 w-12 text-gray-500" aria-hidden="true" />
+                <div class="mt-4 flex text-sm leading-6 text-gray-400">
+                    <label for="file-upload" class="relative cursor-pointer rounded-md font-semibold text-indigo-500">
+                        <span>Upload a file</span>
+                        <input id="file-upload" name="file-upload" type="file" class="sr-only" @change="ImportJson" :multiple="false"/>
+                    </label>
+                    <p class="pl-1">or drag and drop</p>
+                </div>
+                <p class="text-xs leading-5 text-gray-400">JSON, up to 10MB</p>
+            </div>
+        </div>
+    </Modal> -->
 
 </template>
 
