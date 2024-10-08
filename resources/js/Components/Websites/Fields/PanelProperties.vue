@@ -3,6 +3,7 @@ import { computed, watch } from 'vue'
 import PaddingMarginProperty from '@/Components/Websites/Fields/Properties/PaddingMarginProperty.vue'
 import BackgroundProperty from '@/Components/Websites/Fields/Properties/BackgroundProperty.vue'
 import BorderProperty from '@/Components/Websites/Fields/Properties/BorderProperty.vue'
+import ButtonsProperty from '@/Components/Websites/Fields/Properties/ButtonsProperty.vue'
 import { trans } from 'laravel-vue-i18n'
 
 const model = defineModel()
@@ -26,6 +27,10 @@ watch(compModel, () => {
     <div>
         <!-- <pre>{{ model?.border }}</pre> -->
     </div>
+    <!-- <div v-if="model?.buttons" class="border-t border-gray-300 bg-gray-100 pb-3">
+        <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Buttons') }}</div>
+        <ButtonsProperty v-model="model.buttons" />
+    </div>-->
 
     <div v-if="model?.background" class="border-t border-gray-300 bg-gray-100 pb-3">
         <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Background') }}</div>
