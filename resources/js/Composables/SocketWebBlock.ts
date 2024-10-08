@@ -33,7 +33,7 @@ export const SocketHeaderFooter = (website: String) => {
 			unsubscribe() {
 				window.Echo.leave(`header-footer.${website}.preview`)
 			},
-			subscribe: (callback) => {
+			subscribe: (callback: any) => {
 				const channel = window.Echo.private(`header-footer.${website}.preview`).listen(
 					".WebpagePreview",
 					(event) => {
@@ -45,6 +45,11 @@ export const SocketHeaderFooter = (website: String) => {
 						}
 					}
 				)
+			},
+			send: (send = "") => {
+				console.log('sdsd')
+				const channelName = `header-footer.${website}.preview`
+				window.Echo.join(channelName).whisper("otherIsNavigating", { data: send })
 			},
 		},
 	}

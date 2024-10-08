@@ -32,15 +32,23 @@ class StoreWebBlock extends GrpAction
         return $webBlock;
     }
 
-    public function rules()
+    public function rules(): array
     {
-        return [
+        $rules= [
             'layout'    => ['sometimes', 'array']
         ];
+
+        if(!$this->strict){
+            $rules['migration_checksum']=['sometimes','string'];
+        }
+
+        return $rules;
+
     }
 
-    public function action(WebBlockType $webBlockType, array $modelData): WebBlock
+    public function action(WebBlockType $webBlockType, array $modelData,$strict=true): WebBlock
     {
+        $this->strict=$strict;
         $this->asAction = true;
 
         $this->initialisation($webBlockType->group, $modelData);

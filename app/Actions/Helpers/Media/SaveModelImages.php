@@ -11,6 +11,7 @@ use App\Actions\Helpers\Media\Hydrators\MediaHydrateMultiplicity;
 use App\Actions\Helpers\Media\Hydrators\MediaHydrateUsage;
 use App\Models\Catalogue\Product;
 use App\Models\Helpers\Media;
+use App\Models\Web\WebBlock;
 use Lorisleiva\Actions\Concerns\AsAction;
 use stdClass;
 
@@ -18,12 +19,7 @@ class SaveModelImages
 {
     use AsAction;
 
-    public function handle(
-        Product $model,
-        array $imageData,
-        string $scope = 'image',
-        string $mediaScope = 'images'
-    ): Product {
+    public function handle(Product|WebBlock $model, array $imageData, string $scope = 'image', string $mediaScope = 'images'): Media {
         $group_id        = $model->group_id;
         $organisation_id = $model->organisation_id;
 
@@ -36,10 +32,8 @@ class SaveModelImages
             data_set($imageData, 'checksum', $checksum);
             $media = StoreMediaFromFile::run($model, $imageData, $mediaScope);
         } elseif ($model->images()->where('media_id', $media->id)->exists()) {
-            return $model;
+            return $media;
         }
-
-
 
 
         if ($media) {
@@ -61,7 +55,7 @@ class SaveModelImages
             MediaHydrateMultiplicity::dispatch($media);
         }
 
-        return $model;
+        return $media;
     }
 
 
