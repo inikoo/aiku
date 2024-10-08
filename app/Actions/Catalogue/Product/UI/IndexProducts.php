@@ -71,6 +71,8 @@ class IndexProducts extends OrgAction
             $this->bucket = $bucket;
         }
 
+        $addSelects = [];
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('products.name', $value)
@@ -137,6 +139,11 @@ class IndexProducts extends OrgAction
                 $join->on('products.id', '=', 'shopify_user_has_products.product_id')
                     ->where('shopify_user_has_products.shopify_user_id', '=', $parent->id);
             });
+
+            $addSelects = [
+                'shopify_user_has_products.id as portfolio_id',
+                'shopify_user_has_products.shopify_product_id'
+            ];
         } else {
             abort(419);
         }
@@ -162,9 +169,9 @@ class IndexProducts extends OrgAction
                 'products.created_at',
                 'products.updated_at',
                 'products.slug',
+                ...$addSelects
             ])
             ->leftJoin('product_stats', 'products.id', 'product_stats.product_id');
-
 
         return $queryBuilder->allowedSorts(['code', 'name', 'shop_slug', 'department_slug', 'family_slug'])
             ->allowedFilters([$globalSearch])
