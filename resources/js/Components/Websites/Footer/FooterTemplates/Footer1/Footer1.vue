@@ -495,7 +495,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                             <div v-for="payment in modelValue.PaymentData.data" :key="payment.key"
                                 class="w-full md:w-1/3 px-4 mb-8">
                                 <div class="flex items-center justify-center md:justify-start space-x-4">
-                                    <img :src="payment.image" :alt="payment.key" class="px-1 h-4">
+                                    <img :src="payment.image" :alt="payment.name" class="px-1 h-4">
                                 </div>
                             </div>
                         </div>
