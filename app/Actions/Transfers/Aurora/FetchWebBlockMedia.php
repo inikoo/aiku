@@ -21,19 +21,20 @@ class FetchWebBlockMedia extends OrgAction
 
     public function handle(WebBlock $webBlock, Webpage $webpage, string $auroraImage): Media
     {
+        // return $this->downloadMediaFromWebpage($webBlock, $webpage, $auroraImage);
         $this->organisation = $webpage->website->organisation;
         $auroraImageId = null;
 
         if (preg_match('/wi\/(\d+)\.([a-zA-Z]+)/', $auroraImage, $matches)) {
-            $auroraImageId= $matches[1];
+            $auroraImageId = $matches[1];
         }
 
-        if($auroraImageId) {
+        if ($auroraImageId) {
             $auroraImageData = DB::connection('aurora')->table('Image Dimension')
                 ->where('Image Key', $auroraImageId)->first();
 
 
-            $imageData=$this->fetchImage($auroraImageData);
+            $imageData = $this->fetchImage($auroraImageData);
 
             return SaveModelImages::run($webBlock, [
                 "path"         => $imageData['image_path'],

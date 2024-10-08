@@ -9,7 +9,6 @@ namespace App\Actions\Transfers\Aurora;
 
 use Illuminate\Support\Str;
 use App\Actions\Helpers\Images\GetPictureSources;
-use App\Actions\Helpers\Media\SaveModelImages;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Actions\Web\WebBlock\StoreWebBlock;
@@ -188,7 +187,7 @@ class FetchWebpageWebBlocks extends OrgAction
 
             foreach ($imageRawDatas as $imageRawData) {
                 $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
-                $imageSources[] = ["image" => ["source" => $imageSource]];
+                $imageSources[] = ["source" => $imageSource];
             }
 
             switch ($webBlock->webBlockType->name) {
@@ -200,7 +199,7 @@ class FetchWebpageWebBlocks extends OrgAction
                     data_set($block, "data.fieldValue.value.other_images", $imageSources);
                     break;
                 default:
-                    data_set($block, "data.fieldValue.value", $imageSources);
+                    data_set($block, "data.fieldValue.value.image", $imageSources);
                     break;
             }
             dd($block);
