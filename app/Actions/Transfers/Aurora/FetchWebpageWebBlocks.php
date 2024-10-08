@@ -13,7 +13,6 @@ use App\Actions\OrgAction;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Events\BroadcastPreviewWebpage;
-use App\Models\Helpers\Media;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
 use Exception;
@@ -254,40 +253,13 @@ class FetchWebpageWebBlocks extends OrgAction
         }
         $auroraImage = $imageRawData["aurora_source"];
 
-        $media = $this->getMediaFromWebpage($webBlock, $webpage, $auroraImage);
+        $media = FetchWebBlockMedia::run($webBlock, $webpage, $auroraImage);
 
         $image = $media->getImage();
         $imageSource = GetPictureSources::run($image);
         return $imageSource;
     }
 
-    public function getMediaFromWebpage($webBlock, $webpage, $auroraImage): Media
-    {
-        $urlToFile = "https://www." . $webpage->website->domain . $auroraImage;
-        $content = file_get_contents($urlToFile);
-        $tempPath = tempnam(sys_get_temp_dir(), "img_");
-
-        $headers = get_headers($urlToFile, 1);
-        $mimeType = $headers["Content-Type"];
-
-        if ($mimeType == "image/jpeg") {
-            $extension = ".jpg";
-        } elseif ($mimeType == "image/png") {
-            $extension = ".png";
-        } else {
-            $extension = ".jpg";
-        }
-
-        $tempFile = $tempPath . $extension;
-
-        file_put_contents($tempFile, $content);
-
-        $media = SaveModelImages::run($webBlock, [
-            "path" => $tempFile,
-            "originalName" => "aurora_image",
-        ]);
-        return $media;
-    }
 
 
     public function action(Webpage $webpage): Webpage
