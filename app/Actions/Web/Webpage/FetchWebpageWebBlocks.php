@@ -22,7 +22,6 @@ class FetchWebpageWebBlocks extends OrgAction
 {
     public function handle(Webpage $webpage): Webpage
     {
-
         foreach (Arr::get($webpage->migration_data['both'], "blocks", []) as $auroraBlock) {
             $migrationData = md5(json_encode($auroraBlock));
             $this->processData($webpage, $auroraBlock, $migrationData);
@@ -40,21 +39,17 @@ class FetchWebpageWebBlocks extends OrgAction
         return $webpage;
     }
 
-    private function processData(Webpage $webpage, $auroraBlock, $migrationData, $visibilty = ['loggedIn' => true, 'loggedOut' => true])
+    private function processData(Webpage $webpage, $auroraBlock, $migrationData, $visibility = ['loggedIn' => true, 'loggedOut' => true]): void
     {
         if ($auroraBlock['type'] == "text") {
             $webBlockType = WebBlockType::where("slug", "text")->first();
             $block        = $webBlockType->toArray();
             data_set($block, "data.fieldValue.value", $auroraBlock['text_blocks'][0]['text']);
-
-        }
-
-        if ($auroraBlock['type'] == 'images') {
-
+        } elseif ($auroraBlock['type'] == 'images') {
             $webBlockType = WebBlockType::where("slug", "gallery")->first();
-            $block = $webBlockType->toArray();
+            $block        = $webBlockType->toArray();
 
-
+            $imagesArray = [];
             foreach ($auroraBlock['images'] as $image) {
                 $imagesArray[] = [
                     'aurora_source' => $image['src']
@@ -70,12 +65,12 @@ class FetchWebpageWebBlocks extends OrgAction
         data_set($block, "data.properties.padding.right.value", 20);
         data_set($block, "data.properties.padding.bottom.value", 20);
         data_set($block, "data.properties.padding.top.value", 20);
-        data_set($block, "data.visibility", $visibilty);
         $webBlock = StoreWebBlock::make()->action(
             $webBlockType,
             [
                 'layout'             => $block,
-                'migration_checksum' => $migrationData
+                'migration_checksum' => $migrationData,
+                'visibility'         => $visibility
             ],
             strict: false
         );
@@ -89,10 +84,10 @@ class FetchWebpageWebBlocks extends OrgAction
                 $auroraImage = $imageRawData['aurora_source'];
 
                 $urlToFile = 'https://www.'.$webpage->website->domain.$auroraImage;
-                $content = file_get_contents($urlToFile);
-                $tempPath = tempnam(sys_get_temp_dir(), 'img_');
+                $content   = file_get_contents($urlToFile);
+                $tempPath  = tempnam(sys_get_temp_dir(), 'img_');
 
-                $headers = get_headers($urlToFile, 1);
+                $headers  = get_headers($urlToFile, 1);
                 $mimeType = $headers['Content-Type'];
 
                 if ($mimeType == 'image/jpeg') {
@@ -103,23 +98,23 @@ class FetchWebpageWebBlocks extends OrgAction
                     $extension = '.jpg';
                 }
 
-                $tempFile = $tempPath . $extension;
+                $tempFile = $tempPath.$extension;
 
                 file_put_contents($tempFile, $content);
 
                 $media = SaveModelImages::run($webBlock, [
-                    'path' => $tempFile,
+                    'path'         => $tempFile,
                     'originalName' => 'aurora_image'
                 ]);
 
-                $image = $media->getImage();
-                $imageSource = GetPictureSources::run($image);
+                $image          = $media->getImage();
+                $imageSource    = GetPictureSources::run($image);
                 $imageSources[] = ["image" => ["source" => $imageSource]];
             }
 
             data_set($block, "data.fieldValue.value", $imageSources);
             $webBlock->update([
-                'layout'             => $block,
+                'layout' => $block,
             ]);
         }
 
@@ -149,7 +144,7 @@ class FetchWebpageWebBlocks extends OrgAction
         return $this->handle($webpage);
     }
 
-    public function reset(Webpage $webpage)
+    public function reset(Webpage $webpage): void
     {
         $webBlocks = $webpage->webBlocks()->get();
         DB::table("model_has_web_blocks")->where("webpage_id", $webpage->id)->delete();
@@ -165,7 +160,6 @@ class FetchWebpageWebBlocks extends OrgAction
     {
         try {
             $webpage = Webpage::where('slug', $command->argument('webpage'))->firstOrFail();
-
         } catch (Exception) {
             $command->error('Webpage not found');
             exit;
