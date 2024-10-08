@@ -69,10 +69,31 @@ class FetchWebpageWebBlocks extends OrgAction
             $fieldValue['value'] = $imagesArray;
             data_set($block, "data.fieldValue.value", $fieldValue['value']);
         } elseif ($auroraBlock["type"] == "iframe") {
+
             $webBlockType = WebBlockType::where("slug", "iframe")->first();
             $block        = $webBlockType->toArray();
             data_set($block, "data.fieldValue.link", $auroraBlock['src']);
-            // dd($block);
+
+        } elseif ($auroraBlock['type'] == 'product') {
+
+            $webBlockType = WebBlockType::where("slug", "product")->first();
+            $block        = $webBlockType->toArray();
+            data_set($block, "data.fieldValue.value.text", $auroraBlock['text']);
+            data_set($block, "data.fieldValue.value.image.aurora_source", $auroraBlock['image']['src']);
+
+            $otherImages = [];
+            foreach ($auroraBlock['other_images'] as $image) {
+                if (!isset($image['src'])) {
+                    continue;
+                }
+                $otherImages[] = [
+                    'aurora_source' => $image['src']
+
+                ];
+            }
+            $imgValue['value'] = $otherImages;
+            data_set($block, "data.fieldValue.value.other_images", $imgValue['value']);
+
         } elseif ($auroraBlock['type'] == 'blackboard') {
 
             $webBlockType = WebBlockType::where("slug", "overview")->first();
