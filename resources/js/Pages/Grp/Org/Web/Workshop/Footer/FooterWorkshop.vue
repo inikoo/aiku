@@ -35,7 +35,7 @@ const props = defineProps<{
     webBlockTypeCategories: Object
 }>()
 
-const previewMode = ref(false)
+const previewMode = ref(true)
 const isModalOpen = ref(false)
 const usedTemplates = ref(props.data.footer)
 const tabsBar = ref(0)
@@ -43,13 +43,11 @@ const isLoading = ref(false)
 const comment = ref('')
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
-/* const isUploadOpen = ref(false) */
 const iframeSrc = ref(route('grp.websites.footer.preview', [route().params['website']]))
 const socketLayout = SocketHeaderFooter(route().params['website']);
 
 
 const onPickTemplate = (footer: Object) => {
-    console.log(footer)
     isModalOpen.value = false
     usedTemplates.value = footer
 }

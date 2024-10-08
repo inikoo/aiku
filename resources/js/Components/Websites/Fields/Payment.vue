@@ -111,8 +111,9 @@ onMounted(() => {
 
                     </template>
                 </PureMultiselect>
-                <FontAwesomeIcon :icon="['fas', 'trash']" class="text-red-500 my-auto px-2 cursor-pointer"
-                    @click="(e) => deleteSocial(e, index)" />
+                <div class="border text-center"><FontAwesomeIcon :icon="['fas', 'trash']" class="text-red-500 my-auto px-2 cursor-pointer"
+                    @click="(e) => deleteSocial(e, index)" /></div>
+                
             </div>
 
         </div>
