@@ -19,38 +19,78 @@
 					"button": "Read blog",
 					"image": null
 				},
-				"blockLayout": {
-					"paddingTop": {
-						"value": "0",
-						"unit": "px"
+				"properties": {
+					"buttons": {
+						"login": true,
+						"logout": false
 					},
-					"paddingLeft": {
-						"value": "0",
-						"unit": "px"
+					"background": {
+						"type": "color",
+						"color": "#fff",
+						"image": {
+							"original": null
+						}
 					},
-					"paddingRight": {
-						"value": "0",
-						"unit": "px"
+					"padding": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
 					},
-					"paddingBottom": {
-						"value": "0",
-						"unit": "px"
+					"margin": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
 					},
-					"marginBottom": {
-						"value": "0",
-						"unit": "px"
-					},
-					"marginTop": {
-						"value": "0",
-						"unit": "px"
-					},
-					"marginLeft": {
-						"value": "0",
-						"unit": "px"
-					},
-					"marginRight": {
-						"value": "0",
-						"unit": "px"
+					"border": {
+						"color": "#000000",
+						"unit": "px",
+						"rounded": {
+							"unit": "px",
+							"topright": {
+								"value": 0
+							},
+							"topleft": {
+								"value": 0
+							},
+							"bottomright": {
+								"value": 0
+							},
+							"bottomleft": {
+								"value": 0
+							}
+						},
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
 					}
 				}
 			}

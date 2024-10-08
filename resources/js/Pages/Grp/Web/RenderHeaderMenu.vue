@@ -31,6 +31,7 @@ const props = defineProps<{
         :uploadImageRoute="data.uploadImageRoute"
         :colorThemed="colorThemed"
       />
-        <NavigationMenu :data="menu" :colorThemed="colorThemed" class="hidden md:block" />
+
+        <NavigationMenu v-if="menu"  :data="menu" :colorThemed="colorThemed" class="hidden md:block" />
     </div>
 </template>

@@ -1,17 +1,20 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-/* import { useColorTheme } from '@/Composables/useStockList' */
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import draggable from "vuedraggable";
 import { v4 as uuidv4 } from 'uuid';
-/* import ContextMenu from '@/Components/ContextMenu.vue' */
 import ContextMenu from 'primevue/contextmenu';
+/* import Accordion from 'primevue/accordion';
+import AccordionPanel from 'primevue/accordionpanel';
+import AccordionHeader from 'primevue/accordionheader';
+import AccordionContent from 'primevue/accordioncontent'; */
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faShieldAlt, faPlus, faTrash } from "@fas"
+import { faShieldAlt, faPlus, faTrash, faAngleUp, faAngleDown } from "@fas"
 import { faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
 import { faBars } from '@fal'
 
@@ -33,6 +36,7 @@ const selectedColumn = ref(null)
 const editKey = ref(uuidv4())
 const menu = ref();
 const subMenu = ref();
+const ColumnMenu = ref();
 const Menuitems = ref([
     {
         label: 'Sub Menu',
@@ -71,12 +75,22 @@ const onDrop = () => {
 }
 
 const addSubmenu = () => {
-    selectedData.value.data.push(
-        {
-            name: "New Sub Menu",
-            id: uuidv4(),
-        },
-    )
+    if (selectedData.value.data) {
+        selectedData.value.data.push(
+            {
+                name: "New Sub Menu",
+                id: uuidv4(),
+            },
+        )
+    } else {
+        selectedData.value.data = [
+            {
+                name: "New Sub Menu",
+                id: uuidv4(),
+            }
+        ]
+    }
+
 }
 
 const deleteMenu = () => {
@@ -111,54 +125,121 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
     <div id="app" class="py-24 md:px-7" :style="{ backgroundColor: selectedColor[0], color: selectedColor[1] }">
         <div class="">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-8">
-                <draggable :list="modelValue.column['column_1']['data']" group="row" itemKey="id" :animation="200"
-                    handle=".handle" @start="onDrag" @end="onDrop"
-                    class="px-4 md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
-                    <template #item="{ element: item, index: index }">
-                        <div class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
-                            <div class="flex">
-                                <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
-                                    class="handle text-xl text-white cursor-grab pr-3 mr-2" />
-                                <div class="w-full"
-                                    @contextmenu="onRightClickMenu($event, item, modelValue.column['column_1']['data'], index)">
-                                    <span class="text-xl font-semibold w-fit leading-6">
-                                        <Editor v-model="item.name" :toogle="[]" :editable="editable" :key="editKey" />
-                                    </span>
+                <div class="px-4 md:px-0 grid gap-y-2 md:gap-y-6 h-fit">
+                    <draggable :list="modelValue.column['column_1']['data']" group="row" itemKey="id" :animation="200"
+                        handle=".handle" @start="onDrag" @end="onDrop"
+                        class="px-4 md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
+                        <template #item="{ element: item, index: index }">
+                            <div>
+                                <div
+                                    class="hidden md:block grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
+                                    <div class="flex">
+                                        <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
+                                            class="handle text-xl text-white cursor-grab pr-3 mr-2" />
+                                        <div class="w-full"
+                                            @contextmenu="onRightClickMenu($event, item, modelValue.column['column_1']['data'], index)">
+                                            <span class="text-xl font-semibold w-fit leading-6">
+                                                <Editor v-model="item.name" :toogle="[]" :editable="editable"
+                                                    :key="editKey" />
+                                            </span>
+                                        </div>
+                                        <ContextMenu ref="menu" :model="Menuitems">
+                                            <template #itemicon="item">
+                                                <FontAwesomeIcon :icon="item.item.icon" />
+                                            </template>
+                                        </ContextMenu>
+                                    </div>
+                                    <draggable :list="item.data" group="sub-row" itemKey="id" :animation="200"
+                                        handle=".handle-sub" @start="onDrag" @end="onDrop">
+                                        <template #item="{ element: sub, index: subIndex }">
+                                            <ul class="hidden md:block space-y-1">
+                                                <li>
+                                                    <div class="flex items-center">
+                                                        <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
+                                                            class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
+                                                        <div class="w-full"
+                                                            @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_1']['data'], subIndex)">
+                                                            <span class="text-sm block">
+                                                                <Editor v-model="sub.name" :toogle="['link']"
+                                                                    :editable="editable" :key="editKey" />
+                                                            </span>
+                                                        </div>
+                                                        <ContextMenu ref="subMenu" :model="subMenuitems">
+                                                            <template #itemicon="item">
+                                                                <FontAwesomeIcon :icon="item.item.icon" />
+                                                            </template>
+                                                        </ContextMenu>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </template>
+                                    </draggable>
                                 </div>
-                                <ContextMenu ref="menu" :model="Menuitems">
-                                    <template #itemicon="item">
-                                        <FontAwesomeIcon :icon="item.item.icon" />
-                                    </template>
-                                </ContextMenu>
-                            </div>
-                            <draggable :list="item.data" group="sub-row" itemKey="id" :animation="200"
-                                handle=".handle-sub" @start="onDrag" @end="onDrop">
-                                <template #item="{ element: sub, index: subIndex }">
-                                    <ul class="hidden md:block space-y-1">
-                                        <li>
-                                            <div class="flex items-center">
-                                                <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
-                                                    class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
-                                                <div class="w-full"
-                                                    @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_1']['data'], subIndex)">
-                                                    <span class="text-sm block">
-                                                        <Editor v-model="sub.name" :toogle="['link']"
-                                                            :editable="editable" :key="editKey" />
-                                                    </span>
+                                <div class="block md:hidden">
+                                    <Disclosure v-slot="{ open }">
+                                        <DisclosureButton
+                                            class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none w-full">
+                                            <div class="flex justify-between">
+                                                <div class="flex ">
+                                                    <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
+                                                        class="handle text-xl text-white cursor-grab pr-3 mr-2" />
+                                                    <div class="w-fit"
+                                                        @contextmenu="onRightClickMenu($event, item, modelValue.column['column_1']['data'], index)">
+                                                        <span class="text-xl font-semibold leading-6">
+                                                            <Editor v-model="item.name" :toogle="[]"
+                                                                :editable="editable" :key="editKey" />
+                                                        </span>
+                                                    </div>
+                                                    <ContextMenu ref="menu" :model="Menuitems">
+                                                        <template #default="{ item }">
+                                                            <FontAwesomeIcon :icon="item.item.icon" />
+                                                        </template>
+                                                    </ContextMenu>
                                                 </div>
-                                                <ContextMenu ref="subMenu" :model="subMenuitems">
-                                                    <template #itemicon="item">
-                                                        <FontAwesomeIcon :icon="item.item.icon" />
-                                                    </template>
-                                                </ContextMenu>
+                                                <div>
+                                                    <FontAwesomeIcon :icon="open ? faAngleDown : faAngleUp"
+                                                        class="w-3 h-3" />
+                                                </div>
                                             </div>
-                                        </li>
-                                    </ul>
-                                </template>
-                            </draggable>
-                        </div>
-                    </template>
-                </draggable>
+                                        </DisclosureButton>
+
+                                        <DisclosurePanel>
+                                            <div>
+                                                <draggable :list="item.data" group="sub-row" itemKey="id"
+                                                    :animation="200" handle=".handle-sub" @start="onDrag" @end="onDrop">
+                                                    <template #item="{ element: sub, index: subIndex }">
+                                                        <ul class="block space-y-1">
+                                                            <li>
+                                                                <div class="flex items-center">
+                                                                    <FontAwesomeIcon icon="fal fa-bars"
+                                                                        v-if="!previewMode"
+                                                                        class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
+                                                                    <div class="w-full"
+                                                                        @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_1']['data'], subIndex)">
+                                                                        <span class="text-sm block">
+                                                                            <Editor v-model="sub.name"
+                                                                                :toogle="['link']" :editable="editable"
+                                                                                :key="editKey" />
+                                                                        </span>
+                                                                    </div>
+                                                                    <ContextMenu ref="subMenu" :model="subMenuitems">
+                                                                        <template #default="{ item }">
+                                                                            <FontAwesomeIcon :icon="item.item.icon" />
+                                                                        </template>
+                                                                    </ContextMenu>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </template>
+                                                </draggable>
+                                            </div>
+                                        </DisclosurePanel>
+                                    </Disclosure>
+                                </div>
+                            </div>
+                        </template>
+                    </draggable>
+                </div>
 
 
                 <div class="px-4 md:px-0 grid gap-y-2 md:gap-y-6 h-fit">
@@ -166,111 +247,234 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                         handle=".handle" @start="onDrag" @end="onDrop"
                         class="px-4 md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
                         <template #item="{ element: item, index: index }">
-                            <div class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
-                                <div class="flex">
-                                    <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
-                                        class="handle text-xl text-white cursor-grab pr-3 mr-2" />
-                                    <div class="w-full"
-                                        @contextmenu="onRightClickMenu($event, item, modelValue.column['column_2']['data'], index)">
-                                        <span class="text-xl font-semibold w-fit leading-6">
-                                            <Editor v-model="item.name" :toogle="[]" :editable="editable"
-                                                :key="editKey" />
-                                        </span>
+                            <div>
+                                <div
+                                    class="hidden md:block grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
+                                    <div class="flex">
+                                        <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
+                                            class="handle text-xl text-white cursor-grab pr-3 mr-2" />
+                                        <div class="w-full"
+                                            @contextmenu="onRightClickMenu($event, item, modelValue.column['column_2']['data'], index)">
+                                            <span class="text-xl font-semibold w-fit leading-6">
+                                                <Editor v-model="item.name" :toogle="[]" :editable="editable"
+                                                    :key="editKey" />
+                                            </span>
+                                        </div>
+                                        <ContextMenu ref="menu" :model="Menuitems">
+                                            <template #itemicon="item">
+                                                <FontAwesomeIcon :icon="item.item.icon" />
+                                            </template>
+                                        </ContextMenu>
                                     </div>
-                                    <ContextMenu ref="menu" :model="Menuitems">
-                                        <template #itemicon="item">
-                                            <FontAwesomeIcon :icon="item.item.icon" />
+                                    <draggable :list="item.data" group="sub-row" itemKey="id" :animation="200"
+                                        handle=".handle-sub" @start="onDrag" @end="onDrop">
+                                        <template #item="{ element: sub, index: subIndex }">
+                                            <ul class="hidden md:block space-y-1">
+                                                <li>
+                                                    <div class="flex items-center">
+                                                        <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
+                                                            class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
+                                                        <div class="w-full"
+                                                            @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_2']['data'], subIndex)">
+                                                            <span class="text-sm block">
+                                                                <Editor v-model="sub.name" :toogle="['link']"
+                                                                    :editable="editable" :key="editKey" />
+                                                            </span>
+                                                        </div>
+                                                        <ContextMenu ref="subMenu" :model="subMenuitems">
+                                                            <template #itemicon="item">
+                                                                <FontAwesomeIcon :icon="item.item.icon" />
+                                                            </template>
+                                                        </ContextMenu>
+                                                    </div>
+                                                </li>
+                                            </ul>
                                         </template>
-                                    </ContextMenu>
+                                    </draggable>
                                 </div>
-                                <draggable :list="item.data" group="sub-row" itemKey="id" :animation="200"
-                                    handle=".handle-sub" @start="onDrag" @end="onDrop">
-                                    <template #item="{ element: sub, index: subIndex }">
-                                        <ul class="hidden md:block space-y-1">
-                                            <li>
-                                                <div class="flex items-center">
+
+                                <div class="block md:hidden">
+                                    <Disclosure v-slot="{ open }">
+                                        <DisclosureButton
+                                            class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none w-full">
+                                            <div class="flex justify-between">
+                                                <div class="flex ">
                                                     <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
-                                                        class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
-                                                    <div class="w-full"
-                                                        @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_2']['data'], subIndex)">
-                                                        <span class="text-sm block">
-                                                            <Editor v-model="sub.name" :toogle="['link']"
+                                                        class="handle text-xl text-white cursor-grab pr-3 mr-2" />
+                                                    <div class="w-fit"
+                                                        @contextmenu="onRightClickMenu($event, item, modelValue.column['column_2']['data'], index)">
+                                                        <span class="text-xl font-semibold leading-6">
+                                                            <Editor v-model="item.name" :toogle="[]"
                                                                 :editable="editable" :key="editKey" />
                                                         </span>
                                                     </div>
-                                                    <ContextMenu ref="subMenu" :model="subMenuitems">
-                                                        <template #itemicon="item">
+                                                    <ContextMenu ref="menu" :model="Menuitems">
+                                                        <template #default="{ item }">
                                                             <FontAwesomeIcon :icon="item.item.icon" />
                                                         </template>
                                                     </ContextMenu>
                                                 </div>
-                                            </li>
-                                        </ul>
-                                    </template>
-                                </draggable>
+                                                <div>
+                                                    <FontAwesomeIcon :icon="open ? faAngleDown : faAngleUp"
+                                                        class="w-3 h-3" />
+                                                </div>
+                                            </div>
+                                        </DisclosureButton>
+
+                                        <DisclosurePanel>
+                                            <div>
+                                                <draggable :list="item.data" group="sub-row" itemKey="id"
+                                                    :animation="200" handle=".handle-sub" @start="onDrag" @end="onDrop">
+                                                    <template #item="{ element: sub, index: subIndex }">
+                                                        <ul class="block space-y-1">
+                                                            <li>
+                                                                <div class="flex items-center">
+                                                                    <FontAwesomeIcon icon="fal fa-bars"
+                                                                        v-if="!previewMode"
+                                                                        class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
+                                                                    <div class="w-full"
+                                                                        @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_2']['data'], subIndex)">
+                                                                        <span class="text-sm block">
+                                                                            <Editor v-model="sub.name"
+                                                                                :toogle="['link']" :editable="editable"
+                                                                                :key="editKey" />
+                                                                        </span>
+                                                                    </div>
+                                                                    <ContextMenu ref="subMenu" :model="subMenuitems">
+                                                                        <template #default="{ item }">
+                                                                            <FontAwesomeIcon :icon="item.item.icon" />
+                                                                        </template>
+                                                                    </ContextMenu>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </template>
+                                                </draggable>
+                                            </div>
+                                        </DisclosurePanel>
+                                    </Disclosure>
+                                </div>
                             </div>
                         </template>
                     </draggable>
-
-
                 </div>
 
                 <div class="px-4 md:px-0 grid gap-y-2 md:gap-y-6 h-fit">
                     <draggable :list="modelValue.column['column_3']['data']" group="row" itemKey="id" :animation="200"
                         handle=".handle" @start="onDrag" @end="onDrop"
-                        class="px-4 md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
+                        class="hidden md:block px-4 md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
                         <template #item="{ element: item, index: index }">
-                            <div class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
-                                <div class="flex">
-                                    <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
-                                        class="handle text-xl text-white cursor-grab pr-3 mr-2" />
-                                    <div class="w-full"
-                                        @contextmenu="onRightClickMenu($event, item, modelValue.column['column_2']['data'], index)">
-                                        <span class="text-xl font-semibold w-fit leading-6">
-                                            <Editor v-model="item.name" :toogle="[]" :editable="editable"
-                                                :key="editKey" />
-                                        </span>
+                            <div>
+                                <div class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
+                                    <div class="flex">
+                                        <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
+                                            class="handle text-xl text-white cursor-grab pr-3 mr-2" />
+                                        <div class="w-full"
+                                            @contextmenu="onRightClickMenu($event, item, modelValue.column['column_2']['data'], index)">
+                                            <span class="text-xl font-semibold w-fit leading-6">
+                                                <Editor v-model="item.name" :toogle="[]" :editable="editable"
+                                                    :key="editKey" />
+                                            </span>
+                                        </div>
+                                        <ContextMenu ref="menu" :model="Menuitems">
+                                            <template #itemicon="item">
+                                                <FontAwesomeIcon :icon="item.item.icon" />
+                                            </template>
+                                        </ContextMenu>
                                     </div>
-                                    <ContextMenu ref="menu" :model="Menuitems">
-                                        <template #itemicon="item">
-                                            <FontAwesomeIcon :icon="item.item.icon" />
+                                    <draggable :list="item.data" group="sub-row" itemKey="id" :animation="200"
+                                        handle=".handle-sub" @start="onDrag" @end="onDrop">
+                                        <template #item="{ element: sub, index: subIndex }">
+                                            <ul class="hidden md:block space-y-1">
+                                                <li>
+                                                    <div class="flex items-center">
+                                                        <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
+                                                            class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
+                                                        <div class="w-full"
+                                                            @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_2']['data'], subIndex)">
+                                                            <span class="text-sm block">
+                                                                <Editor v-model="sub.name" :toogle="['link']"
+                                                                    :editable="editable" :key="editKey" />
+                                                            </span>
+                                                        </div>
+                                                        <ContextMenu ref="subMenu" :model="subMenuitems">
+                                                            <template #itemicon="item">
+                                                                <FontAwesomeIcon :icon="item.item.icon" />
+                                                            </template>
+                                                        </ContextMenu>
+                                                    </div>
+                                                </li>
+                                            </ul>
                                         </template>
-                                    </ContextMenu>
+                                    </draggable>
                                 </div>
-                                <draggable :list="item.data" group="sub-row" itemKey="id" :animation="200"
-                                    handle=".handle-sub" @start="onDrag" @end="onDrop">
-                                    <template #item="{ element: sub, index: subIndex }">
-                                        <ul class="hidden md:block space-y-1">
-                                            <li>
-                                                <div class="flex items-center">
+
+                                <div class="block md:hidden">
+                                    <Disclosure v-slot="{ open }">
+                                        <DisclosureButton
+                                            class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none w-full">
+                                            <div class="flex justify-between">
+                                                <div class="flex ">
                                                     <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
-                                                        class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
-                                                    <div class="w-full"
-                                                        @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_2']['data'], subIndex)">
-                                                        <span class="text-sm block">
-                                                            <Editor v-model="sub.name" :toogle="['link']"
+                                                        class="handle text-xl text-white cursor-grab pr-3 mr-2" />
+                                                    <div class="w-fit"
+                                                        @contextmenu="onRightClickMenu($event, item, modelValue.column['column_2']['data'], index)">
+                                                        <span class="text-xl font-semibold leading-6">
+                                                            <Editor v-model="item.name" :toogle="[]"
                                                                 :editable="editable" :key="editKey" />
                                                         </span>
                                                     </div>
-                                                    <ContextMenu ref="subMenu" :model="subMenuitems">
-                                                        <template #itemicon="item">
+                                                    <ContextMenu ref="menu" :model="Menuitems">
+                                                        <template #default="{ item }">
                                                             <FontAwesomeIcon :icon="item.item.icon" />
                                                         </template>
                                                     </ContextMenu>
                                                 </div>
-                                            </li>
-                                        </ul>
-                                    </template>
-                                </draggable>
+                                                <div>
+                                                    <FontAwesomeIcon :icon="open ? faAngleDown : faAngleUp"
+                                                        class="w-3 h-3" />
+                                                </div>
+                                            </div>
+                                        </DisclosureButton>
+
+                                        <DisclosurePanel>
+                                            <div>
+                                                <draggable :list="item.data" group="sub-row" itemKey="id"
+                                                    :animation="200" handle=".handle-sub" @start="onDrag" @end="onDrop">
+                                                    <template #item="{ element: sub, index: subIndex }">
+                                                        <ul class="block space-y-1">
+                                                            <li>
+                                                                <div class="flex items-center">
+                                                                    <FontAwesomeIcon icon="fal fa-bars"
+                                                                        v-if="!previewMode"
+                                                                        class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
+                                                                    <div class="w-full"
+                                                                        @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_2']['data'], subIndex)">
+                                                                        <span class="text-sm block">
+                                                                            <Editor v-model="sub.name"
+                                                                                :toogle="['link']" :editable="editable"
+                                                                                :key="editKey" />
+                                                                        </span>
+                                                                    </div>
+                                                                    <ContextMenu ref="subMenu" :model="subMenuitems">
+                                                                        <template #default="{ item }">
+                                                                            <FontAwesomeIcon :icon="item.item.icon" />
+                                                                        </template>
+                                                                    </ContextMenu>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    </template>
+                                                </draggable>
+                                            </div>
+                                        </DisclosurePanel>
+                                    </Disclosure>
+                                </div>
                             </div>
                         </template>
                     </draggable>
-
-
                 </div>
 
-
-                <!-- Section: Get Social With Us -->
                 <div
                     class="md:hidden mb-6 md:mb-5 bg-[#9c7c64] md:bg-transparent text-center md:text-left pt-4 pb-6 space-y-4 md:py-0 md:space-y-0">
                     <h2 class="text-xl tracking-wider font-semibold md:mt-8 md:mb-4">Get Social with Us!</h2>

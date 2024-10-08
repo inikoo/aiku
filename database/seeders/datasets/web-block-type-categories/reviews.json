@@ -1,7 +1,7 @@
 {
 	"slug": "reviews",
 	"name": "Reviews",
-    "icon": "fal fa-star",
+	"icon": "fal fa-star",
 	"blueprint": {
 		"value": ""
 	},
@@ -16,40 +16,80 @@
 				"fieldValue": {
 					"value": ""
 				},
-				"blockLayout" : {
-                    "paddingTop" :  {
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "paddingLeft":{
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "paddingRight" :  {
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "paddingBottom" :  {
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "marginBottom" :  {
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "marginTop" :  {
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "marginLeft" :  {
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "marginRight" :  {
-                        "value": "0",
-                        "unit": "px"
-                    }
-                }
+				"properties": {
+					"buttons": {
+						"login": true,
+						"logout": false
+					},
+					"background": {
+						"type": "color",
+						"color": "#fff",
+						"image": {
+							"original": null
+						}
+					},
+					"padding": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"margin": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"border": {
+						"color": "#000000",
+						"unit": "px",
+						"rounded": {
+							"unit": "px",
+							"topright": {
+								"value": 0
+							},
+							"topleft": {
+								"value": 0
+							},
+							"bottomright": {
+								"value": 0
+							},
+							"bottomleft": {
+								"value": 0
+							}
+						},
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					}
+				}
 			}
 		},
 		{
@@ -61,40 +101,80 @@
 				"fieldValue": {
 					"value": ""
 				},
-				"blockLayout" : {
-					"paddingTop" :  {
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "paddingLeft":{
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "paddingRight" :  {
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "paddingBottom" :  {
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "marginBottom" :  {
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "marginTop" :  {
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "marginLeft" :  {
-                        "value": "0",
-                        "unit": "px"
-                    },
-                    "marginRight" :  {
-                        "value": "0",
-                        "unit": "px"
-                    }
-                }
+				"properties": {
+					"buttons": {
+						"login": true,
+						"logout": false
+					},
+					"background": {
+						"type": "color",
+						"color": "#fff",
+						"image": {
+							"original": null
+						}
+					},
+					"padding": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"margin": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"border": {
+						"color": "#000000",
+						"unit": "px",
+						"rounded": {
+							"unit": "px",
+							"topright": {
+								"value": 0
+							},
+							"topleft": {
+								"value": 0
+							},
+							"bottomright": {
+								"value": 0
+							},
+							"bottomleft": {
+								"value": 0
+							}
+						},
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					}
+				}
 			}
 		}
 	]

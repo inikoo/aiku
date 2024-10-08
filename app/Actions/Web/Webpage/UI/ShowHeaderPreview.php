@@ -31,7 +31,7 @@ class ShowHeaderPreview extends OrgAction
         return Inertia::render(
             'Web/PreviewWorkshop',
             [
-                'footer' => GetWebsiteWorkshopFooter::run($website),
+               /*  'footer' => GetWebsiteWorkshopFooter::run($website), */
                 'header' => GetWebsiteWorkshopHeader::run($website),
                 'navigation' => GetWebsiteWorkshopMenu::run($website)
             ]
