@@ -195,7 +195,7 @@ onMounted(() => {
 <template>
     <div v-if="editable" class="">
         <BubbleMenu v-if="type == 'Bubble' && editor" :editor="editor" :tippy-options="{ duration: 100 }">
-            <section class="buttons text-gray-700 flex text-xs items-center flex-wrap gap-x-4 border-t border-l border-r border-gray-400 p-1 bg-gray-200 min-w-52 max-w-[400px]">
+            <section class="buttons text-gray-700 flex text-xs items-center flex-wrap gap-x-4 border-t border-l border-r border-gray-400 p-1 bg-gray-200">
                 <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
             </section>
         </BubbleMenu>

@@ -331,19 +331,6 @@
 				},
 				"bluprint": [
 					{
-						"name": "Column",
-						"key": "column",
-						"type": "column",
-						"icon" : "fas fa-line-columns",
-						"bluprint" : [
-							{
-								"name": "Column",
-								"key": "column",
-								"type": "column"
-							}
-						]
-					},
-					{
 						"name": "Payments",
 						"key": "PaymentData",
 						"type": "payment_templates",
