@@ -178,7 +178,7 @@ watch(
         @onPublish="(popover) => onPublish(action.route, popover)" />
     </template>
   </PageHeading>
-  <div v-if="Navigation" class="h-[85vh] grid grid-flow-row-dense grid-cols-4">
+  <div v-if="Navigation.data" class="h-[85vh] grid grid-flow-row-dense grid-cols-4">
     <div class="col-span-1 bg-slate-200 px-3 py-2 flex flex-col h-full">
       <div class="flex justify-between">
         <div class="font-bold text-sm">Navigations:</div>

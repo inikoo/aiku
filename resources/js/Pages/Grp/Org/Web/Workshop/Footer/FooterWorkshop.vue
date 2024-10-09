@@ -35,7 +35,7 @@ const props = defineProps<{
     webBlockTypeCategories: Object
 }>()
 
-const previewMode = ref(true)
+const previewMode = ref(false)
 const isModalOpen = ref(false)
 const usedTemplates = ref(props.data.footer)
 const tabsBar = ref(0)
