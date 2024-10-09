@@ -217,6 +217,10 @@ class Webpage extends Model implements Auditable
         return $this->morphTo();
     }
 
+    public function children(): HasMany
+    {
+        return $this->hasMany(Webpage::class, "children_id");
+    }
 
 
 }
