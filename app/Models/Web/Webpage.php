@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
@@ -72,6 +73,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property array $migration_data
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read Collection<int, Webpage> $children
  * @property-read Collection<int, Deployment> $deployments
  * @property-read Group $group
  * @property-read Model|\Eloquent|null $model
@@ -217,9 +219,9 @@ class Webpage extends Model implements Auditable
         return $this->morphTo();
     }
 
-    public function children(): HasMany
+    public function children(): BelongsToMany
     {
-        return $this->hasMany(Webpage::class, "children_id");
+        return $this->belongsToMany(Webpage::class, "webpage_has_children", 'webpage_id', 'child_id');
     }
 
 

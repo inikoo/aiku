@@ -171,7 +171,7 @@ class IndexWebpages extends OrgAction
             $queryBuilder->where('webpages.website_id', $parent->id);
         }
 
-        if($bucket == 'shop') {
+        if ($bucket == 'shop') {
             $queryBuilder->where('webpages.type', WebpageTypeEnum::SHOP);
         } elseif ($bucket == 'content') {
             $queryBuilder->where('webpages.type', WebpageTypeEnum::CONTENT);
@@ -244,8 +244,7 @@ class IndexWebpages extends OrgAction
     {
         $subNavigation = [];
 
-        if ($this->parent instanceof Website)
-        {
+        if ($this->parent instanceof Website) {
             $subNavigation = $this->getWebpageNavigation($this->shop);
         }
         return Inertia::render(

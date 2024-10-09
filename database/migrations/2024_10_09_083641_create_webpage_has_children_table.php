@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 09 Oct 2024 19:37:23 Malaysia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -11,10 +16,9 @@ return new class () extends Migration {
             $table->id();
             $table->unsignedBigInteger('webpage_id')->index();
             $table->foreign('webpage_id')->references('id')->on('webpages');
-            $table->unsignedInteger('child_id');
-            $table->foreign('child')->references('id')->on('webpages');
+            $table->unsignedInteger('child_id')->index();
+            $table->foreign('child_id')->references('id')->on('webpages');
             $table->timestampsTz();
-            $table->index(['model_type', 'model_id']);
         });
     }
 

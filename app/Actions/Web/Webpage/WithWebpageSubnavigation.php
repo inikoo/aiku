@@ -5,6 +5,7 @@
  * github: https://github.com/KirinZero0
  * copyright 2024
 */
+
 namespace App\Actions\Web\Webpage;
 
 use App\Models\Catalogue\Shop;
@@ -74,5 +75,3 @@ trait WithWebpageSubnavigation
     }
 
 }
-
-
