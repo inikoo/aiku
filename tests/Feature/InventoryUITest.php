@@ -199,3 +199,25 @@ test("UI Show fulfilment location", function () {
             ->has("tabs");
     });
 })->todo();
+
+test("UI Index warehouse", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.infrastructure.dashboard", [
+            $this->organisation->slug,
+            $this->warehouse->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Warehouse/Warehouse")
+            ->has("title")
+            ->has("breadcrumbs", 2)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->warehouse->name)->etc()
+            )
+            ->has("tabs")
+            ->has("tagsList");
+    });
+});

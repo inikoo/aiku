@@ -17,6 +17,7 @@ use App\Actions\Web\Banner\UI\ShowBannerWorkshop;
 use App\Actions\Web\Webpage\UI\CreateWebpage;
 use App\Actions\Web\Webpage\UI\EditWebpage;
 use App\Actions\Web\Webpage\UI\IndexWebpages;
+use App\Actions\Web\Webpage\UI\IndexWebpagesTypeShop;
 use App\Actions\Web\Webpage\UI\ShowFooter;
 use App\Actions\Web\Webpage\UI\ShowHeader;
 use App\Actions\Web\Webpage\UI\ShowMenu;
@@ -57,6 +58,11 @@ Route::name('websites.')->group(function () {
 
 Route::prefix('{website}/webpages')->name('webpages.')->group(function () {
     Route::get('', IndexWebpages::class)->name('index');
+    Route::get('/type/shop', [IndexWebpages::class, 'shop'])->name('index.type.shop');
+    Route::get('/type/content', [IndexWebpages::class, 'content'])->name('index.type.content');
+    Route::get('/type/small-print', [IndexWebpages::class, 'smallPrint'])->name('index.type.small-print');
+    Route::get('/type/checkout', [IndexWebpages::class, 'checkout'])->name('index.type.checkout');
+    // Route::get('', IndexWebpages::class)->name('index');
     Route::get('create', CreateWebpage::class)->name('create');
     Route::get('edit', EditWebpage::class)->name('edit');
     Route::prefix('{webpage}')
