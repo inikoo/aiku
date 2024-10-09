@@ -18,15 +18,6 @@ class GetRetinaDropshippingPlatformNavigation
     {
         $platformNavigation = [];
 
-        $platformNavigation['platform'] = [
-            'label' => __('Channels'),
-            'icon' => ['fal', 'fa-parachute-box'],
-            'root' => 'retina.dropshipping.platform.',
-            'route' => [
-                'name' => 'retina.dropshipping.platform.dashboard'
-            ]
-        ];
-
         if ($webUser->customer->shopifyUser) {
             $platformNavigation['portfolios'] = [
                 'label' => __('Portfolios'),
