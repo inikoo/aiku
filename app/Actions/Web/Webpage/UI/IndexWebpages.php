@@ -37,6 +37,8 @@ class IndexWebpages extends OrgAction
 
     private Organisation|Website|Fulfilment|Webpage $parent;
 
+    private mixed $bucket;
+
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -70,6 +72,8 @@ class IndexWebpages extends OrgAction
 
         return $this->handle(parent: $this->parent, bucket: $this->bucket);
     }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function shop(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'shop';
@@ -80,6 +84,8 @@ class IndexWebpages extends OrgAction
 
         return $this->handle(parent: $this->parent, bucket: $this->bucket);
     }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function content(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'content';
@@ -90,6 +96,8 @@ class IndexWebpages extends OrgAction
 
         return $this->handle(parent: $this->parent, bucket: $this->bucket);
     }
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function smallPrint(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'small-print';
@@ -101,6 +109,7 @@ class IndexWebpages extends OrgAction
         return $this->handle(parent: $this->parent, bucket: $this->bucket);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
     public function checkout(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'checkout';
@@ -109,7 +118,7 @@ class IndexWebpages extends OrgAction
         $this->initialisationFromShop($website->shop, $request);
 
 
-        return $this->handle(parent:$this->parent, bucket:$this->bucket);
+        return $this->handle(parent: $this->parent, bucket: $this->bucket);
     }
 
 
@@ -135,7 +144,6 @@ class IndexWebpages extends OrgAction
 
     public function handle(Organisation|Website|Webpage $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
-
         if ($bucket) {
             $this->bucket = $bucket;
         }
@@ -247,6 +255,7 @@ class IndexWebpages extends OrgAction
         if ($this->parent instanceof Website) {
             $subNavigation = $this->getWebpageNavigation($this->shop);
         }
+
         return Inertia::render(
             'Org/Web/Webpages',
             [
@@ -256,8 +265,8 @@ class IndexWebpages extends OrgAction
                 ),
                 'title'       => __('webpages'),
                 'pageHead'    => [
-                    'title'     => __('webpages'),
-                    'icon'      => [
+                    'title'         => __('webpages'),
+                    'icon'          => [
                         'icon'  => ['fal', 'fa-browser'],
                         'title' => __('webpage')
                     ],
@@ -271,7 +280,7 @@ class IndexWebpages extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
-        $headCrumb = function (array $routeParameters = [], ?string $suffix) {
+        $headCrumb = function (array $routeParameters, ?string $suffix) {
             return [
                 [
                     'type'   => 'simple',
