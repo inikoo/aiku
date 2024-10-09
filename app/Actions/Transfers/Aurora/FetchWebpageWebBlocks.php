@@ -95,11 +95,7 @@ class FetchWebpageWebBlocks extends OrgAction
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = WebBlockType::where("slug", "gallery")->first();
-                print_r($auroraBlock);
                 $layout = $this->processGalleryData($webBlockType, $auroraBlock);
-                if ($layout == null) {
-                    dd("stop");
-                }
                 break;
             case "text":
                 $webBlockType = WebBlockType::where("slug", "text")->first();
