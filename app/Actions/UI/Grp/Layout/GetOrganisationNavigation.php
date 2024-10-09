@@ -85,7 +85,6 @@ class GetOrganisationNavigation
             ];
         }
 
-
         $navigation['shops_fulfilments_navigation'] = [
             'shops_navigation'       => [
                 'label'      => __('shop'),
@@ -98,7 +97,6 @@ class GetOrganisationNavigation
                 'navigation' => $fulfilments_navigation
             ]
         ];
-
 
         $navigation['productions_navigation'] = [];
         foreach (

@@ -124,7 +124,7 @@ class ShowWebpage extends OrgAction
                             ]
                         ]
                     ] : [],
-            
+
                     // Check the model type
                     $webpage->model ? (
                         $webpage->model instanceof Collection ? [
