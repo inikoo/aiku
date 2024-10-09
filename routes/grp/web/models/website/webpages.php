@@ -12,7 +12,7 @@ use App\Actions\Catalogue\ProductCategory\StoreProductCategoryWebpage;
 use Illuminate\Support\Facades\Route;
 
 Route::name('webpages.')->prefix('webpages')->group(function () {
-    Route::post('{product:id}', StoreProductWebpage::class)->name('product.store');
-    Route::post('{productCategory:id}', StoreProductCategoryWebpage::class)->name('product_category.store');
-    Route::post('{collection:id}', StoreCollectionWebpage::class)->name('collection.store');
+    Route::post('product/{product:id}', StoreProductWebpage::class)->name('product.store');
+    Route::post('product-category/{productCategory:id}', StoreProductCategoryWebpage::class)->name('product_category.store');
+    Route::post('collection/{collection:id}', StoreCollectionWebpage::class)->name('collection.store');
 });
