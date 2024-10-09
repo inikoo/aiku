@@ -135,14 +135,14 @@ class FetchWebpageWebBlocks extends OrgAction
             || $webBlock->webBlockType->code == "cta1"
         ) {
             $imageSources = [];
-            $imageRawDatas = [];
+            $imagesRawData = [];
             $imageSourceMain = [];
             switch ($webBlock->webBlockType->code) {
                 case "overview":
-                    $imageRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
+                    $imagesRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
                     break;
                 case "product":
-                    $imageRawDatas =
+                    $imagesRawData =
                         $webBlock->layout["data"]["fieldValue"]["value"]["other_images"];
                     $imageRawData = $webBlock->layout["data"]["fieldValue"]["value"]["image"];
                     $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
@@ -154,20 +154,16 @@ class FetchWebpageWebBlocks extends OrgAction
                     $imageSourceMain = ["source" => $imageSource];
                     break;
                 default:
-                    $imageRawData = $webBlock->layout["data"]["fieldValue"]["value"];
+                    //$imageRawData = $webBlock->layout["data"]["fieldValue"]["value"];
                     break;
             }
 
-            foreach ($imageRawDatas as $imageRawData) {
+            foreach ($imagesRawData as $imageRawData) {
                 $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
-                switch ($webBlock->webBlockType->code) {
-                    case "product":
-                        $imageSources[] = ["source" => $imageSource];
-                        break;
-                    default:
-                        $imageSources[] = ["image" => ["source" => $imageSource]];
-                        break;
-                }
+                $imageSources[] = match ($webBlock->webBlockType->code) {
+                    "product" => ["source" => $imageSource],
+                    default => ["image" => ["source" => $imageSource]],
+                };
             }
 
             switch ($webBlock->webBlockType->code) {
