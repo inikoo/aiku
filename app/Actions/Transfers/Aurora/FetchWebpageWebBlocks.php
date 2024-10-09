@@ -200,7 +200,7 @@ class FetchWebpageWebBlocks extends OrgAction
                     data_set($block, "data.fieldValue.value.other_images", $imageSources);
                     break;
                 default:
-                    data_set($block, "data.fieldValue.value.image", $imageSources);
+                    data_set($block, "data.fieldValue.value.images", $imageSources);
                     break;
             }
             dd($block);
