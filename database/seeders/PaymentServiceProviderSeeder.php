@@ -34,7 +34,7 @@ class PaymentServiceProviderSeeder extends Seeder
             }
 
             $imageName = $paymentServiceProvider->code.'.png';
-            $imagePath = storage_path('app/tmp/payment-providers/' . $imageName);
+            $imagePath = storage_path('app/public/payment-providers/' . $imageName);
 
             $imageData = [
                 'path' => $imagePath,

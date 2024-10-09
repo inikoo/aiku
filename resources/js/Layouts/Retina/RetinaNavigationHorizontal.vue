@@ -71,7 +71,7 @@ const currentNavigation = () => {
     const curre = mergeNavigations.find(mergeNav => {
         return mergeNav.key == 'shopify';
     })
-console.log(curre)
+
     return curre
 }
 
@@ -86,7 +86,6 @@ const activeNav = () => {
 
 // Method: to get current slug depend on the type ('AWF')
 const currentTypeSlug = () => {
-    console.log(layout)
     const currentType = 'shopify';  // 'shop' || 'fulfilment'
     return layout.navigation;
 }

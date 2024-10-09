@@ -10,8 +10,10 @@ namespace App\Actions\Web\Webpage\UI;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\Web\Webpage\WithWebpageSubnavigation;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Enums\Web\Webpage\WebpageStateEnum;
+use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Http\Resources\Web\WebpagesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
@@ -31,6 +33,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexWebpages extends OrgAction
 {
     use HasWebAuthorisation;
+    use WithWebpageSubnavigation;
 
     private Organisation|Website|Fulfilment|Webpage $parent;
 
@@ -59,12 +62,54 @@ class IndexWebpages extends OrgAction
 
     public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
+        $this->bucket = 'all';
         $this->scope  = $shop;
         $this->parent = $website;
         $this->initialisationFromShop($website->shop, $request);
 
 
-        return $this->handle($this->parent);
+        return $this->handle(parent: $this->parent, bucket: $this->bucket);
+    }
+    public function shop(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'shop';
+        $this->scope  = $shop;
+        $this->parent = $website;
+        $this->initialisationFromShop($website->shop, $request);
+
+
+        return $this->handle(parent: $this->parent, bucket: $this->bucket);
+    }
+    public function content(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'content';
+        $this->scope  = $shop;
+        $this->parent = $website;
+        $this->initialisationFromShop($website->shop, $request);
+
+
+        return $this->handle(parent: $this->parent, bucket: $this->bucket);
+    }
+    public function smallPrint(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'small-print';
+        $this->scope  = $shop;
+        $this->parent = $website;
+        $this->initialisationFromShop($website->shop, $request);
+
+
+        return $this->handle(parent: $this->parent, bucket: $this->bucket);
+    }
+
+    public function checkout(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'checkout';
+        $this->scope  = $shop;
+        $this->parent = $website;
+        $this->initialisationFromShop($website->shop, $request);
+
+
+        return $this->handle(parent:$this->parent, bucket:$this->bucket);
     }
 
 
@@ -88,8 +133,13 @@ class IndexWebpages extends OrgAction
     }
 
 
-    public function handle(Organisation|Website|Webpage $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|Website|Webpage $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
+
+        if ($bucket) {
+            $this->bucket = $bucket;
+        }
+
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('webpages.code', $value)
@@ -121,6 +171,16 @@ class IndexWebpages extends OrgAction
             $queryBuilder->where('webpages.website_id', $parent->id);
         }
 
+        if($bucket == 'shop') {
+            $queryBuilder->where('webpages.type', WebpageTypeEnum::SHOP);
+        } elseif ($bucket == 'content') {
+            $queryBuilder->where('webpages.type', WebpageTypeEnum::CONTENT);
+        } elseif ($bucket == 'small-print') {
+            $queryBuilder->where('webpages.type', WebpageTypeEnum::SMALL_PRINT);
+        } elseif ($bucket == 'checkout') {
+            $queryBuilder->where('webpages.type', WebpageTypeEnum::CHECKOUT);
+        }
+
 
         return $queryBuilder
             ->defaultSort('webpages.level')
@@ -131,7 +191,7 @@ class IndexWebpages extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Website|Webpage $parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Organisation|Website|Webpage $parent, ?array $modelOperations = null, $prefix = null, $bucket = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
@@ -182,7 +242,12 @@ class IndexWebpages extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $webpages, ActionRequest $request): Response
     {
+        $subNavigation = [];
 
+        if ($this->parent instanceof Website)
+        {
+            $subNavigation = $this->getWebpageNavigation($this->shop);
+        }
         return Inertia::render(
             'Org/Web/Webpages',
             [
@@ -196,7 +261,8 @@ class IndexWebpages extends OrgAction
                     'icon'      => [
                         'icon'  => ['fal', 'fa-browser'],
                         'title' => __('webpage')
-                    ]
+                    ],
+                    'subNavigation' => $subNavigation,
                 ],
                 'data'        => WebpagesResource::collection($webpages),
 
@@ -204,9 +270,9 @@ class IndexWebpages extends OrgAction
         )->table($this->tableStructure($this->parent));
     }
 
-    public function getBreadcrumbs(string $routeName, array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, string $suffix = null): array
     {
-        $headCrumb = function (array $routeParameters = []) {
+        $headCrumb = function (array $routeParameters = [], ?string $suffix) {
             return [
                 [
                     'type'   => 'simple',
@@ -215,6 +281,7 @@ class IndexWebpages extends OrgAction
                         'label' => __('Webpages'),
                         'icon'  => 'fal fa-bars'
                     ],
+                    'suffix' => $suffix
                 ],
             ];
         };
@@ -227,7 +294,8 @@ class IndexWebpages extends OrgAction
                     [
                         'name' => 'grp.web.webpages.index',
                         null
-                    ]
+                    ],
+                    $suffix
                 ),
             ),
 
@@ -242,7 +310,64 @@ class IndexWebpages extends OrgAction
                     [
                         'name'       => 'grp.org.shops.show.web.webpages.index',
                         'parameters' => $routeParameters
-                    ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.shops.show.web.webpages.index.type.shop' =>
+            array_merge(
+                ShowWebsite::make()->getBreadcrumbs(
+                    'Shop',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.web.webpages.index.type.shop',
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Shop').') '.$suffix)
+                )
+            ),
+            'grp.org.shops.show.web.webpages.index.type.content' =>
+            array_merge(
+                ShowWebsite::make()->getBreadcrumbs(
+                    'Shop',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.web.webpages.index.type.content',
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Content').') '.$suffix)
+                )
+            ),
+            'grp.org.shops.show.web.webpages.index.type.small-print' =>
+            array_merge(
+                ShowWebsite::make()->getBreadcrumbs(
+                    'Shop',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.web.webpages.index.type.small-print',
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Small Print').') '.$suffix)
+                )
+            ),
+            'grp.org.shops.show.web.webpages.index.type.checkout' =>
+            array_merge(
+                ShowWebsite::make()->getBreadcrumbs(
+                    'Shop',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.web.webpages.index.type.checkout',
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Checkout').') '.$suffix)
                 )
             ),
             'grp.org.fulfilments.show.web.webpages.index' =>
@@ -255,7 +380,8 @@ class IndexWebpages extends OrgAction
                     [
                         'name'       => 'grp.org.fulfilments.show.web.webpages.index',
                         'parameters' => $routeParameters
-                    ]
+                    ],
+                    $suffix
                 )
             ),
             default => []
