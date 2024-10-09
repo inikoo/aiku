@@ -36,6 +36,7 @@ class WebpageResource extends JsonResource
                 default                     => ['fal', 'fa-browser']
             },
             'is_dirty'                   => $webpage->is_dirty,
+            'web_blocks_parameters'      => WebBlockParametersResource::collection($webpage->webBlocks),
             'layout'                     => $webpage->unpublishedSnapshot?->layout ?: ['web_blocks' => []],
             'purpose'                    => $webpage->purpose,
             'created_at'                 => $webpage->created_at,
