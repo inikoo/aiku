@@ -8,14 +8,14 @@ import Image from "@/Components/Image.vue"
 
 import { faChevronDown } from "@far"
 import { faDotCircle } from "@fas"
-import { faTerminal, faCog } from "@fal"
+import { faTerminal, faCog, faAbacus, faFolder, faFax } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 
 import MenuTopRight from "@/Layouts/Retina/MenuTopRight.vue"
 import { inject } from "vue"
 import ScreenWarning from "@/Components/Utils/ScreenWarning.vue"
 
-library.add(faChevronDown, faDotCircle, faTerminal, faCog)
+library.add(faChevronDown, faDotCircle, faTerminal, faCog, faAbacus, faFolder, faFax)
 
 const props = defineProps<{
     sidebarOpen: boolean
