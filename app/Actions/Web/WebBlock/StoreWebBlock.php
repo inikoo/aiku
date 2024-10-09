@@ -32,7 +32,7 @@ class StoreWebBlock extends GrpAction
             Arr::only(
                 $webBlockType->toArray(),
                 [
-                    'code','data'
+                    'code','data','name'
                 ]
             ),
             overwrite: false
