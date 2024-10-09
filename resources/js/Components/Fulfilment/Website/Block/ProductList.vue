@@ -12,11 +12,13 @@ import PureInput from "@/Components/Pure/PureInput.vue"
 import { ref } from "vue"
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue';
+import { getStyles } from "@/Composables/styles"
 
 library.add(faCube, faLink)
 
 const props = defineProps<{
     modelValue: any
+    properties: {}
 }>()
 
 const selectedProduct = ref(0)
@@ -29,8 +31,8 @@ const emits = defineEmits<{
 </script>
 
 <template>
-    <div id="app" class="mx-auto max-w-5xl text-gray-600">
-        <div class="grid grid-cols-4 gap-x-10">
+    <div id="app" class="mx-auto max-w-5xl text-gray-600" :style="getStyles(properties)">
+        <div class=" grid grid-cols-4 gap-x-10">
             <div class="relative">
                 <i class="absolute top-2 right-2 text-2xl far fa-heart text-gray-500"></i>
                 <img src="https://tailwindui.com/img/ecommerce-images/product-page-03-related-product-02.jpg" alt=""

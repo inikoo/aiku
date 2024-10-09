@@ -200,7 +200,6 @@ const handleIframeError = () => {
 const openFullScreenPreview = () => {
     window.open(iframeSrc.value, '_blank')
 }
-
 </script>
 
 <template>
@@ -208,13 +207,8 @@ const openFullScreenPreview = () => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
-            <Publish
-                :isLoading="isLoading"
-                :is_dirty="data.is_dirty"
-                v-model="comment"
-                @onPublish="(popover) => onPublish(action.route, popover)"
-                ref="_WebpageSideEditor"
-            />
+            <Publish :isLoading="isLoading" :is_dirty="data.is_dirty" v-model="comment"
+                @onPublish="(popover) => onPublish(action.route, popover)" ref="_WebpageSideEditor" />
         </template>
 
         <template #afterTitle v-if="isSavingBlock">
@@ -222,31 +216,24 @@ const openFullScreenPreview = () => {
         </template>
     </PageHeading>
 
-
     <div class="grid grid-cols-5 h-[85vh]">
         <!-- Section: Side editor -->
         <div class="col-span-1 md:block hidden h-full border-2 bg-gray-200 px-3 py-1 ">
-            <WebpageSideEditor
-                :isLoadingDelete
-                :isAddBlockLoading
-                :webpage="props.webpage"
-                :webBlockTypeCategories="webBlockTypeCategories"
-                @update="sendBlockUpdate"
-                @delete="sendDeleteBlock"
-                @add="addNewBlock"
-                @order="sendOrderBlock"
-            />
+            <WebpageSideEditor :isLoadingDelete :isAddBlockLoading :webpage="props.webpage"
+                :webBlockTypeCategories="webBlockTypeCategories" @update="sendBlockUpdate" @delete="sendDeleteBlock"
+                @add="addNewBlock" @order="sendOrderBlock" />
         </div>
 
         <!-- Section: Preview -->
         <div v-if="true" class="md:col-span-4 col-span-5  h-full flex flex-col bg-gray-200">
             <div class="flex justify-between">
                 <div class="py-1 px-2 cursor-pointer md:hidden block" title="Desktop view" v-tooltip="'Navigation'">
-                    <FontAwesomeIcon :icon='faBars' aria-hidden='true' @click="()=>openDrawer = true" />
+                    <FontAwesomeIcon :icon='faBars' aria-hidden='true' @click="() => openDrawer = true" />
                     <Drawer v-model:visible="openDrawer" :header="''" :dismissable="true">
-                        <WebpageSideEditor ref="_WebpageSideEditor" :webpage="data" :webBlockTypeCategories="webBlockTypeCategories"
-                            @update="sendBlockUpdate" @delete="sendDeleteBlock" @add="addNewBlock"
-                            @order="sendOrderBlock"  @openBlockList="()=>{openDrawer = false, _WebpageSideEditor.isModalBlocksList = true}" />
+                        <WebpageSideEditor ref="_WebpageSideEditor" :webpage="data"
+                            :webBlockTypeCategories="webBlockTypeCategories" @update="sendBlockUpdate"
+                            @delete="sendDeleteBlock" @add="addNewBlock" @order="sendOrderBlock"
+                            @openBlockList="() => { openDrawer = false, _WebpageSideEditor.isModalBlocksList = true }" />
                     </Drawer>
                 </div>
 
@@ -266,13 +253,9 @@ const openFullScreenPreview = () => {
                 </div>
 
                 <div class="h-full w-full bg-white">
-                    <iframe
-                        :src="iframeSrc"
-                        :title="props.title"
-                        :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
-                        @error="handleIframeError"
-                        @load="isIframeLoading = false"
-                    />
+                    <iframe :src="iframeSrc" :title="props.title"
+                        :class="[iframeClass, isIframeLoading ? 'hidden' : '']" @error="handleIframeError"
+                        @load="isIframeLoading = false" />
                 </div>
             </div>
         </div>

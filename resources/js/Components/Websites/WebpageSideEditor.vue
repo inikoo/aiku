@@ -79,16 +79,15 @@ const onPickBlock = async (block: Daum) => {
 }
 
 const openModalBlockList = () => {
-    isModalBlocksList.value = !isModalBlocksList.value 
-    emits('openBlockList', !isModalBlocksList.value )
-    
+    isModalBlocksList.value = !isModalBlocksList.value
+    emits('openBlockList', !isModalBlocksList.value)
 }
 
 defineExpose({
     isModalBlocksList
 })
 
-const selectedBlockOpenPanel = ref<number | null >(null)
+const selectedBlockOpenPanel = ref<number | null>(null)
 </script>
 
 <template>
@@ -96,39 +95,33 @@ const selectedBlockOpenPanel = ref<number | null >(null)
         <h2 class="text-sm font-semibold leading-6">Blocks List</h2>
         <Button icon="fas fa-plus" type="dashed" size="xs" @click="openModalBlockList" />
     </div>
-    
+
     <div>
         <template v-if="webpage?.layout?.web_blocks.length > 0 || isAddBlockLoading">
-            <draggable
-                :list="webpage.layout.web_blocks"
-                handle=".handle"
-                @change="onChangeOrderBlock"
-                ghost-class="ghost"
-                group="column"
-                itemKey="column_id"
-                class="mt-2 space-y-1"
-            >
+            <draggable :list="webpage.layout.web_blocks" handle=".handle" @change="onChangeOrderBlock"
+                ghost-class="ghost" group="column" itemKey="column_id" class="mt-2 space-y-1">
                 <template #item="{ element, index }">
                     <div class="bg-slate-50 border border-gray-300 ">
                         <div @click="() => selectedBlockOpenPanel === index ? selectedBlockOpenPanel = null : selectedBlockOpenPanel = index"
                             class="group flex justify-between items-center gap-x-2 relative px-3 py-2 w-full cursor-pointer"
-                            :class="selectedBlockOpenPanel === index ? 'bg-indigo-500 text-white' : 'hover:bg-gray-100'"    
-                        >
-                        <!-- <pre>{{ element.web_block.layout.data }}</pre> -->
+                            :class="selectedBlockOpenPanel === index ? 'bg-indigo-500 text-white' : 'hover:bg-gray-100'">
+                            <!-- <pre>{{ element.web_block.layout.data }}</pre> -->
                             <div class="flex gap-x-2">
                                 <div class="flex items-center justify-center">
                                     <FontAwesomeIcon icon="fal fa-bars" class="handle text-sm cursor-grab pr-3 mr-2" />
-                                    <FontAwesomeIcon :icon='element.web_block.layout.data.icon' class='text-xs' fixed-width aria-hidden='true' />
+                                    <FontAwesomeIcon :icon='element.web_block.layout.data.icon' class='text-xs'
+                                        fixed-width aria-hidden='true' />
                                 </div>
                                 <h3 class="text-sm font-medium select-none">
-                                    {{ element.web_block.layout.name }}
+                                    {{ element.web_block.layout.code }}
                                 </h3>
                             </div>
-                            
+
                             <div v-tooltip="'Delete this block'"
                                 class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer"
                                 @click="(e) => { e.stopPropagation(), sendDeleteBlock(element) }">
-                                <LoadingIcon v-if="isLoadingDelete === ('deleteBlock' + element.id)" class="text-gray-400" />
+                                <LoadingIcon v-if="isLoadingDelete === ('deleteBlock' + element.id)"
+                                    class="text-gray-400" />
                                 <FontAwesomeIcon v-else icon='fal fa-times' fixed-width aria-hidden='true' />
                             </div>
                         </div>
@@ -137,10 +130,8 @@ const selectedBlockOpenPanel = ref<number | null >(null)
                         <Collapse as="section" :when="selectedBlockOpenPanel === index">
                             <!-- {{ index }} -->
                             <!-- <pre>{{ element.web_block.layout.data?.properties }}</pre> -->
-                            <PanelProperties
-                                v-model="element.web_block.layout.data.properties"
-                                @update:modelValue="() => (console.log('zzz'), debouncedSendUpdate(element))"
-                            />
+                            <PanelProperties v-model="element.web_block.layout.data.properties"
+                                @update:modelValue="() => (console.log('zzz'), debouncedSendUpdate(element))" />
                         </Collapse>
 
                         <!-- <pre>{{ element.web_block.layout.data.properties }}</pre> -->
@@ -167,6 +158,6 @@ const selectedBlockOpenPanel = ref<number | null >(null)
 
 
     <Modal :isOpen="isModalBlocksList" @onClose="openModalBlockList">
-        <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypeCategories" scope="webpage"/>
+        <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypeCategories" scope="webpage" />
     </Modal>
 </template>
