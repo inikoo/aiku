@@ -27,7 +27,7 @@ const isLoading = ref(false)
 onMounted(() => {
     isTopMenuActive.value = true;
     // console.log('NavigationSimple.vue', props.navKey, props.nav)
-});console.log(props.nav)
+});
 
 onUnmounted(() => {
     isTopMenuActive.value = false;
@@ -44,7 +44,7 @@ onUnmounted(() => {
 <template>
     <!-- {{ layout.currentRoute }} -->
     <!-- <div class="text-xxs">{{ layout.currentRoute }} <br> {{ nav.route.name }}</div> -->
-    <Link :href="nav.route?.name ? route(nav.route.name, nav.route.parameters) : '#'"
+    <Link :href="nav?.route?.name ? route(nav.route?.name, nav?.route?.parameters) : '#'"
         class="group flex items-center px-2 text-sm gap-x-2" :class="[
             isNavigationActive(layout.currentRoute, props.nav.root)
                 ? 'navigationActive'

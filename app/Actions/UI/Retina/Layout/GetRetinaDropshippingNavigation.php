@@ -31,6 +31,15 @@ class GetRetinaDropshippingNavigation
             ]
         ];
 
+        $groupNavigation['platform'] = [
+            'label' => __('Channels'),
+            'icon' => ['fal', 'fa-parachute-box'],
+            'root' => 'retina.dropshipping.platform.',
+            'route' => [
+                'name' => 'retina.dropshipping.platform.dashboard'
+            ]
+        ];
+
 
         $platforms_navigation = [];
         foreach (
@@ -42,13 +51,15 @@ class GetRetinaDropshippingNavigation
             ];
         }
 
-        $groupNavigation['platforms_navigation'] = [
-            'platforms_navigation'       => [
-                'label'      => __('platforms'),
-                'icon'       => "fal fa-store-alt",
-                'navigation' => $platforms_navigation
-            ],
-        ];
+        if ($webUser->customer->shopifyUser) {
+            $groupNavigation['platforms_navigation'] = [
+                'platforms_navigation'       => [
+                    'label'      => __('platforms'),
+                    'icon'       => "fal fa-store-alt",
+                    'navigation' => $platforms_navigation
+                ],
+            ];
+        }
 
         return $groupNavigation;
     }
