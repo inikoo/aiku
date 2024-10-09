@@ -16,9 +16,9 @@ class GetRetinaDropshippingPlatformNavigation
 
     public function handle(WebUser $webUser, $request): array
     {
-        $groupNavigation = [];
+        $platformNavigation = [];
 
-        $groupNavigation['platform'] = [
+        $platformNavigation['platform'] = [
             'label' => __('Channels'),
             'icon' => ['fal', 'fa-parachute-box'],
             'root' => 'retina.dropshipping.platform.',
@@ -28,7 +28,7 @@ class GetRetinaDropshippingPlatformNavigation
         ];
 
         if ($webUser->customer->shopifyUser) {
-            $groupNavigation['portfolios'] = [
+            $platformNavigation['portfolios'] = [
                 'label' => __('Portfolios'),
                 'icon' => ['fal', 'fa-cube'],
                 'root' => 'retina.dropshipping.portfolios.',
@@ -58,7 +58,7 @@ class GetRetinaDropshippingPlatformNavigation
             ];
         }
 
-        $groupNavigation['client'] = [
+        $platformNavigation['client'] = [
             'label' => __('Client'),
             'icon' => ['fal', 'fa-user-friends'],
             'root' => 'retina.dropshipping.client.',
@@ -67,6 +67,6 @@ class GetRetinaDropshippingPlatformNavigation
             ],
         ];
 
-        return $groupNavigation;
+        return $platformNavigation;
     }
 }

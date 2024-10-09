@@ -49,7 +49,6 @@ interface MergeNavigation {
 }
 
 const layout = inject('layout', layoutStructure)
-
 const platformsNav: () => MergeNavigation[] = () => {
     const filterPlatformsOpen = Object.entries(props.nav.platforms_navigation.navigation);
 
@@ -70,9 +69,9 @@ const mergeNavigations = platformsNav();
 
 const currentNavigation = () => {
     const curre = mergeNavigations.find(mergeNav => {
-        return mergeNav.key == layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(activeNav())]
+        return mergeNav.key == 'shopify';
     })
-
+console.log(curre)
     return curre
 }
 
@@ -82,13 +81,14 @@ const isSomeSubnavActive = () => {
 
 // Method: detect the active Nav is 'fulfilment' or 'shop'
 const activeNav = () => {
-    return 'platforms';
+    return 'shopify';
 }
 
 // Method: to get current slug depend on the type ('AWF')
 const currentTypeSlug = () => {
-    const currentType = layout.organisationsState[layout.currentParams.organisation].currentType  // 'shop' || 'fulfilment'
-    return layout.organisationsState[layout.currentParams.organisation][`current${capitalize(currentType)}`]
+    console.log(layout)
+    const currentType = 'shopify';  // 'shop' || 'fulfilment'
+    return layout.navigation;
 }
 
 // Route for arrow chevron
@@ -193,24 +193,8 @@ const isLoadingNavigation = ref<string | boolean>(false)
         <!-- If Shops/Warehouses length is 1 (Show the subnav straighly) -->
         <div v-if="Object.keys(nav || []).length === 1" class="flex flex-col gap-y-1 mb-1">
             <!-- group only 1 -->
-            <template v-for="nav, navIndex, index in nav[Object.keys(nav)[0]]" :key="navIndex + index">
+            <template v-for="nav, navIndex, index in currentNavigation()?.value.subNavigation" :key="navIndex + index">
                 <RetinaNavigationSimple :nav="nav" :navKey="navIndex" />
-            </template>
-        </div>
-
-        <!-- If Shops/Warehouses length is more than 1 and current warehouse is exist -->
-        <div v-else-if="layout.organisationsState?.[layout.currentParams.organisation]?.[generateCurrentString(currentNavigation()?.type)]"
-            class="flex flex-col gap-y-1 mb-1">
-            <!-- Looping: SubNav -->
-            <template
-                v-for="nav, navKey, navIndex in currentNavigation()?.value.subNavigation"
-                :key="navKey + navIndex">
-                <!-- {{ navKey }} -->
-                <RetinaNavigationSimple :nav="nav" :navKey="navKey" />
-
-                <!-- <div v-if="(nav.route?.name ? isRouteSameAsCurrentUrl(route(nav.route.name, nav.route.parameters)) : false)"
-                        class="absolute inset-0 bg-black/20 rounded -z-10"
-                    /> -->
             </template>
         </div>
 

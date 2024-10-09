@@ -52,13 +52,15 @@ class StoreProductCategoryWebpage extends OrgAction
 
     public function htmlResponse(Webpage $webpage)
     {
-        return Redirect::route('grp.org.shops.show.web.webpages.show',
-        [
+        return Redirect::route(
+            'grp.org.shops.show.web.webpages.show',
+            [
             'organisation' => $webpage->organisation->slug,
             'shop'         => $webpage->shop->slug,
             'website'      => $webpage->website->slug,
             'webpage'      => $webpage->slug,
-        ]);
+        ]
+        );
     }
 
     public function asController(ProductCategory $productCategory): Webpage
