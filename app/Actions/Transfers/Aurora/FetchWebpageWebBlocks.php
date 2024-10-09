@@ -88,42 +88,52 @@ class FetchWebpageWebBlocks extends OrgAction
         int $position,
         $visibility = ["loggedIn" => true, "loggedOut" => true]
     ): void {
+
+        $modelType = null;
+        $modelId = null;
+
         switch ($auroraBlock["type"]) {
             case "text":
                 $webBlockType = WebBlockType::where("slug", "text")->first();
-                $block = $this->processTextData($webBlockType, $auroraBlock);
+                $layout = $this->processTextData($webBlockType, $auroraBlock);
                 break;
             case "iframe":
                 $webBlockType = WebBlockType::where("slug", "iframe")->first();
-                $block = $this->processIFrameData($webBlockType, $auroraBlock);
+                $layout = $this->processIFrameData($webBlockType, $auroraBlock);
                 break;
             case "product":
                 $webBlockType = WebBlockType::where("slug", "product")->first();
-                $block = $this->processProductData($webBlockType, $auroraBlock);
+                $layout = $this->processProductData($webBlockType, $auroraBlock);
+                $modelType = $webpage->model_type;
+                $modelId = $webpage->model_id;
                 break;
             case "blackboard":
                 $webBlockType = WebBlockType::where("slug", "overview")->first();
-                $block = $this->processOverviewData($webBlockType, $auroraBlock);
+                $layout = $this->processOverviewData($webBlockType, $auroraBlock);
                 break;
             case "button":
                 $webBlockType = WebBlockType::where("slug", "cta1")->first();
-                $block = $this->processCTA1Data($webBlockType, $auroraBlock);
+                $layout = $this->processCTA1Data($webBlockType, $auroraBlock);
                 break;
             default:
+                print ">>>>> ".$webpage->slug."  ".$auroraBlock["type"]."  <<<<<<\n";
+
                 return;
         }
 
-        data_set($block, "data.properties.padding.unit", "px");
-        data_set($block, "data.properties.padding.left.value", 20);
-        data_set($block, "data.properties.padding.right.value", 20);
-        data_set($block, "data.properties.padding.bottom.value", 20);
-        data_set($block, "data.properties.padding.top.value", 20);
+        data_set($layout, "data.properties.padding.unit", "px");
+        data_set($layout, "data.properties.padding.left.value", 20);
+        data_set($layout, "data.properties.padding.right.value", 20);
+        data_set($layout, "data.properties.padding.bottom.value", 20);
+        data_set($layout, "data.properties.padding.top.value", 20);
         $webBlock = StoreWebBlock::make()->action(
             $webBlockType,
             [
-                "layout"             => $block,
+                "layout"             => $layout,
                 "migration_checksum" => $migrationData,
                 "visibility"         => $visibility,
+                "model_type"         => $modelType,
+                "model_id"           => $modelId,
             ],
             strict: false
         );
@@ -168,24 +178,24 @@ class FetchWebpageWebBlocks extends OrgAction
 
             switch ($webBlock->webBlockType->code) {
                 case "overview":
-                    data_set($block, "data.fieldValue.value.images", $imageSources);
+                    data_set($layout, "data.fieldValue.value.images", $imageSources);
                     break;
                 case "product":
-                    data_set($block, "data.fieldValue.value.image", $imageSourceMain);
-                    data_set($block, "data.fieldValue.value.other_images", $imageSources);
+                    data_set($layout, "data.fieldValue.value.image", $imageSourceMain);
+                    data_set($layout, "data.fieldValue.value.other_images", $imageSources);
                     break;
                 case "cta1":
-                    data_set($block, "data.fieldValue.value.bg_image", $imageSourceMain);
+                    data_set($layout, "data.fieldValue.value.bg_image", $imageSourceMain);
                     break;
-                    default:
-                    data_set($block, "data.fieldValue.value", $imageSources);
+                default:
+                    data_set($layout, "data.fieldValue.value", $imageSources);
                     break;
-                }
+            }
 
-            unset($block["data"]["value"][$position - 1]["aurora_source"]);
-            
-            $webBlock->update([
-                "layout" => $block,
+            unset($layout["data"]["value"][$position - 1]["aurora_source"]);
+
+            $webBlock->updateQuietly([
+                "layout" => $layout,
             ]);
         }
 

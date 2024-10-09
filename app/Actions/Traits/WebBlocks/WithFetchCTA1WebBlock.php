@@ -9,23 +9,29 @@
 namespace App\Actions\Traits\WebBlocks;
 
 use App\Models\Web\WebBlockType;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithFetchCTA1WebBlock
 {
     use AsAction;
-    public function processCTA1Data(WebBlockType $webBlockType, $auroraBlock)
+    public function processCTA1Data(WebBlockType $webBlockType, $auroraBlock): array
     {
-        $block = $webBlockType->toArray();
-        data_set($block, "data.fieldValue.value.title", $auroraBlock["title"]);
-        data_set($block, "data.fieldValue.value.link", $auroraBlock["link"]);
-        data_set($block, "data.fieldValue.value.icon", $auroraBlock["icon"]);
-        data_set($block, "data.fieldValue.value.button_label", $auroraBlock["button_label"]);
+        $layout = Arr::only(
+            $webBlockType->toArray(),
+            [
+                'code','data','name'
+            ]
+        );
+        data_set($layout, "data.fieldValue.value.title", $auroraBlock["title"]);
+        data_set($layout, "data.fieldValue.value.link", $auroraBlock["link"]);
+        data_set($layout, "data.fieldValue.value.icon", $auroraBlock["icon"]);
+        data_set($layout, "data.fieldValue.value.button_label", $auroraBlock["button_label"]);
         data_set(
-            $block,
+            $layout,
             "data.fieldValue.value.bg_image.aurora_source",
             $auroraBlock["bg_image"]
         );
-        return $block;
+        return $layout;
     }
 }

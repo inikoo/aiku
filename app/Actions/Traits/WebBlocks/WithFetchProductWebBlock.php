@@ -10,17 +10,23 @@
 namespace App\Actions\Traits\WebBlocks;
 
 use App\Models\Web\WebBlockType;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithFetchProductWebBlock
 {
     use AsAction;
-    public function processProductData(WebBlockType $webBlockType, $auroraBlock)
+    public function processProductData(WebBlockType $webBlockType, $auroraBlock): array
     {
-        $block = $webBlockType->toArray();
-        data_set($block, "data.fieldValue.value.text", $auroraBlock["text"]);
+        $layout = Arr::only(
+            $webBlockType->toArray(),
+            [
+                'code','data','name'
+            ]
+        );
+        data_set($layout, "data.fieldValue.value.text", $auroraBlock["text"]);
         data_set(
-            $block,
+            $layout,
             "data.fieldValue.value.image.aurora_source",
             $auroraBlock["image"]["src"]
         );
@@ -35,7 +41,7 @@ trait WithFetchProductWebBlock
             ];
         }
         $imgValue["value"] = $otherImages;
-        data_set($block, "data.fieldValue.value.other_images", $imgValue["value"]);
-        return $block;
+        data_set($layout, "data.fieldValue.value.other_images", $imgValue["value"]);
+        return $layout;
     }
 }

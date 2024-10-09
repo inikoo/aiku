@@ -66,6 +66,8 @@ class StoreWebBlock extends GrpAction
         $rules = [
             'layout'    => ['sometimes', 'array'],
             'visibility' => ['sometimes', 'array'],
+            'model_id'  => ['sometimes', 'integer'],
+            'model_type' => ['sometimes', 'string'],
         ];
 
         if (!$this->strict) {
