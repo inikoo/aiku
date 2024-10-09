@@ -25,6 +25,10 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import Image from '@/Components/Image.vue'
 import { notify } from '@kyvg/vue3-notification'
 import Modal from '@/Components/Utils/Modal.vue'
+import {capitalize} from "@/Composables/capitalize";
+import { Head } from '@inertiajs/vue3'
+import PageHeading from '@/Components/Headings/PageHeading.vue'
+
 library.add(faSearch, faThLarge, faListUl, faStar, falStar)
 
 declare global {
@@ -34,6 +38,8 @@ declare global {
 }
 
 const props = defineProps<{
+    title: string,
+    pageHead: TSPageHeading,
     user: {}
     shop: string
     showIntro: boolean
@@ -231,6 +237,9 @@ const onClickGetStarted = () => {
 </script>
 
 <template>
+    <Head :title="capitalize(title)" />
+    <PageHeading :data="pageHead" />
+
     <div class="p-8">
         <!-- <pre>{{ props }}</pre> -->
         <!-- <h1>Hello from Vue Dashboard!</h1> -->

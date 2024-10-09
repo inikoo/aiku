@@ -46,9 +46,9 @@ class IndexDropshippingRetinaPortfolio extends RetinaAction
             'Dropshipping/Portfolios',
             [
                  'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('My Portfolios'),
+                'title'       => __('My Portfolio'),
                 'pageHead'    => [
-                    'title' => __('My Portfolios'),
+                    'title' => __('My Portfolio'),
                     'icon'  => 'fal fa-cube'
                 ],
                 'tabs' => [

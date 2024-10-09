@@ -46,16 +46,15 @@ class IndexDropshippingRetinaProducts extends RetinaAction
             'Dropshipping/Products',
             [
                  'breadcrumbs' => $this->getBreadcrumbs(),
-                'title'       => __('Products'),
+                'title'       => __('All Products'),
                 'pageHead'    => [
-                    'title' => __('Products'),
+                    'title' => __('All Products'),
                     'icon'  => 'fal fa-cube'
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => ProductTabsEnum::navigation()
                 ],
-
                 'routes' => [
                     'store_product' => [
                         'name'       => 'retina.models.dropshipping.shopify_user.product.store',

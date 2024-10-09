@@ -40,9 +40,9 @@ class ShowDropshipping extends RetinaAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'title'       => __('Dropshipping'),
+                'title'       => __('Channels'),
                 'pageHead'    => [
-                    'title' => __('Dropshipping'),
+                    'title' => __('Channels'),
                     'icon'  => 'fal fa-parachute-box'
                 ],
                 'shopify_url' => '.' . config('shopify-app.myshopify_domain'),
@@ -78,7 +78,7 @@ class ShowDropshipping extends RetinaAction
                                 'name'       => 'retina.dropshipping.platform.dashboard',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('Platform'),
+                            'label' => __('Channels'),
                         ]
                     ]
                 ]
