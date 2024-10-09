@@ -12,6 +12,7 @@ import { faBoxUsd, faUsersCog, faLightbulb, faUserHardHat, faUser, faInventory, 
 import { useLayoutStore } from "@/Stores/retinaLayout.js"
 
 import RetinaNavigationSimple from '@/Layouts/Retina/RetinaNavigationSimple.vue'
+import RetinaNavigationHorizontal from '@/Layouts/Retina/RetinaNavigationHorizontal.vue'
 import { generateNavigationName, generateCurrentString } from '@/Composables/useConvertString'
 
 import { get } from "lodash"
@@ -32,6 +33,7 @@ const iconList: { [key: string]: string } = {
     warehouse: 'fal fa-warehouse-alt',
     fulfilment: 'fal fa-hand-holding-box',
 }
+
 </script>
 
 <template>
@@ -165,12 +167,18 @@ const iconList: { [key: string]: string } = {
         </template>
 
         <!-- LeftSidebar: Grp -->
-        <template v-else>
+        <template v-else v-for="(grpNav, itemKey) in layout.navigation">
             <RetinaNavigationSimple
-                v-for="(grpNav, itemKey) in layout.navigation"
                 :nav="grpNav"
                 :navKey="itemKey"
             />
+            <template v-if="itemKey == 'platforms_navigation'">
+                <RetinaNavigationHorizontal
+                    :key="itemKey + 'platform'"
+                    :nav="grpNav"
+                    :itemKey="generateNavigationName(itemKey)"
+                />
+            </template>
         </template>
 
     </nav>

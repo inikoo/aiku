@@ -20,12 +20,18 @@ return new class () extends Migration {
             $table->foreign('web_block_type_category_id')->references('id')->on('web_block_type_categories')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('web_block_type_id');
             $table->foreign('web_block_type_id')->references('id')->on('web_block_types')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->string('model_type')->index()->nullable();
+            $table->string('model_id')->nullable();
+
             $table->string('checksum')->index()->nullable();
             $table->jsonb('layout');
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('migration_checksum')->index()->nullable();
+            $table->index(['model_type', 'model_id']);
+
         });
     }
 

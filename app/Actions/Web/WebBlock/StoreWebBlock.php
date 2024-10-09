@@ -24,15 +24,15 @@ class StoreWebBlock extends GrpAction
         data_set($modelData, 'web_block_type_category_id', $webBlockType->web_block_type_category_id);
 
 
-
-
         data_set(
             $modelData,
             'layout',
             Arr::only(
                 $webBlockType->toArray(),
                 [
-                    'code','data'
+                    'code',
+                    'data',
+                    'name'
                 ]
             ),
             overwrite: false
@@ -45,10 +45,9 @@ class StoreWebBlock extends GrpAction
             unset($modelData['visibility']);
         } else {
             $visibility = [
-                'loggedIn' => true,
+                'loggedIn'  => true,
                 'loggedOut' => true
             ];
-
         }
 
 
@@ -64,8 +63,10 @@ class StoreWebBlock extends GrpAction
     public function rules(): array
     {
         $rules = [
-            'layout'    => ['sometimes', 'array'],
+            'layout'     => ['sometimes', 'array'],
             'visibility' => ['sometimes', 'array'],
+            'model_id'   => ['sometimes', 'nullable', 'integer'],
+            'model_type' => ['sometimes', 'nullable', 'string'],
         ];
 
         if (!$this->strict) {
@@ -77,7 +78,7 @@ class StoreWebBlock extends GrpAction
 
     public function action(WebBlockType $webBlockType, array $modelData, $strict = true): WebBlock
     {
-        $this->strict = $strict;
+        $this->strict   = $strict;
         $this->asAction = true;
 
         $this->initialisation($webBlockType->group, $modelData);

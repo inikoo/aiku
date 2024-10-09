@@ -44,7 +44,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $parent_id
  * @property int $website_id
  * @property string|null $model_type
- * @property string|null $model_id
+ * @property int|null $model_id
  * @property string $slug
  * @property string $code
  * @property string $url
@@ -72,9 +72,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property array $migration_data
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
- * @property-read Model|\Eloquent $context
  * @property-read Collection<int, Deployment> $deployments
  * @property-read Group $group
+ * @property-read Model|\Eloquent|null $model
  * @property-read Collection<int, ModelHasWebBlocks> $modelHasWebBlocks
  * @property-read Organisation $organisation
  * @property-read Webpage|null $parent
@@ -212,7 +212,7 @@ class Webpage extends Model implements Auditable
             ->withTimestamps();
     }
 
-    public function context(): MorphTo
+    public function model(): MorphTo
     {
         return $this->morphTo();
     }

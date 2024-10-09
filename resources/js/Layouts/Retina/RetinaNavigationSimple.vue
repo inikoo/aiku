@@ -27,7 +27,7 @@ const isLoading = ref(false)
 onMounted(() => {
     isTopMenuActive.value = true;
     // console.log('NavigationSimple.vue', props.navKey, props.nav)
-});
+});console.log(props.nav)
 
 onUnmounted(() => {
     isTopMenuActive.value = false;
