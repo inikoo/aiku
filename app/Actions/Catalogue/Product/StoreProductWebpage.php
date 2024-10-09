@@ -14,6 +14,7 @@ use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Web\Webpage;
+use Illuminate\Support\Facades\Redirect;
 
 class StoreProductWebpage extends OrgAction
 {
@@ -28,10 +29,23 @@ class StoreProductWebpage extends OrgAction
             'model_id'   => $product->id
         ];
 
-        return StoreWebpage::make()->action(
+        $webpage = StoreWebpage::make()->action(
             $product->shop->website,
             $webpageData
         );
+
+        return $webpage;
+    }
+
+    public function htmlResponse(Webpage $webpage)
+    {
+        return Redirect::route('grp.org.shops.show.web.webpages.show',
+        [
+            'organisation' => $webpage->organisation->slug,
+            'shop'         => $webpage->shop->slug,
+            'website'      => $webpage->website->slug,
+            'webpage'      => $webpage->slug,
+        ]);
     }
 
     public function asController(Product $product): Webpage
