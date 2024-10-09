@@ -11,6 +11,7 @@ use App\Actions\Web\WebBlock\DeleteWebBlock;
 use Illuminate\Support\Str;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\OrgAction;
+use App\Actions\Traits\WebBlocks\WithFetchCTA1WebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchGalleryWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchIFrameWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchOverviewWebBlock;
@@ -36,6 +37,7 @@ class FetchWebpageWebBlocks extends OrgAction
     use WithFetchIFrameWebBlock;
     use WithFetchProductWebBlock;
     use WithFetchOverviewWebBlock;
+    use WithFetchCTA1WebBlock;
 
     protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
 
@@ -103,6 +105,10 @@ class FetchWebpageWebBlocks extends OrgAction
                 $webBlockType = WebBlockType::where("slug", "overview")->first();
                 $block = $this->processOverviewData($webBlockType, $auroraBlock);
                 break;
+            case "button":
+                $webBlockType = WebBlockType::where("slug", "cta1")->first();
+                $block = $this->processCTA1Data($webBlockType, $auroraBlock);
+                break;
             default:
                 return;
         }
@@ -123,21 +129,27 @@ class FetchWebpageWebBlocks extends OrgAction
         );
 
         if (
-            $webBlock->webBlockType->name == "Gallery"
-            || $webBlock->webBlockType->name == "Overview"
-            || $webBlock->webBlockType->name == "Product showcase A"
+            $webBlock->webBlockType->code == "gallery"
+            || $webBlock->webBlockType->code == "overview"
+            || $webBlock->webBlockType->code == "product"
+            || $webBlock->webBlockType->code == "cta1"
         ) {
             $imageSources = [];
             $imageRawDatas = [];
             $imageSourceMain = [];
-            switch ($webBlock->webBlockType->name) {
-                case "Overview":
+            switch ($webBlock->webBlockType->code) {
+                case "overview":
                     $imageRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
                     break;
-                case "Product showcase A":
+                case "product":
                     $imageRawDatas =
                         $webBlock->layout["data"]["fieldValue"]["value"]["other_images"];
                     $imageRawData = $webBlock->layout["data"]["fieldValue"]["value"]["image"];
+                    $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
+                    $imageSourceMain = ["source" => $imageSource];
+                    break;
+                case "cta1":
+                    $imageRawData = $webBlock->layout["data"]["fieldValue"]["value"]["bg_image"];
                     $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
                     $imageSourceMain = ["source" => $imageSource];
                     break;
@@ -148,8 +160,8 @@ class FetchWebpageWebBlocks extends OrgAction
 
             foreach ($imageRawDatas as $imageRawData) {
                 $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
-                switch ($webBlock->webBlockType->name) {
-                    case "Product showcase A":
+                switch ($webBlock->webBlockType->code) {
+                    case "product":
                         $imageSources[] = ["source" => $imageSource];
                         break;
                     default:
@@ -158,20 +170,24 @@ class FetchWebpageWebBlocks extends OrgAction
                 }
             }
 
-            switch ($webBlock->webBlockType->name) {
-                case "Overview":
+            switch ($webBlock->webBlockType->code) {
+                case "overview":
                     data_set($block, "data.fieldValue.value.images", $imageSources);
                     break;
-                case "Product showcase A":
+                case "product":
                     data_set($block, "data.fieldValue.value.image", $imageSourceMain);
                     data_set($block, "data.fieldValue.value.other_images", $imageSources);
                     break;
-                default:
+                case "cta1":
+                    data_set($block, "data.fieldValue.value.bg_image", $imageSourceMain);
+                    break;
+                    default:
                     data_set($block, "data.fieldValue.value", $imageSources);
                     break;
-            }
-            unset($block["data"]["value"][$position - 1]["aurora_source"]);
+                }
 
+            unset($block["data"]["value"][$position - 1]["aurora_source"]);
+            
             $webBlock->update([
                 "layout" => $block,
             ]);
