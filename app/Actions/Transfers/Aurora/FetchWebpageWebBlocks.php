@@ -188,7 +188,15 @@ class FetchWebpageWebBlocks extends OrgAction
 
             foreach ($imageRawDatas as $imageRawData) {
                 $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
-                $imageSources[] = ["source" => $imageSource];
+                switch ($webBlock->webBlockType->name) {
+                    case "Product showcase A":
+                        $imageSources[] = ["source" => $imageSource];
+                        break;
+                    default:
+                        $imageSources[] = ['image' =>["source" => $imageSource]];
+                        break;
+                }
+                
             }
 
             switch ($webBlock->webBlockType->name) {
@@ -200,7 +208,7 @@ class FetchWebpageWebBlocks extends OrgAction
                     data_set($block, "data.fieldValue.value.other_images", $imageSources);
                     break;
                 default:
-                    data_set($block, "data.fieldValue.value.images", $imageSources);
+                    data_set($block, "data.fieldValue.value", $imageSources);
                     break;
             }
             dd($block);
