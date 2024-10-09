@@ -212,7 +212,7 @@ class Webpage extends Model implements Auditable
             ->withTimestamps();
     }
 
-    public function context(): MorphTo
+    public function model(): MorphTo
     {
         return $this->morphTo();
     }

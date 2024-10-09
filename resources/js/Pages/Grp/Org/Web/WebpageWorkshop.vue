@@ -283,6 +283,5 @@ const openFullScreenPreview = () => {
 iframe {
     height: 100%;
     transition: width 0.3s ease;
-    /* Smooth transition when changing width */
 }
 </style>

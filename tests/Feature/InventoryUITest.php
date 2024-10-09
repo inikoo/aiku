@@ -154,3 +154,48 @@ test("UI Edit location", function () {
             ->has("formData");
     });
 });
+
+
+test("UI Index fulfilment locations", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.fulfilment.locations.index", [
+            $this->organisation->slug,
+            $this->warehouse->slug,
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Warehouse/Fulfilment/Locations")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", "locations")->etc()
+            )
+            ->has("data");
+    });
+})->todo();
+
+test("UI Show fulfilment location", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.fulfilment.locations.show", [
+            $this->organisation->slug,
+            $this->warehouse->slug,
+            $this->location->slug,
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Warehouse/Location")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", "location")->etc()
+            )
+            ->has("navigation")
+            ->has("tabs");
+    });
+})->todo();

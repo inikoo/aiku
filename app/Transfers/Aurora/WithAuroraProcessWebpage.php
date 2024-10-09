@@ -75,7 +75,7 @@ trait WithAuroraProcessWebpage
         } elseif ($auroraModelData->{'Webpage Scope'} == 'Product') {
             $model = $this->parseProduct($organisation->id.':'.$auroraModelData->{'Webpage Scope Key'});
             if (!$model) {
-                dd($auroraModelData->{'Webpage Scope Key'});
+                return null;
             }
         }
 

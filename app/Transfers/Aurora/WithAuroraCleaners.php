@@ -142,6 +142,7 @@ trait WithAuroraCleaners
         $string = str_replace(')', '_', $string);
         $string = str_replace('!', '_', $string);
         $string = str_replace('?', '_', $string);
+        $string = str_replace("'", '', $string);
 
 
         /** @noinspection PhpDuplicateArrayKeysInspection */

@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
+import { getStyles } from '@/Composables/styles'
 
 const props = withDefaults(defineProps<{
     modelValue?: {
         value: string
     }
     isEditable?: boolean
-    properties: {
-
-    }
+    properties: {}
 }>(), {
     isEditable: true
 })
@@ -20,41 +19,17 @@ const emits = defineEmits<{
 </script>
 
 <template>
-    <div class="relative box-border overflow-hidden" id="blockTextContent"
-        :style="{
-            paddingTop: (properties.padding.top.value || 0) + properties.padding.unit, 
-            paddingBottom: (properties.padding.bottom.value || 0) + properties.padding.unit, 
-            paddingRight: (properties.padding.right.value || 0) + properties.padding.unit, 
-            paddingLeft: (properties.padding.left.value || 0) + properties.padding.unit,
-            marginTop: (properties.margin.top.value || 0) + properties.margin.unit, 
-            marginBottom: (properties.margin.bottom.value || 0) + properties.margin.unit, 
-            marginRight: (properties.margin.right.value || 0) + properties.margin.unit, 
-            marginLeft: (properties.margin.left.value || 0) + properties.margin.unit,
-            background: properties.background.type === 'color' ? properties.background.color : properties.background.image,
-            borderTop: `${properties.border.top.value}${properties.border.unit} solid ${properties.border.color}`,
-            borderBottom: `${properties.border.bottom.value}${properties.border.unit} solid ${properties.border.color}`,
-            borderRight: `${properties.border.right.value}${properties.border.unit} solid ${properties.border.color}`,
-            borderLeft: `${properties.border.left.value}${properties.border.unit} solid ${properties.border.color}`,
-            borderTopRightRadius: `${properties.border.rounded.topright.value}${properties.border.rounded.unit}`,
-            borderBottomRightRadius: `${properties.border.rounded.bottomright.value}${properties.border.rounded.unit}`,
-            borderBottomLeftRadius: `${properties.border.rounded.bottomleft.value}${properties.border.rounded.unit}`,
-            borderTopLeftRadius: `${properties.border.rounded.topleft.value}${properties.border.rounded.unit}`,
-        }"
-    >
+    <div class="relative box-border overflow-hidden" id="blockTextContent" :style="getStyles(properties)">
         <Editor
             v-if="isEditable"
             v-model="modelValue.value"
             @update:modelValue="() => emits('autoSave')"
         />
-        <div v-else v-html="modelValue?.value"
-            
-        ></div>
+        <div v-else v-html="modelValue?.value"></div>
     </div>
 </template>
-
-
 <style lang="scss" scoped>
-/* Basic editor styles */
+
 
 #blockTextContent blockquote {
     padding-left: 1rem;

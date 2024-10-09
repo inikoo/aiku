@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->unsignedSmallInteger('parent_id')->index()->nullable();
+            $table->unsignedInteger('parent_id')->index()->nullable();
             $table->foreign('parent_id')->references('id')->on('webpages');
             $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
