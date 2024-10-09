@@ -106,7 +106,7 @@ class FetchWebpageWebBlocks extends OrgAction
                 break;
             case "product":
                 $webBlockType = WebBlockType::where("slug", "product")->first();
-                $layout = $this->processProductData($webBlockType, $auroraBlock);   
+                $layout = $this->processProductData($webBlockType, $auroraBlock);
                 $models[] = Product::find($webpage->model_id);
                 break;
             case "blackboard":
