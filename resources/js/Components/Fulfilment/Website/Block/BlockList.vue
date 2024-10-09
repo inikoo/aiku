@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { faPresentation, faCube, faText, faImage, faImages, faPaperclip, faShoppingBasket, faStar, faHandHoldingBox, faBoxFull, faBars, faBorderAll, faLocationArrow} from "@fal"
+import { faPresentation, faCube, faText, faImage, faImages, faPaperclip, faShoppingBasket, faStar, faHandHoldingBox, faBoxFull, faBars, faBorderAll, faLocationArrow } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { trans } from "laravel-vue-i18n"
@@ -28,6 +28,8 @@ const setActiveId = (value: Daum) => {
 
 // Filter webBlockTypes based on scope and save in data
 onMounted(() => {
+    console.log(data.value[0], 'hahaha');
+
     if (props.scope === 'all') {
         data.value = props.webBlockTypes.data; // Use all items if scope is 'all'
     } else {
@@ -43,14 +45,13 @@ onMounted(() => {
     <div class="flex border rounded-xl overflow-hidden">
         <nav class="w-1/5 bg-gray-100 py-4" aria-label="Sidebar">
             <ul role="list" class="space-y-1">
-            
-                <li v-for="item in data"
-                    :key="item.id"
+
+                <li v-for="item in data" :key="item.id"
                     :class="[item.id === active.id ? 'bg-white text-indigo-600' : 'hover:bg-white/50 hover:text-indigo-600']"
                     @click="setActiveId(item)"
-                    class="group flex items-center gap-x-2 p-3 text-sm font-semibold cursor-pointer"
-                >
-                    <FontAwesomeIcon v-if="item.icon" :icon='item.icon' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
+                    class="group flex items-center gap-x-2 p-3 text-sm font-semibold cursor-pointer">
+                    <FontAwesomeIcon v-if="item.icon" :icon='item.icon' class='text-sm text-gray-400' fixed-width
+                        aria-hidden='true' />
                     {{ item.name }}
                 </li>
             </ul>
@@ -80,4 +81,3 @@ onMounted(() => {
         </div>
     </div>
 </template>
-

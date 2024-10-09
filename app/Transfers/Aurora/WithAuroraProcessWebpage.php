@@ -41,7 +41,7 @@ trait WithAuroraProcessWebpage
 
         $purpose = match ($auroraModelData->{'Webpage Scope'}) {
             'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpagePurposeEnum::STOREFRONT,
-            'Asset' => WebpagePurposeEnum::PRODUCT,
+            'Product' => WebpagePurposeEnum::PRODUCT,
             'Category Products' => WebpagePurposeEnum::FAMILY,
             'Category Categories' => WebpagePurposeEnum::DEPARTMENT,
             'Register' => WebpagePurposeEnum::REGISTER,
@@ -53,7 +53,7 @@ trait WithAuroraProcessWebpage
 
         $type = match ($auroraModelData->{'Webpage Scope'}) {
             'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpageTypeEnum::STOREFRONT,
-            'Asset', 'Category Categories', 'Category Products' => WebpageTypeEnum::SHOP,
+            'Product', 'Category Categories', 'Category Products' => WebpageTypeEnum::SHOP,
             'Register', 'Login', 'ResetPwd' => WebpageTypeEnum::AUTH,
             'TandC' => WebpageTypeEnum::SMALL_PRINT,
             'Basket', 'Top_Up', 'Checkout' => WebpageTypeEnum::CHECKOUT,
