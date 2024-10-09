@@ -31,7 +31,7 @@ class GetRetinaDropshippingNavigation
         ];
 
         $groupNavigation['platform'] = [
-            'label' => __('Platform'),
+            'label' => __('Channels'),
             'icon' => ['fal', 'fa-parachute-box'],
             'root' => 'retina.dropshipping.platform.',
             'route' => [
@@ -58,7 +58,7 @@ class GetRetinaDropshippingNavigation
                             ],
                         ],
                         [
-                            'label' => __('Products'),
+                            'label' => __('All Products'),
                             'icon' => ['fal', 'fa-cube'],
                             'root' => 'retina.dropshipping.portfolios.products.index',
                             'route' => [

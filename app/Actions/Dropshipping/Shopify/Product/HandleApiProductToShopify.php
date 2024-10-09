@@ -26,7 +26,6 @@ class HandleApiProductToShopify extends OrgAction
      */
     public function handle(ShopifyUser $shopifyUser, array $modelData): void
     {
-        $client   = $shopifyUser->api()->getRestClient();
         $products = $shopifyUser
             ->customer
             ->shop
@@ -37,6 +36,7 @@ class HandleApiProductToShopify extends OrgAction
         $totalProducts = $products->count();
         $uploaded      = 0;
         foreach ($products->chunk(2) as $productChunk) {
+            $client   = $shopifyUser->api()->getRestClient();
 
             $variants = [];
             $images   = [];

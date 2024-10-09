@@ -23,7 +23,7 @@ class FetchWebBlockMedia extends OrgAction
     {
         // return $this->downloadMediaFromWebpage($webBlock, $webpage, $auroraImage);
         $this->organisation = $webpage->website->organisation;
-        $auroraImageId = null;
+        $auroraImageId      = null;
 
         if (preg_match('/wi\/(\d+)\.([a-zA-Z]+)/', $auroraImage, $matches)) {
             $auroraImageId = $matches[1];
@@ -34,18 +34,17 @@ class FetchWebBlockMedia extends OrgAction
                 ->where('Image Key', $auroraImageId)->first();
 
 
-            $imageData = $this->fetchImage($auroraImageData);
+            if ($auroraImageData) {
+                $imageData = $this->fetchImage($auroraImageData);
 
-            return SaveModelImages::run($webBlock, [
-                "path"         => $imageData['image_path'],
-                "originalName" => $imageData['filename'],
-            ]);
-
-
+                if (isset($imageData['image_path']) && file_exists($imageData['image_path'])) {
+                    return SaveModelImages::run($webBlock, [
+                        "path"         => $imageData['image_path'],
+                        "originalName" => $imageData['filename'],
+                    ]);
+                }
+            }
         }
-
-
-
 
 
         return $this->downloadMediaFromWebpage($webBlock, $webpage, $auroraImage);

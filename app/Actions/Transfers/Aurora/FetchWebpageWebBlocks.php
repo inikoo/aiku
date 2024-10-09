@@ -7,6 +7,7 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\Web\WebBlock\DeleteWebBlock;
 use Illuminate\Support\Str;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\OrgAction;
@@ -25,7 +26,6 @@ use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
 use Exception;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 
 class FetchWebpageWebBlocks extends OrgAction
 {
@@ -39,8 +39,12 @@ class FetchWebpageWebBlocks extends OrgAction
 
     protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
 
-    public function handle(Webpage $webpage): Webpage
+    public function handle(Webpage $webpage, $reset = false): Webpage
     {
+        if ($reset) {
+            $this->reset($webpage);
+        }
+
         if (isset($webpage->migration_data["both"])) {
             foreach (
                 Arr::get($webpage->migration_data["both"], "blocks", []) as $index => $auroraBlock
@@ -55,7 +59,7 @@ class FetchWebpageWebBlocks extends OrgAction
             ) {
                 $migrationData = md5(json_encode($auroraBlock));
                 $this->processData($webpage, $auroraBlock, $migrationData, $index + 1, [
-                    "loggedIn" => true,
+                    "loggedIn"  => true,
                     "loggedOut" => false,
                 ]);
             }
@@ -66,7 +70,7 @@ class FetchWebpageWebBlocks extends OrgAction
             ) {
                 $migrationData = md5(json_encode($auroraBlock));
                 $this->processData($webpage, $auroraBlock, $migrationData, $index + 1, [
-                    "loggedIn" => false,
+                    "loggedIn"  => false,
                     "loggedOut" => true,
                 ]);
             }
@@ -111,24 +115,24 @@ class FetchWebpageWebBlocks extends OrgAction
         $webBlock = StoreWebBlock::make()->action(
             $webBlockType,
             [
-                "layout" => $block,
+                "layout"             => $block,
                 "migration_checksum" => $migrationData,
-                "visibility" => $visibility,
+                "visibility"         => $visibility,
             ],
             strict: false
         );
 
         if (
-            $webBlock->webBlockType->name == "Gallery" ||
-            $webBlock->webBlockType->name == "Overview" ||
-            $webBlock->webBlockType->name == "Product showcase A"
+            $webBlock->webBlockType->name == "Gallery"
+            || $webBlock->webBlockType->name == "Overview"
+            || $webBlock->webBlockType->name == "Product showcase A"
         ) {
             $imageSources = [];
             $imageRawDatas = [];
             $imageSourceMain = [];
             switch ($webBlock->webBlockType->name) {
                 case "Overview":
-                    $imageRawDatas = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
+                    $imageRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
                     break;
                 case "Product showcase A":
                     $imageRawDatas =
@@ -138,7 +142,7 @@ class FetchWebpageWebBlocks extends OrgAction
                     $imageSourceMain = ["source" => $imageSource];
                     break;
                 default:
-                    $imageRawDatas = $webBlock->layout["data"]["fieldValue"]["value"];
+                    $imageRawData = $webBlock->layout["data"]["fieldValue"]["value"];
                     break;
             }
 
@@ -174,15 +178,15 @@ class FetchWebpageWebBlocks extends OrgAction
         }
 
         $webpage->modelHasWebBlocks()->create([
-            "group_id" => $webpage->group_id,
-            "organisation_id" => $webpage->organisation_id,
-            "shop_id" => $webpage->shop_id,
-            "website_id" => $webpage->website_id,
-            "webpage_id" => $webpage->id,
-            "position" => $position,
-            "model_id" => $webpage->id,
-            "model_type" => class_basename(Webpage::class),
-            "web_block_id" => $webBlock->id,
+            "group_id"           => $webpage->group_id,
+            "organisation_id"    => $webpage->organisation_id,
+            "shop_id"            => $webpage->shop_id,
+            "website_id"         => $webpage->website_id,
+            "webpage_id"         => $webpage->id,
+            "position"           => $position,
+            "model_id"           => $webpage->id,
+            "model_type"         => class_basename(Webpage::class),
+            "web_block_id"       => $webBlock->id,
             "migration_checksum" => $migrationData,
         ]);
         UpdateWebpageContent::run($webpage->refresh());
@@ -193,18 +197,16 @@ class FetchWebpageWebBlocks extends OrgAction
     private function processImage($webBlock, $imageRawData, $webpage)
     {
         if (!isset($imageRawData["aurora_source"])) {
-            return;
+            return null;
         }
         $auroraImage = $imageRawData["aurora_source"];
 
-        $auroraImage = Str::startsWith($auroraImage, "/") ? $auroraImage : "/" . $auroraImage;
+        $auroraImage = Str::startsWith($auroraImage, "/") ? $auroraImage : "/".$auroraImage;
 
         $media = FetchWebBlockMedia::run($webBlock, $webpage, $auroraImage);
         $image = $media->getImage();
 
-        $imageSource = GetPictureSources::run($image);
-
-        return $imageSource;
+        return GetPictureSources::run($image);
     }
 
     public function action(Webpage $webpage): Webpage
@@ -216,13 +218,8 @@ class FetchWebpageWebBlocks extends OrgAction
 
     public function reset(Webpage $webpage): void
     {
-        $webBlocks = $webpage->webBlocks()->get();
-        DB::table("model_has_web_blocks")
-            ->where("webpage_id", $webpage->id)
-            ->delete();
-
-        foreach ($webBlocks as $block) {
-            $block->forceDelete();
+        foreach ($webpage->webBlocks()->get() as $webBlock) {
+            DeleteWebBlock::run($webBlock);
         }
     }
 
@@ -241,14 +238,11 @@ class FetchWebpageWebBlocks extends OrgAction
             exit();
         }
 
-        if ($command->option("reset")) {
-            $this->reset($webpage);
-        }
 
         $this->organisationSource = $this->getOrganisationSource($webpage->organisation);
         $this->organisationSource->initialisation($webpage->organisation, "_base");
 
-        $this->handle($webpage);
+        $this->handle($webpage, $command->option("reset"));
 
         return 0;
     }
