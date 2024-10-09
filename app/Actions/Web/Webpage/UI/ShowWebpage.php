@@ -13,11 +13,15 @@ use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\UI\WithInertia;
 use App\Actions\Web\HasWorkshopAction;
 use App\Actions\Web\Website\UI\ShowWebsite;
+use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\UI\Web\WebpageTabsEnum;
 use App\Enums\Web\Webpage\WebpagePurposeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Http\Resources\Helpers\SnapshotResource;
 use App\Http\Resources\Web\WebpageResource;
+use App\Models\Catalogue\Collection;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -119,7 +123,76 @@ class ShowWebpage extends OrgAction
                                 'webpage' => $webpage->slug
                             ]
                         ]
-                    ] : []
+                    ] : [],
+            
+                    // Check the model type
+                    $webpage->model ? (
+                        $webpage->model instanceof Collection ? [
+                            'type'  => 'button',
+                            'style' => 'create',
+                            'label' => __('Collection'),
+                            'tooltip' => __('To Collection'),
+                            'icon'  => ["fal", "fa-album-collection"],
+                            'route' => [
+                                'name'       => 'grp.org.shops.show.catalogue.collections.show',
+                                'parameters' => [
+                                    'organisation' => $webpage->organisation->slug,
+                                    'shop' => $webpage->shop->slug,
+                                    'collection' => $webpage->model->slug
+                                ]
+                            ]
+                        ] : (
+                            $webpage->model instanceof Product ? [
+                                'type'  => 'button',
+                                'style' => 'create',
+                                'label' => __('Product'),
+                                'tooltip' => __('To Product'),
+                                'icon'  => ["fal", "fa-cube"],
+                                'route' => [
+                                    'name'       => 'grp.org.shops.show.catalogue.products.all_products.show',
+                                    'parameters' => [
+                                        'organisation' => $webpage->organisation->slug,
+                                        'shop' => $webpage->shop->slug,
+                                        'product' => $webpage->model->slug
+                                    ]
+                                ]
+                            ] : (
+                                $webpage->model instanceof ProductCategory ? (
+                                    $webpage->model->type == ProductCategoryTypeEnum::DEPARTMENT ? [
+                                        'type'  => 'button',
+                                        'style' => 'create',
+                                        'label' => __('Department'),
+                                        'tooltip' => __('To Department'),
+                                        'icon'  => ["fal", "fa-folder-tree"],
+                                        'route' => [
+                                            'name'       => 'grp.org.shops.show.catalogue.departments.show',
+                                            'parameters' => [
+                                                'organisation' => $webpage->organisation->slug,
+                                                'shop' => $webpage->shop->slug,
+                                                'department' => $webpage->model->slug
+                                            ]
+                                        ]
+                                    ] : (
+                                        $webpage->model->type == ProductCategoryTypeEnum::FAMILY ? [
+                                            'type'  => 'button',
+                                            'style' => 'create',
+                                            'label' => __('Family'),
+                                            'tooltip' => __('To Family'),
+                                            'icon'  => ["fal", "fa-folder"],
+                                            'route' => [
+                                                'name'       => 'grp.org.shops.show.catalogue.families.show',
+                                                'parameters' => [
+                                                    'organisation' => $webpage->organisation->slug,
+                                                    'shop' => $webpage->shop->slug,
+                                                    'family' => $webpage->model->slug
+                                                ]
+                                            ]
+                                        ] : []
+                                    )
+                                ) : []
+                            )
+                        )
+                    ) : [],
                 ]
             );
         }
