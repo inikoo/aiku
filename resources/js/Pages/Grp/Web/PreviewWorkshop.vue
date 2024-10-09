@@ -38,7 +38,7 @@ const debouncedSendUpdateFooter = debounce((footer) => autoSave(footer), 1000, {
 
 const data = ref(cloneDeep(props.webpage))
 const editDataTools = ref({
-    previewMode: true
+    previewMode: !props.webpage ? false : true
 })
 
 const layout = reactive({
@@ -116,7 +116,7 @@ console.log('preview',props)
 
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
-        <RenderHeaderMenu v-if="header.header.data" :data="layout.header" :menu="layout?.navigation"
+        <RenderHeaderMenu v-if="header?.header?.header" :data="layout.header" :menu="layout?.navigation"
             :colorThemed="layout.colorThemed" />
 
         <div v-if="data" class="relative">
@@ -146,7 +146,7 @@ console.log('preview',props)
             </div>
         </div>
 
-        <component v-if="footer.footer.data" :is="getComponentFooter(layout.footer.code)" v-model="layout.footer.data.footer"
+        <component v-if="footer?.footer?.data" :is="getComponentFooter(layout.footer.code)" v-model="layout.footer.data.footer"
             :keyTemplate="layout.footer" :previewMode="editDataTools.previewMode" :colorThemed="layout.colorThemed" />
     </div>
 </template>

@@ -74,7 +74,6 @@ const productData = {
         <div class="col-span-3">
             <img :src="productData.image" alt="">
         </div>
-
         <div class="col-span-6">
             <div class="font-semibold text-xl">{{ productData.title }}</div>
 

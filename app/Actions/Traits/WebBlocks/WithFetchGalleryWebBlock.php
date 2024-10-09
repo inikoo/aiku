@@ -10,15 +10,24 @@
 namespace App\Actions\Traits\WebBlocks;
 
 use App\Models\Web\WebBlockType;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithFetchGalleryWebBlock
 {
     use AsAction;
-    public function processGalleryData($auroraBlock)
+    public function processGalleryData($auroraBlock): array|null
     {
+        if (!isset($auroraBlock["images"])) {
+            return null;
+        }
         $webBlockType = WebBlockType::where("slug", "gallery")->first();
-        $block = $webBlockType->toArray();
+        $layout = Arr::only(
+            $webBlockType->toArray(),
+            [
+                'code','data','name'
+            ]
+        );
 
         $imagesArray = [];
         foreach ($auroraBlock["images"] as $image) {
@@ -30,7 +39,7 @@ trait WithFetchGalleryWebBlock
             ];
         }
         $fieldValue["value"] = $imagesArray;
-        data_set($block, "data.fieldValue.value", $fieldValue["value"]);
-        return $block;
+        data_set($layout, "data.fieldValue.value", $fieldValue["value"]);
+        return $layout;
     }
 }

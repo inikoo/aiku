@@ -11,6 +11,7 @@ use App\Actions\Web\WebBlock\DeleteWebBlock;
 use Illuminate\Support\Str;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\OrgAction;
+use App\Actions\Traits\WebBlocks\WithFetchCTA1WebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchGalleryWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchIFrameWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchOverviewWebBlock;
@@ -36,6 +37,7 @@ class FetchWebpageWebBlocks extends OrgAction
     use WithFetchIFrameWebBlock;
     use WithFetchProductWebBlock;
     use WithFetchOverviewWebBlock;
+    use WithFetchCTA1WebBlock;
 
     protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
 
@@ -86,94 +88,126 @@ class FetchWebpageWebBlocks extends OrgAction
         int $position,
         $visibility = ["loggedIn" => true, "loggedOut" => true]
     ): void {
+
+        $modelType = null;
+        $modelId = null;
+
         switch ($auroraBlock["type"]) {
+            case "images":
+                $webBlockType = WebBlockType::where("slug", "gallery")->first();
+                print($auroraBlock);
+                $layout = $this->processGalleryData($webBlockType, $auroraBlock);
+                if ($layout == null) {
+                    dd("stop");
+                }
+                break;
             case "text":
                 $webBlockType = WebBlockType::where("slug", "text")->first();
-                $block = $this->processTextData($webBlockType, $auroraBlock);
+                $layout = $this->processTextData($webBlockType, $auroraBlock);
                 break;
             case "iframe":
                 $webBlockType = WebBlockType::where("slug", "iframe")->first();
-                $block = $this->processIFrameData($webBlockType, $auroraBlock);
+                $layout = $this->processIFrameData($webBlockType, $auroraBlock);
                 break;
             case "product":
                 $webBlockType = WebBlockType::where("slug", "product")->first();
-                $block = $this->processProductData($webBlockType, $auroraBlock);
+                $layout = $this->processProductData($webBlockType, $auroraBlock);
+                $modelType = $webpage->model_type;
+                $modelId = $webpage->model_id;
                 break;
             case "blackboard":
                 $webBlockType = WebBlockType::where("slug", "overview")->first();
-                $block = $this->processOverviewData($webBlockType, $auroraBlock);
+                $layout = $this->processOverviewData($webBlockType, $auroraBlock);
+                break;
+            case "button":
+                $webBlockType = WebBlockType::where("slug", "cta1")->first();
+                $layout = $this->processCTA1Data($webBlockType, $auroraBlock);
                 break;
             default:
+                print ">>>>> ".$webpage->slug."  ".$auroraBlock["type"]."  <<<<<<\n";
+
                 return;
         }
 
-        data_set($block, "data.properties.padding.unit", "px");
-        data_set($block, "data.properties.padding.left.value", 20);
-        data_set($block, "data.properties.padding.right.value", 20);
-        data_set($block, "data.properties.padding.bottom.value", 20);
-        data_set($block, "data.properties.padding.top.value", 20);
+        if ($layout == null) {
+            return;
+        }
+
+        data_set($layout, "data.properties.padding.unit", "px");
+        data_set($layout, "data.properties.padding.left.value", 20);
+        data_set($layout, "data.properties.padding.right.value", 20);
+        data_set($layout, "data.properties.padding.bottom.value", 20);
+        data_set($layout, "data.properties.padding.top.value", 20);
         $webBlock = StoreWebBlock::make()->action(
             $webBlockType,
             [
-                "layout"             => $block,
+                "layout"             => $layout,
                 "migration_checksum" => $migrationData,
                 "visibility"         => $visibility,
+                "model_type"         => $modelType,
+                "model_id"           => $modelId,
             ],
             strict: false
         );
 
         if (
-            $webBlock->webBlockType->name == "Gallery"
-            || $webBlock->webBlockType->name == "Overview"
-            || $webBlock->webBlockType->name == "Product showcase A"
+            $webBlock->webBlockType->code == "gallery"
+            || $webBlock->webBlockType->code == "overview"
+            || $webBlock->webBlockType->code == "product"
+            || $webBlock->webBlockType->code == "cta1"
         ) {
             $imageSources = [];
-            $imageRawDatas = [];
+            $imagesRawData = [];
             $imageSourceMain = [];
-            switch ($webBlock->webBlockType->name) {
-                case "Overview":
-                    $imageRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
+            switch ($webBlock->webBlockType->code) {
+                case "overview":
+                    $imagesRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
                     break;
-                case "Product showcase A":
-                    $imageRawDatas =
+                case "product":
+                    $imagesRawData =
                         $webBlock->layout["data"]["fieldValue"]["value"]["other_images"];
                     $imageRawData = $webBlock->layout["data"]["fieldValue"]["value"]["image"];
                     $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
                     $imageSourceMain = ["source" => $imageSource];
                     break;
+                case "cta1":
+                    $imageRawData = $webBlock->layout["data"]["fieldValue"]["value"]["bg_image"];
+                    $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
+                    $imageSourceMain = ["source" => $imageSource];
+                    break;
                 default:
-                    $imageRawData = $webBlock->layout["data"]["fieldValue"]["value"];
+                    //$imageRawData = $webBlock->layout["data"]["fieldValue"]["value"];
                     break;
             }
 
-            foreach ($imageRawDatas as $imageRawData) {
+            foreach ($imagesRawData as $imageRawData) {
                 $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
-                switch ($webBlock->webBlockType->name) {
-                    case "Product showcase A":
-                        $imageSources[] = ["source" => $imageSource];
-                        break;
-                    default:
-                        $imageSources[] = ["image" => ["source" => $imageSource]];
-                        break;
-                }
+                $imageSources[] = match ($webBlock->webBlockType->code) {
+                    "product" => ["source" => $imageSource],
+                    default => ["image" => ["source" => $imageSource]],
+                };
             }
 
-            switch ($webBlock->webBlockType->name) {
-                case "Overview":
-                    data_set($block, "data.fieldValue.value.images", $imageSources);
+            switch ($webBlock->webBlockType->code) {
+                case "overview":
+                    data_set($layout, "data.fieldValue.value.images", $imageSources);
                     break;
-                case "Product showcase A":
-                    data_set($block, "data.fieldValue.value.image", $imageSourceMain);
-                    data_set($block, "data.fieldValue.value.other_images", $imageSources);
+                case "product":
+                    data_set($layout, "data.fieldValue.value.image", $imageSourceMain);
+                    data_set($layout, "data.fieldValue.value.other_images", $imageSources);
+                    break;
+                case "cta1":
+                    data_set($layout, "data.fieldValue.value.bg_image", $imageSourceMain);
                     break;
                 default:
-                    data_set($block, "data.fieldValue.value", $imageSources);
+                    data_set($layout, "data.fieldValue.value", $imageSources);
                     break;
             }
-            unset($block["data"]["value"][$position - 1]["aurora_source"]);
 
-            $webBlock->update([
-                "layout" => $block,
+            unset($layout["data"]["value"][$position - 1]["aurora_source"]);
+
+            $webBlock->updateQuietly([
+                "layout" => $layout,
             ]);
         }
 

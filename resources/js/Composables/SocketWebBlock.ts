@@ -47,7 +47,6 @@ export const SocketHeaderFooter = (website: String) => {
 				)
 			},
 			send: (send = "") => {
-				console.log('sdsd')
 				const channelName = `header-footer.${website}.preview`
 				window.Echo.join(channelName).whisper("otherIsNavigating", { data: send })
 			},
