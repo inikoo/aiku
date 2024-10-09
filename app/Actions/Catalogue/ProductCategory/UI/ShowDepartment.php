@@ -78,12 +78,16 @@ class ShowDepartment extends OrgAction
                         [
                             'type'  => 'button',
                             'style' => 'edit',
-                            'tooltip' => __('Edit Webpage'),
-                            'label'   => __('Edit Webpage'),
+                            'tooltip' => __('To Webpage'),
+                            'label'   => __('To Webpage'),
                             'icon'  => ["fal", "fa-drafting-compass"],
                             'route' => [
-                                'name'       => '',
+                                'name'       => 'grp.org.shops.show.web.webpages.show',
                                 'parameters' => [
+                                    'organisation' => $this->organisation->slug,
+                                    'shop'         => $this->shop->slug,
+                                    'website'      => $this->shop->website->slug,
+                                    'webpage'      => $department->webpage->slug
                                 ]
                             ]
                         ] : [
