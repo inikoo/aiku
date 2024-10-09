@@ -12,11 +12,13 @@ import PureInput from "@/Components/Pure/PureInput.vue"
 import { ref } from "vue"
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue';
+import { getStyles } from "@/Composables/styles"
 
 library.add(faCube, faLink)
 
 const props = defineProps<{
     modelValue: any
+    properties: {}
 }>()
 
 const selectedProduct = ref(0)
@@ -71,7 +73,7 @@ const onEnter = (e) => {
 
 
 
-    <div v-else id="app" class="mx-auto max-w-5xl text-gray-600">
+    <div v-else id="app" class="mx-auto max-w-5xl text-gray-600" :style="getStyles(properties)">
 
         <div class="mb-3 border-b border-gray-500 py-0.5 text-gray-500 text-xs w-fit">
             Beauty & Spa >> Bath Bombs >> Shaped Bath Bombs for Kids

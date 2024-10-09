@@ -25,6 +25,7 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
 import { Link } from "@inertiajs/vue3"
+import { getStyles } from "@/Composables/styles"
 
 library.add(faPresentation, faLink, faExternalLink, faSpinnerThird)
 
@@ -34,6 +35,7 @@ const props = defineProps<{
     web_block: Object
     id: Number,
     type: String
+    properties: {}
 }>()
 
 const layout = inject('layout', layoutStructure)
@@ -149,9 +151,9 @@ onMounted(() => {
 
 <template>
 
-    
+
     <div v-if="isLoading" class="flex justify-center h-36 items-center">
-        <LoadingIcon class="text-4xl"/>
+        <LoadingIcon class="text-4xl" />
     </div>
     <div v-else-if="!props.modelValue.banner_id && !props.modelValue.banner_slug">
         <div class="flex justify-center border border-dashed border-gray-300 rounded-md py-8">
@@ -161,14 +163,16 @@ onMounted(() => {
 
 
 
-    <div v-else-if="props.modelValue.banner_id && props.modelValue.banner_slug && data" class="relative">
+    <div v-else-if="props.modelValue.banner_id && props.modelValue.banner_slug && data" class="relative"
+        :style="getStyles(properties)">
 
         <SliderLandscape v-if="data.type == 'landscape'" :data="data.compiled_layout" :production="true" />
         <SliderSquare v-else :data="data.compiled_layout" :production="true" />
 
         <!-- Icon: Edit -->
         <div class="absolute top-2 right-2 flex space-x-2 z-10">
-            <Button :icon="['far', 'fa-pencil']" type="tertiary" size="xs" @click="() => { isModalOpen = true, getBannersList() }" />
+            <Button :icon="['far', 'fa-pencil']" type="tertiary" size="xs"
+                @click="() => { isModalOpen = true, getBannersList() }" />
         </div>
     </div>
 
@@ -181,16 +185,14 @@ onMounted(() => {
             <div class="text-center font-semibold text-2xl mb-4">
                 {{ trans('Select banners') }}
             </div>
-            
+
             <div v-if="!isLoadingFetching" class="">
                 <ul v-if="bannersList.length" role="list" class="flex flex-wrap gap-x-4 gap-y-2.5">
-                    <li
-                        v-for="banner in bannersList" :key="banner.slug"
-                        @click="() => onPickBanner(banner)"
-                        class="relative overflow-hidden rounded-lg bg-white shadow cursor-pointer ring-1 ring-gray-300 hover:ring-2 hover:ring-gray-600"
-                    >
-                        <div class="aspect-[16/9] overflow-hidden h-28 aspect-w-1 w-full" >
-                            <img v-if="banner.image_thumbnail" :src="banner.image_thumbnail" class="w-full object-cover object-center group-hover:opacity-75" />
+                    <li v-for="banner in bannersList" :key="banner.slug" @click="() => onPickBanner(banner)"
+                        class="relative overflow-hidden rounded-lg bg-white shadow cursor-pointer ring-1 ring-gray-300 hover:ring-2 hover:ring-gray-600">
+                        <div class="aspect-[16/9] overflow-hidden h-28 aspect-w-1 w-full">
+                            <img v-if="banner.image_thumbnail" :src="banner.image_thumbnail"
+                                class="w-full object-cover object-center group-hover:opacity-75" />
                             <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
                                 <defs>
                                     <pattern id="pattern_mQij" patternUnits="userSpaceOnUse" width="13" height="13"
@@ -210,7 +212,8 @@ onMounted(() => {
 
                 <div v-else class="mt-24 text-center text-gray-500 text-lg italic">
                     <div class="mb-2">{{ trans('You have no banner yet.') }}</div>
-                    <a target="_blank" :href="route('grp.org.shops.show.web.banners.index', [layout.currentParams.organisation, layout.currentParams.shop, layout.currentParams.website])">
+                    <a target="_blank"
+                        :href="route('grp.org.shops.show.web.banners.index', [layout.currentParams.organisation, layout.currentParams.shop, layout.currentParams.website])">
                         <Button label="Create banner" iconRight="fal fa-external-link" />
                     </a>
                 </div>

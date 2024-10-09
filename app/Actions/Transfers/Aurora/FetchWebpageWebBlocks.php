@@ -148,7 +148,7 @@ class FetchWebpageWebBlocks extends OrgAction
         if (
             $webBlock->webBlockType->code == "gallery" ||
             $webBlock->webBlockType->code == "overview" ||
-            $webBlock->webBlockType->code == "product" ||
+            // $webBlock->webBlockType->code == "product" ||
             $webBlock->webBlockType->code == "cta1"
         ) {
             $imageSources = [];
@@ -157,25 +157,13 @@ class FetchWebpageWebBlocks extends OrgAction
             $imagesRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
             foreach ($imagesRawData as $imageRawData) {
                 $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
-                dd($imageSource);
-                $imageSources[] = match ($webBlock->webBlockType->code) {
-                    "product" => ["source" => $imageSource],
-                    default => ["image" => ["source" => $imageSource]],
-                };
+                // $imageSources[] = match ($webBlock->webBlockType->code) {
+                $imageSources[] = ["image" => ["source" => $imageSource]];
             }
-            // if (count($imagesRawData) > 1) {
-            // } else {
-            //     $imageSource = $this->processImage($webBlock, $imagesRawData, $webpage);
-            // 	$imageSources[] = match ($webBlock->webBlockType->code) {
-            //         "product" => ["source" => $imageSource],
-            // 		default => ["image" => ["source" => $imageSource]],
-            // 	};
-            // }
 
             data_set($layout, "data.fieldValue.value.images", $imageSources);
-            dd($layout);
 
-            unset($layout["data"]["value"][$position - 1]["aurora_source"]);
+            // unset($layout["data"]["value"][$position - 1]["aurora_source"]);
 
             $webBlock->updateQuietly([
                 "layout" => $layout,

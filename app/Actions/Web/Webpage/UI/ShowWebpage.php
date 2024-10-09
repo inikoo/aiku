@@ -273,7 +273,7 @@ class ShowWebpage extends OrgAction
                     'modelWithIndex' => [
                         'index' => [
                             'route' => $routeParameters['index'],
-                            'label' => __('webpages')
+                            'label' => __('Webpages')
                         ],
                         'model' => [
                             'route' => $routeParameters['model'],

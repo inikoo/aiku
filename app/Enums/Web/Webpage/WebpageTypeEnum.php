@@ -19,11 +19,9 @@ enum WebpageTypeEnum: string
     case SHOP       = 'shop';
     case CHECKOUT   = 'checkout';
     case CONTENT    = 'content';
-
     case SMALL_PRINT = 'small-print';
     case ENGAGEMENT  = 'engagement';
     case AUTH        = 'auth';
-
     case BLOG = 'blog';
 
     public static function labels(): array
