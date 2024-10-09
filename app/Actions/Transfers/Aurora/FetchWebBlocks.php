@@ -8,6 +8,7 @@
 namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Web\WebBlock\DeleteWebBlock;
+use App\Models\Catalogue\Product;
 use Illuminate\Support\Str;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\OrgAction;
@@ -28,7 +29,7 @@ use App\Transfers\WowsbarOrganisationService;
 use Exception;
 use Illuminate\Support\Arr;
 
-class FetchWebpageWebBlocks extends OrgAction
+class FetchWebBlocks extends OrgAction
 {
     use WithAuroraOrganisationsArgument;
     use WithOrganisationSource;
@@ -88,8 +89,8 @@ class FetchWebpageWebBlocks extends OrgAction
         int $position,
         $visibility = ["loggedIn" => true, "loggedOut" => true]
     ): void {
-        $modelType = null;
-        $modelId = null;
+
+        $models = [];
 
         switch ($auroraBlock["type"]) {
             case "images":
@@ -107,8 +108,8 @@ class FetchWebpageWebBlocks extends OrgAction
             case "product":
                 $webBlockType = WebBlockType::where("slug", "product")->first();
                 $layout = $this->processProductData($webBlockType, $auroraBlock);
-                $modelType = $webpage->model_type;
-                $modelId = $webpage->model_id;
+                $models[] = Product::find($webpage->model_id);
+
                 break;
             case "blackboard":
                 $webBlockType = WebBlockType::where("slug", "overview")->first();
@@ -139,8 +140,7 @@ class FetchWebpageWebBlocks extends OrgAction
                 "layout" => $layout,
                 "migration_checksum" => $migrationData,
                 "visibility" => $visibility,
-                "model_type" => $modelType,
-                "model_id" => $modelId,
+                "models" => $models,
             ],
             strict: false
         );
@@ -148,22 +148,18 @@ class FetchWebpageWebBlocks extends OrgAction
         if (
             $webBlock->webBlockType->code == "gallery" ||
             $webBlock->webBlockType->code == "overview" ||
-            // $webBlock->webBlockType->code == "product" ||
             $webBlock->webBlockType->code == "cta1"
         ) {
             $imageSources = [];
-            $imagesRawData = [];
+
 
             $imagesRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
             foreach ($imagesRawData as $imageRawData) {
                 $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
-                // $imageSources[] = match ($webBlock->webBlockType->code) {
                 $imageSources[] = ["image" => ["source" => $imageSource]];
             }
 
             data_set($layout, "data.fieldValue.value.images", $imageSources);
-
-            // unset($layout["data"]["value"][$position - 1]["aurora_source"]);
 
             $webBlock->updateQuietly([
                 "layout" => $layout,

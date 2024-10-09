@@ -50,7 +50,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  */
 class WebBlock extends Model implements HasMedia
 {
-    use SoftDeletes;
     use HasFactory;
     use InteractsWithMedia;
 

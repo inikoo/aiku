@@ -8,6 +8,7 @@
 namespace App\Actions\Web\WebBlock;
 
 use App\Actions\GrpAction;
+use App\Models\Helpers\Media;
 use App\Models\Web\WebBlock;
 use Illuminate\Support\Facades\DB;
 
@@ -15,6 +16,9 @@ class DeleteWebBlock extends GrpAction
 {
     public function handle(WebBlock $webBlock): void
     {
+
+        $mediaIds =$webBlock->images()->pluck('media.id');
+
 
         DB::table("model_has_web_blocks")
             ->where("web_block_id", $webBlock->id)
@@ -24,13 +28,22 @@ class DeleteWebBlock extends GrpAction
             ->where("web_block_id", $webBlock->id)
             ->delete();
 
+
         DB::table("model_has_media")
             ->where("model_type", 'WebBlock')
             ->where("model_id", $webBlock->id)
             ->delete();
 
+        /** @var Media $media */
+        foreach($mediaIds as $mediaId){
+            $usage=DB::table('model_has_media')->where('media_id',$mediaId)->count();
+            if($usage==0){
+                Media::find($mediaId)->delete();
+            }
+        }
 
-        $webBlock->forceDelete();
+        
+        $webBlock->deletePreservingMedia();
 
     }
 

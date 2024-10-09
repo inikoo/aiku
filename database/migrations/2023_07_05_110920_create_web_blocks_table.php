@@ -24,7 +24,6 @@ return new class () extends Migration {
             $table->jsonb('layout');
             $table->jsonb('data');
             $table->timestampsTz();
-            $table->softDeletesTz();
             $table->string('migration_checksum')->index()->nullable();
         });
     }
