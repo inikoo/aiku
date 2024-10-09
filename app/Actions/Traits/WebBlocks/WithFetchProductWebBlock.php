@@ -25,11 +25,11 @@ trait WithFetchProductWebBlock
             ]
         );
         data_set($layout, "data.fieldValue.value.text", $auroraBlock["text"]);
-        data_set(
-            $layout,
-            "data.fieldValue.value.image.aurora_source",
-            $auroraBlock["image"]["src"]
-        );
+        // data_set(
+        //     $layout,
+        //     "data.fieldValue.value.image.aurora_source",
+        //     $auroraBlock["image"]["src"]
+        // );
 
         $otherImages = [];
         foreach ($auroraBlock["other_images"] as $image) {
@@ -40,8 +40,10 @@ trait WithFetchProductWebBlock
                 "aurora_source" => $image["src"],
             ];
         }
-        $imgValue["value"] = $otherImages;
-        data_set($layout, "data.fieldValue.value.other_images", $imgValue["value"]);
+        // format of array should be [["aurora_source"=> ""], ["aurora_source"=> ""]]
+        $imagesArray = $otherImages + [["aurora_source" => $auroraBlock["image"]["src"]]];
+        data_set($layout, "data.fieldValue.value.images", $imagesArray);
+        // dd($layout);
         return $layout;
     }
 }

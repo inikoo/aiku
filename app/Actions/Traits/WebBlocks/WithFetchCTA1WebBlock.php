@@ -29,7 +29,7 @@ trait WithFetchCTA1WebBlock
         data_set($layout, "data.fieldValue.value.button_label", $auroraBlock["button_label"]);
         data_set(
             $layout,
-            "data.fieldValue.value.bg_image.aurora_source",
+            "data.fieldValue.value.images.aurora_source",
             $auroraBlock["bg_image"]
         );
         return $layout;

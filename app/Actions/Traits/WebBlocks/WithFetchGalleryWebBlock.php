@@ -37,8 +37,9 @@ trait WithFetchGalleryWebBlock
                 "aurora_source" => $image["src"],
             ];
         }
-        $fieldValue["value"] = $imagesArray;
-        data_set($layout, "data.fieldValue.value", $fieldValue["value"]);
+        // $fieldValue["value"] = $imagesArray;
+        data_set($layout, "data.fieldValue.value.images", $imagesArray);
+        // dd($layout);
         return $layout;
     }
 }
