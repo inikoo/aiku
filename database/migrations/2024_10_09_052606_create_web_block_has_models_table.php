@@ -14,7 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('web_block_has_models', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('web_block_id')->index();
+            $table->unsignedBigInteger('web_block_id')->index();
             $table->foreign('web_block_id')->references('id')->on('web_blocks');
             $table->string('model_type')->index();
             $table->unsignedInteger('model_id');
