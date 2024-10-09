@@ -60,13 +60,12 @@ class StoreWebBlock extends GrpAction
         /** @var WebBlock $webBlock */
         $webBlock = $webBlockType->webBlocks()->create($modelData);
 
-        foreach($models as $model)
-        {
-            if($model instanceof Product) {
+        foreach ($models as $model) {
+            if ($model instanceof Product) {
                 $webBlock->products()->attach($model->id);
             } elseif ($model instanceof ProductCategory) {
                 $webBlock->productCategories()->attach($model->id);
-            } elseif ($model instanceof Collection){
+            } elseif ($model instanceof Collection) {
                 $webBlock->collections()->attach($model->id);
             }
         }

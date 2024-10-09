@@ -27,8 +27,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property int $group_id
  * @property int $web_block_type_category_id
  * @property int $web_block_type_id
- * @property string|null $model_type
- * @property int|null $model_id
  * @property string|null $checksum
  * @property array $layout
  * @property array $data
@@ -36,8 +34,11 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $migration_checksum
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $collections
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductCategory> $productCategories
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read \App\Models\Web\WebBlockType $webBlockType
  * @method static Builder|WebBlock newModelQuery()
  * @method static Builder|WebBlock newQuery()
@@ -78,17 +79,17 @@ class WebBlock extends Model implements HasMedia
 
     public function products(): MorphToMany
     {
-        return $this->morphToMany(Product::class, 'model', 'web_block_has_models');
+        return $this->morphedByMany(Product::class, 'model', 'web_block_has_models')->withTimestamps();
     }
 
     public function productCategories(): MorphToMany
     {
-        return $this->morphToMany(ProductCategory::class, 'model', 'web_block_has_models');
+        return $this->morphedByMany(ProductCategory::class, 'model', 'web_block_has_models')->withTimestamps();
     }
 
     public function collections(): MorphToMany
     {
-        return $this->morphToMany(Collection::class, 'model', 'web_block_has_models');
+        return $this->morphedByMany(Collection::class, 'model', 'web_block_has_models')->withTimestamps();
     }
 
 }

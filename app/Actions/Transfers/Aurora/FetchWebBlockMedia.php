@@ -15,7 +15,6 @@ use App\Models\Web\Webpage;
 use App\Transfers\Aurora\WithAuroraImages;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use phpDocumentor\Reflection\Types\Null_;
 
 class FetchWebBlockMedia extends OrgAction
 {
@@ -59,10 +58,10 @@ class FetchWebBlockMedia extends OrgAction
         try {
             $content   = file_get_contents($urlToFile);
             $tempPath  = tempnam(sys_get_temp_dir(), "img_");
-    
+
             $headers  = get_headers($urlToFile, 1);
             $mimeType = $headers["Content-Type"];
-    
+
             if ($mimeType == "image/jpeg") {
                 $extension = ".jpg";
             } elseif ($mimeType == "image/png") {
@@ -70,16 +69,16 @@ class FetchWebBlockMedia extends OrgAction
             } else {
                 $extension = ".jpg";
             }
-    
+
             $tempFile = $tempPath.$extension;
-    
+
             file_put_contents($tempFile, $content);
-    
+
             return SaveModelImages::run($webBlock, [
                 "path"         => $tempFile,
                 "originalName" => "aurora_image",
             ]);
-            
+
         } catch (Exception) {
             return null;
         }
