@@ -16,6 +16,7 @@ class GetRetinaDropshippingNavigation
 
     public function handle(WebUser $webUser, $request): array
     {
+        $customer = $webUser->customer;
         $groupNavigation = [];
 
         $groupNavigation['dashboard'] = [
@@ -30,52 +31,19 @@ class GetRetinaDropshippingNavigation
             ]
         ];
 
-        $groupNavigation['platform'] = [
-            'label' => __('Channels'),
-            'icon' => ['fal', 'fa-parachute-box'],
-            'root' => 'retina.dropshipping.platform.',
-            'route' => [
-                'name' => 'retina.dropshipping.platform.dashboard'
-            ]
-        ];
 
-        if ($request->user()->customer->shopifyUser) {
-            $groupNavigation['portfolios'] = [
-                'label' => __('Portfolios'),
-                'icon' => ['fal', 'fa-cube'],
-                'root' => 'retina.dropshipping.portfolios.',
-                'route' => [
-                    'name' => 'retina.dropshipping.portfolios.index'
-                ],
-                'topMenu' => [
-                    'subSections' => [
-                        [
-                            'label' => __('My Portfolio'),
-                            'icon' => ['fal', 'fa-cube'],
-                            'root' => 'retina.dropshipping.portfolios.index',
-                            'route' => [
-                                'name' => 'retina.dropshipping.portfolios.index'
-                            ],
-                        ],
-                        [
-                            'label' => __('All Products'),
-                            'icon' => ['fal', 'fa-cube'],
-                            'root' => 'retina.dropshipping.portfolios.products.index',
-                            'route' => [
-                                'name' => 'retina.dropshipping.portfolios.products.index'
-                            ],
-                        ]
-                    ]
-                ]
-            ];
+        $platforms_navigation = [];
+        foreach (
+            $customer->platforms()->get() as $platform
+        ) {
+            $platforms_navigation[$platform->slug] = GetRetinaDropshippingPlatformNavigation::run($webUser, $request);
         }
 
-        $groupNavigation['client'] = [
-            'label' => __('Client'),
-            'icon' => ['fal', 'fa-user-friends'],
-            'root' => 'retina.dropshipping.client.',
-            'route' => [
-                'name' => 'retina.dropshipping.client.index'
+        $groupNavigation['platforms_navigation'] = [
+            'platforms_navigation'       => [
+                'label'      => __('platforms'),
+                'icon'       => "fal fa-store-alt",
+                'navigation' => $platforms_navigation
             ],
         ];
 
