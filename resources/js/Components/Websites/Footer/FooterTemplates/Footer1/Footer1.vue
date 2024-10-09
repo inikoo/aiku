@@ -479,13 +479,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                     class="md:hidden mb-6 md:mb-5 bg-[#9c7c64] md:bg-transparent text-center md:text-left pt-4 pb-6 space-y-4 md:py-0 md:space-y-0">
                     <h2 class="text-xl tracking-wider font-semibold md:mt-8 md:mb-4">Get Social with Us!</h2>
                     <div class="flex md:space-x-6 md:mb-4 justify-around md:justify-start">
-                        <a href="#"><font-awesome-icon :icon="['fab', 'facebook-f']" class="text-2xl" /></a>
-                        <a href="#"><font-awesome-icon icon="fab fa-instagram" class="text-2xl"></font-awesome-icon></a>
-                        <a href="#"><font-awesome-icon icon="fab fa-tiktok" class="text-2xl"></font-awesome-icon></a>
-                        <a href="#"><font-awesome-icon icon="fab fa-pinterest" class="text-2xl"></font-awesome-icon></a>
-                        <a href="#"><font-awesome-icon icon="fab fa-youtube" class="text-2xl"></font-awesome-icon></a>
-                        <a href="#"><font-awesome-icon icon="fab fa-linkedin-in"
-                                class="text-2xl"></font-awesome-icon></a>
+                        <a v-for="item of modelValue.socialData" target="_blank"  :key="item.icon" :href="item.link"><font-awesome-icon :icon="item.icon" class="text-2xl" /></a>
                     </div>
                 </div>
 
@@ -516,7 +510,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                             class="hidden md:block mb-6 md:mb-5 bg-[#9c7c64] md:bg-transparent text-center md:text-left pt-4 pb-6 space-y-4 md:py-0 md:space-y-0">
                             <h2 class="text-xl tracking-wider font-semibold md:mt-8 md:mb-4">Get Social with Us!</h2>
                             <div class="flex md:space-x-6 md:mb-4 justify-around md:justify-start">
-                                <a v-for="item of modelValue.socialData" :key="item.icon"
+                                <a v-for="item of modelValue.socialData" :key="item.icon" target="_blank" 
                                     :href="item.link"><font-awesome-icon :icon="item.icon" class="text-2xl" /></a>
                             </div>
                         </div>

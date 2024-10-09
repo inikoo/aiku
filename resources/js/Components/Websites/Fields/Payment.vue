@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import { cloneDeep } from 'lodash'
-import { router } from '@inertiajs/vue3'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faShieldAlt, faTimes, faTrash } from "@fas"
@@ -19,7 +18,7 @@ const props = defineProps<{
 const emits = defineEmits<{
     (e: 'update:modelValue', value: {}): void
 }>();
-
+const payments = ref([])
 const GetPayment = async () => {
     try {
         const response = await axios.get(
@@ -41,16 +40,13 @@ const GetPayment = async () => {
     }
 }
 
-
-const payments = ref([])
-
 const addPayments = () => {
     let data = cloneDeep(props.modelValue.data);
     data.push(
         {
-            label: "visa",
-            value: "visa",
-            image: "https://e7.pngegg.com/pngimages/687/457/png-clipart-visa-credit-card-logo-payment-mastercard-usa-visa-blue-company.png",
+            name: "checkout",
+            value: "checkout",
+            image:  "https://www.linqto.com/wp-content/uploads/2023/04/logo_2021-11-05_19-04-11.530.png",
         },
     );
     emits('update:modelValue', { data: data });
@@ -88,13 +84,18 @@ onMounted(() => {
                     @update:modelValue="value => updatePayment(index, value)">
                     <template v-slot:label="{ value }">
                         <div
-                            class="flex items-center border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow w-full bg-gray-200 p-2 m-2">
+                            class="flex items-center  rounded-lg  w-full  p-2 m-2 mr-0">
                             <img class="w-12 h-12 rounded-full object-contain object-center group-hover:opacity-75"
                                 :src="value.image" alt="avatar">
                             <div class="ml-4">
                                 {{ value.name }}
                             </div>
                         </div>
+                        <div class="flex items-center justify-center">
+                    <FontAwesomeIcon :icon="['fas', 'trash']"
+                        class="text-red-500 hover:text-red-600 cursor-pointer p-3 transition-transform transform hover:scale-110"
+                        @click="(e) => deleteSocial(e, index)" />
+                </div>
 
                     </template>
 
@@ -111,9 +112,6 @@ onMounted(() => {
 
                     </template>
                 </PureMultiselect>
-                <div class="border text-center"><FontAwesomeIcon :icon="['fas', 'trash']" class="text-red-500 my-auto px-2 cursor-pointer"
-                    @click="(e) => deleteSocial(e, index)" /></div>
-                
             </div>
 
         </div>
