@@ -13,13 +13,15 @@ use App\Models\Helpers\Media;
 use App\Models\Web\WebBlock;
 use App\Models\Web\Webpage;
 use App\Transfers\Aurora\WithAuroraImages;
+use Exception;
 use Illuminate\Support\Facades\DB;
+use phpDocumentor\Reflection\Types\Null_;
 
 class FetchWebBlockMedia extends OrgAction
 {
     use WithAuroraImages;
 
-    public function handle(WebBlock $webBlock, Webpage $webpage, string $auroraImage): Media
+    public function handle(WebBlock $webBlock, Webpage $webpage, string $auroraImage): Media|null
     {
         // return $this->downloadMediaFromWebpage($webBlock, $webpage, $auroraImage);
         $this->organisation = $webpage->website->organisation;
@@ -51,31 +53,36 @@ class FetchWebBlockMedia extends OrgAction
     }
 
 
-    public function downloadMediaFromWebpage(WebBlock $webBlock, Webpage $webpage, string $auroraImage): Media
+    public function downloadMediaFromWebpage(WebBlock $webBlock, Webpage $webpage, string $auroraImage): Media|null
     {
         $urlToFile = "https://www.".$webpage->website->domain.$auroraImage;
-        $content   = file_get_contents($urlToFile);
-        $tempPath  = tempnam(sys_get_temp_dir(), "img_");
-
-        $headers  = get_headers($urlToFile, 1);
-        $mimeType = $headers["Content-Type"];
-
-        if ($mimeType == "image/jpeg") {
-            $extension = ".jpg";
-        } elseif ($mimeType == "image/png") {
-            $extension = ".png";
-        } else {
-            $extension = ".jpg";
+        try {
+            $content   = file_get_contents($urlToFile);
+            $tempPath  = tempnam(sys_get_temp_dir(), "img_");
+    
+            $headers  = get_headers($urlToFile, 1);
+            $mimeType = $headers["Content-Type"];
+    
+            if ($mimeType == "image/jpeg") {
+                $extension = ".jpg";
+            } elseif ($mimeType == "image/png") {
+                $extension = ".png";
+            } else {
+                $extension = ".jpg";
+            }
+    
+            $tempFile = $tempPath.$extension;
+    
+            file_put_contents($tempFile, $content);
+    
+            return SaveModelImages::run($webBlock, [
+                "path"         => $tempFile,
+                "originalName" => "aurora_image",
+            ]);
+            
+        } catch (Exception) {
+            return null;
         }
-
-        $tempFile = $tempPath.$extension;
-
-        file_put_contents($tempFile, $content);
-
-        return SaveModelImages::run($webBlock, [
-            "path"         => $tempFile,
-            "originalName" => "aurora_image",
-        ]);
     }
 
 

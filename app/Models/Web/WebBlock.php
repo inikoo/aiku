@@ -7,6 +7,9 @@
 
 namespace App\Models\Web;
 
+use App\Models\Catalogue\Collection;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Helpers\Media;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -71,6 +74,21 @@ class WebBlock extends Model implements HasMedia
     public function images(): MorphToMany
     {
         return $this->morphToMany(Media::class, 'model', 'model_has_media');
+    }
+
+    public function products(): MorphToMany
+    {
+        return $this->morphToMany(Product::class, 'model', 'web_block_has_models');
+    }
+
+    public function productCategories(): MorphToMany
+    {
+        return $this->morphToMany(ProductCategory::class, 'model', 'web_block_has_models');
+    }
+
+    public function collections(): MorphToMany
+    {
+        return $this->morphToMany(Collection::class, 'model', 'web_block_has_models');
     }
 
 }

@@ -9,6 +9,9 @@ namespace App\Actions\Web\WebBlock;
 
 use App\Actions\GrpAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Models\Catalogue\Collection;
+use App\Models\Catalogue\Product;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Web\WebBlock;
 use App\Models\Web\WebBlockType;
 use Illuminate\Support\Arr;
@@ -20,6 +23,7 @@ class StoreWebBlock extends GrpAction
 
     public function handle(WebBlockType $webBlockType, array $modelData): WebBlock
     {
+        $models = Arr::pull($modelData, 'models', []);
         data_set($modelData, 'group_id', $webBlockType->group_id);
         data_set($modelData, 'web_block_type_category_id', $webBlockType->web_block_type_category_id);
 
@@ -56,6 +60,16 @@ class StoreWebBlock extends GrpAction
         /** @var WebBlock $webBlock */
         $webBlock = $webBlockType->webBlocks()->create($modelData);
 
+        foreach($models as $model)
+        {
+            if($model instanceof Product) {
+                $webBlock->products()->attach($model->id);
+            } elseif ($model instanceof ProductCategory) {
+                $webBlock->productCategories()->attach($model->id);
+            } elseif ($model instanceof Collection){
+                $webBlock->collections()->attach($model->id);
+            }
+        }
 
         return $webBlock;
     }
@@ -65,8 +79,7 @@ class StoreWebBlock extends GrpAction
         $rules = [
             'layout'     => ['sometimes', 'array'],
             'visibility' => ['sometimes', 'array'],
-            'model_id'   => ['sometimes', 'nullable', 'integer'],
-            'model_type' => ['sometimes', 'nullable', 'string'],
+            'models'    =>  ['sometimes', 'array']
         ];
 
         if (!$this->strict) {

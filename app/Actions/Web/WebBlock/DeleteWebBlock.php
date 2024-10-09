@@ -20,6 +20,10 @@ class DeleteWebBlock extends GrpAction
             ->where("web_block_id", $webBlock->id)
             ->delete();
 
+        DB::table("web_block_has_models")
+            ->where("web_block_id", $webBlock->id)
+            ->delete();
+
         DB::table("model_has_media")
             ->where("model_type", 'WebBlock')
             ->where("model_id", $webBlock->id)

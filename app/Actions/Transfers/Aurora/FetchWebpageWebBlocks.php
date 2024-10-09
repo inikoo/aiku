@@ -21,6 +21,7 @@ use App\Actions\Traits\WithOrganisationSource;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Events\BroadcastPreviewWebpage;
+use App\Models\Catalogue\Product;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
@@ -88,9 +89,7 @@ class FetchWebpageWebBlocks extends OrgAction
         int $position,
         $visibility = ["loggedIn" => true, "loggedOut" => true]
     ): void {
-
-        $modelType = null;
-        $modelId = null;
+        $models = [];
 
         switch ($auroraBlock["type"]) {
             case "images":
@@ -107,9 +106,8 @@ class FetchWebpageWebBlocks extends OrgAction
                 break;
             case "product":
                 $webBlockType = WebBlockType::where("slug", "product")->first();
-                $layout = $this->processProductData($webBlockType, $auroraBlock);
-                $modelType = $webpage->model_type;
-                $modelId = $webpage->model_id;
+                $layout = $this->processProductData($webBlockType, $auroraBlock);   
+                $models[] = Product::find($webpage->model_id);
                 break;
             case "blackboard":
                 $webBlockType = WebBlockType::where("slug", "overview")->first();
@@ -140,8 +138,7 @@ class FetchWebpageWebBlocks extends OrgAction
                 "layout"             => $layout,
                 "migration_checksum" => $migrationData,
                 "visibility"         => $visibility,
-                "model_type"         => $modelType,
-                "model_id"           => $modelId,
+                'models'             => $models
             ],
             strict: false
         );
