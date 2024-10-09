@@ -125,6 +125,10 @@ class FetchWebpageWebBlocks extends OrgAction
                 return;
         }
 
+        if ($layout == null) {
+            return;
+        }
+
         data_set($layout, "data.properties.padding.unit", "px");
         data_set($layout, "data.properties.padding.left.value", 20);
         data_set($layout, "data.properties.padding.right.value", 20);

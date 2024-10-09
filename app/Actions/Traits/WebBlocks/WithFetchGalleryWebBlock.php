@@ -16,8 +16,11 @@ use Lorisleiva\Actions\Concerns\AsAction;
 trait WithFetchGalleryWebBlock
 {
     use AsAction;
-    public function processGalleryData($auroraBlock): array
+    public function processGalleryData($auroraBlock): array|null
     {
+        if (!isset($auroraBlock["images"])) {
+            return null;
+        }
         $webBlockType = WebBlockType::where("slug", "gallery")->first();
         $layout = Arr::only(
             $webBlockType->toArray(),
