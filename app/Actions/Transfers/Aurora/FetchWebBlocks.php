@@ -123,7 +123,7 @@ class FetchWebBlocks extends OrgAction
                 $webBlockType = WebBlockType::where("slug", "text")->first();
                 $layout       = $this->processPhoneData($webBlockType, $auroraBlock);
                 break;
-            case "code":
+            case "code": // hello test
             case "reviews":
                 $webBlockType = WebBlockType::where("slug", "script")->first();
                 $layout       = $this->processScriptData($webBlockType, $auroraBlock);
