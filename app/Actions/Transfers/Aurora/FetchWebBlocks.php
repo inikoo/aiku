@@ -142,7 +142,7 @@ class FetchWebBlocks extends OrgAction
             case "category_products":
                 $webBlockType = WebBlockType::where("slug", "family")->first();
                 $models[]     = ProductCategory::find($webpage->model_id);
-                $layout       = $this->processFamilyData($webBlockType, $auroraBlock);
+                $layout = $this->processFamilyData($webBlockType, $auroraBlock);
                 break;
 
             case "see_also":
@@ -252,18 +252,33 @@ class FetchWebBlocks extends OrgAction
         if (
             $webBlock->webBlockType->code == "gallery"
             || $webBlock->webBlockType->code == "overview"
-            || $webBlock->webBlockType->code == "cta3"
+            || $webBlock->webBlockType->code == "cta1"
+            || $webBlock->webBlockType->code == "family"
         ) {
             $imageSources = [];
+            $imagesRawData = [];
 
+            $code = $webBlock->webBlockType->code;
 
-            $imagesRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
-            foreach ($imagesRawData as $imageRawData) {
-                $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
-                $imageSources[] = ["image" => ["source" => $imageSource]];
+            if ($code == "family") {
+                $items = $webBlock->layout["data"]["fieldValue"]["value"]["items"];
+                foreach ($items as $index => $item) {
+                    if ($item['type'] == "image") {
+                        $imageSource    = $this->processImage($webBlock, $item, $webpage);
+                        $imageSources[] = ['position' => $item['position'], "type" => $item['type'], "source" => $imageSource];
+                        unset($items[$index]);
+                    }
+                }
+                data_set($layout, "data.fieldValue.value.addOns", array_merge($items, $imageSources));
+                unset($layout["data"]["fieldValue"]["value"]["items"]);
+            } else {
+                $imagesRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
+                foreach ($imagesRawData as $imageRawData) {
+                    $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
+                    $imageSources[] = ["image" => ["source" => $imageSource]];
+                }
+                data_set($layout, "data.fieldValue.value.images", $imageSources);
             }
-
-            data_set($layout, "data.fieldValue.value.images", $imageSources);
 
             $webBlock->updateQuietly([
                 "layout" => $layout,
