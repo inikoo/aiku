@@ -71,6 +71,12 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
             ]
         ];
 
+        if ($this->media && $this->media->isNotEmpty()) {
+            $logo = GetImgProxyUrl::run($this->media->first()?->getImage());
+        } else {
+            $logo = null;
+        }
+
         return [
             'number_payments'             => $this->number_payments,
             'number_payment_accounts'     => $this->number_payment_accounts,
@@ -81,7 +87,7 @@ class SelectOrgPaymentServiceProvidersResource extends JsonResource
             'org_code'                    => $this->org_code,
             'name'                        => $this->name,
             'state'                       => $this->state,
-            'logo'                        => GetImgProxyUrl::run($this->media->first()?->getImage()),
+            'logo'                        => $logo,
             'formData'                    => $formData
         ];
     }

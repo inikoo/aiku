@@ -24,7 +24,7 @@ class FetchAuroraAction extends FetchAction
     protected function preProcessCommand(Command $command): void
     {
 
-        $this->dbSuffix=$command->option('db_suffix') ?? '';
+        $this->dbSuffix = $command->option('db_suffix') ?? '';
 
         if ($command->getName() == 'fetch:webpages') {
             $this->fetchAll = (bool)$command->option('all');

@@ -97,6 +97,7 @@ test('UI show accounting dashboard', function () {
 });
 
 test('UI show list payment service providers', function () {
+    $this->withoutExceptionHandling();
     $response = get(route('grp.org.accounting.org-payment-service-providers.index', $this->organisation->slug));
 
     $response->assertInertia(function (AssertableInertia $page) {

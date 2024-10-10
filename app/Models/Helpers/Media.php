@@ -10,7 +10,6 @@ namespace App\Models\Helpers;
 use App\Actions\Helpers\Images\GetImgProxyUrl;
 use App\Helpers\ImgProxy\Image;
 use App\Models\Traits\IsMedia;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Query\Builder;
 use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
 

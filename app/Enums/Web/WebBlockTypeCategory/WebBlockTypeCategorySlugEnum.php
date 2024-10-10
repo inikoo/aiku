@@ -25,12 +25,11 @@ enum WebBlockTypeCategorySlugEnum: string
     case MAPS = 'maps';
     case CTE = 'cta';
     case PRODUCTS = 'products';
-    case REVIEWS = 'reviews';
-    case IFRAME = 'iframe';
-    case BENTO_GRID = 'bento-grid';
-    case MENU = 'menu';
-    case GRID = 'grid';
-    case OVERVIEW = 'overview';
-    case SCRIPT = 'script';
-
+    case REVIEWS  = 'reviews';
+    case IFRAME   = 'iframe';
+    case BENTO_GRID   = 'bento-grid';
+    case MENU   = 'menu';
+    case GRID   = 'grid';
+    case OVERVIEW   = 'overview';
+    case SCRIPT   = 'script';
 }

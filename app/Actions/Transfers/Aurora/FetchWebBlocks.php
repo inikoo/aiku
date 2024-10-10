@@ -20,6 +20,7 @@ use App\Actions\Traits\WebBlocks\WithFetchIFrameWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchOverviewWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchProductsWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchProductWebBlock;
+use App\Actions\Traits\WebBlocks\WithFetchScriptWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchSeeAlsoWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchTextWebBlock;
 use App\Actions\Traits\WithOrganisationSource;
@@ -49,6 +50,7 @@ class FetchWebBlocks extends OrgAction
     use WithFetchSeeAlsoWebBlock;
     use WithFetchProductsWebBlock;
     use WithFetchFamilyWebBlock;
+    use WithFetchScriptWebBlock;
 
 
     protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
@@ -118,6 +120,11 @@ class FetchWebBlocks extends OrgAction
                 $webBlockType = WebBlockType::where("slug", "text")->first();
                 $layout       = $this->processTextData($webBlockType, $auroraBlock);
                 break;
+            case "code":
+            case "reviews":
+                $webBlockType = WebBlockType::where("slug", "script")->first();
+                $layout       = $this->processScriptData($webBlockType, $auroraBlock);
+                break;
             case "iframe":
                 $webBlockType = WebBlockType::where("slug", "iframe")->first();
                 $layout       = $this->processIFrameData($webBlockType, $auroraBlock);
@@ -136,27 +143,72 @@ class FetchWebBlocks extends OrgAction
 
             case "see_also":
                 $webBlockType = WebBlockType::where("slug", "see_also")->first();
-                $productsId   = Arr::pluck($auroraBlock["items"], "product_id");
+                $productsId   = [];
+                $categoriesId = [];
+                foreach ($auroraBlock["items"] as $item) {
+                    if ($item['type'] == "product") {
+                        if ($item['product_id']) {
+                            $productsId[] = $item['product_id'];
+                        }
+                    }
+                    if ($item['type'] == 'category') {
+                        $categoriesId[] = $item['category_key'];
+                    }
+                }
+
                 foreach ($productsId as $productId) {
-                    //dd($productId);
                     $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
                     if ($product) {
                         $models[] = $product;
                     }
                 }
+
+                foreach ($categoriesId as $categoryId) {
+                    $family = $this->parseFamily($webpage->organisation->id.':'.$categoryId);
+                    if ($family) {
+                        $models[] = $family;
+                    } else {
+                        $department = $this->parseDepartment($webpage->organisation->id.':'.$categoryId);
+                        if ($department) {
+                            $models[] = $department;
+                        }
+                    }
+                }
+
+
                 $layout = $this->processSeeAlsoData();
                 break;
 
             case "products":
                 $webBlockType = WebBlockType::where("slug", "products")->first();
-                $productsId   = Arr::pluck($auroraBlock["items"], "product_id");
-                foreach ($productsId as $productId) {
-                    $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
-                    if ($product) {
-                        $models[] = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                $productsId   = [];
+                foreach ($auroraBlock["items"] as $item) {
+                    if ($item['type'] == "product") {
+                        $productsId[] = $item['product_id'];
+                    }
+                }
+                if (count($productsId) > 0) {
+                    foreach ($productsId as $productId) {
+                        $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                        if ($product) {
+                            $models[] = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                        }
                     }
                 }
                 $layout = $this->processProductsData($webBlockType, $auroraBlock);
+                break;
+
+            case "category_categories":
+                $categoriesId = [];
+                foreach ($auroraBlock["sections"] as $section) {
+                    if (!empty($section['items'])) {
+                        foreach ($section['items'] as $item) {
+                            if ($item['type'] === 'category') {
+                                $categoriesId[] = $item['category_key'];
+                            }
+                        }
+                    }
+                }
                 break;
 
             case "blackboard":
