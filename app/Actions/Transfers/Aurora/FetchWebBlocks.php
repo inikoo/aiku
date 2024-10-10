@@ -14,9 +14,11 @@ use Illuminate\Support\Str;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WebBlocks\WithFetchCTA1WebBlock;
+use App\Actions\Traits\WebBlocks\WithFetchFamilyWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchGalleryWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchIFrameWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchOverviewWebBlock;
+use App\Actions\Traits\WebBlocks\WithFetchProductsWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchProductWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchSeeAlsoWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchTextWebBlock;
@@ -44,6 +46,8 @@ class FetchWebBlocks extends OrgAction
     use WithFetchOverviewWebBlock;
     use WithFetchCTA1WebBlock;
     use WithFetchSeeAlsoWebBlock;
+    use WithFetchProductsWebBlock;
+    use WithFetchFamilyWebBlock;
 
     protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
 
@@ -97,10 +101,6 @@ class FetchWebBlocks extends OrgAction
 
         $models = [];
 
-        if ($auroraBlock["type"] != "see_also") {
-            return;
-        }
-
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = WebBlockType::where("slug", "gallery")->first();
@@ -123,19 +123,33 @@ class FetchWebBlocks extends OrgAction
             case "category_products":
                 $webBlockType = WebBlockType::where("slug", "family")->first();
                 $models[] = ProductCategory::find($webpage->model_id);
+                $layout = $this->processFamilyData($webBlockType, $auroraBlock);
                 break;
 
             case "see_also":
                 $webBlockType = WebBlockType::where("slug", "see_also")->first();
                 $productsId = Arr::pluck($auroraBlock["items"], "product_id");
-                foreach($productsId as $productId){
-                    $product=$this->parseProduct($webpage->organisation->id.':'.$productId);
-                    if($product){
+                foreach ($productsId as $productId) {
+                    $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                    if ($product) {
                         $models[] = $this->parseProduct($webpage->organisation->id.':'.$productId);
                     }
 
                 }
                 $layout = $this->processSeeAlsoData();
+                break;
+
+            case "products":
+                $webBlockType = WebBlockType::where("slug", "products")->first();
+                $productsId = Arr::pluck($auroraBlock["items"], "product_id");
+                foreach ($productsId as $productId) {
+                    $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                    if ($product) {
+                        $models[] = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                    }
+
+                }
+                $layout = $this->processProductsData($webBlockType, $auroraBlock);
                 break;
 
             case "blackboard":
