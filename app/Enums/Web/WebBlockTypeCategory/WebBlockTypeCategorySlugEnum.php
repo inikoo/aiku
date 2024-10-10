@@ -13,16 +13,17 @@ enum WebBlockTypeCategorySlugEnum: string
 {
     use EnumHelperTrait;
 
-    case PRODUCT  = 'product';
+    case PRODUCT = 'product';
+    case FAMILY = 'family';
     case CATEGORY = 'category';
     case CHECKOUT = 'checkout';
-    case FOOTER   = 'footer';
-    case HEADER   = 'header';
-    case BANNER   = 'banner';
-    case TEXT     = 'text';
-    case PICTURE  = 'picture';
-    case MAPS     = 'maps';
-    case CTE      = 'cta';
+    case FOOTER = 'footer';
+    case HEADER = 'header';
+    case BANNER = 'banner';
+    case TEXT = 'text';
+    case PICTURE = 'picture';
+    case MAPS = 'maps';
+    case CTE = 'cta';
     case PRODUCTS = 'products';
     case REVIEWS  = 'reviews';
     case IFRAME   = 'iframe';

@@ -15,9 +15,7 @@
 				"icon": ["fal", "cube"],
 				"fieldValue": {
 					"value": {
-						"text": "blavla",
-						"image": "blabla",
-						"other_images": []
+						"text": "bla bla"
 					}
 				},
 				"properties": {

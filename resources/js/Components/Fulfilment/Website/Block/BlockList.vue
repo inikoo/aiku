@@ -28,14 +28,13 @@ const setActiveId = (value: Daum) => {
 
 // Filter webBlockTypes based on scope and save in data
 onMounted(() => {
-    console.log(data.value[0], 'hahaha');
-
     if (props.scope === 'all') {
         data.value = props.webBlockTypes.data; // Use all items if scope is 'all'
     } else {
         // Filter based on scope (e.g., 'website', 'webpage', etc.)
         data.value = props.webBlockTypes.data.filter(item => item.scope === props.scope);
     }
+
     active.value = data.value[0] || null; // Set default active item from filtered data
 });
 
