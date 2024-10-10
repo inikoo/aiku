@@ -136,12 +136,19 @@ class FetchWebBlocks extends OrgAction
 
             case "see_also":
                 $webBlockType = WebBlockType::where("slug", "see_also")->first();
-                $productsId   = Arr::pluck($auroraBlock["items"], "product_id");
-                foreach ($productsId as $productId) {
-                    //dd($productId);
-                    $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
-                    if ($product) {
-                        $models[] = $product;
+                $productsId   = [];
+                foreach ($auroraBlock["items"] as $item) {
+                    if ($item['type'] == "product") {
+                        $productsId[] = $item['product_id'];
+                    }
+                }
+                if (count($productsId) > 0) {
+                    foreach ($productsId as $productId) {
+                        $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                        if ($product) {
+                            $models[] = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                        }
+
                     }
                 }
                 $layout = $this->processSeeAlsoData();
