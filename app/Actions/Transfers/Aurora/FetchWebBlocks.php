@@ -109,6 +109,9 @@ class FetchWebBlocks extends OrgAction
     ): void {
         $models = [];
 
+        if ($auroraBlock['type'] != 'products') {
+            return;
+        }
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = WebBlockType::where("slug", "gallery")->first();
@@ -156,13 +159,22 @@ class FetchWebBlocks extends OrgAction
 
             case "products":
                 $webBlockType = WebBlockType::where("slug", "products")->first();
-                $productsId   = Arr::pluck($auroraBlock["items"], "product_id");
-                foreach ($productsId as $productId) {
-                    $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
-                    if ($product) {
-                        $models[] = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                $productsId   = [];
+                foreach ($auroraBlock["items"] as $item) {
+                    if ($item['type'] == "product") {
+                        $productsId[] = $item['product_id'];
                     }
                 }
+                if (count($productsId) > 0) {
+                    foreach ($productsId as $productId) {
+                        $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                        if ($product) {
+                            $models[] = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                        }
+
+                    }
+                }
+                dd($productsId);
                 $layout = $this->processProductsData($webBlockType, $auroraBlock);
                 break;
 
