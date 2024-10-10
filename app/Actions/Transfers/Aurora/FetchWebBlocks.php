@@ -109,9 +109,6 @@ class FetchWebBlocks extends OrgAction
     ): void {
         $models = [];
 
-        if ($auroraBlock['type'] != 'products') {
-            return;
-        }
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = WebBlockType::where("slug", "gallery")->first();
@@ -143,21 +140,35 @@ class FetchWebBlocks extends OrgAction
                 $categoriesId = [];
                 foreach ($auroraBlock["items"] as $item) {
                     if ($item['type'] == "product") {
-                        $productsId[] = $item['product_id'];
+                        if ($item['product_id']) {
+                            $productsId[] = $item['product_id'];
+                        }
                     }
                     if ($item['type'] == 'category') {
                         $categoriesId[] = $item['category_key'];
                     }
                 }
-                if (count($productsId) > 0) {
-                    foreach ($productsId as $productId) {
-                        $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
-                        if ($product) {
-                            $models[] = $this->parseProduct($webpage->organisation->id.':'.$productId);
-                        }
 
+                foreach ($productsId as $productId) {
+                    $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                    if ($product) {
+                        $models[] = $product;
                     }
                 }
+
+                foreach ($categoriesId as $categoryId) {
+                    $family = $this->parseFamily($webpage->organisation->id.':'.$categoryId);
+                    if ($family) {
+                        $models[] = $family;
+                    } else {
+                        $department = $this->parseDepartment($webpage->organisation->id.':'.$categoryId);
+                        if ($department) {
+                            $models[] = $department;
+                        }
+                    }
+                }
+
+
                 $layout = $this->processSeeAlsoData();
                 break;
 
@@ -175,7 +186,6 @@ class FetchWebBlocks extends OrgAction
                         if ($product) {
                             $models[] = $this->parseProduct($webpage->organisation->id.':'.$productId);
                         }
-
                     }
                 }
                 $layout = $this->processProductsData($webBlockType, $auroraBlock);
@@ -218,7 +228,7 @@ class FetchWebBlocks extends OrgAction
         if (
             $webBlock->webBlockType->code == "gallery"
             || $webBlock->webBlockType->code == "overview"
-            || $webBlock->webBlockType->code == "cta1"
+            || $webBlock->webBlockType->code == "cta3"
         ) {
             $imageSources = [];
 
