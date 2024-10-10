@@ -148,7 +148,7 @@ class FetchWebBlocks extends OrgAction
         if (
             $webBlock->webBlockType->code == "gallery" ||
             $webBlock->webBlockType->code == "overview" ||
-            $webBlock->webBlockType->code == "cta1"
+            $webBlock->webBlockType->code == "cta3"
         ) {
             $imageSources = [];
 
