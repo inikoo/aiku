@@ -16,7 +16,7 @@ trait WithWebpageSubnavigation
     {
         $website = $shop->website;
 
-        return [         
+        return [
             [
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.tree',
