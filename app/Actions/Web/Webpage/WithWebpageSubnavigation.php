@@ -28,7 +28,7 @@ trait WithWebpageSubnavigation
                 ]
             ],
             [
-                'label'    => __('Shop Webpages'),
+                'label'    => __('Shop'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.shop',
                     'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
@@ -39,7 +39,7 @@ trait WithWebpageSubnavigation
                 ]
             ],
             [
-                'label'    => __('Content Webpages'),
+                'label'    => __('Content'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.content',
                     'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
@@ -50,7 +50,7 @@ trait WithWebpageSubnavigation
                 ]
             ],
             [
-                'label'    => __('Small Print Webpages'),
+                'label'    => __('Small Print'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.small-print',
                     'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
@@ -61,7 +61,7 @@ trait WithWebpageSubnavigation
                 ]
             ],
             [
-                'label'    => __('Checkout Webpages'),
+                'label'    => __('Checkout'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.checkout',
                     'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
