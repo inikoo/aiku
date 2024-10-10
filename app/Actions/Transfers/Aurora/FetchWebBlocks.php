@@ -2,7 +2,7 @@
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 08 Oct 2024 16:16:32 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Copyright (c) 2024, Raul A Perusquia Flores.
  */
 
 namespace App\Actions\Transfers\Aurora;
