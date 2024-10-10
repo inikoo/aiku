@@ -20,6 +20,7 @@ use App\Actions\Traits\WebBlocks\WithFetchIFrameWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchOverviewWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchProductsWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchProductWebBlock;
+use App\Actions\Traits\WebBlocks\WithFetchScriptWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchSeeAlsoWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchTextWebBlock;
 use App\Actions\Traits\WithOrganisationSource;
@@ -49,6 +50,7 @@ class FetchWebBlocks extends OrgAction
     use WithFetchSeeAlsoWebBlock;
     use WithFetchProductsWebBlock;
     use WithFetchFamilyWebBlock;
+    use WithFetchScriptWebBlock;
 
 
     protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
@@ -108,10 +110,6 @@ class FetchWebBlocks extends OrgAction
         $visibility = ["loggedIn" => true, "loggedOut" => true]
     ): void {
         $models = [];
-
-        if ($auroraBlock['type'] != 'products') {
-            return;
-        }
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = WebBlockType::where("slug", "gallery")->first();
@@ -120,6 +118,11 @@ class FetchWebBlocks extends OrgAction
             case "text":
                 $webBlockType = WebBlockType::where("slug", "text")->first();
                 $layout       = $this->processTextData($webBlockType, $auroraBlock);
+                break;
+            case "code":
+            case "reviews":
+                $webBlockType = WebBlockType::where("slug", "script")->first();
+                $layout       = $this->processScriptData($webBlockType, $auroraBlock);
                 break;
             case "iframe":
                 $webBlockType = WebBlockType::where("slug", "iframe")->first();
