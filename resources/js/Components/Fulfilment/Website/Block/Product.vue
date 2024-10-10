@@ -17,12 +17,15 @@ library.add(faStar, faDollarSign, faGlobe);
 const props = defineProps<{
     properties: {};
     modelValue: any;
+    webpageData: any;
+    web_block: Object
 }>();
 
 // Parse product data from modelValue
-const product = ref(props.modelValue);
+const productLayout = ref(props.web_block);
+const web_blocks_parameters = ref(props.webpageData.web_blocks_parameters.data)
+const product = ref(web_blocks_parameters.value.find(x => x.id === productLayout.value.id))
 
-console.log(product.value.value, "Product data");
 </script>
 
 <template>
@@ -34,13 +37,12 @@ console.log(product.value.value, "Product data");
                     <!-- Image selector -->
                     <div class="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
                         <TabList class="grid grid-cols-4 gap-6">
-                            <Tab v-if="product?.value?.other_images && product.value.other_images.length"
-                                v-for="image in product.value.other_images" :key="image?.id"
-                                class="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
-                                v-slot="{ selected }">
+                            <Tab v-if="product?.products[0].images && product?.products[0].images.length"
+                                v-for="image in product?.products[0].images"
+                                class="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4">
                                 <span class="sr-only">{{ image?.name }}</span>
                                 <span class="absolute inset-0 overflow-hidden rounded-md">
-                                    <img :src="image?.image?.source" alt="Informative Image"
+                                    <Image :src="image?.image?.source" alt="Informative Image"
                                         class="w-full h-full object-cover rounded-md" />
                                 </span>
                                 <span
@@ -60,10 +62,11 @@ console.log(product.value.value, "Product data");
                     </div>
 
                     <TabPanels class="aspect-h-1 aspect-w-1 w-full">
-                        <TabPanel v-if="product?.images && product.images.length" v-for="image in product.images"
-                            :key="image.id">
-                            <img :src="image?.url || 'https://tailwindui.com/plus/img/ecommerce-images/product-page-03-product-01.jpg'"
-                                :alt="image?.alt || 'Default alt text'"
+                        <TabPanel v-if="product?.products[0].images && product?.products[0].images.length"
+                            v-for="image in product?.products[0].images" :key="image.id">
+                            <Image
+                                :src="image?.image?.source || 'https://tailwindui.com/plus/img/ecommerce-images/product-page-03-product-01.jpg'"
+                                :alt="image?.name || 'Default alt text'"
                                 class="h-full w-full object-cover object-center sm:rounded-lg" />
                         </TabPanel>
 
@@ -77,20 +80,20 @@ console.log(product.value.value, "Product data");
                 <!-- Product info -->
                 <div class="mt-10 px-4 sm:mt-16 sm:px-0 lg:mt-0">
                     <h1 class="text-3xl font-bold tracking-tight text-gray-900">
-                        {{ product?.name || 'Default Product Name' }}
+                        {{ product?.products[0].name || 'Default Product Name' }}
                     </h1>
 
                     <div class="mt-3">
                         <h2 class="sr-only">Product information</h2>
                         <p class="text-3xl tracking-tight text-gray-900">
-                            {{ product?.price || 'Price not available' }}
+                            {{ product?.products[0].price || 'Price not available' }}
                         </p>
                     </div>
 
                     <div class="mt-6">
                         <h3 class="sr-only">Description</h3>
                         <div class="space-y-6 text-base text-gray-700"
-                            v-html="product?.value?.text || 'No description available.'" />
+                            v-html="productLayout?.value?.text || 'No description available.'" />
                     </div>
 
                     <form class="mt-6">
@@ -118,7 +121,7 @@ console.log(product.value.value, "Product data");
                                         class="group relative flex w-full items-center justify-between py-6 text-left">
                                         <span
                                             :class="[open ? 'text-indigo-600' : 'text-gray-900', 'text-sm font-medium']">{{
-                                            detail.name }}</span>
+                                                detail.name }}</span>
                                         <span class="ml-6 flex items-center">
                                             <PlusIcon v-if="!open"
                                                 class="block h-6 w-6 text-gray-400 group-hover:text-gray-500"
