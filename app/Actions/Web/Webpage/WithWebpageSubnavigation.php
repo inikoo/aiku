@@ -14,6 +14,8 @@ trait WithWebpageSubnavigation
 {
     protected function getWebpageNavigation(Shop $shop): array
     {
+        $website = $shop->website;
+
         return [         
             [
                 'href'     => [
@@ -27,6 +29,7 @@ trait WithWebpageSubnavigation
             ],
             [
                 'isAnchor'   => true,
+                'number'   => $website->webStats->number_webpages,
                 'label'    => __('All'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index',
@@ -38,6 +41,7 @@ trait WithWebpageSubnavigation
                 ]
             ],
             [
+                'number'   => $website->webStats->number_webpages_type_shop,
                 'label'    => __('Shop'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.shop',
@@ -49,6 +53,7 @@ trait WithWebpageSubnavigation
                 ]
             ],
             [
+                'number'   => $website->webStats->number_webpages_type_content,
                 'label'    => __('Content'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.content',
@@ -60,6 +65,7 @@ trait WithWebpageSubnavigation
                 ]
             ],
             [
+                'number'   => $website->webStats->number_webpages_type_small_print,
                 'label'    => __('Small Print'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.small-print',
@@ -71,6 +77,7 @@ trait WithWebpageSubnavigation
                 ]
             ],
             [
+                'number'   => $website->webStats->number_webpages_type_checkout,
                 'label'    => __('Checkout'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.checkout',
