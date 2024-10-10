@@ -40,7 +40,6 @@ class FetchWebBlocks extends OrgAction
     use WithAuroraParsers;
     use WithAuroraOrganisationsArgument;
     use WithOrganisationSource;
-
     use WithFetchTextWebBlock;
     use WithFetchGalleryWebBlock;
     use WithFetchIFrameWebBlock;
@@ -119,6 +118,10 @@ class FetchWebBlocks extends OrgAction
             case "text":
                 $webBlockType = WebBlockType::where("slug", "text")->first();
                 $layout       = $this->processTextData($webBlockType, $auroraBlock);
+                break;
+            case "telephone":
+                $webBlockType = WebBlockType::where("slug", "text")->first();
+                $layout       = $this->processPhoneData($webBlockType, $auroraBlock);
                 break;
             case "code":
             case "reviews":
