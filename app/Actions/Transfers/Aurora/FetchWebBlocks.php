@@ -22,6 +22,7 @@ use App\Actions\Traits\WithOrganisationSource;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Events\BroadcastPreviewWebpage;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
@@ -109,8 +110,13 @@ class FetchWebBlocks extends OrgAction
                 $webBlockType = WebBlockType::where("slug", "product")->first();
                 $layout = $this->processProductData($webBlockType, $auroraBlock);
                 $models[] = Product::find($webpage->model_id);
-
                 break;
+
+            case "category_products":
+                $webBlockType = WebBlockType::where("slug", "family")->first();
+                $models[] = ProductCategory::find($webpage->model_id);
+                break;
+
             case "blackboard":
                 $webBlockType = WebBlockType::where("slug", "overview")->first();
                 $layout = $this->processOverviewData($webBlockType, $auroraBlock);
@@ -235,7 +241,7 @@ class FetchWebBlocks extends OrgAction
         $this->organisationSource = $this->getOrganisationSource($webpage->organisation);
         $this->organisationSource->initialisation($webpage->organisation, "_base");
 
-        $this->handle($webpage, $command->option("reset"));
+        $this->handle($webpage, $command->option("reset")); // hello
 
         return 0;
     }
