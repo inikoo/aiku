@@ -125,6 +125,7 @@ class FetchWebBlocks extends OrgAction
                 $webBlockType = WebBlockType::where("slug", "script")->first();
                 $layout       = $this->processScriptData($webBlockType, $auroraBlock);
                 break;
+            case "map":
             case "iframe":
                 $webBlockType = WebBlockType::where("slug", "iframe")->first();
                 $layout       = $this->processIFrameData($webBlockType, $auroraBlock);
