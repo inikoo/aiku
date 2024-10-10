@@ -22,7 +22,6 @@ class FetchWebBlockMedia extends OrgAction
 
     public function handle(WebBlock $webBlock, Webpage $webpage, string $auroraImage): Media|null
     {
-        // return $this->downloadMediaFromWebpage($webBlock, $webpage, $auroraImage);
         $this->organisation = $webpage->website->organisation;
         $auroraImageId      = null;
 

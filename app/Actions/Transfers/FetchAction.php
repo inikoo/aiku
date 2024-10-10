@@ -52,6 +52,7 @@ class FetchAction
     protected array $with;
     protected bool $onlyNew  = false;
     protected bool $fetchAll = false;
+    protected string $dbSuffix = '';
 
 
     public function __construct()
@@ -186,8 +187,10 @@ class FetchAction
 
     public function recordNew($organisationSource): void
     {
-        $this->number_stores++;
-        UpdateFetch::run($organisationSource->fetch, ['number_stores' => $this->number_stores]);
+        if (isset($organisationSource->fetch)) {
+            $this->number_stores++;
+            UpdateFetch::run($organisationSource->fetch, ['number_stores' => $this->number_stores]);
+        }
     }
 
     public function getDBPrefix(Command $command): string

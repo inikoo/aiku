@@ -39,6 +39,7 @@ class FetchWebBlocks extends OrgAction
     use WithAuroraParsers;
     use WithAuroraOrganisationsArgument;
     use WithOrganisationSource;
+
     use WithFetchTextWebBlock;
     use WithFetchGalleryWebBlock;
     use WithFetchIFrameWebBlock;
@@ -49,10 +50,18 @@ class FetchWebBlocks extends OrgAction
     use WithFetchProductsWebBlock;
     use WithFetchFamilyWebBlock;
 
+
     protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
 
-    public function handle(Webpage $webpage, $reset = false): Webpage
+    /**
+     * @throws \Exception
+     */
+    public function handle(Webpage $webpage, $reset = false, $dbSuffix = ''): Webpage
     {
+        $this->organisationSource = $this->getOrganisationSource($webpage->organisation);
+        $this->organisationSource->initialisation($webpage->organisation, $dbSuffix);
+
+
         if ($reset) {
             $this->reset($webpage);
         }
@@ -71,7 +80,7 @@ class FetchWebBlocks extends OrgAction
             ) {
                 $migrationData = md5(json_encode($auroraBlock));
                 $this->processData($webpage, $auroraBlock, $migrationData, $index + 1, [
-                    "loggedIn" => true,
+                    "loggedIn"  => true,
                     "loggedOut" => false,
                 ]);
             }
@@ -82,7 +91,7 @@ class FetchWebBlocks extends OrgAction
             ) {
                 $migrationData = md5(json_encode($auroraBlock));
                 $this->processData($webpage, $auroraBlock, $migrationData, $index + 1, [
-                    "loggedIn" => false,
+                    "loggedIn"  => false,
                     "loggedOut" => true,
                 ]);
             }
@@ -98,70 +107,67 @@ class FetchWebBlocks extends OrgAction
         int $position,
         $visibility = ["loggedIn" => true, "loggedOut" => true]
     ): void {
-
         $models = [];
 
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = WebBlockType::where("slug", "gallery")->first();
-                $layout = $this->processGalleryData($webBlockType, $auroraBlock);
+                $layout       = $this->processGalleryData($webBlockType, $auroraBlock);
                 break;
             case "text":
                 $webBlockType = WebBlockType::where("slug", "text")->first();
-                $layout = $this->processTextData($webBlockType, $auroraBlock);
+                $layout       = $this->processTextData($webBlockType, $auroraBlock);
                 break;
             case "iframe":
                 $webBlockType = WebBlockType::where("slug", "iframe")->first();
-                $layout = $this->processIFrameData($webBlockType, $auroraBlock);
+                $layout       = $this->processIFrameData($webBlockType, $auroraBlock);
                 break;
             case "product":
                 $webBlockType = WebBlockType::where("slug", "product")->first();
-                $layout = $this->processProductData($webBlockType, $auroraBlock);
-                $models[] = Product::find($webpage->model_id);
+                $layout       = $this->processProductData($webBlockType, $auroraBlock);
+                $models[]     = Product::find($webpage->model_id);
                 break;
 
             case "category_products":
                 $webBlockType = WebBlockType::where("slug", "family")->first();
-                $models[] = ProductCategory::find($webpage->model_id);
-                $layout = $this->processFamilyData($webBlockType, $auroraBlock);
+                $models[]     = ProductCategory::find($webpage->model_id);
+                $layout       = $this->processFamilyData($webBlockType, $auroraBlock);
                 break;
 
             case "see_also":
                 $webBlockType = WebBlockType::where("slug", "see_also")->first();
-                $productsId = Arr::pluck($auroraBlock["items"], "product_id");
+                $productsId   = Arr::pluck($auroraBlock["items"], "product_id");
                 foreach ($productsId as $productId) {
                     $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
                     if ($product) {
-                        $models[] = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                        $models[] = $product;
                     }
-
                 }
                 $layout = $this->processSeeAlsoData();
                 break;
 
             case "products":
                 $webBlockType = WebBlockType::where("slug", "products")->first();
-                $productsId = Arr::pluck($auroraBlock["items"], "product_id");
+                $productsId   = Arr::pluck($auroraBlock["items"], "product_id");
                 foreach ($productsId as $productId) {
                     $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
                     if ($product) {
                         $models[] = $this->parseProduct($webpage->organisation->id.':'.$productId);
                     }
-
                 }
                 $layout = $this->processProductsData($webBlockType, $auroraBlock);
                 break;
 
             case "blackboard":
                 $webBlockType = WebBlockType::where("slug", "overview")->first();
-                $layout = $this->processOverviewData($webBlockType, $auroraBlock);
+                $layout       = $this->processOverviewData($webBlockType, $auroraBlock);
                 break;
             case "button":
                 $webBlockType = WebBlockType::where("slug", "cta1")->first();
-                $layout = $this->processCTA1Data($webBlockType, $auroraBlock);
+                $layout       = $this->processCTA1Data($webBlockType, $auroraBlock);
                 break;
             default:
-                print ">>>>> " . $webpage->slug . "  " . $auroraBlock["type"] . "  <<<<<<\n";
+                print ">>>>> ".$webpage->slug."  ".$auroraBlock["type"]."  <<<<<<\n";
 
                 return;
         }
@@ -178,25 +184,25 @@ class FetchWebBlocks extends OrgAction
         $webBlock = StoreWebBlock::make()->action(
             $webBlockType,
             [
-                "layout" => $layout,
+                "layout"             => $layout,
                 "migration_checksum" => $migrationData,
-                "visibility" => $visibility,
-                "models" => $models,
+                "visibility"         => $visibility,
+                "models"             => $models,
             ],
             strict: false
         );
 
         if (
-            $webBlock->webBlockType->code == "gallery" ||
-            $webBlock->webBlockType->code == "overview" ||
-            $webBlock->webBlockType->code == "cta3"
+            $webBlock->webBlockType->code == "gallery"
+            || $webBlock->webBlockType->code == "overview"
+            || $webBlock->webBlockType->code == "cta3"
         ) {
             $imageSources = [];
 
 
             $imagesRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
             foreach ($imagesRawData as $imageRawData) {
-                $imageSource = $this->processImage($webBlock, $imageRawData, $webpage);
+                $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
                 $imageSources[] = ["image" => ["source" => $imageSource]];
             }
 
@@ -208,15 +214,15 @@ class FetchWebBlocks extends OrgAction
         }
 
         $webpage->modelHasWebBlocks()->create([
-            "group_id" => $webpage->group_id,
-            "organisation_id" => $webpage->organisation_id,
-            "shop_id" => $webpage->shop_id,
-            "website_id" => $webpage->website_id,
-            "webpage_id" => $webpage->id,
-            "position" => $position,
-            "model_id" => $webpage->id,
-            "model_type" => class_basename(Webpage::class),
-            "web_block_id" => $webBlock->id,
+            "group_id"           => $webpage->group_id,
+            "organisation_id"    => $webpage->organisation_id,
+            "shop_id"            => $webpage->shop_id,
+            "website_id"         => $webpage->website_id,
+            "webpage_id"         => $webpage->id,
+            "position"           => $position,
+            "model_id"           => $webpage->id,
+            "model_type"         => class_basename(Webpage::class),
+            "web_block_id"       => $webBlock->id,
             "migration_checksum" => $migrationData,
         ]);
         UpdateWebpageContent::run($webpage->refresh());
@@ -231,7 +237,7 @@ class FetchWebBlocks extends OrgAction
         }
         $auroraImage = $imageRawData["aurora_source"];
 
-        $auroraImage = Str::startsWith($auroraImage, "/") ? $auroraImage : "/" . $auroraImage;
+        $auroraImage = Str::startsWith($auroraImage, "/") ? $auroraImage : "/".$auroraImage;
 
         $media = FetchWebBlockMedia::run($webBlock, $webpage, $auroraImage);
 
@@ -244,6 +250,9 @@ class FetchWebBlocks extends OrgAction
         return GetPictureSources::run($image);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function action(Webpage $webpage): Webpage
     {
         $this->initialisation($webpage->organisation, []);
@@ -258,7 +267,7 @@ class FetchWebBlocks extends OrgAction
         }
     }
 
-    public string $commandSignature = "fetch:web-blocks {webpage} {--reset}";
+    public string $commandSignature = "fetch:web-blocks {webpage} {--reset}  {--d|db_suffix=}";
 
     /**
      * @throws \Exception
@@ -273,10 +282,8 @@ class FetchWebBlocks extends OrgAction
             exit();
         }
 
-        $this->organisationSource = $this->getOrganisationSource($webpage->organisation);
-        $this->organisationSource->initialisation($webpage->organisation, "_base");
 
-        $this->handle($webpage, $command->option("reset")); // hello
+        $this->handle($webpage, $command->option("reset"), $command->option("db_suffix"));
 
         return 0;
     }
