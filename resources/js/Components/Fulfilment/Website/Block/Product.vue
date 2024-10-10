@@ -11,6 +11,7 @@ import { faStar, faDollarSign, faGlobe } from "@fal";
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
 import { getStyles } from "@/Composables/styles";
 import Image from "@/Components/Image.vue";
+import { WebBlockParameters } from '../../../../types/webpageTypes';
 
 library.add(faStar, faDollarSign, faGlobe);
 
@@ -23,12 +24,14 @@ const props = defineProps<{
 
 // Parse product data from modelValue
 const productLayout = ref(props.web_block);
-const web_blocks_parameters = ref(props.webpageData.web_blocks_parameters.data)
-const product = ref(web_blocks_parameters.value.find(x => x.id === productLayout.value.id))
-
+const web_blocks_parameters = ref(props.webpageData?.web_blocks_parameters?.data)
+if (web_blocks_parameters.value) {
+    const product = ref(web_blocks_parameters.value.find(x => x.id === productLayout?.value.id))
+}
 </script>
 
 <template>
+
     <div class="bg-white" :style="getStyles(properties)">
         <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
             <div class="lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-8">
@@ -42,7 +45,7 @@ const product = ref(web_blocks_parameters.value.find(x => x.id === productLayout
                                 class="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4">
                                 <span class="sr-only">{{ image?.name }}</span>
                                 <span class="absolute inset-0 overflow-hidden rounded-md">
-                                    <Image :src="image?.image?.source" alt="Informative Image"
+                                    <Image :src="image?.source" alt="Informative Image"
                                         class="w-full h-full object-cover rounded-md" />
                                 </span>
                                 <span
@@ -65,7 +68,7 @@ const product = ref(web_blocks_parameters.value.find(x => x.id === productLayout
                         <TabPanel v-if="product?.products[0].images && product?.products[0].images.length"
                             v-for="image in product?.products[0].images" :key="image.id">
                             <Image
-                                :src="image?.image?.source || 'https://tailwindui.com/plus/img/ecommerce-images/product-page-03-product-01.jpg'"
+                                :src="image?.source || 'https://tailwindui.com/plus/img/ecommerce-images/product-page-03-product-01.jpg'"
                                 :alt="image?.name || 'Default alt text'"
                                 class="h-full w-full object-cover object-center sm:rounded-lg" />
                         </TabPanel>
