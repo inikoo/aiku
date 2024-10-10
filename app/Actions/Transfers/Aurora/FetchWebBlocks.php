@@ -9,6 +9,7 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Web\WebBlock\DeleteWebBlock;
 use App\Models\Catalogue\Product;
+use App\Transfers\Aurora\WithAuroraParsers;
 use Illuminate\Support\Str;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\OrgAction;
@@ -33,6 +34,7 @@ use Illuminate\Support\Arr;
 
 class FetchWebBlocks extends OrgAction
 {
+    use WithAuroraParsers;
     use WithAuroraOrganisationsArgument;
     use WithOrganisationSource;
     use WithFetchTextWebBlock;
@@ -126,8 +128,14 @@ class FetchWebBlocks extends OrgAction
             case "see_also":
                 $webBlockType = WebBlockType::where("slug", "see_also")->first();
                 $productsId = Arr::pluck($auroraBlock["items"], "product_id");
+                foreach($productsId as $productId){
+                    $product=$this->parseProduct($webpage->organisation->id.':'.$productId);
+                    if($product){
+                        $models[] = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                    }
+
+                }
                 $layout = $this->processSeeAlsoData();
-                // dd($productsId);
                 break;
 
             case "blackboard":
