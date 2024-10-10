@@ -224,5 +224,16 @@ class Webpage extends Model implements Auditable
         return $this->belongsToMany(Webpage::class, "webpage_has_children", 'webpage_id', 'child_id');
     }
 
+    public function getChildrenRecursively()
+    {
+        return $this->webpages->map(function ($child) {
+            return [
+                'slug' => $child->slug,
+                'name' => $child->code,
+                'children' => $child->getChildrenRecursively()
+            ];
+        });
+    }
+
 
 }
