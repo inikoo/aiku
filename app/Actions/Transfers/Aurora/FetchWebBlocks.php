@@ -235,7 +235,7 @@ class FetchWebBlocks extends OrgAction
         $this->organisationSource = $this->getOrganisationSource($webpage->organisation);
         $this->organisationSource->initialisation($webpage->organisation, "_base");
 
-        $this->handle($webpage, $command->option("reset"));
+        $this->handle($webpage, $command->option("reset")); // hello
 
         return 0;
     }
