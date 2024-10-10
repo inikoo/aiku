@@ -138,6 +138,7 @@ class FetchWebBlocks extends OrgAction
                 $webBlockType = WebBlockType::where("slug", "see_also")->first();
                 $productsId   = Arr::pluck($auroraBlock["items"], "product_id");
                 foreach ($productsId as $productId) {
+                    //dd($productId);
                     $product = $this->parseProduct($webpage->organisation->id.':'.$productId);
                     if ($product) {
                         $models[] = $product;
