@@ -199,6 +199,19 @@ class FetchWebBlocks extends OrgAction
                 $layout = $this->processProductsData($webBlockType, $auroraBlock);
                 break;
 
+            case "category_categories":
+                $categoriesId = [];
+                foreach ($auroraBlock["sections"] as $section) {
+                    if (!empty($section['items'])) {
+                        foreach ($section['items'] as $item) {
+                            if ($item['type'] === 'category') {
+                                $categoriesId[] = $item['category_key'];
+                            }
+                        }
+                    }
+                }
+                break;
+
             case "blackboard":
                 $webBlockType = WebBlockType::where("slug", "overview")->first();
                 $layout       = $this->processOverviewData($webBlockType, $auroraBlock);
