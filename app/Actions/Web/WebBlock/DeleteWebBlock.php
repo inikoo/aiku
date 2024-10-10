@@ -17,7 +17,7 @@ class DeleteWebBlock extends GrpAction
     public function handle(WebBlock $webBlock): void
     {
 
-        $mediaIds =$webBlock->images()->pluck('media.id');
+        $mediaIds = $webBlock->images()->pluck('media.id');
 
 
         DB::table("model_has_web_blocks")
@@ -35,14 +35,14 @@ class DeleteWebBlock extends GrpAction
             ->delete();
 
         /** @var Media $media */
-        foreach($mediaIds as $mediaId){
-            $usage=DB::table('model_has_media')->where('media_id',$mediaId)->count();
-            if($usage==0){
+        foreach ($mediaIds as $mediaId) {
+            $usage = DB::table('model_has_media')->where('media_id', $mediaId)->count();
+            if ($usage == 0) {
                 Media::find($mediaId)->delete();
             }
         }
 
-        
+
         $webBlock->deletePreservingMedia();
 
     }
