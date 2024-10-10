@@ -183,7 +183,7 @@ class FetchWebBlocks extends OrgAction
         BroadcastPreviewWebpage::dispatch($webpage);
     }
 
-    private function processImage($webBlock, array $imageRawData, $webpage)
+    private function processImage($webBlock, array $imageRawData, $webpage): array|null
     {
         if (!isset($imageRawData["aurora_source"])) {
             return null;
@@ -193,6 +193,11 @@ class FetchWebBlocks extends OrgAction
         $auroraImage = Str::startsWith($auroraImage, "/") ? $auroraImage : "/" . $auroraImage;
 
         $media = FetchWebBlockMedia::run($webBlock, $webpage, $auroraImage);
+
+        if ($media == null) {
+            return null;
+        }
+
         $image = $media->getImage();
 
         return GetPictureSources::run($image);
