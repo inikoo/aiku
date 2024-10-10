@@ -45,7 +45,7 @@ class FetchAuroraWebpages extends FetchAuroraAction
                 );
             }
 
-            FetchWebBlocks::run($webpage, reset: true);
+            FetchWebBlocks::run($webpage, reset: true, dbSuffix: $this->dbSuffix);
 
             $sourceData = explode(':', $webpage->source_id);
             DB::connection('aurora')->table('Page Store Dimension')
