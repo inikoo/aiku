@@ -36,6 +36,42 @@ function webpageRoute(webpage: Webpage) {
                     route().params['website'],
                     webpage.slug
                 ]);
+      case 'grp.org.shops.show.web.webpages.index.type.checkout':
+            return route(
+                'grp.org.shops.show.web.webpages.show',
+                [
+                    route().params['organisation'],
+                    route().params['shop'],
+                    route().params['website'],
+                    webpage.slug
+                ]);
+      case 'grp.org.shops.show.web.webpages.index.type.content':
+            return route(
+                'grp.org.shops.show.web.webpages.show',
+                [
+                    route().params['organisation'],
+                    route().params['shop'],
+                    route().params['website'],
+                    webpage.slug
+                ]);
+      case 'grp.org.shops.show.web.webpages.index.type.shop':
+            return route(
+                'grp.org.shops.show.web.webpages.show',
+                [
+                    route().params['organisation'],
+                    route().params['shop'],
+                    route().params['website'],
+                    webpage.slug
+                ]);
+      case 'grp.org.shops.show.web.webpages.index.type.small-print':
+            return route(
+                'grp.org.shops.show.web.webpages.show',
+                [
+                    route().params['organisation'],
+                    route().params['shop'],
+                    route().params['website'],
+                    webpage.slug
+                ]);
 
         case 'grp.org.fulfilments.show.web.webpages.index':
             return route(
