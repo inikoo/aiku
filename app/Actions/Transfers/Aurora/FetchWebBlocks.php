@@ -140,9 +140,13 @@ class FetchWebBlocks extends OrgAction
             case "see_also":
                 $webBlockType = WebBlockType::where("slug", "see_also")->first();
                 $productsId   = [];
+                $categoriesId = [];
                 foreach ($auroraBlock["items"] as $item) {
                     if ($item['type'] == "product") {
                         $productsId[] = $item['product_id'];
+                    }
+                    if ($item['type'] == 'category') {
+                        $categoriesId[] = $item['category_key'];
                     }
                 }
                 if (count($productsId) > 0) {
