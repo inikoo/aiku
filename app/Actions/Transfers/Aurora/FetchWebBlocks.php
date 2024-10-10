@@ -9,6 +9,7 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Web\WebBlock\DeleteWebBlock;
 use App\Models\Catalogue\Product;
+use App\Transfers\Aurora\WithAuroraParsers;
 use Illuminate\Support\Str;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\OrgAction;
@@ -17,6 +18,7 @@ use App\Actions\Traits\WebBlocks\WithFetchGalleryWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchIFrameWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchOverviewWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchProductWebBlock;
+use App\Actions\Traits\WebBlocks\WithFetchSeeAlsoWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchTextWebBlock;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Actions\Web\WebBlock\StoreWebBlock;
@@ -32,6 +34,7 @@ use Illuminate\Support\Arr;
 
 class FetchWebBlocks extends OrgAction
 {
+    use WithAuroraParsers;
     use WithAuroraOrganisationsArgument;
     use WithOrganisationSource;
     use WithFetchTextWebBlock;
@@ -40,6 +43,7 @@ class FetchWebBlocks extends OrgAction
     use WithFetchProductWebBlock;
     use WithFetchOverviewWebBlock;
     use WithFetchCTA1WebBlock;
+    use WithFetchSeeAlsoWebBlock;
 
     protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
 
@@ -93,6 +97,10 @@ class FetchWebBlocks extends OrgAction
 
         $models = [];
 
+        if ($auroraBlock["type"] != "see_also") {
+            return;
+        }
+
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = WebBlockType::where("slug", "gallery")->first();
@@ -115,6 +123,19 @@ class FetchWebBlocks extends OrgAction
             case "category_products":
                 $webBlockType = WebBlockType::where("slug", "family")->first();
                 $models[] = ProductCategory::find($webpage->model_id);
+                break;
+
+            case "see_also":
+                $webBlockType = WebBlockType::where("slug", "see_also")->first();
+                $productsId = Arr::pluck($auroraBlock["items"], "product_id");
+                foreach($productsId as $productId){
+                    $product=$this->parseProduct($webpage->organisation->id.':'.$productId);
+                    if($product){
+                        $models[] = $this->parseProduct($webpage->organisation->id.':'.$productId);
+                    }
+
+                }
+                $layout = $this->processSeeAlsoData();
                 break;
 
             case "blackboard":
