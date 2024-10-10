@@ -174,7 +174,6 @@ class FetchWebBlocks extends OrgAction
 
                     }
                 }
-                dd($productsId);
                 $layout = $this->processProductsData($webBlockType, $auroraBlock);
                 break;
 
@@ -215,7 +214,7 @@ class FetchWebBlocks extends OrgAction
         if (
             $webBlock->webBlockType->code == "gallery"
             || $webBlock->webBlockType->code == "overview"
-            || $webBlock->webBlockType->code == "cta3"
+            || $webBlock->webBlockType->code == "cta1"
         ) {
             $imageSources = [];
 
