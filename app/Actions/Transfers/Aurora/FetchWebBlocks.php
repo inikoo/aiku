@@ -128,7 +128,6 @@ class FetchWebBlocks extends OrgAction
                 $webBlockType = WebBlockType::where("slug", "script")->first();
                 $layout       = $this->processScriptData($webBlockType, $auroraBlock);
                 break;
-            case "map":
             case "iframe":
                 $webBlockType = WebBlockType::where("slug", "iframe")->first();
                 $layout       = $this->processIFrameData($webBlockType, $auroraBlock);
@@ -205,9 +204,9 @@ class FetchWebBlocks extends OrgAction
             case "category_categories":
                 $categoriesId = [];
                 foreach ($auroraBlock["sections"] as $section) {
-                    if (!empty($section['items'])) {
+                    if (isset($section['items']) && count($section['items']) > 0) {
                         foreach ($section['items'] as $item) {
-                            if ($item['type'] === 'category') {
+                            if ($item['type'] == 'category') {
                                 $categoriesId[] = $item['category_key'];
                             }
                         }
