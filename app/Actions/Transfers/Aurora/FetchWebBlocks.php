@@ -17,6 +17,7 @@ use App\Actions\Traits\WebBlocks\WithFetchGalleryWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchIFrameWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchOverviewWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchProductWebBlock;
+use App\Actions\Traits\WebBlocks\WithFetchSeeAlsoWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchTextWebBlock;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Actions\Web\WebBlock\StoreWebBlock;
@@ -40,6 +41,7 @@ class FetchWebBlocks extends OrgAction
     use WithFetchProductWebBlock;
     use WithFetchOverviewWebBlock;
     use WithFetchCTA1WebBlock;
+    use WithFetchSeeAlsoWebBlock;
 
     protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
 
@@ -124,6 +126,7 @@ class FetchWebBlocks extends OrgAction
             case "see_also":
                 $webBlockType = WebBlockType::where("slug", "see_also")->first();
                 $productsId = Arr::pluck($auroraBlock["items"], "product_id");
+                $layout = $this->processSeeAlsoData();
                 // dd($productsId);
                 break;
 
