@@ -21,6 +21,7 @@ use App\Actions\Web\Webpage\UI\ShowFooter;
 use App\Actions\Web\Webpage\UI\ShowHeader;
 use App\Actions\Web\Webpage\UI\ShowMenu;
 use App\Actions\Web\Webpage\UI\ShowWebpage;
+use App\Actions\Web\Webpage\UI\ShowWebpagesTree;
 use App\Actions\Web\Webpage\UI\ShowWebpageWorkshop;
 use App\Actions\Web\Webpage\UI\ShowWebpageWorkshopPreview;
 use App\Actions\Web\Website\UI\CreateWebsite;
@@ -57,6 +58,7 @@ Route::name('websites.')->group(function () {
 
 Route::prefix('{website}/webpages')->name('webpages.')->group(function () {
     Route::get('', IndexWebpages::class)->name('index');
+    Route::get('tree', ShowWebpagesTree::class)->name('tree');
     Route::get('/type/shop', [IndexWebpages::class, 'shop'])->name('index.type.shop');
     Route::get('/type/content', [IndexWebpages::class, 'content'])->name('index.type.content');
     Route::get('/type/small-print', [IndexWebpages::class, 'smallPrint'])->name('index.type.small-print');

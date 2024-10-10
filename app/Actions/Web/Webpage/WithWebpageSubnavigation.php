@@ -14,7 +14,17 @@ trait WithWebpageSubnavigation
 {
     protected function getWebpageNavigation(Shop $shop): array
     {
-        return [
+        return [         
+            [
+                'href'     => [
+                    'name'       => 'grp.org.shops.show.web.webpages.tree',
+                    'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-code-branch'],
+                    'tooltip' => __('Webpage Tree')
+                ]
+            ],
             [
                 'isAnchor'   => true,
                 'label'    => __('All'),
