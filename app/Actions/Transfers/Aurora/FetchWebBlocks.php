@@ -93,6 +93,10 @@ class FetchWebBlocks extends OrgAction
 
         $models = [];
 
+        if ($auroraBlock["type"] != "see_also") {
+            return;
+        }
+
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = WebBlockType::where("slug", "gallery")->first();
@@ -115,6 +119,12 @@ class FetchWebBlocks extends OrgAction
             case "category_products":
                 $webBlockType = WebBlockType::where("slug", "family")->first();
                 $models[] = ProductCategory::find($webpage->model_id);
+                break;
+
+            case "see_also":
+                $webBlockType = WebBlockType::where("slug", "see_also")->first();
+                $productsId = Arr::pluck($auroraBlock["items"], "product_id");
+                // dd($productsId);
                 break;
 
             case "blackboard":
