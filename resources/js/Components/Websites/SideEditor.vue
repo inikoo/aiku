@@ -33,7 +33,7 @@ const getComponent = (componentName: string) => {
         'payment_templates': Payments,
         'editor': Editor,
         'socialMedia': socialMedia,
-        'footerColumn' : FooterColumn
+        'footerColumn': FooterColumn
     }
 
     return components[componentName]
@@ -50,18 +50,14 @@ const onUpdateValue = (field, value) => {
 
 <template>
     <Accordion>
-        <AccordionPanel v-for="(field, index) in bluprint" :key="index" :value="index"  @click="openPanel = index">
-            <AccordionHeader >
+        <AccordionPanel v-for="(field, index) in bluprint" :key="index" :value="index" @click="openPanel = index">
+            <AccordionHeader>
                 {{ field.name }}
             </AccordionHeader>
             <AccordionContent>
-                <component 
-                    :is="getComponent(field.type)" 
-                    :key="field.key" 
-                    v-model="modelValue[field.key]"
+                <component :is="getComponent(field.type)" :key="field.key" v-model="modelValue[field.key]"
                     @update:modelValue="value => onUpdateValue(field, value)" :uploadRoutes="uploadImageRoute"
-                    v-bind="field?.props_data" 
-                />
+                    v-bind="field?.props_data" />
             </AccordionContent>
         </AccordionPanel>
     </Accordion>
@@ -73,23 +69,29 @@ const onUpdateValue = (field, value) => {
     background-color: white;
     border: solid;
 }
-.p-inputtext{
-    width : 100%
+
+.p-inputtext {
+    width: 100%
 }
 
 :deep(.p-accordionpanel.p-accordionpanel-active > .p-accordionheader) {
-    background-color: #800080 !important; /* Ungu */
-    color: white !important; /* Warna teks */
+    background-color: #800080 !important;
+    /* Ungu */
+    color: white !important;
+    /* Warna teks */
     margin-bottom: 12px !important;
     border-radius: 0 !important;
 }
 
 :deep(.p-accordionpanel.p-accordionpanel-active > .p-accordionheader:hover) {
-    background-color: #800080 !important; /* Ungu saat hover */
+    background-color: #800080 !important;
+    /* Ungu saat hover */
     color: white !important;
     border-radius: 0 !important;
 }
+
 :deep(.p-accordionpanel:not(.p-disabled).p-accordionpanel-active > .p-accordionheader .p-accordionheader-toggle-icon) {
-    color: white !important; /* Warna teks */
+    color: white !important;
+    /* Warna teks */
 }
 </style>
