@@ -40,7 +40,6 @@ class DeleteModelHasWebBlocks extends OrgAction
 
         $webBlockUsed = ModelHasWebBlocks::where('web_block_id', $modelHasWebBlocks->web_block_id)->count();
         if ($webBlockUsed === 0) {
-            dd($modelHasWebBlocks->webBlock());
             $modelHasWebBlocks->webBlock()->delete();
         }
 
