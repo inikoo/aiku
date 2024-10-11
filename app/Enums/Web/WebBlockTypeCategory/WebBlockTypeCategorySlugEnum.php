@@ -18,6 +18,7 @@ enum WebBlockTypeCategorySlugEnum: string
     case CATEGORY = 'category';
     case CATEGORIES = 'categories';
     case CHECKOUT = 'checkout';
+    case Department = 'department';
     case FOOTER = 'footer';
     case HEADER = 'header';
     case BANNER = 'banner';
