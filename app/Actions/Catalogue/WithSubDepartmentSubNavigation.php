@@ -26,19 +26,18 @@ trait WithSubDepartmentSubNavigation
                     'tooltip' => __('Sub-department')
                 ]
             ],
-
-            // [
-            //     'label'    => __('Products'),
-            //     'number'   => $subDepartment->stats->number_products,
-            //     'href'     => [
-            //         'name'       => 'grp.org.shops.show.catalogue.families.show.products.index',
-            //         'parameters' => [$this->organisation->slug, $subDepartment->shop->slug, $subDepartment->slug]
-            //     ],
-            //     'leftIcon' => [
-            //         'icon'    => ['fal', 'fa-cube'],
-            //         'tooltip' => __('products')
-            //     ]
-            // ],
+            [
+                'label'    => __('Families'),
+                'number'   => $subDepartment->stats->number_families,
+                'href'     => [
+                    'name'       => 'grp.org.shops.show.catalogue.departments.show.sub-departments.show.family.index',
+                    'parameters' => [$this->organisation->slug, $this->shop->slug, $subDepartment->department->slug, $subDepartment->slug]
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-folder'],
+                    'tooltip' => __('families')
+                ]
+            ],
         ];
     }
 

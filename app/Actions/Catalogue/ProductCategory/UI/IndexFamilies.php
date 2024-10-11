@@ -11,6 +11,7 @@ use App\Actions\Catalogue\Collection\UI\ShowCollection;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
+use App\Actions\Catalogue\WithSubDepartmentSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
@@ -35,6 +36,7 @@ class IndexFamilies extends OrgAction
     use HasCatalogueAuthorisation;
     use WithDepartmentSubNavigation;
     use WithCollectionSubNavigation;
+    use WithSubDepartmentSubNavigation;
 
     private Shop|ProductCategory|Organisation|Collection $parent;
 
@@ -53,6 +55,14 @@ class IndexFamilies extends OrgAction
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle(parent: $department);
+    }
+
+    public function inDepartmentInSubDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $subDepartment, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $subDepartment;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $subDepartment);
     }
 
     public function inCollection(Organisation $organisation, Shop $shop, Collection $collection, ActionRequest $request): LengthAwarePaginator
@@ -108,6 +118,8 @@ class IndexFamilies extends OrgAction
         } elseif (class_basename($parent) == 'ProductCategory') {
             if ($parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 $queryBuilder->where('product_categories.department_id', $parent->id);
+            } elseif ($parent->type == ProductCategoryTypeEnum::SUB_DEPARTMENT) {
+                $queryBuilder->where('product_categories.sub_department_id', $parent->id);
             } else {
                 // todo
                 abort(419);
@@ -230,6 +242,8 @@ class IndexFamilies extends OrgAction
         if ($this->parent instanceof ProductCategory) {
             if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 $subNavigation = $this->getDepartmentSubNavigation($this->parent);
+            } elseif ($this->parent->type == ProductCategoryTypeEnum::SUB_DEPARTMENT) {
+                $subNavigation = $this->getSubDepartmentSubNavigation($this->parent);
             }
         }
         if ($this->parent instanceof Collection) {
@@ -382,6 +396,21 @@ class IndexFamilies extends OrgAction
                             $routeParameters['organisation'],
                             $routeParameters['shop'],
                             $routeParameters['department']
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.shops.show.catalogue.departments.show.sub-departments.show.family.index' => array_merge(
+                ShowSubDepartment::make()->getBreadcrumbs('grp.org.shops.show.catalogue.departments.show.sub-departments.show', $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.catalogue.departments.show.sub-departments.show.family.index',
+                        'parameters' => [
+                            $routeParameters['organisation'],
+                            $routeParameters['shop'],
+                            $routeParameters['department'],
+                            $routeParameters['subDepartment']
                         ]
                     ],
                     $suffix
