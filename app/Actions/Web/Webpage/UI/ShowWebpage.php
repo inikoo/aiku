@@ -290,7 +290,6 @@ class ShowWebpage extends OrgAction
 
         $webpage = Webpage::where('slug', $routeParameters['webpage'])->first();
 
-
         return
             match ($routeName) {
                 'grp.org.shops.show.web.webpages.show',

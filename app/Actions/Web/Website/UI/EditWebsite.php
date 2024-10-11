@@ -14,6 +14,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -145,6 +146,12 @@ class EditWebsite extends OrgAction
                                     ],
                                     'value'     => $website->domain,
                                     'required'  => true,
+                                ],
+                                'google_tag_id' => [
+                                    'type'      => 'input',
+                                    'label'     => __('google tag id'),
+                                    'value'     => Arr::get($website->settings, "google_tag_id"),
+                                    'required'  => false,
                                 ],
                             ]
                         ],
