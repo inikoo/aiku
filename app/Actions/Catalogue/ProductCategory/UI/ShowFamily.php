@@ -142,7 +142,7 @@ class ShowFamily extends OrgAction
                             ]
                         ] : false
                     ],
-                    // 'subNavigation' => $this->getFamilySubNavigation($family, $this->parent, $request)
+                    'subNavigation' => $this->getFamilySubNavigation($family, $this->parent, $request)
 
                 ],
                 'tabs'        => [

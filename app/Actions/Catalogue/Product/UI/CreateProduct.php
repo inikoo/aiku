@@ -116,6 +116,13 @@ class CreateProduct extends OrgAction
         return $this->handle($family, $request);
     }
 
+    public function inFamilyInSubDepartmentInDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $subDepartment, ProductCategory $family, ActionRequest $request): Response
+    {
+        $this->parent = $family;
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle($family, $request);
+    }
+
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(

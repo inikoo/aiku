@@ -118,10 +118,13 @@ Route::name("departments.")->prefix('departments')
                         Route::get('create', [CreateFamily::class, 'inSubDepartmentInDepartment'])->name('create');
                         Route::prefix('{family}')->name('show')->group(function () {
                             Route::get('', [ShowFamily::class, 'inSubDepartmentInDepartment']);
+                            Route::prefix('products')->name('.products.')->group(function () {
+                                Route::get('', [IndexProducts::class, 'inFamilyInSubDepartmentInDepartment'])->name('index');
+                                Route::get('create', [CreateProduct::class, 'inFamilyInSubDepartmentInDepartment'])->name('create');
+                                // Route::get('{product}', [ShowProduct::class, 'inFamily'])->name('show');
+                                // Route::get('edit/{product}', [EditProduct::class, 'inFamily'])->name('edit');
+                            });
                         });
-                        // Route::prefix('products')->name('.products.')->group(function () {
-                        //     Route::get('', [IndexProducts::class, 'inFamilyInSubDepartmentInDepartment'])->name('index');
-                        // });
                     });
                 });
             });

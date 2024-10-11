@@ -45,6 +45,7 @@ class IndexProducts extends OrgAction
     private string $bucket;
 
     private Shop|ProductCategory|Organisation|Collection $parent;
+    private Shop|ProductCategory|Organisation|Collection $higherParent;
 
     protected function getElementGroups(Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent, $bucket = null): array
     {
@@ -348,7 +349,7 @@ class IndexProducts extends OrgAction
             if ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 $subNavigation = $this->getDepartmentSubNavigation($this->parent);
             } elseif ($this->parent->type == ProductCategoryTypeEnum::FAMILY) {
-                $subNavigation = $this->getFamilySubNavigation($this->parent, $this->parent, $request);
+                $subNavigation = $this->getFamilySubNavigation($this->parent, $this->higherParent, $request);
             }
         } elseif ($this->parent instanceof Collection) {
             $subNavigation = $this->getCollectionSubNavigation($this->parent);
@@ -519,6 +520,7 @@ class IndexProducts extends OrgAction
     {
         $this->bucket = 'all';
         $this->parent = $family;
+        $this->higherParent = $subDepartment;
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle(parent: $family, bucket: $this->bucket);
@@ -691,6 +693,21 @@ class IndexProducts extends OrgAction
                 ShowFamily::make()->getBreadcrumbs(
                     $parent,
                     'grp.org.shops.show.catalogue.families.show',
+                    $routeParameters
+                ),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.shops.show.catalogue.departments.show.sub-departments.show.family.show.products.index' =>
+            array_merge(
+                ShowFamily::make()->getBreadcrumbs(
+                    $parent,
+                    'grp.org.shops.show.catalogue.departments.show.sub-departments.show.family.show',
                     $routeParameters
                 ),
                 $headCrumb(
