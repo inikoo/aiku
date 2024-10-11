@@ -80,7 +80,7 @@ class ShowOrgStock extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigationx'                   => [
+                'navigation'                   => [
                     'previous' => $this->getPrevious($orgStock, $request),
                     'next'     => $this->getNext($orgStock, $request),
                 ],
@@ -221,7 +221,9 @@ class ShowOrgStock extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'stock' => $orgStock->slug
+                        'organisation' => $orgStock->organisation->slug,
+                        'warehouse' => $this->warehouse->slug,
+                        'orgStock' => $orgStock->slug
                     ]
                 ]
             ],
