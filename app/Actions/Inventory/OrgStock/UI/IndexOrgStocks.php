@@ -369,6 +369,28 @@ class IndexOrgStocks extends OrgAction
                     $suffix
                 )
             ),
+            'grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.index' =>
+            array_merge(
+                ShowInventoryDashboard::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Current').') '.$suffix)
+                )
+            ),
+            'grp.org.warehouses.show.inventory.org_stocks.discontinued_org_stocks.index' =>
+            array_merge(
+                ShowInventoryDashboard::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    trim('('.__('Discontinued').') '.$suffix)
+                )
+            ),
 
             'inventory.stock-families.show.stocks.index' =>
             array_merge(
