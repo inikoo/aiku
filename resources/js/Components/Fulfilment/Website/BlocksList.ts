@@ -16,8 +16,9 @@ import BentoGrid from '@/Components/Fulfilment/Website/Block/BentoGrid.vue'
 import Product from '@/Components/Fulfilment/Website/Block/Product.vue'
 import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundComponent.vue'
 import Grid1 from '@/Components/Fulfilment/Website/Block/Grid1.vue'
-import Departments from '@/Components/Fulfilment/Website/Block/Department.vue'
+import Department from '@/Components/Fulfilment/Website/Block/Department.vue'
 import Overview from '@/Components/Fulfilment/Website/Block/Overview.vue'
+import Script from '@/Components/Fulfilment/Website/Block/Script.vue'
 import Action from "@/Components/Forms/Fields/Action.vue"
 
 
@@ -38,7 +39,9 @@ export const getComponent = (componentName: string) => {
         "BentoGrid": BentoGrid,
         "Product": Product,
         "grid1": Grid1,
-        "overview": Departments
+        "overview": Overview,
+        "Department": Department,
+        "Script": Script
     }
 
     return components[componentName] ?? NotFoundComponents
