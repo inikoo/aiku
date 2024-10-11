@@ -221,3 +221,24 @@ test("UI Index warehouse", function () {
             ->has("tagsList");
     });
 });
+
+test("UI Index Org Stocks", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.index", [
+            $this->organisation->slug,
+            $this->warehouse->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Inventory/OrgStocks")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'Current SKUs')->etc()
+            )
+            ->has("data");
+    });
+});
