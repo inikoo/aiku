@@ -25,7 +25,6 @@ const props = defineProps<{
     }
 }>()
 
-
 const emits = defineEmits(['update:modelValue', 'autoSave'])
 
 const usedTemplates = ref({ data: props.data.product, key: 'product1' })
@@ -51,12 +50,13 @@ const onPickTemplate = (header) => {
 
     <Head :title="capitalize(title)" />
 
-<!--     @resized="(a,b,c)=>console.log(a,b,c) -->
+    <!--     @resized="(a,b,c)=>console.log(a,b,c) -->
     <splitpanes class="default-theme">
         <pane min-size="8" max-size="20">
             <div class="bg-slate-200 px-3 py-2  w-full h-screen">
                 <div class="flex justify-end mb-4">
-                    <Button type="tertiary" label="List Templates" size="xs" icon="fas fa-th-large" @click="isModalOpen = true" />
+                    <Button type="tertiary" label="List Templates" size="xs" icon="fas fa-th-large"
+                        @click="isModalOpen = true" />
                 </div>
 
                 <div class="flex items-center">

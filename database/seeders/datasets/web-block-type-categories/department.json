@@ -1,18 +1,18 @@
 {
-	"slug": "script",
-	"name": "Script",
-	"icon": "fal fa-light fa-code",
+	"slug": "department",
+	"name": "Department",
+	"icon": "fal fa-bars",
 	"blueprint": {
-		"value": ""
+		"value": "default_value"
 	},
 	"scope": "webpage",
 	"webBlockTypes": [
 		{
-			"code": "script",
-			"name": "Script",
+			"code": "department",
+			"name": "Department",
 			"data": {
-				"component": "Script",
-				"icon": ["fal", "light", "code"],
+				"icon": ["fal", "bars"],
+				"component": "Department",
 				"fieldValue": {
 					"value": {}
 				},

@@ -12,7 +12,7 @@ import { data as dataProduct1 } from '@/Components/Websites/Footer/FooterTemplat
 export const getComponent = (componentName: string) => {
     const components: Component = {
         'product1': Product1,
-        'product2' : Product2
+        'product2': Product2
     }
 
     return components[componentName] ?? NotFoundComponents
@@ -21,8 +21,8 @@ export const getComponent = (componentName: string) => {
 
 export const getDescriptor = (componentName: string) => {
     const components: Component = {
-        'product1': { data : dataProduct1 },
-        'product2': { data : dataProduct1 },
+        'product1': { data: dataProduct1 },
+        'product2': { data: dataProduct1 },
     }
 
     return components[componentName]
