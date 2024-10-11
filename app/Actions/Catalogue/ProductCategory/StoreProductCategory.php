@@ -127,6 +127,13 @@ class StoreProductCategory extends OrgAction
         return $this->handle(parent: $productCategory, modelData: $this->validatedData);
     }
 
+    public function inSubDepartment(Organisation $organisation, Shop $shop, ProductCategory $productCategory, ActionRequest $request): ProductCategory
+    {
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $productCategory, modelData: $this->validatedData);
+    }
+
     public function htmlResponse(ProductCategory $productCategory, ActionRequest $request): RedirectResponse
     {
         if (class_basename($productCategory->parent) == 'ProductCategory') {

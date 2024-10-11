@@ -275,6 +275,26 @@ class IndexFamilies extends OrgAction
 
                     'label'     => __('Families')
                 ];
+
+                $createRoute = "grp.org.shops.show.catalogue.departments.show.families.create";
+
+            } elseif ($this->parent->type == ProductCategoryTypeEnum::SUB_DEPARTMENT) {
+                $title = $this->parent->name;
+                $model = '';
+                $icon  = [
+                    'icon'  => ['fal', 'fa-dot-circle'],
+                    'title' => __('sub department')
+                ];
+                $iconRight    = [
+                    'icon' => 'fal fa-folder',
+                ];
+                $afterTitle = [
+
+                    'label'     => __('Families')
+                ];
+
+                $createRoute = "grp.org.shops.show.catalogue.departments.show.sub-departments.show.family.create";
+
             }
         } elseif ($this->parent instanceof Collection) {
             $title = $this->parent->name;
@@ -338,7 +358,7 @@ class IndexFamilies extends OrgAction
                             'tooltip' => __('new family'),
                             'label'   => __('family'),
                             'route'   => [
-                                'name'       => 'grp.org.shops.show.catalogue.departments.show.families.create',
+                                'name'       => $createRoute,
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false

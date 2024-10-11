@@ -115,6 +115,7 @@ Route::name("departments.")->prefix('departments')
                     Route::get('', [ShowSubDepartment::class, 'inDepartment']);
                     Route::prefix('family')->name('.family.')->group(function () {
                         Route::get('index', [IndexFamilies::class, 'inDepartmentInSubDepartment'])->name('index');
+                        Route::get('create', [CreateFamily::class, 'inDepartmentInSubDepartment'])->name('create');
                     });
                 });
             });

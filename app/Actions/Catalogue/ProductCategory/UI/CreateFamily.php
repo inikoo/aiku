@@ -68,6 +68,20 @@ class CreateFamily extends OrgAction
         return $this->handle(parent: $department, request: $request);
     }
 
+    public function inDepartmentInSubDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $subDepartment, ActionRequest $request): Response
+    {
+        $this->parent = $subDepartment;
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle(parent: $subDepartment, request: $request);
+    }
+
+    public function inDepartmentInSubFamily(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $subDepartment, ActionRequest $request): Response
+    {
+        $this->parent = $subDepartment;
+        $this->initialisationFromShop($shop, $request);
+        return $this->handle(parent: $subDepartment, request: $request);
+    }
+
 
     public function handle(Shop|ProductCategory $parent, ActionRequest $request): Response
     {
@@ -87,8 +101,10 @@ class CreateFamily extends OrgAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => class_basename($this->parent) == 'ProductCategory'
-                                                 ? 'grp.org.shops.show.catalogue.departments.show.families.index'
+                                'name' => class_basename($this->parent) == 'ProductCategory'
+                                            ? ($this->parent->type == ProductCategoryTypeEnum::DEPARTMENT
+                                                ? 'grp.org.shops.show.catalogue.departments.show.families.index'
+                                                : 'grp.org.shops.show.catalogue.departments.show.sub-departments.show.family.index')
                                             : (class_basename($this->parent) == 'Shop'
                                                 ? 'grp.org.shops.show.catalogue.families.index'
                                                 : ''),
@@ -142,8 +158,16 @@ class CreateFamily extends OrgAction
                                 'productCategory' => $this->parent->id
                             ]
                         ],
+                        'grp.org.shops.show.catalogue.departments.show.sub-departments.show.family.create' => [
+                            'name'       => 'grp.models.org.catalogue.departments.sub-department.family.store',
+                            'parameters' => [
+                                'organisation'    => $this->organisation->id,
+                                'shop'            => $this->shop->id,
+                                'productCategory' => $this->parent->id
+                            ]
+                        ],
                         default => [
-                            'name' => 'grp.models.family.store'
+                            'name' => ''
                         ]
                     }
                 ]
