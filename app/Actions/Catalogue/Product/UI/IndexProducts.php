@@ -515,6 +515,15 @@ class IndexProducts extends OrgAction
         return $this->handle(parent: $family, bucket: $this->bucket);
     }
 
+    public function inFamilyInSubDepartmentInDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $subDepartment, ProductCategory $family, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'all';
+        $this->parent = $family;
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle(parent: $family, bucket: $this->bucket);
+    }
+
     /** @noinspection PhpUnusedParameterInspection */
     public function inDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ActionRequest $request): LengthAwarePaginator
     {

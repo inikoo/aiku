@@ -114,8 +114,14 @@ Route::name("departments.")->prefix('departments')
                 Route::prefix('{subDepartment}')->name('show')->group(function () {
                     Route::get('', [ShowSubDepartment::class, 'inDepartment']);
                     Route::prefix('family')->name('.family.')->group(function () {
-                        Route::get('index', [IndexFamilies::class, 'inDepartmentInSubDepartment'])->name('index');
-                        Route::get('create', [CreateFamily::class, 'inDepartmentInSubDepartment'])->name('create');
+                        Route::get('index', [IndexFamilies::class, 'inSubDepartmentInDepartment'])->name('index');
+                        Route::get('create', [CreateFamily::class, 'inSubDepartmentInDepartment'])->name('create');
+                        Route::prefix('{family}')->name('show')->group(function () {
+                            Route::get('', [ShowFamily::class, 'inSubDepartmentInDepartment']);
+                        });
+                        // Route::prefix('products')->name('.products.')->group(function () {
+                        //     Route::get('', [IndexProducts::class, 'inFamilyInSubDepartmentInDepartment'])->name('index');
+                        // });
                     });
                 });
             });

@@ -68,7 +68,7 @@ class CreateFamily extends OrgAction
         return $this->handle(parent: $department, request: $request);
     }
 
-    public function inDepartmentInSubDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $subDepartment, ActionRequest $request): Response
+    public function inSubDepartmentInDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $subDepartment, ActionRequest $request): Response
     {
         $this->parent = $subDepartment;
         $this->initialisationFromShop($shop, $request);

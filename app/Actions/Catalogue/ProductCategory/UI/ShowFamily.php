@@ -65,6 +65,15 @@ class ShowFamily extends OrgAction
         return $this->handle($family);
     }
 
+    public function inSubDepartmentInDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $subDepartment, ProductCategory $family, ActionRequest $request): ProductCategory
+    {
+        $this->parent = $subDepartment;
+
+        $this->initialisationFromShop($shop, $request)->withTab(FamilyTabsEnum::values());
+
+        return $this->handle($family);
+    }
+
     public function htmlResponse(ProductCategory $family, ActionRequest $request): Response
     {
         return Inertia::render(
@@ -133,7 +142,7 @@ class ShowFamily extends OrgAction
                             ]
                         ] : false
                     ],
-                    'subNavigation' => $this->getFamilySubNavigation($family, $this->parent, $request)
+                    // 'subNavigation' => $this->getFamilySubNavigation($family, $this->parent, $request)
 
                 ],
                 'tabs'        => [
@@ -221,6 +230,26 @@ class ShowFamily extends OrgAction
                         ],
                         'model' => [
                             'name'       => 'grp.org.shops.show.catalogue.departments.show.families.show',
+                            'parameters' => $routeParameters
+
+
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.shops.show.catalogue.departments.show.sub-departments.show.family.show' =>
+            array_merge(
+                (new ShowSubDepartment())->getBreadcrumbs('grp.org.shops.show.catalogue.departments.show.sub-departments.show', $routeParameters),
+                $headCrumb(
+                    $family,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.shops.show.catalogue.departments.show.sub-departments.show.family.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.shops.show.catalogue.departments.show.sub-departments.show.family.show',
                             'parameters' => $routeParameters
 
 

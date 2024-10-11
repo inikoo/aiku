@@ -57,7 +57,7 @@ class IndexFamilies extends OrgAction
         return $this->handle(parent: $department);
     }
 
-    public function inDepartmentInSubDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $subDepartment, ActionRequest $request): LengthAwarePaginator
+    public function inSubDepartmentInDepartment(Organisation $organisation, Shop $shop, ProductCategory $department, ProductCategory $subDepartment, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $subDepartment;
         $this->initialisationFromShop($shop, $request);
