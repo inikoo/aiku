@@ -501,6 +501,7 @@ class IndexProducts extends OrgAction
     {
         $this->bucket = 'all';
         $this->parent = $family;
+        $this->higherParent = $family;
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle(parent: $family, bucket: $this->bucket);
@@ -511,6 +512,7 @@ class IndexProducts extends OrgAction
     {
         $this->bucket = 'all';
         $this->parent = $family;
+        $this->higherParent = $department;
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle(parent: $family, bucket: $this->bucket);
