@@ -10,7 +10,7 @@ namespace App\Actions\Web\Website;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Webpage\StoreWebpage;
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
@@ -19,6 +19,7 @@ use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -29,11 +30,11 @@ class SeedWebsiteFixedWebpages extends OrgAction
 
     public function handle(Website $website): Website
     {
-
         $storefrontData = [
             'code'     => 'storefront',
+            'title'    => 'Home',
             'type'     => WebpageTypeEnum::STOREFRONT,
-            'purpose'  => WebpagePurposeEnum::STOREFRONT,
+            'sub_type' => WebpageSubTypeEnum::STOREFRONT,
             'is_fixed' => true,
             'state'    => WebpageStateEnum::READY,
             'ready_at' => now(),
@@ -41,54 +42,98 @@ class SeedWebsiteFixedWebpages extends OrgAction
 
         if ($website->state == WebsiteStateEnum::LIVE) {
             unset($storefrontData['ready_at']);
-            $storefrontData['state']  = WebpageStateEnum::LIVE;
+            $storefrontData['state']   = WebpageStateEnum::LIVE;
             $storefrontData['live_at'] = now();
         }
 
-        $storefront = StoreWebpage::make()->action($website, $storefrontData);
+        $storefront = $website->webpages()->where('code', 'storefront')->first();
 
-        $website->update(
-            [
-                'storefront_id' => $storefront->id
-            ]
-        );
-
-        foreach (Storage::disk('datasets')->files('webpages/common') as $file) {
-            $this->addWebpage($storefront, $file);
+        if (!$storefront) {
+            $storefront = StoreWebpage::make()->action($website, $storefrontData);
+            $website->updateQuietly(
+                [
+                    'storefront_id' => $storefront->id
+                ]
+            );
         }
 
-        foreach (Storage::disk('datasets')->files('webpages/'.$website->type->value) as $file) {
-            $this->addWebpage($storefront, $file);
+        $filename = 'webpages/'.$website->type->value.'/webpages.json';
+        if (Storage::disk('datasets')->exists($filename)) {
+            $webpagesData = Storage::disk('datasets')->json($filename);
+            $this->addWebpages($storefront, $webpagesData);
         }
-
+        $filename = 'webpages/'.$website->type->value.'/operations.json';
+        if (Storage::disk('datasets')->exists($filename)) {
+            foreach (Storage::disk('datasets')->json($filename) as $webpageData) {
+                $this->addOperationWebpages($website, $webpageData);
+            }
+        }
 
         return $website;
     }
 
-    private function addWebpage(Webpage $home, $file): void
+    private function addOperationWebpages(Website $website, $webpageData): void
     {
-        $modelData = json_decode(Storage::disk('datasets')->get($file), true);
+        $webpage = $website->webpages()->where('code', $webpageData['code'])->first();
 
+        $webpageData = array_merge(
+            $webpageData,
+            $this->getBaseData($website)
+        );
+        if (!$webpage) {
+            $webpage = StoreWebpage::make()->action($website, $webpageData);
+            $website->updateQuietly(
+                [
+                    $webpageData['code'].'_id' => $webpage->id
+                ]
+            );
+        }
+    }
+
+
+    private function addWebpages(Webpage $parent, $webpagesData): void
+    {
+        foreach ($webpagesData as $webpageData) {
+            $this->addWebpage($parent, $webpageData);
+        }
+    }
+
+    private function addWebpage(Webpage $parent, $webpageData): void
+    {
+        $webpageData = array_merge(
+            $webpageData,
+            $this->getBaseData($parent->website)
+        );
+
+        $children = Arr::pull($webpageData, 'children', []);
+
+        $webpage = $parent->website->webpages()->where('code', $webpageData['code'])->first();
+        if (!$webpage) {
+            $webpage = StoreWebpage::make()->action($parent, $webpageData);
+        }
+
+        $this->addWebpages($webpage, $children);
+    }
+
+
+    private function getBaseData(Website $website): array
+    {
         $webpageData = [
             'is_fixed' => true,
             'ready_at' => now(),
             'state'    => WebpageStateEnum::READY,
         ];
 
-        if ($home->state == WebpageStateEnum::LIVE) {
+        if ($website->state == WebsiteStateEnum::LIVE) {
             unset($webpageData['ready_at']);
-            $webpageData['state']  = WebpageStateEnum::LIVE;
+            $webpageData['state']   = WebpageStateEnum::LIVE;
             $webpageData['live_at'] = now();
         }
 
-        StoreWebpage::make()->action(
-            $home,
-            array_merge(
-                $modelData,
-                $webpageData
-            )
-        );
+
+        return $webpageData;
     }
+
 
     public function authorize(ActionRequest $request): bool
     {
@@ -109,20 +154,29 @@ class SeedWebsiteFixedWebpages extends OrgAction
 
     public function getCommandSignature(): string
     {
-        return 'website:seed-fixed-webpages {website}';
+        return 'website:seed-fixed-webpages {website?}';
     }
 
     public function asCommand(Command $command): int
     {
-        try {
-            $website = Website::where('slug', $command->argument('website'))->firstOrFail();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
+        if ($command->argument('website')) {
+            try {
+                /** @var Website $website */
+                $website = Website::where('slug', $command->argument('website'))->firstOrFail();
+                $this->handle($website);
+                $command->info("$website->code fixed webpages seeded");
+            } catch (Exception $e) {
+                $command->error($e->getMessage());
 
-            return 1;
+                return 1;
+            }
+        } else {
+            foreach (Website::all() as $website) {
+                $this->handle($website);
+                $command->info("$website->code fixed webpages seeded");
+            }
         }
 
-        $this->handle($website);
 
         return 0;
     }

@@ -7,7 +7,7 @@
 
 namespace Database\Factories\Web;
 
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -17,7 +17,7 @@ class WebpageFactory extends Factory
     {
         return [
             'code'    => fake()->lexify(),
-            'purpose' => WebpagePurposeEnum::INFO,
+            'sub_type' => WebpageSubTypeEnum::CONTENT,
             'type'    => WebpageTypeEnum::CONTENT,
             'url'     => fake()->lexify(),
         ];

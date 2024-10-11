@@ -92,7 +92,11 @@ class StoreWebsite extends OrgAction
         OrganisationHydrateWebsites::dispatch($shop->organisation)->delay($this->hydratorsDelay);
         WebsiteRecordSearch::dispatch($website);
 
-        return SeedWebsiteFixedWebpages::run($website);
+        if ($website->state == WebsiteStateEnum::LIVE) {
+            $website = SeedWebsiteFixedWebpages::run($website);
+        }
+        return $website;
+
     }
 
     public function authorize(ActionRequest $request): bool

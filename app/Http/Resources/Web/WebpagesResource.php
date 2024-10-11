@@ -18,7 +18,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $code
  * @property mixed $url
  * @property mixed $type
- * @property mixed $purpose
+ * @property mixed $sub_type
  * @property mixed $created_at
  * @property mixed $updated_at
  * @property mixed $state
@@ -41,12 +41,11 @@ class WebpagesResource extends JsonResource
             'type'                => $this->type,
             'typeIcon'            => match ($this->type) {
                 WebpageTypeEnum::STOREFRONT => ['fal', 'fa-home'],
-                WebpageTypeEnum::ENGAGEMENT => ['fal', 'fa-ufo-beam'],
-                WebpageTypeEnum::AUTH       => ['fal', 'fa-sign-in'],
+                WebpageTypeEnum::OPERATIONS => ['fal', 'fa-ufo-beam'],
                 WebpageTypeEnum::BLOG       => ['fal', 'fa-newspaper'],
                 default                     => ['fal', 'fa-browser']
             },
-            'purpose'             => $this->purpose,
+            'sub_type'             => $this->sub_type,
             'created_at'          => $this->created_at,
             'updated_at'          => $this->updated_at,
             'state'               => $this->state,

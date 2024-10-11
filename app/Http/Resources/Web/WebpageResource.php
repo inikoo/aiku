@@ -30,15 +30,14 @@ class WebpageResource extends JsonResource
             'type'                => $webpage->type,
             'typeIcon'            => match ($webpage->type) {
                 WebpageTypeEnum::STOREFRONT => ['fal', 'fa-home'],
-                WebpageTypeEnum::ENGAGEMENT => ['fal', 'fa-ufo-beam'],
-                WebpageTypeEnum::AUTH       => ['fal', 'fa-sign-in'],
+                WebpageTypeEnum::OPERATIONS => ['fal', 'fa-ufo-beam'],
                 WebpageTypeEnum::BLOG       => ['fal', 'fa-newspaper'],
                 default                     => ['fal', 'fa-browser']
             },
             'is_dirty'                   => $webpage->is_dirty,
             'web_blocks_parameters'      => WebBlockParametersResource::collection($webpage->webBlocks),
             'layout'                     => $webpage->unpublishedSnapshot?->layout ?: ['web_blocks' => []],
-            'purpose'                    => $webpage->purpose,
+            'sub_type'                    => $webpage->sub_type,
             'created_at'                 => $webpage->created_at,
             'updated_at'                 => $webpage->updated_at,
             'state'                      => $webpage->state,

@@ -14,7 +14,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateUniversalSearch;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateWebpages;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Http\Resources\Web\WebpageResource;
@@ -108,12 +108,14 @@ class UpdateWebpage extends OrgAction
 
             ],
             'level'         => ['sometimes', 'integer'],
-            'purpose'       => ['sometimes', Rule::enum(WebpagePurposeEnum::class)],
+            'sub_type'      => ['sometimes', Rule::enum(WebpageSubTypeEnum::class)],
             'type'          => ['sometimes', Rule::enum(WebpageTypeEnum::class)],
             'state'         => ['sometimes', Rule::enum(WebpageStateEnum::class)],
             'google_search' => ['sometimes', 'array'],
             'ready_at'      => ['sometimes', 'date'],
             'live_at'       => ['sometimes', 'date'],
+            'title'         => ['sometimes', 'string'],
+            'description'   => ['sometimes', 'string'],
         ];
 
         if (!$this->strict) {
@@ -159,7 +161,7 @@ class UpdateWebpage extends OrgAction
                 $modelData,
                 match ($key) {
                     'google_search' => 'data',
-                    default         => $key
+                    default => $key
                 },
                 $value
             );

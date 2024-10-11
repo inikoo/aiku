@@ -7,7 +7,7 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
@@ -39,24 +39,25 @@ trait WithAuroraProcessWebpage
         $url = $this->cleanWebpageCode($auroraModelData->{'Webpage Code'});
 
 
-        $purpose = match ($auroraModelData->{'Webpage Scope'}) {
-            'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpagePurposeEnum::STOREFRONT,
-            'Product' => WebpagePurposeEnum::PRODUCT,
-            'Category Products' => WebpagePurposeEnum::FAMILY,
-            'Category Categories' => WebpagePurposeEnum::DEPARTMENT,
-            'Register' => WebpagePurposeEnum::REGISTER,
-            'Login', 'ResetPwd' => WebpagePurposeEnum::LOGIN,
-            'TandC' => WebpagePurposeEnum::TERMS_AND_CONDITIONS,
-            'Basket', 'Top_Up', 'Checkout' => WebpagePurposeEnum::SHOPPING_CART,
-            default => WebpagePurposeEnum::CONTENT,
+        $subType = match ($auroraModelData->{'Webpage Scope'}) {
+            'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpageSubTypeEnum::STOREFRONT,
+            'Product' => WebpageSubTypeEnum::PRODUCT,
+            'Category Products' => WebpageSubTypeEnum::FAMILY,
+            'Category Categories' => WebpageSubTypeEnum::DEPARTMENT,
+            'Register' => WebpageSubTypeEnum::REGISTER,
+            'Login', 'ResetPwd' => WebpageSubTypeEnum::LOGIN,
+            'TandC' => WebpageSubTypeEnum::TERMS_AND_CONDITIONS,
+            'Basket', 'Top_Up', => WebpageSubTypeEnum::BASKET,
+            'Checkout' => WebpageSubTypeEnum::CHECKOUT,
+            default => WebpageSubTypeEnum::CONTENT,
         };
 
         $type = match ($auroraModelData->{'Webpage Scope'}) {
             'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpageTypeEnum::STOREFRONT,
-            'Product', 'Category Categories', 'Category Products' => WebpageTypeEnum::SHOP,
-            'Register', 'Login', 'ResetPwd' => WebpageTypeEnum::AUTH,
-            'TandC' => WebpageTypeEnum::SMALL_PRINT,
-            'Basket', 'Top_Up', 'Checkout' => WebpageTypeEnum::CHECKOUT,
+            'Product', 'Category Categories', 'Category Products' => WebpageTypeEnum::CATALOGUE,
+            'Register', 'Login', 'ResetPwd' => WebpageTypeEnum::OPERATIONS,
+            'TandC' => WebpageTypeEnum::INFO,
+            'Basket', 'Top_Up', 'Checkout' => WebpageTypeEnum::OPERATIONS,
             default => WebpageTypeEnum::CONTENT,
         };
 
@@ -88,9 +89,11 @@ trait WithAuroraProcessWebpage
         $webpage =
             [
                 'code'            => $url,
+                'title'           => $auroraModelData->{'Webpage Browser Title'},
+                'description'     => $auroraModelData->{'Webpage Meta Description'},
                 'url'             => strtolower($url),
                 'state'           => $status,
-                'purpose'         => $purpose,
+                'sub_type'        => $subType,
                 'type'            => $type,
                 'fetched_at'      => now(),
                 'last_fetched_at' => now(),

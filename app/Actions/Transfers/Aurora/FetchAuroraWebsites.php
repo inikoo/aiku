@@ -10,11 +10,13 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
+use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\Aurora\WithAuroraProcessWebpage;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebsites extends FetchAuroraAction
@@ -53,38 +55,51 @@ class FetchAuroraWebsites extends FetchAuroraAction
             }
 
             // Get Storefront data
-            $auroraModelData = DB::connection('aurora')
-                ->table('Page Store Dimension')
-                ->where('Webpage Code', 'home_logout.sys')->first();
+            //            $auroraModelData = DB::connection('aurora')->table('Page Store Dimension')->where()->where('Webpage Code', 'home_logout.sys')->first();
+            //            $website->storefront->updateQuietly(['migration_data' => ['loggedOut' => Arr::get($this->processAuroraWebpage($website->organisation, $auroraModelData), 'webpage.migration_data.both')]]);
+            //
+            //
+            //            $auroraModelData = DB::connection('aurora')->table('Page Store Dimension')->where('Webpage Code', 'home.sys')->first();
+            //            $website->storefront->updateQuietly(['migration_data' => ['loggedIn' => Arr::get($this->processAuroraWebpage($website->organisation, $auroraModelData), 'webpage.migration_data.both')]]);
+            //
+            //
+            //            $auroraModelData = DB::connection('aurora')->table('Page Store Dimension')->where('Webpage Code', 'contact.sys')->first();
+            //            $website->storefront->updateQuietly(['migration_data' => ['both' => Arr::get($this->processAuroraWebpage($website->organisation, $auroraModelData), 'webpage.migration_data.both')]]);
 
 
-            $parsedData  = $this->processAuroraWebpage($website->organisation, $auroraModelData);
-            $webpageData = $parsedData['webpage'];
-
-            $website->storefront->updateQuietly(
-                [
-                    'migration_data' => ['loggedOut' => $webpageData['migration_data']['both'] ]
-                ]
-            );
-
-            $auroraModelData = DB::connection('aurora')
-                ->table('Page Store Dimension')
-                ->where('Webpage Code', 'home.sys')->first();
+            $this->saveFixedWebpageMigrationData($website, $website->storefront, 'home_logout.sys', 'loggedOut');
+            $this->saveFixedWebpageMigrationData($website, $website->storefront, 'home.sys', 'loggedIn');
+            $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('code', 'contact')->first(), 'contact.sys');
 
 
-            $parsedData  = $this->processAuroraWebpage($website->organisation, $auroraModelData);
-            $webpageData = $parsedData['webpage'];
-
-            $website->storefront->updateQuietly(
-                [
-                    'migration_data' => ['loggedIn' => $webpageData['migration_data']['both'] ]
-                ]
-            );
 
             return $website;
         }
 
         return null;
+    }
+
+
+    protected function saveFixedWebpageMigrationData(Website $website, ?Webpage $webpage, $code, $visibility = 'both'): void
+    {
+
+        if (!$webpage) {
+            return;
+        }
+
+        $sourceData = explode(':', $website->source_id);
+
+        $auroraModelData = DB::connection('aurora')
+            ->table('Page Store Dimension')->where('Webpage Website Key', $sourceData[1])
+            ->where('Webpage Code', $code)->first();
+
+        $webpage->updateQuietly(
+            [
+                'migration_data' => [
+                    $visibility => Arr::get($this->processAuroraWebpage($website->organisation, $auroraModelData), 'webpage.migration_data.both')
+                ]
+            ]
+        );
     }
 
     public function getModelsQuery(): Builder

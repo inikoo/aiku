@@ -9,45 +9,41 @@ namespace App\Enums\Web\Webpage;
 
 use App\Enums\EnumHelperTrait;
 
-enum WebpagePurposeEnum: string
+enum WebpageSubTypeEnum: string
 {
     use EnumHelperTrait;
 
     case STOREFRONT = 'storefront';
 
     case PRODUCT = 'product';
-    case FAMILY     = 'famiy';
-
+    case FAMILY     = 'family';
     case DEPARTMENT = 'department';
     case COLLECTION = 'collection';
 
-    case SHOPPING_CART = 'shopping-cart';
 
+    case CONTENT = 'content';
 
-
-
-    case INFO = 'info';
-
+    case ABOUT_US = 'about-us';
+    case CONTACT = 'contact';
+    case RETURNS = 'returns';
+    case SHIPPING = 'shipping';
+    case TERMS_AND_CONDITIONS = 'terms-and-conditions';
     case PRIVACY        = 'privacy';
     case COOKIES_POLICY = 'cookies-policy';
 
-    case TERMS_AND_CONDITIONS = 'terms-and-conditions';
-
-    case APPOINTMENT = 'appointment';
-
-    case CONTACT = 'contact';
-
+    case BASKET = 'basket';
+    case CHECKOUT = 'checkout';
     case LOGIN    = 'login';
     case REGISTER = 'register';
+    case APPOINTMENT = 'appointment';
+
 
     case BLOG    = 'blog';
     case ARTICLE = 'article';
 
-    case CONTENT = 'content';
 
-    case OTHER_SMALL_PRINT = 'other-small-print';
 
-    case SHOP = 'shop';
+
 
 
     public static function labels(): array

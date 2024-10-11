@@ -6,7 +6,6 @@
  * copyright 2024
 */
 
-
 namespace App\Actions\Traits\WebBlocks;
 
 use App\Models\Web\WebBlockType;
@@ -30,7 +29,7 @@ trait WithFetchScriptWebBlock
         $cleaned_script = preg_replace('/\s+/', ' ', trim($script));
 
         data_set($layout, "data.fieldValue.value", $cleaned_script);
-        
+
         return $layout;
     }
 }

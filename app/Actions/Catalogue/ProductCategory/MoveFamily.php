@@ -19,10 +19,10 @@ class MoveFamily extends OrgAction
 
     public function handle(ProductCategory $family, $modelData): ProductCategory
     {
-        if(Arr::exists($modelData, 'department_id')){
+        if (Arr::exists($modelData, 'department_id')) {
             data_set($modelData, 'sub_department_id', null);
             UpdateProductCategory::make()->action($family, $modelData);
-        } elseif(Arr::exists($modelData, 'sub_department_id')){
+        } elseif (Arr::exists($modelData, 'sub_department_id')) {
             data_set($modelData, 'department_id', null);
             UpdateProductCategory::make()->action($family, $modelData);
         }
@@ -45,4 +45,3 @@ class MoveFamily extends OrgAction
         return $this->handle($family, $this->validatedData);
     }
 }
-

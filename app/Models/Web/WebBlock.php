@@ -31,7 +31,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $migration_checksum
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $collections
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
@@ -41,10 +40,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property-read \App\Models\Web\WebBlockType $webBlockType
  * @method static Builder|WebBlock newModelQuery()
  * @method static Builder|WebBlock newQuery()
- * @method static Builder|WebBlock onlyTrashed()
  * @method static Builder|WebBlock query()
- * @method static Builder|WebBlock withTrashed()
- * @method static Builder|WebBlock withoutTrashed()
  * @mixin \Eloquent
  */
 class WebBlock extends Model implements HasMedia

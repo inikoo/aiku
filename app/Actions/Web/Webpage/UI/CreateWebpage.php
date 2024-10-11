@@ -8,7 +8,6 @@
 namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\InertiaAction;
-use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Inertia\Inertia;
@@ -38,30 +37,7 @@ class CreateWebpage extends InertiaAction
 
     public function htmlResponse(Webpage $parent, ActionRequest $request): Response
     {
-        $types = [
-            [
-                'title'       => __('Content'),
-                'description' => __('General content'),
-                'value'       => WebpageTypeEnum::CONTENT->value
-            ],
-            [
-                'title'       => __('Shop'),
-                'description' => __('Services showcase'),
-                'value'       => WebpageTypeEnum::SHOP->value
-            ],
-        ];
 
-
-        if ($parent->type == WebpageTypeEnum::STOREFRONT) {
-            $types[] = [
-                'title'       => WebpageTypeEnum::SMALL_PRINT->label(),
-                'description' => __('Privacy, T&C, cookies etc'),
-                'value'       => WebpageTypeEnum::SMALL_PRINT->value
-            ];
-        }
-
-
-        $type = WebpageTypeEnum::CONTENT->value;
 
         return Inertia::render(
             'CreateModel',
@@ -97,23 +73,7 @@ class CreateWebpage extends InertiaAction
                 ],
                 'formData'    => [
                     'blueprint' => [
-                        [
-                            'title'  => __('Type'),
-                            'icon'   => ['fal', 'fa-shapes'],
-                            'fields' => [
 
-                                'type' => [
-                                    'type'     => 'radio',
-                                    'mode'     => 'card',
-                                    'label'    => __('type'),
-                                    'options'  => $types,
-                                    'value'    => $type,
-                                    'required' => true,
-                                ],
-
-
-                            ]
-                        ],
 
                         [
                             'title'  => __('Id'),

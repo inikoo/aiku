@@ -8,7 +8,7 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
@@ -55,8 +55,8 @@ trait HasWebStats
         foreach (WebpageTypeEnum::cases() as $case) {
             $table->unsignedSmallInteger('number_webpages_type_'.$case->snake())->default(0);
         }
-        foreach (WebpagePurposeEnum::cases() as $case) {
-            $table->unsignedSmallInteger('number_webpages_purpose_'.$case->snake())->default(0);
+        foreach (WebpageSubTypeEnum::cases() as $case) {
+            $table->unsignedSmallInteger('number_webpages_sub_type_'.$case->snake())->default(0);
         }
 
         return $table;

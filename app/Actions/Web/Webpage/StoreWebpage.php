@@ -14,7 +14,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateUniversalSearch;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateWebpages;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Web\Website;
@@ -95,7 +95,7 @@ class StoreWebpage extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'url'        => [
+            'url'         => [
                 'sometimes',
                 'required',
                 'ascii',
@@ -112,7 +112,7 @@ class StoreWebpage extends OrgAction
                     ]
                 ),
             ],
-            'code'       => [
+            'code'        => [
                 'required',
                 'ascii',
                 'max:64',
@@ -124,14 +124,16 @@ class StoreWebpage extends OrgAction
                     ]
                 ),
             ],
-            'purpose'    => ['required', Rule::enum(WebpagePurposeEnum::class)],
-            'type'       => ['required', Rule::enum(WebpageTypeEnum::class)],
-            'state'      => ['sometimes', Rule::enum(WebpageStateEnum::class)],
-            'is_fixed'   => ['sometimes', 'boolean'],
-            'ready_at'   => ['sometimes', 'date'],
-            'live_at'    => ['sometimes', 'date'],
-            'model_type' => ['sometimes', 'string'],
-            'model_id'   => ['sometimes', 'integer'],
+            'sub_type'    => ['required', Rule::enum(WebpageSubTypeEnum::class)],
+            'type'        => ['required', Rule::enum(WebpageTypeEnum::class)],
+            'state'       => ['sometimes', Rule::enum(WebpageStateEnum::class)],
+            'is_fixed'    => ['sometimes', 'boolean'],
+            'ready_at'    => ['sometimes', 'date'],
+            'live_at'     => ['sometimes', 'date'],
+            'model_type'  => ['sometimes', 'string'],
+            'model_id'    => ['sometimes', 'integer'],
+            'title'       => ['required', 'string'],
+            'description' => ['sometimes', 'string'],
 
 
         ];
