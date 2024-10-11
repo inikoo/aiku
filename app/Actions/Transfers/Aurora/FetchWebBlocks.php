@@ -23,6 +23,7 @@ use App\Actions\Traits\WebBlocks\WithFetchProductWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchScriptWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchSeeAlsoWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchTextWebBlock;
+use App\Actions\Traits\WebBlocks\WithFetchDepartmentWebBlock;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
@@ -50,6 +51,7 @@ class FetchWebBlocks extends OrgAction
     use WithFetchProductsWebBlock;
     use WithFetchFamilyWebBlock;
     use WithFetchScriptWebBlock;
+    use WithFetchDepartmentWebBlock;
 
 
     protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
@@ -203,16 +205,8 @@ class FetchWebBlocks extends OrgAction
                 break;
 
             case "category_categories":
-                $categoriesId = [];
-                foreach ($auroraBlock["sections"] as $section) {
-                    if (isset($section['items']) && count($section['items']) > 0) {
-                        foreach ($section['items'] as $item) {
-                            if ($item['type'] == 'category') {
-                                $categoriesId[] = $item['category_key'];
-                            }
-                        }
-                    }
-                }
+                $webBlockType = WebBlockType::where("slug", "department")->first();
+                $layout = $this->processDepartmentData($models, $webpage, $webBlockType, $auroraBlock);
                 break;
 
             case "blackboard":
@@ -254,6 +248,7 @@ class FetchWebBlocks extends OrgAction
             || $webBlock->webBlockType->code == "overview"
             || $webBlock->webBlockType->code == "cta1"
             || $webBlock->webBlockType->code == "family"
+            || $webBlock->webBlockType->code == "department"
         ) {
             $code = $webBlock->webBlockType->code;
 
@@ -270,6 +265,23 @@ class FetchWebBlocks extends OrgAction
                 }
                 data_set($layout, "data.fieldValue.value.addOns", $addOns);
                 unset($layout["data"]["fieldValue"]["value"]["items"]);
+            } elseif ($code == "department") {
+                $sections = $webBlock->layout["data"]["fieldValue"]["value"]["sections"];
+                foreach ($sections as $section) {
+                    $items = $section['items'];
+                    if ($items) {
+                        foreach ($items as $index => $item) {
+                            if ($item['type'] == "image") {
+                                $imageSource    = $this->processImage($webBlock, $item, $webpage);
+                                $items[$index]["source"] = $imageSource;
+                                unset($items[$index]["aurora_source"]);
+                            }
+                        }
+                        $sections[$index]["items"] = $items;
+                    }
+                }
+                data_set($layout, "data.fieldValue.value.sections", $sections);
+
             } else {
                 $imageSources = [];
                 $imagesRawData = [];
@@ -298,12 +310,13 @@ class FetchWebBlocks extends OrgAction
             "web_block_id"       => $webBlock->id,
             "migration_checksum" => $migrationData,
         ]);
+        dd($webBlock);
         UpdateWebpageContent::run($webpage->refresh());
 
         BroadcastPreviewWebpage::dispatch($webpage);
     }
 
-    private function processImage($webBlock, array $imageRawData, $webpage): array|null
+    private function processImage($webBlock, array|string $imageRawData, $webpage): array|null
     {
         if (!isset($imageRawData["aurora_source"])) {
             return null;
