@@ -65,9 +65,9 @@ Route::prefix('{website}/webpages')->name('webpages.')->group(function () {
     Route::get('/type/checkout', [IndexWebpages::class, 'checkout'])->name('index.type.checkout');
     // Route::get('', IndexWebpages::class)->name('index');
     Route::get('create', CreateWebpage::class)->name('create');
-    Route::get('edit', EditWebpage::class)->name('edit');
     Route::prefix('{webpage}')
         ->group(function () {
+            Route::get('edit', EditWebpage::class)->name('edit');
             Route::get('', ShowWebpage::class)->name('show');
             Route::get('workshop', ShowWebpageWorkshop::class)->name('workshop');
             Route::get('workshop/preview', ShowWebpageWorkshopPreview::class)->name('preview');

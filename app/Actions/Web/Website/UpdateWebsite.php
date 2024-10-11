@@ -16,6 +16,7 @@ use App\Http\Resources\Web\WebsiteResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Web\Website;
 use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -29,6 +30,10 @@ class UpdateWebsite extends OrgAction
 
     public function handle(Website $website, array $modelData): Website
     {
+        if (Arr::has($modelData, "google_tag_id")) {
+            data_set($modelData, "settings.google_tag_id", Arr::pull($modelData, "google_tag_id"));
+        }
+
         $website = $this->update($website, $modelData, ['data', 'settings']);
         WebsiteRecordSearch::run($website);
 
@@ -90,6 +95,7 @@ class UpdateWebsite extends OrgAction
             'launched_at' => ['sometimes', 'date'],
             'state'       => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
             'status'      => ['sometimes', 'boolean'],
+            'google_tag_id' => ['sometimes', 'string'],
         ];
 
         if (!$this->strict) {
