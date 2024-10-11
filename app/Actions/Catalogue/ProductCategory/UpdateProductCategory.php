@@ -73,6 +73,8 @@ class UpdateProductCategory extends OrgAction
             'image_id'    => ['sometimes', 'required', 'exists:media,id'],
             'state'       => ['sometimes', 'required', Rule::enum(ProductCategoryStateEnum::class)],
             'description' => ['sometimes', 'required', 'max:1500'],
+            'department_id' => ['sometimes', 'exists:product_categories,id'],
+            'sub_department_id' => ['sometimes', 'exists:product_categories,id']
         ];
 
         if (!$this->strict) {
