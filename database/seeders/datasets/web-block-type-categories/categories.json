@@ -12,7 +12,7 @@
 			"name": "Categories",
 			"data": {
 				"icon": ["fal", "bars"],
-				"component": "categories",
+				"component": "Categories",
 				"fieldValue": {
 					"value": {}
 				},
