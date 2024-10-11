@@ -255,23 +255,24 @@ class FetchWebBlocks extends OrgAction
             || $webBlock->webBlockType->code == "cta1"
             || $webBlock->webBlockType->code == "family"
         ) {
-            $imageSources = [];
-            $imagesRawData = [];
-
             $code = $webBlock->webBlockType->code;
 
             if ($code == "family") {
                 $items = $webBlock->layout["data"]["fieldValue"]["value"]["items"];
-                foreach ($items as $index => $item) {
+                $addOns = [];
+                foreach ($items as $item) {
                     if ($item['type'] == "image") {
                         $imageSource    = $this->processImage($webBlock, $item, $webpage);
-                        $imageSources[] = ['position' => $item['position'], "type" => $item['type'], "source" => $imageSource];
-                        unset($items[$index]);
+                        $addOns[] = ['position' => $item['position'], "type" => $item['type'], "source" => $imageSource];
+                    } else {
+                        $addOns[] = $item;
                     }
                 }
-                data_set($layout, "data.fieldValue.value.addOns", array_merge($items, $imageSources));
+                data_set($layout, "data.fieldValue.value.addOns", $addOns);
                 unset($layout["data"]["fieldValue"]["value"]["items"]);
             } else {
+                $imageSources = [];
+                $imagesRawData = [];
                 $imagesRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
                 foreach ($imagesRawData as $imageRawData) {
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
