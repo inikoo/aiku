@@ -19,6 +19,7 @@ use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -33,43 +34,47 @@ class StoreAgent extends GrpAction
         return $request->user()->hasPermissionTo("procurement.".$this->group->id.".edit");
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Group $group, array $modelData): Agent
     {
         data_set($modelData, 'group_id', $group->id);
+        data_set($modelData, 'type', OrganisationTypeEnum::AGENT);
 
-        $organisationData = [
-            'type'         => OrganisationTypeEnum::AGENT,
-            'name'         => Arr::get($modelData, 'name'),
-            'contact_name' => Arr::get($modelData, 'contact_name', ''),
-            'code'         => Arr::get($modelData, 'code'),
-            'email'        => Arr::get($modelData, 'email'),
-            'phone'        => Arr::get($modelData, 'phone'),
-            'address'      => Arr::get($modelData, 'address'),
-            'currency_id'  => Arr::get($modelData, 'currency_id'),
-            'group_id'     => Arr::get($modelData, 'group_id', $group->id),
-            'country_id'   => Arr::get($modelData, 'country_id', $group->country_id),
-            'timezone_id'  => Arr::get($modelData, 'timezone_id', $group->timezone_id),
-            'language_id'  => Arr::get($modelData, 'language_id', $group->language_id),
-        ];
-
-        if (Arr::exists($modelData, 'created_at')) {
-            $organisationData['created_at'] = Arr::get($modelData, 'created_at');
-        }
+        data_set($modelData, 'currency_id', $group->currency_id, overwrite: false);
+        data_set($modelData, 'country_id', $group->country_id, overwrite: false);
+        data_set($modelData, 'timezone_id', $group->timezone_id, overwrite: false);
+        data_set($modelData, 'language_id', $group->language_id, overwrite: false);
 
 
-        $organisation = StoreOrganisation::make()->action(
-            $group,
-            $organisationData
-        );
+        $agent = DB::transaction(function () use ($group, $modelData) {
+            $organisation = StoreOrganisation::make()->action(
+                $group,
+                Arr::except($modelData, ['source_slug'])
+            );
+
+            data_forget($modelData, 'type');
+            data_forget($modelData, 'currency_id');
+            data_forget($modelData, 'country_id');
+            data_forget($modelData, 'timezone_id');
+            data_forget($modelData, 'language_id');
+            data_forget($modelData, 'contact_name');
+            data_forget($modelData, 'email');
+            data_forget($modelData, 'phone');
+            data_forget($modelData, 'address');
 
 
-        /** @var Agent $agent */
-        $agent = $organisation->agent()->create(Arr::only($modelData, ['name', 'code', 'created_at', 'source_id', 'source_slug', 'group_id']));
-        $agent->stats()->create();
-        $agent->refresh();
+            /** @var Agent $agent */
+            $agent = $organisation->agent()->create($modelData);
+            $agent->stats()->create();
+            $agent->refresh();
 
-        GroupHydrateAgents::run($group);
-        AgentHydrateUniversalSearch::dispatch($agent);
+            return $agent;
+        });
+
+        GroupHydrateAgents::dispatch($group)->delay($this->hydratorsDelay);
+        AgentHydrateUniversalSearch::dispatch($agent)->delay($this->hydratorsDelay);
 
 
         return $agent;
@@ -78,8 +83,7 @@ class StoreAgent extends GrpAction
 
     public function rules(): array
     {
-
-        return [
+        $rules = [
             'code'         => [
                 'required',
                 'max:12',
@@ -96,22 +100,37 @@ class StoreAgent extends GrpAction
             'email'        => ['nullable', 'email'],
             'phone'        => ['nullable', new Phone()],
             'address'      => ['required', new ValidAddress()],
-            'source_id'    => ['sometimes', 'nullable', 'string'],
-            'source_slug'  => ['sometimes', 'nullable', 'string'],
-            'currency_id'  => ['required', 'exists:currencies,id'],
-            'country_id'   => ['required', 'exists:countries,id'],
-            'timezone_id'  => ['required', 'exists:timezones,id'],
-            'language_id'  => ['required', 'exists:languages,id'],
-            'deleted_at'   => ['sometimes', 'nullable', 'date'],
-            'created_at'   => ['sometimes', 'nullable', 'date'],
-            'fetched_at'   => ['sometimes', 'date'],
+
+            'currency_id' => ['required', 'exists:currencies,id'],
+            'country_id'  => ['required', 'exists:countries,id'],
+            'timezone_id' => ['required', 'exists:timezones,id'],
+            'language_id' => ['required', 'exists:languages,id'],
+
         ];
+
+        if (!$this->strict) {
+            $rules['source_id']   = ['sometimes', 'nullable', 'string', 'max:64'];
+            $rules['source_slug'] = ['sometimes', 'nullable', 'string', 'max:64'];
+            $rules['fetched_at']  = ['sometimes', 'date'];
+            $rules['created_at']  = ['sometimes', 'date'];
+            $rules['deleted_at']  = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
 
-    public function action(Group $group, $modelData): Agent
+    /**
+     * @throws \Throwable
+     */
+    public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Agent
     {
-        $this->asAction = true;
+        if (!$audit) {
+            Agent::disableAuditing();
+        }
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
+        $this->asAction       = true;
         $this->initialisation($group, $modelData);
 
 
@@ -122,9 +141,11 @@ class StoreAgent extends GrpAction
     }
 
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(ActionRequest $request): Agent
     {
-        // dd($request->all());
         $this->initialisation(group(), $request);
 
 

@@ -11,7 +11,7 @@ use App\Actions\GrpAction;
 use App\Actions\Procurement\OrgAgent\UpdateOrgAgent;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAgents;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurchaseOrders;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgAgents;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\SupplyChain\AgentsResource;
@@ -32,17 +32,27 @@ class UpdateAgent extends GrpAction
 
     public function handle(Agent $agent, array $modelData): Agent
     {
-        UpdateOrganisation::run($agent->organisation, Arr::except($modelData, ['source_id', 'source_slug', 'status','last_fetched_at']));
+        UpdateOrganisation::run($agent->organisation, Arr::except($modelData, [
+            'source_id',
+            'source_slug',
+            'status',
+            'last_fetched_at'
+        ]));
 
-        $agent = $this->update($agent, Arr::only($modelData, ['status', 'code', 'name']));
+        $agent = $this->update($agent, Arr::only($modelData, [
+            'status',
+            'code',
+            'name',
+            'last_fetched_at'
+        ]));
         if ($agent->wasChanged('status')) {
             foreach ($agent->orgAgents as $orgAgent) {
                 if (!$agent->status) {
                     UpdateOrgAgent::make()->action($orgAgent, ['status' => false]);
                 }
-                OrganisationHydratePurchaseOrders::dispatch($orgAgent->organisation);
+                OrganisationHydrateOrgAgents::dispatch($orgAgent->organisation)->delay($this->hydratorsDelay);
             }
-            GroupHydrateAgents::run($this->group);
+            GroupHydrateAgents::dispatch($this->group)->delay($this->hydratorsDelay);
         }
 
         AgentHydrateUniversalSearch::dispatch($agent);
@@ -62,7 +72,7 @@ class UpdateAgent extends GrpAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'code'         => [
                 'sometimes',
                 'required',
@@ -80,27 +90,34 @@ class UpdateAgent extends GrpAction
                     ]
                 ),
             ],
-            'name'            => ['sometimes', 'required', 'string', 'max:255'],
-            'contact_name'    => ['sometimes', 'nullable', 'string', 'max:255'],
-            'email'           => ['nullable', 'email'],
-            'phone'           => ['nullable', new Phone()],
-            'address'         => ['sometimes', 'required', new ValidAddress()],
-            'currency_id'     => ['sometimes', 'required', 'exists:currencies,id'],
-            'country_id'      => ['sometimes', 'required', 'exists:countries,id'],
-            'timezone_id'     => ['sometimes', 'required', 'exists:timezones,id'],
-            'language_id'     => ['sometimes', 'required', 'exists:languages,id'],
-            'status'          => ['sometimes', 'required', 'boolean'],
-            'last_fetched_at' => ['sometimes', 'date'],
+            'name'         => ['sometimes', 'required', 'string', 'max:255'],
+            'contact_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'        => ['sometimes', 'nullable', 'email'],
+            'phone'        => ['sometimes', 'nullable', new Phone()],
+            'address'      => ['sometimes', 'required', new ValidAddress()],
+            'currency_id'  => ['sometimes', 'required', 'exists:currencies,id'],
+            'country_id'   => ['sometimes', 'required', 'exists:countries,id'],
+            'timezone_id'  => ['sometimes', 'required', 'exists:timezones,id'],
+            'language_id'  => ['sometimes', 'required', 'exists:languages,id'],
+            'status'       => ['sometimes', 'required', 'boolean'],
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(Agent $agent, array $modelData, bool $audit = true): Agent
+    public function action(Agent $agent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Agent
     {
         if (!$audit) {
             Agent::disableAuditing();
         }
-        $this->agent  = $agent;
-        $this->action = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
+        $this->agent          = $agent;
+        $this->action         = true;
         $this->initialisation($agent->group, $modelData);
 
         return $this->handle($agent, $this->validatedData);

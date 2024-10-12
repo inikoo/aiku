@@ -23,6 +23,9 @@ class FetchAuroraAgents extends FetchAuroraAction
     public string $commandSignature = 'fetch:agents {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Agent
     {
         setPermissionsTeamId($organisationSource->getOrganisation()->group_id);
@@ -36,15 +39,23 @@ class FetchAuroraAgents extends FetchAuroraAction
                 $agent = $agentData['foundAgent'];
             } elseif ($baseAgent = Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->first()) {
                 if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->first()) {
-                    $agent = UpdateAgent::make()->action($agent, $agentData['agent'], audit: false);
+                    $agent = UpdateAgent::make()->action(
+                        agent:$agent,
+                        modelData: $agentData['agent'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
                 }
             } else {
                 $agent = StoreAgent::make()->action(
                     group: $organisation->group,
                     modelData: $agentData['agent'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
                 );
                 $agent->refresh();
-
 
 
                 foreach (Arr::get($agentData, 'photo', []) as $photoData) {
@@ -52,7 +63,7 @@ class FetchAuroraAgents extends FetchAuroraAction
                         SaveModelImage::run(
                             $agent,
                             [
-                                'path'         => $photoData['image_path'],
+                                'path' => $photoData['image_path'],
                                 'originalName' => $photoData['filename'],
 
                             ],
@@ -60,7 +71,6 @@ class FetchAuroraAgents extends FetchAuroraAction
                         );
                     }
                 }
-
             }
 
 
@@ -78,9 +88,6 @@ class FetchAuroraAgents extends FetchAuroraAction
                         'source_id' => $agentData['agent']['source_id'],
                     ]
                 );
-
-
-
 
 
                 $sourceData = explode(':', $agentData['agent']['source_id']);
