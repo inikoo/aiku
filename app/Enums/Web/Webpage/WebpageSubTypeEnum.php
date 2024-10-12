@@ -15,6 +15,9 @@ enum WebpageSubTypeEnum: string
 
     case STOREFRONT = 'storefront';
 
+    case CATALOGUE = 'catalogue';
+    case PRODUCTS = 'products';
+
     case PRODUCT = 'product';
     case FAMILY     = 'family';
     case DEPARTMENT = 'department';

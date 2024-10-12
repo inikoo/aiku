@@ -78,6 +78,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property WebsiteCloudflareStatusEnum|null $cloudflare_status
  * @property string|null $source_id
  * @property int|null $storefront_id
+ * @property int|null $catalogue_id
+ * @property int|null $products_id
  * @property int|null $login_id
  * @property int|null $register_id
  * @property int|null $basket_id

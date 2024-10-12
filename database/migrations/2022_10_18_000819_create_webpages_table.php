@@ -62,6 +62,12 @@ return new class () extends Migration {
         Schema::table('websites', function ($table) {
             $table->unsignedInteger('storefront_id')->index()->nullable();
             $table->foreign('storefront_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
+
+            $table->unsignedInteger('catalogue_id')->index()->nullable();
+            $table->foreign('catalogue_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedInteger('products_id')->index()->nullable();
+            $table->foreign('products_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
+
             $table->unsignedInteger('login_id')->index()->nullable();
             $table->foreign('login_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedInteger('register_id')->index()->nullable();

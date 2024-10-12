@@ -11,7 +11,9 @@ use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Facades\DB;
 
 trait WithAuroraProcessWebpage
 {
@@ -53,9 +55,8 @@ trait WithAuroraProcessWebpage
         $type = match ($auroraModelData->{'Webpage Scope'}) {
             'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpageTypeEnum::STOREFRONT,
             'Product', 'Category Categories', 'Category Products' => WebpageTypeEnum::CATALOGUE,
-            'Register', 'Login', 'ResetPwd' => WebpageTypeEnum::OPERATIONS,
+            'Register', 'Login', 'ResetPwd', 'Basket', 'Top_Up', 'Checkout' => WebpageTypeEnum::OPERATIONS,
             'TandC' => WebpageTypeEnum::INFO,
-            'Basket', 'Top_Up', 'Checkout' => WebpageTypeEnum::OPERATIONS,
             default => WebpageTypeEnum::CONTENT,
         };
 
@@ -127,6 +128,7 @@ trait WithAuroraProcessWebpage
 
         $webpage =
             [
+                'parent_id'       => $parentId,
                 'code'            => $url,
                 'title'           => $title,
                 'description'     => (string)$auroraModelData->{'Webpage Meta Description'},
