@@ -6,6 +6,7 @@
  */
 
 use App\Stubs\Migrations\HasCreditsStats;
+use App\Stubs\Migrations\HasFavouritesStats;
 use App\Stubs\Migrations\HasSalesStats;
 use App\Stubs\Migrations\HasWebStats;
 use Illuminate\Database\Migrations\Migration;
@@ -16,6 +17,7 @@ return new class () extends Migration {
     use HasSalesStats;
     use HasWebStats;
     use HasCreditsStats;
+    use HasFavouritesStats;
 
     public function up(): void
     {
@@ -29,6 +31,7 @@ return new class () extends Migration {
             $table->unsignedInteger('number_current_clients')->default(0);
             $table = $this->getCreditTransactionsStats($table);
             $table = $this->getTopUpsStats($table);
+            $table = $this->getFavouritesStatsFields($table);
 
             $table->timestampsTz();
         });

@@ -178,8 +178,8 @@ class FetchResetBase
                     ->update([$aikuIdField => null]);
 
 
-                // DB::connection('aurora')->table('Customer Favourite Product Fact')->update([$aikuIdField => null]);
-                // DB::connection('aurora')->table('Back in Stock Reminder Fact')->update([$aikuIdField => null]);
+                DB::connection('aurora')->table('Customer Favourite Product Fact')->update([$aikuIdField => null]);
+                DB::connection('aurora')->table('Back in Stock Reminder Fact')->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Customer Portfolio Fact')
                     ->update([$aikuIdField => null]);
 

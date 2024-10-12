@@ -41,7 +41,8 @@ class FetchAuroraAction extends FetchAction
                 'fetch:outers',
                 'fetch:products',
                 'fetch:services',
-                'fetch:portfolios'
+                'fetch:portfolios',
+                'fetch:favourites'
             ]) and $command->option('shop')) {
             $this->shop = Shop::where('slug', $command->option('shop'))->firstOrFail();
         }
@@ -72,6 +73,7 @@ class FetchAuroraAction extends FetchAction
             'fetch:customer-notes',
             'fetch:histories',
             'fetch:uploads',
+            'fetch:favourites'
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }

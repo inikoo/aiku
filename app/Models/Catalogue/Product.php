@@ -40,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $shop_id
  * @property int|null $asset_id
  * @property int|null $family_id
+ * @property int|null $sub_department_id
  * @property int|null $department_id
  * @property bool $is_main
  * @property bool $status
@@ -91,6 +92,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ProductSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\ProductStats|null $stats
+ * @property-read \App\Models\Catalogue\ProductCategory|null $subDepartment
  * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Webpage|null $webpage
@@ -223,6 +225,11 @@ class Product extends Model implements Auditable, HasMedia
     public function department(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'department_id');
+    }
+
+    public function subDepartment(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'sub_department_id');
     }
 
     public function family(): BelongsTo

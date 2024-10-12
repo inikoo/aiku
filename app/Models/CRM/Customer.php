@@ -114,6 +114,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
  * @property-read \App\Models\CRM\CustomerDropshippingStat|null $dropshippingStats
+ * @property-read Collection<int, \App\Models\CRM\Favourite> $favourites
  * @property-read FulfilmentCustomer|null $fulfilmentCustomer
  * @property-read Group $group
  * @property-read Media|null $image
@@ -397,5 +398,10 @@ class Customer extends Model implements HasMedia, Auditable
     public function customerNotes(): HasMany
     {
         return $this->hasMany(CustomerNote::class);
+    }
+
+    public function favourites(): HasMany
+    {
+        return $this->hasMany(Favourite::class);
     }
 }

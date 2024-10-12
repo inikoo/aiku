@@ -404,4 +404,9 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchFavourite($id): ?array
+    {
+        return null;
+    }
+
 }

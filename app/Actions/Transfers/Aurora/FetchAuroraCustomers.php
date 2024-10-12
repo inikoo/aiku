@@ -29,7 +29,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
     use WithAuroraAttachments;
     use WithAuroraParsers;
 
-    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users attachments portfolio full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users attachments portfolio favourites full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
@@ -95,9 +95,21 @@ class FetchAuroraCustomers extends FetchAuroraAction
                         ->table('Product Dimension')
                         ->where('Product Customer Key', $sourceData[1])
                         ->select('Product ID as source_id')
-                        ->orderBy('source_id')->get() as $order
+                        ->orderBy('source_id')->get() as $product
                 ) {
-                    FetchAuroraProducts::run($organisationSource, $order->source_id);
+                    FetchAuroraProducts::run($organisationSource, $product->source_id);
+                }
+            }
+
+            if (in_array('favourites', $with) || in_array('full', $with)) {
+                foreach (
+                    DB::connection('aurora')
+                        ->table('Customer Favourite Product Fact')
+                        ->where('Customer Favourite Product Customer Key', $sourceData[1])
+                        ->select('Customer Favourite Product Key as source_id')
+                        ->orderBy('source_id')->get() as $favourite
+                ) {
+                    FetchAuroraFavourites::run($organisationSource, $favourite->source_id);
                 }
             }
 
