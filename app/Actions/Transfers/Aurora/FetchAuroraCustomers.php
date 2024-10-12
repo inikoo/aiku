@@ -66,9 +66,6 @@ class FetchAuroraCustomers extends FetchAuroraAction
 
                     Customer::enableAuditing();
 
-                    //
-                    //  dd($customerData['customer']);
-
                     $this->saveMigrationHistory(
                         $customer,
                         Arr::except($customerData['customer'], ['fetched_at','last_fetched_at'])

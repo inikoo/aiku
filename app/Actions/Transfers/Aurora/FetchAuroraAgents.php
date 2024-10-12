@@ -57,6 +57,13 @@ class FetchAuroraAgents extends FetchAuroraAction
                 );
                 $agent->refresh();
 
+                Agent::enableAuditing();
+
+                $this->saveMigrationHistory(
+                    $agent,
+                    Arr::except($agentData['agent'], ['fetched_at','last_fetched_at'])
+                );
+
 
                 foreach (Arr::get($agentData, 'photo', []) as $photoData) {
                     if (isset($photoData['image_path']) and isset($photoData['filename'])) {
