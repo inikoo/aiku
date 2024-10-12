@@ -55,35 +55,36 @@ class FetchAuroraCustomers extends FetchAuroraAction
                     return null;
                 }
             } else {
-                // try {
-                $customer = StoreCustomer::make()->action(
-                    shop: $customerData['shop'],
-                    modelData: $customerData['customer'],
-                    hydratorsDelay: $this->hydrateDelay,
-                    strict: false,
-                    audit: false
-                );
+                try {
+                    $customer = StoreCustomer::make()->action(
+                        shop: $customerData['shop'],
+                        modelData: $customerData['customer'],
+                        hydratorsDelay: $this->hydrateDelay,
+                        strict: false,
+                        audit: false
+                    );
 
-                Customer::enableAuditing();
+                    Customer::enableAuditing();
 
-                //
-                //  dd($customerData['customer']);
+                    //
+                    //  dd($customerData['customer']);
 
-                $this->saveMigrationHistory(
-                    $customer,
-                    Arr::except($customerData['customer'], ['fetched_at','last_fetched_at'])
-                );
+                    $this->saveMigrationHistory(
+                        $customer,
+                        Arr::except($customerData['customer'], ['fetched_at','last_fetched_at'])
+                    );
 
 
-                $this->recordNew($organisationSource);
-                $sourceData = explode(':', $customer->source_id);
-                DB::connection('aurora')->table('Customer Dimension')
-                    ->where('Customer Key', $sourceData[1])
-                    ->update(['aiku_id' => $customer->id]);
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');
-                //                    return null;
-                //                }
+                    $this->recordNew($organisationSource);
+                    $sourceData = explode(':', $customer->source_id);
+                    DB::connection('aurora')->table('Customer Dimension')
+                        ->where('Customer Key', $sourceData[1])
+                        ->update(['aiku_id' => $customer->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');
+
+                    return null;
+                }
             }
 
 

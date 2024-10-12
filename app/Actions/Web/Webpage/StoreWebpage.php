@@ -21,6 +21,7 @@ use App\Models\Web\Website;
 use App\Models\Web\Webpage;
 use App\Rules\AlphaDashSlash;
 use App\Rules\IUnique;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -50,26 +51,30 @@ class StoreWebpage extends OrgAction
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
 
-        /** @var Webpage $webpage */
-        $webpage = $parent->webpages()->create($modelData);
-        $webpage->stats()->create();
-        $webpage->refresh();
+        $webpage = DB::transaction(function () use ($parent, $modelData) {
+            /** @var Webpage $webpage */
+            $webpage = $parent->webpages()->create($modelData);
+            $webpage->stats()->create();
+            $webpage->refresh();
 
-        $snapshot = StoreWebpageSnapshot::run(
-            $webpage,
-            [
-                'layout' => [
-                    'web_blocks' => []
+            $snapshot = StoreWebpageSnapshot::run(
+                $webpage,
+                [
+                    'layout' => [
+                        'web_blocks' => []
+                    ]
+                ],
+            );
+
+            $webpage->update(
+                [
+                    'unpublished_snapshot_id' => $snapshot->id,
+
                 ]
-            ],
-        );
+            );
 
-        $webpage->update(
-            [
-                'unpublished_snapshot_id' => $snapshot->id,
-
-            ]
-        );
+            return $webpage;
+        });
 
 
         WebpageHydrateUniversalSearch::dispatch($webpage);
@@ -168,8 +173,12 @@ class StoreWebpage extends OrgAction
     }
 
 
-    public function action(Website|Webpage $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Webpage
+    public function action(Website|Webpage $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Webpage
     {
+        if (!$audit) {
+            Webpage::disableAuditing();
+        }
+
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;

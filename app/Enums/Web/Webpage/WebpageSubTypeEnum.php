@@ -27,6 +27,7 @@ enum WebpageSubTypeEnum: string
     case CONTACT = 'contact';
     case RETURNS = 'returns';
     case SHIPPING = 'shipping';
+    case SHOWROOM = 'showroom';
     case TERMS_AND_CONDITIONS = 'terms-and-conditions';
     case PRIVACY        = 'privacy';
     case COOKIES_POLICY = 'cookies-policy';

@@ -57,12 +57,12 @@ class SeedWebsiteFixedWebpages extends OrgAction
             );
         }
 
-        $filename = 'webpages/'.$website->type->value.'/webpages.json';
+        $filename = 'webpages/'.$website->type->value.'-webpages.json';
         if (Storage::disk('datasets')->exists($filename)) {
             $webpagesData = Storage::disk('datasets')->json($filename);
             $this->addWebpages($storefront, $webpagesData);
         }
-        $filename = 'webpages/'.$website->type->value.'/operations.json';
+        $filename = 'webpages/'.$website->type->value.'-operations.json';
         if (Storage::disk('datasets')->exists($filename)) {
             foreach (Storage::disk('datasets')->json($filename) as $webpageData) {
                 $this->addOperationWebpages($website, $webpageData);

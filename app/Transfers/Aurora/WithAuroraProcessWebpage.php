@@ -35,9 +35,7 @@ trait WithAuroraProcessWebpage
             };
         }
 
-
         $url = $this->cleanWebpageCode($auroraModelData->{'Webpage Code'});
-
 
         $subType = match ($auroraModelData->{'Webpage Scope'}) {
             'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpageSubTypeEnum::STOREFRONT,
@@ -63,6 +61,8 @@ trait WithAuroraProcessWebpage
 
 
         $model = null;
+
+
         if ($auroraModelData->{'Webpage Scope'} == 'Category Products') {
             $model = $this->parseFamily($organisation->id.':'.$auroraModelData->{'Webpage Scope Key'});
             if (!$model) {
@@ -86,11 +86,50 @@ trait WithAuroraProcessWebpage
             $migrationData = json_decode($auroraModelData->{'Page Store Content Published Data'}, true);
         }
 
+        // print ">>> $url <<<\n";
+
+        $title = trim($auroraModelData->{'Webpage Name'});
+        if ($title == '') {
+            $title = $auroraModelData->{'Webpage Code'};
+        }
+
+
+        switch ($type) {
+            case WebpageTypeEnum::CATALOGUE:
+                if ($subType == WebpageSubTypeEnum::PRODUCT) {
+                    $parentId = $website->products_id;
+                } elseif ($subType == WebpageSubTypeEnum::FAMILY) {
+                    $parentId = $website->catalogue_id;
+                    /** @var ProductCategory $department */
+                    $department = $model->department;
+                    if ($department) {
+                        $departmentSourceData        = explode(':', $department->source_department_id);
+                        $auroraDepartmentWebpageData = DB::connection('aurora')->table('Page Store Dimension')
+                            ->select('Page Key')
+                            ->where('Webpage Scope', 'Category Categories')
+                            ->where('Webpage Scope Key', $departmentSourceData[1])
+                            ->first();
+                        if ($auroraDepartmentWebpageData) {
+                            $departmentWebpage = $this->parseWebpage($this->organisation->id.':'.$auroraDepartmentWebpageData->{'Page Key'});
+                            $parentId          = $departmentWebpage->id;
+                        }
+                    }
+                } else {
+                    $parentId = $website->catalogue_id;
+                }
+
+                break;
+            default:
+                $parentId = $website->storefront_id;
+                break;
+        }
+
+
         $webpage =
             [
                 'code'            => $url,
-                'title'           => $auroraModelData->{'Webpage Browser Title'},
-                'description'     => $auroraModelData->{'Webpage Meta Description'},
+                'title'           => $title,
+                'description'     => (string)$auroraModelData->{'Webpage Meta Description'},
                 'url'             => strtolower($url),
                 'state'           => $status,
                 'sub_type'        => $subType,
@@ -100,6 +139,7 @@ trait WithAuroraProcessWebpage
                 'source_id'       => $organisation->id.':'.$auroraModelData->{'Page Key'},
 
             ];
+
 
         if ($migrationData) {
             $webpage['migration_data'] = ['both' => $migrationData];

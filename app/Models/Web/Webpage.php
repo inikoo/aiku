@@ -109,25 +109,25 @@ class Webpage extends Model implements Auditable
     use HasHistory;
 
     protected $casts = [
-        'data'                   => 'array',
-        'settings'               => 'array',
-        'published_layout'       => 'array',
-        'migration_data'         => 'array',
-        'state'                  => WebpageStateEnum::class,
-        'sub_type'                => WebpageSubTypeEnum::class,
-        'type'                   => WebpageTypeEnum::class,
-        'ready_at'               => 'datetime',
-        'live_at'                => 'datetime',
-        'closed_at'              => 'datetime',
-        'fetched_at'             => 'datetime',
-        'last_fetched_at'        => 'datetime'
+        'data'             => 'array',
+        'settings'         => 'array',
+        'published_layout' => 'array',
+        'migration_data'   => 'array',
+        'state'            => WebpageStateEnum::class,
+        'sub_type'         => WebpageSubTypeEnum::class,
+        'type'             => WebpageTypeEnum::class,
+        'ready_at'         => 'datetime',
+        'live_at'          => 'datetime',
+        'closed_at'        => 'datetime',
+        'fetched_at'       => 'datetime',
+        'last_fetched_at'  => 'datetime'
     ];
 
     protected $attributes = [
         'data'             => '{}',
         'settings'         => '{}',
         'published_layout' => '{}',
-        'migration_data' => '{}'
+        'migration_data'   => '{}'
     ];
 
     protected $guarded = [];
@@ -230,8 +230,8 @@ class Webpage extends Model implements Auditable
     {
         return $this->webpages->map(function ($child) {
             return [
-                'slug' => $child->slug,
-                'name' => $child->code,
+                'slug'     => $child->slug,
+                'name'     => $child->code,
                 'children' => $child->getChildrenRecursively()
             ];
         });

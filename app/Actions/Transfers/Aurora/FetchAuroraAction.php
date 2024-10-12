@@ -89,7 +89,7 @@ class FetchAuroraAction extends FetchAction
             'fetch:purchase-orders',
             'fetch:stock-deliveries',
             'fetch:suppliers',
-
+            'fetch:webpages'
         ])) {
             $this->with = $command->option('with');
         }
