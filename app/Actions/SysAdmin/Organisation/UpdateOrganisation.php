@@ -10,6 +10,7 @@ namespace App\Actions\SysAdmin\Organisation;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\Media\SaveModelImage;
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\ValidAddress;
@@ -18,14 +19,29 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\File;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateOrganisation
+class UpdateOrganisation extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
 
     public function handle(Organisation $organisation, array $modelData): Organisation
     {
+        $processedModelData = [];
+        foreach ($modelData as $key => $value) {
+            data_set(
+                $processedModelData,
+                match ($key) {
+                    'ui_name' => 'settings.ui.name',
+                    'google_client_id' => 'settings.google.id',
+                    'google_client_secret' => 'settings.google.secret',
+                    'google_drive_folder_key' => 'settings.google.drive.folder',
+                    default => $key
+                },
+                $value
+            );
+        }
+
+
         if (Arr::has($modelData, 'address')) {
             $addressData = Arr::get($modelData, 'address');
             Arr::forget($modelData, 'address');
@@ -69,23 +85,27 @@ class UpdateOrganisation
             return true;
         }
 
-        return $request->user()->hasPermissionTo("sysadmin.edit");
+        return $request->user()->hasAnyPermission(
+            [
+                'organisations.edit',
+                'org-admin.'.$this->organisation->id
+            ]
+        );
     }
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'name'                    => ['sometimes', 'required', 'string', 'max:255'],
+            'ui_name'                 => ['sometimes', 'required', 'string', 'max:24'],
             'contact_name'            => ['sometimes', 'string', 'max:255'],
             'google_client_id'        => ['sometimes', 'string'],
             'google_client_secret'    => ['sometimes', 'string'],
             'google_drive_folder_key' => ['sometimes', 'string'],
             'address'                 => ['sometimes', 'required', new ValidAddress()],
-            'created_at'              => ['sometimes', 'date'],
             'language_id'             => ['sometimes', 'exists:languages,id'],
             'timezone_id'             => ['sometimes', 'exists:timezones,id'],
             'currency_id'             => ['sometimes', 'exists:currencies,id'],
-            'source'                  => ['sometimes', 'array'],
             'logo'                    => [
                 'sometimes',
                 'nullable',
@@ -93,40 +113,38 @@ class UpdateOrganisation
                     ->max(12 * 1024)
             ]
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules['source']          = ['sometimes', 'array'];
+            $rules['created_at']      = ['sometimes', 'date'];
+            $rules['source_id']       = ['sometimes', 'string'];
+        }
+
+        return $rules;
     }
 
 
     public function asController(Organisation $organisation, ActionRequest $request): Organisation
     {
-        $this->fillFromRequest($request);
-
-        $modelData = [];
-        foreach ($this->validateAttributes() as $key => $value) {
-            data_set(
-                $modelData,
-                match ($key) {
-                    'name'                    => 'settings.ui.name',
-                    'google_client_id'        => 'settings.google.id',
-                    'google_client_secret'    => 'settings.google.secret',
-                    'google_drive_folder_key' => 'settings.google.drive.folder',
-                    default                   => $key
-                },
-                $value
-            );
-        }
+        $this->initialisation($organisation, $request);
 
         return $this->handle(
             organisation: $organisation,
-            modelData: $modelData
+            modelData: $this->validatedData
         );
     }
 
-    public function action(Organisation $organisation, $modelData): Organisation
+    public function action(Organisation $organisation, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Organisation
     {
-        $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->strict = $strict;
+        if (!$audit) {
+            Organisation::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisation($organisation, $modelData);
 
-        return $this->handle($organisation, $validatedData);
+        return $this->handle($organisation, $this->validatedData);
     }
 }

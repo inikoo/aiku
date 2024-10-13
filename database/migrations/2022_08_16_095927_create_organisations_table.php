@@ -36,7 +36,11 @@ return new class () extends Migration {
             $table->jsonb('source');
             $table = $this->assets($table);
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();
+            $table->string('source_id')->nullable()->unique();
+
         });
     }
 

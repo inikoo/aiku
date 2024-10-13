@@ -145,7 +145,7 @@ use App\Actions\SysAdmin\Guest\DeleteGuest;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\Guest\UpdateGuest;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
-use App\Actions\SysAdmin\Organisation\UpdateOrganisationSettings;
+use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\UI\Notification\MarkAllNotificationAsRead;
 use App\Actions\UI\Notification\MarkNotificationAsRead;
 use App\Actions\UI\Profile\GetProfileAppLoginQRCode;
@@ -225,7 +225,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
     Route::post("google-drive.authorize", [AuthorizeClientGoogleDrive::class, 'authorize'])->name('google_drive.authorize');
     Route::get("google-drive.callback", CallbackClientGoogleDrive::class)->name('google_drive.callback');
-    Route::patch("settings", UpdateOrganisationSettings::class)->name('settings.update');
+    Route::patch("settings", UpdateOrganisation::class)->name('settings.update');
 
 
     Route::post('employee', StoreEmployee::class)->name('employee.store');

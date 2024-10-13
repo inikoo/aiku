@@ -52,7 +52,7 @@ class FetchAuroraLocations extends FetchAuroraAction
                     Location::enableAuditing();
                     $this->saveMigrationHistory(
                         $location,
-                        Arr::except($locationData['customer'], ['fetched_at','last_fetched_at'])
+                        Arr::except($locationData['location'], ['fetched_at','last_fetched_at','source_id'])
                     );
 
 

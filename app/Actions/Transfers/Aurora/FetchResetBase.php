@@ -46,6 +46,14 @@ class FetchResetBase
                 $this->timeLastStep = microtime(true);
 
 
+                DB::connection('aurora')->table('Account Dimension')
+                    ->whereNotNull('aiku_id')
+                    ->update(
+                        [
+                            'aiku_id' => null
+                        ]
+                    );
+
                 DB::connection('aurora')->table('History Dimension')
                     ->whereNotNull('aiku_notes_id')
                     ->update(
