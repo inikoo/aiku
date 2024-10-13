@@ -15,6 +15,7 @@ use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraLocations extends FetchAuroraAction
 {
@@ -52,7 +53,7 @@ class FetchAuroraLocations extends FetchAuroraAction
                     Location::enableAuditing();
                     $this->saveMigrationHistory(
                         $location,
-                        Arr::except($locationData['location'], ['fetched_at','last_fetched_at','source_id'])
+                        Arr::except($locationData['location'], ['fetched_at', 'last_fetched_at', 'source_id'])
                     );
 
 
@@ -62,9 +63,7 @@ class FetchAuroraLocations extends FetchAuroraAction
                     DB::connection('aurora')->table('Location Dimension')
                         ->where('Location Key', $sourceData[1])
                         ->update(['aiku_id' => $location->id]);
-
-
-                } catch (Exception $e) {
+                } catch (Exception|Throwable $e) {
                     $this->recordError($organisationSource, $e, $locationData['location'], 'Location', 'store');
 
                     return null;

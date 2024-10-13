@@ -17,6 +17,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
+use App\Actions\Traits\Rules\WithOrderingAmountNoStrictFields;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
@@ -27,13 +28,21 @@ use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class StoreInvoice extends OrgAction
 {
     use WithFixedAddressActions;
     use WithOrderExchanges;
+    use WithOrderingAmountNoStrictFields;
 
+
+    private Order|Customer|RecurringBill $parent;
+
+    /**
+     * @throws \Throwable
+     */
     public function handle(
         Customer|Order|RecurringBill $parent,
         array $modelData,
@@ -81,31 +90,34 @@ class StoreInvoice extends OrgAction
         data_set($modelData, 'date', $date, overwrite: false);
         data_set($modelData, 'tax_liability_at', $date, overwrite: false);
 
-        // dd($modelData);
-        /** @var Invoice $invoice */
-        $invoice = $parent->invoices()->create($modelData);
-        $invoice->stats()->create();
 
+        $invoice = DB::transaction(function () use ($parent, $modelData, $billingAddressData) {
+            /** @var Invoice $invoice */
+            $invoice = $parent->invoices()->create($modelData);
+            $invoice->stats()->create();
+            $invoice = $this->createFixedAddress(
+                $invoice,
+                $billingAddressData,
+                'Ordering',
+                'billing',
+                'address_id'
+            );
+            $invoice->updateQuietly(
+                [
+                    'billing_country_id' => $invoice->address->country_id
+                ]
+            );
 
-        $invoice = $this->createFixedAddress(
-            $invoice,
-            $billingAddressData,
-            'Ordering',
-            'billing',
-            'address_id'
-        );
-        $invoice->updateQuietly(
-            [
-                'billing_country_id' => $invoice->address->country_id
-            ]
-        );
+            return $invoice;
+        });
+
 
         if ($invoice->customer_id) {
             CustomerHydrateInvoices::dispatch($invoice->customer)->delay($this->hydratorsDelay);
         }
 
-        // UploadPDFInvoices
-        // UploadPdfInvoice::run($invoice);
+        // todo: Upload Invoices to Google Drive #544
+        //UploadPdfInvoice::run($invoice);
 
         ShopHydrateInvoices::dispatch($invoice->shop)->delay($this->hydratorsDelay);
         OrganisationHydrateInvoices::dispatch($invoice->organisation)->delay($this->hydratorsDelay);
@@ -152,31 +164,21 @@ class StoreInvoice extends OrgAction
 
         if (!$this->strict) {
             $rules['reference'] = ['required', 'max:64', 'string'];
-
-
-            $rules['grp_exchange'] = ['sometimes', 'numeric'];
-            $rules['org_exchange'] = ['sometimes', 'numeric'];
-
-            $rules['gross_amount']    = ['sometimes', 'numeric'];
-            $rules['goods_amount']    = ['sometimes', 'numeric'];
-            $rules['services_amount'] = ['sometimes', 'numeric'];
-
-            $rules['shipping_amount']  = ['sometimes', 'numeric'];
-            $rules['charges_amount']   = ['sometimes', 'numeric'];
-            $rules['insurance_amount'] = ['sometimes', 'numeric'];
-
-            $rules['net_amount']   = ['sometimes', 'numeric'];
-            $rules['tax_amount']   = ['sometimes', 'numeric'];
-            $rules['total_amount'] = ['sometimes', 'numeric'];
+            $rules              = $this->mergeOrderingAmountNoStrictFields($rules);
         }
 
 
         return $rules;
     }
 
-    public function action(Customer|Order|RecurringBill $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Invoice
+    /**
+     * @throws \Throwable
+     */
+    public function action(Customer|Order|RecurringBill $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Invoice
     {
-        // dd('bb');
+        if (!$audit) {
+            Invoice::disableAuditing();
+        }
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
@@ -193,8 +195,4 @@ class StoreInvoice extends OrgAction
         return $this->handle($parent, $this->validatedData);
     }
 
-    // public function afterValidator($validator)
-    // {
-    //     dd($validator);
-    // }
 }

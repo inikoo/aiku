@@ -11,6 +11,7 @@ use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\Ordering\Order\Search\OrderRecordSearch;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithOrderingAmountNoStrictFields;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
@@ -40,6 +41,7 @@ class StoreOrder extends OrgAction
     use WithModelAddressActions;
     use HasOrderHydrators;
     use WithOrderExchanges;
+    use WithOrderingAmountNoStrictFields;
 
     public int $hydratorsDelay = 0;
 
@@ -183,7 +185,7 @@ class StoreOrder extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference' => [
+            'reference'          => [
                 'sometimes',
                 'max:64',
                 'string',
@@ -221,21 +223,7 @@ class StoreOrder extends OrgAction
 
         if (!$this->strict) {
             $rules['reference'] = ['sometimes', 'string', 'max:64'];
-
-            $rules['grp_exchange'] = ['sometimes', 'numeric'];
-            $rules['org_exchange'] = ['sometimes', 'numeric'];
-
-            $rules['gross_amount']    = ['sometimes', 'numeric'];
-            $rules['goods_amount']    = ['sometimes', 'numeric'];
-            $rules['services_amount'] = ['sometimes', 'numeric'];
-
-            $rules['shipping_amount']  = ['sometimes', 'numeric'];
-            $rules['charges_amount']   = ['sometimes', 'numeric'];
-            $rules['insurance_amount'] = ['sometimes', 'numeric'];
-
-            $rules['net_amount']   = ['sometimes', 'numeric'];
-            $rules['tax_amount']   = ['sometimes', 'numeric'];
-            $rules['total_amount'] = ['sometimes', 'numeric'];
+            $rules              = $this->mergeOrderingAmountNoStrictFields($rules);
         }
 
         return $rules;
@@ -258,26 +246,26 @@ class StoreOrder extends OrgAction
 
         return match ($routeName) {
             'grp.models.customer.order.store' => Inertia::location(route('grp.org.shops.show.crm.customers.show.orders.show', [
-                'organisation'       => $order->organisation->slug,
-                'shop'               => $order->shop->slug,
-                'customer'           => $order->customer->slug,
-                'order'              => $order->slug
+                'organisation' => $order->organisation->slug,
+                'shop'         => $order->shop->slug,
+                'customer'     => $order->customer->slug,
+                'order'        => $order->slug
             ])),
             'grp.models.customer-client.order.store' => Inertia::location(route('grp.org.shops.show.crm.customers.show.customer-clients.orders.show', [
-                'organisation'       => $order->organisation->slug,
-                'shop'               => $order->shop->slug,
-                'customer'           => $order->customer->slug,
-                'customerClient'     => $order->customerClient->ulid,
-                'order'              => $order->slug
+                'organisation'   => $order->organisation->slug,
+                'shop'           => $order->shop->slug,
+                'customer'       => $order->customer->slug,
+                'customerClient' => $order->customerClient->ulid,
+                'order'          => $order->slug
             ])),
         };
     }
 
     public function action(
         Shop|Customer|CustomerClient $parent,
-        array                        $modelData,
-        bool                         $strict = true,
-        int                          $hydratorsDelay = 60
+        array $modelData,
+        bool $strict = true,
+        int $hydratorsDelay = 60
     ): Order {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
