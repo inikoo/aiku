@@ -40,10 +40,10 @@ class StoreOrgAgent extends OrgAction
         ];
     }
 
-    public function action(Organisation $organisation, Agent $agent, $modelData, $hydratorDelay = 0): OrgAgent
+    public function action(Organisation $organisation, Agent $agent, $modelData, $hydratorsDelay = 0): OrgAgent
     {
         $this->asAction       = true;
-        $this->hydratorsDelay = $hydratorDelay;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($organisation, $agent, $this->validatedData);

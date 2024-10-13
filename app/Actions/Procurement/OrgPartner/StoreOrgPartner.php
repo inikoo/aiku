@@ -38,10 +38,10 @@ class StoreOrgPartner extends OrgAction
         ];
     }
 
-    public function action(Organisation $organisation, Organisation $partner, $modelData = [], $hydratorDelay = 0): OrgPartner
+    public function action(Organisation $organisation, Organisation $partner, $modelData = [], $hydratorsDelay = 0): OrgPartner
     {
         $this->asAction       = true;
-        $this->hydratorsDelay = $hydratorDelay;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($organisation, $partner, $this->validatedData);

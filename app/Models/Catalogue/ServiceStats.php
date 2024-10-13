@@ -13,14 +13,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  *
  *
- * @property int $id
- * @property int $service_id
- * @property int $number_historic_assets
- * @property int $number_services_state_in_process
- * @property int $number_services_state_active
- * @property int $number_services_state_discontinued
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Service|null $asset
  * @method static \Illuminate\Database\Eloquent\Builder|ServiceStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ServiceStats newQuery()

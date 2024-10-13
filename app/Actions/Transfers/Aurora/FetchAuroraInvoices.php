@@ -61,7 +61,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
                         $invoice = StoreInvoice::make()->action(
                             parent: $invoiceData['parent'],
                             modelData: $invoiceData['invoice'],
-                            hydratorsDelay: $this->hydrateDelay,
+                            hydratorsDelay: $this->hydratorsDelay,
                             strict: false
                         );
 

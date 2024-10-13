@@ -21,45 +21,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  *
  *
- * @property int $id
- * @property int $group_id
- * @property int $organisation_id
- * @property \Illuminate\Support\Carbon $date
- * @property int $shop_id
- * @property int|null $invoice_id
- * @property int $customer_id
- * @property string|null $model_type
- * @property int|null $model_id
- * @property int|null $asset_id
- * @property int|null $historic_asset_id
- * @property int|null $family_id
- * @property int|null $department_id
- * @property int|null $order_id
- * @property int|null $transaction_id
- * @property int|null $recurring_bill_transaction_id
- * @property string $quantity
- * @property string $gross_amount
- * @property string $net_amount
- * @property int $tax_category_id
- * @property string|null $grp_exchange
- * @property string|null $org_exchange
- * @property string|null $grp_net_amount
- * @property string|null $org_net_amount
- * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $fetched_at
- * @property string|null $last_fetched_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string|null $source_id
- * @property string|null $source_alt_id to be used in no products transactions
  * @property-read Asset|null $asset
  * @property-read Currency|null $currency
- * @property-read \App\Models\CRM\Customer $customer
- * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\CRM\Customer|null $customer
+ * @property-read \App\Models\SysAdmin\Group|null $group
  * @property-read Model|\Eloquent $item
- * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read \App\Models\Catalogue\Shop $shop
+ * @property-read \App\Models\SysAdmin\Organisation|null $organisation
+ * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read Transaction|null $transaction
  * @method static Builder|InvoiceTransaction newModelQuery()
  * @method static Builder|InvoiceTransaction newQuery()

@@ -74,7 +74,7 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                         supplierProduct: $supplierProduct,
                         modelData: $supplierProductData['supplierProduct'],
                         skipHistoric: true,
-                        hydratorsDelay: $this->hydrateDelay,
+                        hydratorsDelay: $this->hydratorsDelay,
                         strict: false,
                         audit: false
                     );
@@ -112,7 +112,7 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                         supplier: $supplierProductData['supplier'],
                         modelData: $supplierProductData['supplierProduct'],
                         skipHistoric: true,
-                        hydratorsDelay: $this->hydrateDelay,
+                        hydratorsDelay: $this->hydratorsDelay,
                         strict: false
                     );
                     $this->recordNew($organisationSource);

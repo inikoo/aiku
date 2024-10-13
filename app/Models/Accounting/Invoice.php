@@ -39,60 +39,22 @@ use Spatie\Sluggable\SlugOptions;
 /**
  *
  *
- * @property int $id
- * @property int $group_id
- * @property int $organisation_id
- * @property string $slug
- * @property string $reference
- * @property int $shop_id
- * @property int $customer_id
- * @property int|null $order_id
- * @property int|null $recurring_bill_id
- * @property int|null $address_id
- * @property int|null $billing_country_id
  * @property InvoiceTypeEnum $type
- * @property int $currency_id
- * @property string|null $grp_exchange
- * @property string|null $org_exchange
- * @property string $gross_amount Total asserts amount (excluding charges and shipping) before discounts
- * @property string $goods_amount
- * @property string $services_amount
- * @property string $rental_amount
- * @property string $charges_amount
- * @property string|null $shipping_amount
- * @property string|null $insurance_amount
- * @property string $net_amount
- * @property string|null $grp_net_amount
- * @property string|null $org_net_amount
- * @property int $tax_category_id
- * @property string $tax_amount
- * @property string $total_amount
- * @property string $payment_amount
- * @property string|null $date
- * @property \Illuminate\Support\Carbon|null $tax_liability_at
- * @property \Illuminate\Support\Carbon|null $paid_at
- * @property array $data
- * @property \Illuminate\Support\Carbon|null $fetched_at
- * @property \Illuminate\Support\Carbon|null $last_fetched_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string|null $source_id
  * @property-read Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Address|null $billingAddress
- * @property-read Currency $currency
- * @property-read Customer $customer
+ * @property-read Currency|null $currency
+ * @property-read Customer|null $customer
  * @property-read Collection<int, Address> $fixedAddresses
- * @property-read Group $group
+ * @property-read Group|null $group
  * @property-read Collection<int, \App\Models\Accounting\InvoiceTransaction> $invoiceTransactions
  * @property-read Order|null $order
  * @property-read Collection<int, Order> $orders
- * @property-read Organisation $organisation
+ * @property-read Organisation|null $organisation
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read RecurringBill|null $recurringBill
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
- * @property-read Shop $shop
+ * @property-read Shop|null $shop
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\InvoiceFactory factory($count = null, $state = [])

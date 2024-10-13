@@ -46,7 +46,7 @@ class FetchAction
 
     protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
 
-    protected int $hydrateDelay = 0;
+    protected int $hydratorsDelay = 0;
 
     protected ?Shop $shop;
     protected array $with;
@@ -122,7 +122,7 @@ class FetchAction
 
     public function asCommand(Command $command): int
     {
-        $this->hydrateDelay = 120;
+        $this->hydratorsDelay = 120;
 
         $organisations = $this->getOrganisations($command);
         $exitCode      = 0;

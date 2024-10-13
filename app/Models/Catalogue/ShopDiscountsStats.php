@@ -13,26 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  *
  *
- * @property int $id
- * @property int $shop_id
- * @property int $number_customers
- * @property int $number_orders
- * @property string $amount
- * @property string $org_amount
- * @property string $group_amount
- * @property int $number_offer_campaigns
- * @property int $number_current_offer_campaigns
- * @property int $number_offer_campaigns_state_in_process
- * @property int $number_offer_campaigns_state_active
- * @property int $number_offer_campaigns_state_finished
- * @property int $number_offers
- * @property int $number_current_offers
- * @property int $number_offers_state_in_process
- * @property int $number_offers_state_active
- * @property int $number_offers_state_finished
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Catalogue\Shop $shop
+ * @property-read \App\Models\Catalogue\Shop|null $shop
  * @method static \Illuminate\Database\Eloquent\Builder|ShopDiscountsStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ShopDiscountsStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|ShopDiscountsStats query()

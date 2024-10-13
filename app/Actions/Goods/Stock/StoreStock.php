@@ -64,7 +64,7 @@ class StoreStock extends GrpAction
         ];
     }
 
-    public function action(Group|StockFamily $parent, array $modelData, int $hydratorDelay = 0): Stock
+    public function action(Group|StockFamily $parent, array $modelData, int $hydratorsDelay = 0): Stock
     {
         if ($parent instanceof Group) {
             $group = $parent;
@@ -73,7 +73,7 @@ class StoreStock extends GrpAction
         }
 
 
-        $this->hydratorsDelay = $hydratorDelay;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($group, $modelData);
 
         return $this->handle($parent, $this->validatedData);

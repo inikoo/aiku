@@ -109,7 +109,7 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
                 $user = StoreUser::make()->action(
                     parent: $userData['parent'],
                     modelData: $userData['user'],
-                    hydratorsDelay: $this->hydrateDelay,
+                    hydratorsDelay: $this->hydratorsDelay,
                     strict: false
                 );
 

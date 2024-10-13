@@ -78,11 +78,11 @@ class UpdateTradeUnit extends GrpAction
         return $rules;
     }
 
-    public function action(TradeUnit $tradeUnit, array $modelData, int $hydratorDelay = 0, bool $strict = true): TradeUnit
+    public function action(TradeUnit $tradeUnit, array $modelData, int $hydratorsDelay = 0, bool $strict = true): TradeUnit
     {
         $this->tradeUnit      = $tradeUnit;
         $this->strict         = $strict;
-        $this->hydratorsDelay = $hydratorDelay;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($tradeUnit->group, $modelData);
 
         return $this->handle($tradeUnit, $this->validatedData);

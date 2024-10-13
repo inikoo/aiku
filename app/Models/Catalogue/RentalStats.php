@@ -14,14 +14,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  *
  *
- * @property int $id
- * @property int $rental_id
- * @property int $number_historic_assets
- * @property int $number_rentals_state_in_process
- * @property int $number_rentals_state_active
- * @property int $number_rentals_state_discontinued
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Rental|null $asset
  * @method static \Illuminate\Database\Eloquent\Builder|RentalStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|RentalStats newQuery()

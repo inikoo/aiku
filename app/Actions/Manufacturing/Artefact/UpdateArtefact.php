@@ -71,11 +71,11 @@ class UpdateArtefact extends OrgAction
     }
 
 
-    public function action(Artefact $artefact, array $modelData, int $hydratorDelay = 0): Artefact
+    public function action(Artefact $artefact, array $modelData, int $hydratorsDelay = 0): Artefact
     {
         $this->asAction       = true;
         $this->artefact       = $artefact;
-        $this->hydratorsDelay = $hydratorDelay;
+        $this->hydratorsDelay = $hydratorsDelay;
 
         $this->initialisation($artefact->organisation, $modelData);
         return $this->handle($artefact, $this->validatedData);

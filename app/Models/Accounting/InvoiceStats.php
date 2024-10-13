@@ -15,12 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 /**
  * App\Models\Accounting\InvoiceStats
  *
- * @property int $id
- * @property int $invoice_id
- * @property int $number_items current number of items
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Accounting\Invoice $invoice
+ * @property-read \App\Models\Accounting\Invoice|null $invoice
  * @method static Builder|InvoiceStats newModelQuery()
  * @method static Builder|InvoiceStats newQuery()
  * @method static Builder|InvoiceStats query()

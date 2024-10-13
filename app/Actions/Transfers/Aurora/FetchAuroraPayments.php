@@ -28,7 +28,7 @@ class FetchAuroraPayments extends FetchAuroraAction
                     $payment = UpdatePayment::make()->action(
                         payment: $payment,
                         modelData: $paymentData['payment'],
-                        hydratorsDelay: $this->hydrateDelay
+                        hydratorsDelay: $this->hydratorsDelay
                     );
                     $this->markAuroraModel($payment);
                 } catch (Exception $e) {
@@ -42,7 +42,7 @@ class FetchAuroraPayments extends FetchAuroraAction
                         customer: $paymentData['customer'],
                         paymentAccount: $paymentData['paymentAccount'],
                         modelData: $paymentData['payment'],
-                        hydratorsDelay: $this->hydrateDelay,
+                        hydratorsDelay: $this->hydratorsDelay,
                         strict: false
                     );
                     $this->markAuroraModel($payment);

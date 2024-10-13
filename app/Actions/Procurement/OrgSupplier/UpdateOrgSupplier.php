@@ -51,10 +51,10 @@ class UpdateOrgSupplier extends OrgAction
         ];
     }
 
-    public function action(OrgSupplier $orgSupplier, $modelData, $hydratorDelay = 0): OrgSupplier
+    public function action(OrgSupplier $orgSupplier, $modelData, $hydratorsDelay = 0): OrgSupplier
     {
         $this->asAction       = true;
-        $this->hydratorsDelay = $hydratorDelay;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($orgSupplier->organisation, $modelData);
 
         return $this->handle($orgSupplier, $this->validatedData);

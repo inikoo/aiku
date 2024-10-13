@@ -59,7 +59,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
                     $customer = StoreCustomer::make()->action(
                         shop: $customerData['shop'],
                         modelData: $customerData['customer'],
-                        hydratorsDelay: $this->hydrateDelay,
+                        hydratorsDelay: $this->hydratorsDelay,
                         strict: false,
                         audit: false
                     );
