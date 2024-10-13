@@ -15,6 +15,7 @@ use Arr;
 use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraDeletedCustomers extends FetchAuroraAction
 {
@@ -29,7 +30,13 @@ class FetchAuroraDeletedCustomers extends FetchAuroraAction
                     ->first()) {
                     if (Arr::get($customer->data, 'deleted.source') == 'aurora') {
                         try {
-                            $customer = UpdateCustomer::make()->action($customer, $customerData['customer'], 60, false);
+                            $customer = UpdateCustomer::make()->action(
+                                customer: $customer,
+                                modelData: $customerData['customer'],
+                                hydratorsDelay: 60,
+                                strict: false,
+                                audit: false
+                            );
                             $this->recordChange($organisationSource, $customer->wasChanged());
                         } catch (Exception $e) {
                             $this->recordError($organisationSource, $e, $customerData['customer'], 'DeletedCustomer', 'update');
@@ -43,21 +50,33 @@ class FetchAuroraDeletedCustomers extends FetchAuroraAction
                             shop: $customerData['shop'],
                             modelData: $customerData['customer'],
                             hydratorsDelay: $this->hydratorsDelay,
-                            strict: false
+                            strict: false,
+                            audit: false
+                        );
+
+                        Customer::enableAuditing();
+
+                        $this->saveMigrationHistory(
+                            $customer,
+                            Arr::except(
+                                $customerData['customer'],
+                                ['fetched_at', 'last_fetched_at', 'source_id', 'deleted_at']
+                            )
                         );
 
                         $this->recordNew($organisationSource);
-                    } catch (Exception $e) {
+
+                        $sourceData = explode(':', $customer->source_id);
+                        DB::connection('aurora')->table('Customer Deleted Dimension')
+                            ->where('Customer Key', $sourceData[1])
+                            ->update(['aiku_id' => $customer->id]);
+                    } catch (Exception|Throwable $e) {
                         $this->recordError($organisationSource, $e, $customerData['customer'], 'DeletedCustomer', 'store');
 
                         return null;
                     }
                 }
 
-                $sourceData = explode(':', $customer->source_id);
-                DB::connection('aurora')->table('Customer Deleted Dimension')
-                    ->where('Customer Key', $sourceData[1])
-                    ->update(['aiku_id' => $customer->id]);
 
                 return $customer;
             }

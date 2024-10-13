@@ -5,9 +5,6 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
-/** @noinspection PhpUnused */
-
 namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\CRM\Customer\StoreCustomer;
@@ -37,7 +34,6 @@ class FetchAuroraCustomers extends FetchAuroraAction
         $with = $this->with;
 
         if ($customerData = $organisationSource->fetchCustomer($organisationSourceId)) {
-
             if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                 ->first()) {
                 try {
@@ -68,7 +64,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
 
                     $this->saveMigrationHistory(
                         $customer,
-                        Arr::except($customerData['customer'], ['fetched_at','last_fetched_at'])
+                        Arr::except($customerData['customer'], ['fetched_at', 'last_fetched_at', 'source_id'])
                     );
 
 
