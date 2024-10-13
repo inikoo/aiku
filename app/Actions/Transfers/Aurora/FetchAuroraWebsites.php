@@ -47,26 +47,27 @@ class FetchAuroraWebsites extends FetchAuroraAction
                     shop: $websiteData['shop'],
                     modelData: $websiteData['website'],
                     hydratorsDelay: 60,
-                    strict: false
+                    strict: false,
+                    audit: false
                 );
 
+                Website::enableAuditing();
+                $this->saveMigrationHistory(
+                    $website,
+                    Arr::except($websiteData['website'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
+
+
+                $this->recordNew($organisationSource);
+                $sourceData = explode(':', $website->source_id);
+                DB::connection('aurora')->table('Website Dimension')
+                    ->where('Website Key', $sourceData[1])
+                    ->update(['aiku_id' => $website->id]);
 
                 if ($websiteData['launch']) {
                     LaunchWebsite::run(website: $website);
                 }
             }
-
-            // Get Storefront data
-            //            $auroraModelData = DB::connection('aurora')->table('Page Store Dimension')->where()->where('Webpage Code', 'home_logout.sys')->first();
-            //            $website->storefront->updateQuietly(['migration_data' => ['loggedOut' => Arr::get($this->processAuroraWebpage($website->organisation, $auroraModelData), 'webpage.migration_data.both')]]);
-            //
-            //
-            //            $auroraModelData = DB::connection('aurora')->table('Page Store Dimension')->where('Webpage Code', 'home.sys')->first();
-            //            $website->storefront->updateQuietly(['migration_data' => ['loggedIn' => Arr::get($this->processAuroraWebpage($website->organisation, $auroraModelData), 'webpage.migration_data.both')]]);
-            //
-            //
-            //            $auroraModelData = DB::connection('aurora')->table('Page Store Dimension')->where('Webpage Code', 'contact.sys')->first();
-            //            $website->storefront->updateQuietly(['migration_data' => ['both' => Arr::get($this->processAuroraWebpage($website->organisation, $auroraModelData), 'webpage.migration_data.both')]]);
 
 
             if ($website->state == WebsiteStateEnum::LIVE) {
@@ -102,14 +103,12 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 }
 
 
-
-
-
                 $result = $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::PRIVACY)->first(), 'privacy');
                 if (!$result) {
                     $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::PRIVACY)->first(), 'privacy_policy');
                 }
             }
+
             return $website;
         }
 

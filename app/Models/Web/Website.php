@@ -68,15 +68,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $logo_id
  * @property \Illuminate\Support\Carbon|null $launched_at
  * @property \Illuminate\Support\Carbon|null $closed_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $fetched_at
- * @property \Illuminate\Support\Carbon|null $last_fetched_at
- * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string|null $delete_comment
- * @property string|null $cloudflare_id
- * @property WebsiteCloudflareStatusEnum|null $cloudflare_status
- * @property string|null $source_id
  * @property int|null $storefront_id
  * @property int|null $catalogue_id
  * @property int|null $products_id
@@ -84,6 +75,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $register_id
  * @property int|null $basket_id
  * @property int|null $checkout_id
+ * @property string|null $cloudflare_id
+ * @property WebsiteCloudflareStatusEnum|null $cloudflare_status
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $delete_comment
+ * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read mixed $condition
  * @property-read Collection<int, Deployment> $deployments
