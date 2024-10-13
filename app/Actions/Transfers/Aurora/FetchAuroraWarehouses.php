@@ -11,8 +11,11 @@ use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Models\Inventory\Warehouse;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraWarehouses extends FetchAuroraAction
 {
@@ -27,15 +30,40 @@ class FetchAuroraWarehouses extends FetchAuroraAction
                 $warehouse = UpdateWarehouse::make()->action(
                     warehouse: $warehouse,
                     modelData: $warehouseData['warehouse'],
+                    hydratorsDelay: $this->hydratorsDelay,
+                    strict: false,
                     audit: false
                 );
             } else {
-                $warehouse = StoreWarehouse::make()->action(
-                    organisation: $organisationSource->getOrganisation(),
-                    modelData:    $warehouseData['warehouse'],
-                );
+                try {
+                    $warehouse = StoreWarehouse::make()->action(
+                        organisation: $organisationSource->getOrganisation(),
+                        modelData: $warehouseData['warehouse'],
+                        hydratorsDelay: $this->hydratorsDelay,
+                        strict: false,
+                        audit: false
+                    );
+
+                    Warehouse::enableAuditing();
+
+                    $this->saveMigrationHistory(
+                        $warehouse,
+                        Arr::except($warehouseData['warehouse'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $warehouse->source_id);
+                    DB::connection('aurora')->table('Warehouse Dimension')
+                        ->where('Warehouse Key', $sourceData[1])
+                        ->update(['aiku_id' => $warehouse->id]);
 
 
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $warehouseData['warehouse'], 'Warehouse', 'store');
+
+                    return null;
+                }
             }
 
 

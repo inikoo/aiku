@@ -25,6 +25,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -33,6 +34,9 @@ class StoreWarehouse extends OrgAction
 {
     use WithModelAddressActions;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Organisation $organisation, $modelData): Warehouse
     {
         data_set($modelData, 'group_id', $organisation->group_id);
@@ -40,31 +44,33 @@ class StoreWarehouse extends OrgAction
         $addressData = Arr::get($modelData, 'address');
         Arr::forget($modelData, 'address');
 
-        /** @var Warehouse $warehouse */
-        $warehouse = $organisation->warehouses()->create($modelData);
-        $warehouse->stats()->create();
+
+        $warehouse = DB::transaction(function () use ($organisation, $modelData, $addressData) {
+            /** @var Warehouse $warehouse */
+            $warehouse = $organisation->warehouses()->create($modelData);
+            $warehouse->stats()->create();
+            if (Arr::get($warehouse->settings, 'address_link')) {
+                $warehouse = $this->addLinkedAddress($warehouse);
+            } else {
+                $warehouse = $this->addDirectAddress($warehouse, $addressData);
+            }
+            SeedWarehousePermissions::run($warehouse);
+
+            $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
+                fn ($user) => $user->roles->where('name', "org-admin-$organisation->id")->toArray()
+            );
+            foreach ($orgAdmins as $orgAdmin) {
+                UserAddRoles::run($orgAdmin, [
+                    Role::where('name', RolesEnum::getRoleName(RolesEnum::WAREHOUSE_ADMIN->value, $warehouse))->first()
+                ]);
+            }
+
+            return $warehouse;
+        });
 
 
-        if (Arr::get($warehouse->settings, 'address_link')) {
-            $warehouse = $this->addLinkedAddress($warehouse);
-        } else {
-            $warehouse = $this->addDirectAddress($warehouse, $addressData);
-        }
-
-
-        SeedWarehousePermissions::run($warehouse);
-
-        $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
-            fn ($user) => $user->roles->where('name', "org-admin-$organisation->id")->toArray()
-        );
-        foreach ($orgAdmins as $orgAdmin) {
-            UserAddRoles::run($orgAdmin, [
-                Role::where('name', RolesEnum::getRoleName(RolesEnum::WAREHOUSE_ADMIN->value, $warehouse))->first()
-            ]);
-        }
-
-        GroupHydrateWarehouses::run($organisation->group);
-        OrganisationHydrateWarehouses::run($organisation);
+        GroupHydrateWarehouses::run($organisation->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateWarehouses::run($organisation)->delay($this->hydratorsDelay);
         WarehouseRecordSearch::dispatch($warehouse);
         SeedJobPositions::run($organisation);
 
@@ -83,8 +89,8 @@ class StoreWarehouse extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'code'       => [
+        $rules = [
+            'code'     => [
                 'required',
                 'between:2,4',
                 'alpha_dash',
@@ -95,26 +101,42 @@ class StoreWarehouse extends OrgAction
                     ]
                 ),
             ],
-            'name'             => ['required', 'max:250', 'string'],
-            'state'            => ['sometimes', Rule::enum(WarehouseStateEnum::class)],
-            'source_id'        => ['sometimes', 'string'],
-            'created_at'       => ['sometimes', 'date'],
-            'address'          => ['sometimes', 'required', new ValidAddress()],
-            'settings'         => ['sometimes', 'array'],
-            'fetched_at'       => ['sometimes', 'date'],
+            'name'     => ['required', 'max:250', 'string'],
+            'state'    => ['sometimes', Rule::enum(WarehouseStateEnum::class)],
+            'address'  => ['sometimes', 'required', new ValidAddress()],
+            'settings' => ['sometimes', 'array'],
 
         ];
+
+        if (!$this->strict) {
+            $rules['source_id']  = ['sometimes', 'string', 'max:64'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['created_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(Organisation $organisation, array $modelData): Warehouse
+    /**
+     * @throws \Throwable
+     */
+    public function action(Organisation $organisation, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Warehouse
     {
-        $this->asAction = true;
+        if (!$audit) {
+            Warehouse::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($organisation, $this->validatedData);
     }
 
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(Organisation $organisation, ActionRequest $request): Warehouse
     {
         $this->initialisation($organisation, $request);
@@ -130,11 +152,15 @@ class StoreWarehouse extends OrgAction
 
     public string $commandSignature = 'warehouse:create {organisation : organisation slug} {code} {name}';
 
+    /**
+     * @throws \Throwable
+     */
     public function asCommand(Command $command): int
     {
         $this->asAction = true;
 
         try {
+            /** @var Organisation $organisation */
             $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
