@@ -10,16 +10,16 @@ namespace App\Actions\Transfers\Aurora;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
-use Illuminate\Support\LazyCollection;
+use Illuminate\Support\Collection;
 
 trait WithAuroraOrganisationsArgument
 {
-    protected function getOrganisations(Command $command): LazyCollection
+    protected function getOrganisations(Command $command): Collection
     {
         return Organisation::query()->where('type', OrganisationTypeEnum::SHOP->value)
             ->when($command->argument('organisations'), function ($query) use ($command) {
                 $query->whereIn('slug', $command->argument('organisations'));
-            })
-            ->cursor();
+            })->orderBy('id')
+            ->get();
     }
 }

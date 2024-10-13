@@ -22,7 +22,7 @@ use Illuminate\Console\Command;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
-use Illuminate\Support\LazyCollection;
+use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -35,13 +35,13 @@ class FetchAction
     protected int $counter = 0;
     protected ?ProgressBar $progressBar;
 
-    protected bool $allowLegacy     = false;
+    protected bool $allowLegacy = false;
 
 
-    protected int $number_stores     = 0;
-    protected int $number_updates    = 0;
+    protected int $number_stores = 0;
+    protected int $number_updates = 0;
     protected int $number_no_changes = 0;
-    protected int $number_errors     = 0;
+    protected int $number_errors = 0;
 
     protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
 
@@ -49,7 +49,7 @@ class FetchAction
 
     protected ?Shop $shop;
     protected array $with;
-    protected bool $onlyNew  = false;
+    protected bool $onlyNew = false;
     protected bool $fetchAll = false;
     protected string $dbSuffix = '';
 
@@ -99,35 +99,34 @@ class FetchAction
     {
     }
 
-    protected function getOrganisations(Command $command): LazyCollection
+    protected function getOrganisations(Command $command): Collection
     {
-        return Organisation::query()
-            ->when($command->argument('organisations'), function ($query) use ($command) {
-                $query->whereIn('slug', $command->argument('organisations'));
-            })
-            ->cursor();
+        $query = Organisation::orderBy('id');
+        if ($command->argument('organisations')) {
+            $query->whereIn('slug', $command->argument('organisations'));
+        }
+
+        return $query->get();
     }
 
 
     protected function preProcessCommand(Command $command)
     {
-
     }
 
     protected function doReset(Command $command)
     {
-
     }
 
     public function asCommand(Command $command): int
     {
         $this->hydratorsDelay = 120;
 
+
         $organisations = $this->getOrganisations($command);
         $exitCode      = 0;
 
         foreach ($organisations as $organisation) {
-
             $this->preProcessCommand($command);
 
             $result = $this->processOrganisation($command, $organisation);
@@ -143,7 +142,6 @@ class FetchAction
 
     public function recordError($organisationSource, $e, $modelData, $modelType = null, $errorOn = null): void
     {
-
         $this->number_errors++;
         UpdateFetch::run($organisationSource->fetch, ['number_errors' => $this->number_errors]);
         $organisationSource->fetch->records()->create([
@@ -154,12 +152,10 @@ class FetchAction
             'model_type' => $modelType,
             'error_on'   => $errorOn
         ]);
-
     }
 
     public function recordFetchError($organisationSource, $modelData, $modelType = null, $errorOn = null, $data = []): void
     {
-
         $this->number_errors++;
         UpdateFetch::run($organisationSource->fetch, ['number_errors' => $this->number_errors]);
         $organisationSource->fetch->records()->create([
@@ -170,7 +166,6 @@ class FetchAction
             'model_type' => $modelType,
             'error_on'   => $errorOn
         ]);
-
     }
 
     public function recordChange($organisationSource, $wasChanged): void
@@ -199,7 +194,6 @@ class FetchAction
 
     public function processOrganisation(Command $command, Organisation $organisation): int
     {
-
         try {
             $this->organisationSource = $this->getOrganisationSource($organisation);
         } catch (Exception $exception) {
@@ -222,14 +216,11 @@ class FetchAction
         );
 
 
-
         $command->info('');
 
         if ($command->option('source_id')) {
             $this->handle($this->organisationSource, $command->option('source_id'));
             UpdateFetch::run($this->organisationSource->fetch, ['number_items' => 1]);
-
-
         } else {
             $numberItems = $this->count() ?? 0;
             UpdateFetch::run($this->organisationSource->fetch, ['number_items' => $numberItems]);
@@ -253,7 +244,6 @@ class FetchAction
 
         return 0;
     }
-
 
 
 }
