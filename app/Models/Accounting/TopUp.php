@@ -22,15 +22,33 @@ use Spatie\Sluggable\SlugOptions;
 /**
  *
  *
+ * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property string $slug
+ * @property string $reference
+ * @property int $shop_id
+ * @property int $customer_id
+ * @property int $payment_id
  * @property TopUpStatusEnum $status
+ * @property string $amount
+ * @property int $currency_id
+ * @property string|null $grp_exchange
+ * @property string|null $org_exchange
+ * @property string|null $grp_amount
+ * @property string|null $org_amount
+ * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Accounting\CreditTransaction|null $creditTransaction
- * @property-read Currency|null $currency
- * @property-read \App\Models\CRM\Customer|null $customer
- * @property-read \App\Models\SysAdmin\Group|null $group
- * @property-read \App\Models\SysAdmin\Organisation|null $organisation
- * @property-read \App\Models\Accounting\Payment|null $payment
- * @property-read \App\Models\Catalogue\Shop|null $shop
+ * @property-read Currency $currency
+ * @property-read \App\Models\CRM\Customer $customer
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Accounting\Payment $payment
+ * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|TopUp newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|TopUp newQuery()
