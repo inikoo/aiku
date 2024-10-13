@@ -17,22 +17,32 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreWarehouseArea extends OrgAction
 {
+    /**
+     * @throws \Throwable
+     */
     public function handle(Warehouse $warehouse, array $modelData): WarehouseArea
     {
         data_set($modelData, 'group_id', $warehouse->group_id);
         data_set($modelData, 'organisation_id', $warehouse->organisation_id);
-        /** @var WarehouseArea $warehouseArea */
-        $warehouseArea = $warehouse->warehouseAreas()->create($modelData);
-        $warehouseArea->stats()->create();
+
+        $warehouseArea = DB::transaction(function () use ($warehouse, $modelData) {
+            /** @var WarehouseArea $warehouseArea */
+            $warehouseArea = $warehouse->warehouseAreas()->create($modelData);
+            $warehouseArea->stats()->create();
+
+            return $warehouseArea;
+        });
+        GroupHydrateWarehouseAreas::dispatch($warehouse->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateWarehouseAreas::dispatch($warehouse->organisation)->delay($this->hydratorsDelay);
+        WarehouseHydrateWarehouseAreas::dispatch($warehouse)->delay($this->hydratorsDelay);
+
         WarehouseAreaRecordSearch::dispatch($warehouseArea);
-        GroupHydrateWarehouseAreas::dispatch($warehouse->group);
-        OrganisationHydrateWarehouseAreas::dispatch($warehouse->organisation);
-        WarehouseHydrateWarehouseAreas::dispatch($warehouse);
 
         return $warehouseArea;
     }
@@ -48,8 +58,8 @@ class StoreWarehouseArea extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'code'      => [
+        $rules = [
+            'code' => [
                 'required',
                 'max:16',
                 'alpha_dash',
@@ -60,13 +70,22 @@ class StoreWarehouseArea extends OrgAction
                     ]
                 ),
             ],
-            'name'        => ['required', 'max:250', 'string'],
-            'source_id'   => ['sometimes', 'string'],
-            'fetched_at'  => ['sometimes', 'date'],
+            'name' => ['required', 'max:250', 'string'],
         ];
+
+        if (!$this->strict) {
+            $rules['source_id']  = ['sometimes', 'string', 'max:64'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['created_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(Warehouse $warehouse, ActionRequest $request): WarehouseArea
     {
         $this->warehouse = $warehouse;
@@ -75,10 +94,18 @@ class StoreWarehouseArea extends OrgAction
         return $this->handle($warehouse, $this->validatedData);
     }
 
-    public function action(Warehouse $warehouse, array $modelData): WarehouseArea
+    /**
+     * @throws \Throwable
+     */
+    public function action(Warehouse $warehouse, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): WarehouseArea
     {
-        $this->asAction  = true;
-        $this->warehouse = $warehouse;
+        if (!$audit) {
+            WarehouseArea::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->warehouse      = $warehouse;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
         $this->initialisation($warehouse->organisation, $modelData);
 
         return $this->handle($warehouse, $this->validatedData);

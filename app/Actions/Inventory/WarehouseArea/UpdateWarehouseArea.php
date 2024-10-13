@@ -41,7 +41,7 @@ class UpdateWarehouseArea extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules =  [
             'code' => [
                 'sometimes',
                 'required',
@@ -60,17 +60,24 @@ class UpdateWarehouseArea extends OrgAction
                 ),
             ],
             'name'                     => ['sometimes', 'required', 'max:250', 'string'],
-            'last_fetched_at'          => ['sometimes', 'date'],
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(WarehouseArea $warehouseArea, array $modelData, bool $audit = true): WarehouseArea
+    public function action(WarehouseArea $warehouseArea, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): WarehouseArea
     {
         if (!$audit) {
             WarehouseArea::disableAuditing();
         }
         $this->asAction      = true;
         $this->warehouseArea = $warehouseArea;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
         $this->initialisation($warehouseArea->organisation, $modelData);
 
         return $this->handle($warehouseArea, $this->validatedData);
