@@ -12,6 +12,7 @@ use App\Actions\Inventory\Location\UpdateLocation;
 use App\Models\Inventory\Location;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedLocations extends FetchAuroraAction
@@ -37,15 +38,23 @@ class FetchAuroraDeletedLocations extends FetchAuroraAction
                     modelData: $deletedLocationData['location'],
                     hydratorsDelay: 60,
                     strict: false,
+                    audit: false
+                );
+
+                Location::enableAuditing();
+                $this->saveMigrationHistory(
+                    $location,
+                    Arr::except($deletedLocationData['location'], ['fetched_at','last_fetched_at','source_id'])
                 );
 
                 $this->recordNew($organisationSource);
+                $sourceData = explode(':', $location->source_id);
+                DB::connection('aurora')->table('Location Deleted Dimension')
+                    ->where('Location Deleted Key', $sourceData[1])
+                    ->update(['aiku_id' => $location->id]);
             }
 
-            $sourceData = explode(':', $location->source_id);
-            DB::connection('aurora')->table('Location Deleted Dimension')
-                ->where('Location Deleted Key', $sourceData[1])
-                ->update(['aiku_id' => $location->id]);
+
 
             return $location;
         }
