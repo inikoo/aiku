@@ -37,7 +37,6 @@ class FetchAuroraLocations extends FetchAuroraAction
                     $this->recordChange($organisationSource, $location->wasChanged());
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $locationData['location'], 'Location', 'update');
-
                     return null;
                 }
             } else {
@@ -56,7 +55,6 @@ class FetchAuroraLocations extends FetchAuroraAction
                         Arr::except($locationData['location'], ['fetched_at', 'last_fetched_at', 'source_id'])
                     );
 
-
                     $this->recordNew($organisationSource);
 
                     $sourceData = explode(':', $location->source_id);
@@ -65,7 +63,6 @@ class FetchAuroraLocations extends FetchAuroraAction
                         ->update(['aiku_id' => $location->id]);
                 } catch (Exception|Throwable $e) {
                     $this->recordError($organisationSource, $e, $locationData['location'], 'Location', 'store');
-
                     return null;
                 }
             }
