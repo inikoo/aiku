@@ -7,6 +7,7 @@
 
 namespace App\Actions\CRM\Favourite;
 
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateFavourites;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Product;
 use App\Models\CRM\Customer;
@@ -28,6 +29,8 @@ class StoreFavourite extends OrgAction
 
         /** @var Favourite $favourite */
         $favourite = $customer->favourites()->create($modelData);
+
+        CustomerHydrateFavourites::run($customer);
 
         return $favourite;
     }
