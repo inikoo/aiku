@@ -36,7 +36,19 @@ class FetchAuroraWebpage extends FetchAurora
 
 
         if (preg_match('/\.sys$/', $this->auroraModelData->{'Webpage Code'})) {
-            return;
+
+            if (!in_array($this->auroraModelData->{'Webpage Code'}, [
+                'home.sys',
+                'home_logout.sys',
+                'contact.sys',
+                'tac.sys',
+                'shipping.sys',
+                'about.sys'
+            ])) {
+                return;
+
+            }
+
         }
         if (preg_match('/^web\./i', $this->auroraModelData->{'Webpage Code'})) {
             return;
