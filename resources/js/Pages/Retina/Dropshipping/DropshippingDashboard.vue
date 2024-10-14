@@ -54,6 +54,8 @@ const onCreateStore = () => {
             onSuccess: () => {
                 isModalOpen.value = false
                 websiteInput.value = null
+
+                window.open(props.connectRoute?.url, '_blank');
             },
             onFinish: () => isLoading.value = false
         }
@@ -61,7 +63,6 @@ const onCreateStore = () => {
 }
 
 </script>
-
 
 <template>
 

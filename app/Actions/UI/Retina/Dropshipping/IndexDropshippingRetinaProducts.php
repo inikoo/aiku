@@ -64,7 +64,7 @@ class IndexDropshippingRetinaProducts extends RetinaAction
                     ],
                 ],
 
-                'products' => ProductsResource::collection(IndexUIProducts::run($shopifyUser->customer->shop, 'products'))
+                'products' => ProductsResource::collection(IndexUIProducts::make()->inDropshipping($shopifyUser, 'all'))
             ]
         )->table(IndexUIProducts::make()->tableStructure($shopifyUser->customer->shop, prefix: 'products'));
     }
