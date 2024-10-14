@@ -15,7 +15,6 @@ use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use App\Transfers\Aurora\WithAuroraParsers;
-use App\Transfers\Aurora\WithAuroraProcessWebpage;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
@@ -24,7 +23,6 @@ use Illuminate\Support\Facades\DB;
 class FetchAuroraWebsites extends FetchAuroraAction
 {
     use WithAuroraParsers;
-    use WithAuroraProcessWebpage;
 
 
     public string $commandSignature = 'fetch:websites {organisations?*} {--s|source_id=} {--d|db_suffix=}';

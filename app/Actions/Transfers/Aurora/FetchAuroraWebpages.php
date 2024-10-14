@@ -7,6 +7,7 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Models\Web\Webpage;
@@ -65,6 +66,9 @@ class FetchAuroraWebpages extends FetchAuroraAction
                         strict: false,
                         audit: false
                     );
+
+
+
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $webpageData['webpage'], 'Webpage', 'update');
 
@@ -84,6 +88,15 @@ class FetchAuroraWebpages extends FetchAuroraAction
                         audit: false
                     );
                     Webpage::enableAuditing();
+
+                    PublishWebpage::make()->action(
+                        $webpage,
+                        [
+                            'comment' => 'Initial publish after migration',
+                        ]
+                    );
+
+
                     $this->saveMigrationHistory(
                         $webpage,
                         Arr::except($webpageData['webpage'], ['migration_data', 'parent_id', 'fetched_at', 'last_fetched_at'])
