@@ -113,7 +113,7 @@ watch(layout.footer, (newVal) => {
 
 console.log('preview',props)
 
-const isInWorkshop = JSON.parse(route().params.isInWorkshop)
+const isInWorkshop = JSON.parse(route().params.isInWorkshop || false) 
 
 
 const openModalBlock = () => {

@@ -1,6 +1,6 @@
 {
-	"slug": "header",
-	"name": "Website header",
+	"slug": "Topheader",
+	"name": "Website Top header",
 	"icon": "fal fa-globe",
 	"scope": "website",
 	"webBlockTypes": [
@@ -14,90 +14,10 @@
 						"key": "headerText",
 						"type": "EditorAndPanelProperties",
 						"props_data": {}
-					},
-					{
-						"name": "Chip",
-						"key": "gold_member",
-						"type": "EditorAndPanelProperties"
-					},
-					{
-						"name": "Logo",
-						"key": "logo",
-						"type": "upload_image"
 					}
 				],
 				"header": {
-					"key": "header1",
-					"logo": {
-						"visible" : "all",
-						"src": null,
-						"url": "https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png",
-						"alt": "",
-						"width": 50,
-						"properties": {
-							"padding": {
-								"unit": "px",
-								"top": {
-									"value": 0
-								},
-								"left": {
-									"value": 0
-								},
-								"right": {
-									"value": 0
-								},
-								"bottom": {
-									"value": 0
-								}
-							},
-							"margin": {
-								"unit": "px",
-								"top": {
-									"value": 0
-								},
-								"left": {
-									"value": 0
-								},
-								"right": {
-									"value": 0
-								},
-								"bottom": {
-									"value": 0
-								}
-							},
-							"border": {
-								"color": "#000000",
-								"unit": "px",
-								"rounded": {
-									"unit": "px",
-									"topright": {
-										"value": 0
-									},
-									"topleft": {
-										"value": 0
-									},
-									"bottomright": {
-										"value": 0
-									},
-									"bottomleft": {
-										"value": 0
-									}
-								},
-								"top": {
-									"value": 0
-								},
-								"left": {
-									"value": 0
-								},
-								"right": {
-									"value": 0
-								},
-								"bottom": {
-									"value": 0
-								}
-							}
-						}
-					},
+					"key": "Topheader",
 					"headerText": {
 						"text" : "<p><span>FAIRLY TRADING WHOLESALE GIFTS SINCE 1995</span></p>",
 						"visible" : "all",

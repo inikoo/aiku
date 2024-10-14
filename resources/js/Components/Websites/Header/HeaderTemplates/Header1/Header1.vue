@@ -77,7 +77,7 @@ console.log('ss',props)
 <template>
     <!-- Top Bar -->
     <div class="hidden md:block">
-    <div class="grid grid-cols-3 text-white  justify-between items-center p-2 text-xs" :style="{ backgroundColor : selectedColor[0]}">
+    <div class="grid grid-cols-3 justify-between items-center p-2" :style="{ backgroundColor : selectedColor[0]}">
         <div></div>
         <div class="font-bold text-center">
             <Editor :toogle="toogle" v-model="modelValue.headerText.text"  :editable="!previewMode" />
