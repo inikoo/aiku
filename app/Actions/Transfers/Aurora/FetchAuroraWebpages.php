@@ -29,9 +29,15 @@ class FetchAuroraWebpages extends FetchAuroraAction
                 return null;
             }
 
-            if ($webpage = Webpage::where('source_id', $webpageData['webpage']['source_id'])
-                ->first()) {
+            if ($webpage = Webpage::where('source_id', $webpageData['webpage']['source_id'])->first()) {
                 try {
+
+
+                    if ($webpage->is_fixed) {
+                        data_forget($webpageData, 'webpage.code');
+                        data_forget($webpageData, 'webpage.url');
+                    }
+
                     $webpage = UpdateWebpage::make()->action(
                         webpage: $webpage,
                         modelData: $webpageData['webpage'],
@@ -40,6 +46,7 @@ class FetchAuroraWebpages extends FetchAuroraAction
                         audit: false
                     );
                 } catch (Exception $e) {
+                    dd($webpageData['webpage']);
                     $this->recordError($organisationSource, $e, $webpageData['webpage'], 'Webpage', 'update');
 
                     return null;
@@ -95,7 +102,6 @@ class FetchAuroraWebpages extends FetchAuroraAction
 
         $query->where('Website Status', 'Active');
         $query->where('Webpage State', 'Online');
-        $query->whereNotIn('Webpage Code', ['shipping', 'privacy', 'returns', 'cookie_policy', 'showroom']);
 
 
         if ($this->onlyNew) {
@@ -121,7 +127,6 @@ class FetchAuroraWebpages extends FetchAuroraAction
 
         $query->where('Website Status', 'Active');
         $query->where('Webpage State', 'Online');
-        $query->whereNotIn('Webpage Code', ['shipping', 'privacy']);
 
 
         if ($this->shop) {

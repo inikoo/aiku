@@ -69,6 +69,7 @@ class FetchAuroraWebBlocks extends OrgAction
             $this->reset($webpage);
         }
 
+
         if (isset($webpage->migration_data["both"])) {
             foreach (
                 Arr::get($webpage->migration_data["both"], "blocks", []) as $index => $auroraBlock
@@ -78,9 +79,13 @@ class FetchAuroraWebBlocks extends OrgAction
             }
         }
         if (isset($webpage->migration_data["loggedIn"])) {
+
             foreach (
                 Arr::get($webpage->migration_data["loggedIn"], "blocks", []) as $index => $auroraBlock
             ) {
+
+
+
                 $migrationData = md5(json_encode($auroraBlock));
                 $this->processData($webpage, $auroraBlock, $migrationData, $index + 1, [
                     "loggedIn"  => true,
@@ -144,7 +149,7 @@ class FetchAuroraWebBlocks extends OrgAction
             case "category_products":
                 $webBlockType = WebBlockType::where("slug", "family")->first();
                 $models[]     = ProductCategory::find($webpage->model_id);
-                $layout = $this->processFamilyData($auroraBlock);
+                $layout       = $this->processFamilyData($auroraBlock);
                 break;
 
             case "see_also":
@@ -206,7 +211,7 @@ class FetchAuroraWebBlocks extends OrgAction
 
             case "category_categories":
                 $webBlockType = WebBlockType::where("slug", "department")->first();
-                $layout = $this->processDepartmentData($models, $webpage, $auroraBlock);
+                $layout       = $this->processDepartmentData($models, $webpage, $auroraBlock);
                 break;
 
             case "blackboard":
@@ -253,12 +258,12 @@ class FetchAuroraWebBlocks extends OrgAction
             $code = $webBlock->webBlockType->code;
 
             if ($code == "family") {
-                $items = $webBlock->layout["fieldValue"]["value"]["items"];
+                $items  = $webBlock->layout["fieldValue"]["value"]["items"];
                 $addOns = [];
                 foreach ($items as $item) {
                     if ($item['type'] == "image") {
-                        $imageSource    = $this->processImage($webBlock, $item, $webpage);
-                        $addOns[] = ['position' => $item['position'], "type" => $item['type'], "source" => $imageSource];
+                        $imageSource = $this->processImage($webBlock, $item, $webpage);
+                        $addOns[]    = ['position' => $item['position'], "type" => $item['type'], "source" => $imageSource];
                     } else {
                         $addOns[] = $item;
                     }
@@ -272,7 +277,7 @@ class FetchAuroraWebBlocks extends OrgAction
                     if ($items) {
                         foreach ($items as $index => $item) {
                             if ($item['type'] == "image") {
-                                $imageSource    = $this->processImage($webBlock, $item, $webpage);
+                                $imageSource             = $this->processImage($webBlock, $item, $webpage);
                                 $items[$index]["source"] = $imageSource;
                                 unset($items[$index]["aurora_source"]);
                             }
@@ -281,9 +286,8 @@ class FetchAuroraWebBlocks extends OrgAction
                     }
                 }
                 data_set($layout, "fieldValue.value.sections", $sections);
-
             } else {
-                $imageSources = [];
+                $imageSources  = [];
                 $imagesRawData = $webBlock->layout["fieldValue"]["value"]["images"];
                 foreach ($imagesRawData as $imageRawData) {
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
@@ -360,23 +364,32 @@ class FetchAuroraWebBlocks extends OrgAction
         }
     }
 
-    public string $commandSignature = "fetch:web-blocks {webpage} {--reset} {--d|db_suffix=}";
+    public string $commandSignature = "fetch:web-blocks {webpage?} {--reset} {--d|db_suffix=}";
 
     /**
      * @throws \Exception
      */
     public function asCommand($command): int
     {
-        try {
-            /** @var Webpage $webpage */
-            $webpage = Webpage::where("slug", $command->argument("webpage"))->firstOrFail();
-        } catch (Exception) {
-            $command->error("Webpage not found");
-            exit();
+        if ($command->argument("webpage")) {
+            try {
+                /** @var Webpage $webpage */
+                $webpage = Webpage::where("slug", $command->argument("webpage"))->firstOrFail();
+            } catch (Exception) {
+                $command->error("Webpage not found");
+                exit();
+            }
+            $this->handle($webpage, $command->option("reset"), $command->option("db_suffix"));
+            $command->line("Webpage ".$webpage->slug." web blocks fetched");
+
+        } else {
+            foreach (Webpage::orderBy('id')->get() as $webpage) {
+                $this->handle($webpage, $command->option("reset"), $command->option("db_suffix"));
+                $command->line("Webpage ".$webpage->slug." web blocks fetched");
+            }
         }
 
 
-        $this->handle($webpage, $command->option("reset"), $command->option("db_suffix"));
 
         return 0;
     }

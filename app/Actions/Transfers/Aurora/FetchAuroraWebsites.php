@@ -145,6 +145,12 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 $webpage->updateQuietly(['last_fetched_at' => now()]);
             }
 
+            DB::connection('aurora')->table('Page Store Dimension')
+                ->where('Page Key', $auroraModelData->{'Page Key'})
+                ->update(['aiku_id' => $webpage->id]);
+
+
+
             return true;
         }
 
