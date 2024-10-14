@@ -33,7 +33,7 @@ class PublishWebpage extends OrgAction
         /** @var User $user */
         $user = UserResolver::resolve();
 
-        if($user) {
+        if ($user) {
             data_set($modelData, 'publisher_type', class_basename($user), overwrite: false);
             data_set($modelData, 'publisher_id', $user->id, overwrite: false);
         }

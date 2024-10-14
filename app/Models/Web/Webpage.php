@@ -82,6 +82,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, ModelHasWebBlocks> $modelHasWebBlocks
  * @property-read Organisation $organisation
  * @property-read Webpage|null $parent
+ * @property-read Collection<int, \App\Models\Web\WebpageHasRedirect> $redirects
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read Collection<int, Snapshot> $snapshots
  * @property-read \App\Models\Web\WebpageStats|null $stats
