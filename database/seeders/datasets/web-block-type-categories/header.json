@@ -10,15 +10,9 @@
 			"data": {
 				"bluprint": [
 					{
-						"name": "Title",
-						"key": "headerText",
-						"type": "editor",
-						"props_data": {}
-					},
-					{
 						"name": "Chip",
-						"key": "chip_text",
-						"type": "editor"
+						"key": "gold_member",
+						"type": "EditorAndPanelProperties"
 					},
 					{
 						"name": "Logo",
@@ -28,10 +22,150 @@
 				],
 				"header": {
 					"key": "header1",
-					"logo": null,
-					"headerText": "<p><span>FAIRLY TRADING WHOLESALE GIFTS SINCE 1995</span></p>",
-					"chip_text": "Become a Gold Reward Member",
-					"chip_background_color": "#57534E"
+					"logo": {
+						"visible" : "all",
+						"src": null,
+						"url": "https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png",
+						"alt": "",
+						"width": 50,
+						"properties": {
+							"padding": {
+								"unit": "px",
+								"top": {
+									"value": 0
+								},
+								"left": {
+									"value": 0
+								},
+								"right": {
+									"value": 0
+								},
+								"bottom": {
+									"value": 0
+								}
+							},
+							"margin": {
+								"unit": "px",
+								"top": {
+									"value": 0
+								},
+								"left": {
+									"value": 0
+								},
+								"right": {
+									"value": 0
+								},
+								"bottom": {
+									"value": 0
+								}
+							},
+							"border": {
+								"color": "#000000",
+								"unit": "px",
+								"rounded": {
+									"unit": "px",
+									"topright": {
+										"value": 0
+									},
+									"topleft": {
+										"value": 0
+									},
+									"bottomright": {
+										"value": 0
+									},
+									"bottomleft": {
+										"value": 0
+									}
+								},
+								"top": {
+									"value": 0
+								},
+								"left": {
+									"value": 0
+								},
+								"right": {
+									"value": 0
+								},
+								"bottom": {
+									"value": 0
+								}
+							}
+						}
+					},
+					"gold_member": {
+						"visible" : "all",
+						"text": "Become a Gold Reward Member",
+						"properties": {
+							"background": {
+								"type": "color",
+								"color": "#8E44AD",
+								"image": {
+									"original": null
+								}
+							},
+							"padding": {
+								"unit": "px",
+								"top": {
+									"value": 5
+								},
+								"left": {
+									"value": 10
+								},
+								"right": {
+									"value": 10
+								},
+								"bottom": {
+									"value": 5
+								}
+							},
+							"margin": {
+								"unit": "px",
+								"top": {
+									"value": 0
+								},
+								"left": {
+									"value": 0
+								},
+								"right": {
+									"value": 0
+								},
+								"bottom": {
+									"value": 0
+								}
+							},
+							"border": {
+								"color": "#000000",
+								"unit": "px",
+								"rounded": {
+									"unit": "px",
+									"topright": {
+										"value": 10
+									},
+									"topleft": {
+										"value": 10
+									},
+									"bottomright": {
+										"value": 10
+									},
+									"bottomleft": {
+										"value": 10
+									}
+								},
+								"top": {
+									"value": 0
+								},
+								"left": {
+									"value": 0
+								},
+								"right": {
+									"value": 0
+								},
+								"bottom": {
+									"value": 0
+								}
+							}
+						}
+					}
 				}
 			}
 		}

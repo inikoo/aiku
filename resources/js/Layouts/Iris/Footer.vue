@@ -11,12 +11,14 @@ const props = defineProps<{
     colorThemed: object
 }>()
 
+console.log('footer data', props)
+
 </script>
 
 <template>
     <div>
-        <component :is="getComponent(data.key)"  v-model="data.data"
-        :keyTemplate="data.key" :previewMode="true" :colorThemed="colorThemed" />
+        <component :is="getComponent(data.code)"  v-model="data.data.footer"
+        :keyTemplate="data.code" :previewMode="true" :colorThemed="colorThemed" />
     </div>
 
 </template>

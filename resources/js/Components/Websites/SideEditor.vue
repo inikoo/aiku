@@ -6,6 +6,10 @@ import AccordionPanel from 'primevue/accordionpanel';
 import AccordionHeader from 'primevue/accordionheader';
 import AccordionContent from 'primevue/accordioncontent';
 import InputText from 'primevue/inputtext';
+import { trans } from 'laravel-vue-i18n'
+import SelectButton from 'primevue/selectbutton';
+import EditorAndPanelProperties from "@/Components/Websites/Fields/EditorAndPanelProperties.vue"
+import ButtonVisibleLoggedIn from '@/Components/Websites/Fields/ButtonVisibleLoggedIn.vue';
 
 import UploadImage from '@/Components/Pure/UploadImage.vue'
 import Payments from '@/Components/Websites/Fields/Payment.vue'
@@ -33,12 +37,20 @@ const getComponent = (componentName: string) => {
         'payment_templates': Payments,
         'editor': Editor,
         'socialMedia': socialMedia,
-        'footerColumn': FooterColumn
+        'footerColumn': FooterColumn,
+        "EditorAndPanelProperties": EditorAndPanelProperties
     }
 
     return components[componentName]
 }
 
+const visible = ref("all")
+
+const options = ref([
+    { label: 'All', value: 'all' },
+    { label: 'Logged In', value: 'login' },
+    { label: 'Logged Out', value: 'logout' },
+]);
 const onUpdateValue = (field, value) => {
     emits('update:modelValue', {
         ...props.modelValue, [field.key]: value
@@ -55,9 +67,12 @@ const onUpdateValue = (field, value) => {
                 {{ field.name }}
             </AccordionHeader>
             <AccordionContent>
-                <component :is="getComponent(field.type)" :key="field.key" v-model="modelValue[field.key]"
-                    @update:modelValue="value => onUpdateValue(field, value)" :uploadRoutes="uploadImageRoute"
-                    v-bind="field?.props_data" />
+                <div class="bg-white mt-[0px] py-4">
+                    <ButtonVisibleLoggedIn v-model="modelValue[field.key]"/>
+                    <component :is="getComponent(field.type)" :key="field.key" v-model="modelValue[field.key]"
+                        @update:modelValue="value => onUpdateValue(field, value)" :uploadRoutes="uploadImageRoute"
+                        v-bind="field?.props_data" />
+                </div>
             </AccordionContent>
         </AccordionPanel>
     </Accordion>
@@ -75,23 +90,17 @@ const onUpdateValue = (field, value) => {
 }
 
 :deep(.p-accordionpanel.p-accordionpanel-active > .p-accordionheader) {
-    background-color: #800080 !important;
-    /* Ungu */
-    color: white !important;
-    /* Warna teks */
-    margin-bottom: 12px !important;
+    background-color: #E2E8F0 !important;
     border-radius: 0 !important;
 }
 
 :deep(.p-accordionpanel.p-accordionpanel-active > .p-accordionheader:hover) {
-    background-color: #800080 !important;
-    /* Ungu saat hover */
-    color: white !important;
+    background-color: #E2E8F0 !important;
+    /* color: #E2E8F0 !important; */
     border-radius: 0 !important;
 }
 
-:deep(.p-accordionpanel:not(.p-disabled).p-accordionpanel-active > .p-accordionheader .p-accordionheader-toggle-icon) {
-    color: white !important;
-    /* Warna teks */
-}
+/* :deep(.p-accordionpanel:not(.p-disabled).p-accordionpanel-active > .p-accordionheader .p-accordionheader-toggle-icon) {
+    color: #E2E8F0 !important;
+} */
 </style>

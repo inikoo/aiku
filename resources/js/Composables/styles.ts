@@ -9,7 +9,7 @@ export const getStyles = (properties: any) => {
             marginBottom: (properties.margin.bottom.value || 0) + properties.margin.unit,
             marginRight: (properties.margin.right.value || 0) + properties.margin.unit,
             marginLeft: (properties.margin.left.value || 0) + properties.margin.unit,
-            background: properties.background.type === 'color' ? properties.background.color : properties.background.image,
+            background: properties?.background?.type === 'color' ? properties?.background?.color : properties?.background?.image,
             borderTop: `${properties.border.top.value}${properties.border.unit} solid ${properties.border.color}`,
             borderBottom: `${properties.border.bottom.value}${properties.border.unit} solid ${properties.border.color}`,
             borderRight: `${properties.border.right.value}${properties.border.unit} solid ${properties.border.color}`,

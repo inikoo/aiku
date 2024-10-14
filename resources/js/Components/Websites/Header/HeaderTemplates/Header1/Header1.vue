@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import Button from '@/Components/Elements/Buttons/Button.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import MobileMenu from '@/Components/MobileMenu.vue'
 import Menu from 'primevue/menu'
+import { getStyles } from "@/Composables/styles";
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -70,15 +70,17 @@ const toggle = (event) => {
     _menu.value.toggle(event)
 };
 
+console.log('ss',props)
+
 </script>
 
 <template>
     <!-- Top Bar -->
     <div class="hidden md:block">
-    <div class="grid grid-cols-3 text-white  justify-between items-center p-2 text-xs" :style="{ backgroundColor : selectedColor[0]}">
+    <div class="grid grid-cols-3 justify-between items-center p-2" :style="{ backgroundColor : selectedColor[0]}">
         <div></div>
         <div class="font-bold text-center">
-            <Editor :toogle="toogle" v-model="modelValue.headerText"  :editable="!previewMode" />
+            <Editor :toogle="toogle" v-model="modelValue.headerText.text"  :editable="!previewMode" />
         </div>
 
         <!-- Section: Logout, Cart, profile -->
@@ -115,11 +117,16 @@ const toggle = (event) => {
         <div class="container mx-auto flex flex-col justify-between items-center">
             <div class="w-full grid grid-cols-3 items-center justify-between space-x-4 ">
 
-                <img v-if="!modelValue.logo"
-                    src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
-                    alt="Ancient Wisdom Logo" class="h-24" @click="openGalleryImages">
+                <div :style="getStyles(modelValue.logo.properties)">
+                    <img v-if="!modelValue.logo.src"
+                    :src="modelValue?.logo?.url"
+                    :alt="modelValue?.logo?.alt" 
+                    :style="{width: `${modelValue.logo.width}%`}" 
+                    @click="openGalleryImages">
 
-                <Image v-else :src="modelValue?.logo?.source" class="h-24" @click="openGalleryImages"></Image>
+                <Image v-else :src="modelValue?.logo?.src"  :style="{width: `${modelValue.logo.width}%`}" @click="openGalleryImages"></Image>
+                </div>
+               
 
                 <div class="relative w-fit justify-self-center">
                     <input type="text" placeholder="Search Products"
@@ -127,9 +134,12 @@ const toggle = (event) => {
                     <FontAwesomeIcon icon="fas fa-search"
                         class=" absolute top-1/2 -translate-y-1/2 right-4 text-gray-400" fixed-width aria-hidden='true' />
                 </div>
-                <button class="justify-self-end flex w-fit bg-stone-500 hover:bg-stone-600 text-white text-sm py-1 px-4 rounded-md" v-if="loginMode" :style="{ backgroundColor : selectedColor[4]}">
-                    <Editor :toogle="toogle" v-model="modelValue.chip_text"  :editable="!previewMode"/>
-                    <FontAwesomeIcon icon='fas fa-chevron-right' class='pt-1' fixed-width aria-hidden='true' />
+
+                <button 
+                    :style="getStyles(modelValue.gold_member.properties)"
+                    class="justify-center flex w-fit" 
+                    v-if="loginMode">
+                    <Editor :toogle="toogle" v-model="modelValue.gold_member.text" :editable="!previewMode"/>
                 </button>
             </div>
         </div>

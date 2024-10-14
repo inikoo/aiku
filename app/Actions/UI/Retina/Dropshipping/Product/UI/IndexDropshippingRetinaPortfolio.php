@@ -1,16 +1,14 @@
 <?php
 /*
- * Author: Vika Aqordi <aqordivika@yahoo.co.id>
- * Created on: 19-08-2024, Bali, Indonesia
- * Github: https://github.com/aqordeon
- * Copyright: 2024
- *
-*/
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Mon, 14 Oct 2024 14:05:52 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\UI\Retina\Dropshipping;
+namespace App\Actions\UI\Retina\Dropshipping\Product\UI;
 
-use App\Actions\RetinaAction;
 use App\Actions\Catalogue\Product\UI\IndexProducts as IndexUIProducts;
+use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Dashboard\ShowDashboard;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\DropshippingPortfolioResource;

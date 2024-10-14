@@ -12,9 +12,9 @@ use App\Actions\Dropshipping\ShopifyUser\StoreShopifyUser;
 use App\Actions\UI\Retina\Dropshipping\Client\CreateCustomerClient;
 use App\Actions\UI\Retina\Dropshipping\Client\IndexCustomerClients;
 use App\Actions\UI\Retina\Dropshipping\Client\ShowCustomerClient;
-use App\Actions\UI\Retina\Dropshipping\IndexDropshippingRetinaPortfolio;
+use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexDropshippingRetinaPortfolio;
+use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexDropshippingRetinaProducts;
 use App\Actions\UI\Retina\Dropshipping\ShowDropshipping;
-use App\Actions\UI\Retina\Dropshipping\IndexDropshippingRetinaProducts;
 use App\Actions\UI\Retina\Dropshipping\ShowProduct;
 use Illuminate\Support\Facades\Route;
 
@@ -33,9 +33,8 @@ Route::prefix('client')->as('client.')->group(function () {
 
 Route::prefix('portfolios')->as('portfolios.')->group(function () {
     Route::get('my-portfolio', IndexDropshippingRetinaPortfolio::class)->name('index');
+    Route::get('my-portfolio/{product}', ShowProduct::class)->name('show');
     Route::get('products', IndexDropshippingRetinaProducts::class)->name('products.index');
-
-    Route::get('{portfolio}', ShowProduct::class)->name('show');
 });
 
 // Route::get('/users', IndexUsers::class)->name('web-users.index');

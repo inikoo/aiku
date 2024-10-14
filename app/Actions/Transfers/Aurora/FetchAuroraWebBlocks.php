@@ -34,6 +34,7 @@ use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebBlocks extends OrgAction
 {
@@ -64,8 +65,12 @@ class FetchAuroraWebBlocks extends OrgAction
         $this->organisationSource->initialisation($webpage->organisation, $dbSuffix);
 
 
-        $oldMigrationsChecksum = $webpage->webBlocks()->get()->pluck('migration_checksum', 'migration_checksum')->toArray();
+        if ($reset) {
+            $this->reset($webpage);
+        }
 
+
+        $oldMigrationsChecksum = $webpage->webBlocks()->get()->pluck('migration_checksum', 'migration_checksum')->toArray();
         if (isset($webpage->migration_data)) {
             $migrationTypes = ['both', 'loggedIn', 'loggedOut'];
 
@@ -83,12 +88,12 @@ class FetchAuroraWebBlocks extends OrgAction
         return $webpage;
     }
 
-    private function processMigrationData($webpage, array $blocks, array &$oldMigrationsChecksum, $reset, $type): void
+    private function processMigrationData($webpage, array $blocks, array &$oldMigrationsChecksum, $type)
     {
         foreach ($blocks as $index => $auroraBlock) {
             $migrationData = md5(json_encode($auroraBlock));
-
-            if ($reset && isset($oldMigrationsChecksum[$migrationData])) {
+            if (isset($oldMigrationsChecksum[$migrationData])) {
+                DB::table("model_has_web_blocks")->where('migration_checksum', $migrationData)->update(['position' => $index + 1]);
                 unset($oldMigrationsChecksum[$migrationData]);
                 continue;
             }
@@ -104,7 +109,7 @@ class FetchAuroraWebBlocks extends OrgAction
     private function processData(
         Webpage $webpage,
         $auroraBlock,
-        $migrationData,
+        $migrationChecksum,
         int $position,
         $visibility = ["loggedIn" => true, "loggedOut" => true]
     ): void {
@@ -235,7 +240,7 @@ class FetchAuroraWebBlocks extends OrgAction
             $webBlockType,
             [
                 "layout"             => $layout,
-                "migration_checksum" => $migrationData,
+                "migration_checksum" => $migrationChecksum,
                 "models"             => $models,
             ],
             strict: false
@@ -306,14 +311,16 @@ class FetchAuroraWebBlocks extends OrgAction
             "model_id"           => $webpage->id,
             "model_type"         => class_basename(Webpage::class),
             "web_block_id"       => $webBlock->id,
-            "migration_checksum" => $migrationData,
+            "migration_checksum" => $migrationChecksum,
         ];
 
         if (isset($auroraBlock["show"])) {
             $modelHasWebBlocksData['show'] = boolval($auroraBlock["show"]);
         }
 
+
         $webpage->modelHasWebBlocks()->create($modelHasWebBlocksData);
+
 
         UpdateWebpageContent::run($webpage->refresh());
 
@@ -338,6 +345,13 @@ class FetchAuroraWebBlocks extends OrgAction
         $image = $media->getImage();
 
         return GetPictureSources::run($image);
+    }
+
+    private function reset(Webpage $webpage)
+    {
+        foreach ($webpage->webBlocks()->get() as $webBlock) {
+            DeleteWebBlock::run($webBlock);
+        }
     }
 
     /**

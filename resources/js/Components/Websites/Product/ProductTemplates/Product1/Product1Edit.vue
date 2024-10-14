@@ -13,14 +13,33 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 library.add(faCube, faLink, faStar, faCircle, faChevronDown, faChevronLeft, faChevronRight, faHeart, faSeedling, faHandPaper, faFish, faMedal, faSquare)
 
 const props = defineProps<{
-    modelValue: any
-    previewMode: boolean
-    isEditing?: boolean
+    modelValue?: {
+        data: {
+            name: string,
+            code: string,
+            images: string[],
+            description: string
+        }
+    },
+    previewMode: boolean,
+    isEditing?: boolean,
     colorThemed?: Object
 }>()
 
+const defaultModelValue = ref({
+    data: {
+        name: '',
+        code: '',
+        images: [],
+        description: ''
+    }
+})
+
+const finalModelValue = ref(props.modelValue || defaultModelValue.value)
+
 const selectedProduct = ref(0)
 const emits = defineEmits(['update:modelValue', 'autoSave'])
+console.log(props.modelValue);
 
 const dataProduct = ref({
     images: [
@@ -40,13 +59,14 @@ const dataProduct = ref({
                 <div class="grid grid-cols-5 gap-x-10 mb-12">
                     <div class="col-span-3">
                         <div class="font-bold text-lg">
-                            <InlineInput v-model="modelValue.data.name"></InlineInput>
+                            <!-- Check if props.modelValue and props.modelValue.data are defined -->
+                            <InlineInput v-if="props.modelValue && props.modelValue.data"
+                                v-model="props.modelValue.data.name"></InlineInput>
                         </div>
 
-
-                        <div class="mb-1 flex gap-x-10">
+                        <div v-if="props.modelValue && props.modelValue.data" class="mb-1 flex gap-x-10">
                             <div class="text-sm">
-                                Product code: {{ modelValue.data.code }}
+                                Product code: {{ props.modelValue.data.code }}
                             </div>
                             <div class="flex gap-x-[1px] items-center">
                                 <FontAwesomeIcon icon="fas fa-star text-[9px] text-gray-600"></FontAwesomeIcon>
@@ -58,7 +78,7 @@ const dataProduct = ref({
                             </div>
                         </div>
 
-                        <div class="mb-1 flex justify-between">
+                        <div v-if="props.modelValue && props.modelValue.data" class="mb-1 flex justify-between">
                             <div>
                                 <FontAwesomeIcon icon="fas fa-circle" class="text-sm text-green-600"></FontAwesomeIcon>
                                 <span class="ml-1 text-sm">(41)</span>
@@ -69,9 +89,10 @@ const dataProduct = ref({
                         </div>
 
                         <!-- Images product -->
-                        <div v-if="modelValue.data.images.length" class="grid grid-cols-5 mb-10 gap-x-2">
+                        <div v-if="props.modelValue && props.modelValue.data.images.length"
+                            class="grid grid-cols-5 mb-10 gap-x-2">
                             <div class="flex flex-col gap-y-1.5">
-                                <div v-for="(product, idxProduct) in modelValue.data.images"
+                                <div v-for="(product, idxProduct) in props.modelValue.data.images"
                                     @click="() => selectedProduct = idxProduct" class="aspect-square cursor-pointer"
                                     :class="selectedProduct == idxProduct ? 'ring-2 ring-gray-400' : 'hover:ring-1 hover:ring-gray-300'">
                                     <img :src="product" alt="">
@@ -94,19 +115,20 @@ const dataProduct = ref({
                                 </div>
                             </div>
                         </div>
-
                         <div v-else class="mb-10 gap-x-2">
                             <UploadImage v-model="selectedProduct" :uploadRoutes="{ name: '', parameters: '' }" />
                         </div>
 
                         <!-- Section: Description -->
                         <div class="space-y-4 mb-6">
-                            <div class="text-xs text-gray-500">
-                                <Editor :editable="!previewMode" v-model="modelValue.data.description"
+                            <div v-if="props.modelValue && props.modelValue.data" class="text-xs text-gray-500">
+                                <Editor :editable="!previewMode" v-model="props.modelValue.data.description"
                                     placeholder="write something ...." />
                             </div>
+                            <div v-else class="text-xs text-gray-500 italic">Loading description...</div>
                             <div class="font-bold text-xs underline">Read More</div>
                         </div>
+
 
                         <!-- Section: Label -->
                         <div class="flex gap-x-10 text-gray-400 mb-6">

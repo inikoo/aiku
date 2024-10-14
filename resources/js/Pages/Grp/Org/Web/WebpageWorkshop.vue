@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { ref, defineExpose } from 'vue'
+import { ref, defineExpose, onMounted, provide } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -39,7 +39,7 @@ const props = defineProps<{
 const comment = ref("")
 const isLoading = ref<string | boolean>(false)
 const openDrawer = ref<string | boolean>(false)
-const iframeSrc = ref(route('grp.websites.preview', [route().params['website'], route().params['webpage']]))
+const iframeSrc = ref(route('grp.websites.preview', [route().params['website'], route().params['webpage'], { 'isInWorkshop': 'true' }]))
 const data = ref({ ...props.webpage })
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
@@ -200,6 +200,31 @@ const handleIframeError = () => {
 const openFullScreenPreview = () => {
     window.open(iframeSrc.value, '_blank')
 }
+
+// const zzz = () => {
+//     console.log('print from parent')
+// }
+// const isModalBlocksList = ref(false)
+// const updateModalBlock = (newVal: boolean) => {
+//     isModalBlocksList.value = newVal
+// }
+// provide('updateModalBlock', updateModalBlock)
+
+// const _iframeRef = ref(null)
+// const sendMessageToIframe = () => {
+//     if (_iframeRef.value && _iframeRef.value.contentWindow) {
+//         const message = { methodName: 'myMethod', params: { key: zzz } };
+//         _iframeRef.value.contentWindow.postMessage(message, '*');
+//     }
+// }
+const isModalBlockList = ref(false)
+onMounted(() => {
+    window.addEventListener('message', (event) => {
+        if (event.data === 'openModalBlockList') {
+            isModalBlockList.value = true
+        }
+    });
+});
 </script>
 
 <template>
@@ -208,7 +233,7 @@ const openFullScreenPreview = () => {
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
             <Publish :isLoading="isLoading" :is_dirty="data.is_dirty" v-model="comment"
-                @onPublish="(popover) => onPublish(action.route, popover)" ref="_WebpageSideEditor" />
+                @onPublish="(popover) => onPublish(action.route, popover)" />
         </template>
 
         <template #afterTitle v-if="isSavingBlock">
@@ -219,7 +244,7 @@ const openFullScreenPreview = () => {
     <div class="grid grid-cols-5 h-[85vh]">
         <!-- Section: Side editor -->
         <div class="col-span-1 md:block hidden h-full border-2 bg-gray-200 px-3 py-1 ">
-            <WebpageSideEditor :isLoadingDelete :isAddBlockLoading :webpage="props.webpage"
+            <WebpageSideEditor v-model="isModalBlockList" :isLoadingDelete :isAddBlockLoading :webpage="props.webpage"
                 :webBlockTypeCategories="webBlockTypeCategories" @update="sendBlockUpdate" @delete="sendDeleteBlock"
                 @add="addNewBlock" @order="sendOrderBlock" />
         </div>
@@ -230,10 +255,10 @@ const openFullScreenPreview = () => {
                 <div class="py-1 px-2 cursor-pointer md:hidden block" title="Desktop view" v-tooltip="'Navigation'">
                     <FontAwesomeIcon :icon='faBars' aria-hidden='true' @click="() => openDrawer = true" />
                     <Drawer v-model:visible="openDrawer" :header="''" :dismissable="true">
-                        <WebpageSideEditor ref="_WebpageSideEditor" :webpage="data"
+                        <WebpageSideEditor v-model="isModalBlockList" ref="_WebpageSideEditor" :webpage="data"
                             :webBlockTypeCategories="webBlockTypeCategories" @update="sendBlockUpdate"
                             @delete="sendDeleteBlock" @add="addNewBlock" @order="sendOrderBlock"
-                            @openBlockList="() => { openDrawer = false, _WebpageSideEditor.isModalBlocksList = true }" />
+                            @openBlockList="() => { openDrawer = false, isModalBlockList = true }" />
                     </Drawer>
                 </div>
 
@@ -253,7 +278,7 @@ const openFullScreenPreview = () => {
                 </div>
 
                 <div class="h-full w-full bg-white">
-                    <iframe :src="iframeSrc" :title="props.title"
+                    <iframe ref="_iframeRef" :src="iframeSrc" :title="props.title"
                         :class="[iframeClass, isIframeLoading ? 'hidden' : '']" @error="handleIframeError"
                         @load="isIframeLoading = false" />
                 </div>
