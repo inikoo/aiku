@@ -20,7 +20,10 @@ import { cloneDeep } from 'lodash'
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage, WebBlock } from '@/types/webpageTypes'
-import { routeType } from '@/types/route';
+import { routeType } from '@/types/route'
+import { trans } from 'laravel-vue-i18n'
+import Button from '@/Components/Elements/Buttons/Button.vue'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 
 defineOptions({ layout: WebPreview })
@@ -109,6 +112,13 @@ watch(layout.footer, (newVal) => {
 
 console.log('preview',props)
 
+const isInWorkshop = JSON.parse(route().params.isInWorkshop)
+
+
+const openModalBlock = () => {
+    window.parent.postMessage('openModalBlockList', '*')
+};
+
 
 
 </script>
@@ -116,6 +126,7 @@ console.log('preview',props)
 
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
+        
         <RenderHeaderMenu v-if="header?.header?.header" :data="layout.header" :menu="layout?.navigation"
             :colorThemed="layout.colorThemed" />
 
@@ -135,11 +146,27 @@ console.log('preview',props)
                         </TransitionGroup>
 
                     </div>
-                    <div v-else>
-                        <EmptyState :data="{
-                            title: 'Pick First Block For Your Website',
-                            description: 'Pick block from list'
-                        }">
+                    <div v-else class="py-8">
+                        <div v-if="isInWorkshop" class="mx-auto">
+                            <div class="text-center text-gray-500">
+                                {{ trans('No block exist. Click button below to add')}}
+                            </div>
+                            <div class="w-64 mx-auto">
+                                <Button label="add new block" class="mt-3" full type="dashed" @click="openModalBlock">
+                                    <div class="text-gray-500">
+                                        <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
+                                        {{ trans('Add block') }}
+                                    </div>
+                                </Button>
+                            </div>
+                        </div>
+
+                        <EmptyState v-else
+                            :data="{
+                                title: 'Pick First Block For Your Website',
+                                description: 'Pick block from list'
+                            }"
+                        >
                         </EmptyState>
                     </div>
                 </div>
