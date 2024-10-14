@@ -42,7 +42,7 @@ const debouncedSendUpdateFooter = debounce((footer) => autoSave(footer), 1000, {
 const data = ref(cloneDeep(props.webpage))
 const editDataTools = ref({
     previewMode: !props.webpage ? false : true,
-    isLoggedIn : true,
+    isLoggedIn: true,
 })
 
 const layout = reactive({
@@ -111,7 +111,7 @@ watch(layout.footer, (newVal) => {
     debouncedSendUpdateFooter(newVal)
 }, { deep: true })
 
-console.log('preview',props)
+console.log('preview', props)
 
 const isInWorkshop = JSON.parse(route().params.isInWorkshop)
 
@@ -120,32 +120,28 @@ const openModalBlock = () => {
     window.parent.postMessage('openModalBlockList', '*')
 };
 
-
-
 </script>
 
 
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
-        <RenderHeaderMenu 
-            v-if="header?.header?.header" 
-            :data="layout.header" 
-            :menu="layout?.navigation" 
-            :colorThemed="layout.colorThemed" 
-        />
+        <RenderHeaderMenu v-if="header?.header?.header" :data="layout.header" :menu="layout?.navigation"
+            :colorThemed="layout?.colorThemed" />
 
         <div v-if="data" class="relative">
             <div class="container max-w-7xl mx-auto">
                 <div class="h-full overflow-auto w-full ">
                     <div v-if="data?.layout?.web_blocks?.length">
                         <TransitionGroup tag="div" name="zzz" class="relative">
-                            <section v-for="(activityItem, activityItemIdx) in data.layout.web_blocks"
+                            <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
                                 :key="activityItem.id" class="w-full">
-                                <component :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
+                                <component v-if="activityItem?.web_block?.layout?.data?.fieldValue"
+                                    :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
                                     :webpageData="webpage"
-                                    :properties="activityItem?.web_block?.layout?.data.properties" v-bind="activityItem"
-                                    v-model="activityItem.web_block.layout.data.fieldValue" :isEditable="true"
-                                    :style="{ width: '100%' }" @autoSave="() => onUpdatedBlock(activityItem)" />
+                                    :properties="activityItem?.web_block?.layout?.data?.properties"
+                                    v-bind="activityItem" v-model="activityItem.web_block.layout.data.fieldValue"
+                                    :isEditable="true" :style="{ width: '100%' }"
+                                    @autoSave="() => onUpdatedBlock(activityItem)" />
                             </section>
                         </TransitionGroup>
 
@@ -153,7 +149,7 @@ const openModalBlock = () => {
                     <div v-else class="py-8">
                         <div v-if="isInWorkshop" class="mx-auto">
                             <div class="text-center text-gray-500">
-                                {{ trans('No block exist. Click button below to add')}}
+                                {{ trans('No block exist. Click button below to add') }}
                             </div>
                             <div class="w-64 mx-auto">
                                 <Button label="add new block" class="mt-3" full type="dashed" @click="openModalBlock">
@@ -165,25 +161,18 @@ const openModalBlock = () => {
                             </div>
                         </div>
 
-                        <EmptyState v-else
-                            :data="{
-                                title: 'Pick First Block For Your Website',
-                                description: 'Pick block from list'
-                            }"
-                        >
+                        <EmptyState v-else :data="{
+                            title: 'Pick First Block For Your Website',
+                            description: 'Pick block from list'
+                        }">
                         </EmptyState>
                     </div>
                 </div>
             </div>
         </div>
 
-        <component 
-            v-if="footer?.footer?.data" 
-            :is="getComponentFooter(layout.footer.code)" 
-            v-model="layout.footer.data.footer"
-            :keyTemplate="layout.footer" 
-            :previewMode="editDataTools.previewMode" 
-            :colorThemed="layout.colorThemed" 
-        />
+        <component v-if="footer?.footer?.data" :is="getComponentFooter(layout.footer.code)"
+            v-model="layout.footer.data.footer" :keyTemplate="layout.footer" :previewMode="editDataTools.previewMode"
+            :colorThemed="layout.colorThemed" />
     </div>
 </template>
