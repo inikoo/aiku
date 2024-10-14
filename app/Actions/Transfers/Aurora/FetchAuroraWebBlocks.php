@@ -115,36 +115,36 @@ class FetchAuroraWebBlocks extends OrgAction
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = WebBlockType::where("slug", "gallery")->first();
-                $layout       = $this->processGalleryData($webBlockType, $auroraBlock);
+                $layout       = $this->processGalleryData($auroraBlock);
                 break;
             case "text":
                 $webBlockType = WebBlockType::where("slug", "text")->first();
-                $layout       = $this->processTextData($webBlockType, $auroraBlock);
+                $layout       = $this->processTextData($auroraBlock);
                 break;
             case "telephone":
                 $webBlockType = WebBlockType::where("slug", "text")->first();
-                $layout       = $this->processPhoneData($webBlockType, $auroraBlock);
+                $layout       = $this->processPhoneData($auroraBlock);
                 break;
-            case "code": // hello test
+            case "code":
             case "reviews":
                 $webBlockType = WebBlockType::where("slug", "script")->first();
-                $layout       = $this->processScriptData($webBlockType, $auroraBlock);
+                $layout       = $this->processScriptData($auroraBlock);
                 break;
             case "map":
             case "iframe":
                 $webBlockType = WebBlockType::where("slug", "iframe")->first();
-                $layout       = $this->processIFrameData($webBlockType, $auroraBlock);
+                $layout       = $this->processIFrameData($auroraBlock);
                 break;
             case "product":
                 $webBlockType = WebBlockType::where("slug", "product")->first();
-                $layout       = $this->processProductData($webBlockType, $auroraBlock);
+                $layout       = $this->processProductData($auroraBlock);
                 $models[]     = Product::find($webpage->model_id);
                 break;
 
             case "category_products":
                 $webBlockType = WebBlockType::where("slug", "family")->first();
                 $models[]     = ProductCategory::find($webpage->model_id);
-                $layout = $this->processFamilyData($webBlockType, $auroraBlock);
+                $layout = $this->processFamilyData($auroraBlock);
                 break;
 
             case "see_also":
@@ -201,21 +201,21 @@ class FetchAuroraWebBlocks extends OrgAction
                         }
                     }
                 }
-                $layout = $this->processProductsData($webBlockType, $auroraBlock);
+                $layout = $this->processProductsData($auroraBlock);
                 break;
 
             case "category_categories":
                 $webBlockType = WebBlockType::where("slug", "department")->first();
-                $layout = $this->processDepartmentData($models, $webpage, $webBlockType, $auroraBlock);
+                $layout = $this->processDepartmentData($models, $webpage, $auroraBlock);
                 break;
 
             case "blackboard":
                 $webBlockType = WebBlockType::where("slug", "overview")->first();
-                $layout       = $this->processOverviewData($webBlockType, $auroraBlock);
+                $layout       = $this->processOverviewData($auroraBlock);
                 break;
             case "button":
                 $webBlockType = WebBlockType::where("slug", "cta1")->first();
-                $layout       = $this->processCTA1Data($webBlockType, $auroraBlock);
+                $layout       = $this->processCTA1Data($auroraBlock);
                 break;
             default:
                 print ">>>>> ".$webpage->slug."  ".$auroraBlock["type"]."  <<<<<<\n";
@@ -227,18 +227,17 @@ class FetchAuroraWebBlocks extends OrgAction
             return;
         }
 
-        data_set($layout, "data.properties.padding.unit", "px");
-        data_set($layout, "data.properties.padding.left.value", 20);
-        data_set($layout, "data.properties.padding.right.value", 20);
-        data_set($layout, "data.properties.padding.bottom.value", 20);
-        data_set($layout, "data.properties.padding.top.value", 20);
+        data_set($layout, "properties.padding.unit", "px");
+        data_set($layout, "properties.padding.left.value", 20);
+        data_set($layout, "properties.padding.right.value", 20);
+        data_set($layout, "properties.padding.bottom.value", 20);
+        data_set($layout, "properties.padding.top.value", 20);
 
         $webBlock = StoreWebBlock::make()->action(
             $webBlockType,
             [
                 "layout"             => $layout,
                 "migration_checksum" => $migrationData,
-                "visibility"         => $visibility,
                 "models"             => $models,
             ],
             strict: false
@@ -254,7 +253,7 @@ class FetchAuroraWebBlocks extends OrgAction
             $code = $webBlock->webBlockType->code;
 
             if ($code == "family") {
-                $items = $webBlock->layout["data"]["fieldValue"]["value"]["items"];
+                $items = $webBlock->layout["fieldValue"]["value"]["items"];
                 $addOns = [];
                 foreach ($items as $item) {
                     if ($item['type'] == "image") {
@@ -264,10 +263,10 @@ class FetchAuroraWebBlocks extends OrgAction
                         $addOns[] = $item;
                     }
                 }
-                data_set($layout, "data.fieldValue.value.addOns", $addOns);
-                unset($layout["data"]["fieldValue"]["value"]["items"]);
+                data_set($layout, "fieldValue.value.addOns", $addOns);
+                unset($layout["fieldValue"]["value"]["items"]);
             } elseif ($code == "department") {
-                $sections = $webBlock->layout["data"]["fieldValue"]["value"]["sections"];
+                $sections = $webBlock->layout["fieldValue"]["value"]["sections"];
                 foreach ($sections as $section) {
                     $items = $section['items'];
                     if ($items) {
@@ -281,16 +280,16 @@ class FetchAuroraWebBlocks extends OrgAction
                         $sections[$index]["items"] = $items;
                     }
                 }
-                data_set($layout, "data.fieldValue.value.sections", $sections);
+                data_set($layout, "fieldValue.value.sections", $sections);
 
             } else {
                 $imageSources = [];
-                $imagesRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
+                $imagesRawData = $webBlock->layout["fieldValue"]["value"]["images"];
                 foreach ($imagesRawData as $imageRawData) {
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
                     $imageSources[] = ["image" => ["source" => $imageSource]];
                 }
-                data_set($layout, "data.fieldValue.value.images", $imageSources);
+                data_set($layout, "fieldValue.value.images", $imageSources);
             }
 
             $webBlock->updateQuietly([
@@ -299,6 +298,8 @@ class FetchAuroraWebBlocks extends OrgAction
         }
 
         $modelHasWebBlocksData = [
+            'show_logged_in'     => $visibility['loggedIn'],
+            'show_logged_out'    => $visibility['loggedOut'],
             "group_id"           => $webpage->group_id,
             "organisation_id"    => $webpage->organisation_id,
             "shop_id"            => $webpage->shop_id,

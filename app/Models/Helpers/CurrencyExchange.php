@@ -11,7 +11,6 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Carbon;
 
 /**
  * App\Models\Helpers\FetchCurrencyExchange
@@ -21,8 +20,8 @@ use Illuminate\Support\Carbon;
  * @property string $exchange
  * @property string $date
  * @property string|null $source F:Frankfurter, CB:currencyBeacon, M:manual
- * @property Carbon|null $created_at
- * @property Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Helpers\Currency $currency
  * @method static Builder|CurrencyExchange newModelQuery()
  * @method static Builder|CurrencyExchange newQuery()

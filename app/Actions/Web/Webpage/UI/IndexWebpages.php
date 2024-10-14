@@ -74,9 +74,9 @@ class IndexWebpages extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function shop(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
+    public function catalogue(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
-        $this->bucket = 'shop';
+        $this->bucket = 'catalogue';
         $this->scope  = $shop;
         $this->parent = $website;
         $this->initialisationFromShop($website->shop, $request);
@@ -98,9 +98,9 @@ class IndexWebpages extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function smallPrint(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
+    public function info(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
-        $this->bucket = 'small-print';
+        $this->bucket = 'info';
         $this->scope  = $shop;
         $this->parent = $website;
         $this->initialisationFromShop($website->shop, $request);
@@ -110,9 +110,21 @@ class IndexWebpages extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function checkout(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
+    public function blog(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
     {
-        $this->bucket = 'checkout';
+        $this->bucket = 'blog';
+        $this->scope  = $shop;
+        $this->parent = $website;
+        $this->initialisationFromShop($website->shop, $request);
+
+
+        return $this->handle(parent: $this->parent, bucket: $this->bucket);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function operations(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'operations';
         $this->scope  = $shop;
         $this->parent = $website;
         $this->initialisationFromShop($website->shop, $request);
@@ -187,6 +199,10 @@ class IndexWebpages extends OrgAction
             $queryBuilder->where('webpages.type', WebpageTypeEnum::INFO);
         } elseif ($bucket == 'operations') {
             $queryBuilder->where('webpages.type', WebpageTypeEnum::OPERATIONS);
+        } elseif ($bucket == 'blog') {
+            $queryBuilder->where('webpages.type', WebpageTypeEnum::BLOG);
+        } elseif ($bucket == 'storefront') {
+            $queryBuilder->where('webpages.type', WebpageTypeEnum::STOREFRONT);
         }
 
 
@@ -322,7 +338,7 @@ class IndexWebpages extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.shops.show.web.webpages.index.type.shop' =>
+            'grp.org.shops.show.web.webpages.index.type.catalogue' =>
             array_merge(
                 ShowWebsite::make()->getBreadcrumbs(
                     'Shop',
@@ -330,7 +346,7 @@ class IndexWebpages extends OrgAction
                 ),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.shops.show.web.webpages.index.type.shop',
+                        'name'       => 'grp.org.shops.show.web.webpages.index.type.catalogue',
                         'parameters' => $routeParameters
                     ],
                     trim('('.__('Shop').') '.$suffix)

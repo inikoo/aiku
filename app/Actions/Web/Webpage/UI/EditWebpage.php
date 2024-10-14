@@ -15,7 +15,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Exception;
-use Arr;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -53,6 +53,7 @@ class EditWebpage extends OrgAction
      */
     public function htmlResponse(Webpage $webpage, ActionRequest $request): Response
     {
+        $redirectUrlArr = Arr::pluck($webpage->redirects->toArray(), 'redirect');
         return Inertia::render(
             'EditModel',
             [
@@ -96,7 +97,7 @@ class EditWebpage extends OrgAction
                                         'seotitle'       => Arr::get($webpage->data, 'seotitle')       ?? '',
                                         'seourl'         => Arr::get($webpage->data, 'seourl')         ?? '',
                                         'seodescription' => Arr::get($webpage->data, 'seodescription') ?? '',
-                                        'redirecturl'         => 'xxxx, aaaa, bbbb, rrrr',  // TODO
+                                        'redirecturl'    => implode(",", $redirectUrlArr),  // TODO
                                     ],
                                     'noTitle'  => true,
                                 ]

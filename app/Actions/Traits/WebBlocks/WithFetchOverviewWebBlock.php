@@ -9,21 +9,13 @@
 
 namespace App\Actions\Traits\WebBlocks;
 
-use App\Models\Web\WebBlockType;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithFetchOverviewWebBlock
 {
     use AsAction;
-    public function processOverviewData(WebBlockType $webBlockType, $auroraBlock): array
+    public function processOverviewData($auroraBlock): array
     {
-        $layout = Arr::only(
-            $webBlockType->toArray(),
-            [
-                'code','data','name'
-            ]
-        );
         $textsArray = [];
         foreach ($auroraBlock["texts"] as $text) {
             if (!isset($text["text"])) {
@@ -34,7 +26,7 @@ trait WithFetchOverviewWebBlock
             ];
         }
         $textValue["value"] = $textsArray;
-        data_set($layout, "data.fieldValue.value.texts", $textValue["value"]);
+        data_set($layout, "fieldValue.value.texts", $textValue["value"]);
 
         $imagesArray = [];
         foreach ($auroraBlock["images"] as $image) {
@@ -46,7 +38,7 @@ trait WithFetchOverviewWebBlock
             ];
         }
         $imgValue["value"] = $imagesArray;
-        data_set($layout, "data.fieldValue.value.images", $imgValue["value"]);
+        data_set($layout, "fieldValue.value.images", $imgValue["value"]);
         return $layout;
     }
 }

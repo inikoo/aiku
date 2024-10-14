@@ -8,27 +8,17 @@
 
 namespace App\Actions\Traits\WebBlocks;
 
-use App\Models\Web\WebBlockType;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithFetchFamilyWebBlock
 {
     use AsAction;
-    public function processFamilyData(WebBlockType $webBlockType, $auroraBlock): array|null
+    public function processFamilyData($auroraBlock): array|null
     {
 
         if (!isset($auroraBlock["type"])) {
             return null;
         }
-
-        $layout = Arr::only(
-            $webBlockType->toArray(),
-            [
-                'code','data','name'
-            ]
-        );
-
         $items = [];
         foreach ($auroraBlock['items'] as $index => $item) {
             $type = $item["type"];
@@ -43,7 +33,7 @@ trait WithFetchFamilyWebBlock
             }
         }
 
-        data_set($layout, "data.fieldValue.value.items", $items);
+        data_set($layout, "fieldValue.value.items", $items);
         return $layout;
     }
 }

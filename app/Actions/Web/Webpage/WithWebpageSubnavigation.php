@@ -19,37 +19,40 @@ trait WithWebpageSubnavigation
         return [
             [
                 'href'     => [
+                    'name'       => 'grp.org.shops.show.web.webpages.index',
+                    'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-home'],
+                    'tooltip' => __('Homepage')
+                ]
+            ],
+            [
+                'isAnchor' => true,
+                'label'    => __('Structure'),
+
+                'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.tree',
                     'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-code-branch'],
-                    'tooltip' => __('Webpage Tree')
+                    'tooltip' => __('Tree view of the webpages')
                 ]
+
+
+
             ],
             [
-                'isAnchor'   => true,
-                'number'   => $website->webStats->number_webpages,
-                'label'    => __('All'),
-                'href'     => [
-                    'name'       => 'grp.org.shops.show.web.webpages.index',
-                    'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
-                ],
-                'leftIcon' => [
-                    'icon'    => ['fal', 'fa-stream'],
-                    'tooltip' => __('All Webpages')
-                ]
-            ],
-            [
-                'number'   => $website->webStats->number_webpages_type_shop,
+                'number'   => $website->webStats->number_webpages_type_catalogue,
                 'label'    => __('Catalogue'),
                 'href'     => [
-                    'name'       => 'grp.org.shops.show.web.webpages.index.type.shop',
+                    'name'       => 'grp.org.shops.show.web.webpages.index.type.catalogue',
                     'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
-                    'tooltip' => __('Shop Webpages')
+                    'tooltip' => __('Catalogue webpages')
                 ]
             ],
             [
@@ -61,33 +64,61 @@ trait WithWebpageSubnavigation
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
-                    'tooltip' => __('Content Webpages')
+                    'tooltip' => __('Content pages')
                 ]
             ],
             [
-                'number'   => $website->webStats->number_webpages_type_small_print,
-                'label'    => __('Small Print'),
+                'number'   => $website->webStats->number_webpages_type_info,
+                'label'    => __('Info'),
                 'href'     => [
-                    'name'       => 'grp.org.shops.show.web.webpages.index.type.small-print',
+                    'name'       => 'grp.org.shops.show.web.webpages.index.type.info',
                     'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
-                    'tooltip' => __('Small Print Webpages')
+                    'tooltip' => __('Info pages')
                 ]
             ],
             [
-                'number'   => $website->webStats->number_webpages_type_checkout,
-                'label'    => __('Checkout'),
+                'number'   => $website->webStats->number_webpages_type_operations,
+                'label'    => __('Operations'),
                 'href'     => [
-                    'name'       => 'grp.org.shops.show.web.webpages.index.type.checkout',
+                    'name'       => 'grp.org.shops.show.web.webpages.index.type.operations',
                     'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
-                    'tooltip' => __('Checkout Webpages')
+                    'tooltip' => __('Operations webpages')
                 ]
             ],
+
+            [
+                'number'   => $website->webStats->number_webpages_type_blog,
+                'label'    => __('Blog'),
+                'href'     => [
+                    'name'       => 'grp.org.shops.show.web.webpages.index.type.blog',
+                    'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-stream'],
+                    'tooltip' => __('Operations blog')
+                ]
+            ],
+
+            [
+                'number'   => $website->webStats->number_webpages,
+                'align'    => 'right',
+                'label'    => __('All'),
+                'href'     => [
+                    'name'       => 'grp.org.shops.show.web.webpages.index',
+                    'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-stream'],
+                    'tooltip' => __('All Webpages')
+                ]
+            ],
+
         ];
     }
 

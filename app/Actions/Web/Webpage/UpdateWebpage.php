@@ -22,6 +22,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Web\Webpage;
 use App\Rules\AlphaDashSlash;
 use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -34,7 +35,13 @@ class UpdateWebpage extends OrgAction
 
     public function handle(Webpage $webpage, array $modelData): Webpage
     {
+        // dd($modelData);
+        $modelData = StoreWebpageHasRedirect::make()->action($webpage, $modelData);
+        // if($modelData)
+
+        // Arr::forget($modelData, 'data.redirecturl');
         $webpage = $this->update($webpage, $modelData, ['data', 'settings']);
+
 
         if ($webpage->wasChanged('state')) {
             GroupHydrateWebpages::dispatch($webpage->group)->delay($this->hydratorsDelay);
