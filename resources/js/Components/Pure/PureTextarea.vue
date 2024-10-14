@@ -20,6 +20,7 @@ const props = defineProps<{
     disabled?: boolean
     loading?: boolean
     rows?:Number|null
+    inputName?: string
 }>()
 
 const emits = defineEmits<{
@@ -34,10 +35,13 @@ const emits = defineEmits<{
             @input="(event: any) => emits('update:modelValue', event.target.value)"
             v-bind="$attrs"
             :disabled="disabled" 
-            :rows="rows"
+            :name="inputName"
+            :id="inputName"
+            :rows
             :placeholder="placeholder || trans('Enter text here')" class="block w-full rounded-md placeholder:text-gray-400 placeholder:italic placeholder:text-xs 
-                   disabled:text-gray-500 disabled:border-gray-300 disabled:bg-gray-100
-                   border-gray-300 focus:border-gray-500 focus:ring-gray-500 sm:text-sm" />
+            disabled:text-gray-500 disabled:border-gray-300 disabled:bg-gray-100
+            border-gray-300 focus:border-gray-500 focus:ring-gray-500 sm:text-sm"
+        />
         <!-- Loading icon -->
         
         <div class="absolute bottom-2 right-2 flex items-center justify-center">
