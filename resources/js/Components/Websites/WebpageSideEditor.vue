@@ -24,6 +24,7 @@ import { trans } from 'laravel-vue-i18n'
 
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText)
+const modelModalBlocklist = defineModel()
 
 const props = defineProps<{
     webpage: RootWebpage
@@ -40,8 +41,8 @@ const emits = defineEmits<{
     (e: 'openBlockList', value: Boolean): void
 }>()
 
-const isModalBlocksList = ref(false)
-const isLoading = ref<string | boolean>(false)
+// const isModalBlocksList = ref(false)
+// const isLoading = ref<string | boolean>(false)
 
 const sendNewBlock = async (block: Daum) => {
     emits('add', block)
@@ -61,9 +62,9 @@ const sendDeleteBlock = async (block: Daum) => {
 
 
 const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block), 1000, { leading: false, trailing: true })
-const onUpdatedBlock = (block: Daum) => {
-    debouncedSendUpdate(block)
-}
+// const onUpdatedBlock = (block: Daum) => {
+//     debouncedSendUpdate(block)
+// }
 
 const onChangeOrderBlock = () => {
     let payload = {}
@@ -75,16 +76,16 @@ const onChangeOrderBlock = () => {
 
 const onPickBlock = async (block: Daum) => {
     await sendNewBlock(block)
-    isModalBlocksList.value = false
+    modelModalBlocklist.value = false
 }
 
 const openModalBlockList = () => {
-    isModalBlocksList.value = !isModalBlocksList.value
-    emits('openBlockList', !isModalBlocksList.value)
+    modelModalBlocklist.value = !modelModalBlocklist.value
+    emits('openBlockList', !modelModalBlocklist.value)
 }
 
 defineExpose({
-    isModalBlocksList
+    modelModalBlocklist
 })
 
 const selectedBlockOpenPanel = ref<number | null>(null)
@@ -157,7 +158,7 @@ const selectedBlockOpenPanel = ref<number | null>(null)
     </div>
 
 
-    <Modal :isOpen="isModalBlocksList" @onClose="openModalBlockList">
+    <Modal :isOpen="modelModalBlocklist" @onClose="openModalBlockList">
         <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypeCategories" scope="webpage" />
     </Modal>
 </template>

@@ -7,7 +7,7 @@ import { routeType } from "@/types/route"
 const props = defineProps<{
     data: {
         key: string,
-        data: object,
+    data: object,
         bluprint: object   
         loginRoute?: routeType
     }
@@ -24,10 +24,10 @@ const props = defineProps<{
 <template>
     <div>
         <component 
-            :is="getRenderComponent(data?.data?.key)" 
+            :is="getRenderComponent(data?.header?.key)" 
             :loginMode="false" 
             :loginRoute="data?.data?.loginRoute" 
-            :data="data.data" 
+            :data="data.header" 
             :colorThemed="colorThemed"
             :menu="menu"
         />

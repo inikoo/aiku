@@ -148,7 +148,6 @@ trait WithAuroraProcessWebpage
 
             ];
 
-
         if ($migrationData) {
             if ($auroraModelData->{'Webpage Code'} == 'home.sys') {
                 $webpage['migration_data'] = [

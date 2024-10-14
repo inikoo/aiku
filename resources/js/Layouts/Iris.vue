@@ -18,8 +18,6 @@ const props = defineProps<{}>()
 
 const layout = inject('layout', layoutStructure)
 
-
-
 const header = usePage().props?.iris?.header ? usePage().props?.iris?.header : { key : "header1" , data : headerData, bluprint : bluprintFormHeader }
 const footer =  usePage().props?.iris?.footer ? usePage().props?.iris?.footer :  { key : "footer1" , data : footerData, bluprint : bluprintFormFooter }
 const navigation =  usePage().props?.iris?.menu ? usePage().props?.iris?.menu : { key : "menu1" , data : navigationData }
@@ -40,7 +38,7 @@ const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color
                 <slot />
             </main>
 
-            <Footer :data="footer" :colorThemed="colorThemed"/>
+          <!--   <Footer :data="footer" :colorThemed="colorThemed"/> -->
         </div>
     </div>
 
