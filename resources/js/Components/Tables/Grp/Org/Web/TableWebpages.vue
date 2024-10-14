@@ -54,7 +54,7 @@ function webpageRoute(webpage: Webpage) {
                     route().params['website'],
                     webpage.slug
                 ]);
-      case 'grp.org.shops.show.web.webpages.index.type.shop':
+      case 'grp.org.shops.show.web.webpages.index.type.catalogue':
             return route(
                 'grp.org.shops.show.web.webpages.show',
                 [
