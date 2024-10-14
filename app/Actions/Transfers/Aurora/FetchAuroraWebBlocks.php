@@ -64,6 +64,11 @@ class FetchAuroraWebBlocks extends OrgAction
         $this->organisationSource->initialisation($webpage->organisation, $dbSuffix);
 
 
+        if ($reset) {
+            $this->reset($webpage);
+        }
+
+
         $oldMigrationsChecksum = $webpage->webBlocks()->get()->pluck('migration_checksum', 'migration_checksum')->toArray();
 
         if (isset($webpage->migration_data)) {
@@ -83,12 +88,12 @@ class FetchAuroraWebBlocks extends OrgAction
         return $webpage;
     }
 
-    private function processMigrationData($webpage, array $blocks, array &$oldMigrationsChecksum, $reset, $type): void
+    private function processMigrationData($webpage, array $blocks, array &$oldMigrationsChecksum, $type): void
     {
         foreach ($blocks as $index => $auroraBlock) {
             $migrationData = md5(json_encode($auroraBlock));
 
-            if ($reset && isset($oldMigrationsChecksum[$migrationData])) {
+            if (isset($oldMigrationsChecksum[$migrationData])) {
                 unset($oldMigrationsChecksum[$migrationData]);
                 continue;
             }
@@ -338,6 +343,13 @@ class FetchAuroraWebBlocks extends OrgAction
         $image = $media->getImage();
 
         return GetPictureSources::run($image);
+    }
+
+    private function reset(Webpage $webpage)
+    {
+        foreach ($webpage->webBlocks()->get() as $webBlock) {
+            DeleteWebBlock::run($webBlock);
+        }
     }
 
     /**

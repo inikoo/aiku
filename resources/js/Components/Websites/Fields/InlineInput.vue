@@ -44,8 +44,9 @@ onUnmounted(() => {
 <template>
     <div ref="customDiv" class="min-h-5">
         <div v-if="!edit" @click="changeEdit" class="cursor-pointer"
-            :class="modelValue == '' ? 'text-gray-400 border-2 border-dashed font-light text-xs px-2 py-1' : ''">{{ modelValue == '' ? 'area value'
-                : modelValue }}</div>
+            :class="modelValue == '' ? 'text-gray-400 border-2 border-dashed font-light text-xs px-2 py-1' : ''">{{
+                modelValue == '' ? 'area value'
+                    : modelValue }}</div>
         <input ref="inputRef" class="w-full" @click.stop v-if="edit" :value="modelValue"
             @input="updateValue($event.target.value)" @blur="edit = false" />
     </div>
