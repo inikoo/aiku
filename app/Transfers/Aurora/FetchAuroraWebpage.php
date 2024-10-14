@@ -25,6 +25,10 @@ class FetchAuroraWebpage extends FetchAurora
     protected function parseModel(): void
     {
 
+        if (!$this->auroraModelData) {
+            return;
+        }
+
 
         if (in_array($this->auroraModelData->{'Webpage Scope'}, ['Product', 'Category Products', 'Category Categories']) and $this->auroraModelData->{'Webpage Scope Key'} == '') {
             return;
