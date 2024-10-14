@@ -71,8 +71,9 @@ class FetchAuroraWebsites extends FetchAuroraAction
 
 
             if ($website->state == WebsiteStateEnum::LIVE) {
-                $this->saveFixedWebpageMigrationData($website, $website->storefront, 'home_logout.sys', 'loggedOut');
                 $this->saveFixedWebpageMigrationData($website, $website->storefront, 'home.sys', 'loggedIn');
+                $this->saveFixedWebpageMigrationData($website, $website->storefront, 'home_logout.sys', 'loggedOut');
+
                 $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::CONTACT)->first(), 'contact.sys');
                 $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::ABOUT_US)->first(), 'about.sys');
                 $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::CHECKOUT)->first(), 'checkout.sys');
@@ -93,6 +94,9 @@ class FetchAuroraWebsites extends FetchAuroraAction
 
                 $result = $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::COOKIES_POLICY)->first(), 'cookie_policy');
                 if (!$result) {
+                    $result = $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::COOKIES_POLICY)->first(), 'cookiespolicy');
+                }
+                if (!$result) {
                     $result = $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::COOKIES_POLICY)->first(), 'cookies');
                 }
                 if (!$result) {
@@ -106,6 +110,9 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 $result = $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::PRIVACY)->first(), 'privacy');
                 if (!$result) {
                     $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::PRIVACY)->first(), 'privacy_policy');
+                }
+                if (!$result) {
+                    $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::PRIVACY)->first(), 'integritet');
                 }
             }
 
@@ -130,24 +137,48 @@ class FetchAuroraWebsites extends FetchAuroraAction
 
 
         if ($auroraModelData) {
+
+            $firstTime = $webpage->source_id == null;
+
             $webpage->updateQuietly(
                 [
                     'source_id'      => $website->organisation->id.':'.$auroraModelData->{'Page Key'},
-                    'migration_data' => [
-                        $visibility => Arr::get($this->processAuroraWebpage($website->organisation, $auroraModelData), 'webpage.migration_data.both')
-                    ]
                 ]
             );
 
             if (!$webpage->fetched_at) {
                 $webpage->updateQuietly(['fetched_at' => now()]);
-            } else {
-                $webpage->updateQuietly(['last_fetched_at' => now()]);
             }
 
-            DB::connection('aurora')->table('Page Store Dimension')
-                ->where('Page Key', $auroraModelData->{'Page Key'})
-                ->update(['aiku_id' => $webpage->id]);
+
+            $webpage    = FetchAuroraWebpages::run($this->organisationSource, $auroraModelData->{'Page Key'});
+
+            if ($webpage) {
+
+                FetchAuroraWebBlocks::run($webpage, reset: true, dbSuffix: $this->dbSuffix);
+
+                if ($firstTime) {
+                    $this->saveMigrationHistory(
+                        $webpage,
+                        [
+                            'code' => $webpage->code,
+                            'title' => $webpage->title,
+                        ]
+                    );
+                }
+
+
+
+
+                DB::connection('aurora')->table('Page Store Dimension')
+                    ->where('Page Key', $auroraModelData->{'Page Key'})
+                    ->update(['aiku_id' => $webpage->id]);
+            }
+
+
+
+
+
 
 
 
