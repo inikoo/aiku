@@ -11,12 +11,14 @@ use App\Actions\Catalogue\ProductCategory\UI\ShowDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\ShowFamily;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
+use App\Actions\CRM\Favourite\UI\IndexProductFavourites;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
 use App\Actions\Mail\Mailshot\UI\IndexMailshots;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
+use App\Http\Resources\Catalogue\ProductFavouritesResource;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\MailshotResource;
@@ -183,6 +185,10 @@ class ShowProduct extends OrgAction
                     fn () => OrderResource::collection(IndexOrders::run($product->asset))
                     : Inertia::lazy(fn () => OrderResource::collection(IndexOrders::run($product->asset))),
 
+                    ProductTabsEnum::FAVOURITES->value => $this->tab == ProductTabsEnum::FAVOURITES->value ?
+                    fn () => ProductFavouritesResource::collection(IndexProductFavourites::run($product))
+                    : Inertia::lazy(fn () => ProductFavouritesResource::collection(IndexProductFavourites::run($product))),
+
                 // ProductTabsEnum::CUSTOMERS->value => $this->tab == ProductTabsEnum::CUSTOMERS->value ?
                 //     fn () => CustomersResource::collection(IndexCustomers::run($product))
                 //     : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run($product))),
@@ -193,7 +199,8 @@ class ShowProduct extends OrgAction
 
 
             ]
-        )->table(IndexOrders::make()->tableStructure($product->asset, ProductTabsEnum::ORDERS->value));
+        )->table(IndexOrders::make()->tableStructure($product->asset, ProductTabsEnum::ORDERS->value))
+        ->table(IndexProductFavourites::make()->tableStructure($product, ProductTabsEnum::FAVOURITES->value));
         // ->table(IndexCustomers::make()->tableStructure($product))
         // ->table(IndexMailshots::make()->tableStructure($product));
     }
