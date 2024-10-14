@@ -5,11 +5,10 @@
  * github: https://github.com/KirinZero0
  * copyright 2024
 */
+
 namespace App\Actions\CRM\Customer\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Accounting\TopUp\TopUpStatusEnum;
-use App\Models\Accounting\TopUp;
 use App\Models\CRM\Customer;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
