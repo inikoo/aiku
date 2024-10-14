@@ -111,13 +111,18 @@ trait WithAuroraProcessWebpage
                             ->where('Webpage Scope Key', $departmentSourceData[1])
                             ->first();
                         if ($auroraDepartmentWebpageData) {
-                            $departmentWebpage = $this->parseWebpage($this->organisation->id.':'.$auroraDepartmentWebpageData->{'Page Key'});
-                            if($departmentWebpage) {
-                                $parentId = $departmentWebpage->id;
-                            }else{
-                                print "error can not fetch department webpage\n";
 
+
+
+                            $departmentWebpage = $this->parseWebpage($this->organisation->id.':'.$auroraDepartmentWebpageData->{'Page Key'});
+
+
+                            if ($departmentWebpage) {
+                                $parentId = $departmentWebpage->id;
+                            } else {
+                                print "error can not fetch department webpage\n";
                             }
+
                         }
                     }
                 } else {
@@ -160,6 +165,7 @@ trait WithAuroraProcessWebpage
             $webpage['model_type'] = class_basename($model);
             $webpage['model_id']   = $model->id;
         }
+
 
         return [
             'website' => $website,
