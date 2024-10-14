@@ -200,6 +200,8 @@ const handleIframeError = () => {
 const openFullScreenPreview = () => {
     window.open(iframeSrc.value, '_blank')
 }
+
+console.log(props.webpage)
 </script>
 
 <template>

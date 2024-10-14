@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import Select from 'primevue/select';
+import InputNumber from 'primevue/inputnumber';
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faText, faUndoAlt, faRedoAlt } from '@far'
@@ -37,7 +38,7 @@ const fontfamilies = ref([
 <template>
     <!-- Text Style Section -->
     <div v-if="textStyle.length > 0" class="mb-4 flex justify-between items-center bg-white">
-        <div class="text-sm font-medium text-gray-700">Text Style</div>
+        <div class="text-xs font-medium">Text Style</div>
         <div class="flex items-center">
             <button v-for="action in textStyle" :key="action.key" type="button" @click="action.action" :class="{
                 'bg-gray-300 text-gray-800': editor?.isActive(action.active),
@@ -50,7 +51,7 @@ const fontfamilies = ref([
 
     <!-- Align Style Section -->
     <div v-if="align.length > 0" class="mb-4 flex justify-between items-center bg-white">
-        <div class="text-sm font-medium text-gray-700">Align Style</div>
+        <div class="text-xs">Align Style</div>
         <div class="flex items-center">
             <button v-for="action in align" :key="action.key" type="button" @click="action.action" :class="{
                 'bg-gray-300 text-gray-800': editor?.isActive(action.active),
@@ -63,7 +64,7 @@ const fontfamilies = ref([
 
     <!-- Color Picker Section -->
     <div v-if="editor && findAction('color')" class="mb-4 flex justify-between items-center bg-white">
-        <div class="text-sm font-medium text-gray-700">Color</div>
+        <div class="text-xs">Color</div>
         <div class="flex items-center">
             <input type="color" @input="editor.chain().focus().setColor($event.target.value).run()"
                 :value="editor.getAttributes('textStyle').color">
@@ -72,13 +73,12 @@ const fontfamilies = ref([
 
     <!-- Font Size Section -->
     <div v-if="editor && findAction('fontSize')" class="mb-4 flex justify-between items-center bg-white">
-        <div class="text-sm font-medium text-gray-700">Font Size</div>
+        <div class="text-xs">Font Size</div>
         <div class="flex items-center">
             <div class="group relative inline-block">
-                <div class="flex items-center text-xs min-w-10 py-1 pl-1.5 pr-0 appearance-none rounded cursor-pointer border border-gray-500"
-                    :class="{ 'bg-slate-700 text-white font-bold': editor?.getAttributes('textStyle').fontSize }">
+                <div class="flex items-center text-xs min-w-10 py-1 pl-1.5 pr-0 appearance-none rounded cursor-pointer border border-gray-300">
                     <div id="tiptapfontsize" class="pr-1.5">
-                        <span class="hidden last:inline">Text size</span>
+                        <span class="hidden last:inline text-xs text-gray-700">{{ editor?.getAttributes('textStyle').fontSize ? editor?.getAttributes('textStyle').fontSize : "Text size"}}</span>
                     </div>
                     <div v-if="editor?.getAttributes('textStyle').fontSize"
                         @click="editor?.chain().focus().unsetFontSize().run()" class="px-1">
@@ -99,18 +99,12 @@ const fontfamilies = ref([
     </div>
 
 
-     <div v-if="editor && findAction('color')" class="mb-4 flex justify-between items-center bg-white">
-        <div class="text-sm font-medium text-gray-700">Font Family</div>
-        <div class="flex items-center">
-            <Select v-model="fontfamily" :options="fontfamilies" @update:modelValue="editor.chain().focus().setFontFamily('Comic Sans MS, Comic Sans').run()" class="p-0"/>
-        </div>
+     <div v-if="editor && findAction('color')" class="mb-4 items-center bg-white">
+        <div class="text-xs mb-2">Font Family</div>
+            <Select v-model="fontfamily" :options="fontfamilies" size="small" @update:modelValue="editor.chain().focus().setFontFamily('Comic Sans MS, Comic Sans').run()" class="w-full"/>
     </div>
 
 </template>
 
 <style lang="scss" scoped>
-:deep(.p-select-label) {
-    padding : 0px;
-    width : 100px
-}
 </style>

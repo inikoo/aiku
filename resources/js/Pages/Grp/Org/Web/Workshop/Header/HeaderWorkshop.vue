@@ -125,7 +125,6 @@ watch(usedTemplates, (newVal) => {
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
-            <!--  <Action v-if="action" :action="action" :dataToSubmit="data" /> -->
             <Publish :isLoading="isLoading" :is_dirty="true" v-model="comment"
                 @onPublish="(popover) => onPublish(action.route, popover)" />
         </template>

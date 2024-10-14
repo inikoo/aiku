@@ -3,7 +3,7 @@ import Menu from 'primevue/menu'
 import { ref } from 'vue'
 import Image from "@/Components/Image.vue"
 import MobileMenu from '@/Components/MobileMenu.vue'
-
+import { getStyles } from "@/Composables/styles";
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -49,7 +49,7 @@ const toggle = (event) => {
     _menu.value.toggle(event)
 };
 
-
+console.log('ss',props)
 </script>
 
 <template>
@@ -96,11 +96,13 @@ const toggle = (event) => {
         <div class="bg-white">
             <div class="container mx-auto flex flex-col justify-between items-center">
                 <div class="w-full grid grid-cols-3 items-center justify-between space-x-4 ">
-                    <img v-if="!data.logo"
-                        src="https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png"
-                        alt="Ancient Wisdom Logo" class="h-24">
 
-                    <Image v-else :src="data?.logo?.source" class="h-24"></Image>
+                    <div :style="getStyles(data.logo.properties)">
+                        <img v-if="!data.logo.src" :src="data?.logo?.url" :alt="data?.logo?.alt"
+                            :style="{ width: data.logo.width }">
+
+                        <Image v-else :src="data?.logo?.src" :style="{ width: data.logo.width }"></Image>
+                    </div>
 
                     <div class="relative w-fit justify-self-center">
                         <input type="text" placeholder="Search Products"
