@@ -46,6 +46,14 @@ class FetchResetBase
                 $this->timeLastStep = microtime(true);
 
 
+                DB::connection('aurora')->table('Account Dimension')
+                    ->whereNotNull('aiku_id')
+                    ->update(
+                        [
+                            'aiku_id' => null
+                        ]
+                    );
+
                 DB::connection('aurora')->table('History Dimension')
                     ->whereNotNull('aiku_notes_id')
                     ->update(
@@ -178,8 +186,8 @@ class FetchResetBase
                     ->update([$aikuIdField => null]);
 
 
-                // DB::connection('aurora')->table('Customer Favourite Product Fact')->update([$aikuIdField => null]);
-                // DB::connection('aurora')->table('Back in Stock Reminder Fact')->update([$aikuIdField => null]);
+                DB::connection('aurora')->table('Customer Favourite Product Fact')->update([$aikuIdField => null]);
+                DB::connection('aurora')->table('Back in Stock Reminder Fact')->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Customer Portfolio Fact')
                     ->update([$aikuIdField => null]);
 

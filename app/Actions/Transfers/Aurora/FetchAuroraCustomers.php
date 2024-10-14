@@ -5,9 +5,6 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
-/** @noinspection PhpUnused */
-
 namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\CRM\Customer\StoreCustomer;
@@ -29,7 +26,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
     use WithAuroraAttachments;
     use WithAuroraParsers;
 
-    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users attachments portfolio full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users attachments portfolio favourites full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
@@ -37,7 +34,6 @@ class FetchAuroraCustomers extends FetchAuroraAction
         $with = $this->with;
 
         if ($customerData = $organisationSource->fetchCustomer($organisationSourceId)) {
-
             if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
                 ->first()) {
                 try {
@@ -55,35 +51,33 @@ class FetchAuroraCustomers extends FetchAuroraAction
                     return null;
                 }
             } else {
-                // try {
-                $customer = StoreCustomer::make()->action(
-                    shop: $customerData['shop'],
-                    modelData: $customerData['customer'],
-                    hydratorsDelay: $this->hydrateDelay,
-                    strict: false,
-                    audit: false
-                );
+                try {
+                    $customer = StoreCustomer::make()->action(
+                        shop: $customerData['shop'],
+                        modelData: $customerData['customer'],
+                        hydratorsDelay: $this->hydratorsDelay,
+                        strict: false,
+                        audit: false
+                    );
 
-                Customer::enableAuditing();
+                    Customer::enableAuditing();
 
-                //
-                //  dd($customerData['customer']);
-
-                $this->saveMigrationHistory(
-                    $customer,
-                    Arr::except($customerData['customer'], ['fetched_at','last_fetched_at'])
-                );
+                    $this->saveMigrationHistory(
+                        $customer,
+                        Arr::except($customerData['customer'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
 
 
-                $this->recordNew($organisationSource);
-                $sourceData = explode(':', $customer->source_id);
-                DB::connection('aurora')->table('Customer Dimension')
-                    ->where('Customer Key', $sourceData[1])
-                    ->update(['aiku_id' => $customer->id]);
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');
-                //                    return null;
-                //                }
+                    $this->recordNew($organisationSource);
+                    $sourceData = explode(':', $customer->source_id);
+                    DB::connection('aurora')->table('Customer Dimension')
+                        ->where('Customer Key', $sourceData[1])
+                        ->update(['aiku_id' => $customer->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $customerData['customer'], 'Customer', 'store');
+
+                    return null;
+                }
             }
 
 
@@ -95,9 +89,21 @@ class FetchAuroraCustomers extends FetchAuroraAction
                         ->table('Product Dimension')
                         ->where('Product Customer Key', $sourceData[1])
                         ->select('Product ID as source_id')
-                        ->orderBy('source_id')->get() as $order
+                        ->orderBy('source_id')->get() as $product
                 ) {
-                    FetchAuroraProducts::run($organisationSource, $order->source_id);
+                    FetchAuroraProducts::run($organisationSource, $product->source_id);
+                }
+            }
+
+            if (in_array('favourites', $with) || in_array('full', $with)) {
+                foreach (
+                    DB::connection('aurora')
+                        ->table('Customer Favourite Product Fact')
+                        ->where('Customer Favourite Product Customer Key', $sourceData[1])
+                        ->select('Customer Favourite Product Key as source_id')
+                        ->orderBy('source_id')->get() as $favourite
+                ) {
+                    FetchAuroraFavourites::run($organisationSource, $favourite->source_id);
                 }
             }
 

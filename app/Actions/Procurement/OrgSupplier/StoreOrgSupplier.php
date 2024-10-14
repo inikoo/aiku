@@ -55,7 +55,7 @@ class StoreOrgSupplier extends OrgAction
         ];
     }
 
-    public function action(Organisation|OrgAgent $parent, Supplier $supplier, $modelData = [], $hydratorDelay = 0): OrgSupplier
+    public function action(Organisation|OrgAgent $parent, Supplier $supplier, $modelData = [], $hydratorsDelay = 0): OrgSupplier
     {
         if ($parent instanceof OrgAgent) {
             $organisation = $parent->organisation;
@@ -64,7 +64,7 @@ class StoreOrgSupplier extends OrgAction
         }
 
         $this->asAction       = true;
-        $this->hydratorsDelay = $hydratorDelay;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($parent, $supplier, $this->validatedData);

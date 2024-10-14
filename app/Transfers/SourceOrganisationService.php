@@ -157,4 +157,6 @@ interface SourceOrganisationService
 
     public function fetchUpload($id);
 
+    public function fetchFavourite($id);
+
 }

@@ -14,13 +14,14 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateUniversalSearch;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateWebpages;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Web\Website;
 use App\Models\Web\Webpage;
 use App\Rules\AlphaDashSlash;
 use App\Rules\IUnique;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -50,26 +51,30 @@ class StoreWebpage extends OrgAction
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
 
-        /** @var Webpage $webpage */
-        $webpage = $parent->webpages()->create($modelData);
-        $webpage->stats()->create();
-        $webpage->refresh();
+        $webpage = DB::transaction(function () use ($parent, $modelData) {
+            /** @var Webpage $webpage */
+            $webpage = $parent->webpages()->create($modelData);
+            $webpage->stats()->create();
+            $webpage->refresh();
 
-        $snapshot = StoreWebpageSnapshot::run(
-            $webpage,
-            [
-                'layout' => [
-                    'web_blocks' => []
+            $snapshot = StoreWebpageSnapshot::run(
+                $webpage,
+                [
+                    'layout' => [
+                        'web_blocks' => []
+                    ]
+                ],
+            );
+
+            $webpage->update(
+                [
+                    'unpublished_snapshot_id' => $snapshot->id,
+
                 ]
-            ],
-        );
+            );
 
-        $webpage->update(
-            [
-                'unpublished_snapshot_id' => $snapshot->id,
-
-            ]
-        );
+            return $webpage;
+        });
 
 
         WebpageHydrateUniversalSearch::dispatch($webpage);
@@ -95,7 +100,7 @@ class StoreWebpage extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'url'        => [
+            'url'         => [
                 'sometimes',
                 'required',
                 'ascii',
@@ -112,7 +117,7 @@ class StoreWebpage extends OrgAction
                     ]
                 ),
             ],
-            'code'       => [
+            'code'        => [
                 'required',
                 'ascii',
                 'max:64',
@@ -124,14 +129,16 @@ class StoreWebpage extends OrgAction
                     ]
                 ),
             ],
-            'purpose'    => ['required', Rule::enum(WebpagePurposeEnum::class)],
-            'type'       => ['required', Rule::enum(WebpageTypeEnum::class)],
-            'state'      => ['sometimes', Rule::enum(WebpageStateEnum::class)],
-            'is_fixed'   => ['sometimes', 'boolean'],
-            'ready_at'   => ['sometimes', 'date'],
-            'live_at'    => ['sometimes', 'date'],
-            'model_type' => ['sometimes', 'string'],
-            'model_id'   => ['sometimes', 'integer'],
+            'sub_type'    => ['required', Rule::enum(WebpageSubTypeEnum::class)],
+            'type'        => ['required', Rule::enum(WebpageTypeEnum::class)],
+            'state'       => ['sometimes', Rule::enum(WebpageStateEnum::class)],
+            'is_fixed'    => ['sometimes', 'boolean'],
+            'ready_at'    => ['sometimes', 'date'],
+            'live_at'     => ['sometimes', 'date'],
+            'model_type'  => ['sometimes', 'string'],
+            'model_id'    => ['sometimes', 'integer'],
+            'title'       => ['required', 'string'],
+            'description' => ['sometimes', 'string'],
 
 
         ];
@@ -166,8 +173,12 @@ class StoreWebpage extends OrgAction
     }
 
 
-    public function action(Website|Webpage $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Webpage
+    public function action(Website|Webpage $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Webpage
     {
+        if (!$audit) {
+            Webpage::disableAuditing();
+        }
+
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;

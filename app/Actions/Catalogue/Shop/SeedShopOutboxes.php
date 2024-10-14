@@ -24,12 +24,7 @@ class SeedShopOutboxes
     {
         foreach (OutboxTypeEnum::cases() as $case) {
             if ($case->scope() == 'Shop' and in_array($shop->type->value, $case->shopTypes())) {
-
-
-
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
-
-
                 if (!Outbox::where('shop_id', $shop->id)->where('type', $case)->exists()) {
                     StoreOutbox::run(
                         $postRoom,

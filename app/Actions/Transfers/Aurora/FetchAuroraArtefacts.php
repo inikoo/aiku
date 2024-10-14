@@ -36,13 +36,13 @@ class FetchAuroraArtefacts extends FetchAuroraAction
                 UpdateArtefact::make()->action(
                     artefact: $artefact,
                     modelData: $artefactData['artefact'],
-                    hydratorDelay: $this->hydrateDelay
+                    hydratorsDelay: $this->hydratorsDelay
                 );
             } else {
                 $artefact = StoreArtefact::make()->action(
                     production: $artefactData['production'],
                     modelData: $artefactData['artefact'],
-                    hydratorDelay: $this->hydrateDelay
+                    hydratorsDelay: $this->hydratorsDelay
                 );
 
                 $sourceData = explode(':', $artefact->source_id);

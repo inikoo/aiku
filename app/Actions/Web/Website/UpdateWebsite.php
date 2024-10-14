@@ -44,13 +44,13 @@ class UpdateWebsite extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'domain'      => [
+            'domain'        => [
                 'sometimes',
                 'required',
                 'ascii',
                 'lowercase',
                 'max:255',
-                $this->strict ? new IUnique(
+                new IUnique(
                     table: 'websites',
                     extraConditions: [
                         [
@@ -68,9 +68,9 @@ class UpdateWebsite extends OrgAction
                             'value'    => $this->website->id
                         ],
                     ]
-                ) : null,
+                )
             ],
-            'code'        => [
+            'code'          => [
                 'sometimes',
                 'required',
                 'ascii',
@@ -91,15 +91,42 @@ class UpdateWebsite extends OrgAction
                 ),
 
             ],
-            'name'        => ['sometimes', 'required', 'string', 'max:255'],
-            'launched_at' => ['sometimes', 'date'],
-            'state'       => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
-            'status'      => ['sometimes', 'boolean'],
+            'name'          => ['sometimes', 'required', 'string', 'max:255'],
+            'launched_at'   => ['sometimes', 'date'],
+            'state'         => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
+            'status'        => ['sometimes', 'boolean'],
             'google_tag_id' => ['sometimes', 'string'],
         ];
 
         if (!$this->strict) {
             $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules['domain']          = [
+                'sometimes',
+                'required',
+                'ascii',
+                'lowercase',
+                'max:255',
+                new IUnique(
+                    table: 'websites',
+                    extraConditions: [
+                        [
+                            'column' => 'organisation_id',
+                            'value'  => $this->organisation->id
+                        ],
+                        [
+                            'column'    => 'status',
+                            'operation' => '=',
+                            'value'     => true
+                        ],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->website->id
+                        ],
+                    ]
+                )
+            ];
+
         }
 
         return $rules;

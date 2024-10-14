@@ -57,8 +57,25 @@ class FetchAuroraEmployees extends FetchAuroraAction
                     parent: $workplace,
                     modelData: $employeeData['employee'],
                     hydratorsDelay: 60,
-                    strict: false
+                    strict: false,
+                    audit: false
                 );
+
+                Employee::enableAuditing();
+                $this->saveMigrationHistory(
+                    $employee,
+                    Arr::except($employeeData['employee'], ['fetched_at', 'last_fetched_at', 'source_id','positions','user_model_status'])
+                );
+
+
+                $this->recordNew($organisationSource);
+
+                $sourceData = explode(':', $employee->source_id);
+                DB::connection('aurora')->table('Staff Dimension')
+                    ->where('Staff Key', $sourceData[1])
+                    ->update(['aiku_id' => $employee->id]);
+
+
             }
 
             UpdateEmployeeWorkingHours::run($employee, $employeeData['working_hours']);

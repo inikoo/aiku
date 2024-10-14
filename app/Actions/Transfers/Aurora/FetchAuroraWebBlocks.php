@@ -36,7 +36,7 @@ use App\Transfers\WowsbarOrganisationService;
 use Exception;
 use Illuminate\Support\Arr;
 
-class FetchWebBlocks extends OrgAction
+class FetchAuroraWebBlocks extends OrgAction
 {
     use WithAuroraParsers;
     use WithAuroraOrganisationsArgument;
@@ -284,7 +284,6 @@ class FetchWebBlocks extends OrgAction
 
             } else {
                 $imageSources = [];
-                $imagesRawData = [];
                 $imagesRawData = $webBlock->layout["data"]["fieldValue"]["value"]["images"];
                 foreach ($imagesRawData as $imageRawData) {
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
@@ -310,7 +309,7 @@ class FetchWebBlocks extends OrgAction
             "web_block_id"       => $webBlock->id,
             "migration_checksum" => $migrationData,
         ]);
-        dd($webBlock);
+
         UpdateWebpageContent::run($webpage->refresh());
 
         BroadcastPreviewWebpage::dispatch($webpage);
@@ -325,7 +324,7 @@ class FetchWebBlocks extends OrgAction
 
         $auroraImage = Str::startsWith($auroraImage, "/") ? $auroraImage : "/".$auroraImage;
 
-        $media = FetchWebBlockMedia::run($webBlock, $webpage, $auroraImage);
+        $media = FetchAuroraWebBlockMedia::run($webBlock, $webpage, $auroraImage);
 
         if ($media == null) {
             return null;
@@ -353,7 +352,7 @@ class FetchWebBlocks extends OrgAction
         }
     }
 
-    public string $commandSignature = "fetch:web-blocks {webpage} {--reset}  {--d|db_suffix=}";
+    public string $commandSignature = "fetch:web-blocks {webpage} {--reset} {--d|db_suffix=}";
 
     /**
      * @throws \Exception

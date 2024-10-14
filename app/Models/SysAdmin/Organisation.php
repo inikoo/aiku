@@ -113,7 +113,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property string|null $deleted_at
+ * @property string|null $source_id
  * @property-read \App\Models\SysAdmin\OrganisationAccountingStats|null $accountingStats
  * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses

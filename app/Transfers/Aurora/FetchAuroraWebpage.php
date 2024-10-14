@@ -57,8 +57,6 @@ class FetchAuroraWebpage extends FetchAurora
         }
         $this->parsedData['website'] = $parsedData['website'];
         $this->parsedData['webpage'] = $parsedData['webpage'];
-        //dd($this->parsedData['webpage']);
-
 
     }
 

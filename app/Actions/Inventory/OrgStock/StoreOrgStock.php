@@ -99,7 +99,7 @@ class StoreOrgStock extends OrgAction
         $this->set('state', $state);
     }
 
-    public function action(Organisation|OrgStockFamily $parent, Stock $stock, $modelData = [], $hydratorDelay = 0): OrgStock
+    public function action(Organisation|OrgStockFamily $parent, Stock $stock, $modelData = [], $hydratorsDelay = 0): OrgStock
     {
 
         if ($parent instanceof Organisation) {
@@ -110,7 +110,7 @@ class StoreOrgStock extends OrgAction
 
         $this->asAction       = true;
         $this->stock          = $stock;
-        $this->hydratorsDelay = $hydratorDelay;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($parent, $stock, $this->validatedData);

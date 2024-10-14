@@ -36,7 +36,7 @@ class FetchAuroraDeletedSupplierProducts extends FetchAuroraAction
                         supplier: $supplierDeletedProductData['supplier'],
                         modelData: $supplierDeletedProductData['supplierProduct'],
                         skipHistoric: true,
-                        hydratorsDelay: $this->hydrateDelay,
+                        hydratorsDelay: $this->hydratorsDelay,
                         strict: false
                     );
                     $historicSupplierProduct = FetchAuroraHistoricSupplierProducts::run($organisationSource->getOrganisation()->id, $supplierDeletedProductData['historicSupplierProductSourceID']);

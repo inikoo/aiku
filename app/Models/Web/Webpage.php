@@ -7,7 +7,7 @@
 
 namespace App\Models\Web;
 
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Dropshipping\ModelHasWebBlocks;
@@ -49,11 +49,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $code
  * @property string $url
+ * @property string $title
+ * @property string|null $description
  * @property int $level
  * @property bool $is_fixed
  * @property WebpageStateEnum $state
  * @property WebpageTypeEnum $type
- * @property WebpagePurposeEnum $purpose
+ * @property WebpageSubTypeEnum $sub_type
  * @property int|null $unpublished_snapshot_id
  * @property int|null $live_snapshot_id
  * @property array $published_layout
@@ -107,25 +109,25 @@ class Webpage extends Model implements Auditable
     use HasHistory;
 
     protected $casts = [
-        'data'                   => 'array',
-        'settings'               => 'array',
-        'published_layout'       => 'array',
-        'migration_data'         => 'array',
-        'state'                  => WebpageStateEnum::class,
-        'purpose'                => WebpagePurposeEnum::class,
-        'type'                   => WebpageTypeEnum::class,
-        'ready_at'               => 'datetime',
-        'live_at'                => 'datetime',
-        'closed_at'              => 'datetime',
-        'fetched_at'             => 'datetime',
-        'last_fetched_at'        => 'datetime'
+        'data'             => 'array',
+        'settings'         => 'array',
+        'published_layout' => 'array',
+        'migration_data'   => 'array',
+        'state'            => WebpageStateEnum::class,
+        'sub_type'         => WebpageSubTypeEnum::class,
+        'type'             => WebpageTypeEnum::class,
+        'ready_at'         => 'datetime',
+        'live_at'          => 'datetime',
+        'closed_at'        => 'datetime',
+        'fetched_at'       => 'datetime',
+        'last_fetched_at'  => 'datetime'
     ];
 
     protected $attributes = [
         'data'             => '{}',
         'settings'         => '{}',
         'published_layout' => '{}',
-        'migration_data' => '{}'
+        'migration_data'   => '{}'
     ];
 
     protected $guarded = [];
@@ -160,7 +162,7 @@ class Webpage extends Model implements Auditable
         'ready_at',
         'live_at',
         'closed_at',
-        'purpose',
+        'sub_type',
         'type'
     ];
 
@@ -228,8 +230,8 @@ class Webpage extends Model implements Auditable
     {
         return $this->webpages->map(function ($child) {
             return [
-                'slug' => $child->slug,
-                'name' => $child->code,
+                'slug'     => $child->slug,
+                'name'     => $child->code,
                 'children' => $child->getChildrenRecursively()
             ];
         });

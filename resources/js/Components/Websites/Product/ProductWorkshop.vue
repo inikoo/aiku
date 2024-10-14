@@ -27,7 +27,7 @@ const props = defineProps<{
 
 const emits = defineEmits(['update:modelValue', 'autoSave'])
 
-const usedTemplates = ref({ data: props.data.product, key: 'product1' })
+const usedTemplates = ref({ data: props.data.product, key: 'product2' })
 const previewMode = ref(false)
 const isModalOpen = ref(false)
 const colorThemed = props.data?.color ? props.data?.color : { color: [...useColorTheme[0]] }
@@ -37,6 +37,7 @@ const option = [
     { label: 'aku3', value: 'ini3' }
 ]
 const valueSelect = ref('ini1')
+console.log(props, 'prodct');
 
 
 const onPickTemplate = (header) => {

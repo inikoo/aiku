@@ -15,7 +15,7 @@ use App\Actions\Web\HasWorkshopAction;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\UI\Web\WebpageTabsEnum;
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Http\Resources\Helpers\SnapshotResource;
 use App\Http\Resources\Web\WebpageResource;
@@ -68,7 +68,7 @@ class ShowWebpage extends OrgAction
     {
         $actions = $this->workshopActions($request);
 
-        if ($webpage->purpose == WebpagePurposeEnum::BLOG) {
+        if ($webpage->sub_type == WebpageSubTypeEnum::BLOG) {
             $actions = array_merge(
                 $actions,
                 [
@@ -105,7 +105,7 @@ class ShowWebpage extends OrgAction
         } elseif (in_array(
             $webpage->type,
             [
-                WebpageTypeEnum::SHOP,
+                WebpageTypeEnum::CATALOGUE,
                 WebpageTypeEnum::CONTENT
             ]
         )) {

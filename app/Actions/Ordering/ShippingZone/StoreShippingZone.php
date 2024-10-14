@@ -105,11 +105,11 @@ class StoreShippingZone extends OrgAction
         return $rules;
     }
 
-    public function action(ShippingZoneSchema $shippingZoneSchema, array $modelData, int $hydratorDelay = 0, bool $strict = true): ShippingZone
+    public function action(ShippingZoneSchema $shippingZoneSchema, array $modelData, int $hydratorsDelay = 0, bool $strict = true): ShippingZone
     {
         $this->strict        = $strict;
         $this->asAction      = true;
-        $this->hydratorDelay = $hydratorDelay;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($shippingZoneSchema->shop, $modelData);
 
         return $this->handle($shippingZoneSchema, $this->validatedData);

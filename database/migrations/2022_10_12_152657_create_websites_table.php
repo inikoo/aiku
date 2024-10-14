@@ -48,12 +48,22 @@ return new class () extends Migration {
 
             $table->timestampTz('launched_at')->nullable();
             $table->timestampTz('closed_at')->nullable();
+
+            $table->unsignedInteger('storefront_id')->index()->nullable();
+            $table->unsignedInteger('catalogue_id')->index()->nullable();
+            $table->unsignedInteger('products_id')->index()->nullable();
+            $table->unsignedInteger('login_id')->index()->nullable();
+            $table->unsignedInteger('register_id')->index()->nullable();
+            $table->unsignedInteger('basket_id')->index()->nullable();
+            $table->unsignedInteger('checkout_id')->index()->nullable();
+
+            $table->string('cloudflare_id')->index()->nullable();
+            $table->string('cloudflare_status')->nullable()->default(WebsiteCloudflareStatusEnum::NOT_SET->value);
+
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
             $table = $this->softDeletes($table);
-            $table->string('cloudflare_id')->index()->nullable();
-            $table->string('cloudflare_status')->nullable()->default(WebsiteCloudflareStatusEnum::NOT_SET->value);
             $table->string('source_id')->nullable()->unique();
             $table->unique(['group_id','code']);
             $table->unique(['organisation_id','name']);

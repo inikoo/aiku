@@ -51,13 +51,12 @@ Route::name('websites.')->group(function () {
 Route::prefix('{website}/webpages')->name('webpages.')->group(function () {
     Route::get('', [IndexWebpages::class, 'inFulfilment'])->name('index');
     Route::get('create', [CreateWebpage::class,'inFulfilment'])->name('create');
-    Route::get('edit', [EditWebpage::class, 'inFulfilment'])->name('edit');
 
     Route::prefix('{webpage}')
         ->group(function () {
             Route::get('', [ShowWebpage::class, 'inFulfilment'])->name('show');
+            Route::get('edit', [EditWebpage::class, 'inFulfilment'])->name('edit');
             Route::get('workshop', [ShowWebpageWorkshop::class, 'inFulfilment'])->name('workshop');
-
             Route::get('webpages', [IndexWebpages::class, 'inWebpageInFulfilment'])->name('show.webpages.index');
         });
 });

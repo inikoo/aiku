@@ -58,9 +58,9 @@ class UpdateOrgStock extends OrgAction
     }
 
 
-    public function action(OrgStock $orgStock, array $modelData, int $hydratorDelay = 0): OrgStock
+    public function action(OrgStock $orgStock, array $modelData, int $hydratorsDelay = 0): OrgStock
     {
-        $this->hydratorsDelay = $hydratorDelay;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
         $this->orgStock       = $orgStock;
         $this->initialisation($orgStock->organisation, $modelData);

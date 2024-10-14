@@ -42,7 +42,7 @@ trait WithWebpageSubnavigation
             ],
             [
                 'number'   => $website->webStats->number_webpages_type_shop,
-                'label'    => __('Shop'),
+                'label'    => __('Catalogue'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.shop',
                     'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]

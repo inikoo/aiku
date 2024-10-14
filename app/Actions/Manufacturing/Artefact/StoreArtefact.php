@@ -76,10 +76,10 @@ class StoreArtefact extends OrgAction
         ];
     }
 
-    public function action(Production $production, array $modelData, int $hydratorDelay = 0): Artefact
+    public function action(Production $production, array $modelData, int $hydratorsDelay = 0): Artefact
     {
         $this->asAction       = true;
-        $this->hydratorsDelay = $hydratorDelay;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($production->organisation, $modelData);
 
         return $this->handle($production, $this->validatedData);

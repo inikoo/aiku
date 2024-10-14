@@ -1,7 +1,7 @@
 {
 	"slug": "script",
 	"name": "Script",
-	"icon": "fal fa-code",
+	"icon": "fal fa-building",
 	"blueprint": {
 		"value": ""
 	},
@@ -12,7 +12,7 @@
 			"name": "Script",
 			"data": {
 				"component": "Script",
-				"icon": ["fal", "code"],
+				"icon": ["fal", "building"],
 				"fieldValue": {
 					"value": {}
 				},

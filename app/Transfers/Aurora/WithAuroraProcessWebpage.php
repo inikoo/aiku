@@ -7,11 +7,13 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Facades\DB;
 
 trait WithAuroraProcessWebpage
 {
@@ -35,33 +37,33 @@ trait WithAuroraProcessWebpage
             };
         }
 
-
         $url = $this->cleanWebpageCode($auroraModelData->{'Webpage Code'});
 
-
-        $purpose = match ($auroraModelData->{'Webpage Scope'}) {
-            'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpagePurposeEnum::STOREFRONT,
-            'Product' => WebpagePurposeEnum::PRODUCT,
-            'Category Products' => WebpagePurposeEnum::FAMILY,
-            'Category Categories' => WebpagePurposeEnum::DEPARTMENT,
-            'Register' => WebpagePurposeEnum::REGISTER,
-            'Login', 'ResetPwd' => WebpagePurposeEnum::LOGIN,
-            'TandC' => WebpagePurposeEnum::TERMS_AND_CONDITIONS,
-            'Basket', 'Top_Up', 'Checkout' => WebpagePurposeEnum::SHOPPING_CART,
-            default => WebpagePurposeEnum::CONTENT,
+        $subType = match ($auroraModelData->{'Webpage Scope'}) {
+            'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpageSubTypeEnum::STOREFRONT,
+            'Product' => WebpageSubTypeEnum::PRODUCT,
+            'Category Products' => WebpageSubTypeEnum::FAMILY,
+            'Category Categories' => WebpageSubTypeEnum::DEPARTMENT,
+            'Register' => WebpageSubTypeEnum::REGISTER,
+            'Login', 'ResetPwd' => WebpageSubTypeEnum::LOGIN,
+            'TandC' => WebpageSubTypeEnum::TERMS_AND_CONDITIONS,
+            'Basket', 'Top_Up', => WebpageSubTypeEnum::BASKET,
+            'Checkout' => WebpageSubTypeEnum::CHECKOUT,
+            default => WebpageSubTypeEnum::CONTENT,
         };
 
         $type = match ($auroraModelData->{'Webpage Scope'}) {
             'Homepage', 'HomepageLogout', 'HomepageToLaunch' => WebpageTypeEnum::STOREFRONT,
-            'Product', 'Category Categories', 'Category Products' => WebpageTypeEnum::SHOP,
-            'Register', 'Login', 'ResetPwd' => WebpageTypeEnum::AUTH,
-            'TandC' => WebpageTypeEnum::SMALL_PRINT,
-            'Basket', 'Top_Up', 'Checkout' => WebpageTypeEnum::CHECKOUT,
+            'Product', 'Category Categories', 'Category Products' => WebpageTypeEnum::CATALOGUE,
+            'Register', 'Login', 'ResetPwd', 'Basket', 'Top_Up', 'Checkout' => WebpageTypeEnum::OPERATIONS,
+            'TandC' => WebpageTypeEnum::INFO,
             default => WebpageTypeEnum::CONTENT,
         };
 
 
         $model = null;
+
+
         if ($auroraModelData->{'Webpage Scope'} == 'Category Products') {
             $model = $this->parseFamily($organisation->id.':'.$auroraModelData->{'Webpage Scope Key'});
             if (!$model) {
@@ -85,18 +87,66 @@ trait WithAuroraProcessWebpage
             $migrationData = json_decode($auroraModelData->{'Page Store Content Published Data'}, true);
         }
 
+        // print ">>> $url <<<\n";
+
+        $title = trim($auroraModelData->{'Webpage Name'});
+        if ($title == '') {
+            $title = $auroraModelData->{'Webpage Code'};
+        }
+
+
+        switch ($type) {
+            case WebpageTypeEnum::CATALOGUE:
+                if ($subType == WebpageSubTypeEnum::PRODUCT) {
+                    $parentId = $website->products_id;
+                } elseif ($subType == WebpageSubTypeEnum::FAMILY) {
+                    $parentId = $website->catalogue_id;
+                    /** @var ProductCategory $department */
+                    $department = $model->department;
+                    if ($department) {
+                        $departmentSourceData        = explode(':', $department->source_department_id);
+                        $auroraDepartmentWebpageData = DB::connection('aurora')->table('Page Store Dimension')
+                            ->select('Page Key')
+                            ->where('Webpage Scope', 'Category Categories')
+                            ->where('Webpage Scope Key', $departmentSourceData[1])
+                            ->first();
+                        if ($auroraDepartmentWebpageData) {
+                            $departmentWebpage = $this->parseWebpage($this->organisation->id.':'.$auroraDepartmentWebpageData->{'Page Key'});
+                            if($departmentWebpage) {
+                                $parentId = $departmentWebpage->id;
+                            }else{
+                                print "error can not fetch department webpage\n";
+
+                            }
+                        }
+                    }
+                } else {
+                    $parentId = $website->catalogue_id;
+                }
+
+                break;
+            default:
+                $parentId = $website->storefront_id;
+                break;
+        }
+
+
         $webpage =
             [
+                'parent_id'       => $parentId,
                 'code'            => $url,
+                'title'           => $title,
+                'description'     => (string)$auroraModelData->{'Webpage Meta Description'},
                 'url'             => strtolower($url),
                 'state'           => $status,
-                'purpose'         => $purpose,
+                'sub_type'        => $subType,
                 'type'            => $type,
                 'fetched_at'      => now(),
                 'last_fetched_at' => now(),
                 'source_id'       => $organisation->id.':'.$auroraModelData->{'Page Key'},
 
             ];
+
 
         if ($migrationData) {
             $webpage['migration_data'] = ['both' => $migrationData];

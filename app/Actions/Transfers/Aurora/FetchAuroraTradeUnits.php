@@ -29,7 +29,7 @@ class FetchAuroraTradeUnits extends FetchAuroraAction
                     $tradeUnit = UpdateTradeUnit::make()->action(
                         tradeUnit: $tradeUnit,
                         modelData: $tradeUnitData['trade_unit'],
-                        hydratorDelay: 30,
+                        hydratorsDelay: 30,
                         strict: false
                     );
                 }
@@ -38,7 +38,7 @@ class FetchAuroraTradeUnits extends FetchAuroraAction
                 $tradeUnit = StoreTradeUnit::make()->action(
                     group: $organisationSource->getOrganisation()->group,
                     modelData: $tradeUnitData['trade_unit'],
-                    hydratorDelay: 30,
+                    hydratorsDelay: 30,
                     strict: false
                 );
             }

@@ -18,11 +18,15 @@ use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreLocation extends OrgAction
 {
+    /**
+     * @throws \Throwable
+     */
     public function handle(WarehouseArea|Warehouse $parent, array $modelData): Location
     {
         data_set($modelData, 'group_id', $parent->group_id);
@@ -35,10 +39,14 @@ class StoreLocation extends OrgAction
             $organisation = $parent->organisation;
         }
 
-        /** @var Location $location */
-        $location = $parent->locations()->create($modelData);
-        $location->stats()->create();
-        $location->updateQuietly(['barcode' => $location->slug]);
+        $location = DB::transaction(function () use ($parent, $modelData, $organisation) {
+            /** @var Location $location */
+            $location = $parent->locations()->create($modelData);
+            $location->stats()->create();
+            $location->updateQuietly(['barcode' => $location->slug]);
+            return $location;
+        });
+
         GroupHydrateLocations::dispatch($organisation->group)->delay($this->hydratorsDelay);
         OrganisationHydrateLocations::dispatch($organisation)->delay($this->hydratorsDelay);
         WarehouseHydrateLocations::dispatch($location->warehouse)->delay($this->hydratorsDelay);
@@ -94,6 +102,9 @@ class StoreLocation extends OrgAction
         return $rules;
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function inWarehouse(Warehouse $warehouse, ActionRequest $request): Location
     {
         $this->warehouse = $warehouse;
@@ -103,6 +114,9 @@ class StoreLocation extends OrgAction
     }
 
 
+    /**
+     * @throws \Throwable
+     */
     public function inWarehouseArea(WarehouseArea $warehouseArea, ActionRequest $request): Location
     {
         $this->warehouse = $warehouseArea->warehouse;
@@ -111,6 +125,9 @@ class StoreLocation extends OrgAction
         return $this->handle($warehouseArea, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function action(WarehouseArea|Warehouse $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Location
     {
         if (!$audit) {

@@ -16,26 +16,21 @@ enum WebpageTypeEnum: string
 
 
     case STOREFRONT = 'storefront';
-    case SHOP       = 'shop';
-    case CHECKOUT   = 'checkout';
-    case CONTENT    = 'content';
-    case SMALL_PRINT = 'small-print';
-    case ENGAGEMENT  = 'engagement';
-    case AUTH        = 'auth';
+    case CATALOGUE = 'catalogue';
+    case CONTENT = 'content';
+    case INFO = 'info';
+    case OPERATIONS = 'operations';
     case BLOG = 'blog';
 
     public static function labels(): array
     {
         return [
-            'storefront'  => __('storefront'),
-            'shop'        => __('shop'),
-            'content'     => __('content'),
-            'info'        => __('info'),
-            'small-print' => __('small print'),
-            'engagement'  => __('engagement'),
-            'auth'        => __('authorisation'),
-            'blog'        => __('blog'),
-            'checkout'    => __('checkout'),
+            'storefront' => __('storefront'),
+            'catalogue'  => __('catalogue'),
+            'content'    => __('content'),
+            'info'       => __('info'),
+            'blog'       => __('blog'),
+            'operations' => __('operations'),
         ];
     }
 

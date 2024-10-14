@@ -38,8 +38,8 @@ class UpdateWarehouse extends OrgAction
         $warehouse = $this->updateModelAddress($warehouse, $addressData);
 
         if ($warehouse->wasChanged('state')) {
-            GroupHydrateWarehouses::run($warehouse->group);
-            OrganisationHydrateWarehouses::dispatch($warehouse->organisation);
+            GroupHydrateWarehouses::run($warehouse->group)->delay($this->hydratorsDelay);
+            OrganisationHydrateWarehouses::dispatch($warehouse->organisation)->delay($this->hydratorsDelay);
         }
         WarehouseRecordSearch::dispatch($warehouse);
 
@@ -57,7 +57,7 @@ class UpdateWarehouse extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'code'               => [
                 'sometimes',
                 'required',
@@ -81,9 +81,14 @@ class UpdateWarehouse extends OrgAction
             'allow_fulfilment'   => ['sometimes', 'required', 'boolean'],
             'allow_dropshipping' => ['sometimes', 'required', 'boolean'],
             'address'            => ['sometimes', 'required', new ValidAddress()],
-            'last_fetched_at'    => ['sometimes', 'date'],
 
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
 
@@ -99,13 +104,15 @@ class UpdateWarehouse extends OrgAction
         );
     }
 
-    public function action(Warehouse $warehouse, array $modelData, bool $audit = true): Warehouse
+    public function action(Warehouse $warehouse, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Warehouse
     {
         if (!$audit) {
             Warehouse::disableAuditing();
         }
-        $this->asAction  = true;
-        $this->warehouse = $warehouse;
+        $this->asAction       = true;
+        $this->warehouse      = $warehouse;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
         $this->initialisation($warehouse->organisation, $modelData);
 
 

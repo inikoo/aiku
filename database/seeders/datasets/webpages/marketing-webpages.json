@@ -1,0 +1,36 @@
+[
+  {
+    "code": "about_us",
+    "url": "about_us",
+    "type": "info",
+    "sub_type": "about-us",
+    "children": [
+      {
+        "code": "contact",
+        "url": "contact",
+        "type": "info",
+        "sub_type": "contact"
+      },
+      {
+        "code": "terms_and_conditions",
+        "url": "terms-and-conditions",
+        "type": "info",
+        "sub_type": "terms-and-conditions",
+        "children": [
+          {
+            "code": "privacy",
+            "url": "privacy",
+            "type": "info",
+            "sub_type": "privacy"
+          },
+          {
+            "code": "cookie_policy",
+            "url": "cookie-policy",
+            "type": "info",
+            "sub_type": "cookies-policy"
+          }
+        ]
+      }
+    ]
+  }
+]

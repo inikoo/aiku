@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Website\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Web\Webpage;
@@ -61,8 +61,8 @@ class WebsiteHydrateWebpages
 
         $stats = array_merge($stats, $this->getEnumStats(
             model:'webpages',
-            field: 'purpose',
-            enum: WebpagePurposeEnum::class,
+            field: 'sub_type',
+            enum: WebpageSubTypeEnum::class,
             models: Webpage::class,
             where: function ($q) use ($website) {
                 $q->where('website_id', $website->id);

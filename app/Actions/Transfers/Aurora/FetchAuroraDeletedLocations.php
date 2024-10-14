@@ -11,8 +11,11 @@ use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Models\Inventory\Location;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraDeletedLocations extends FetchAuroraAction
 {
@@ -23,29 +26,48 @@ class FetchAuroraDeletedLocations extends FetchAuroraAction
         if ($deletedLocationData = $organisationSource->fetchDeletedLocation($organisationSourceId)) {
             if ($location = Location::withTrashed()->where('source_id', $deletedLocationData['location']['source_id'])
                 ->first()) {
-                $location = UpdateLocation::make()->action(
-                    location: $location,
-                    modelData: $deletedLocationData['location'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
-                $this->recordChange($organisationSource, $location->wasChanged());
-            } else {
-                $location = StoreLocation::make()->action(
-                    parent: $deletedLocationData['parent'],
-                    modelData: $deletedLocationData['location'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
+                try {
+                    $location = UpdateLocation::make()->action(
+                        location: $location,
+                        modelData: $deletedLocationData['location'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordChange($organisationSource, $location->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $deletedLocationData['location'], 'Location', 'update');
 
-                $this->recordNew($organisationSource);
+                    return null;
+                }
+            } else {
+                try {
+                    $location = StoreLocation::make()->action(
+                        parent: $deletedLocationData['parent'],
+                        modelData: $deletedLocationData['location'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+
+                    Location::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $location,
+                        Arr::except($deletedLocationData['location'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+
+                    $this->recordNew($organisationSource);
+                    $sourceData = explode(':', $location->source_id);
+                    DB::connection('aurora')->table('Location Deleted Dimension')
+                        ->where('Location Deleted Key', $sourceData[1])
+                        ->update(['aiku_id' => $location->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $deletedLocationData['location'], 'Location', 'store');
+
+                    return null;
+                }
             }
 
-            $sourceData = explode(':', $location->source_id);
-            DB::connection('aurora')->table('Location Deleted Dimension')
-                ->where('Location Deleted Key', $sourceData[1])
-                ->update(['aiku_id' => $location->id]);
 
             return $location;
         }
@@ -74,13 +96,12 @@ class FetchAuroraDeletedLocations extends FetchAuroraAction
 
     public function count(): ?int
     {
-        $query =  DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Location Deleted Dimension');
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }
 
         return $query->count();
-
     }
 }

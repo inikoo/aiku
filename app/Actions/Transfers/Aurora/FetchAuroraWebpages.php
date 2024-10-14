@@ -9,14 +9,18 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
+use App\Models\CRM\Customer;
 use App\Models\Web\Webpage;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraWebpages extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:webpages {organisations?*} {--S|shop= : Shop slug} {--A|all= : import non online webpages as well} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:webpages {organisations?*} {--S|shop= : Shop slug} {--A|all= : import non online webpages as well} {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: web-blocks}  {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Webpage
@@ -28,24 +32,46 @@ class FetchAuroraWebpages extends FetchAuroraAction
 
             if ($webpage = Webpage::where('source_id', $webpageData['webpage']['source_id'])
                 ->first()) {
-                $webpage = UpdateWebpage::make()->action(
-                    webpage: $webpage,
-                    modelData: $webpageData['webpage'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
+                try {
+                    $webpage = UpdateWebpage::make()->action(
+                        webpage: $webpage,
+                        modelData: $webpageData['webpage'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $webpageData['webpage'], 'Webpage', 'update');
+
+                    return null;
+                }
             } else {
-                data_set($modelData, 'parent_id', $webpageData['website']->storefront->id, overwrite: false);
-                $webpage = StoreWebpage::make()->action(
-                    parent: $webpageData['website'],
-                    modelData: $webpageData['webpage'],
-                    hydratorsDelay: 60,
-                    strict: false
-                );
+                try {
+                    $webpage = StoreWebpage::make()->action(
+                        parent: $webpageData['website'],
+                        modelData: $webpageData['webpage'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    Customer::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $webpage,
+                        Arr::except($webpageData['customer'], ['migration_data','parent_id','fetched_at','last_fetched_at'])
+                    );
+                    $this->recordNew($organisationSource);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $webpageData['webpage'], 'Webpage', 'store');
+
+                    return null;
+                }
             }
 
-            FetchWebBlocks::run($webpage, reset: true, dbSuffix: $this->dbSuffix);
+
+            if (in_array('web-blocks', $this->with)) {
+                FetchAuroraWebBlocks::run($webpage, reset: true, dbSuffix: $this->dbSuffix);
+            }
+
 
             $sourceData = explode(':', $webpage->source_id);
             DB::connection('aurora')->table('Page Store Dimension')
@@ -70,6 +96,7 @@ class FetchAuroraWebpages extends FetchAuroraAction
 
         $query->where('Website Status', 'Active');
         $query->where('Webpage State', 'Online');
+        $query->whereNotIn('Webpage Code', ['shipping', 'privacy', 'returns', 'cookie_policy', 'showroom']);
 
 
         if ($this->onlyNew) {
@@ -95,6 +122,7 @@ class FetchAuroraWebpages extends FetchAuroraAction
 
         $query->where('Website Status', 'Active');
         $query->where('Webpage State', 'Online');
+        $query->whereNotIn('Webpage Code', ['shipping', 'privacy']);
 
 
         if ($this->shop) {

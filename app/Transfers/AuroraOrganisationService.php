@@ -34,6 +34,7 @@ use App\Transfers\Aurora\FetchAuroraDispatchedEmail;
 use App\Transfers\Aurora\FetchAuroraEmailTrackingEvent;
 use App\Transfers\Aurora\FetchAuroraEmployee;
 use App\Transfers\Aurora\FetchAuroraFamily;
+use App\Transfers\Aurora\FetchAuroraFavourite;
 use App\Transfers\Aurora\FetchAuroraHistoricAsset;
 use App\Transfers\Aurora\FetchAuroraHistoricService;
 use App\Transfers\Aurora\FetchAuroraHistoricSupplierProduct;
@@ -467,6 +468,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchUpload($id): ?array
     {
         return (new FetchAuroraUpload($this))->fetch($id);
+    }
+
+    public function fetchFavourite($id): ?array
+    {
+        return (new FetchAuroraFavourite($this))->fetch($id);
     }
 
 

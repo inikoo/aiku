@@ -5,7 +5,6 @@ import { faStar, faDollarSign, faGlobe } from "@fal";
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
 import { getStyles } from "@/Composables/styles";
 import Image from "@/Components/Image.vue";
-import { WebBlockParameters } from '../../../../types/webpageTypes';
 
 library.add(faStar, faDollarSign, faGlobe);
 

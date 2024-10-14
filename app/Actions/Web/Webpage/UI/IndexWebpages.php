@@ -179,20 +179,20 @@ class IndexWebpages extends OrgAction
             $queryBuilder->where('webpages.website_id', $parent->id);
         }
 
-        if ($bucket == 'shop') {
-            $queryBuilder->where('webpages.type', WebpageTypeEnum::SHOP);
+        if ($bucket == 'catalogue') {
+            $queryBuilder->where('webpages.type', WebpageTypeEnum::CATALOGUE);
         } elseif ($bucket == 'content') {
             $queryBuilder->where('webpages.type', WebpageTypeEnum::CONTENT);
-        } elseif ($bucket == 'small-print') {
-            $queryBuilder->where('webpages.type', WebpageTypeEnum::SMALL_PRINT);
-        } elseif ($bucket == 'checkout') {
-            $queryBuilder->where('webpages.type', WebpageTypeEnum::CHECKOUT);
+        } elseif ($bucket == 'info') {
+            $queryBuilder->where('webpages.type', WebpageTypeEnum::INFO);
+        } elseif ($bucket == 'operations') {
+            $queryBuilder->where('webpages.type', WebpageTypeEnum::OPERATIONS);
         }
 
 
         return $queryBuilder
             ->defaultSort('webpages.level')
-            ->select(['code', 'id', 'type', 'slug', 'level', 'purpose', 'url'])
+            ->select(['code', 'id', 'type', 'slug', 'level', 'sub_type', 'url'])
             ->allowedSorts(['code', 'type', 'level', 'url'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)

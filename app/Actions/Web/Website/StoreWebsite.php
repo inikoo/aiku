@@ -41,10 +41,10 @@ class StoreWebsite extends OrgAction
             $modelData,
             'type',
             match ($shop->type) {
-                ShopTypeEnum::FULFILMENT   => WebsiteTypeEnum::FULFILMENT,
+                ShopTypeEnum::FULFILMENT => WebsiteTypeEnum::FULFILMENT,
                 ShopTypeEnum::DROPSHIPPING => WebsiteTypeEnum::DROPSHIPPING,
-                ShopTypeEnum::B2B          => WebsiteTypeEnum::B2B,
-                ShopTypeEnum::B2C          => WebsiteTypeEnum::B2C,
+                ShopTypeEnum::B2B => WebsiteTypeEnum::B2B,
+                ShopTypeEnum::B2C => WebsiteTypeEnum::B2C,
             }
         );
         /** @var Website $website */
@@ -92,7 +92,11 @@ class StoreWebsite extends OrgAction
         OrganisationHydrateWebsites::dispatch($shop->organisation)->delay($this->hydratorsDelay);
         WebsiteRecordSearch::dispatch($website);
 
-        return SeedWebsiteFixedWebpages::run($website);
+        if ($website->state == WebsiteStateEnum::LIVE) {
+            $website = SeedWebsiteFixedWebpages::run($website);
+        }
+
+        return $website;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -113,7 +117,7 @@ class StoreWebsite extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'domain'      => [
+            'domain' => [
                 'required',
                 'string',
                 'ascii',
@@ -134,7 +138,7 @@ class StoreWebsite extends OrgAction
                     ]
                 ),
             ],
-            'code'        => [
+            'code'   => [
                 'required',
                 'ascii',
                 'lowercase',
@@ -147,22 +151,35 @@ class StoreWebsite extends OrgAction
                     ]
                 ),
             ],
-            'name'        => ['required', 'string', 'max:255'],
-            'state'       => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
-            'status'      => ['sometimes', 'boolean'],
+            'name'   => ['required', 'string', 'max:255'],
+            'state'  => ['sometimes', Rule::enum(WebsiteStateEnum::class)],
+            'status' => ['sometimes', 'boolean'],
         ];
 
         if (!$this->strict) {
-
             $rules['fetched_at']  = ['sometimes', 'date'];
             $rules['source_id']   = ['sometimes', 'string'];
             $rules['created_at']  = ['sometimes', 'nullable', 'date'];
             $rules['launched_at'] = ['sometimes', 'nullable', 'date'];
-
+            $rules['domain']      = [
+                'required',
+                'string',
+                'ascii',
+                'lowercase',
+                'max:255',
+                new IUnique(
+                    table: 'websites',
+                    extraConditions: [
+                        [
+                            'column' => 'organisation_id',
+                            'value'  => $this->organisation->id
+                        ]
+                    ]
+                ),
+            ];
         }
 
         return $rules;
-
     }
 
     public function prepareForValidation(): void
@@ -214,8 +231,12 @@ class StoreWebsite extends OrgAction
         return $this->handle($fulfilment->shop, $this->validatedData);
     }
 
-    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Website
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Website
     {
+        if (!$audit) {
+            Website::disableAuditing();
+        }
+
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;

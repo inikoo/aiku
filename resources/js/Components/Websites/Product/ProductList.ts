@@ -9,6 +9,11 @@ export default {
             icon: ["fal", "cube"],
             name: 'Product 2',
             key: 'product2',
+        },
+        {
+            icon: ["fal", "cube"],
+            name: 'Product 3',
+            key: 'product3',
         }
     ]
 }

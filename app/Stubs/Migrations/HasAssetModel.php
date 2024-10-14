@@ -50,6 +50,7 @@ trait HasAssetModel
         $table->unsignedInteger('asset_id')->nullable();
         $table->foreign('asset_id')->references('id')->on('assets');
         $table->unsignedSmallInteger('family_id')->nullable();
+        $table->unsignedSmallInteger('sub_department_id')->nullable();
         $table->unsignedSmallInteger('department_id')->nullable();
 
         return $table;
@@ -74,7 +75,6 @@ trait HasAssetModel
             $table->string('state')->default(ChargeStateEnum::IN_PROCESS)->index();
             $table->string('type')->index();
             $table->string('trigger')->index();
-
         } elseif ($table->getTable() == 'shippings') {
             $table->string('state')->default(ShippingStateEnum::IN_PROCESS)->index();
         } elseif ($table->getTable() == 'subscriptions') {

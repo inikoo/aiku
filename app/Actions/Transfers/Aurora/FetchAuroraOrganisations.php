@@ -9,9 +9,11 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\Traits\WithOrganisationSource;
+use App\Actions\Transfers\WithSaveMigrationHistory;
 use App\Models\SysAdmin\Organisation;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -19,13 +21,45 @@ class FetchAuroraOrganisations
 {
     use AsAction;
     use WithOrganisationSource;
+    use WithSaveMigrationHistory;
 
 
     public function handle(SourceOrganisationService $organisationSource, Organisation $organisation): Organisation
     {
         $organisationData = $organisationSource->fetchOrganisation($organisation);
 
-        $organisation = UpdateOrganisation::run($organisation, $organisationData['organisation']);
+
+
+        $organisation = UpdateOrganisation::make()->action(
+            organisation: $organisation,
+            modelData: $organisationData['organisation'],
+            hydratorsDelay: 60,
+            strict: false,
+            audit: false
+        );
+        Organisation::enableAuditing();
+
+
+        if (!$organisation->fetched_at) {
+            $organisation->updateQuietly(
+                [
+                    'fetched_at' => now()
+                ]
+            );
+
+            $this->saveMigrationHistory(
+                $organisation,
+                Arr::except($organisationData['organisation'], ['source','source_id','fetched_at','last_fetched_at'])
+            );
+
+        }
+
+
+
+        $sourceData = explode(':', $organisation->source_id);
+        DB::connection('aurora')->table('Account Dimension')
+            ->where('Account Key', $sourceData[1])
+            ->update(['aiku_id' => $organisation->id]);
 
         $accountsServiceProviderData = Db::connection('aurora')->table('Payment Service Provider Dimension')
             ->select('Payment Service Provider Key')

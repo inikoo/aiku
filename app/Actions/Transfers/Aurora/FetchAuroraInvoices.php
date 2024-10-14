@@ -13,7 +13,9 @@ use App\Models\Accounting\Invoice;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraInvoices extends FetchAuroraAction
 {
@@ -35,7 +37,7 @@ class FetchAuroraInvoices extends FetchAuroraAction
                         modelData: $invoiceData['invoice'],
                         hydratorsDelay: 60,
                         strict: false,
-                        audit:false
+                        audit: false
                     );
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'update');
@@ -49,7 +51,6 @@ class FetchAuroraInvoices extends FetchAuroraAction
                     $this->fetchInvoiceNoProductTransactions($organisationSource, $invoice);
                 }
 
-                $this->updateAurora($invoice);
 
                 return $invoice;
             } else {
@@ -61,12 +62,25 @@ class FetchAuroraInvoices extends FetchAuroraAction
                         $invoice = StoreInvoice::make()->action(
                             parent: $invoiceData['parent'],
                             modelData: $invoiceData['invoice'],
-                            hydratorsDelay: $this->hydrateDelay,
-                            strict: false
+                            hydratorsDelay: $this->hydratorsDelay,
+                            strict: false,
+                            audit: false
                         );
 
-                    } catch (Exception $e) {
-                        //dd($e->getMessage());
+                        Invoice::enableAuditing();
+                        $this->saveMigrationHistory(
+                            $invoice,
+                            Arr::except($invoiceData['invoice'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                        );
+
+
+                        $this->recordNew($organisationSource);
+
+                        $sourceData = explode(':', $invoice->source_id);
+                        DB::connection('aurora')->table('Invoice Dimension')
+                            ->where('Invoice Key', $sourceData[1])
+                            ->update(['aiku_id' => $invoice->id]);
+                    } catch (Exception|Throwable $e) {
                         $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'store');
 
                         return null;
@@ -77,7 +91,6 @@ class FetchAuroraInvoices extends FetchAuroraAction
                     }
 
 
-                    $this->updateAurora($invoice);
 
                     return $invoice;
                 }
@@ -88,13 +101,6 @@ class FetchAuroraInvoices extends FetchAuroraAction
         return null;
     }
 
-    public function updateAurora(Invoice $invoice): void
-    {
-        $sourceData = explode(':', $invoice->source_id);
-        DB::connection('aurora')->table('Invoice Dimension')
-            ->where('Invoice Key', $sourceData[1])
-            ->update(['aiku_id' => $invoice->id]);
-    }
 
     private function fetchInvoiceTransactions($organisationSource, Invoice $invoice): void
     {
@@ -174,8 +180,6 @@ class FetchAuroraInvoices extends FetchAuroraAction
     {
         DB::connection('aurora')->table('Invoice Dimension')->update(['aiku_id' => null]);
     }
-
-
 
 
 }

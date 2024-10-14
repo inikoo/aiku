@@ -41,16 +41,17 @@ class FetchAuroraOrganisation
 
 
         $this->parsedData['organisation'] = [
-            'name'        => $this->auroraModelData->{'Account Name'},
-            //'language_id' => $this->parseLanguageID($this->auroraModelData->{'Account Locale'}),
-            //'timezone_id' => $this->parseTimezoneID($this->auroraModelData->{'Account Timezone'}),
-            'source'      => [
+            'name'            => $this->auroraModelData->{'Account Name'},
+            'source'          => [
                 'type'         => 'Aurora',
                 'db_name'      => Arr::get($this->organisation->source, 'db_name'),
                 'account_code' => $this->auroraModelData->{'Account Code'},
                 'url'          => $auroraURL
             ],
-            'created_at'  => $this->auroraModelData->{'Account Valid From'}
+            'created_at'      => $this->auroraModelData->{'Account Valid From'},
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
+            'source_id'       => $this->organisation->id.':1'
         ];
     }
 

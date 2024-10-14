@@ -45,10 +45,10 @@ class UpdateOrgAgent extends OrgAction
         ];
     }
 
-    public function action(OrgAgent $orgAgent, $modelData, $hydratorDelay = 0): OrgAgent
+    public function action(OrgAgent $orgAgent, $modelData, $hydratorsDelay = 0): OrgAgent
     {
         $this->asAction       = true;
-        $this->hydratorsDelay = $hydratorDelay;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($orgAgent->organisation, $modelData);
 
         return $this->handle($orgAgent, $this->validatedData);

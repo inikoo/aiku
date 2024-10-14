@@ -22,7 +22,12 @@ class EditOrganisationSettings extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('org-supervisor.'.$this->organisation->id);
+        return $request->user()->hasAnyPermission(
+            [
+                'organisations.edit',
+                'org-admin.'.$this->organisation->id
+            ]
+        );
     }
 
 
@@ -53,7 +58,7 @@ class EditOrganisationSettings extends OrgAction
                             "label"  => __("branding"),
                             "icon"   => "fa-light fa-copyright",
                             "fields" => [
-                                "name" => [
+                                "ui_name" => [
                                     "type"  => "input",
                                     "label" => __("Name"),
                                     "value" => Arr::get($organisation->settings, 'ui.name', $organisation->name)
@@ -65,19 +70,6 @@ class EditOrganisationSettings extends OrgAction
                                 ],
                             ],
                         ],
-                        // [
-                        //     "label"  => __("appearance"),
-                        //     "icon"   => "fa-light fa-paint-brush",
-                        //     "fields" => [
-
-                        //         "theme"     => [
-                        //             "type"  => "theme",
-                        //             "label" => __("choose your theme"),
-                        //             "value" => "",
-                        //         ],
-                        //     ],
-                        // ],
-
                         [
                             "label"  => __("google drive"),
                             "icon"   => "fab fa-google",

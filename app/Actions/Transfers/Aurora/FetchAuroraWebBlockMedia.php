@@ -16,7 +16,7 @@ use App\Transfers\Aurora\WithAuroraImages;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-class FetchWebBlockMedia extends OrgAction
+class FetchAuroraWebBlockMedia extends OrgAction
 {
     use WithAuroraImages;
 

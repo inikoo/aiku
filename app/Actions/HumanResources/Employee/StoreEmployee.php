@@ -90,9 +90,10 @@ class StoreEmployee extends OrgAction
 
         SyncEmployeeJobPositions::run($employee, $positions);
 
-        EmployeeHydrateWeekWorkingHours::dispatch($employee);
-        GroupHydrateEmployees::dispatch($employee->group);
-        OrganisationHydrateEmployees::dispatch($organisation);
+        EmployeeHydrateWeekWorkingHours::dispatch($employee)->delay($this->hydratorsDelay);
+        GroupHydrateEmployees::dispatch($employee->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateEmployees::dispatch($organisation)->delay($this->hydratorsDelay);
+
         EmployeeRecordSearch::dispatch($employee);
 
         return $employee;
@@ -192,8 +193,11 @@ class StoreEmployee extends OrgAction
         return $rules;
     }
 
-    public function action(Organisation|Workplace $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Employee
+    public function action(Organisation|Workplace $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Employee
     {
+        if (!$audit) {
+            Employee::disableAuditing();
+        }
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;

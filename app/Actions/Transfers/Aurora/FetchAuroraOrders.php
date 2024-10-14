@@ -99,7 +99,7 @@ class FetchAuroraOrders extends FetchAuroraAction
                     parent: $orderData['parent'],
                     modelData: $orderData['order'],
                     strict: false,
-                    hydratorsDelay: $this->hydrateDelay
+                    hydratorsDelay: $this->hydratorsDelay
                 );
             } catch (Exception $e) {
                 $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'store');

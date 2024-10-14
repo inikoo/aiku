@@ -33,32 +33,31 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_webpages_state_live
  * @property int $number_webpages_state_closed
  * @property int $number_webpages_type_storefront
- * @property int $number_webpages_type_shop
- * @property int $number_webpages_type_checkout
+ * @property int $number_webpages_type_catalogue
  * @property int $number_webpages_type_content
- * @property int $number_webpages_type_small_print
- * @property int $number_webpages_type_engagement
- * @property int $number_webpages_type_auth
+ * @property int $number_webpages_type_info
+ * @property int $number_webpages_type_operations
  * @property int $number_webpages_type_blog
- * @property int $number_webpages_purpose_storefront
- * @property int $number_webpages_purpose_product
- * @property int $number_webpages_purpose_famiy
- * @property int $number_webpages_purpose_department
- * @property int $number_webpages_purpose_collection
- * @property int $number_webpages_purpose_shopping_cart
- * @property int $number_webpages_purpose_info
- * @property int $number_webpages_purpose_privacy
- * @property int $number_webpages_purpose_cookies_policy
- * @property int $number_webpages_purpose_terms_and_conditions
- * @property int $number_webpages_purpose_appointment
- * @property int $number_webpages_purpose_contact
- * @property int $number_webpages_purpose_login
- * @property int $number_webpages_purpose_register
- * @property int $number_webpages_purpose_blog
- * @property int $number_webpages_purpose_article
- * @property int $number_webpages_purpose_content
- * @property int $number_webpages_purpose_other_small_print
- * @property int $number_webpages_purpose_shop
+ * @property int $number_webpages_sub_type_storefront
+ * @property int $number_webpages_sub_type_product
+ * @property int $number_webpages_sub_type_family
+ * @property int $number_webpages_sub_type_department
+ * @property int $number_webpages_sub_type_collection
+ * @property int $number_webpages_sub_type_content
+ * @property int $number_webpages_sub_type_about_us
+ * @property int $number_webpages_sub_type_contact
+ * @property int $number_webpages_sub_type_returns
+ * @property int $number_webpages_sub_type_shipping
+ * @property int $number_webpages_sub_type_terms_and_conditions
+ * @property int $number_webpages_sub_type_privacy
+ * @property int $number_webpages_sub_type_cookies_policy
+ * @property int $number_webpages_sub_type_basket
+ * @property int $number_webpages_sub_type_checkout
+ * @property int $number_webpages_sub_type_login
+ * @property int $number_webpages_sub_type_register
+ * @property int $number_webpages_sub_type_appointment
+ * @property int $number_webpages_sub_type_blog
+ * @property int $number_webpages_sub_type_article
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation

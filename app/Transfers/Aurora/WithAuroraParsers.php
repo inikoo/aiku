@@ -44,6 +44,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraSuppliers;
 use App\Actions\Transfers\Aurora\FetchAuroraTradeUnits;
 use App\Actions\Transfers\Aurora\FetchAuroraUploads;
 use App\Actions\Transfers\Aurora\FetchAuroraWarehouses;
+use App\Actions\Transfers\Aurora\FetchAuroraWebpages;
 use App\Actions\Transfers\Aurora\FetchAuroraWebsites;
 use App\Actions\Transfers\Aurora\FetchAuroraWebUsers;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -89,6 +90,7 @@ use App\Models\SupplyChain\HistoricSupplierProduct;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
+use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Exception;
 use Illuminate\Support\Arr;
@@ -253,9 +255,7 @@ trait WithAuroraParsers
         foreach ($addressData as $key => $value) {
             $addressData[$key] = $this->sanitiseText($value);
         }
-        $addressData['country_id']          = $this->parseCountryID($country, $prefix);
-
-
+        $addressData['country_id'] = $this->parseCountryID($country, $prefix);
 
 
         return $addressData;
@@ -282,6 +282,17 @@ trait WithAuroraParsers
         }
 
         return $website;
+    }
+
+    public function parseWebpage($sourceId): Webpage|null
+    {
+        $webpage = Webpage::where('source_id', $sourceId)->first();
+        if (!$webpage) {
+            $sourceData = explode(':', $sourceId);
+            $webpage    = FetchAuroraWebpages::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $webpage;
     }
 
 
@@ -417,7 +428,7 @@ trait WithAuroraParsers
         $webUser = WebUser::withTrashed()->where('source_id', $sourceId)->first();
         if (!$webUser) {
             $sourceData = explode(':', $sourceId);
-            $webUser   = FetchAuroraWebUsers::run($this->organisationSource, $sourceData[1]);
+            $webUser    = FetchAuroraWebUsers::run($this->organisationSource, $sourceData[1]);
         }
 
         return $webUser;
@@ -723,8 +734,6 @@ trait WithAuroraParsers
     }
 
 
-
-
     public function parseTaxCategory($auroraTaxCategoryId): TaxCategory
     {
         $auroraTaxCategoryId = match ($auroraTaxCategoryId) {
@@ -745,8 +754,8 @@ trait WithAuroraParsers
 
         $upload = Upload::where('source_id', $sourceId)->first();
         if (!$upload) {
-            $sourceData    = explode(':', $sourceId);
-            $upload = FetchAuroraUploads::run($this->organisationSource, $sourceData[1]);
+            $sourceData = explode(':', $sourceId);
+            $upload     = FetchAuroraUploads::run($this->organisationSource, $sourceData[1]);
         }
 
         return $upload;

@@ -9,7 +9,7 @@ namespace App\Actions\Web\Webpage\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Helpers\Snapshot;
 use App\Models\Web\Webpage;
@@ -62,8 +62,8 @@ class WebpageHydrateSnapshots
 
         $stats = array_merge($stats, $this->getEnumStats(
             model:'webpages',
-            field: 'purpose',
-            enum: WebpagePurposeEnum::class,
+            field: 'sub_type',
+            enum: WebpageSubTypeEnum::class,
             models: Webpage::class,
             where: function ($q) use ($webpage) {
                 $q->where('parent_id', $webpage->id);

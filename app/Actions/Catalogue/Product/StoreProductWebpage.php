@@ -10,7 +10,7 @@ namespace App\Actions\Catalogue\Product;
 
 use App\Actions\OrgAction;
 use App\Actions\Web\Webpage\StoreWebpage;
-use App\Enums\Web\Webpage\WebpagePurposeEnum;
+use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Web\Webpage;
@@ -23,8 +23,8 @@ class StoreProductWebpage extends OrgAction
         $webpageData = [
             'code'       => $product->code,
             'url'        => strtolower($product->code),
-            'purpose'    => WebpagePurposeEnum::PRODUCT,
-            'type'       => WebpageTypeEnum::SHOP,
+            'sub_type'    => WebpageSubTypeEnum::PRODUCT,
+            'type'       => WebpageTypeEnum::CATALOGUE,
             'model_type' => class_basename($product),
             'model_id'   => $product->id
         ];

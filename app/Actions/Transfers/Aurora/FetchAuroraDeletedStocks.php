@@ -43,7 +43,7 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
                 $stock = StoreStock::make()->action(
                     parent: $organisationSource->getOrganisation()->group,
                     modelData: $stockData['stock'],
-                    hydratorDelay: 30
+                    hydratorsDelay: 30
                 );
             }
 
@@ -69,7 +69,7 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
                     $orgStock = UpdateOrgStock::make()->action(
                         orgStock: $orgStock,
                         modelData: $stockData['org_stock'],
-                        hydratorDelay: 30
+                        hydratorsDelay: 30
                     );
                 } else {
 
@@ -87,7 +87,7 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
                         parent: $orgParent,
                         stock: $effectiveStock,
                         modelData: $stockData['org_stock'],
-                        hydratorDelay: 30
+                        hydratorsDelay: 30
                     );
                 }
 
