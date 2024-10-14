@@ -84,7 +84,7 @@ class FetchAuroraWebpage extends FetchAurora
             $this->parsedData['is_home_logged_out'] = true;
         }
 
-
+        $this->parsedData['last_published'] = $this->auroraModelData->{'Webpage Last Launch Date'};
 
     }
 

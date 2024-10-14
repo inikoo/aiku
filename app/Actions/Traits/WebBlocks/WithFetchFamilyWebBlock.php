@@ -31,7 +31,8 @@ trait WithFetchFamilyWebBlock
             } elseif ($type == 'text') {
                 $items[] =  ['position' => $index, "type" => $type, "text" => $item["text"]];
             } else {
-                dd("dd inside processFammilyData => ", $type);
+                print_r($item);
+                dd("dd inside process Family Data => ", $type);
             }
         }
 

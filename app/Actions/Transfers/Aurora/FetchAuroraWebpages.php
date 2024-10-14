@@ -15,6 +15,7 @@ use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -58,6 +59,10 @@ class FetchAuroraWebpages extends FetchAuroraAction
                         }
                     }
 
+                    $lastPublishedAt = Arr::get($webpage->migration_data, 'webpage.last_published_at');
+                    if ($lastPublishedAt) {
+                        $lastPublishedAt = Carbon::parse($lastPublishedAt);
+                    }
 
                     $webpage = UpdateWebpage::make()->action(
                         webpage: $webpage,
@@ -67,8 +72,23 @@ class FetchAuroraWebpages extends FetchAuroraAction
                         audit: false
                     );
 
+                    if (in_array('web-blocks', $this->with)) {
+                        FetchAuroraWebBlocks::run($webpage, reset: true, dbSuffix: $this->dbSuffix);
 
+                        $currentPublishedAt = Arr::get($webpage->migration_data, 'webpage.last_published_at');
+                        if ($currentPublishedAt) {
+                            $currentPublishedAt = Carbon::parse($currentPublishedAt);
+                        }
 
+                        if (!$lastPublishedAt and $currentPublishedAt and $currentPublishedAt->gt($lastPublishedAt)) {
+                            PublishWebpage::make()->action(
+                                $webpage,
+                                [
+                                    'comment' => 'Published in aurora',
+                                ]
+                            );
+                        }
+                    }
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $webpageData['webpage'], 'Webpage', 'update');
 
@@ -89,12 +109,14 @@ class FetchAuroraWebpages extends FetchAuroraAction
                     );
                     Webpage::enableAuditing();
 
-                    PublishWebpage::make()->action(
-                        $webpage,
-                        [
-                            'comment' => 'Initial publish after migration',
-                        ]
-                    );
+                    if (in_array('web-blocks', $this->with)) {
+                        PublishWebpage::make()->action(
+                            $webpage,
+                            [
+                                'comment' => 'Initial publish after migration',
+                            ]
+                        );
+                    }
 
 
                     $this->saveMigrationHistory(
@@ -107,11 +129,6 @@ class FetchAuroraWebpages extends FetchAuroraAction
 
                     return null;
                 }
-            }
-
-
-            if (in_array('web-blocks', $this->with)) {
-                FetchAuroraWebBlocks::run($webpage, reset: true, dbSuffix: $this->dbSuffix);
             }
 
 

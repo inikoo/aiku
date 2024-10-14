@@ -7,6 +7,7 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\Web\Webpage\PublishWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
@@ -163,6 +164,14 @@ class FetchAuroraWebsites extends FetchAuroraAction
                             'title' => $webpage->title,
                         ]
                     );
+
+                    PublishWebpage::make()->action(
+                        $webpage,
+                        [
+                            'comment' => 'Initial publish after migration',
+                        ]
+                    );
+
                 }
 
 

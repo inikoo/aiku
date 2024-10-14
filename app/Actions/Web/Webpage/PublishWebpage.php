@@ -16,9 +16,11 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Models\Helpers\Snapshot;
+use App\Models\SysAdmin\User;
 use App\Models\Web\Webpage;
 use Illuminate\Support\Arr;
-use Lorisleiva\Actions\ActionRequest;
+use Illuminate\Validation\Rule;
+use OwenIt\Auditing\Resolvers\UserResolver;
 
 class PublishWebpage extends OrgAction
 {
@@ -28,6 +30,14 @@ class PublishWebpage extends OrgAction
 
     public function handle(Webpage $webpage, array $modelData): Webpage
     {
+        /** @var User $user */
+        $user = UserResolver::resolve();
+
+        if($user) {
+            data_set($modelData, 'publisher_type', class_basename($user), overwrite: false);
+            data_set($modelData, 'publisher_id', $user->id, overwrite: false);
+        }
+
         $firstCommit = false;
         if ($webpage->state == WebpageStateEnum::IN_PROCESS or $webpage->state == WebpageStateEnum::READY) {
             $firstCommit = true;
@@ -41,7 +51,6 @@ class PublishWebpage extends OrgAction
         }
 
         $currentUnpublishedLayout = $webpage->unpublishedSnapshot->layout;
-
 
 
         /** @var Snapshot $snapshot */
@@ -72,11 +81,11 @@ class PublishWebpage extends OrgAction
         ]);
 
         $updateData = [
-            'live_snapshot_id'    => $snapshot->id,
-            'published_layout'    => $snapshot->layout,
-            'published_checksum'  => md5(json_encode($snapshot->layout)),
-            'state'               => WebpageStateEnum::LIVE,
-            'is_dirty'            => false,
+            'live_snapshot_id'   => $snapshot->id,
+            'published_layout'   => $snapshot->layout,
+            'published_checksum' => md5(json_encode($snapshot->layout)),
+            'state'              => WebpageStateEnum::LIVE,
+            'is_dirty'           => false,
         ];
 
         if ($webpage->state == WebpageStateEnum::IN_PROCESS or $webpage->state == WebpageStateEnum::READY) {
@@ -84,26 +93,22 @@ class PublishWebpage extends OrgAction
         }
 
         $webpage->update($updateData);
+
         return $webpage;
     }
 
     public function rules(): array
     {
-        return [
-            'comment'        => ['sometimes', 'required', 'string', 'max:1024'],
-            'publisher_id'   => ['sometimes'],
-            'publisher_type' => ['sometimes', 'string'],
+        $rules = [
+            'comment' => ['sometimes', 'required', 'string', 'max:1024'],
         ];
-    }
 
-    public function prepareForValidation(ActionRequest $request): void
-    {
-        $request->merge(
-            [
-                'publisher_id'   => $request->user()->id,
-                'publisher_type' => 'User'
-            ]
-        );
+        if (!$this->strict) {
+            $rules['publisher_type'] = ['sometimes', Rule::in(['User'])];
+            $rules['publisher_id']   = ['sometimes', 'required', 'integer'];
+        }
+
+        return $rules;
     }
 
 
@@ -112,8 +117,9 @@ class PublishWebpage extends OrgAction
         return "🚀";
     }
 
-    public function action(Webpage $webpage, $modelData): Webpage
+    public function action(Webpage $webpage, array $modelData, bool $strict = true): Webpage
     {
+        $this->strict   = $strict;
         $this->asAction = true;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
