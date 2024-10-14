@@ -9,7 +9,6 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
-use App\Models\CRM\Customer;
 use App\Models\Web\Webpage;
 use App\Transfers\SourceOrganisationService;
 use Exception;
@@ -54,10 +53,10 @@ class FetchAuroraWebpages extends FetchAuroraAction
                         strict: false,
                         audit: false
                     );
-                    Customer::enableAuditing();
+                    Webpage::enableAuditing();
                     $this->saveMigrationHistory(
                         $webpage,
-                        Arr::except($webpageData['customer'], ['migration_data','parent_id','fetched_at','last_fetched_at'])
+                        Arr::except($webpageData['webpage'], ['migration_data','parent_id','fetched_at','last_fetched_at'])
                     );
                     $this->recordNew($organisationSource);
                 } catch (Exception|Throwable $e) {
