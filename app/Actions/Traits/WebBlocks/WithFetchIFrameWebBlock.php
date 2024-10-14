@@ -7,22 +7,14 @@
 
 namespace App\Actions\Traits\WebBlocks;
 
-use App\Models\Web\WebBlockType;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithFetchIFrameWebBlock
 {
     use AsAction;
-    public function processIFrameData(WebBlockType $webBlockType, $auroraBlock): array
+    public function processIFrameData($auroraBlock): array
     {
-        $layout = Arr::only(
-            $webBlockType->toArray(),
-            [
-                'code','data','name'
-            ]
-        );
-        data_set($layout, "data.fieldValue.link", $auroraBlock["src"]);
+        data_set($layout, "fieldValue.link", $auroraBlock["src"]);
         return $layout;
     }
 }
