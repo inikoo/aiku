@@ -1,12 +1,12 @@
 {
-	"slug": "Topheader",
+	"slug": "top-header",
 	"name": "Website Top header",
 	"icon": "fal fa-globe",
 	"scope": "website",
 	"webBlockTypes": [
 		{
-			"code": "DarkHeader",
-			"name": "Header 1",
+			"code": "top-header-1",
+			"name": "Top Header 1",
 			"data": {
 				"bluprint": [
 					{
@@ -68,80 +68,6 @@
 									},
 									"bottomleft": {
 										"value": 0
-									}
-								},
-								"top": {
-									"value": 0
-								},
-								"left": {
-									"value": 0
-								},
-								"right": {
-									"value": 0
-								},
-								"bottom": {
-									"value": 0
-								}
-							}
-						}
-					},
-					"gold_member": {
-						"visible" : "all",
-						"text": "Become a Gold Reward Member",
-						"properties": {
-							"background": {
-								"type": "color",
-								"color": "#8E44AD",
-								"image": {
-									"original": null
-								}
-							},
-							"padding": {
-								"unit": "px",
-								"top": {
-									"value": 5
-								},
-								"left": {
-									"value": 10
-								},
-								"right": {
-									"value": 10
-								},
-								"bottom": {
-									"value": 5
-								}
-							},
-							"margin": {
-								"unit": "px",
-								"top": {
-									"value": 0
-								},
-								"left": {
-									"value": 0
-								},
-								"right": {
-									"value": 0
-								},
-								"bottom": {
-									"value": 0
-								}
-							},
-							"border": {
-								"color": "#000000",
-								"unit": "px",
-								"rounded": {
-									"unit": "px",
-									"topright": {
-										"value": 10
-									},
-									"topleft": {
-										"value": 10
-									},
-									"bottomright": {
-										"value": 10
-									},
-									"bottomleft": {
-										"value": 10
 									}
 								},
 								"top": {
