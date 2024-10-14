@@ -69,8 +69,8 @@ class StoreWarehouse extends OrgAction
         });
 
 
-        GroupHydrateWarehouses::run($organisation->group)->delay($this->hydratorsDelay);
-        OrganisationHydrateWarehouses::run($organisation)->delay($this->hydratorsDelay);
+        GroupHydrateWarehouses::dispatch($organisation->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateWarehouses::dispatch($organisation)->delay($this->hydratorsDelay);
         WarehouseRecordSearch::dispatch($warehouse);
         SeedJobPositions::run($organisation);
 

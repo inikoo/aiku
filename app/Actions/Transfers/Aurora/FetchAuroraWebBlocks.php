@@ -232,6 +232,7 @@ class FetchAuroraWebBlocks extends OrgAction
         data_set($layout, "data.properties.padding.right.value", 20);
         data_set($layout, "data.properties.padding.bottom.value", 20);
         data_set($layout, "data.properties.padding.top.value", 20);
+
         $webBlock = StoreWebBlock::make()->action(
             $webBlockType,
             [
@@ -297,7 +298,7 @@ class FetchAuroraWebBlocks extends OrgAction
             ]);
         }
 
-        $webpage->modelHasWebBlocks()->create([
+        $modelHasWebBlocksData = [
             "group_id"           => $webpage->group_id,
             "organisation_id"    => $webpage->organisation_id,
             "shop_id"            => $webpage->shop_id,
@@ -308,7 +309,13 @@ class FetchAuroraWebBlocks extends OrgAction
             "model_type"         => class_basename(Webpage::class),
             "web_block_id"       => $webBlock->id,
             "migration_checksum" => $migrationData,
-        ]);
+        ];
+
+        if (isset($auroraBlock["show"])) {
+            $modelHasWebBlocksData['show'] = boolval($auroraBlock["show"]);
+        }
+
+        $webpage->modelHasWebBlocks()->create($modelHasWebBlocksData);
 
         UpdateWebpageContent::run($webpage->refresh());
 

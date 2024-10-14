@@ -9,6 +9,7 @@ namespace App\Models\Catalogue;
 
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Models\CRM\Favourite;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -203,5 +204,20 @@ class ProductCategory extends Model implements Auditable, HasMedia
     public function webpage(): MorphOne
     {
         return $this->morphOne(Webpage::class, 'model');
+    }
+
+    public function departmentFavourites(): HasMany
+    {
+        return $this->hasMany(Favourite::class, 'department_id');
+    }
+
+    public function familyFavourites(): HasMany
+    {
+        return $this->hasMany(Favourite::class, 'family_id');
+    }
+
+    public function subDepartmentFavourites(): HasMany
+    {
+        return $this->hasMany(Favourite::class, 'sub_department_id');
     }
 }
