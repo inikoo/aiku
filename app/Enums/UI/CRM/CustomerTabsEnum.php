@@ -21,6 +21,7 @@ enum CustomerTabsEnum: string
     case ATTACHMENTS         = 'attachments';
     case DISPATCHED_EMAILS   = 'dispatched_emails';
     case CREDIT_TRANSACTIONS = 'credit_transactions';
+    case FAVOURITES          = 'favourites';
 
 
     public function blueprint(): array
@@ -56,6 +57,12 @@ enum CustomerTabsEnum: string
             CustomerTabsEnum::HISTORY => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            CustomerTabsEnum::FAVOURITES => [
+                'title' => __('favourites'),
+                'icon'  => 'fal fa-heart',
                 'type'  => 'icon',
                 'align' => 'right',
             ],

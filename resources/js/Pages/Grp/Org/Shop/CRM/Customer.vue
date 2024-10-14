@@ -20,12 +20,13 @@ import { PageHeading as PageHeadingTS } from '@/types/PageHeading'
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TableOrders from "@/Components/Tables/Grp/Org/Ordering/TableOrders.vue"
 import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue"
+import TableCustomerFavourites from '@/Components/Tables/Grp/Org/CRM/TableCustomerFavourites.vue'
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faCodeCommit, faGlobe, faGraduationCap, faMoneyBill, faPaperclip, faPaperPlane, faStickyNote, faTags, faCube, faCodeBranch, faShoppingCart } from '@fal'
-library.add( faStickyNote, faGlobe, faMoneyBill, faGraduationCap, faTags, faCodeCommit, faPaperclip, faPaperPlane, faCube, faCodeBranch, faShoppingCart )
+import { faCodeCommit, faGlobe, faGraduationCap, faMoneyBill, faPaperclip, faPaperPlane, faStickyNote, faTags, faCube, faCodeBranch, faShoppingCart, faHeart } from '@fal'
+library.add( faStickyNote, faGlobe, faMoneyBill, faGraduationCap, faTags, faCodeCommit, faPaperclip, faPaperPlane, faCube, faCodeBranch, faShoppingCart, faHeart )
 
 
 const props = defineProps<{
@@ -54,6 +55,7 @@ const component = computed(() => {
         history: ModelChangelog,
         dispatched_emails: TableDispatchedEmails,
         web_users: TableWebUsers,
+        favourites: TableCustomerFavourites
     }
 
     return components[currentTab.value]

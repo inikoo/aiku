@@ -112,11 +112,12 @@ trait WithAuroraProcessWebpage
                             ->first();
                         if ($auroraDepartmentWebpageData) {
                             $departmentWebpage = $this->parseWebpage($this->organisation->id.':'.$auroraDepartmentWebpageData->{'Page Key'});
-                            if($departmentWebpage) {
-                                $parentId = $departmentWebpage->id;
-                            }else{
-                                print "error can not fetch department webpage\n";
 
+
+                            if ($departmentWebpage) {
+                                $parentId = $departmentWebpage->id;
+                            } else {
+                                print "error can not fetch department webpage\n";
                             }
                         }
                     }
@@ -149,8 +150,22 @@ trait WithAuroraProcessWebpage
 
 
         if ($migrationData) {
-            $webpage['migration_data'] = ['both' => $migrationData];
+            if ($auroraModelData->{'Webpage Code'} == 'home.sys') {
+                $webpage['migration_data'] = [
+                    'loggedIn' => $migrationData
+                ];
+            } elseif ($auroraModelData->{'Webpage Code'} == 'home_logout.sys') {
+                $webpage['migration_data'] = [
+                    'loggedOut' => $migrationData
+                ];
+            } else {
+                $webpage['migration_data'] = [
+                    'both' => $migrationData
+                ];
+            }
         }
+
+
 
         if ($createdAt = $this->parseDate($auroraModelData->{'Webpage Creation Date'})) {
             $webpage['created_at'] = $createdAt;
@@ -160,6 +175,7 @@ trait WithAuroraProcessWebpage
             $webpage['model_type'] = class_basename($model);
             $webpage['model_id']   = $model->id;
         }
+
 
         return [
             'website' => $website,

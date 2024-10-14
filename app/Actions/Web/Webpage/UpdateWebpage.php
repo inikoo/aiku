@@ -34,7 +34,11 @@ class UpdateWebpage extends OrgAction
 
     public function handle(Webpage $webpage, array $modelData): Webpage
     {
+
+        $modelData = StoreWebpageHasRedirect::make()->action($webpage, $modelData);
+
         $webpage = $this->update($webpage, $modelData, ['data', 'settings']);
+
 
         if ($webpage->wasChanged('state')) {
             GroupHydrateWebpages::dispatch($webpage->group)->delay($this->hydratorsDelay);
@@ -120,6 +124,8 @@ class UpdateWebpage extends OrgAction
 
         if (!$this->strict) {
             $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules['migration_data'] = ['sometimes', 'array'];
+
         }
 
         return $rules;

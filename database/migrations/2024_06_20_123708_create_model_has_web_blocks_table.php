@@ -32,6 +32,9 @@ return new class () extends Migration {
             $table->string('model_type');
             $table->unsignedInteger('model_id');
 
+            $table->boolean('show')->index()->default(true);
+            $table->boolean('show_logged_in')->index()->default(true);
+            $table->boolean('show_logged_out')->index()->default(true);
             $table->timestampsTz();
             $table->string('migration_checksum')->index()->nullable();
 
