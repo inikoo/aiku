@@ -19,6 +19,26 @@ const props = defineProps<{
 
 const locale = useLocaleStore();
 
+function favouriteRoute(favourite: {}) {
+    switch (route().current()) {
+        case "grp.org.shops.show.catalogue.products.current_products.show":
+            return route(
+                "grp.org.shops.show.crm.customers.show",
+                [
+                route().params["organisation"],
+                route().params["shop"],
+                favourite.slug
+                ]);
+        default:
+            return route(
+                "grp.org.shops.show.crm.customers.show",
+                [
+                    route().params["organisation"],
+                    route().params["shop"],
+                    customer.slug
+                ]);;
+    }
+}
 
 // function customerRoute(customer: FulfilmentCustomer) {
 //     switch (route().current()) {
@@ -58,7 +78,9 @@ const locale = useLocaleStore();
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: favourite }">
-                {{ favourite["reference"] }}
+            <Link :href="favouriteRoute(favourite)" class="primaryLink">
+            {{ favourite["reference"] }}
+            </Link>
         </template>
         <template #cell(contact_name)="{ item: favourite }">
                 {{ favourite["contact_name"] }}
