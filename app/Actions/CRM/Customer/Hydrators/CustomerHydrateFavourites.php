@@ -34,7 +34,7 @@ class CustomerHydrateFavourites
     public function handle(Customer $customer): void
     {
         $stats = [
-            'number_favourites' => $customer->favourites()->count(),
+            'number_favourites' => $customer->favourites()->whereNull('unfavourited_at')->count(),
             'number_unfavourited' => $customer->favourites()->whereNotNull('unfavourited_at')->count(),
         ];
 
