@@ -33,15 +33,12 @@ class ProductCategoryHydrateCustomersWhoFavourited
 
     public function handle(Product $product): void
     {
-        // List of product category types to handle (department, subDepartment, family)
         $categories = ['department', 'subDepartment', 'family'];
 
         foreach ($categories as $categoryType) {
-            // Retrieve the category dynamically (department, subDepartment, family)
             $productCategory = $product->{$categoryType};
 
             if ($productCategory) {
-                // Determine the correct method to call based on the category type
                 $methodName = lcfirst($categoryType) . 'Favourites';
 
                 if (method_exists($productCategory, $methodName)) {
@@ -50,7 +47,6 @@ class ProductCategoryHydrateCustomersWhoFavourited
                         'number_customers_who_un_favourited' => $productCategory->{$methodName}()->whereNotNull('unfavourited_at')->count(),
                     ];
 
-                    // Update the stats for the category
                     $productCategory->stats->update($stats);
                 }
             }
