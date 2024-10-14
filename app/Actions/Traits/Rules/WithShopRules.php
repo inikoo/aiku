@@ -17,7 +17,7 @@ trait WithShopRules
 {
     protected function getStoreShopRules(): array
     {
-        return [
+        $rules = [
             'code' => [
                 'required',
                 'max:4',
@@ -32,7 +32,6 @@ trait WithShopRules
 
             ],
             'name' => ['required', 'string', 'max:255'],
-
             'contact_name'             => ['nullable', 'string', 'max:255'],
             'company_name'             => ['nullable', 'string', 'max:255'],
             'email'                    => ['nullable', 'email'],
@@ -45,15 +44,22 @@ trait WithShopRules
             'currency_id'              => ['required', 'exists:currencies,id'],
             'language_id'              => ['required', 'exists:languages,id'],
             'timezone_id'              => ['required', 'exists:timezones,id'],
-            'closed_at'                => ['sometimes', 'nullable', 'date'],
             'settings'                 => ['sometimes', 'array'],
-            'created_at'               => ['sometimes', 'date'],
-            'source_id'                => ['sometimes', 'string'],
             'warehouses'               => ['sometimes', 'array'],
             'warehouses.*'             => [Rule::Exists('warehouses', 'id')->where('organisation_id', $this->organisation->id)],
             'address'                  => ['sometimes', 'required', new ValidAddress()],
-            'fetched_at'               => ['sometimes', 'date'],
 
         ];
+
+        if (!$this->strict) {
+            $rules['source_id']  = ['sometimes', 'string', 'max:64'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['created_at'] = ['sometimes', 'date'];
+            $rules['closed_at'] = ['sometimes','nullable',  'date'];
+
+        }
+
+        return $rules;
+
     }
 }
