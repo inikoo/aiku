@@ -32,7 +32,7 @@ return new class () extends Migration {
             $table->string('model_type');
             $table->unsignedInteger('model_id');
 
-            $table->bool('show')->index()->default(true);
+            $table->boolean('show')->index()->default(true);
             $table->timestampsTz();
             $table->string('migration_checksum')->index()->nullable();
 
