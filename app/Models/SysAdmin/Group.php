@@ -19,6 +19,8 @@ use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
+use App\Models\Catalogue\MasterProduct;
+use App\Models\Catalogue\MasterProductCategory;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
@@ -665,6 +667,16 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function uploads(): HasMany
     {
         return $this->hasMany(Upload::class);
+    }
+
+    public function masterProducts(): HasMany
+    {
+        return $this->hasMany(MasterProduct::class);
+    }
+
+    public function masterProductCategories(): HasMany
+    {
+        return $this->hasMany(MasterProductCategory::class);
     }
 
 

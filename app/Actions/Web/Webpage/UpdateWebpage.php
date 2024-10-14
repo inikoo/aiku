@@ -22,7 +22,6 @@ use App\Models\Catalogue\Shop;
 use App\Models\Web\Webpage;
 use App\Rules\AlphaDashSlash;
 use App\Rules\IUnique;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -35,11 +34,9 @@ class UpdateWebpage extends OrgAction
 
     public function handle(Webpage $webpage, array $modelData): Webpage
     {
-        // dd($modelData);
-        $modelData = StoreWebpageHasRedirect::make()->action($webpage, $modelData);
-        // if($modelData)
 
-        // Arr::forget($modelData, 'data.redirecturl');
+        $modelData = StoreWebpageHasRedirect::make()->action($webpage, $modelData);
+
         $webpage = $this->update($webpage, $modelData, ['data', 'settings']);
 
 
@@ -127,6 +124,8 @@ class UpdateWebpage extends OrgAction
 
         if (!$this->strict) {
             $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules['migration_data'] = ['sometimes', 'array'];
+
         }
 
         return $rules;

@@ -113,7 +113,7 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
     }
 
 
-    public function products(): HasMany|null
+    public function masterProducts(): HasMany|null
     {
         return match ($this->type) {
             ProductCategoryTypeEnum::DEPARTMENT => $this->hasMany(MasterProduct::class, 'master_department_id'),

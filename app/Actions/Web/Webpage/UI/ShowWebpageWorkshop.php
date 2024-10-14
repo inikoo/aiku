@@ -54,7 +54,7 @@ class ShowWebpageWorkshop extends OrgAction
                 ),
                 'pageHead'      => [
                     'title'     => $webpage->code,
-                    'model'     => __('Webpages'),
+                    'model'     => __('Webpage'),
                     'icon'      => [
                         'title' => __('webpage'),
                         'icon'  => 'fal fa-browser'

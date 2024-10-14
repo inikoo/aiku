@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import TextStyle from '@tiptap/extension-text-style'
@@ -178,8 +178,12 @@ const setLink = () => {
 }
 
 onMounted(() => {
-    toggleList.value = toggleList.value.filter(item => props.toogle?.includes(item.key))
+    nextTick(() => {
+        toggleList.value = toggleList.value.filter(item => props.toogle?.includes(item.key))
+        if (editor.value) editor.value.commands.selectAll() // Ensure editor is ready
+    })
 })
+
 
 /* watch(() => props.modelValue, (newValue, oldValue) => {
     const isSame = newValue === oldValue
