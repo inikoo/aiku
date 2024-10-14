@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faBox, faBullhorn, faCameraRetro, faCube, faFolder, faMoneyBillWave, faProjectDiagram, faRoad, faShoppingCart, faStream, faUsers } from '@fal'
+import { faBox, faBullhorn, faCameraRetro, faCube, faFolder, faMoneyBillWave, faProjectDiagram, faRoad, faShoppingCart, faStream, faUsers, faHeart } from '@fal'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import ModelDetails from "@/Components/ModelDetails.vue"
 import TableOrders from "@/Components/Tables/Grp/Org/Ordering/TableOrders.vue"
@@ -20,6 +20,7 @@ import TableCustomers from "@/Components/Tables/Grp/Org/CRM/TableCustomers.vue"
 import ProductShowcase from "@/Components/Showcases/Grp/ProductShowcase.vue"
 import ProductService from "@/Components/Showcases/Grp/ProductService.vue"
 import ProductRental from "@/Components/Showcases/Grp/ProductRental.vue"
+import TableProductFavourites from "@/Components/Tables/Grp/Org/Catalogue/TableProductFavourites.vue"
 
 import { capitalize } from "@/Composables/capitalize"
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
@@ -35,7 +36,8 @@ library.add(
     faProjectDiagram,
     faBox,
     faCameraRetro,
-    faRoad
+    faRoad,
+    faHeart
 )
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -69,6 +71,8 @@ const component = computed(() => {
         service: ProductService,
         rental: ProductRental,
         history: ModelChangelog,
+        favourites: TableProductFavourites
+
     }
 
     return components[currentTab.value]

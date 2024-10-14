@@ -15,7 +15,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Exception;
-use Arr;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -53,6 +53,7 @@ class EditWebpage extends OrgAction
      */
     public function htmlResponse(Webpage $webpage, ActionRequest $request): Response
     {
+        $redirectUrlArr = Arr::pluck($webpage->redirects->toArray(), 'redirect');
         return Inertia::render(
             'EditModel',
             [
@@ -89,10 +90,15 @@ class EditWebpage extends OrgAction
                             'fields' => [
                                 'google_search' => [
                                     'type'     => 'googleSearch',
+                                    'domain'    => 'https://example.com/',   // TODO
                                     'value'    => [
+                                        'image'         => [    // TODO
+                                            'original'  => 'https://socialsharepreview.com/api/image-proxy?url=https%3A%2F%2Fwww.zelolab.com%2Fwp-content%2Fuploads%2F2022%2F12%2Fhow-to-create-and-set-up-a-social-share-preview-image-on-your-website.jpg',
+                                        ],
                                         'seotitle'       => Arr::get($webpage->data, 'seotitle')       ?? '',
-                                        'seodescription' => Arr::get($webpage->data, 'seodescription') ?? '',
                                         'seourl'         => Arr::get($webpage->data, 'seourl')         ?? '',
+                                        'seodescription' => Arr::get($webpage->data, 'seodescription') ?? '',
+                                        'redirecturl'    => implode(",", $redirectUrlArr),  // TODO
                                     ],
                                     'noTitle'  => true,
                                 ]

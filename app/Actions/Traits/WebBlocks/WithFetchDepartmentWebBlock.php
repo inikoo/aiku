@@ -8,9 +8,7 @@
 
 namespace App\Actions\Traits\WebBlocks;
 
-use App\Models\Web\WebBlockType;
 use App\Transfers\Aurora\WithAuroraParsers;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithFetchDepartmentWebBlock
@@ -20,14 +18,11 @@ trait WithFetchDepartmentWebBlock
     public function processDepartmentData(
         array &$models,
         $webpage,
-        WebBlockType $webBlockType,
         $auroraBlock
     ): array|null {
         if (!isset($auroraBlock["type"])) {
             return null;
         }
-
-        $layout = Arr::only($webBlockType->toArray(), ["code", "data", "name"]);
         $sections = [];
         foreach ($auroraBlock["sections"] as $section) {
             $sections[] = [
@@ -67,7 +62,7 @@ trait WithFetchDepartmentWebBlock
             ];
         }
 
-        data_set($layout, "data.fieldValue.value.sections", $sections);
+        data_set($layout, "fieldValue.value.sections", $sections);
         return $layout;
     }
 }

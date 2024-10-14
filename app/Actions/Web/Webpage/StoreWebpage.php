@@ -165,7 +165,6 @@ class StoreWebpage extends OrgAction
         if (!$this->strict) {
             $rules['source_id']  = ['sometimes', 'string'];
             $rules['fetched_at'] = ['sometimes', 'date'];
-
             $rules['migration_data'] = ['sometimes', 'array'];
         }
 

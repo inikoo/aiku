@@ -8,34 +8,19 @@
 
 namespace App\Actions\Traits\WebBlocks;
 
-use App\Models\Web\WebBlockType;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithFetchTextWebBlock
 {
     use AsAction;
-    public function processTextData(WebBlockType $webBlockType, $auroraBlock): array
+    public function processTextData($auroraBlock): array
     {
-        $layout = Arr::only(
-            $webBlockType->toArray(),
-            [
-                'code','data','name'
-            ]
-        );
-        data_set($layout, "data.fieldValue.value", $auroraBlock["text_blocks"][0]["text"]);
+        data_set($layout, "fieldValue.value", $auroraBlock["text_blocks"][0]["text"]);
         return $layout;
     }
 
-    public function processPhoneData(WebBlockType $webBlockType, $auroraBlock): array
+    public function processPhoneData($auroraBlock): array
     {
-        $layout = Arr::only(
-            $webBlockType->toArray(),
-            [
-                'code','data','name'
-            ]
-        );
-
         $text   = $auroraBlock['_text'];
         $title = $auroraBlock['_title'];
         $telephone = $auroraBlock['_telephone'];
@@ -47,7 +32,7 @@ trait WithFetchTextWebBlock
         $html .= '<p style="text-align: center"><strong>' . $cleanedTitle . '</strong></p>';
         $html .= '<h1 style="text-align: center"><mark data-color="#A9FF00" style="background-color: #A9FF00; color: inherit">' . $cleanedTelephone . '</mark></h1>';
 
-        data_set($layout, "data.fieldValue.value", $html);
+        data_set($layout, "fieldValue.value", $html);
 
         return $layout;
     }

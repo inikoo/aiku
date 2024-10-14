@@ -32,6 +32,10 @@ const props = withDefaults(defineProps<{
     isLoading?: boolean
     align?: string  // 'right' 
     isError?: boolean
+    prefix?: {
+        label?: string
+        icon?: string
+    }
 }>(), {
     caret: true,
     type: 'text'
@@ -101,7 +105,14 @@ const checkNumber = (event: KeyboardEvent) => {
         class="bg-white w-full flex relative ring-1 ring-gray-300 focus-within:ring-2 focus-within:ring-gray-500 rounded-md overflow-hidden"
         :class="isError ? 'errorShake' : ''"
     >
-        <div class="relative w-full">
+        <div class="relative w-full flex items-center">
+            <slot name="prefix">
+                <div v-if="prefix" class="pl-3 whitespace-nowrap text-gray-400">
+                    <FontAwesomeIcon v-if="prefix?.icon" :icon='prefix?.icon' class='' fixed-width aria-hidden='true' />
+                    {{ prefix?.label}}
+                </div>
+            </slot>
+
             <input
                 ref="_inputRef"
                 :value="modelValue"
@@ -152,7 +163,7 @@ const checkNumber = (event: KeyboardEvent) => {
                     class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer opacity-20 hover:opacity-75 active:opacity-100"
                     @click="useCopyText(modelValue)"
                 >
-                suffix
+                <!-- suffix -->
                 </div>
             </slot>
 

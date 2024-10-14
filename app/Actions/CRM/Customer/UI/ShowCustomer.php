@@ -8,6 +8,7 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\CRM\Favourite\UI\IndexCustomerFavourites;
 use App\Actions\Mail\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
@@ -17,6 +18,7 @@ use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\CRM\CustomerDropshippingTabsEnum;
 use App\Enums\UI\CRM\CustomerTabsEnum;
+use App\Http\Resources\CRM\CustomerFavouritesResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Catalogue\Shop;
@@ -168,12 +170,16 @@ class ShowCustomer extends OrgAction
                 $tabs::DISPATCHED_EMAILS->value => $this->tab == $tabs::DISPATCHED_EMAILS->value ?
                     fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))
                     : Inertia::lazy(fn () => DispatchedEmailResource::collection(IndexDispatchedEmails::run($customer))),
+                $tabs::FAVOURITES->value => $this->tab == $tabs::FAVOURITES->value ?
+                    fn () => CustomerFavouritesResource::collection(IndexCustomerFavourites::run($customer))
+                    : Inertia::lazy(fn () => CustomerFavouritesResource::collection(IndexCustomerFavourites::run($customer))),
 
 
             ]
         )->table(IndexOrders::make()->tableStructure($customer))
-            //    ->table(IndexDropshippingRetinaProducts::make()->tableStructure($customer))
-            ->table(IndexDispatchedEmails::make()->tableStructure($customer));
+        //    ->table(IndexDropshippingRetinaProducts::make()->tableStructure($customer))
+        ->table(IndexCustomerFavourites::make()->tableStructure($customer, $tabs::FAVOURITES->value))
+        ->table(IndexDispatchedEmails::make()->tableStructure($customer));
 
     }
 

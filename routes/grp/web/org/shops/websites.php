@@ -59,11 +59,12 @@ Route::name('websites.')->group(function () {
 Route::prefix('{website}/webpages')->name('webpages.')->group(function () {
     Route::get('', IndexWebpages::class)->name('index');
     Route::get('tree', ShowWebpagesTree::class)->name('tree');
-    Route::get('/type/shop', [IndexWebpages::class, 'shop'])->name('index.type.shop');
+    Route::get('/type/catalogue', [IndexWebpages::class, 'catalogue'])->name('index.type.catalogue');
     Route::get('/type/content', [IndexWebpages::class, 'content'])->name('index.type.content');
-    Route::get('/type/small-print', [IndexWebpages::class, 'smallPrint'])->name('index.type.small-print');
-    Route::get('/type/checkout', [IndexWebpages::class, 'checkout'])->name('index.type.checkout');
-    // Route::get('', IndexWebpages::class)->name('index');
+    Route::get('/type/info', [IndexWebpages::class, 'info'])->name('index.type.info');
+    Route::get('/type/blog', [IndexWebpages::class, 'blog'])->name('index.type.blog');
+    Route::get('/type/operations', [IndexWebpages::class, 'operations'])->name('index.type.operations');
+
     Route::get('create', CreateWebpage::class)->name('create');
     Route::prefix('{webpage}')
         ->group(function () {

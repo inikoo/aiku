@@ -8,13 +8,12 @@
 
 namespace App\Actions\Traits\WebBlocks;
 
-use App\Models\Web\WebBlockType;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithFetchProductsWebBlock
 {
     use AsAction;
-    public function processProductsData(WebBlockType $webBlockType, $auroraBlock): array|null
+    public function processProductsData($auroraBlock): array|null
     {
         return null;
     }

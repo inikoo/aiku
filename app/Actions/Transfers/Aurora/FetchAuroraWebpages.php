@@ -9,7 +9,6 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Webpage\UpdateWebpage;
-use App\Models\CRM\Customer;
 use App\Models\Web\Webpage;
 use App\Transfers\SourceOrganisationService;
 use Exception;
@@ -30,9 +29,35 @@ class FetchAuroraWebpages extends FetchAuroraAction
                 return null;
             }
 
-            if ($webpage = Webpage::where('source_id', $webpageData['webpage']['source_id'])
-                ->first()) {
+            $isHone = false;
+            if (Arr::get($webpageData, 'is_home_logged_out') || Arr::get($webpageData, 'is_home_logged_in')) {
+                $webpage = $webpageData['website']->storefront;
+                $isHone  = true;
+            } else {
+                $webpage = Webpage::where('source_id', $webpageData['webpage']['source_id'])->first();
+            }
+
+            if ($webpage) {
                 try {
+                    if ($webpage->is_fixed) {
+                        data_forget($webpageData, 'webpage.code');
+                        data_forget($webpageData, 'webpage.url');
+                    }
+
+                    if ($isHone) {
+                        $migrationData = $webpage->migration_data;
+                        $migrationData = array_merge($migrationData, Arr::get($webpageData, 'webpage.migration_data', []));
+                        data_set($webpageData, 'webpage.migration_data', $migrationData);
+
+                        if (Arr::get($webpageData, 'is_home_logged_out')) {
+                            $migrationData['webpage'] = [];
+                            $migrationData['webpage'] = [
+                                'migration_data' => $migrationData
+                            ];
+                        }
+                    }
+
+
                     $webpage = UpdateWebpage::make()->action(
                         webpage: $webpage,
                         modelData: $webpageData['webpage'],
@@ -46,6 +71,10 @@ class FetchAuroraWebpages extends FetchAuroraAction
                     return null;
                 }
             } else {
+                if (Arr::get($webpageData, 'is_home_logout')) {
+                    return null;
+                }
+
                 try {
                     $webpage = StoreWebpage::make()->action(
                         parent: $webpageData['website'],
@@ -54,10 +83,10 @@ class FetchAuroraWebpages extends FetchAuroraAction
                         strict: false,
                         audit: false
                     );
-                    Customer::enableAuditing();
+                    Webpage::enableAuditing();
                     $this->saveMigrationHistory(
                         $webpage,
-                        Arr::except($webpageData['customer'], ['migration_data','parent_id','fetched_at','last_fetched_at'])
+                        Arr::except($webpageData['webpage'], ['migration_data', 'parent_id', 'fetched_at', 'last_fetched_at'])
                     );
                     $this->recordNew($organisationSource);
                 } catch (Exception|Throwable $e) {
@@ -96,7 +125,6 @@ class FetchAuroraWebpages extends FetchAuroraAction
 
         $query->where('Website Status', 'Active');
         $query->where('Webpage State', 'Online');
-        $query->whereNotIn('Webpage Code', ['shipping', 'privacy', 'returns', 'cookie_policy', 'showroom']);
 
 
         if ($this->onlyNew) {
@@ -122,7 +150,6 @@ class FetchAuroraWebpages extends FetchAuroraAction
 
         $query->where('Website Status', 'Active');
         $query->where('Webpage State', 'Online');
-        $query->whereNotIn('Webpage Code', ['shipping', 'privacy']);
 
 
         if ($this->shop) {
