@@ -1,7 +1,7 @@
 {
 	"slug": "department",
 	"name": "Department",
-	"icon": "fal fa-bars",
+	"icon": "fal fa-building",
 	"blueprint": {
 		"value": "default_value"
 	},
@@ -11,7 +11,7 @@
 			"code": "department",
 			"name": "Department",
 			"data": {
-				"icon": ["fal", "bars"],
+				"icon": ["fal", "building"],
 				"component": "Department",
 				"fieldValue": {
 					"value": {}

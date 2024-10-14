@@ -14,12 +14,12 @@ import { capitalize } from "@/Composables/capitalize"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faInfoCircle, faPallet, faCircle } from '@fas'
 import { faSpinnerThird } from '@fad'
-import { faRoad, faClock, faDatabase, faNetworkWired, faEye, faThLarge ,faTachometerAltFast} from '@fal'
+import { faRoad, faClock, faDatabase, faNetworkWired, faEye, faThLarge ,faTachometerAltFast, faMoneyBillWave, faHeart, faShoppingCart, faCameraRetro, faStream} from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import type { Navigation } from '@/types/Tabs'
 
-library.add(faInfoCircle, faRoad, faClock, faDatabase, faPallet, faCircle, faNetworkWired, faSpinnerThird, faEye, faThLarge,faTachometerAltFast)
+library.add(faInfoCircle, faRoad, faClock, faDatabase, faPallet, faCircle, faNetworkWired, faSpinnerThird, faEye, faThLarge,faTachometerAltFast, faMoneyBillWave, faHeart, faShoppingCart, faCameraRetro, faStream)
 
 const layoutStore = inject('layout', layoutStructure)
 
@@ -63,7 +63,7 @@ const tabIconClass = function (isCurrent: boolean, type: string | undefined, ali
         <!-- Tabs: Mobile view -->
         <div class="sm:hidden px-3 pt-2">
             <label for="tabs" class="sr-only">Select a tab</label>
-            
+
             <!-- TODO: use Headless or component Dropdown so the icon is able to show (currrently not) -->
             <select id="tabs" name="tabs" class="block w-full capitalize rounded-md border-gray-300 focus:border-gray-500 focus:ring-gray-500"
                 @input="(val: any) => onChangeTab(val.target.value)"
@@ -92,7 +92,7 @@ const tabIconClass = function (isCurrent: boolean, type: string | undefined, ali
                             <FontAwesomeIcon v-if="tabLoading === tabSlug" icon="fad fa-spinner-third" class="animate-spin" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
                             <FontAwesomeIcon v-else-if="tab.icon" :icon="tab.icon" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
                             {{ tab.title }}
-                            
+
                             <FontAwesomeIcon v-if="tab.indicator" icon='fas fa-circle' class='animate-pulse absolute top-3 -right-1 text-blue-500 text-[6px]' fixed-width aria-hidden='true' />
                         </button>
                     </template>
@@ -129,7 +129,7 @@ const tabIconClass = function (isCurrent: boolean, type: string | undefined, ali
     filter: saturate(0);
     border-bottom: v-bind('`2px solid transparent`');
     color: v-bind('`${layoutStore.app.theme[0]}99`');
-    
+
     &:hover {
         filter: saturate(0.85);
         border-bottom: v-bind('`2px solid ${layoutStore.app.theme[0]}AA`');

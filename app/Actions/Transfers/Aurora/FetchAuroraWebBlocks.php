@@ -34,7 +34,6 @@ use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
 use Exception;
-use Illuminate\Support\Arr;
 
 class FetchAuroraWebBlocks extends OrgAction
 {
@@ -70,42 +69,41 @@ class FetchAuroraWebBlocks extends OrgAction
         }
 
 
-        if (isset($webpage->migration_data["both"])) {
-            foreach (
-                Arr::get($webpage->migration_data["both"], "blocks", []) as $index => $auroraBlock
-            ) {
-                $migrationData = md5(json_encode($auroraBlock));
-                $this->processData($webpage, $auroraBlock, $migrationData, $index + 1);
+        $oldMigrationsChecksum = $webpage->webBlocks()->get()->pluck('migration_checksum', 'migration_checksum')->toArray();
+
+        if (isset($webpage->migration_data)) {
+            $migrationTypes = ['both', 'loggedIn', 'loggedOut'];
+
+            foreach ($migrationTypes as $type) {
+                if (isset($webpage->migration_data[$type])) {
+                    $this->processMigrationData($webpage, $webpage->migration_data[$type]['blocks'], $oldMigrationsChecksum, $reset, $type);
+                }
             }
         }
-        if (isset($webpage->migration_data["loggedIn"])) {
 
-            foreach (
-                Arr::get($webpage->migration_data["loggedIn"], "blocks", []) as $index => $auroraBlock
-            ) {
-
-
-
-                $migrationData = md5(json_encode($auroraBlock));
-                $this->processData($webpage, $auroraBlock, $migrationData, $index + 1, [
-                    "loggedIn"  => true,
-                    "loggedOut" => false,
-                ]);
-            }
-        }
-        if (isset($webpage->migration_data["loggedOut"])) {
-            foreach (
-                Arr::get($webpage->migration_data["loggedOut"], "blocks", []) as $index => $auroraBlock
-            ) {
-                $migrationData = md5(json_encode($auroraBlock));
-                $this->processData($webpage, $auroraBlock, $migrationData, $index + 1, [
-                    "loggedIn"  => false,
-                    "loggedOut" => true,
-                ]);
-            }
+        if (count($oldMigrationsChecksum) > 0) {
+            $this->deleteWeblockHaveOldChecksum($webpage, $oldMigrationsChecksum);
         }
 
         return $webpage;
+    }
+
+    private function processMigrationData($webpage, array $blocks, array &$oldMigrationsChecksum, $type): void
+    {
+        foreach ($blocks as $index => $auroraBlock) {
+            $migrationData = md5(json_encode($auroraBlock));
+
+            if (isset($oldMigrationsChecksum[$migrationData])) {
+                unset($oldMigrationsChecksum[$migrationData]);
+                continue;
+            }
+
+            $loggedInStatus = $type === 'loggedIn';
+            $this->processData($webpage, $auroraBlock, $migrationData, $index + 1, [
+                'loggedIn' => $loggedInStatus,
+                'loggedOut' => !$loggedInStatus,
+            ]);
+        }
     }
 
     private function processData(
@@ -347,6 +345,13 @@ class FetchAuroraWebBlocks extends OrgAction
         return GetPictureSources::run($image);
     }
 
+    private function reset(Webpage $webpage)
+    {
+        foreach ($webpage->webBlocks()->get() as $webBlock) {
+            DeleteWebBlock::run($webBlock);
+        }
+    }
+
     /**
      * @throws \Exception
      */
@@ -357,10 +362,12 @@ class FetchAuroraWebBlocks extends OrgAction
         return $this->handle($webpage);
     }
 
-    public function reset(Webpage $webpage): void
+    public function deleteWeblockHaveOldChecksum(Webpage $webpage, array $oldChecksum): void
     {
         foreach ($webpage->webBlocks()->get() as $webBlock) {
-            DeleteWebBlock::run($webBlock);
+            if (isset($oldChecksum[$webBlock->migration_checksum])) {
+                DeleteWebBlock::run($webBlock);
+            }
         }
     }
 

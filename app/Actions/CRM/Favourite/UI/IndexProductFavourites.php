@@ -10,11 +10,8 @@ namespace App\Actions\CRM\Favourite\UI;
 
 use App\Actions\OrgAction;
 use App\Http\Resources\Catalogue\ProductFavouritesResource;
-use App\Http\Resources\CRM\CustomerFavouritesResource;
-use App\Http\Resources\Sales\OrderResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Product;
-use App\Models\CRM\Customer;
 use App\Models\CRM\Favourite;
 use App\Services\QueryBuilder;
 use Closure;
@@ -29,12 +26,12 @@ class IndexProductFavourites extends OrgAction
 
     public function handle(Product $parent, $prefix = null): LengthAwarePaginator
     {
-            $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
-                $query->where(function ($query) use ($value) {
-                    $query->whereStartWith('customers.reference', $value)
-                        ->orWhereAnyWordStartWith('customers.name', 'ILIKE', $value);
-                });
+        $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
+            $query->where(function ($query) use ($value) {
+                $query->whereStartWith('customers.reference', $value)
+                    ->orWhereAnyWordStartWith('customers.name', 'ILIKE', $value);
             });
+        });
 
         if ($prefix) {
             InertiaTable::updateQueryBuilderParameters($prefix);
@@ -100,7 +97,7 @@ class IndexProductFavourites extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-    
+
         $this->canEdit = $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
 
         return $request->user()->hasPermissionTo("products.{$this->shop->id}.view");

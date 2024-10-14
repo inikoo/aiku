@@ -106,12 +106,12 @@ const checkNumber = (event: KeyboardEvent) => {
         :class="isError ? 'errorShake' : ''"
     >
         <div class="relative w-full flex items-center">
-            <div v-if="prefix" class="pl-3 whitespace-nowrap text-gray-400">
-                <slot name="prefix">
+            <slot name="prefix">
+                <div v-if="prefix" class="pl-3 whitespace-nowrap text-gray-400">
                     <FontAwesomeIcon v-if="prefix?.icon" :icon='prefix?.icon' class='' fixed-width aria-hidden='true' />
                     {{ prefix?.label}}
-                </slot>
-            </div>
+                </div>
+            </slot>
 
             <input
                 ref="_inputRef"

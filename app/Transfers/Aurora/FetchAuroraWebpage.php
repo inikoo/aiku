@@ -74,6 +74,14 @@ class FetchAuroraWebpage extends FetchAurora
         $this->parsedData['website'] = $parsedData['website'];
         $this->parsedData['webpage'] = $parsedData['webpage'];
 
+        if ($this->auroraModelData->{'Webpage Code'} == 'home.sys') {
+            $this->parsedData['is_home_logged_in'] = true;
+        } elseif ($this->auroraModelData->{'Webpage Code'} == 'home_logout.sys') {
+            $this->parsedData['is_home_logged_out'] = true;
+        }
+
+
+
     }
 
 

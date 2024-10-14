@@ -32,7 +32,7 @@ const props = defineProps<{
 }>()
 
 function productRoute(product: Product) {
-    // console.log(route().current())
+    console.log(route().current())
     switch (route().current()) {
       case 'grp.org.shops.show.catalogue.products.current_products.index':
         return route(
@@ -84,11 +84,14 @@ function productRoute(product: Product) {
             return route(
                 'retina.dropshipping.products.show',
                 [product.slug])
+        case 'retina.dropshipping.portfolios.index':
+            return route(
+                'retina.dropshipping.portfolios.show',
+                [product.slug])
         default:
             return null
     }
 }
-
 
 const isLoadingDetach = ref<string[]>([])
 

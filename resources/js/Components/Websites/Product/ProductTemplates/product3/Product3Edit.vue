@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faStar, faDollarSign, faGlobe } from "@fal";
+import { TabGroup, TabList, Tab, TabPanels, TabPanel } from "@headlessui/vue";
 import { RadioGroup, RadioGroupOption } from "@headlessui/vue";
 import { getStyles } from "@/Composables/styles";
 import Image from "@/Components/Image.vue";
@@ -18,6 +19,12 @@ const product = {
             name: 'Angled view',
             src: 'https://tailwindui.com/plus/img/ecommerce-images/product-page-03-product-01.jpg',
             alt: 'Angled front view with bag zipped and handles upright.',
+        },
+        {
+            id: 2,
+            name: 'Side view',
+            src: 'https://tailwindui.com/plus/img/ecommerce-images/product-page-03-product-02.jpg',
+            alt: 'Side view of the bag showing the handles and zipper.',
         },
     ],
     colors: [
@@ -42,9 +49,9 @@ const product = {
             ],
         },
     ],
-}
+};
 
-const selectedColor = ref(product.colors[0])
+const selectedColor = ref(product.colors[0]);
 </script>
 
 <template>
@@ -56,21 +63,20 @@ const selectedColor = ref(product.colors[0])
                     <!-- Image selector -->
                     <div class="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
                         <TabList class="grid grid-cols-4 gap-6">
-                            <Tab v-for="image in product.images" :key="image.id"
-                                class="relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4"
-                                v-slot="{ selected }">
+                            <Tab v-for="image in product.images" :key="image.id" class="relative cursor-pointer">
                                 <span class="sr-only">{{ image.name }}</span>
                                 <span class="absolute inset-0 overflow-hidden rounded-md">
                                     <img :src="image.src" alt="" class="h-full w-full object-cover object-center" />
                                 </span>
                                 <span
-                                    :class="[selected ? 'ring-indigo-500' : 'ring-transparent', 'pointer-events-none absolute inset-0 rounded-md ring-2 ring-offset-2']"
+                                    class="ring-indigo-500 pointer-events-none absolute inset-0 rounded-md ring-2 ring-offset-2"
                                     aria-hidden="true" />
                             </Tab>
                         </TabList>
                     </div>
 
-                    <TabPanels class="aspect-h-1 aspect-w-1 w-full">
+                    <!-- Large image display -->
+                    <TabPanels>
                         <TabPanel v-for="image in product.images" :key="image.id">
                             <img :src="image.src" :alt="image.alt"
                                 class="h-full w-full object-cover object-center sm:rounded-lg" />
@@ -92,9 +98,13 @@ const selectedColor = ref(product.colors[0])
                         <h3 class="sr-only">Reviews</h3>
                         <div class="flex items-center">
                             <div class="flex items-center">
-                                <StarIcon v-for="rating in [0, 1, 2, 3, 4]" :key="rating"
-                                    :class="[product.rating > rating ? 'text-indigo-500' : 'text-gray-300', 'h-5 w-5 flex-shrink-0']"
-                                    aria-hidden="true" />
+                                <svg v-for="rating in [0, 1, 2, 3, 4]" :key="rating"
+                                    :class="product.rating > rating ? 'text-indigo-500' : 'text-gray-300'"
+                                    class="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"
+                                    aria-hidden="true">
+                                    <path
+                                        d="M9.049.667a1.36 1.36 0 011.902 0l2.617 5.304 5.857.852c.45.065.63.62.304.93l-4.236 4.131.999 5.821a.64.64 0 01-.928.676L10 15.944l-5.238 2.753a.64.64 0 01-.928-.676l.999-5.82-4.236-4.132a.64.64 0 01.304-.93l5.857-.852L9.049.667z" />
+                                </svg>
                             </div>
                             <p class="sr-only">{{ product.rating }} out of 5 stars</p>
                         </div>
@@ -132,7 +142,11 @@ const selectedColor = ref(product.colors[0])
 
                             <button type="button"
                                 class="ml-4 flex items-center justify-center rounded-md px-3 py-3 text-gray-400 hover:bg-gray-100 hover:text-gray-500">
-                                <HeartIcon class="h-6 w-6 flex-shrink-0" aria-hidden="true" />
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24"
+                                    stroke="currentColor" fill="none">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5.121 19.121a1.5 1.5 0 010-2.121l12-12a1.5 1.5 0 112.121 2.121l-12 12a1.5 1.5 0 01-2.121 0z" />
+                                </svg>
                                 <span class="sr-only">Add to favorites</span>
                             </button>
                         </div>
@@ -142,23 +156,10 @@ const selectedColor = ref(product.colors[0])
                         <h2 id="details-heading" class="sr-only">Additional details</h2>
 
                         <div class="divide-y divide-gray-200 border-t">
-                            <Disclosure as="div" v-for="detail in product.details" :key="detail.name" v-slot="{ open }">
-                                <h3>
-                                    <DisclosureButton
-                                        class="group relative flex w-full items-center justify-between py-6 text-left">
-                                        <span
-                                            :class="[open ? 'text-indigo-600' : 'text-gray-900', 'text-sm font-medium']">{{
-                                                detail.name }}</span>
-                                        <span class="ml-6 flex items-center">
-                                            <PlusIcon v-if="!open"
-                                                class="block h-6 w-6 text-gray-400 group-hover:text-gray-500"
-                                                aria-hidden="true" />
-                                            <MinusIcon v-else
-                                                class="block h-6 w-6 text-indigo-400 group-hover:text-indigo-500"
-                                                aria-hidden="true" />
-                                        </span>
-                                    </DisclosureButton>
-                                </h3>
+                            <Disclosure as="div" v-for="detail in product.details" :key="detail.name">
+                                <DisclosureButton as="h3" class="py-6 text-sm font-medium">
+                                    {{ detail.name }}
+                                </DisclosureButton>
                                 <DisclosurePanel as="div" class="prose prose-sm pb-6">
                                     <ul role="list">
                                         <li v-for="item in detail.items" :key="item">{{ item }}</li>

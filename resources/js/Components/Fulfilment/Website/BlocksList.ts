@@ -19,6 +19,7 @@ import Grid1 from '@/Components/Fulfilment/Website/Block/Grid1.vue'
 import Department from '@/Components/Fulfilment/Website/Block/Department.vue'
 import Overview from '@/Components/Fulfilment/Website/Block/Overview.vue'
 import Script from '@/Components/Fulfilment/Website/Block/Script.vue'
+import SeeAlso from '@/Components/Fulfilment/Website/Block/SeeAlso.vue'
 import Action from "@/Components/Forms/Fields/Action.vue"
 
 
@@ -31,7 +32,7 @@ export const getComponent = (componentName: string) => {
         'ProductList': ProductList,
         'CTA': CTA,
         'CTA2': CTA2,
-        'CTA3': CTA3,
+        'CTA3': SeeAlso,
         'Reviews': Rewiews,
         'Image': Image,
         'Gallery': Gallery,
