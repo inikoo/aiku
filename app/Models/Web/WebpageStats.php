@@ -38,6 +38,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_webpages_type_operations
  * @property int $number_webpages_type_blog
  * @property int $number_webpages_sub_type_storefront
+ * @property int $number_webpages_sub_type_catalogue
+ * @property int $number_webpages_sub_type_products
  * @property int $number_webpages_sub_type_product
  * @property int $number_webpages_sub_type_family
  * @property int $number_webpages_sub_type_department
@@ -47,6 +49,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_webpages_sub_type_contact
  * @property int $number_webpages_sub_type_returns
  * @property int $number_webpages_sub_type_shipping
+ * @property int $number_webpages_sub_type_showroom
  * @property int $number_webpages_sub_type_terms_and_conditions
  * @property int $number_webpages_sub_type_privacy
  * @property int $number_webpages_sub_type_cookies_policy
