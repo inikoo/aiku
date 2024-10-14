@@ -42,7 +42,7 @@ class UpdatePaymentAccount extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'code' => [
                 'sometimes',
                 'required',
@@ -62,12 +62,22 @@ class UpdatePaymentAccount extends OrgAction
             ],
             'name' => ['sometimes', 'required', 'max:250', 'string'],
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+        return $rules;
     }
 
-    public function action(PaymentAccount $paymentAccount, $modelData): PaymentAccount
+    public function action(PaymentAccount $paymentAccount, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): PaymentAccount
     {
+        $this->strict = $strict;
+        if (!$audit) {
+            PaymentAccount::disableAuditing();
+        }
         $this->asAction       = true;
         $this->paymentAccount = $paymentAccount;
+        $this->hydratorsDelay = $hydratorsDelay;
 
         $this->initialisation($paymentAccount->organisation, $modelData);
 
@@ -76,6 +86,7 @@ class UpdatePaymentAccount extends OrgAction
 
     public function asController(Organisation $organisation, PaymentAccount $paymentAccount, ActionRequest $request): PaymentAccount
     {
+
         $this->paymentAccount = $paymentAccount;
         $this->initialisation($paymentAccount->organisation, $request);
 
