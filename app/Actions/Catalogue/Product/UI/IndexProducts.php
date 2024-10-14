@@ -44,8 +44,8 @@ class IndexProducts extends OrgAction
 
     private string $bucket;
 
-    private Shop|ProductCategory|Organisation|Collection $parent;
-    private Shop|ProductCategory|Organisation|Collection $higherParent;
+    private Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent;
+    private Shop|ProductCategory|Organisation|Collection|ShopifyUser $higherParent;
 
     protected function getElementGroups(Shop|ProductCategory|Organisation|Collection|ShopifyUser $parent, $bucket = null): array
     {
@@ -136,16 +136,21 @@ class IndexProducts extends OrgAction
                     ->where('model_has_collections.collection_id', '=', $parent->id);
             });
         } elseif ($parent instanceof ShopifyUser) {
-            $queryBuilder->join('shopify_user_has_products', function ($join) use ($parent) {
-                $join->on('products.id', '=', 'shopify_user_has_products.product_id')
-                    ->where('shopify_user_has_products.shopify_user_id', '=', $parent->id);
-            });
+            if ($bucket == 'current') {
+                $queryBuilder->join('shopify_user_has_products', function ($join) use ($parent, $bucket) {
+                    $join->on('products.id', '=', 'shopify_user_has_products.product_id')
+                        ->where('shopify_user_has_products.shopify_user_id', '=', $parent->id);
+                });
 
-            $addSelects = [
-                'shopify_user_has_products.id as portfolio_id',
-                'shopify_user_has_products.shopify_product_id',
-                'shopify_user_has_products.shopify_user_id'
-            ];
+                $addSelects = [
+                    'shopify_user_has_products.id as portfolio_id',
+                    'shopify_user_has_products.shopify_product_id',
+                    'shopify_user_has_products.shopify_user_id'
+                ];
+            } else {
+                $queryBuilder->where('shop_id', $parent->customer->shop_id)
+                ->whereNotIn('products.id', $parent->products->pluck('id'));
+            }
         } else {
             abort(419);
         }
@@ -566,6 +571,16 @@ class IndexProducts extends OrgAction
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle(parent: $shop, bucket: $this->bucket);
+    }
+
+    public function inDropshipping(ShopifyUser $shopifyUser, string $bucket): LengthAwarePaginator
+    {
+        $this->asAction = true;
+        $this->bucket = $bucket;
+        $this->parent = $shopifyUser;
+        $this->initialisationFromShop($shopifyUser->customer->shop, []);
+
+        return $this->handle(parent: $shopifyUser, bucket: $this->bucket);
     }
 
     /** @noinspection PhpUnusedParameterInspection */

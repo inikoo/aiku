@@ -56,7 +56,7 @@ class IndexDropshippingRetinaPortfolio extends RetinaAction
                     'navigation' => ProductTabsEnum::navigation()
                 ],
 
-                'products' => DropshippingPortfolioResource::collection(IndexUIProducts::run($shopifyUser, 'products'))
+                'products' => DropshippingPortfolioResource::collection(IndexUIProducts::make()->inDropshipping($shopifyUser, 'current'))
             ]
         )->table(IndexUIProducts::make()->tableStructure($shopifyUser, prefix: 'products'));
     }
