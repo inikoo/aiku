@@ -109,7 +109,7 @@ class FetchAuroraWebBlocks extends OrgAction
     private function processData(
         Webpage $webpage,
         $auroraBlock,
-        $migrationData,
+        $migrationChecksum,
         int $position,
         $visibility = ["loggedIn" => true, "loggedOut" => true]
     ): void {
@@ -240,7 +240,7 @@ class FetchAuroraWebBlocks extends OrgAction
             $webBlockType,
             [
                 "layout"             => $layout,
-                "migration_checksum" => $migrationData,
+                "migration_checksum" => $migrationChecksum,
                 "models"             => $models,
             ],
             strict: false
@@ -311,14 +311,16 @@ class FetchAuroraWebBlocks extends OrgAction
             "model_id"           => $webpage->id,
             "model_type"         => class_basename(Webpage::class),
             "web_block_id"       => $webBlock->id,
-            "migration_checksum" => $migrationData,
+            "migration_checksum" => $migrationChecksum,
         ];
 
         if (isset($auroraBlock["show"])) {
             $modelHasWebBlocksData['show'] = boolval($auroraBlock["show"]);
         }
 
+
         $webpage->modelHasWebBlocks()->create($modelHasWebBlocksData);
+
 
         UpdateWebpageContent::run($webpage->refresh());
 

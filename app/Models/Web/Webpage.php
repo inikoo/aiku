@@ -212,7 +212,7 @@ class Webpage extends Model implements Auditable
     {
         return $this->morphToMany(WebBlock::class, 'model', 'model_has_web_blocks')
             ->orderByPivot('position')
-            ->withPivot('id', 'position')
+            ->withPivot('id', 'position', 'show', 'show_logged_in', 'show_logged_out')
             ->withTimestamps();
     }
 
