@@ -35,7 +35,8 @@ const product = {
             :class="[product.stock ? 'text-green-500 animate-pulse' : 'text-red-500']"
             v-tooltip="product.stock ? 'Ready stock' : 'Out of stock'" fixed-width aria-hidden='true' />
         <div>
-            <img  src="https://tailwindui.com/img/ecommerce-images/product-page-03-related-product-02.jpg"  alt="" class="h-auto w-full rounded-t-full">
+            <img src="https://tailwindui.com/img/ecommerce-images/product-page-03-related-product-02.jpg" alt=""
+                class="h-auto w-full rounded-t-full">
             <div class="place-self-start mx-4 mb-2 xl:mb-4">
                 <div
                     class="min-h-12 mb-1 border border-gray-300 rounded text-gray-600 font-semibold py-2 px-2 text-center flex items-center justify-center">

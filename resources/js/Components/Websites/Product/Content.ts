@@ -14,7 +14,7 @@ export const getComponent = (componentName: string) => {
     const components: Component = {
         'product1': Product1,
         'product2': Product2,
-        'Product3': Product3
+        'product3': Product3
     }
 
     return components[componentName] ?? NotFoundComponents
