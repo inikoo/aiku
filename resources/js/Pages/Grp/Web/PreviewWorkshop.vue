@@ -113,7 +113,7 @@ watch(layout.footer, (newVal) => {
 
 console.log('preview', props)
 
-const isInWorkshop = JSON.parse(route().params.isInWorkshop || false) 
+const isInWorkshop = JSON.parse(route().params.isInWorkshop || false)
 
 
 const openModalBlock = () => {
@@ -136,8 +136,7 @@ const openModalBlock = () => {
                             <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
                                 :key="activityItem.id" class="w-full">
                                 <component v-if="activityItem?.web_block?.layout?.data?.fieldValue"
-                                    :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
-                                    :webpageData="webpage"
+                                    :is="getComponent(activityItem?.layout.web_blocks.type)" :webpageData="webpage"
                                     :properties="activityItem?.web_block?.layout?.data?.properties"
                                     v-bind="activityItem" v-model="activityItem.web_block.layout.data.fieldValue"
                                     :isEditable="true" :style="{ width: '100%' }"
