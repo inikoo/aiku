@@ -112,7 +112,12 @@ trait WithAuroraProcessWebpage
                             ->first();
                         if ($auroraDepartmentWebpageData) {
                             $departmentWebpage = $this->parseWebpage($this->organisation->id.':'.$auroraDepartmentWebpageData->{'Page Key'});
-                            $parentId          = $departmentWebpage->id;
+                            if($departmentWebpage) {
+                                $parentId = $departmentWebpage->id;
+                            }else{
+                                print "error can not fetch department webpage\n";
+
+                            }
                         }
                     }
                 } else {

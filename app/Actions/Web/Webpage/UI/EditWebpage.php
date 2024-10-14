@@ -89,10 +89,14 @@ class EditWebpage extends OrgAction
                             'fields' => [
                                 'google_search' => [
                                     'type'     => 'googleSearch',
+                                    'chanonicalPrefix'     => [
+                                        'label' => 'https://example.com/'  // TODO
+                                    ],
                                     'value'    => [
                                         'seotitle'       => Arr::get($webpage->data, 'seotitle')       ?? '',
-                                        'seodescription' => Arr::get($webpage->data, 'seodescription') ?? '',
                                         'seourl'         => Arr::get($webpage->data, 'seourl')         ?? '',
+                                        'seodescription' => Arr::get($webpage->data, 'seodescription') ?? '',
+                                        'redirecturl'         => 'xxxx, aaaa, bbbb, rrrr',  // TODO
                                     ],
                                     'noTitle'  => true,
                                 ]
