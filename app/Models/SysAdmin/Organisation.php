@@ -383,7 +383,7 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->belongsTo(Language::class);
     }
 
-    public function accountsServiceProvider(): OrgPaymentServiceProvider
+    public function getAccountsServiceProvider(): OrgPaymentServiceProvider
     {
         return OrgPaymentServiceProvider::where('organisation_id', $this->id)->where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
     }

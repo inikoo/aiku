@@ -101,7 +101,7 @@ interface SourceOrganisationService
 
     public function fetchArtefact($id);
 
-    public function fetchPaymentServiceProvider($id);
+    public function fetchOrgPaymentServiceProvider($id);
 
     public function fetchPaymentAccount($id);
 

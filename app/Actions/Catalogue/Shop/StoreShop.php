@@ -134,7 +134,7 @@ class StoreShop extends OrgAction
             SetCurrencyHistoricFields::run($shop->currency, $shop->created_at);
 
             $paymentAccount       = StorePaymentAccount::make()->action(
-                $organisation->accountsServiceProvider(),
+                $organisation->getAccountsServiceProvider(),
                 [
                     'code'        => 'accounts-'.$shop->slug,
                     'name'        => 'Accounts '.$shop->code,

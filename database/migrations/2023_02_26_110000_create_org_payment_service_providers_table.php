@@ -25,8 +25,10 @@ return new class () extends Migration {
             $table->string('code')->unique()->collation('und_ns');
             $table->jsonb('data');
             $table->dateTimeTz('last_used_at')->nullable();
-            $table->softDeletesTz();
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->softDeletesTz();
             $table->string('source_id')->index()->nullable();
 
         });
