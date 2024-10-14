@@ -20,26 +20,20 @@ const props = defineProps<{
 const locale = useLocaleStore();
 
 
-// function customerRoute(customer: FulfilmentCustomer) {
-//     switch (route().current()) {
-//         case "shops.show.customers.index":
-//             return route(
-//                 "grp.org.shops.show.crm.customers.show",
-//                 [customer.shop_slug, customer.slug]);
-//         case "grp.fulfilment.customers.index":
-//             return route(
-//                 "grp.fulfilment.customers.show",
-//                 [customer.slug]);
-//         default:
-//             return route(
-//                 "grp.org.shops.show.crm.customers.show",
-//                 [
-//                     route().params["organisation"],
-//                     route().params["shop"],
-//                     customer.slug
-//                 ]);
-//     }
-// }
+function favouriteRoute(favourite: {}) {
+    switch (route().current()) {
+        case "grp.org.shops.show.crm.customers.show":
+            return route(
+                "grp.org.shops.show.catalogue.products.all_products.show",
+                [
+                route().params["organisation"],
+                route().params["shop"],
+                favourite.slug
+                ]);
+        default:
+            return '';
+    }
+}
 
 // function shopRoute(customer: FulfilmentCustomer) {
 //     switch (route().current()) {
@@ -58,7 +52,9 @@ const locale = useLocaleStore();
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: favourite }">
-                {{ favourite["code"] }}
+            <Link :href="favouriteRoute(favourite)" class="primaryLink">
+            {{ favourite["code"] }}
+            </Link>
         </template>
         <template #cell(name)="{ item: favourite }">
                 {{ favourite["name"] }}
