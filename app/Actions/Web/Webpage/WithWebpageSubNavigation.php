@@ -8,19 +8,19 @@
 
 namespace App\Actions\Web\Webpage;
 
-use App\Models\Catalogue\Shop;
+use App\Models\Web\Website;
 
-trait WithWebpageSubnavigation
+trait WithWebpageSubNavigation
 {
-    protected function getWebpageNavigation(Shop $shop): array
+    protected function getWebpageNavigation(Website $website): array
     {
-        $website = $shop->website;
+        $shop=$website->shop;
 
         return [
             [
                 'href'     => [
-                    'name'       => 'grp.org.shops.show.web.webpages.index',
-                    'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
+                    'name'       => 'grp.org.shops.show.web.webpages.show',
+                    'parameters' => [$website->organisation->slug, $shop->slug, $website->slug,$website->storefront->slug]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-home'],
@@ -33,7 +33,7 @@ trait WithWebpageSubnavigation
 
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.tree',
-                    'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
+                    'parameters' => [$website->organisation->slug, $shop->slug, $website->slug]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-code-branch'],
@@ -48,7 +48,7 @@ trait WithWebpageSubnavigation
                 'label'    => __('Catalogue'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.catalogue',
-                    'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
+                    'parameters' => [$website->organisation->slug, $shop->slug, $website->slug]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
@@ -60,7 +60,7 @@ trait WithWebpageSubnavigation
                 'label'    => __('Content'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.content',
-                    'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
+                    'parameters' => [$website->organisation->slug, $shop->slug, $website->slug]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
@@ -72,7 +72,7 @@ trait WithWebpageSubnavigation
                 'label'    => __('Info'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.info',
-                    'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
+                    'parameters' => [$website->organisation->slug, $shop->slug, $website->slug]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
@@ -84,7 +84,7 @@ trait WithWebpageSubnavigation
                 'label'    => __('Operations'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.operations',
-                    'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
+                    'parameters' => [$website->organisation->slug, $shop->slug, $website->slug]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
@@ -97,7 +97,7 @@ trait WithWebpageSubnavigation
                 'label'    => __('Blog'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index.type.blog',
-                    'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
+                    'parameters' => [$website->organisation->slug, $shop->slug, $website->slug]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
@@ -111,7 +111,7 @@ trait WithWebpageSubnavigation
                 'label'    => __('All'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.web.webpages.index',
-                    'parameters' => [$shop->organisation->slug, $shop->slug, $shop->website->slug]
+                    'parameters' => [$website->organisation->slug, $shop->slug, $website->slug]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],

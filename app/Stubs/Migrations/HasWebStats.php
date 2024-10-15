@@ -8,6 +8,7 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
+use App\Enums\Web\Redirect\RedirectTypeEnum;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
@@ -84,6 +85,18 @@ trait HasWebStats
         $table->unsignedInteger('number_blocks')->default(0);
         $table->unsignedInteger('number_visible_blocks')->default(0);
         $table->unsignedInteger('number_published_blocks')->default(0);
+
+        return $table;
+    }
+
+    public function getRedirectsStatsFields(Blueprint $table): Blueprint
+    {
+
+        $table->unsignedInteger('number_redirects')->default(0);
+
+        foreach (RedirectTypeEnum::cases() as $case) {
+            $table->unsignedInteger('number_redirects_type_'.$case->snake())->default(0);
+        }
 
         return $table;
     }

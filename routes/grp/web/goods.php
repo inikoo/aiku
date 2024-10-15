@@ -20,6 +20,9 @@ use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\Goods\TradeUnit\UI\EditTradeUnit;
 use App\Actions\Goods\TradeUnit\UI\IndexTradeUnits;
 use App\Actions\Goods\TradeUnit\UI\ShowTradeUnit;
+use App\Actions\UI\Goods\Catalogue\IndexMasterProducts;
+use App\Actions\UI\Goods\Catalogue\IndexMasterShops;
+use App\Actions\UI\Goods\Catalogue\ShowMasterCatalogue;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -103,4 +106,13 @@ Route::prefix('trade-units')->as('trade-units.')->group(function () {
         Route::get('', ShowTradeUnit::class)->name('show');
         Route::get('edit', EditTradeUnit::class)->name('edit');
     });
+});
+
+Route::prefix('catalogue')->as('catalogue.')->group(function () {
+    Route::get('/shops', IndexMasterShops::class)->name('shops.index');
+    Route::get('/products', IndexMasterProducts::class)->name('products.index');
+    // Route::prefix('{tradeUnit:slug}')->group(function () {
+    //     Route::get('', ShowTradeUnit::class)->name('show');
+    //     Route::get('edit', EditTradeUnit::class)->name('edit');
+    // });
 });

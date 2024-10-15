@@ -43,6 +43,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRecurringBills;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRentals;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductSuppliers;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateRedirects;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateServices;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItemAudits;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStoredItems;
@@ -102,6 +103,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateShops::run($group);
         GroupHydrateWebsites::run($group);
         GroupHydrateWebpages::run($group);
+        GroupHydrateRedirects::run($group);
         GroupHydrateDepartments::run($group);
         GroupHydrateSubDepartments::run($group);
         GroupHydrateFamilies::run($group);

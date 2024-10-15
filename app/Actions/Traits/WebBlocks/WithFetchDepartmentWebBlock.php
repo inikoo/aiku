@@ -24,32 +24,13 @@ trait WithFetchDepartmentWebBlock
             return null;
         }
         $sections = [];
+        data_set($layout, 'fieldValue.value.department_id', $webpage->model_id);
         foreach ($auroraBlock["sections"] as $section) {
             $sections[] = [
                 "title" => $section["title"] ?? "",
                 "subtitle" => $section["subtitle"] ?? "",
                 "items" => array_filter(
                     array_map(function ($item) use ($webpage, &$models) {
-                        if ($item["type"] == "category") {
-                            $family = $this->parseFamily(
-                                $webpage->organisation->id . ":" . $item["category_key"]
-                            );
-                            if ($family) {
-                                $models[] = $family;
-                            } else {
-                                $department = $this->parseDepartment(
-                                    $webpage->organisation->id . ":" . $item["category_key"]
-                                );
-                                if ($department) {
-                                    $models[] = $department;
-                                }
-                            }
-
-                            return [
-                                "type" => $item["type"],
-                                "category_id" => $family->id ?? $department->id,
-                            ];
-                        }
                         if ($item["type"] == "image") {
                             return [
                                 "type" => $item["type"],

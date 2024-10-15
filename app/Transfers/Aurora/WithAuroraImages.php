@@ -31,13 +31,7 @@ trait WithAuroraImages
             Arr::get($this->organisation->source, 'account_code')
         );
 
-
-        $image_path .= '/'
-            .$auroraImageData->{'Image File Checksum'}[0].'/'
-            .$auroraImageData->{'Image File Checksum'}[1].'/'
-            .$auroraImageData->{'Image File Checksum'}.'.'
-            .$auroraImageData->{'Image File Format'};
-
+        $image_path .= preg_replace('/^img\/db/', '', $auroraImageData->{'Image Path'});
 
         if (file_exists($image_path)) {
             return [
