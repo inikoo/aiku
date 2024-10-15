@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, defineExpose } from 'vue'
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import TextStyle from '@tiptap/extension-text-style'
@@ -46,6 +46,7 @@ const props = withDefaults(defineProps<{
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string): void
+    (e: 'onEditClick', value: any): void
 }>()
 
 const toggleList = ref([
@@ -177,13 +178,16 @@ const setLink = () => {
     }
 }
 
+const onEditorClick = () => {
+    emits('onEditClick', editor.value)
+}
+
 onMounted(() => {
     nextTick(() => {
         toggleList.value = toggleList.value.filter(item => props.toogle?.includes(item.key))
-        if (editor.value) editor.value.commands.selectAll() // Ensure editor is ready
+        if (editor.value) editor.value.commands.selectAll()
     })
 })
-
 
 /* watch(() => props.modelValue, (newValue, oldValue) => {
     const isSame = newValue === oldValue
@@ -193,6 +197,11 @@ onMounted(() => {
 
     editor.value?.commands.setContent(newValue, false)
 }) */
+
+defineExpose({
+    editor
+})
+
 
 </script>
 
@@ -208,7 +217,7 @@ onMounted(() => {
             <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
         </section>
 
-        <EditorContent :editor="editor" :class="type == 'basic' ? 'basic-content' : ''"/>
+        <EditorContent  @click="onEditorClick" :editor="editor" :class="type == 'basic' ? 'basic-content' : ''"/>
     </div>
     <div v-else id="blockTextContent"><div v-html="modelValue"/></div>
 </template>

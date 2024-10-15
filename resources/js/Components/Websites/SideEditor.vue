@@ -10,6 +10,7 @@ import { trans } from 'laravel-vue-i18n'
 import SelectButton from 'primevue/selectbutton';
 import EditorAndPanelProperties from "@/Components/Websites/Fields/EditorAndPanelProperties.vue"
 import ButtonVisibleLoggedIn from '@/Components/Websites/Fields/ButtonVisibleLoggedIn.vue';
+import PanelProperties from '@/Components/Websites/Fields/PanelProperties.vue';
 
 import UploadImage from '@/Components/Pure/UploadImage.vue'
 import Payments from '@/Components/Websites/Fields/Payment.vue'
@@ -40,7 +41,8 @@ const getComponent = (componentName: string) => {
         'socialMedia': socialMedia,
         'footerColumn': FooterColumn,
         "EditorAndPanelProperties": EditorAndPanelProperties,
-        "VisibleLoggedIn": ButtonVisibleLoggedIn
+        "VisibleLoggedIn": ButtonVisibleLoggedIn,
+        "properties" : PanelProperties
     }
 
     return components[componentName]
