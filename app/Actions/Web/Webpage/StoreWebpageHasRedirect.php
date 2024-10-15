@@ -25,33 +25,33 @@ class StoreWebpageHasRedirect extends OrgAction
 
     public function handle(Webpage $webpage, array $modelData): array
     {
-        $redirectStr = Arr::get($modelData, 'data.redirecturl');
+        // $redirectStr = Arr::get($modelData, 'data.redirecturl');
 
-        if ($redirectStr) {
-            $redirects = explode(',', $redirectStr);
+        // if ($redirectStr) {
+        //     $redirects = explode(',', $redirectStr);
 
-            DB::transaction(function () use ($webpage, $redirects) {
-                $webpage->redirects()->delete($webpage->id);
+        //     DB::transaction(function () use ($webpage, $redirects) {
+        //         $webpage->redirects()->delete($webpage->id);
 
-                $redirectData = array_map(function ($redirect) {
-                    return new WebpageHasRedirect(['redirect' => $redirect]);
-                }, $redirects);
+        //         $redirectData = array_map(function ($redirect) {
+        //             return new WebpageHasRedirect(['redirect' => $redirect]);
+        //         }, $redirects);
 
-                if (!empty($redirectData)) {
-                    $webpage->redirects()->saveMany($redirectData);
-                }
-            });
+        //         if (!empty($redirectData)) {
+        //             $webpage->redirects()->saveMany($redirectData);
+        //         }
+        //     });
 
 
-            // if(count($redirects) >= 10) {
-            //     // remove the redirects data
-            // }
-            // $webpage->redirects()->sync($webpage->id, ['redirect' => $redirect]);
-            // foreach($redirects as $redirect) {
-            // }
-            Arr::forget($modelData, 'data.redirecturl');
-            // dd($webpage->redirects);
-        }
+        //     // if(count($redirects) >= 10) {
+        //     //     // remove the redirects data
+        //     // }
+        //     // $webpage->redirects()->sync($webpage->id, ['redirect' => $redirect]);
+        //     // foreach($redirects as $redirect) {
+        //     // }
+        //     Arr::forget($modelData, 'data.redirecturl');
+        //     // dd($webpage->redirects);
+        // }
         // $this->update($webpage->redirects->saveMany)
         return $modelData;
     }
