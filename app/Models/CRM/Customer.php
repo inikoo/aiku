@@ -31,6 +31,7 @@ use App\Models\Helpers\TaxNumber;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
+use App\Models\Reminder\BackToStockReminder;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -403,5 +404,10 @@ class Customer extends Model implements HasMedia, Auditable
     public function favourites(): HasMany
     {
         return $this->hasMany(Favourite::class);
+    }
+
+    public function backToStockReminder(): HasMany
+    {
+        return $this->hasMany(BackToStockReminder::class);
     }
 }
