@@ -90,8 +90,10 @@ trait WithMasterCatalogueSubnavigation
                 'number'   => 0,
                 'label'    => __('Sub Departments'),
                 'href'     => [
-                    'name'       => '',
-                    'parameters' => []
+                    'name'       => 'grp.goods.catalogue.shops.show.sub-departments.index',
+                    'parameters' => [
+                        'masterShop' => $masterShop->slug
+                    ]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],

@@ -24,6 +24,7 @@ use App\Actions\UI\Goods\Catalogue\IndexMasterDepartments;
 use App\Actions\UI\Goods\Catalogue\IndexMasterFamilies;
 use App\Actions\UI\Goods\Catalogue\IndexMasterProducts;
 use App\Actions\UI\Goods\Catalogue\IndexMasterShops;
+use App\Actions\UI\Goods\Catalogue\IndexMasterSubDepartments;
 use App\Actions\UI\Goods\Catalogue\ShowMasterShop;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
 use Illuminate\Support\Facades\Route;
@@ -120,6 +121,9 @@ Route::prefix('catalogue')->as('catalogue.')->group(function () {
         });
         Route::prefix('families')->as('.families.')->group(function () {
             Route::get('index', IndexMasterFamilies::class)->name('index');
+        });
+        Route::prefix('sub-departments')->as('.sub-departments.')->group(function () {
+            Route::get('index', IndexMasterSubDepartments::class)->name('index');
         });
         // Route::get('edit', EditTradeUnit::class)->name('edit');
     });
