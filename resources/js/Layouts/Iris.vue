@@ -30,7 +30,7 @@ const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color
         <ScreenWarning v-if="layout.app.environment === 'staging'" />
         <div  class="container max-w-7xl mx-auto shadow-xl">
             <IrisLoginInformation />
-            <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation"/>
+         <!--    <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation"/> -->
 
             
             <!-- Main Content -->
@@ -38,7 +38,7 @@ const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color
                 <slot />
             </main>
 
-            <!--   <Footer :data="footer" :colorThemed="colorThemed"/> -->
+              <Footer :data="footer" :colorThemed="colorThemed"/>
         </div>
     </div>
 
