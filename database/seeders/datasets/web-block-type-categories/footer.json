@@ -319,7 +319,7 @@
 							{
 								"name": "Payments",
 								"key": "PaymentData",
-								"type": "payment_templates"
+								"type": ["VisibleLoggedIn","payment_templates"]
 							}
 						]
 					},
