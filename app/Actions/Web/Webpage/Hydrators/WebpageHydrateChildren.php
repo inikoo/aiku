@@ -10,6 +10,7 @@
 namespace App\Actions\Web\Webpage\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
+use App\Enums\Web\Webpage\WebpageChildrenScopeEnum;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Web\Webpage;
 use Exception;
@@ -37,6 +38,7 @@ class WebpageHydrateChildren
     public function handle(Webpage $webpage): void
     {
         $children = [];
+        $childrenFamily = [];
         foreach ($webpage->webBlocks as $webBlock) {
             $weblockType = $webBlock->webBlockType->code;
             switch ($weblockType) {
@@ -62,7 +64,7 @@ class WebpageHydrateChildren
                             $webpage = $product->webpage;
                             if ($webpage) {
                                 $webpageId = $product->webpage->id;
-                                $children[$webpageId] = $webpageId;
+                                $childrenFamily[$webpageId] = $webpageId;
                             }
                         }
                     }
@@ -75,7 +77,14 @@ class WebpageHydrateChildren
         if (count($children) > 0) {
             foreach ($children as $childId) {
                 $webpage = Webpage::find($childId);
-                $webpage->children()->attach($childId);
+                $webpage->children()->attach($childId, ['model_type' => $webpage->model_type, 'model_id' => $webpage->model_id, 'scope' => WebpageChildrenScopeEnum::DEPARTMENT->value]);
+            }
+        }
+
+        if (count($childrenFamily) > 0) {
+            foreach ($childrenFamily as $childId) {
+                $webpage = Webpage::find($childId);
+                $webpage->children()->attach($childId, ['model_type' => $webpage->model_type, 'model_id' => $webpage->model_id, 'scope' => WebpageChildrenScopeEnum::FAMILY->value]);
             }
         }
 
