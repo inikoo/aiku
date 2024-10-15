@@ -1,7 +1,7 @@
 <?php
 /*
  * author Arya Permana - Kirin
- * created on 15-10-2024-14h-37m
+ * created on 15-10-2024-15h-08m
  * github: https://github.com/KirinZero0
  * copyright 2024
 */
@@ -18,6 +18,7 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\Http\Resources\Goods\Catalogue\MasterDepartmentsResource;
+use App\Http\Resources\Goods\Catalogue\MasterFamiliesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\MasterProductCategory;
@@ -34,7 +35,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexMasterDepartments extends GrpAction
+class IndexMasterFamilies extends GrpAction
 {
     use WithMasterCatalogueSubnavigation;
 
@@ -78,7 +79,7 @@ class IndexMasterDepartments extends GrpAction
                 'master_product_categories.created_at',
                 'master_product_categories.updated_at',
             ])
-            ->where('master_product_categories.type', ProductCategoryTypeEnum::DEPARTMENT)
+            ->where('master_product_categories.type', ProductCategoryTypeEnum::FAMILY)
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -110,28 +111,28 @@ class IndexMasterDepartments extends GrpAction
         };
     }
 
-    public function jsonResponse(LengthAwarePaginator $masterDepartments): AnonymousResourceCollection
+    public function jsonResponse(LengthAwarePaginator $masterFamilies): AnonymousResourceCollection
     {
-        return MasterDepartmentsResource::collection($masterDepartments);
+        return MasterFamiliesResource::collection($masterFamilies);
     }
 
-    public function htmlResponse(LengthAwarePaginator $masterDepartments, ActionRequest $request): Response
+    public function htmlResponse(LengthAwarePaginator $masterFamilies, ActionRequest $request): Response
     {
         $subNavigation = null;
         if ($this->parent instanceof MasterShop) {
             $subNavigation = $this->getMasterShopNavigation($this->parent);
         }
-        $title = __('Departments');
+        $title = __('Families');
         $model = '';
         $icon  = [
             'icon'  => ['fal', 'fa-folder-tree'],
-            'title' => __('departments')
+            'title' => __('families')
         ];
         $afterTitle = null;
         $iconRight = null;
 
         return Inertia::render(
-            'Org/Catalogue/Departments',
+            'Org/Catalogue/Families',
             [
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
@@ -167,7 +168,7 @@ class IndexMasterDepartments extends GrpAction
                     'subNavigation' => $subNavigation,
                 ],
                 // 'routes'      => $routes,
-                'data'        => MasterDepartmentsResource::collection($masterDepartments),
+                'data'        => MasterFamiliesResource::collection($masterFamilies),
             ]
         )->table($this->tableStructure());
     }
@@ -180,7 +181,7 @@ class IndexMasterDepartments extends GrpAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => __('Master departments'),
+                        'label' => __('Master families'),
                         'icon'  => 'fal fa-bars'
                     ],
                     'suffix' => $suffix
@@ -189,7 +190,7 @@ class IndexMasterDepartments extends GrpAction
         };
 
         return match ($routeName) {
-            'grp.goods.catalogue.shops.show.departments.index' =>
+            'grp.goods.catalogue.shops.show.families.index' =>
             array_merge(
                 ShowMasterShop::make()->getBreadcrumbs($routeName, $routeParameters),
                 $headCrumb(

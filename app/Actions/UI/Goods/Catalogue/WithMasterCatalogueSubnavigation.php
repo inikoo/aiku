@@ -102,8 +102,10 @@ trait WithMasterCatalogueSubnavigation
                 'number'   => 0,
                 'label'    => __('Families'),
                 'href'     => [
-                    'name'       => '',
-                    'parameters' => []
+                    'name'       => 'grp.goods.catalogue.shops.show.families.index',
+                    'parameters' => [
+                        'masterShop' => $masterShop->slug
+                    ]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],

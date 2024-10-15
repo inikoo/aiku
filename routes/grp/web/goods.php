@@ -21,6 +21,7 @@ use App\Actions\Goods\TradeUnit\UI\EditTradeUnit;
 use App\Actions\Goods\TradeUnit\UI\IndexTradeUnits;
 use App\Actions\Goods\TradeUnit\UI\ShowTradeUnit;
 use App\Actions\UI\Goods\Catalogue\IndexMasterDepartments;
+use App\Actions\UI\Goods\Catalogue\IndexMasterFamilies;
 use App\Actions\UI\Goods\Catalogue\IndexMasterProducts;
 use App\Actions\UI\Goods\Catalogue\IndexMasterShops;
 use App\Actions\UI\Goods\Catalogue\ShowMasterShop;
@@ -116,6 +117,9 @@ Route::prefix('catalogue')->as('catalogue.')->group(function () {
         Route::get('', ShowMasterShop::class)->name('');
         Route::prefix('departments')->as('.departments.')->group(function () {
             Route::get('index', IndexMasterDepartments::class)->name('index');
+        });
+        Route::prefix('families')->as('.families.')->group(function () {
+            Route::get('index', IndexMasterFamilies::class)->name('index');
         });
         // Route::get('edit', EditTradeUnit::class)->name('edit');
     });
