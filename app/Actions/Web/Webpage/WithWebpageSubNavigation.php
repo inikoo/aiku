@@ -8,113 +8,120 @@
 
 namespace App\Actions\Web\Webpage;
 
+use App\Models\Catalogue\Shop;
 use App\Models\Web\Website;
 
 trait WithWebpageSubNavigation
 {
-	protected function getWebpageNavigation(Shop $shop): array
-	{
-		$website = $shop->website;
+    protected function getWebpageNavigation(Shop|Website $parent): array
+    {
+        if ($parent instanceof Shop) {
+            $shop =  $parent;
+            $website = $parent->website;
+        } else {
+            $website = $parent;
+            $shop = $parent->shop;
+        }
 
-		return [
-			[
-				"href" => [
-					"name" => "grp.org.shops.show.web.webpages.index",
-					"parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
-				],
-				"leftIcon" => [
-					"icon" => ["fal", "fa-home"],
-					"tooltip" => __("Homepage"),
-				],
-			],
-			[
-				"isAnchor" => true,
-				"label" => __("Structure"),
+        return [
+            [
+                "href" => [
+                    "name" => "grp.org.shops.show.web.webpages.index",
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                ],
+                "leftIcon" => [
+                    "icon" => ["fal", "fa-home"],
+                    "tooltip" => __("Homepage"),
+                ],
+            ],
+            [
+                "isAnchor" => true,
+                "label" => __("Structure"),
 
-				"href" => [
-					"name" => "grp.org.shops.show.web.webpages.tree",
-					"parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
-				],
-				"leftIcon" => [
-					"icon" => ["fal", "fa-code-branch"],
-					"tooltip" => __("Tree view of the webpages"),
-				],
-			],
-			[
-				"number" => $website->webStats->number_webpages_type_catalogue,
-				"label" => __("Catalogue"),
-				"href" => [
-					"name" => "grp.org.shops.show.web.webpages.index.type.catalogue",
-					"parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
-				],
-				"leftIcon" => [
-					"icon" => ["fal", "fa-books"],
-					"tooltip" => __("Catalogue webpages"),
-				],
-			],
-			[
-				"number" => $website->webStats->number_webpages_type_content,
-				"label" => __("Content"),
-				"href" => [
-					"name" => "grp.org.shops.show.web.webpages.index.type.content",
-					"parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
-				],
-				"leftIcon" => [
-					"icon" => ["fal", "fa-columns"],
-					"tooltip" => __("Content pages"),
-				],
-			],
-			[
-				"number" => $website->webStats->number_webpages_type_info,
-				"label" => __("Info"),
-				"href" => [
-					"name" => "grp.org.shops.show.web.webpages.index.type.info",
-					"parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
-				],
-				"leftIcon" => [
-					"icon" => ["fal", "fa-info-circle"],
-					"tooltip" => __("Info pages"),
-				],
-			],
-			[
-				"number" => $website->webStats->number_webpages_type_operations,
-				"label" => __("Operations"),
-				"href" => [
-					"name" => "grp.org.shops.show.web.webpages.index.type.operations",
-					"parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
-				],
-				"leftIcon" => [
-					"icon" => ["fal", "fa-sign-in-alt"],
-					"tooltip" => __("Operations webpages"),
-				],
-			],
+                "href" => [
+                    "name" => "grp.org.shops.show.web.webpages.tree",
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                ],
+                "leftIcon" => [
+                    "icon" => ["fal", "fa-code-branch"],
+                    "tooltip" => __("Tree view of the webpages"),
+                ],
+            ],
+            [
+                "number" => $website->webStats->number_webpages_type_catalogue,
+                "label" => __("Catalogue"),
+                "href" => [
+                    "name" => "grp.org.shops.show.web.webpages.index.type.catalogue",
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                ],
+                "leftIcon" => [
+                    "icon" => ["fal", "fa-books"],
+                    "tooltip" => __("Catalogue webpages"),
+                ],
+            ],
+            [
+                "number" => $website->webStats->number_webpages_type_content,
+                "label" => __("Content"),
+                "href" => [
+                    "name" => "grp.org.shops.show.web.webpages.index.type.content",
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                ],
+                "leftIcon" => [
+                    "icon" => ["fal", "fa-columns"],
+                    "tooltip" => __("Content pages"),
+                ],
+            ],
+            [
+                "number" => $website->webStats->number_webpages_type_info,
+                "label" => __("Info"),
+                "href" => [
+                    "name" => "grp.org.shops.show.web.webpages.index.type.info",
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                ],
+                "leftIcon" => [
+                    "icon" => ["fal", "fa-info-circle"],
+                    "tooltip" => __("Info pages"),
+                ],
+            ],
+            [
+                "number" => $website->webStats->number_webpages_type_operations,
+                "label" => __("Operations"),
+                "href" => [
+                    "name" => "grp.org.shops.show.web.webpages.index.type.operations",
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                ],
+                "leftIcon" => [
+                    "icon" => ["fal", "fa-sign-in-alt"],
+                    "tooltip" => __("Operations webpages"),
+                ],
+            ],
 
-			[
-				"number" => $website->webStats->number_webpages_type_blog,
-				"label" => __("Blog"),
-				"href" => [
-					"name" => "grp.org.shops.show.web.webpages.index.type.blog",
-					"parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
-				],
-				"leftIcon" => [
-					"icon" => ["fal", "fa-newspaper"],
-					"tooltip" => __("Operations blog"),
-				],
-			],
+            [
+                "number" => $website->webStats->number_webpages_type_blog,
+                "label" => __("Blog"),
+                "href" => [
+                    "name" => "grp.org.shops.show.web.webpages.index.type.blog",
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                ],
+                "leftIcon" => [
+                    "icon" => ["fal", "fa-newspaper"],
+                    "tooltip" => __("Operations blog"),
+                ],
+            ],
 
-			[
-				"number" => $website->webStats->number_webpages,
-				"align" => "right",
-				"label" => __("All"),
-				"href" => [
-					"name" => "grp.org.shops.show.web.webpages.index",
-					"parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
-				],
-				"leftIcon" => [
-					"icon" => ["fal", "fa-stream"],
-					"tooltip" => __("All Webpages"),
-				],
-			],
-		];
-	}
+            [
+                "number" => $website->webStats->number_webpages,
+                "align" => "right",
+                "label" => __("All"),
+                "href" => [
+                    "name" => "grp.org.shops.show.web.webpages.index",
+                    "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
+                ],
+                "leftIcon" => [
+                    "icon" => ["fal", "fa-stream"],
+                    "tooltip" => __("All Webpages"),
+                ],
+            ],
+        ];
+    }
 }
