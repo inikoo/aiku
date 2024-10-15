@@ -96,7 +96,6 @@ const selectedBlockOpenPanel = ref<number | null>(null)
         <h2 class="text-sm font-semibold leading-6">Blocks List</h2>
         <Button icon="fas fa-plus" type="dashed" size="xs" @click="openModalBlockList" />
     </div>
-
     <div>
         <template v-if="webpage?.layout?.web_blocks.length > 0 || isAddBlockLoading">
             <draggable :list="webpage.layout.web_blocks" handle=".handle" @change="onChangeOrderBlock"
@@ -110,11 +109,12 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                             <div class="flex gap-x-2">
                                 <div class="flex items-center justify-center">
                                     <FontAwesomeIcon icon="fal fa-bars" class="handle text-sm cursor-grab pr-3 mr-2" />
-                                    <FontAwesomeIcon :icon='element.web_block.layout.data.icon' class='text-xs'
-                                        fixed-width aria-hidden='true' />
+                                    <!--   <FontAwesomeIcon :icon='element?.web_block?.layout?.data?.icon' class='text-xs'
+                                        fixed-width aria-hidden='true' /> -->
                                 </div>
-                                <h3 class="text-sm font-medium select-none">
-                                    {{ element.web_block.layout.code }}
+
+                                <h3 class="text-sm capitalize font-medium select-none">
+                                    {{ element.type }}
                                 </h3>
                             </div>
 
@@ -128,7 +128,9 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                         </div>
 
                         <!-- Section: Properties panel -->
-                        <Collapse as="section" :when="selectedBlockOpenPanel === index">
+                        <Collapse v-if="element?.web_block?.layout?.data?.properties" as="section"
+                            :when="selectedBlockOpenPanel === index">
+
                             <!-- {{ index }} -->
                             <!-- <pre>{{ element.web_block.layout.data?.properties }}</pre> -->
                             <PanelProperties v-model="element.web_block.layout.data.properties"

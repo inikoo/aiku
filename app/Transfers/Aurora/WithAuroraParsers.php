@@ -30,7 +30,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraOutboxes;
 use App\Actions\Transfers\Aurora\FetchAuroraPallets;
 use App\Actions\Transfers\Aurora\FetchAuroraPaymentAccounts;
 use App\Actions\Transfers\Aurora\FetchAuroraPayments;
-use App\Actions\Transfers\Aurora\FetchAuroraPaymentServiceProviders;
+use App\Actions\Transfers\Aurora\FetchAuroraOrgPaymentServiceProviders;
 use App\Actions\Transfers\Aurora\FetchAuroraProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraProspects;
 use App\Actions\Transfers\Aurora\FetchAuroraServices;
@@ -546,7 +546,7 @@ trait WithAuroraParsers
         $orgPaymentServiceProvider = OrgPaymentServiceProvider::where('source_id', $sourceId)->first();
         if (!$orgPaymentServiceProvider) {
             $sourceData                = explode(':', $sourceId);
-            $orgPaymentServiceProvider = FetchAuroraPaymentServiceProviders::run($this->organisationSource, $sourceData[1]);
+            $orgPaymentServiceProvider = FetchAuroraOrgPaymentServiceProviders::run($this->organisationSource, $sourceData[1]);
         }
 
         return $orgPaymentServiceProvider;

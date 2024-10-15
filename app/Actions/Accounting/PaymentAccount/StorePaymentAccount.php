@@ -21,14 +21,19 @@ use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
+use Throwable;
 
 class StorePaymentAccount extends OrgAction
 {
     public OrgPaymentServiceProvider|PaymentServiceProvider $parent;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(OrgPaymentServiceProvider|PaymentServiceProvider $parent, array $modelData): PaymentAccount
     {
         data_set($modelData, 'group_id', $parent->group_id);
@@ -38,24 +43,28 @@ class StorePaymentAccount extends OrgAction
             data_set($modelData, 'payment_service_provider_id', $parent->payment_service_provider_id);
         }
 
-        /** @var PaymentAccount $paymentAccount */
-        $paymentAccount = $parent->accounts()->create($modelData);
-        $paymentAccount->stats()->create();
+        $paymentAccount = DB::transaction(function () use ($parent, $modelData) {
+            /** @var PaymentAccount $paymentAccount */
+            $paymentAccount = $parent->accounts()->create($modelData);
+            $paymentAccount->stats()->create();
 
-        if ($paymentAccount->type == PaymentAccountTypeEnum::ACCOUNT) {
-            $paymentAccount->serialReferences()->create(
-                [
-                    'model'           => SerialReferenceModelEnum::PAYMENT,
-                    'organisation_id' => $paymentAccount->organisation->id,
-                    'format'          => $paymentAccount->slug.'-%04d'
-                ]
-            );
-        }
+            if ($paymentAccount->type == PaymentAccountTypeEnum::ACCOUNT) {
+                $paymentAccount->serialReferences()->create(
+                    [
+                        'model'           => SerialReferenceModelEnum::PAYMENT,
+                        'organisation_id' => $paymentAccount->organisation->id,
+                        'format'          => $paymentAccount->slug.'-%04d'
+                    ]
+                );
+            }
 
-        PaymentServiceProviderHydratePaymentAccounts::dispatch($parent->paymentServiceProvider);
-        OrganisationHydratePaymentAccounts::dispatch($parent->organisation);
-        GroupHydratePaymentAccounts::dispatch($parent->group);
-        OrgPaymentServiceProviderHydratePaymentAccounts::dispatch($parent);
+            return $paymentAccount;
+        });
+
+        PaymentServiceProviderHydratePaymentAccounts::dispatch($parent->paymentServiceProvider)->delay($this->hydratorsDelay);
+        OrganisationHydratePaymentAccounts::dispatch($parent->organisation)->delay($this->hydratorsDelay);
+        GroupHydratePaymentAccounts::dispatch($parent->group)->delay($this->hydratorsDelay);
+        OrgPaymentServiceProviderHydratePaymentAccounts::dispatch($parent)->delay($this->hydratorsDelay);
 
 
         return $paymentAccount;
@@ -72,7 +81,7 @@ class StorePaymentAccount extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'type'        => ['required', Rule::enum(PaymentAccountTypeEnum::class)],
             'code'        => [
                 'required',
@@ -92,13 +101,22 @@ class StorePaymentAccount extends OrgAction
             'is_accounts' => ['sometimes', 'boolean'],
             'source_id'   => ['sometimes', 'string'],
         ];
+
+        if (!$this->strict) {
+            $rules['created_at'] = ['sometimes', 'date'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+        }
+        return $rules;
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(Organisation $organisation, ActionRequest $request): PaymentAccount
     {
         $this->asAction = true;
-
-        $this->fillFromRequest($request);
         $this->initialisation($organisation, $request);
 
         /** @var PaymentServiceProvider $paymentServiceProvider */
@@ -108,29 +126,19 @@ class StorePaymentAccount extends OrgAction
         return $this->handle($paymentServiceProvider, $this->validatedData);
     }
 
-    public function asPaymentServiceProvider(Organisation $organisation, PaymentServiceProvider $paymentServiceProvider, ActionRequest $request): PaymentAccount
+
+    /**
+     * @throws \Throwable
+     */
+    public function action(OrgPaymentServiceProvider $orgPaymentServiceProvider, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): PaymentAccount
     {
-        $this->asAction = true;
+        if (!$audit) {
+            PaymentAccount::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
 
-        $this->fillFromRequest($request);
-        $this->initialisation($organisation, $request);
-
-        return $this->handle($paymentServiceProvider, $this->validatedData);
-    }
-
-    public function asOrgPaymentServiceProvider(Organisation $organisation, OrgPaymentServiceProvider $orgPaymentServiceProvider, ActionRequest $request): PaymentAccount
-    {
-        $this->asAction = true;
-
-        $this->fillFromRequest($request);
-        $this->initialisation($organisation, $request);
-
-        return $this->handle($orgPaymentServiceProvider, $this->validatedData);
-    }
-
-    public function action(OrgPaymentServiceProvider $orgPaymentServiceProvider, array $modelData): PaymentAccount
-    {
-        $this->asAction = true;
         $this->initialisation($orgPaymentServiceProvider->organisation, $modelData);
 
         return $this->handle($orgPaymentServiceProvider, $this->validatedData);
@@ -164,8 +172,14 @@ class StorePaymentAccount extends OrgAction
             return 1;
         }
 
+        try {
+            $this->handle($provider, $validatedData);
+        } catch (Exception|Throwable) {
+            $command->error('Error creating payment account');
 
-        $this->handle($provider, $validatedData);
+            return 1;
+        }
+
 
         return 0;
     }

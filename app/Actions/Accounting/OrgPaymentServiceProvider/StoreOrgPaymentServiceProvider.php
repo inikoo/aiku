@@ -14,28 +14,34 @@ use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreOrgPaymentServiceProvider extends OrgAction
 {
+    /**
+     * @throws \Throwable
+     */
     public function handle(PaymentServiceProvider $paymentServiceProvider, Organisation $organisation, array $modelData): OrgPaymentServiceProvider
     {
-
-        $modelData = array_merge(
+        $modelData                 = array_merge(
             $modelData,
             [
-                'group_id'                   => $organisation->group_id,
-                'organisation_id'            => $organisation->id,
+                'group_id'                    => $organisation->group_id,
+                'organisation_id'             => $organisation->id,
                 'payment_service_provider_id' => $paymentServiceProvider->id,
-                'type'                       => $paymentServiceProvider->type,
+                'type'                        => $paymentServiceProvider->type,
             ]
         );
+        $orgPaymentServiceProvider = DB::transaction(function () use ($paymentServiceProvider, $modelData, $organisation) {
+            /** @var OrgPaymentServiceProvider $orgPaymentServiceProvider */
+            $orgPaymentServiceProvider = $paymentServiceProvider->orgPaymentServiceProviders()->create($modelData);
+            $orgPaymentServiceProvider->stats()->create();
 
-        /** @var OrgPaymentServiceProvider $orgPaymentServiceProvider */
-        $orgPaymentServiceProvider = $paymentServiceProvider->orgPaymentServiceProviders()->create($modelData);
-        $orgPaymentServiceProvider->stats()->create();
-        OrganisationHydrateOrgPaymentServiceProviders::dispatch($organisation);
-        GroupHydratePaymentServiceProviders::dispatch($organisation->group);
+            return $orgPaymentServiceProvider;
+        });
+        OrganisationHydrateOrgPaymentServiceProviders::dispatch($organisation)->delay($this->hydratorsDelay);
+        GroupHydratePaymentServiceProviders::dispatch($organisation->group)->delay($this->hydratorsDelay);
 
         return $orgPaymentServiceProvider;
     }
@@ -51,7 +57,7 @@ class StoreOrgPaymentServiceProvider extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'code' => [
                 'required',
                 'max:16',
@@ -63,14 +69,30 @@ class StoreOrgPaymentServiceProvider extends OrgAction
                     ]
                 ),
             ],
-            'source_id'    => ['sometimes', 'string'],
         ];
+
+        if (!$this->strict) {
+            $rules['created_at'] = ['sometimes', 'date'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+        }
+
+        return $rules;
     }
 
-    public function action(PaymentServiceProvider $paymentServiceProvider, Organisation $organisation, array $modelData): OrgPaymentServiceProvider
+    /**
+     * @throws \Throwable
+     */
+    public function action(PaymentServiceProvider $paymentServiceProvider, Organisation $organisation, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): OrgPaymentServiceProvider
     {
-        $this->asAction = true;
+        if (!$audit) {
+            OrgPaymentServiceProvider::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($organisation, $modelData);
+
         return $this->handle($paymentServiceProvider, $organisation, $this->validatedData);
     }
 

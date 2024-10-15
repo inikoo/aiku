@@ -244,7 +244,7 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
-    public function fetchPaymentServiceProvider($id): ?array
+    public function fetchOrgPaymentServiceProvider($id): ?array
     {
         return null;
     }

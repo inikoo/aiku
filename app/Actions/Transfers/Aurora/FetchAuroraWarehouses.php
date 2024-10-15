@@ -27,13 +27,19 @@ class FetchAuroraWarehouses extends FetchAuroraAction
         if ($warehouseData = $organisationSource->fetchWarehouse($organisationSourceId)) {
             if ($warehouse = Warehouse::where('source_id', $warehouseData['warehouse']['source_id'])
                 ->first()) {
-                $warehouse = UpdateWarehouse::make()->action(
-                    warehouse: $warehouse,
-                    modelData: $warehouseData['warehouse'],
-                    hydratorsDelay: $this->hydratorsDelay,
-                    strict: false,
-                    audit: false
-                );
+                try {
+                    $warehouse = UpdateWarehouse::make()->action(
+                        warehouse: $warehouse,
+                        modelData: $warehouseData['warehouse'],
+                        hydratorsDelay: $this->hydratorsDelay,
+                        strict: false,
+                        audit: false
+                    );
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $warehouseData['warehouse'], 'Warehouse', 'update');
+
+                    return null;
+                }
             } else {
                 try {
                     $warehouse = StoreWarehouse::make()->action(
@@ -57,8 +63,6 @@ class FetchAuroraWarehouses extends FetchAuroraAction
                     DB::connection('aurora')->table('Warehouse Dimension')
                         ->where('Warehouse Key', $sourceData[1])
                         ->update(['aiku_id' => $warehouse->id]);
-
-
                 } catch (Exception|Throwable $e) {
                     $this->recordError($organisationSource, $e, $warehouseData['warehouse'], 'Warehouse', 'store');
 
