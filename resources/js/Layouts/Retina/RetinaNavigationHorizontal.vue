@@ -14,12 +14,12 @@ import { layoutStructure } from '@/Composables/useLayoutStructure'
 import RetinaNavigationSimple from '@/Layouts/Retina/RetinaNavigationSimple.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faChevronLeft, faChevronRight } from '@fas'
-import { faParachuteBox } from '@fal'
+import { faParachuteBox, faMoneyBillWave } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { capitalize } from '@/Composables/capitalize'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { trans } from 'laravel-vue-i18n'
-library.add(faChevronLeft, faChevronRight, faParachuteBox)
+library.add(faChevronLeft, faChevronRight, faParachuteBox, faMoneyBillWave)
 
 const props = defineProps<{
     nav: {

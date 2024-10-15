@@ -21,7 +21,9 @@ import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faExternalLink, faLineColumns, faIcons, faMoneyBill, faUpload, faDownload } from '@fas';
+import { faIcons, faMoneyBill, faUpload, faDownload } from '@fas';
+import { faLineColumns } from '@far';
+import { faExternalLink } from '@fal';
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faExternalLink, faLineColumns, faIcons, faMoneyBill, faUpload, faDownload)
 
@@ -126,7 +128,6 @@ onMounted(() => {
 </script>
 
 <template>
-
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">

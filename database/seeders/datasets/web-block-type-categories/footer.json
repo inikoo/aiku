@@ -199,10 +199,6 @@
 											"id": 38
 										},
 										{
-											"name": "Agnes + Cat",
-											"id": 39
-										},
-										{
 											"name": "AW - Aromatics",
 											"id": 40
 										},
@@ -221,34 +217,6 @@
 										{
 											"name": "AW - España",
 											"id": 44
-										},
-										{
-											"name": "Agnes + France",
-											"id": 45
-										},
-										{
-											"name": "Agnes + Poland",
-											"id": 46
-										},
-										{
-											"name": "Agnes + Austria",
-											"id": 47
-										},
-										{
-											"name": "Agnes + Europe",
-											"id": 48
-										},
-										{
-											"name": "Agnes + Romania",
-											"id": 49
-										},
-										{
-											"name": "Agnes + Czechia",
-											"id": 50
-										},
-										{
-											"name": "Agnes + Italy",
-											"id": 51
 										}
 									]
 								}
@@ -259,7 +227,7 @@
 							"key": "4",
 							"data": {
 								"textBox1": "Ancient Wisdom Marketing Ltd. Affinity Park, Europa Drive Sheffield, S9 1XT",
-								"textBox2": "<p>Vat No: GB764298589  </br> Reg. No: 04108870</p>",
+								"textBox2": "<p>Vat No: GB764298589<br>Reg. No: 04108870</p>",
 								"textBox3": "Subscribe to the WhatsApp messages and benefit from exclusive discounts."
 							}
 						}
@@ -267,6 +235,80 @@
 					"usePayment": true,
 					"useSocial": true,
 					"copyRight": "Copyright © 2024 Aurora. All rights reserved. Terms of Use Privacy Policy",
+					"properties": {
+						"text": {
+							"color": "#FFFFFF",
+							"fontFamily": null
+						},
+						"background": {
+							"type": "color",
+							"color": "#000000",
+							"image": {
+								"original": null
+							}
+						},
+						"padding": {
+							"unit": "px",
+							"top": {
+								"value": 96
+							},
+							"left": {
+								"value": 28
+							},
+							"right": {
+								"value": 28
+							},
+							"bottom": {
+								"value": 96
+							}
+						},
+						"margin": {
+							"unit": "px",
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"border": {
+							"color": "#000000",
+							"unit": "px",
+							"rounded": {
+								"unit": "px",
+								"topright": {
+									"value": 0
+								},
+								"topleft": {
+									"value": 0
+								},
+								"bottomright": {
+									"value": 0
+								},
+								"bottomleft": {
+									"value": 0
+								}
+							},
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						}
+					},
 					"PaymentData": {
 						"data": [
 							{
@@ -288,7 +330,7 @@
 							"link": ""
 						},
 						{
-							"label": "Tik Tok",
+							"label": "TikTok",
 							"icon": "fab fa-tiktok",
 							"link": ""
 						},
@@ -298,12 +340,12 @@
 							"link": ""
 						},
 						{
-							"label": "Youtube",
+							"label": "YouTube",
 							"icon": "fab fa-youtube",
 							"link": ""
 						},
 						{
-							"label": "Linkedin",
+							"label": "LinkedIn",
 							"icon": "fab fa-linkedin-in",
 							"link": ""
 						}
@@ -311,15 +353,28 @@
 				},
 				"bluprint": [
 					{
+						"name": "Body",
+						"key": "body",
+						"type": "body",
+						"icon": "far fa-line-columns",
+						"bluprint": [
+							{
+								"name": "Body",
+								"key": "properties",
+								"type": "properties"
+							}
+						]
+					},
+					{
 						"name": "Payments",
 						"key": "PaymentData",
 						"type": "payment_templates",
-						"icon" : "fas fa-money-bill",
-						"bluprint" : [
+						"icon": "fas fa-money-bill",
+						"bluprint": [
 							{
 								"name": "Payments",
 								"key": "PaymentData",
-								"type": ["VisibleLoggedIn","payment_templates"]
+								"type": ["payment_templates"]
 							}
 						]
 					},
@@ -327,12 +382,12 @@
 						"name": "Social Media",
 						"key": "socialData",
 						"type": "socialMedia",
-						"icon" : "fas fa-icons",
-						"bluprint" : [
+						"icon": "fas fa-icons",
+						"bluprint": [
 							{
-							"name": "Social Media",
-							"key": "socialData",
-							"type": "socialMedia"
+								"name": "Social Media",
+								"key": "socialData",
+								"type": "socialMedia"
 							}
 						]
 					}

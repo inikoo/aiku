@@ -8,7 +8,7 @@
 import { Link } from "@inertiajs/vue3"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faMapSigns, faPallet, faTruckCouch, faUpload, faWarehouse, faEmptySet} from "@fal"
+import {faMapSigns, faPallet, faTruckCouch, faUpload, faWarehouse, faEmptySet, faMoneyBillWave} from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import MetaLabel from "@/Components/Headings/MetaLabel.vue"
 import Container from "@/Components/Headings/Container.vue"
@@ -23,7 +23,7 @@ import { inject, ref } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { useTruncate } from '@/Composables/useTruncate'
 
-library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faLayerPlus, faPallet, faWarehouse, faEmptySet)
+library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faLayerPlus, faPallet, faWarehouse, faEmptySet, faMoneyBillWave)
 
 const props = defineProps<{
     data: PageHeadingTypes
@@ -47,10 +47,10 @@ const layout = inject('layout', layoutStructure)
 <template>
     <!-- Sub Navigation -->
     <SubNavigation v-if="data.subNavigation?.length" :dataNavigation="data.subNavigation" />
-    
+
 
     <slot name="afterSubNav">
-        
+
     </slot>
 
     <div class="relative px-4 py-2 md:pb-2 md:pt-2 lg:py-2 grid grid-flow-col justify-between items-center">
@@ -76,13 +76,13 @@ const layout = inject('layout', layoutStructure)
                         size="sm"
                         fixed-width />
                 </div>
-                
+
                 <div class="flex flex-col sm:flex-row gap-y-1.5 gap-x-3 items-center ">
                     <h2 :class="data.noCapitalise ? '' : 'capitalize'" class="flex gap-x-2 items-center">
                         <span v-if="data.model" class="text-gray-400 font-medium">{{ data.model }}</span>
                         <span class="">{{ useTruncate(data.title, 30) }}</span>
                     </h2>
-                    
+
                     <!-- Section: After Title -->
                     <slot name="afterTitle">
                         <div v-if="data.iconRight || data.afterTitle" class="flex gap-x-2 items-center">
@@ -131,7 +131,7 @@ const layout = inject('layout', layoutStructure)
         <slot name="button" :dataPageHead="{ ...props }">
             <div class="flex flex-col items-end sm:flex-row sm:items-center gap-2 rounded-md">
                 <slot name="otherBefore" :dataPageHead="{ ...props }" />
-                
+
                 <template v-for="(action, actIndex) in data.actions">
                     <template v-if="action">
                         <!-- Button -->
@@ -140,7 +140,7 @@ const layout = inject('layout', layoutStructure)
                                 <Action v-if="action" :action="action" :dataToSubmit="dataToSubmit" />
                             </slot>
                         </slot>
-                        
+
                         <!-- ButtonGroup -->
                         <slot v-if="action.type == 'buttonGroup' && action.button?.length" :name="`button-group-${action.key}`" :action="action">
                             <div class="rounded-md flex" :class="[

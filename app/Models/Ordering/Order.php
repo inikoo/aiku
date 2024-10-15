@@ -20,6 +20,7 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\TaxCategory;
 use App\Models\Helpers\UniversalSearch;
+use App\Models\ShopifyUserHasFulfilment;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddresses;
@@ -236,6 +237,11 @@ class Order extends Model implements HasMedia, Auditable
     public function collectionAddress(): BelongsTo
     {
         return $this->belongsTo(Address::class);
+    }
+
+    public function shopifyOrder(): HasOne
+    {
+        return $this->hasOne(ShopifyUserHasFulfilment::class, 'order_id');
     }
 
     public function addresses(): MorphToMany
