@@ -32,7 +32,7 @@ class ShowMasterShop extends GrpAction
         return $this->handle($masterShop);
     }
 
-    public function htmlResponse(MasterShop $masterShop,  ActionRequest $request): Response
+    public function htmlResponse(MasterShop $masterShop, ActionRequest $request): Response
     {
         $subNavigation = $this->getMasterShopNavigation($masterShop);
 

@@ -9,8 +9,6 @@
 namespace App\Actions\UI\Goods\Catalogue;
 
 use App\Models\Catalogue\MasterShop;
-use App\Models\Catalogue\Shop;
-use App\Models\SysAdmin\Group;
 
 trait WithMasterCatalogueSubnavigation
 {
@@ -63,7 +61,7 @@ trait WithMasterCatalogueSubnavigation
                 'href'     => [
                     'name'       => 'grp.goods.catalogue.shops.show',
                     'parameters' => [
-                        'masterShop' => $masterShop
+                        'masterShop' => $masterShop->slug
                     ]
                 ],
                 'leftIcon' => [
@@ -78,8 +76,10 @@ trait WithMasterCatalogueSubnavigation
                 'number'   => 0,
                 'label'    => __('Departments'),
                 'href'     => [
-                    'name'       => '',
-                    'parameters' => []
+                    'name'       => 'grp.goods.catalogue.shops.show.departments.index',
+                    'parameters' => [
+                        'masterShop' => $masterShop->slug
+                    ]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
@@ -90,8 +90,10 @@ trait WithMasterCatalogueSubnavigation
                 'number'   => 0,
                 'label'    => __('Sub Departments'),
                 'href'     => [
-                    'name'       => '',
-                    'parameters' => []
+                    'name'       => 'grp.goods.catalogue.shops.show.sub-departments.index',
+                    'parameters' => [
+                        'masterShop' => $masterShop->slug
+                    ]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
@@ -102,8 +104,10 @@ trait WithMasterCatalogueSubnavigation
                 'number'   => 0,
                 'label'    => __('Families'),
                 'href'     => [
-                    'name'       => '',
-                    'parameters' => []
+                    'name'       => 'grp.goods.catalogue.shops.show.families.index',
+                    'parameters' => [
+                        'masterShop' => $masterShop->slug
+                    ]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],

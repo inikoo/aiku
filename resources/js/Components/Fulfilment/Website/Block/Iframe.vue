@@ -40,6 +40,8 @@ const onEnter = (e) => {
     emits('autoSave')
 }
 
+
+console.log(props.modelValue)
 </script>
 
 <template>
@@ -62,7 +64,7 @@ const onEnter = (e) => {
 
     <div v-else class="relative">
         <iframe :src="modelValue.link"
-            :style="{ width: `${modelValue?.width?.value}${modelValue?.width?.unit}`, height: `${modelValue?.height?.value}${modelValue?.height?.unit}` }"
+            :style="{ width: `100%`, height: `100%` }"
             title="I farme Block">
         </iframe>
         <!-- Buttons -->
@@ -71,30 +73,8 @@ const onEnter = (e) => {
                 <template #button>
                     <Button :icon="['far', 'fa-pencil']" size="xs" />
                 </template>
-
                 <template #content="{ close: closed }">
                     <div class="w-[350px]">
-                        <div class="mx-auto grid grid-cols-2 gap-4">
-                            <div class="mb-1 ">
-                                <span class="text-xs text-gray-500 pb-3">Height</span>
-                                <InputUseOption v-model="modelValue.height" :option="optionWidthHeight"
-                                    @update:model-value="onEnter('b')" :MultiSelectProps="{
-                                        label: 'label',
-                                        valueProp: 'value',
-                                        placeholder: ''
-                                    }" />
-                            </div>
-                            <div class="mb-1">
-                                <span class="text-xs text-gray-500 pb-3">Width</span>
-                                <InputUseOption v-model="modelValue.width" :option="optionWidthHeight"
-                                    @update:model-value="onEnter('c')" :MultiSelectProps="{
-                                        label: 'label',
-                                        valueProp: 'value',
-                                        placeholder: ''
-                                    }" />
-                            </div>
-                        </div>
-
                         <div class="mb-1">
                             <span class="text-xs text-gray-500 pb-3">Link</span>
                             <PureInput v-model="modelValue.link"></PureInput>
