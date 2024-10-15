@@ -9,7 +9,6 @@
 namespace App\Models\Catalogue;
 
 use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
@@ -88,7 +87,7 @@ class MasterProduct extends Model implements Auditable, HasMedia
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
     }
-    
+
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);

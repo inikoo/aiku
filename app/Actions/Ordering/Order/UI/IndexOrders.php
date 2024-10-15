@@ -22,6 +22,7 @@ use App\Models\CRM\Customer;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\CustomerClient;
+use App\Models\Dropshipping\ShopifyUser;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -37,7 +38,7 @@ class IndexOrders extends OrgAction
 {
     use WithCustomerSubNavigation;
 
-    private Organisation|Shop|Customer|CustomerClient|Asset $parent;
+    private Organisation|Shop|Customer|CustomerClient|Asset|ShopifyUser $parent;
 
     protected function getElementGroups(Organisation|Shop|Customer|CustomerClient|Asset $parent): array
     {
@@ -58,7 +59,7 @@ class IndexOrders extends OrgAction
         ];
     }
 
-    public function handle(Organisation|Shop|Customer|CustomerClient|Asset $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Organisation|Shop|Customer|CustomerClient|Asset|ShopifyUser $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -92,13 +93,22 @@ class IndexOrders extends OrgAction
 
         $query->leftJoin('currencies', 'orders.currency_id', '=', 'currencies.id');
 
-        foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-            $query->whereElementGroup(
-                key: $key,
-                allowedElements: array_keys($elementGroup['elements']),
-                engine: $elementGroup['engine'],
-                prefix: $prefix
-            );
+        if (!($parent instanceof ShopifyUser)) {
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $query->whereElementGroup(
+                    key: $key,
+                    allowedElements: array_keys($elementGroup['elements']),
+                    engine: $elementGroup['engine'],
+                    prefix: $prefix
+                );
+            }
+        }
+
+        if ($parent instanceof ShopifyUser) {
+            $query->join('shopify_user_has_fulfilments', function ($join) use ($parent) {
+                $join->on('orders.id', '=', 'shopify_user_has_fulfilments.order_id')
+                    ->where('shopify_user_has_fulfilments.shopify_user_id', '=', $parent->id);
+            });
         }
 
         return $query->defaultSort('orders.reference')
@@ -130,7 +140,7 @@ class IndexOrders extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure(Organisation|Shop|Customer|CustomerClient|Asset $parent, $prefix = null): Closure
+    public function tableStructure(Organisation|Shop|Customer|CustomerClient|Asset|ShopifyUser $parent, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $prefix) {
             if ($prefix) {
@@ -165,12 +175,14 @@ class IndexOrders extends OrgAction
                     ]
                 );
 
-            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
-                $table->elementGroup(
-                    key: $key,
-                    label: $elementGroup['label'],
-                    elements: $elementGroup['elements']
-                );
+            if (!($parent instanceof ShopifyUser)) {
+                foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                    $table->elementGroup(
+                        key: $key,
+                        label: $elementGroup['label'],
+                        elements: $elementGroup['elements']
+                    );
+                }
             }
 
             $table->column(key: 'state', label: __('state'), canBeHidden: false, searchable: true);

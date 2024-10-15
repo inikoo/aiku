@@ -31,6 +31,8 @@ class CreateFulfilmentWebhooksShopify extends OrgAction
         $deliveryAddress        = Arr::get($modelData, 'destination');
         $countryDeliveryAddress = Country::where('code', Arr::get($deliveryAddress, 'country_code'))->first();
 
+        $shopifyProducts     = collect($modelData['line_items']);
+
         $deliveryAddress = [
             'address_line_1'      => Arr::get($deliveryAddress, 'address1'),
             'address_line_2'      => Arr::get($deliveryAddress, 'address2'),
@@ -50,18 +52,11 @@ class CreateFulfilmentWebhooksShopify extends OrgAction
             'billing_address'  => new Address($deliveryAddress),
         ]);
 
-        $shopifyProducts     = collect($modelData['line_items']);
-        $productIds = collect($shopifyProducts)->pluck('product_id');
-
-        $products = $shopifyUser->products()->whereIn('shopify_product_id', $productIds)->get()->keyBy('shopify_product_id');
-        $assets = $shopifyUser->organisation->assets()->whereIn('id', $products->pluck('id'))->get()->keyBy('id');
-
         foreach ($shopifyProducts as $shopifyProduct) {
-            $product = $products->get($shopifyProduct['product_id']);
+            $product = $shopifyUser->products()->where('shopify_product_id', $shopifyProduct['product_id'])->first();
+            $asset = $shopifyUser->organisation->assets()->where('id', $product->id)->first();
 
             if ($product) {
-                $asset = $assets->get($product->id);
-
                 if ($asset) {
                     StoreTransaction::make()->action($order, $asset->historicAsset, [
                         'quantity_ordered' => $shopifyProduct['quantity'],
