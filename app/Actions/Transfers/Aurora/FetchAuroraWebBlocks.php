@@ -76,19 +76,19 @@ class FetchAuroraWebBlocks extends OrgAction
 
             foreach ($migrationTypes as $type) {
                 if (isset($webpage->migration_data[$type])) {
-                    $this->processMigrationData($webpage, $webpage->migration_data[$type]['blocks'], $oldMigrationsChecksum, $reset, $type);
+                    $this->processMigrationData($webpage, $webpage->migration_data[$type]['blocks'], $oldMigrationsChecksum, $type);
                 }
             }
         }
 
         if (count($oldMigrationsChecksum) > 0) {
-            $this->deleteWeblockHaveOldChecksum($webpage, $oldMigrationsChecksum);
+            $this->deleteWebBlockHaveOldChecksum($webpage, $oldMigrationsChecksum);
         }
 
         return $webpage;
     }
 
-    private function processMigrationData($webpage, array $blocks, array &$oldMigrationsChecksum, $type)
+    private function processMigrationData($webpage, array $blocks, array &$oldMigrationsChecksum, $type): void
     {
         foreach ($blocks as $index => $auroraBlock) {
             $migrationData = md5(json_encode($auroraBlock));
@@ -347,7 +347,7 @@ class FetchAuroraWebBlocks extends OrgAction
         return GetPictureSources::run($image);
     }
 
-    private function reset(Webpage $webpage)
+    private function reset(Webpage $webpage): void
     {
         foreach ($webpage->webBlocks()->get() as $webBlock) {
             DeleteWebBlock::run($webBlock);
@@ -364,9 +364,9 @@ class FetchAuroraWebBlocks extends OrgAction
         return $this->handle($webpage);
     }
 
-    public function deleteWeblockHaveOldChecksum(Webpage $webpage, array $oldChecksum): void
+    public function deleteWebBlockHaveOldChecksum(Webpage $webpage, array $oldChecksum): void
     {
-        foreach ($webpage->webBlocks()->get() as $webBlock) {
+        foreach ($webpage->webBlocks as $webBlock) {
             if (isset($oldChecksum[$webBlock->migration_checksum])) {
                 DeleteWebBlock::run($webBlock);
             }
