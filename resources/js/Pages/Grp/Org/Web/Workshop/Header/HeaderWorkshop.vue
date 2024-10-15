@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed  } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -69,12 +69,12 @@ const tabs = [
         icon: faPresentation,
     }, */
     {
-        label: "Top Menu",
+        label: "Website Top Bar",
         key: 'topBar',
         icon: faPresentation,
     },
     {
-        label: "Header",
+        label: "Website header",
         key: 'header',
         icon: faPresentation,
     }
@@ -186,6 +186,23 @@ const onSelectTopbar = (xxx) => {
     topbar.value.template = xxx
     isOpenModalTopbarList.value = false
 }
+
+const webBlockTypeCategoriesFilter = computed(() => {
+    // Create a shallow copy of the props.webBlockTypeCategories
+    const filteredData = { ...props.webBlockTypeCategories };
+    
+    // Check if filteredData.data is an array before filtering
+    if (Array.isArray(filteredData.data)) {
+        // Filter the data based on the current tab label
+        filteredData.data = filteredData.data.filter(item => item.name === tabsBar.value.label);
+    } else {
+        // If data is not an array, set it to an empty array
+        filteredData.data = [];
+    }
+    return filteredData;
+});
+
+
 </script>
 
 <template>
@@ -203,7 +220,7 @@ const onSelectTopbar = (xxx) => {
 
     <div class="h-[84vh] grid grid-flow-row-dense grid-cols-10">
         <div v-if="usedTemplates" class="col-span-2 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
-            <Accordion>
+           <!--  <Accordion>
                 <AccordionPanel value="topbar" @click="openedAccordion = 'topbar'">
                     <AccordionHeader>
                         <div class="font-bold text-lg">Topbar Settings</div>
@@ -226,7 +243,7 @@ const onSelectTopbar = (xxx) => {
                         </div>
                     </AccordionContent>
                 </AccordionPanel>
-            </Accordion>
+            </Accordion> -->
 
             <div class="flex h-full">
                 <div class="w-[10%] bg-slate-200 ">
@@ -297,7 +314,7 @@ const onSelectTopbar = (xxx) => {
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
         <BlockList 
             :onPickBlock="onPickTemplate" 
-            :webBlockTypes="webBlockTypeCategories" 
+            :webBlockTypes="webBlockTypeCategoriesFilter" 
             scope="website" 
         />
     </Modal>
