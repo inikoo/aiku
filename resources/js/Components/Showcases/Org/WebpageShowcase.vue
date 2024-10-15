@@ -53,7 +53,7 @@ const props = defineProps<{
                             >
                                 <!-- ==== {{ activityItem.web_block.layout.data.fieldValue }} -->
                                 <component
-                                    :is="getComponent(activityItem.web_block.layout.data.component)"
+                                    :is="getComponent(activityItem.web_block?.layout?.data?.component)"
                                     :key="activityItemIdx"
                                     v-model="activityItem.web_block.layout.data.fieldValue"
                                     :isEditable="false"

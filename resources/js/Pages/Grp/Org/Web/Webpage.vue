@@ -23,7 +23,7 @@ import WebpageShowcase from "@/Components/Showcases/Org/WebpageShowcase.vue"
 import WebpageAnalytics from "@/Components/DataDisplay/WebpageAnalytics.vue"
 import TableSnapshots from "@/Components/Tables/TableSnapshots.vue"
 
-library.add( faChartLine, faClock, faUsersClass, faAnalytics, faDraftingCompass, faSlidersH, faRoad, faLayerGroup, faBrowser, faLevelDown, faShapes, faSortAmountDownAlt )
+library.add(faChartLine, faClock, faUsersClass, faAnalytics, faDraftingCompass, faSlidersH, faRoad, faLayerGroup, faBrowser, faLevelDown, faShapes, faSortAmountDownAlt)
 
 const props = defineProps<{
     title: string
@@ -58,6 +58,7 @@ const component = computed(() => {
 </script>
 
 <template>
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />

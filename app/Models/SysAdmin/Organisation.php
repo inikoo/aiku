@@ -72,6 +72,7 @@ use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
+use App\Models\Web\Redirect;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Collection as LaravelCollection;
@@ -383,7 +384,7 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->belongsTo(Language::class);
     }
 
-    public function accountsServiceProvider(): OrgPaymentServiceProvider
+    public function getAccountsServiceProvider(): OrgPaymentServiceProvider
     {
         return OrgPaymentServiceProvider::where('organisation_id', $this->id)->where('type', PaymentServiceProviderTypeEnum::ACCOUNT)->first();
     }
@@ -692,6 +693,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function uploads(): HasMany
     {
         return $this->hasMany(Upload::class);
+    }
+
+    public function redirects(): HasMany
+    {
+        return $this->hasMany(Redirect::class);
     }
 
 }

@@ -9,20 +9,21 @@ import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import TableWebpages from "@/Components/Tables/Grp/Org/Web/TableWebpages.vue"
 import { capitalize } from "@/Composables/capitalize"
-import { faShapes, faSortAmountDownAlt, faBrowser, faSortAmountDown,faHome } from '@fal'
+import { faShapes, faSortAmountDownAlt, faBrowser, faSortAmountDown, faHome, faSignInAlt, faThLarge, faColumns, faInfoCircle, faNewspaper } from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
-library.add( faShapes, faSortAmountDownAlt, faBrowser, faSortAmountDown ,faHome)
+library.add(faShapes, faSortAmountDownAlt, faBrowser, faSortAmountDown, faHome, faSignInAlt, faThLarge, faColumns, faInfoCircle, faNewspaper)
 
 const props = defineProps<{
-    pageHead: TSPageHeading
-    title: string
-    data: {}
+  pageHead: TSPageHeading
+  title: string
+  data: {}
 }>()
 </script>
 
 <template>
-    <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead" />
-    <TableWebpages :data="data" />
+
+  <Head :title="capitalize(title)" />
+  <PageHeading :data="pageHead" />
+  <TableWebpages :data="data" />
 </template>

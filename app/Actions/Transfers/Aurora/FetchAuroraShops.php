@@ -12,10 +12,14 @@ use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraShops extends FetchAuroraAction
 {
@@ -30,12 +34,19 @@ class FetchAuroraShops extends FetchAuroraAction
 
             if ($shop = Shop::where('source_id', $shopData['shop']['source_id'])
                 ->first()) {
-                $shop = UpdateShop::make()->action(
-                    shop: $shop,
-                    modelData: $shopData['shop'],
-                    audit: false
-                );
+                try {
+                    $shop = UpdateShop::make()->action(
+                        shop: $shop,
+                        modelData: $shopData['shop'],
+                        hydratorsDelay: $this->hydratorsDelay,
+                        strict: false,
+                        audit: false
+                    );
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $shopData['shop'], 'Shop', 'update');
 
+                    return null;
+                }
 
                 if ($shopData['tax_number']) {
                     if (!$shop->taxNumber) {
@@ -48,18 +59,35 @@ class FetchAuroraShops extends FetchAuroraAction
                     }
                 } elseif ($shop->taxNumber) {
                     DeleteTaxNumber::run($shop->taxNumber);
-
                 }
-
-
-
             } else {
+                try {
+                    $shop = StoreShop::make()->action(
+                        organisation: $organisationSource->getOrganisation(),
+                        modelData: $shopData['shop'],
+                        hydratorsDelay: $this->hydratorsDelay,
+                        strict: false,
+                        audit: false
+                    );
 
+                    Shop::enableAuditing();
 
-                $shop = StoreShop::make()->action(
-                    organisation: $organisationSource->getOrganisation(),
-                    modelData: $shopData['shop']
-                );
+                    $this->saveMigrationHistory(
+                        $shop,
+                        Arr::except($shopData['shop'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $shop->source_id);
+                    DB::connection('aurora')->table('Store Dimension')
+                        ->where('Store Key', $sourceData[1])
+                        ->update(['aiku_id' => $shop->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $shopData['shop'], 'Shop', 'store');
+
+                    return null;
+                }
 
                 if ($shopData['tax_number']) {
                     StoreTaxNumber::run(
@@ -67,8 +95,6 @@ class FetchAuroraShops extends FetchAuroraAction
                         modelData: $shopData['tax_number']
                     );
                 }
-
-
             }
 
 
@@ -82,29 +108,29 @@ class FetchAuroraShops extends FetchAuroraAction
 
             foreach ($shop->outboxes as $outbox) {
                 $sourceId = match ($outbox->type) {
-                    'new-customer'               => $auroraOutboxes['New Customer'],
-                    'abandoned-cart'             => $auroraOutboxes['AbandonedCart'],
-                    'basket-low-stock'           => $auroraOutboxes['Basket Low Stock'] ?? null,
-                    'basket-reminder1'           => $auroraOutboxes['Basket Reminder 1'],
-                    'basket-reminder2'           => $auroraOutboxes['Basket Reminder 2'],
-                    'basket-reminder3'           => $auroraOutboxes['Basket Reminder 3'],
-                    'delivery-confirmation'      => $auroraOutboxes['Delivery Confirmation'],
-                    'delivery-note-dispatched'   => $auroraOutboxes['Delivery Note Dispatched'],
-                    'delivery-note-undispatched' => $auroraOutboxes['Delivery Note Undispatched'],
-                    'invite'                     => $auroraOutboxes['Invite'],
-                    'invite-full-mailshot'       => $auroraOutboxes['Invite Full Mailshot'],
-                    'invite-mailshot'            => $auroraOutboxes['Invite Mailshot'],
-                    'invoice-deleted'            => $auroraOutboxes['Invoice Deleted'],
-                    'marketing'                  => $auroraOutboxes['Discounts'],
-                    'new-order'                  => $auroraOutboxes['New Order'],
-                    'newsletter'                 => $auroraOutboxes['Newsletter'],
-                    'oos-notification'           => $auroraOutboxes['OOS Notification'],
-                    'order-confirmation'         => $auroraOutboxes['Order Confirmation'],
-                    'password-reminder'          => $auroraOutboxes['Password Reminder'],
-                    'registration'               => $auroraOutboxes['Registration'],
-                    'registration-approved'      => $auroraOutboxes['Registration Approved'],
-                    'registration-rejected'      => $auroraOutboxes['Registration Rejected'],
-                    'reorder-reminder'           => $auroraOutboxes['GR Reminder'],
+                    OutboxTypeEnum::NEW_CUSTOMER => $auroraOutboxes['New Customer'],
+                    OutboxTypeEnum::ABANDONED_CART => $auroraOutboxes['AbandonedCart'],
+                    OutboxTypeEnum::BASKET_LOW_STOCK => $auroraOutboxes['Basket Low Stock'] ?? null,
+                    OutboxTypeEnum::BASKET_REMINDER_1 => $auroraOutboxes['Basket Reminder 1'],
+                    OutboxTypeEnum::BASKET_REMINDER_2 => $auroraOutboxes['Basket Reminder 2'],
+                    OutboxTypeEnum::BASKET_REMINDER_3 => $auroraOutboxes['Basket Reminder 3'],
+                    OutboxTypeEnum::DELIVERY_CONFIRMATION => $auroraOutboxes['Delivery Confirmation'],
+                    OutboxTypeEnum::DELIVERY_NOTE_DISPATCHED => $auroraOutboxes['Delivery Note Dispatched'],
+                    OutboxTypeEnum::DELIVERY_NOTE_UNDISPATCHED => $auroraOutboxes['Delivery Note Undispatched'],
+                    //    'invite' => $auroraOutboxes['Invite'],
+                    //    'invite-full-mailshot' => $auroraOutboxes['Invite Full Mailshot'],
+                    //   'invite-mailshot' => $auroraOutboxes['Invite Mailshot'],
+                    //   'invoice-deleted' => $auroraOutboxes['Invoice Deleted'],
+                    OutboxTypeEnum::MARKETING => $auroraOutboxes['Marketing'],
+                    OutboxTypeEnum::NEW_ORDER => $auroraOutboxes['New Order'],
+                    OutboxTypeEnum::NEWSLETTER => $auroraOutboxes['Newsletter'],
+                    OutboxTypeEnum::OOS_NOTIFICATION => $auroraOutboxes['OOS Notification'],
+                    OutboxTypeEnum::ORDER_CONFIRMATION => $auroraOutboxes['Order Confirmation'],
+                    OutboxTypeEnum::PASSWORD_REMINDER => $auroraOutboxes['Password Reminder'],
+                    OutboxTypeEnum::REGISTRATION => $auroraOutboxes['Registration'],
+                    OutboxTypeEnum::REGISTRATION_APPROVED => $auroraOutboxes['Registration Approved'],
+                    OutboxTypeEnum::REGISTRATION_REJECTED => $auroraOutboxes['Registration Rejected'],
+                    OutboxTypeEnum::REORDER_REMINDER => $auroraOutboxes['GR Reminder'],
 
 
                     default => null
@@ -119,7 +145,6 @@ class FetchAuroraShops extends FetchAuroraAction
                 }
 
 
-
                 $sourceData  = explode(':', $shop->source_id);
                 $accountData = DB::connection('aurora')->table('Payment Account Dimension')
                     ->select('Payment Account Key')
@@ -128,14 +153,27 @@ class FetchAuroraShops extends FetchAuroraAction
                     ->where('Payment Account Store Store Key', $sourceData[1])
                     ->first();
                 if ($accountData) {
-
-                    $shop->accounts()->update(
+                    $accounts = $shop->getAccounts();
+                    $accounts->update(
                         [
                             'source_id' => $organisationSource->getOrganisation()->id.':'.$accountData->{'Payment Account Key'}
                         ]
                     );
-                }
 
+                    if ($accounts->fetched_at) {
+                        $accounts->update(
+                            [
+                                'last_fetched_at' => now()
+                            ]
+                        );
+                    } else {
+                        $accounts->update(
+                            [
+                                'fetched_at' => now()
+                            ]
+                        );
+                    }
+                }
             }
 
 

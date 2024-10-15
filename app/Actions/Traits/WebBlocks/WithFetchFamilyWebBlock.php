@@ -28,8 +28,11 @@ trait WithFetchFamilyWebBlock
                 $items[] = ["position" => $index,"type" => $type, "video_id" => $item["video_id"]];
             } elseif ($type == 'image') {
                 $items[] =  ['position' => $index, "type" => $type, "aurora_source" => $item["image_src"]];
+            } elseif ($type == 'text') {
+                $items[] =  ['position' => $index, "type" => $type, "text" => $item["text"]];
             } else {
-                dd("dd inside processFammilyData => ", $type);
+                print_r($item);
+                dd("dd inside process Family Data => ", $type);
             }
         }
 

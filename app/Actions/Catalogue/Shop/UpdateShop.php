@@ -52,11 +52,11 @@ class UpdateShop extends OrgAction
             data_set(
                 $modelData,
                 match ($key) {
-                    'shopify_shop_name'    => 'settings.shopify.shop_name',
-                    'shopify_api_key'      => 'settings.shopify.api_key',
-                    'shopify_api_secret'   => 'settings.shopify.api_secret',
+                    'shopify_shop_name' => 'settings.shopify.shop_name',
+                    'shopify_api_key' => 'settings.shopify.api_key',
+                    'shopify_api_secret' => 'settings.shopify.api_secret',
                     'shopify_access_token' => 'settings.shopify.access_token',
-                    default                => $key
+                    default => $key
                 },
                 $value
             );
@@ -83,8 +83,8 @@ class UpdateShop extends OrgAction
         $changes = $shop->getChanges();
 
         if (Arr::hasAny($changes, ['state'])) {
-            GroupHydrateShops::dispatch($shop->group);
-            OrganisationHydrateShops::dispatch($shop->organisation);
+            GroupHydrateShops::dispatch($shop->group)->delay($this->hydratorsDelay);
+            OrganisationHydrateShops::dispatch($shop->organisation)->delay($this->hydratorsDelay);
         }
         if (count($changes) > 0) {
             ShopHydrateUniversalSearch::dispatch($shop);
@@ -96,7 +96,7 @@ class UpdateShop extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'name'                     => ['sometimes', 'required', 'string', 'max:255'],
             'code'                     => [
                 'sometimes',
@@ -135,18 +135,24 @@ class UpdateShop extends OrgAction
             'shopify_api_key'          => ['sometimes', 'string'],
             'shopify_api_secret'       => ['sometimes', 'string'],
             'shopify_access_token'     => ['sometimes', 'string'],
-            'last_fetched_at'          => ['sometimes', 'date'],
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(Shop $shop, array $modelData, bool $audit = true): Shop
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Shop
     {
         if (!$audit) {
             Warehouse::disableAuditing();
         }
-        $this->asAction = true;
-        $this->shop     = $shop;
-
+        $this->asAction       = true;
+        $this->shop           = $shop;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
         $this->initialisation($shop->organisation, $modelData);
 
         return $this->handle($shop, $this->validatedData);

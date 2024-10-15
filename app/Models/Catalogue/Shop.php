@@ -58,6 +58,7 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
+use App\Models\Web\Redirect;
 use App\Models\Web\Website;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -375,7 +376,7 @@ class Shop extends Model implements HasMedia, Auditable
             ->withTimestamps();
     }
 
-    public function accounts(): PaymentAccount
+    public function getAccounts(): PaymentAccount
     {
         /** @var PaymentAccount $paymentAccount */
         $paymentAccount = $this->paymentAccounts()->where('shop_id', $this->id)->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();
@@ -536,6 +537,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function uploads(): HasMany
     {
         return $this->hasMany(Upload::class);
+    }
+
+    public function redirects(): HasMany
+    {
+        return $this->hasMany(Redirect::class);
     }
 
 }

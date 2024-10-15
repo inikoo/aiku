@@ -34,6 +34,7 @@ use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
 use Exception;
+use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebBlocks extends OrgAction
 {
@@ -70,19 +71,18 @@ class FetchAuroraWebBlocks extends OrgAction
 
 
         $oldMigrationsChecksum = $webpage->webBlocks()->get()->pluck('migration_checksum', 'migration_checksum')->toArray();
-
         if (isset($webpage->migration_data)) {
             $migrationTypes = ['both', 'loggedIn', 'loggedOut'];
 
             foreach ($migrationTypes as $type) {
                 if (isset($webpage->migration_data[$type])) {
-                    $this->processMigrationData($webpage, $webpage->migration_data[$type]['blocks'], $oldMigrationsChecksum, $reset, $type);
+                    $this->processMigrationData($webpage, $webpage->migration_data[$type]['blocks'], $oldMigrationsChecksum, $type);
                 }
             }
         }
 
         if (count($oldMigrationsChecksum) > 0) {
-            $this->deleteWeblockHaveOldChecksum($webpage, $oldMigrationsChecksum);
+            $this->deleteWebBlockHaveOldChecksum($webpage, $oldMigrationsChecksum);
         }
 
         return $webpage;
@@ -92,8 +92,8 @@ class FetchAuroraWebBlocks extends OrgAction
     {
         foreach ($blocks as $index => $auroraBlock) {
             $migrationData = md5(json_encode($auroraBlock));
-
             if (isset($oldMigrationsChecksum[$migrationData])) {
+                DB::table("model_has_web_blocks")->where('migration_checksum', $migrationData)->update(['position' => $index + 1]);
                 unset($oldMigrationsChecksum[$migrationData]);
                 continue;
             }
@@ -109,7 +109,7 @@ class FetchAuroraWebBlocks extends OrgAction
     private function processData(
         Webpage $webpage,
         $auroraBlock,
-        $migrationData,
+        $migrationChecksum,
         int $position,
         $visibility = ["loggedIn" => true, "loggedOut" => true]
     ): void {
@@ -240,7 +240,7 @@ class FetchAuroraWebBlocks extends OrgAction
             $webBlockType,
             [
                 "layout"             => $layout,
-                "migration_checksum" => $migrationData,
+                "migration_checksum" => $migrationChecksum,
                 "models"             => $models,
             ],
             strict: false
@@ -270,7 +270,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 unset($layout["fieldValue"]["value"]["items"]);
             } elseif ($code == "department") {
                 $sections = $webBlock->layout["fieldValue"]["value"]["sections"];
-                foreach ($sections as $section) {
+                foreach ($sections as $sectionPosition => $section) {
                     $items = $section['items'];
                     if ($items) {
                         foreach ($items as $index => $item) {
@@ -280,7 +280,7 @@ class FetchAuroraWebBlocks extends OrgAction
                                 unset($items[$index]["aurora_source"]);
                             }
                         }
-                        $sections[$index]["items"] = $items;
+                        $sections[$sectionPosition]["items"] = $items;
                     }
                 }
                 data_set($layout, "fieldValue.value.sections", $sections);
@@ -311,14 +311,16 @@ class FetchAuroraWebBlocks extends OrgAction
             "model_id"           => $webpage->id,
             "model_type"         => class_basename(Webpage::class),
             "web_block_id"       => $webBlock->id,
-            "migration_checksum" => $migrationData,
+            "migration_checksum" => $migrationChecksum,
         ];
 
         if (isset($auroraBlock["show"])) {
             $modelHasWebBlocksData['show'] = boolval($auroraBlock["show"]);
         }
 
+
         $webpage->modelHasWebBlocks()->create($modelHasWebBlocksData);
+
 
         UpdateWebpageContent::run($webpage->refresh());
 
@@ -345,7 +347,7 @@ class FetchAuroraWebBlocks extends OrgAction
         return GetPictureSources::run($image);
     }
 
-    private function reset(Webpage $webpage)
+    private function reset(Webpage $webpage): void
     {
         foreach ($webpage->webBlocks()->get() as $webBlock) {
             DeleteWebBlock::run($webBlock);
@@ -362,9 +364,9 @@ class FetchAuroraWebBlocks extends OrgAction
         return $this->handle($webpage);
     }
 
-    public function deleteWeblockHaveOldChecksum(Webpage $webpage, array $oldChecksum): void
+    public function deleteWebBlockHaveOldChecksum(Webpage $webpage, array $oldChecksum): void
     {
-        foreach ($webpage->webBlocks()->get() as $webBlock) {
+        foreach ($webpage->webBlocks as $webBlock) {
             if (isset($oldChecksum[$webBlock->migration_checksum])) {
                 DeleteWebBlock::run($webBlock);
             }

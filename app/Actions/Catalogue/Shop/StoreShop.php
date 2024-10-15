@@ -34,6 +34,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -52,6 +53,9 @@ class StoreShop extends OrgAction
         return $request->user()->hasPermissionTo("org-admin.{$this->organisation->id}");
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Organisation $organisation, array $modelData): Shop
     {
         $warehouses = Arr::get($modelData, 'warehouses', []);
@@ -61,98 +65,95 @@ class StoreShop extends OrgAction
 
         data_set($modelData, 'group_id', $organisation->group_id);
 
-        /** @var Shop $shop */
-        $shop = $organisation->shops()->create($modelData);
-        $shop->refresh();
 
-        if (Arr::get($shop->settings, 'address_link')) {
-            $shop = $this->addLinkedAddress($shop);
-        } else {
-            $shop = $this->addAddressToModel($shop, $addressData);
-        }
+        $shop = DB::transaction(function () use ($organisation, $modelData, $addressData, $warehouses) {
+            /** @var Shop $shop */
+            $shop = $organisation->shops()->create($modelData);
+            $shop->refresh();
 
-        if (Arr::get($shop->settings, 'collect_address_link')) {
-            $shop = $this->addLinkedAddress(model: $shop, scope: 'collection', updateLocation: false, updateAddressField: 'collection_address_id');
-        }
+            if (Arr::get($shop->settings, 'address_link')) {
+                $shop = $this->addLinkedAddress($shop);
+            } else {
+                $shop = $this->addAddressToModel($shop, $addressData);
+            }
+
+            if (Arr::get($shop->settings, 'collect_address_link')) {
+                $shop = $this->addLinkedAddress(model: $shop, scope: 'collection', updateLocation: false, updateAddressField: 'collection_address_id');
+            }
 
 
-        $shop->stats()->create();
-        $shop->accountingStats()->create();
-        $shop->mailStats()->create();
-        $shop->crmStats()->create();
-        $shop->salesStats()->create();
-        $shop->salesIntervals()->create();
-        $shop->orderIntervals()->create();
-        $shop->mailshotsIntervals()->create();
-        $shop->discountsStats()->create();
+            $shop->stats()->create();
+            $shop->accountingStats()->create();
+            $shop->mailStats()->create();
+            $shop->crmStats()->create();
+            $shop->salesStats()->create();
+            $shop->salesIntervals()->create();
+            $shop->orderIntervals()->create();
+            $shop->mailshotsIntervals()->create();
+            $shop->discountsStats()->create();
 
-        if ($shop->type === ShopTypeEnum::DROPSHIPPING) {
-            $shop->dropshippingStats()->create();
-        }
+            if ($shop->type === ShopTypeEnum::DROPSHIPPING) {
+                $shop->dropshippingStats()->create();
+            }
 
-        $shop->serialReferences()->create(
-            [
-                'model'           => SerialReferenceModelEnum::CUSTOMER,
-                'organisation_id' => $organisation->id,
-            ]
-        );
-        $shop->serialReferences()->create(
-            [
-                'model'           => SerialReferenceModelEnum::ORDER,
-                'organisation_id' => $organisation->id,
-            ]
-        );
-
-        if ($shop->type == ShopTypeEnum::FULFILMENT) {
-            StoreFulfilment::make()->make()->action(
-                $shop,
+            $shop->serialReferences()->create(
                 [
-                    'warehouses' => $warehouses,
+                    'model'           => SerialReferenceModelEnum::CUSTOMER,
+                    'organisation_id' => $organisation->id,
                 ]
             );
-        } else {
-            SeedShopPermissions::run($shop);
-
-            $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
-                fn ($user) => $user->roles->where('name', "org-admin-$organisation->id")->toArray()
+            $shop->serialReferences()->create(
+                [
+                    'model'           => SerialReferenceModelEnum::ORDER,
+                    'organisation_id' => $organisation->id,
+                ]
             );
 
-            foreach ($orgAdmins as $orgAdmin) {
+            if ($shop->type == ShopTypeEnum::FULFILMENT) {
+                StoreFulfilment::make()->make()->action(
+                    $shop,
+                    [
+                        'warehouses' => $warehouses,
+                    ]
+                );
+            } else {
+                SeedShopPermissions::run($shop);
 
-                UserAddRoles::run($orgAdmin, [
-                    Role::where('name', RolesEnum::getRoleName(RolesEnum::SHOP_ADMIN->value, $shop))->first()
-                ]);
+                $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
+                    fn ($user) => $user->roles->where('name', "org-admin-$organisation->id")->toArray()
+                );
+
+                foreach ($orgAdmins as $orgAdmin) {
+                    UserAddRoles::run($orgAdmin, [
+                        Role::where('name', RolesEnum::getRoleName(RolesEnum::SHOP_ADMIN->value, $shop))->first()
+                    ]);
+                }
             }
-        }
 
 
-        SetCurrencyHistoricFields::run($shop->currency, $shop->created_at);
+            SetCurrencyHistoricFields::run($shop->currency, $shop->created_at);
 
-        $paymentAccount       = StorePaymentAccount::make()->action(
-            $organisation->accountsServiceProvider(),
-            [
-                'code'        => 'accounts-'.$shop->slug,
-                'name'        => 'Accounts '.$shop->code,
-                'type'        => PaymentAccountTypeEnum::ACCOUNT->value,
-                'is_accounts' => true
-            ]
-        );
-        $paymentAccount->slug = 'accounts-'.$shop->slug;
-        $paymentAccount->save();
-        $shop = AttachPaymentAccountToShop::run($shop, $paymentAccount);
+            $paymentAccount       = StorePaymentAccount::make()->action(
+                $organisation->getAccountsServiceProvider(),
+                [
+                    'code'        => 'accounts-'.$shop->slug,
+                    'name'        => 'Accounts '.$shop->code,
+                    'type'        => PaymentAccountTypeEnum::ACCOUNT->value,
+                    'is_accounts' => true
+                ]
+            );
+            $paymentAccount->slug = 'accounts-'.$shop->slug;
+            $paymentAccount->save();
 
-        GroupHydrateShops::dispatch($organisation->group);
-        OrganisationHydrateShops::dispatch($organisation);
+            return AttachPaymentAccountToShop::run($shop, $paymentAccount);
+        });
+
+        GroupHydrateShops::dispatch($organisation->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateShops::dispatch($organisation)->delay($this->hydratorsDelay);
         ProspectQuerySeeder::run($shop);
         SeedShopOutboxes::run($shop);
         SeedJobPositions::run($organisation);
-
-        if ($this->hydratorsDelay) {
-            SetIconAsShopLogo::run($shop)->delay($this->hydratorsDelay);
-        } else {
-            SetIconAsShopLogo::run($shop);
-        }
-
+        SetIconAsShopLogo::dispatch($shop)->delay($this->hydratorsDelay);
 
 
         if ($shop->type == ShopTypeEnum::B2B) {
@@ -177,14 +178,25 @@ class StoreShop extends OrgAction
         }
     }
 
-    public function action(Organisation $organisation, array $modelData): Shop
+    /**
+     * @throws \Throwable
+     */
+    public function action(Organisation $organisation, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Shop
     {
-        $this->asAction = true;
+        if (!$audit) {
+            Shop::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->strict         = $strict;
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($organisation, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(Organisation $organisation, ActionRequest $request): Shop
     {
         $this->initialisation($organisation, $request);
@@ -197,6 +209,9 @@ class StoreShop extends OrgAction
     {--warehouses=*} {--contact_name=} {--company_name=} {--email=} {--phone=} {--identity_document_number=} {--identity_document_type=} {--country=} {--currency=} {--language=} {--timezone=}';
 
 
+    /**
+     * @throws \Throwable
+     */
     public function asCommand(Command $command): int
     {
         $this->asAction = true;

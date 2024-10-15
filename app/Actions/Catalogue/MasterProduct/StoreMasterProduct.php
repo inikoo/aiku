@@ -63,9 +63,9 @@ class StoreMasterProduct extends GrpAction
                 'max:32',
                 new AlphaDashDot(),
                 new IUnique(
-                    table: 'assets',
+                    table: 'master_products',
                     extraConditions: [
-                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'group_id', 'value' => $this->group->id],
                         ['column' => 'state', 'operator' => '!=', 'value' => ProductStateEnum::DISCONTINUED->value],
                         ['column' => 'deleted_at', 'operator' => 'notNull'],
                     ]

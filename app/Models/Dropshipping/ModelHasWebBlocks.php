@@ -27,6 +27,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $web_block_id
  * @property string $model_type
  * @property int $model_id
+ * @property bool $show
+ * @property bool $show_logged_in
+ * @property bool $show_logged_out
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $migration_checksum

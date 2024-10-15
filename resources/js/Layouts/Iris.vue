@@ -38,7 +38,7 @@ const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color
                 <slot />
             </main>
 
-          <!--   <Footer :data="footer" :colorThemed="colorThemed"/> -->
+            <!--   <Footer :data="footer" :colorThemed="colorThemed"/> -->
         </div>
     </div>
 

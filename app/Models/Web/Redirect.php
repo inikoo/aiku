@@ -12,12 +12,11 @@ namespace App\Models\Web;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class WebpageHasRedirect extends Model
+class Redirect extends Model
 {
     protected $table = 'webpage_has_redirects';
 
     protected $guarded = [];
-    protected $fillable = ['redirect'];
 
     public function webpage(): BelongsTo
     {

@@ -63,6 +63,7 @@ use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
+use App\Models\Web\Redirect;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\WebBlockTypeCategory;
 use App\Models\Web\Webpage;
@@ -138,6 +139,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
+ * @property-read LaravelCollection<int, MasterProductCategory> $masterProductCategories
+ * @property-read LaravelCollection<int, MasterProduct> $masterProducts
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, Offer> $offers
@@ -678,6 +681,12 @@ class Group extends Authenticatable implements Auditable, HasMedia
     {
         return $this->hasMany(MasterProductCategory::class);
     }
+
+    public function redirects(): HasMany
+    {
+        return $this->hasMany(Redirect::class);
+    }
+
 
 
 }

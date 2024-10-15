@@ -11,7 +11,7 @@ library.add(faPresentation, faCube, faText, faImage, faImages, faPaperclip, faSh
 const props = withDefaults(defineProps<{
     onPickBlock: Function
     webBlockTypes: Root
-    scope?: String /* all|website|webpage */
+    scope?: string /* all|website|webpage */
 }>(), {
     scope: "all",
 })
@@ -44,7 +44,6 @@ onMounted(() => {
     <div class="flex border rounded-xl overflow-hidden">
         <nav class="w-1/5 bg-gray-100 py-4" aria-label="Sidebar">
             <ul role="list" class="space-y-1">
-
                 <li v-for="item in data" :key="item.id"
                     :class="[item.id === active.id ? 'bg-white text-indigo-600' : 'hover:bg-white/50 hover:text-indigo-600']"
                     @click="setActiveId(item)"

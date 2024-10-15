@@ -56,7 +56,7 @@ console.log('ss',props)
 
     <!-- Desktop view (hidden on mobile) -->
     <div class="hidden md:block">
-        <div class="grid grid-cols-3 text-white justify-between items-center p-2 text-xs"
+        <!-- <div class="grid grid-cols-3 text-white justify-between items-center p-2 text-xs"
             :style="{ backgroundColor: selectedColor[0] }">
             <div></div>
             <div class="font-bold text-center">
@@ -91,7 +91,7 @@ console.log('ss',props)
                     <font-awesome-icon :icon="['fas', 'file-alt']" class="mr-1" /> Register
                 </a>
             </div>
-        </div>
+        </div> -->
 
         <div class="bg-white">
             <div class="container mx-auto flex flex-col justify-between items-center">
