@@ -9,8 +9,6 @@
 namespace App\Actions\UI\Goods\Catalogue;
 
 use App\Models\Catalogue\MasterShop;
-use App\Models\Catalogue\Shop;
-use App\Models\SysAdmin\Group;
 
 trait WithMasterCatalogueSubnavigation
 {
