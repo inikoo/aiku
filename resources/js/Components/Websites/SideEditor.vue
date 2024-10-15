@@ -16,6 +16,7 @@ import Payments from '@/Components/Websites/Fields/Payment.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorForm.vue"
 import socialMedia from '@/Components/Websites/Fields/SocialMedia.vue'
 import FooterColumn from '@/Components/Websites/Fields/FooterColumn.vue';
+import { isArray } from 'lodash';
 
 
 const props = defineProps<{
@@ -38,7 +39,8 @@ const getComponent = (componentName: string) => {
         'editor': Editor,
         'socialMedia': socialMedia,
         'footerColumn': FooterColumn,
-        "EditorAndPanelProperties": EditorAndPanelProperties
+        "EditorAndPanelProperties": EditorAndPanelProperties,
+        "VisibleLoggedIn": ButtonVisibleLoggedIn
     }
 
     return components[componentName]
@@ -68,8 +70,12 @@ const onUpdateValue = (field, value) => {
             </AccordionHeader>
             <AccordionContent>
                 <div class="bg-white mt-[0px] py-4">
-                    <ButtonVisibleLoggedIn v-model="modelValue[field.key]"/>
-                    <component :is="getComponent(field.type)" :key="field.key" v-model="modelValue[field.key]"
+                    <template v-if="isArray(field.type)" v-for="(type, indexType) in field.type">
+                        <component  :is="getComponent(type)"
+                            v-model="modelValue[field.key]" @update:modelValue="value => onUpdateValue(field, value)"
+                            :uploadRoutes="uploadImageRoute" v-bind="field?.props_data" />
+                    </template>
+                    <component v-else :is="getComponent(field.type)" :key="field.key" v-model="modelValue[field.key]"
                         @update:modelValue="value => onUpdateValue(field, value)" :uploadRoutes="uploadImageRoute"
                         v-bind="field?.props_data" />
                 </div>

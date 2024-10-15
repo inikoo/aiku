@@ -28,65 +28,6 @@ library.add(faCheck, faPlus, faMinus)
 
 
 
-const people = [
-  {
-    name: 'South Yorkshire - Heart of the UK',
-    role: 'Senior Developer',
-    imageUrl:
-      'https://www.aw-fulfilment.co.uk/wi.php?id=1830486',
-    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
-    xUrl: '#',
-    linkedinUrl: '#',
-  },
-  {
-    name: '100 000 Square Foot',
-    role: 'Senior Developer',
-    imageUrl:
-      'https://www.aw-fulfilment.co.uk/wi.php?id=1830487',
-    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
-    xUrl: '#',
-    linkedinUrl: '#',
-  },
-  {
-    name: 'Pallet & Parcel Delivery across UK',
-    role: 'Senior Developer',
-    imageUrl:
-      'https://www.aw-fulfilment.co.uk/wi.php?id=1830488',
-    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
-    xUrl: '#',
-    linkedinUrl: '#',
-  },
-  {
-    name: 'Storage Solutions',
-    role: 'Senior Developer',
-    imageUrl:
-      'https://www.aw-fulfilment.co.uk/wi.php?id=1849917',
-    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
-    xUrl: '#',
-    linkedinUrl: '#',
-  },
-  {
-    name: 'Pick & Pack',
-    role: 'Senior Developer',
-    imageUrl:
-      'https://www.aw-fulfilment.co.uk/wi.php?id=1849918',
-    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
-    xUrl: '#',
-    linkedinUrl: '#',
-  },
-  {
-    name: 'Rework & Repack  ',
-    role: 'Senior Developer',
-    imageUrl:
-      'https://www.aw-fulfilment.co.uk/wi.php?id=1849919',
-    bio: 'Praesentium iure error aliquam voluptas ut libero. Commodi placeat sit iure nulla officiis. Ut ex sit repellat tempora. Qui est accusamus exercitationem natus ut voluptas. Officiis velit eos ducimus.',
-    xUrl: '#',
-    linkedinUrl: '#',
-  },
-  // More people...
-]
-
-
 </script>
 
 <template>
@@ -99,9 +40,9 @@ const people = [
             <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks"
                 :key="'block' + activityItem.id"
                 class="w-full">
-               
+               <pre>{{ activityItem?.web_block?.layout }}</pre>
                 <component
-                    :is="getComponent(activityItem.web_block.layout.data.component)"
+                    :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
                     :key="activityItemIdx"
                     v-model="activityItem.web_block.layout.data.fieldValue"
                     :isEditable="false"

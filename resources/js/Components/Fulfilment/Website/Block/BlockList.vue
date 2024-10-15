@@ -11,7 +11,7 @@ library.add(faPresentation, faCube, faText, faImage, faImages, faPaperclip, faSh
 const props = withDefaults(defineProps<{
     onPickBlock: Function
     webBlockTypes: Root
-    scope?: String /* all|website|webpage */
+    scope?: string /* all|website|webpage */
 }>(), {
     scope: "all",
 })

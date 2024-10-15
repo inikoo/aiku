@@ -70,49 +70,10 @@ const toggle = (event) => {
     _menu.value.toggle(event)
 };
 
-console.log('ss',props)
 
 </script>
 
 <template>
-    <!-- Top Bar -->
-    <div class="hidden md:block">
-    <div class="grid grid-cols-3 justify-between items-center p-2" :style="{ backgroundColor : selectedColor[0]}">
-        <div></div>
-        <div class="font-bold text-center">
-            <Editor :toogle="toogle" v-model="modelValue.headerText.text"  :editable="!previewMode" />
-        </div>
-
-        <!-- Section: Logout, Cart, profile -->
-        <div class="place-self-end flex items-center space-x-4 mr-4">
-            <a href="#" class="flex items-center" v-if="loginMode">
-                <FontAwesomeIcon icon="fas fa-sign-out-alt" class=" mr-1"></FontAwesomeIcon> Log Out
-            </a>
-            <a href="#" v-if="loginMode">
-                <FontAwesomeIcon icon="far fa-heart"></FontAwesomeIcon>
-            </a>
-            <a href="#" class="flex items-center gap-x-1" v-if="loginMode">
-                <FontAwesomeIcon icon="fas fa-shopping-cart" class="relative mr-1">
-                    <div
-                        class="absolute -top-1 -right-1 bg-white border border-gray-800 h-2.5 aspect-square rounded-full text-gray-600 text-[6px] flex items-center justify-center">
-                        5
-                    </div>
-                </FontAwesomeIcon> £568.20
-            </a>
-            <a href="#" class="flex items-center" v-if="loginMode">
-                <FontAwesomeIcon icon="fas fa-user-circle" class="mr-1"></FontAwesomeIcon> Hello Sandra
-            </a>
-            <a href="#" class="flex items-center" v-if="!loginMode">
-                <font-awesome-icon :icon="['fas', 'sign-in-alt']" class="mr-1" /> Login
-            </a>
-            <a href="#" class="flex items-center" v-if="!loginMode">
-                <font-awesome-icon :icon="['fas', 'file-alt']" class="mr-1"/> Register
-            </a>
-        </div>
-    </div>
-
-
-    <!-- Main Nav -->
     <div class="bg-white">
         <div class="container mx-auto flex flex-col justify-between items-center">
             <div class="w-full grid grid-cols-3 items-center justify-between space-x-4 ">
@@ -143,7 +104,6 @@ console.log('ss',props)
                 </button>
             </div>
         </div>
-    </div>
     </div>
 
 

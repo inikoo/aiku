@@ -246,4 +246,9 @@ class Website extends Model implements Auditable, HasMedia
         return $this->morphMany(WebBlock::class, 'model');
     }
 
+    public function redirects(): HasMany
+    {
+        return $this->hasMany(Redirect::class);
+    }
+
 }

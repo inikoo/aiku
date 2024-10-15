@@ -63,6 +63,7 @@ use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
+use App\Models\Web\Redirect;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\WebBlockTypeCategory;
 use App\Models\Web\Webpage;
@@ -680,6 +681,12 @@ class Group extends Authenticatable implements Auditable, HasMedia
     {
         return $this->hasMany(MasterProductCategory::class);
     }
+
+    public function redirects(): HasMany
+    {
+        return $this->hasMany(Redirect::class);
+    }
+
 
 
 }
