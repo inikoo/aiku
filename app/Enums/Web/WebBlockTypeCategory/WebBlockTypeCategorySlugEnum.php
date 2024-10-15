@@ -34,5 +34,5 @@ enum WebBlockTypeCategorySlugEnum: string
     case GRID = 'grid';
     case OVERVIEW = 'overview';
     case SCRIPT = 'script';
-    case TOP_HEADER = 'top-header';
+    case TOP_BAR = 'top-bar';
 }

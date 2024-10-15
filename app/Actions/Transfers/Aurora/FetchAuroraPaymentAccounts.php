@@ -11,8 +11,11 @@ use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Models\Accounting\PaymentAccount;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraPaymentAccounts extends FetchAuroraAction
 {
@@ -24,22 +27,52 @@ class FetchAuroraPaymentAccounts extends FetchAuroraAction
         if ($paymentAccountData = $organisationSource->fetchPaymentAccount($organisationSourceId)) {
             if ($paymentAccount = PaymentAccount::where('source_id', $paymentAccountData['paymentAccount']['source_id'])
                 ->first()) {
+                try {
+                    $paymentAccount = UpdatePaymentAccount::make()->action(
+                        paymentAccount: $paymentAccount,
+                        modelData: $paymentAccountData['paymentAccount'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $paymentAccountData['paymentAccount'], 'PaymentAccount', 'update');
 
-                $paymentAccount = UpdatePaymentAccount::make()->action(
-                    paymentAccount: $paymentAccount,
-                    modelData:      $paymentAccountData['paymentAccount']
-                );
+                    return null;
+                }
             } else {
+                try {
+                    $paymentAccount = StorePaymentAccount::make()->action(
+                        orgPaymentServiceProvider: $paymentAccountData['orgPaymentServiceProvider'],
+                        modelData: $paymentAccountData['paymentAccount'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
 
-                $paymentAccount = StorePaymentAccount::make()->action(
-                    orgPaymentServiceProvider: $paymentAccountData['paymentServiceProvider'],
-                    modelData: $paymentAccountData['paymentAccount']
-                );
+                    PaymentAccount::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $paymentAccount,
+                        Arr::except($paymentAccountData['paymentAccount'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+
+                    $this->recordNew($organisationSource);
+
+
+                    $sourceId = explode(':', $paymentAccount->source_id);
+                    DB::connection('aurora')->table('Payment Account Dimension')
+                        ->where('Payment Account Key', $sourceId[1])
+                        ->update(['aiku_id' => $paymentAccount->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $paymentAccountData['paymentAccount'], 'PaymentAccount', 'store');
+
+                    return null;
+                }
             }
-            $sourceId = explode(':', $paymentAccount->source_id);
-            DB::connection('aurora')->table('Payment Account Dimension')
-                ->where('Payment Account Key', $sourceId[1])
-                ->update(['aiku_id' => $paymentAccount->id]);
+
+
+            // todo associate with shops #1010
+
 
             return $paymentAccount;
         }

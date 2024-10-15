@@ -38,7 +38,7 @@ class FetchAuroraPaymentAccount extends FetchAurora
             dd($this->auroraModelData->{'Payment Account Block'});
         }
 
-        $this->parsedData['paymentServiceProvider'] = $this->parseOrgPaymentServiceProvider($this->organisation->id.':'.$this->auroraModelData->{'Payment Account Service Provider Key'});
+        $this->parsedData['orgPaymentServiceProvider'] = $this->parseOrgPaymentServiceProvider($this->organisation->id.':'.$this->auroraModelData->{'Payment Account Service Provider Key'});
 
 
         $code = $this->auroraModelData->{'Payment Account Code'};
@@ -95,27 +95,14 @@ class FetchAuroraPaymentAccount extends FetchAurora
 
 
         $this->parsedData['paymentAccount'] = [
-
-
             'code'      => $code,
             'name'      => $this->auroraModelData->{'Payment Account Name'},
             'type'      => $type,
             'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Payment Account Key'},
-
-
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
         ];
 
-        /*
-        if ($this->auroraModelData->{'Payment Account Block'} == 'Accounts') {
-            if ($createdDateData = DB::connection('aurora')->table('Payment Account Store Bridge')
-                ->leftJoin('Store Dimension', 'Store Key', 'Payment Account Store Store Key')
-                ->select('Store Code')
-                ->where('Payment Account Store Payment Account Key', $this->auroraModelData->{'Payment Account Key'})
-                ->first()) {
-                $this->parsedData['paymentAccount']['slug'] = 'account-'.Str::lower($createdDateData->{'Store Code'});
-            }
-        }
-*/
 
         if ($this->parseDate($this->auroraModelData->{'Payment Account From'})) {
             $this->parsedData['paymentAccount']['created_at'] = $this->parseDate($this->auroraModelData->{'Payment Account From'});
@@ -126,7 +113,7 @@ class FetchAuroraPaymentAccount extends FetchAurora
                 ->orderBy('Payment Created Date')->first();
 
             if ($createdDateData and $this->parseDate($createdDateData->{'date'})) {
-                $this->parsedData['paymentServiceProvider']['created_at'] = $this->parseDate($createdDateData->{'date'});
+                $this->parsedData['orgPaymentServiceProvider']['created_at'] = $this->parseDate($createdDateData->{'date'});
             }
         }
     }

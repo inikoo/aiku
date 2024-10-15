@@ -11,7 +11,7 @@ use App\Models\Accounting\PaymentServiceProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
-class FetchAuroraPaymentServiceProvider extends FetchAurora
+class FetchAuroraOrgPaymentServiceProvider extends FetchAurora
 {
     protected function parseModel(): void
     {
@@ -25,18 +25,18 @@ class FetchAuroraPaymentServiceProvider extends FetchAurora
             default => Str::lower($this->auroraModelData->{'Payment Service Provider Block'})
         };
 
+        /** @var PaymentServiceProvider $paymentServiceProvider */
         $paymentServiceProvider = PaymentServiceProvider::where('group_id', $this->organisation->group_id)
             ->where('code', $code)->firstOrFail();
 
         $this->parsedData['paymentServiceProvider'] = $paymentServiceProvider;
 
 
-
-
-
         $this->parsedData['orgPaymentServiceProvider'] = [
-            'code'      => $paymentServiceProvider->code.'-'.$this->organisation->code,
-            'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Payment Service Provider Key'},
+            'code'            => $paymentServiceProvider->code.'-'.$this->organisation->code,
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Payment Service Provider Key'},
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
         ];
 
         $createdDateData = DB::connection('aurora')

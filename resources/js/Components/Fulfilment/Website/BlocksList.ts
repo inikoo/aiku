@@ -35,7 +35,7 @@ export const getComponent = (componentName: string) => {
         'CTA3': SeeAlso,
         'Reviews': Rewiews,
         'Image': Image,
-        'Gallery': Gallery,
+        'gallery': Gallery,
         "Iframe": Iframe,
         "BentoGrid": BentoGrid,
         "Product": Product,

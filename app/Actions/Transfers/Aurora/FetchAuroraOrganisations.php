@@ -67,11 +67,27 @@ class FetchAuroraOrganisations
 
 
         if ($accountsServiceProviderData) {
-            $organisation->accountsServiceProvider()->update(
+            $accountsServiceProvider = $organisation->getAccountsServiceProvider();
+            $accountsServiceProvider->update(
                 [
                     'source_id' => $organisation->id.':'.$accountsServiceProviderData->{'Payment Service Provider Key'}
                 ]
             );
+
+            if ($accountsServiceProvider->fetched_at) {
+                $accountsServiceProvider->update(
+                    [
+                        'last_fetched_at' => now()
+                    ]
+                );
+            } else {
+                $accountsServiceProvider->update(
+                    [
+                        'fetched_at' => now()
+                    ]
+                );
+            }
+
         }
 
         return $organisation;

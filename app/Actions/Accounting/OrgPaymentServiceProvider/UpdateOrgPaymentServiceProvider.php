@@ -36,7 +36,7 @@ class UpdateOrgPaymentServiceProvider extends GrpAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'code' => [
                 'sometimes',
                 'required',
@@ -61,6 +61,11 @@ class UpdateOrgPaymentServiceProvider extends GrpAction
                 'string',
             ],
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+        return $rules;
     }
 
     public function asController(OrgPaymentServiceProvider $orgPaymentServiceProvider, ActionRequest $request): OrgPaymentServiceProvider
@@ -71,9 +76,15 @@ class UpdateOrgPaymentServiceProvider extends GrpAction
         return $this->handle($orgPaymentServiceProvider, $this->validatedData);
     }
 
-    public function action(OrgPaymentServiceProvider $orgPaymentServiceProvider, $modelData): OrgPaymentServiceProvider
+    public function action(OrgPaymentServiceProvider $orgPaymentServiceProvider, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): OrgPaymentServiceProvider
     {
+        $this->strict = $strict;
+        if (!$audit) {
+            OrgPaymentServiceProvider::disableAuditing();
+        }
         $this->asAction                  = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+
         $this->orgPaymentServiceProvider = $orgPaymentServiceProvider;
         $this->initialisation($orgPaymentServiceProvider->group, $modelData);
 

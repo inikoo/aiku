@@ -42,11 +42,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property bool $is_accounts
  * @property array $data
- * @property string|null $last_used_at
- * @property string|null $fetched_at
- * @property string|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_used_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
@@ -78,7 +78,10 @@ class PaymentAccount extends Model implements Auditable
 
     protected $casts = [
         'data' => 'array',
-        'type' => PaymentAccountTypeEnum::class
+        'type' => PaymentAccountTypeEnum::class,
+        'last_used_at' => 'datetime',
+        'fetched_at' => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
     protected $attributes = [

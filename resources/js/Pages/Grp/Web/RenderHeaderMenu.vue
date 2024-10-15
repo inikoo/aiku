@@ -24,13 +24,13 @@ const props = defineProps<{
 <template>
     <div>
         <component
-        :is="getComponentsHeader(data?.header?.key)"
-        :loginMode="true"
-        :previewMode="true"
-        v-model="data.header"
-        :uploadImageRoute="data.uploadImageRoute"
-        :colorThemed="colorThemed"
-      />
+            :is="getComponentsHeader(data?.header?.key)"
+            :loginMode="true"
+            :previewMode="true"
+            v-model="data.header"
+            :uploadImageRoute="data.uploadImageRoute"
+            :colorThemed="colorThemed"
+        />
 
         <NavigationMenu v-if="menu"  :data="menu" :colorThemed="colorThemed" class="hidden md:block" />
     </div>

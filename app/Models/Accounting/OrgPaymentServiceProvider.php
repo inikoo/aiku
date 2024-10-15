@@ -9,12 +9,14 @@ namespace App\Models\Accounting;
 
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -30,11 +32,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property array $data
  * @property string|null $last_used_at
- * @property string|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
+ * @property string|null $deleted_at
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\PaymentAccount> $accounts
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
@@ -45,10 +50,11 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder|OrgPaymentServiceProvider query()
  * @mixin \Eloquent
  */
-class OrgPaymentServiceProvider extends Model
+class OrgPaymentServiceProvider extends Model implements Auditable
 {
     use HasSlug;
     use InOrganisation;
+    use HasHistory;
 
     protected $casts = [
         'data' => 'array',

@@ -375,7 +375,7 @@ class Shop extends Model implements HasMedia, Auditable
             ->withTimestamps();
     }
 
-    public function accounts(): PaymentAccount
+    public function getAccounts(): PaymentAccount
     {
         /** @var PaymentAccount $paymentAccount */
         $paymentAccount = $this->paymentAccounts()->where('shop_id', $this->id)->where('type', PaymentAccountTypeEnum::ACCOUNT)->first();

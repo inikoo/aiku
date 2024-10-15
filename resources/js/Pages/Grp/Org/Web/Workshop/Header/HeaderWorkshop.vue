@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, defineProps } from 'vue'
-import { Head  } from '@inertiajs/vue3'
+import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -29,26 +29,54 @@ const props = defineProps<{
     pageHead: TSPageHeading
     title: string
     uploadImageRoute: routeType
-    data: {}
+    data: {
+        data : {
+            header : Object,
+            topBar : Object
+        }
+    }
     autosaveRoute: routeType
-    webBlockTypeCategories : Object
+    webBlockTypeCategories: Object
+
 }>()
 
+console.log(props)
 const isModalOpen = ref(false)
-const usedTemplates = ref({...props.data.header})
+const usedTemplates = ref({ 
+    header : props.data.data.header,
+    topBar : props.data.data.topBar
+})
 const isLoading = ref(false)
 const comment = ref('')
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const iframeSrc = ref(route('grp.websites.header.preview', [route().params['website']]))
 const loginMode = ref(true)
+const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
+const tabs = [
+    /* {
+        label: "Body",
+        key: 'body',
+        icon: faPresentation,
+    }, */
+    {
+        label: "Top Menu",
+        key: 'topBar',
+        icon: faPresentation,
+    },
+    {
+        label: "Header",
+        key: 'header',
+        icon: faPresentation,
+    }
+]
+const tabsBar = ref(tabs[0])
 
-
-const onPickTemplate = (data : object) => {
-    usedTemplates.value = data.data
+const onPickTemplate = (data: object) => {
+    usedTemplates.value[tabsBar.value.key] = data.data
 }
 
-const onPublish = async (action : routeType, popover : Function) => {
+const onPublish = async (action: routeType, popover: Function) => {
     try {
         // Ensure action is defined and has necessary properties
         if (!action || !action.method || !action.name || !action.parameters) {
@@ -80,7 +108,7 @@ const onPublish = async (action : routeType, popover : Function) => {
     }
 };
 
-const autoSave = async (data : object) => {
+const autoSave = async (data: object) => {
     try {
         const response = await axios.patch(
             route(props.autosaveRoute.name, props.autosaveRoute.parameters),
@@ -94,7 +122,6 @@ const autoSave = async (data : object) => {
         })
     }
 }
-
 
 const setIframeView = (view: String) => {
     if (view === 'mobile') {
@@ -114,11 +141,12 @@ const handleIframeError = () => {
     console.error('Failed to load iframe content.');
 }
 
-const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
 watch(usedTemplates, (newVal) => {
     if (newVal) debouncedSendUpdate(newVal)
 }, { deep: true })
 
+
+console.log(usedTemplates.value)
 </script>
 
 <template>
@@ -130,21 +158,43 @@ watch(usedTemplates, (newVal) => {
         </template>
     </PageHeading>
 
-    <div class="h-[84vh] grid grid-flow-row-dense grid-cols-6">
-        <div v-if="usedTemplates?.header"
-            class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
-                <div class="py-2 px-2 font-bold text-lg">Form Editing</div>
-                <SideEditor 
-                    v-if="usedTemplates.header" 
-                    v-model="usedTemplates.header" 
-                    :bluprint="usedTemplates.bluprint"
-                    :uploadImageRoute="uploadImageRoute" 
-                />
-        </div>
-  
+    <div class="h-[84vh] grid grid-flow-row-dense grid-cols-10">
+        <div v-if="usedTemplates" class="col-span-2 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
+            <div class="flex h-full">
+                <div class="w-[10%] bg-slate-200 ">
+                    <div v-for="(tab, index) in tabs"
+                        class="py-2 px-3 cursor-pointer transition duration-300 ease-in-out transform hover:scale-105"
+                        :title="tab.label" @click="tabsBar = tab"
+                        :class="[tabsBar.key == tab.key ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']"
+                        v-tooltip="tab.label">
+                        <FontAwesomeIcon :icon="tab.icon" :class="[tabsBar.key == tab.key ? 'text-indigo-300' : '']"
+                            aria-hidden='true' />
+                    </div>
+                </div>
+                <div class="w-[90%] py-2 px-3">
+                    <div class="text-lg font-semibold flex items-center justify-between gap-3 border-b border-gray-300">
+                        <div class="flex items-center gap-3">
+                            <FontAwesomeIcon :icon="tabsBar.icon" aria-hidden="true" />
+                            <span>{{ tabsBar.label }}</span>
+                        </div>
 
-        <div :class="usedTemplates?.header ? 'col-span-5' : 'col-span-8'">
-            <div v-if="usedTemplates?.header" class="h-full w-full bg-white">
+                        <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'"
+                            @click="isModalOpen = true">
+                            <FontAwesomeIcon icon="fas fa-th-large" aria-hidden='true' />
+                        </div>
+                    </div>
+                    <SideEditor 
+                        v-model="usedTemplates[tabsBar.key].data"
+                        :bluprint="usedTemplates[tabsBar.key].bluprint" 
+                        :uploadImageRoute="uploadImageRoute" 
+                    />
+                </div>
+            </div>
+        </div>
+
+
+        <div :class="usedTemplates ? 'col-span-8' : 'col-span-10'">
+            <div v-if="usedTemplates" class="h-full w-full bg-white">
                 <div class="flex justify-between bg-slate-200 border border-b-gray-300">
                     <div class="flex">
                         <ScreenView @screenView="setIframeView" />
@@ -153,14 +203,8 @@ watch(usedTemplates, (newVal) => {
                             <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
                         </div>
                     </div>
-                    <div class="flex">
-                    <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'"
-                        @click="isModalOpen = true">
-                        <FontAwesomeIcon icon="fas fa-th-large" aria-hidden='true' />
-                    </div>
                 </div>
-                </div>
-                
+
                 <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
                     <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
                 </div>
@@ -185,12 +229,11 @@ watch(usedTemplates, (newVal) => {
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
         <BlockList 
             :onPickBlock="onPickTemplate" 
-            :webBlockTypes="webBlockTypeCategories"  
-            scope="website"
+            :webBlockTypes="webBlockTypeCategories" 
+            scope="website" 
         />
     </Modal>
 </template>
 
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>
