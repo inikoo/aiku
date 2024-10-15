@@ -25,6 +25,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\CRM\Customer;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsCommand;
@@ -35,9 +36,11 @@ class StorePayment extends OrgAction
 
     public string $commandSignature = 'payment:create {customer} {paymentAccount} {scope}';
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Customer $customer, PaymentAccount $paymentAccount, array $modelData): Payment
     {
-        //        $items        = Arr::pull($modelData, 'items');
         $currencyCode = Arr::pull($modelData, 'currency_code');
         $totalAmount  = Arr::pull($modelData, 'total_amount');
 
@@ -55,25 +58,30 @@ class StorePayment extends OrgAction
         data_set($modelData, 'org_amount', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->currency), overwrite: false);
         data_set($modelData, 'group_amount', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->group->currency), overwrite: false);
 
-        /** @var Payment $payment */
-        $payment = $paymentAccount->payments()->create($modelData);
 
-        $paypalData = [
-            'total_amount' => $totalAmount,
-            //'items'         => $items,
-            'currency_code' => $currencyCode,
-        ];
+        $payment = DB::transaction(function () use ($paymentAccount, $modelData, $currencyCode, $totalAmount) {
+            /** @var Payment $payment */
+            $payment = $paymentAccount->payments()->create($modelData);
 
-        if ($this->strict) {
-            match ($paymentAccount->type->value) {
-                PaymentAccountTypeEnum::CHECKOUT->value => MakePaymentUsingCheckout::run($payment, $modelData),
-                PaymentAccountTypeEnum::XENDIT->value   => MakePaymentUsingXendit::run($payment),
-                PaymentAccountTypeEnum::PAYPAL->value   => MakePaymentUsingPaypal::run($payment, $paypalData),
-                default                                 => null
-            };
-        }
+            $paypalData = [
+                'total_amount'  => $totalAmount,
+                'currency_code' => $currencyCode,
+            ];
 
-        $payment->refresh();
+            if ($this->strict) {
+                match ($paymentAccount->type->value) {
+                    PaymentAccountTypeEnum::CHECKOUT->value => MakePaymentUsingCheckout::run($payment, $modelData),
+                    PaymentAccountTypeEnum::XENDIT->value => MakePaymentUsingXendit::run($payment),
+                    PaymentAccountTypeEnum::PAYPAL->value => MakePaymentUsingPaypal::run($payment, $paypalData),
+                    default => null
+                };
+            }
+
+            $payment->refresh();
+
+            return $payment;
+        });
+
 
         GroupHydratePayments::dispatch($payment->group)->delay($this->hydratorsDelay);
         OrganisationHydratePayments::dispatch($paymentAccount->organisation)->delay($this->hydratorsDelay);
@@ -99,31 +107,38 @@ class StorePayment extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'      => ['nullable', 'string', 'max:255'],
-            'amount'         => ['required', 'decimal:0,2'],
-            'total_amount'   => ['sometimes', 'decimal:0,2'],
-            'org_amount'     => ['sometimes', 'numeric'],
-            'group_amount'   => ['sometimes', 'numeric'],
-            'data'           => ['sometimes', 'array'],
-            'date'           => ['sometimes', 'date'],
-            'status'         => ['sometimes', 'required', Rule::enum(PaymentStatusEnum::class)],
-            'state'          => ['sometimes', 'required', Rule::enum(PaymentStateEnum::class)],
-            'items'          => ['sometimes', 'array'],
-            'currency_code'  => ['sometimes', 'string']
+            'reference'     => ['nullable', 'string', 'max:255'],
+            'amount'        => ['required', 'decimal:0,2'],
+            'total_amount'  => ['sometimes', 'decimal:0,2'],
+            'org_amount'    => ['sometimes', 'numeric'],
+            'group_amount'  => ['sometimes', 'numeric'],
+            'data'          => ['sometimes', 'array'],
+            'date'          => ['sometimes', 'date'],
+            'status'        => ['sometimes', 'required', Rule::enum(PaymentStatusEnum::class)],
+            'state'         => ['sometimes', 'required', Rule::enum(PaymentStateEnum::class)],
+            'items'         => ['sometimes', 'array'],
+            'currency_code' => ['sometimes', 'string']
         ];
 
         if (!$this->strict) {
-            $rules['source_id']      = ['sometimes', 'string'];
-            $rules['cancelled_at']   = ['sometimes', 'nullable', 'date'];
-            $rules['completed_at']   = ['sometimes', 'nullable', 'date'];
-            $rules['created_at']     = ['sometimes', 'date'];
+            $rules['source_id']    = ['sometimes', 'string'];
+            $rules['cancelled_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['completed_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['created_at']   = ['sometimes', 'date'];
+            $rules['fetched_at']   = ['sometimes', 'date'];
         }
 
         return $rules;
     }
 
-    public function action(Customer $customer, PaymentAccount $paymentAccount, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Payment
+    /**
+     * @throws \Throwable
+     */
+    public function action(Customer $customer, PaymentAccount $paymentAccount, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Payment
     {
+        if (!$audit) {
+            Customer::disableAuditing();
+        }
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
@@ -132,6 +147,9 @@ class StorePayment extends OrgAction
         return $this->handle($customer, $paymentAccount, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(Customer $customer, PaymentAccount $paymentAccount, ActionRequest $request, int $hydratorsDelay = 0): void
     {
         $this->hydratorsDelay = $hydratorsDelay;

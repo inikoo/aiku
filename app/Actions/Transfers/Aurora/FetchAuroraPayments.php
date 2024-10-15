@@ -13,7 +13,9 @@ use App\Models\Accounting\Payment;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraPayments extends FetchAuroraAction
 {
@@ -28,9 +30,12 @@ class FetchAuroraPayments extends FetchAuroraAction
                     $payment = UpdatePayment::make()->action(
                         payment: $payment,
                         modelData: $paymentData['payment'],
-                        hydratorsDelay: $this->hydratorsDelay
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
                     );
-                    $this->markAuroraModel($payment);
+                    $this->recordChange($organisationSource, $payment->wasChanged());
+
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'update');
 
@@ -42,11 +47,26 @@ class FetchAuroraPayments extends FetchAuroraAction
                         customer: $paymentData['customer'],
                         paymentAccount: $paymentData['paymentAccount'],
                         modelData: $paymentData['payment'],
-                        hydratorsDelay: $this->hydratorsDelay,
-                        strict: false
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
                     );
-                    $this->markAuroraModel($payment);
-                } catch (Exception $e) {
+
+
+                    Payment::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $payment,
+                        Arr::except($paymentData['payment'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $payment->source_id);
+                    DB::connection('aurora')->table('Payment Dimension')
+                        ->where('Payment Key', $sourceData[1])
+                        ->update(['aiku_id' => $payment->id]);
+
+                } catch (Exception|Throwable $e) {
                     $this->recordError($organisationSource, $e, $paymentData['payment'], 'Payment', 'store');
 
                     return null;
@@ -60,13 +80,7 @@ class FetchAuroraPayments extends FetchAuroraAction
         return null;
     }
 
-    public function markAuroraModel(Payment $payment): void
-    {
-        $sourceData = explode(':', $payment->source_id);
-        DB::connection('aurora')->table('Payment Dimension')
-            ->where('Payment Key', $sourceData[1])
-            ->update(['aiku_id' => $payment->id]);
-    }
+
 
     public function getModelsQuery(): Builder
     {

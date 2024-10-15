@@ -17,7 +17,6 @@ class FetchAuroraPayment extends FetchAurora
 {
     protected function parseModel(): void
     {
-
         $data = [];
 
         if ($this->auroraModelData->{'Payment Currency Exchange Rate'} and
@@ -34,8 +33,7 @@ class FetchAuroraPayment extends FetchAurora
             dd('Error Payment Account not found');
         }
 
-        $this->parsedData['customer']       = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Payment Customer Key'});
-
+        $this->parsedData['customer'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Payment Customer Key'});
 
 
         $state  = Str::lower($this->auroraModelData->{'Payment Transaction Status'});
@@ -72,30 +70,26 @@ class FetchAuroraPayment extends FetchAurora
             $lastUpdatedDate = $createdAt;
         }
 
-
         $this->parsedData['payment'] = [
 
-            'reference'    => $this->auroraModelData->{'Payment Transaction ID'},
-            'amount'       => $this->auroraModelData->{'Payment Transaction Amount'},
-            'org_amount'   => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($shop->currency, $shop->organisation->currency, $createdAt),
-            'group_amount' => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($shop->currency, $shop->group->currency, $createdAt),
-            'data'         => $data,
-            'currency_id'  => $this->parseCurrencyID($this->auroraModelData->{'Payment Currency Code'}),
-
-            'date'         => $lastUpdatedDate,
-            'created_at'   => $createdAt,
-            'completed_at' => $this->parseDatetime($this->auroraModelData->{'Payment Completed Date'}),
-
-            'cancelled_at' => $this->parseDatetime($this->auroraModelData->{'Payment Cancelled Date'}),
-
-            'state'     => $state,
-            'status'    => $status,
-            'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Payment Key'},
-
+            'reference'       => $this->auroraModelData->{'Payment Transaction ID'},
+            'amount'          => $this->auroraModelData->{'Payment Transaction Amount'},
+            'org_amount'      => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($shop->currency, $shop->organisation->currency, $createdAt),
+            'group_amount'    => $this->auroraModelData->{'Payment Transaction Amount'} * GetHistoricCurrencyExchange::run($shop->currency, $shop->group->currency, $createdAt),
+            'data'            => $data,
+            'currency_id'     => $this->parseCurrencyID($this->auroraModelData->{'Payment Currency Code'}),
+            'date'            => $lastUpdatedDate,
+            'created_at'      => $createdAt,
+            'completed_at'    => $this->parseDatetime($this->auroraModelData->{'Payment Completed Date'}),
+            'cancelled_at'    => $this->parseDatetime($this->auroraModelData->{'Payment Cancelled Date'}),
+            'state'           => $state,
+            'status'          => $status,
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Payment Key'},
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
 
         ];
     }
-
 
     protected function fetchData($id): object|null
     {
