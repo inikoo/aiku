@@ -22,7 +22,6 @@ use App\Actions\Goods\TradeUnit\UI\IndexTradeUnits;
 use App\Actions\Goods\TradeUnit\UI\ShowTradeUnit;
 use App\Actions\UI\Goods\Catalogue\IndexMasterProducts;
 use App\Actions\UI\Goods\Catalogue\IndexMasterShops;
-use App\Actions\UI\Goods\Catalogue\ShowMasterCatalogue;
 use App\Actions\UI\Goods\Catalogue\ShowMasterShop;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
 use Illuminate\Support\Facades\Route;

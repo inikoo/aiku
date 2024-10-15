@@ -10,7 +10,6 @@ namespace App\Actions\UI\Goods\Catalogue;
 
 use App\Actions\GrpAction;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Http\Resources\Goods\Catalogue\MasterShopsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\MasterShop;
@@ -53,7 +52,7 @@ class IndexMasterShops extends GrpAction
         return $queryBuilder
             ->defaultSort('master_shops.code')
             ->select(
-                    [  
+                [
                         'master_shops.id',
                         'master_shops.code',
                         'master_shops.name',
@@ -62,7 +61,7 @@ class IndexMasterShops extends GrpAction
                         'master_shops.type',
                         'master_shops.image_id',
                     ]
-                    )
+            )
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -81,7 +80,7 @@ class IndexMasterShops extends GrpAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                        [
+                    [
                             'title'       => __("No master shops found"),
                         ],
                 )
@@ -162,4 +161,3 @@ class IndexMasterShops extends GrpAction
     }
 
 }
-

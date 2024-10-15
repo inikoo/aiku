@@ -7,8 +7,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     use HasHelpersStats;
     public function up(): void
     {
@@ -30,7 +29,7 @@ return new class extends Migration
             foreach (ProductCategoryStateEnum::cases() as $familyState) {
                 $table->unsignedInteger('number_master_sub_departments_state_'.$familyState->snake())->default(0);
             }
-    
+
             // Families
             $table->unsignedInteger('number_master_families')->default(0);
             $table->unsignedSmallInteger('number_current_master_families')->default(0)->comment('state: active+discontinuing');
