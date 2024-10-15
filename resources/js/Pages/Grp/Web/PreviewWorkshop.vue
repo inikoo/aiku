@@ -46,7 +46,7 @@ const editDataTools = ref({
 })
 
 const layout = reactive({
-    header: { ...props.header?.header },
+    header: { ...props.header?.data },
     footer: { ...props.footer?.footer },
     navigation: { ...props.navigation },
     colorThemed: usePage().props?.iris?.color ? usePage().props?.iris?.color : { color: [...useColorTheme[2]] }
@@ -125,8 +125,12 @@ const openModalBlock = () => {
 
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
-        <RenderHeaderMenu v-if="header?.header?.header" :data="layout.header" :menu="layout?.navigation"
-            :colorThemed="layout?.colorThemed" />
+        <RenderHeaderMenu 
+            v-if="header?.data?.header" 
+            :data="layout.header" 
+            :menu="layout?.navigation" 
+            :colorThemed="layout?.colorThemed" 
+        />
 
         <div v-if="data" class="relative">
             <div class="container max-w-7xl mx-auto">

@@ -1,5 +1,5 @@
 {
-	"slug": "top-header",
+	"slug": "top-bar",
 	"name": "Website Top header",
 	"icon": "fal fa-globe",
 	"scope": "website",
@@ -16,7 +16,7 @@
 						"props_data": {}
 					}
 				],
-				"header": {
+				"data": {
 					"key": "Topheader",
 					"headerText": {
 						"text" : "<p><span>FAIRLY TRADING WHOLESALE GIFTS SINCE 1995</span></p>",

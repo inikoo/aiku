@@ -20,7 +20,7 @@
 						"type": "upload_image"
 					}
 				],
-				"header": {
+				"data": {
 					"key": "header1",
 					"logo": {
 						"visible" : "all",
