@@ -22,12 +22,42 @@ class FetchAuroraWebBlockMedia extends OrgAction
 
     public function handle(WebBlock $webBlock, Webpage $webpage, string $auroraImage): Media|null
     {
+
+        if ($auroraImage == '/') {
+            return null;
+        }
+
+        if ($auroraImage == '/art/nopic_trimmed.jpg') {
+            return $this->getStaticImages($webBlock, 'nopic_trimmed.jpg');
+        }
+        if ($auroraImage == '/https://via.placeholder.com/300x250.png') {
+            return $this->getStaticImages($webBlock, '300x250.png');
+        }
+
+
+
+        $originalAuroraImage = $auroraImage;
         $this->organisation = $webpage->website->organisation;
         $auroraImageId      = null;
+
 
         if (preg_match('/wi\/(\d+)\.([a-zA-Z]+)/', $auroraImage, $matches)) {
             $auroraImageId = $matches[1];
         }
+        if (!$auroraImageId) {
+            if (preg_match('/^\/wi.php\?.*id=(\d+)/', $auroraImage, $matches)) {
+                $auroraImageId = $matches[1];
+            }
+        }
+
+        if (!$auroraImageId) {
+            if (preg_match('/^\/image_root.php\?.*id=(\d+)/', $auroraImage, $matches)) {
+                $auroraImageId = $matches[1];
+            }
+        }
+
+
+
 
         if ($auroraImageId) {
             $auroraImageData = DB::connection('aurora')->table('Image Dimension')
@@ -35,7 +65,9 @@ class FetchAuroraWebBlockMedia extends OrgAction
 
 
             if ($auroraImageData) {
+
                 $imageData = $this->fetchImage($auroraImageData);
+
 
                 if (isset($imageData['image_path']) && file_exists($imageData['image_path'])) {
                     return SaveModelImages::run($webBlock, [
@@ -46,10 +78,18 @@ class FetchAuroraWebBlockMedia extends OrgAction
             }
         }
 
-
+        print ">>>media not found >>$originalAuroraImage<<<<<<<<<\n";
         return $this->downloadMediaFromWebpage($webBlock, $webpage, $auroraImage);
     }
 
+
+    private function getStaticImages($webBlock, $imageName)
+    {
+        return SaveModelImages::run($webBlock, [
+            "path"         => resource_path('aurora/'.$imageName),
+            "originalName" => $imageName,
+        ]);
+    }
 
     public function downloadMediaFromWebpage(WebBlock $webBlock, Webpage $webpage, string $auroraImage): Media|null
     {
