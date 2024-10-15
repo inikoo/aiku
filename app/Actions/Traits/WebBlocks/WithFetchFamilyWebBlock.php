@@ -8,17 +8,19 @@
 
 namespace App\Actions\Traits\WebBlocks;
 
+use App\Models\Web\Webpage;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithFetchFamilyWebBlock
 {
     use AsAction;
-    public function processFamilyData($auroraBlock): array|null
+    public function processFamilyData(Webpage $webpage, $auroraBlock): array|null
     {
 
         if (!isset($auroraBlock["type"])) {
             return null;
         }
+        data_set($layout, 'fieldValue.value.family_id', $webpage->model_id);
         $items = [];
         foreach ($auroraBlock['items'] as $index => $item) {
             $type = $item["type"];
