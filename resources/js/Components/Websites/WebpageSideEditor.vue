@@ -128,12 +128,12 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                         </div>
 
                         <!-- Section: Properties panel -->
-                        <Collapse v-if="element?.web_block?.layout?.data?.properties" as="section"
+                        <Collapse v-if="element?.web_block?.layout?.properties" as="section"
                             :when="selectedBlockOpenPanel === index">
 
                             <!-- {{ index }} -->
                             <!-- <pre>{{ element.web_block.layout.data?.properties }}</pre> -->
-                            <PanelProperties v-model="element.web_block.layout.data.properties"
+                            <PanelProperties v-model="element.web_block.layout.properties"
                                 @update:modelValue="() => (console.log('zzz'), debouncedSendUpdate(element))" />
                         </Collapse>
 
