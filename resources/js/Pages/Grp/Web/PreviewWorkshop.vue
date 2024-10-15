@@ -24,7 +24,6 @@ import { routeType } from '@/types/route'
 import { trans } from 'laravel-vue-i18n'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { getTopbarComponent } from '@/Components/Websites/Topbar/TopbarList'
 
 
 defineOptions({ layout: WebPreview })
@@ -112,7 +111,6 @@ watch(layout.footer, (newVal) => {
     debouncedSendUpdateFooter(newVal)
 }, { deep: true })
 
-console.log('preview', props)
 
 const isInWorkshop = JSON.parse(route().params.isInWorkshop || false)
 
@@ -128,25 +126,12 @@ const openModalBlock = () => {
     <div class="container max-w-7xl mx-auto shadow-xl">
         
         <div class="relative">
-            
-            <!-- Component: Topbar -->
-            <component
-                :is="getTopbarComponent('topbar1')"
-                v-model="layout.header.header"
-                :loginMode="true"
-                :previewMode="true"
-                :uploadImageRoute="layout.header.uploadImageRoute"
-                :colorThemed="layout.colorThemed"
-            />
-            
-            <!-- <RenderHeaderMenu
+            <RenderHeaderMenu
                 v-if="header?.data?.header"
                 :data="layout.header"
                 :menu="layout?.navigation"
                 :colorThemed="layout?.colorThemed"
-            /> -->
-
-            <!-- <div class="bg-black/30 absolute inset-0" /> -->
+            />
         </div>
 
         <div v-if="data" class="relative">
