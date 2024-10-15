@@ -123,15 +123,12 @@ const openModalBlock = () => {
 
 
 <template>
+
     <div class="container max-w-7xl mx-auto shadow-xl">
-        
+
         <div class="relative">
-            <RenderHeaderMenu
-                v-if="header?.data?.header"
-                :data="layout.header"
-                :menu="layout?.navigation"
-                :colorThemed="layout?.colorThemed"
-            />
+            <RenderHeaderMenu v-if="header?.data?.header" :data="layout.header" :menu="layout?.navigation"
+                :colorThemed="layout?.colorThemed" />
         </div>
 
         <div v-if="data" class="relative">
@@ -141,12 +138,11 @@ const openModalBlock = () => {
                         <TransitionGroup tag="div" name="zzz" class="relative">
                             <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
                                 :key="activityItem.id" class="w-full">
-                                <component v-if="activityItem?.web_block?.layout?.data?.fieldValue"
-                                    :is="getComponent(activityItem?.layout.web_blocks.type)" :webpageData="webpage"
-                                    :properties="activityItem?.web_block?.layout?.data?.properties"
-                                    v-bind="activityItem" v-model="activityItem.web_block.layout.data.fieldValue"
-                                    :isEditable="true" :style="{ width: '100%' }"
-                                    @autoSave="() => onUpdatedBlock(activityItem)" />
+                                <component v-if="activityItem?.web_block?.layout?.fieldValue"
+                                    :is="getComponent(activityItem?.type)" :webpageData="webpage"
+                                    :properties="activityItem?.web_block?.layout?.properties" v-bind="activityItem"
+                                    v-model="activityItem.web_block.layout.fieldValue" :isEditable="true"
+                                    :style="{ width: '100%' }" @autoSave="() => onUpdatedBlock(activityItem)" />
                             </section>
                         </TransitionGroup>
 
@@ -176,13 +172,8 @@ const openModalBlock = () => {
             </div>
         </div>
 
-        <component
-            v-if="footer?.footer?.data"
-            :is="getComponentFooter(layout.footer.code)"
-            v-model="layout.footer.data.footer"
-            :keyTemplate="layout.footer"
-            :previewMode="editDataTools.previewMode"
-            :colorThemed="layout.colorThemed"
-        />
+        <component v-if="footer?.footer?.data" :is="getComponentFooter(layout.footer.code)"
+            v-model="layout.footer.data.footer" :keyTemplate="layout.footer" :previewMode="editDataTools.previewMode"
+            :colorThemed="layout.colorThemed" />
     </div>
 </template>

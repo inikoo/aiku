@@ -17,9 +17,9 @@ import { usePage } from '@inertiajs/vue3'
 // import "https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
 
 const props = defineProps<{
- /*    data: any,
-    header : any, */
-    blocks : any,
+  /*    data: any,
+     header : any, */
+  blocks: any,
 }>()
 
 
@@ -31,32 +31,28 @@ library.add(faCheck, faPlus, faMinus)
 </script>
 
 <template>
-    <Head title="Warehouse Solution" />
-<!-- <pre>{{ blocks.web_blocks[0].web_block.layout.data.component }}</pre> -->
 
-    <div class="bg-white pb-20">
-  
-        <template v-if="props.blocks?.web_blocks?.length">
-            <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks"
-                :key="'block' + activityItem.id"
-                class="w-full">
-               <pre>{{ activityItem?.web_block?.layout }}</pre>
-                <component
-                    :is="getComponent(activityItem?.web_block?.layout?.data?.component)"
-                    :key="activityItemIdx"
-                    v-model="activityItem.web_block.layout.data.fieldValue"
-                    :isEditable="false"
-                    v-bind="activityItem.web_block.layout.data.fieldValue"
-                />
-            
-            </div>
-        </template>
+  <Head title="Warehouse Solution" />
 
-        <div v-else class="text-center text-2xl sm:text-4xl font-bold text-gray-400 mt-16">
-            This page have no data
-        </div>
+  <div class="bg-white pb-20">
 
+    <template v-if="props.blocks?.web_blocks?.length">
+      <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"
+        class="w-full">
+
+        <component :is="getComponent(activityItem.web_block.layout.data.component)" :key="activityItemIdx"
+          v-model="activityItem.web_block.layout.data.fieldValue" :isEditable="false"
+          v-bind="activityItem.web_block.layout.data.fieldValue" />
+
+      </div>
+    </template>
+
+    <div v-else class="text-center text-2xl sm:text-4xl font-bold text-gray-400 mt-16">
+      This page have no data
     </div>
+
+  </div>
+
 </template>
 
 <style>

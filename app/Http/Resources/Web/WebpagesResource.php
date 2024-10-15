@@ -25,30 +25,28 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class WebpagesResource extends JsonResource
 {
-    use HasSelfCall;
+	use HasSelfCall;
 
-    public function toArray($request): array
-    {
-
-
-
-        return [
-            'id'                  => $this->id,
-            'slug'                => $this->slug,
-            'level'               => $this->level,
-            'code'                => $this->code,
-            'url'                 => $this->url,
-            'type'                => $this->type,
-            'typeIcon'            => match ($this->type) {
-                WebpageTypeEnum::STOREFRONT => ['fal', 'fa-home'],
-                WebpageTypeEnum::OPERATIONS => ['fal', 'fa-ufo-beam'],
-                WebpageTypeEnum::BLOG       => ['fal', 'fa-newspaper'],
-                default                     => ['fal', 'fa-browser']
-            },
-            'sub_type'             => $this->sub_type,
-            'created_at'          => $this->created_at,
-            'updated_at'          => $this->updated_at,
-            'state'               => $this->state,
-        ];
-    }
+	public function toArray($request): array
+	{
+		return [
+			"id" => $this->id,
+			"slug" => $this->slug,
+			"level" => $this->level,
+			"code" => $this->code,
+			"url" => $this->url,
+			"type" => $this->type,
+			"typeIcon" => $this->type->stateIcon()[$this->type->value] ?? ["fal", "fa-browser"],
+			/* 	"typeIcon2" => match ($this->type) {
+				WebpageTypeEnum::STOREFRONT => ["fal", "fa-home"],
+				WebpageTypeEnum::OPERATIONS => ["fal", "fa-sign-in-alt"],
+				WebpageTypeEnum::BLOG => ["fal", "fa-newspaper"],
+				default => ["fal", "fa-browser"],
+			}, */
+			"sub_type" => $this->sub_type,
+			"created_at" => $this->created_at,
+			"updated_at" => $this->updated_at,
+			"state" => $this->state,
+		];
+	}
 }
