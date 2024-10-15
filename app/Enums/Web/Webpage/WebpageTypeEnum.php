@@ -54,11 +54,11 @@ enum WebpageTypeEnum: string
 			],
 			"catalogue" => [
 				"tooltip" => __("Catalogue"),
-				"icon" => "fal fa-th-large",
+				"icon" => "fal fa-books",
 				"class" => "text-indigo-400",
 				"color" => "indigo",
 				"app" => [
-					"name" => "th-large",
+					"name" => "books",
 					"type" => "font-awesome-5",
 				],
 			],
