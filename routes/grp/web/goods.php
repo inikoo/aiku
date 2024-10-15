@@ -125,6 +125,9 @@ Route::prefix('catalogue')->as('catalogue.')->group(function () {
         Route::prefix('sub-departments')->as('.sub-departments.')->group(function () {
             Route::get('index', IndexMasterSubDepartments::class)->name('index');
         });
+        Route::prefix('products')->as('.products.')->group(function () {
+            Route::get('index', [IndexMasterProducts::class, 'inMasterShop'])->name('index');
+        });
         // Route::get('edit', EditTradeUnit::class)->name('edit');
     });
 });

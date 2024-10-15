@@ -120,8 +120,10 @@ trait WithMasterCatalogueSubnavigation
                 'align'    => 'right',
                 'label'    => __('Products'),
                 'href'     => [
-                    'name'       => '',
-                    'parameters' => []
+                    'name'       => 'grp.goods.catalogue.shops.show.products.index',
+                    'parameters' => [
+                        'masterShop' => $masterShop->slug
+                    ]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],

@@ -13,6 +13,7 @@ use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Http\Resources\Goods\Catalogue\MasterProductsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\MasterProduct;
+use App\Models\Catalogue\MasterShop;
 use App\Models\SysAdmin\Group;
 use App\Services\QueryBuilder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -26,12 +27,14 @@ class IndexMasterProducts extends GrpAction
 {
     use WithMasterCatalogueSubnavigation;
 
+    private Group|MasterShop $parent;
+
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("goods.{$this->group->id}.view");
     }
 
-    public function handle(Group $group, $prefix = null, $bucket = null): LengthAwarePaginator
+    public function handle(Group|MasterShop $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -46,9 +49,16 @@ class IndexMasterProducts extends GrpAction
         }
 
         $queryBuilder = QueryBuilder::for(MasterProduct::class);
-
-        $queryBuilder->where('master_products.group_id', $group->id);
-
+        if($parent instanceof Group)
+        {
+            $queryBuilder->where('master_products.group_id', $parent->id);
+        } elseif($parent instanceof MasterShop)
+        {
+            $queryBuilder
+            ->join('master_shop_has_master_products', 'master_shop_has_master_products.master_product_id', '=', 'master_products.id')
+            ->where('master_shop_has_master_products.master_shop_id', $parent->id);
+        }
+        
         return $queryBuilder
             ->defaultSort('master_products.code')
             ->select(
@@ -97,7 +107,11 @@ class IndexMasterProducts extends GrpAction
 
     public function htmlResponse(LengthAwarePaginator $masterProducts, ActionRequest $request): Response
     {
-        $subNavigation = $this->getMasterCatalogueSubnavigation($this->group);
+        if($this->parent instanceof Group) {
+            $subNavigation = $this->getMasterCatalogueSubnavigation($this->parent);
+        } elseif ($this->parent instanceof MasterShop) {
+            $subNavigation = $this->getMasterShopNavigation($this->parent);
+        }
 
         return Inertia::render(
             'Goods/MasterShops',
@@ -149,6 +163,19 @@ class IndexMasterProducts extends GrpAction
                     $suffix
                 ),
             ),
+            'grp.goods.catalogue.shops.show.products.index' =>
+            array_merge(
+                ShowMasterShop::make()->getBreadcrumbs($routeName, $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => [
+                            'masterShop' => $this->parent->slug
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
             default => []
         };
     }
@@ -156,8 +183,17 @@ class IndexMasterProducts extends GrpAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $group = group();
+        $this->parent = $group;
         $this->initialisation($group, $request);
         return $this->handle($group, $request);
+    }
+
+    public function inMasterShop(MasterShop $masterShop, ActionRequest $request): LengthAwarePaginator
+    {
+        $group = group();
+        $this->parent = $masterShop;
+        $this->initialisation($group, $request);
+        return $this->handle($masterShop, $request);
     }
 
 }
