@@ -144,13 +144,14 @@ class FetchAuroraWebBlocks extends OrgAction
                 $webBlockType = WebBlockType::where("slug", "product")->first();
                 $layout       = $this->processProductData($auroraBlock);
                 $models[]     = Product::find($webpage->model_id);
+                data_set($layout, 'fixed', true, false);
                 break;
 
             case "category_products":
                 $webBlockType = WebBlockType::where("slug", "family")->first();
                 $models[]     = ProductCategory::find($webpage->model_id);
                 $layout       = $this->processFamilyData($webpage, $auroraBlock);
-                // dd($layout);
+                data_set($layout, 'fixed', true, false);
                 break;
 
             case "see_also":
@@ -213,6 +214,7 @@ class FetchAuroraWebBlocks extends OrgAction
             case "category_categories":
                 $webBlockType = WebBlockType::where("slug", "department")->first();
                 $layout       = $this->processDepartmentData($models, $webpage, $auroraBlock);
+                data_set($layout, 'fixed', true, false);
                 break;
 
             case "blackboard":
@@ -232,6 +234,9 @@ class FetchAuroraWebBlocks extends OrgAction
         if ($layout == null) {
             return;
         }
+
+        // add fixed value to show the component can editable or not
+        data_set($layout, 'fixed', false, false);
 
         data_set($layout, "properties.padding.unit", "px");
         data_set($layout, "properties.padding.left.value", 20);
@@ -294,7 +299,12 @@ class FetchAuroraWebBlocks extends OrgAction
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
                     $imageSources[] = ["image" => ["source" => $imageSource]];
                 }
-                data_set($layout, "fieldValue.value.images", $imageSources);
+                if (count($imageSources) <= 1) {
+                    data_set($layout, "fieldValue.value.image", $imageSources);
+                } else {
+                    data_set($layout, "fieldValue.value.picture", $imageSources);
+                }
+                data_forget($layout, "fieldValue.value.images");
             }
 
             $webBlock->updateQuietly([
