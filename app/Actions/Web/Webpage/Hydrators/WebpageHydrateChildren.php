@@ -77,14 +77,18 @@ class WebpageHydrateChildren
         if (count($children) > 0) {
             foreach ($children as $childId) {
                 $webpage = Webpage::find($childId);
-                $webpage->children()->attach($childId, ['model_type' => $webpage->model_type, 'model_id' => $webpage->model_id, 'scope' => WebpageChildrenScopeEnum::DEPARTMENT->value]);
+                if ($webpage) {
+                    $webpage->children()->attach($childId, ['model_type' => $webpage->model_type, 'model_id' => $webpage->model_id, 'scope' => WebpageChildrenScopeEnum::DEPARTMENT->value]);
+                }
             }
         }
 
         if (count($childrenFamily) > 0) {
             foreach ($childrenFamily as $childId) {
                 $webpage = Webpage::find($childId);
-                $webpage->children()->attach($childId, ['model_type' => $webpage->model_type, 'model_id' => $webpage->model_id, 'scope' => WebpageChildrenScopeEnum::FAMILY->value]);
+                if ($webpage) {
+                    $webpage->children()->attach($childId, ['model_type' => $webpage->model_type, 'model_id' => $webpage->model_id, 'scope' => WebpageChildrenScopeEnum::FAMILY->value]);
+                }
             }
         }
 
