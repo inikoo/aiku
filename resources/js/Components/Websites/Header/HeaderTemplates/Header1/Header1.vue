@@ -84,7 +84,7 @@ console.log('ss',props)
         </div>
 
         <!-- Section: Logout, Cart, profile -->
-        <div class="place-self-end flex items-center space-x-4 mr-4">
+        <!-- <div class="place-self-end flex items-center space-x-4 mr-4">
             <a href="#" class="flex items-center" v-if="loginMode">
                 <FontAwesomeIcon icon="fas fa-sign-out-alt" class=" mr-1"></FontAwesomeIcon> Log Out
             </a>
@@ -108,7 +108,7 @@ console.log('ss',props)
             <a href="#" class="flex items-center" v-if="!loginMode">
                 <font-awesome-icon :icon="['fas', 'file-alt']" class="mr-1"/> Register
             </a>
-        </div>
+        </div> -->
     </div>
 
 

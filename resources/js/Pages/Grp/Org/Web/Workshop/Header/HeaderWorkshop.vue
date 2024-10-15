@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, defineProps } from 'vue'
+import { ref, watch, defineProps, reactive } from 'vue'
 import { Head  } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -13,6 +13,7 @@ import axios from 'axios'
 import { debounce } from 'lodash'
 import ScreenView from "@/Components/ScreenView.vue"
 import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
+import TopbarList from '@/Components/Websites/Topbar/TopbarList.vue'
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -22,6 +23,14 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faHeart } from '@far'
 import { faBrowser } from '@fal'
+
+
+import Accordion from 'primevue/accordion'
+import AccordionPanel from 'primevue/accordionpanel'
+import AccordionHeader from 'primevue/accordionheader'
+import AccordionContent from 'primevue/accordioncontent'
+import { trans } from 'laravel-vue-i18n'
+import BackgroundProperty from '@/Components/Websites/Fields/Properties/BackgroundProperty.vue'
 
 library.add(faBrowser, faPresentation, faCube, faText, faHeart, faPaperclip)
 
@@ -119,21 +128,82 @@ watch(usedTemplates, (newVal) => {
     if (newVal) debouncedSendUpdate(newVal)
 }, { deep: true })
 
+const openedAccordion = ref<string | null>(null)
+
+const isOpenModalTopbarList = ref(false)
+const topbar = ref({
+    template: null,
+    properties: {
+        background: {
+            type: 'color',
+            color: '#ff000054',
+            image: {
+                original: 'string'
+            }
+        }
+    }
+})
+const topbarList = [
+    {
+        code: 'codetopbar1',
+        name: 'Topbar Universe',
+        image: 'https://uploads.commoninja.com/searchengine/wordpress/zidi-topbar-menu.png'
+    },
+    {
+        code: 'codetopbar2',
+        name: 'Topbar Astronauts',
+        image: 'https://cdn-icons-png.flaticon.com/256/3596/3596219.png'
+    }
+]
+const onSelectTopbar = (xxx) => {
+    // console.log('zxcxz')
+    topbar.value.template = xxx
+    isOpenModalTopbarList.value = false
+}
 </script>
 
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
-            <Publish :isLoading="isLoading" :is_dirty="true" v-model="comment"
-                @onPublish="(popover) => onPublish(action.route, popover)" />
+            <Publish
+                v-model="comment"
+                :isLoading="isLoading"
+                :is_dirty="true"
+                @onPublish="(popover) => onPublish(action.route, popover)"
+            />
         </template>
     </PageHeading>
 
     <div class="h-[84vh] grid grid-flow-row-dense grid-cols-6">
         <div v-if="usedTemplates?.header"
             class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
-                <div class="py-2 px-2 font-bold text-lg">Form Editing</div>
+                <Accordion>
+                    <AccordionPanel value="topbar" @click="openedAccordion = 'topbar'">
+                        <AccordionHeader>
+                            <div class="font-bold text-lg">Topbar Settings</div>
+                        </AccordionHeader>
+                        
+                        <AccordionContent>
+                            <div class="bg-white mt-[0px] ">
+                                <div class="py-2">
+                                    <div>
+                                        {{ topbar.template }}
+                                    </div>
+                                    <Button @click="() => isOpenModalTopbarList = true" type="tertiary" :label="trans('Select topbar template')" full />
+                                </div>
+
+                                <div v-if="topbar?.properties.background" class="border-t border-gray-300  pb-3">
+                                    <div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Background') }}</div>
+
+                                    <BackgroundProperty v-model="topbar.properties.background" />
+                                </div>
+                            </div>
+                        </AccordionContent>
+                    </AccordionPanel>
+                </Accordion>
+
+                <div class="py-2 px-4 font-bold text-lg">Form Editing</div>
                 <SideEditor 
                     v-if="usedTemplates.header" 
                     v-model="usedTemplates.header" 
@@ -187,6 +257,13 @@ watch(usedTemplates, (newVal) => {
             :onPickBlock="onPickTemplate" 
             :webBlockTypes="webBlockTypeCategories"  
             scope="website"
+        />
+    </Modal>
+
+    <Modal :isOpen="isOpenModalTopbarList" @onClose="isOpenModalTopbarList = false">
+        <TopbarList 
+            :onSelectTopbar
+            :topbarList="topbarList"
         />
     </Modal>
 </template>

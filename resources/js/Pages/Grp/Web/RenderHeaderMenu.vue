@@ -2,6 +2,7 @@
 import { getComponent as getComponentsHeader} from '@/Components/Websites/Header/Content'
 import NavigationMenu from './MenuRender.vue'
 import { routeType } from "@/types/route"
+import IrisLoginInformation from '@/Layouts/Iris/IrisLoginInformation.vue'
 
 
 const props = defineProps<{
@@ -16,21 +17,28 @@ const props = defineProps<{
         data: object,
         bluprint: object
     }
-    colorThemed : any
+    colorThemed : {
+        color: string[]
+    }
 }>()
 
 </script>
 
 <template>
     <div>
+
+        <!-- <IrisLoginInformation /> -->
+        <!-- {{ colorThemed }} -->
+
+
         <component
-        :is="getComponentsHeader(data?.header?.key)"
-        :loginMode="true"
-        :previewMode="true"
-        v-model="data.header"
-        :uploadImageRoute="data.uploadImageRoute"
-        :colorThemed="colorThemed"
-      />
+            :is="getComponentsHeader(data?.header?.key)"
+            :loginMode="true"
+            :previewMode="true"
+            v-model="data.header"
+            :uploadImageRoute="data.uploadImageRoute"
+            :colorThemed="colorThemed"
+        />
 
         <NavigationMenu v-if="menu"  :data="menu" :colorThemed="colorThemed" class="hidden md:block" />
     </div>
