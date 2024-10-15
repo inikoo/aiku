@@ -270,7 +270,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 unset($layout["fieldValue"]["value"]["items"]);
             } elseif ($code == "department") {
                 $sections = $webBlock->layout["fieldValue"]["value"]["sections"];
-                foreach ($sections as $section) {
+                foreach ($sections as $sectionPosition => $section) {
                     $items = $section['items'];
                     if ($items) {
                         foreach ($items as $index => $item) {
@@ -280,7 +280,7 @@ class FetchAuroraWebBlocks extends OrgAction
                                 unset($items[$index]["aurora_source"]);
                             }
                         }
-                        $sections[$index]["items"] = $items;
+                        $sections[$sectionPosition]["items"] = $items;
                     }
                 }
                 data_set($layout, "fieldValue.value.sections", $sections);
