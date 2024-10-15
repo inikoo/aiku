@@ -112,7 +112,7 @@ class ShowWebpage extends OrgAction
             $actions = array_merge(
                 $actions,
                 [
-                    $this->canEdit ? [
+                    ($this->canEdit and in_array($webpage->type, [WebpageTypeEnum::STOREFRONT,WebpageTypeEnum::CONTENT])) ? [
                         'type'  => 'button',
                         'style' => 'create',
                         'label' => __('child webpage'),
@@ -208,7 +208,9 @@ class ShowWebpage extends OrgAction
                 'title'       => __('webpage'),
                 'pageHead'    => [
                     'title'   => $webpage->code,
-                    'model'   => __('Webpage'),
+                    'afterTitle'   => [
+                        'label'     => '../' . $webpage->url,
+                    ],
                     'icon'    => [
                         'title' => __('webpage'),
                         'icon'  => 'fal fa-browser'

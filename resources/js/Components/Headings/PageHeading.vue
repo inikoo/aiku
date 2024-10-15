@@ -8,7 +8,7 @@
 import { Link } from "@inertiajs/vue3"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { faMapSigns, faPallet, faTruckCouch, faUpload, faWarehouse, faEmptySet } from "@fal"
+import { faMapSigns, faPallet, faTruckCouch, faUpload, faWarehouse, faEmptySet, faMoneyBillWave } from "@fal"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import MetaLabel from "@/Components/Headings/MetaLabel.vue"
 import Container from "@/Components/Headings/Container.vue"
@@ -23,7 +23,7 @@ import { inject, ref } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { useTruncate } from '@/Composables/useTruncate'
 
-library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faLayerPlus, faPallet, faWarehouse, faEmptySet)
+library.add(faTruckCouch, faUpload, faMapSigns, faNarwhal, faLayerPlus, faPallet, faWarehouse, faEmptySet, faMoneyBillWave)
 
 const props = defineProps<{
     data: PageHeadingTypes

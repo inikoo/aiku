@@ -13,15 +13,15 @@ const props = defineProps<{
     tab?: string
 }>()
 
-// function tradeUnitRoute(tradeUnit: {}) {
-//     switch (route().current()) {
-//         case 'grp.goods.trade-units.index':
-//             return route(
-//                 'grp.goods.trade-units.show',
-//                 [tradeUnit.slug]);
+function masterShopRoute(masterShop: {}) {
+    switch (route().current()) {
+        case 'grp.goods.catalogue.shops.index':
+            return route(
+                'grp.goods.catalogue.shops.show',
+                [masterShop.slug]);
 
-//     }
-// }
+    }
+}
 
 
 
@@ -31,7 +31,9 @@ const props = defineProps<{
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(code)="{ item: masterShop }">
-            {{ masterShop['code'] }}
+            <Link :href="masterShopRoute(masterShop)" class="primaryLink">
+                {{ masterShop['code'] }}
+            </Link>
         </template>
         <template #cell(name)="{ item: masterShop }">
             {{ masterShop['name'] }}

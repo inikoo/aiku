@@ -8,9 +8,9 @@
 
 namespace App\Actions\Web\Webpage;
 
-use App\Models\Catalogue\Shop;
+use App\Models\Web\Website;
 
-trait WithWebpageSubnavigation
+trait WithWebpageSubNavigation
 {
 	protected function getWebpageNavigation(Shop $shop): array
 	{
