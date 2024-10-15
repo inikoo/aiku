@@ -48,7 +48,7 @@ trait WithMasterCatalogueSubnavigation
         return [
             [
                 'href'     => [
-                    'name'       => '',
+                    'name'       => 'grp.goods.catalogue.shops.index',
                     'parameters' => []
                 ],
                 'leftIcon' => [
@@ -58,14 +58,16 @@ trait WithMasterCatalogueSubnavigation
             ],
             [
                 'isAnchor' => true,
-                'label'    => __('Structure'),
+                'label'    => __($masterShop->name),
 
                 'href'     => [
-                    'name'       => '',
-                    'parameters' => []
+                    'name'       => 'grp.goods.catalogue.shops.show',
+                    'parameters' => [
+                        'masterShop' => $masterShop
+                    ]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-code-branch'],
+                    'icon'    => ['fal', 'fa-store-alt'],
                     'tooltip' => __('Master Shop')
                 ]
 
