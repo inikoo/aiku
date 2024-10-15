@@ -40,8 +40,6 @@ const onEnter = (e) => {
     emits('autoSave')
 }
 
-
-console.log(props.modelValue)
 </script>
 
 <template>

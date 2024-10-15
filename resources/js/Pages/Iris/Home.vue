@@ -26,7 +26,7 @@ const props = defineProps<{
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
 
-
+console.log('DDD',props.blocks.web_blocks)
 
 </script>
 

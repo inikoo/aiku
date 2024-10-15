@@ -120,7 +120,7 @@ const openModalBlock = () => {
 };
 
 
-console.log(data.value)
+console.log('preview',data.value)
 </script>
 
 
