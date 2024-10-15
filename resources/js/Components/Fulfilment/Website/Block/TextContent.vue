@@ -20,17 +20,11 @@ const emits = defineEmits<{
 
 <template>
     <div class="relative box-border overflow-hidden" id="blockTextContent" :style="getStyles(properties)">
-        <Editor
-            v-if="isEditable"
-            v-model="modelValue.value"
-            @update:modelValue="() => emits('autoSave')"
-        />
+        <Editor v-if="isEditable" v-model="modelValue.value" @update:modelValue="() => emits('autoSave')" />
         <div v-else v-html="modelValue?.value"></div>
     </div>
 </template>
 <style lang="scss" scoped>
-
-
 #blockTextContent blockquote {
     padding-left: 1rem;
     border-left: 3px solid rgba(#0D0D0D, 0.1);

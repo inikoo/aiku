@@ -10,7 +10,7 @@ namespace App\Actions\Web\Webpage\UI;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
-use App\Actions\Web\Webpage\WithWebpageSubnavigation;
+use App\Actions\Web\Webpage\WithWebpageSubNavigation;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
@@ -33,7 +33,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexWebpages extends OrgAction
 {
     use HasWebAuthorisation;
-    use WithWebpageSubnavigation;
+    use WithWebpageSubNavigation;
 
     private Organisation|Website|Fulfilment|Webpage $parent;
 
@@ -269,7 +269,7 @@ class IndexWebpages extends OrgAction
         $subNavigation = [];
 
         if ($this->parent instanceof Website) {
-            $subNavigation = $this->getWebpageNavigation($this->shop);
+            $subNavigation = $this->getWebpageNavigation($this->parent);
         }
 
         return Inertia::render(

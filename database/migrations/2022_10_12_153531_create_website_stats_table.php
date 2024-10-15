@@ -20,6 +20,7 @@ return new class () extends Migration {
             $table->foreign('website_id')->references('id')->on('websites');
 
             $table = $this->getWebpagesStatsFields($table);
+            $table = $this->getRedirectsStatsFields($table);
             $table->timestampsTz();
         });
     }

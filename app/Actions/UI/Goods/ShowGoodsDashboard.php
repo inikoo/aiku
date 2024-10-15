@@ -76,6 +76,14 @@ class ShowGoodsDashboard extends GrpAction
                                 'number' => $this->group->inventoryStats->number_stocks
                             ]
 
+                        ],
+                        [
+                            'name'  => 'Catalogue',
+                            'icon'  => ['fal', 'fa-books'],
+                            'href'  => [
+                                'name'       => 'grp.goods.catalogue.shops.index',
+                                'parameters' => []
+                            ],
                         ]
                     ]
                 ],
