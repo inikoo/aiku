@@ -300,9 +300,9 @@ class FetchAuroraWebBlocks extends OrgAction
                     $imageSources[] = ["image" => ["source" => $imageSource]];
                 }
                 if (count($imageSources) <= 1) {
-                    data_set($layout, "fieldValue.value.image", $imageSources);
-                } else {
                     data_set($layout, "fieldValue.value.picture", $imageSources);
+                } else {
+                    data_set($layout, "fieldValue.value.gallery", $imageSources);
                 }
                 data_forget($layout, "fieldValue.value.images");
             }
