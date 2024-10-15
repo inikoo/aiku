@@ -76,7 +76,9 @@ class FetchAuroraWebBlocks extends OrgAction
 
             foreach ($migrationTypes as $type) {
                 if (isset($webpage->migration_data[$type])) {
-                    $this->processMigrationData($webpage, $webpage->migration_data[$type]['blocks'], $oldMigrationsChecksum, $type);
+                    if (isset($webpage->migration_data[$type]['blocks'])) {
+                        $this->processMigrationData($webpage, $webpage->migration_data[$type]['blocks'], $oldMigrationsChecksum, $type);
+                    }
                 }
             }
         }
@@ -147,7 +149,8 @@ class FetchAuroraWebBlocks extends OrgAction
             case "category_products":
                 $webBlockType = WebBlockType::where("slug", "family")->first();
                 $models[]     = ProductCategory::find($webpage->model_id);
-                $layout       = $this->processFamilyData($auroraBlock);
+                $layout       = $this->processFamilyData($webpage, $auroraBlock);
+                // dd($layout);
                 break;
 
             case "see_also":

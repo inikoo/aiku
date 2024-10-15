@@ -184,6 +184,11 @@ class ProductCategory extends Model implements Auditable, HasMedia
         return $this->hasMany(ProductCategory::class, 'parent_id');
     }
 
+    public function getFamilies(): LaravelCollection
+    {
+        return $this->children()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
+    }
+
     public function families(): LaravelCollection
     {
         return $this->children()->where('type', ProductCategoryTypeEnum::FAMILY)->get();
