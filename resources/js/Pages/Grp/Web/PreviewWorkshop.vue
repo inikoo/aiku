@@ -24,6 +24,7 @@ import { routeType } from '@/types/route'
 import { trans } from 'laravel-vue-i18n'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { getTopbarComponent } from '@/Components/Websites/Topbar/TopbarList'
 
 
 defineOptions({ layout: WebPreview })
@@ -125,12 +126,28 @@ const openModalBlock = () => {
 
 <template>
     <div class="container max-w-7xl mx-auto shadow-xl">
-        <RenderHeaderMenu 
-            v-if="header?.data?.header" 
-            :data="layout.header" 
-            :menu="layout?.navigation" 
-            :colorThemed="layout?.colorThemed" 
-        />
+        
+        <div class="relative">
+            
+            <!-- Component: Topbar -->
+            <component
+                :is="getTopbarComponent('topbar1')"
+                v-model="layout.header.header"
+                :loginMode="true"
+                :previewMode="true"
+                :uploadImageRoute="layout.header.uploadImageRoute"
+                :colorThemed="layout.colorThemed"
+            />
+            
+            <!-- <RenderHeaderMenu
+                v-if="header?.data?.header"
+                :data="layout.header"
+                :menu="layout?.navigation"
+                :colorThemed="layout?.colorThemed"
+            /> -->
+
+            <!-- <div class="bg-black/30 absolute inset-0" /> -->
+        </div>
 
         <div v-if="data" class="relative">
             <div class="container max-w-7xl mx-auto">
@@ -174,8 +191,13 @@ const openModalBlock = () => {
             </div>
         </div>
 
-        <component v-if="footer?.footer?.data" :is="getComponentFooter(layout.footer.code)"
-            v-model="layout.footer.data.footer" :keyTemplate="layout.footer" :previewMode="editDataTools.previewMode"
-            :colorThemed="layout.colorThemed" />
+        <component
+            v-if="footer?.footer?.data"
+            :is="getComponentFooter(layout.footer.code)"
+            v-model="layout.footer.data.footer"
+            :keyTemplate="layout.footer"
+            :previewMode="editDataTools.previewMode"
+            :colorThemed="layout.colorThemed"
+        />
     </div>
 </template>
