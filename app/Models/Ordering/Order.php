@@ -126,6 +126,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Platform> $platforms
  * @property-read Shop $shop
+ * @property-read ShopifyUserHasFulfilment|null $shopifyOrder
  * @property-read \App\Models\Ordering\OrderStats|null $stats
  * @property-read TaxCategory $taxCategory
  * @property-read Collection<int, \App\Models\Ordering\Transaction> $transactions

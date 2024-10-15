@@ -49,16 +49,14 @@ class IndexMasterProducts extends GrpAction
         }
 
         $queryBuilder = QueryBuilder::for(MasterProduct::class);
-        if($parent instanceof Group)
-        {
+        if ($parent instanceof Group) {
             $queryBuilder->where('master_products.group_id', $parent->id);
-        } elseif($parent instanceof MasterShop)
-        {
+        } elseif ($parent instanceof MasterShop) {
             $queryBuilder
             ->join('master_shop_has_master_products', 'master_shop_has_master_products.master_product_id', '=', 'master_products.id')
             ->where('master_shop_has_master_products.master_shop_id', $parent->id);
         }
-        
+
         return $queryBuilder
             ->defaultSort('master_products.code')
             ->select(
@@ -107,7 +105,7 @@ class IndexMasterProducts extends GrpAction
 
     public function htmlResponse(LengthAwarePaginator $masterProducts, ActionRequest $request): Response
     {
-        if($this->parent instanceof Group) {
+        if ($this->parent instanceof Group) {
             $subNavigation = $this->getMasterCatalogueSubnavigation($this->parent);
         } elseif ($this->parent instanceof MasterShop) {
             $subNavigation = $this->getMasterShopNavigation($this->parent);

@@ -160,6 +160,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\Catalogue\ProductCategory> $productCategories
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Product> $products
  * @property-read LaravelCollection<int, Prospect> $prospects
+ * @property-read LaravelCollection<int, Redirect> $redirects
  * @property-read LaravelCollection<int, Rental> $rentals
  * @property-read LaravelCollection<int, Role> $roles
  * @property-read \App\Models\Catalogue\ShopSalesIntervals|null $salesIntervals

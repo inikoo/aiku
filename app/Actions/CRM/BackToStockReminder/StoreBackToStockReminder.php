@@ -14,7 +14,6 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateFavourites;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Product;
 use App\Models\CRM\Customer;
-use App\Models\CRM\Favourite;
 use App\Models\Reminder\BackToStockReminder;
 use Lorisleiva\Actions\ActionRequest;
 

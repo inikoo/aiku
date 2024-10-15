@@ -27,6 +27,39 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property int $group_id
+ * @property string $slug
+ * @property string $code
+ * @property string|null $name
+ * @property ShopStateEnum $state
+ * @property ShopTypeEnum $type
+ * @property int|null $image_id
+ * @property array $data
+ * @property array $settings
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read Group $group
+ * @property-read \App\Models\Helpers\Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\MasterProductCategory> $masterProductCategories
+ * @property-read LaravelCollection<int, \App\Models\Catalogue\MasterProduct> $masterProducts
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
+ * @property-read \App\Models\Catalogue\ShopStats|null $stats
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
+ * @method static \Illuminate\Database\Eloquent\Builder|MasterShop newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MasterShop newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MasterShop onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|MasterShop query()
+ * @method static \Illuminate\Database\Eloquent\Builder|MasterShop withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|MasterShop withoutTrashed()
+ * @mixin \Eloquent
+ */
 class MasterShop extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;

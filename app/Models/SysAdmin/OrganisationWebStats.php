@@ -61,6 +61,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_webpages_sub_type_appointment
  * @property int $number_webpages_sub_type_blog
  * @property int $number_webpages_sub_type_article
+ * @property int $number_redirects
+ * @property int $number_redirects_type_301
+ * @property int $number_redirects_type_302
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation

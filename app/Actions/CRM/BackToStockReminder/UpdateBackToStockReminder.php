@@ -10,7 +10,6 @@ namespace App\Actions\CRM\Favourite;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\CRM\Favourite;
 use App\Models\Reminder\BackToStockReminder;
 use Lorisleiva\Actions\ActionRequest;
 

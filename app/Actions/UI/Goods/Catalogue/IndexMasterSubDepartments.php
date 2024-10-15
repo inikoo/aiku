@@ -9,24 +9,13 @@
 namespace App\Actions\UI\Goods\Catalogue;
 
 use App\Actions\Catalogue\Collection\UI\ShowCollection;
-use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
-use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\GrpAction;
-use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
-use App\Http\Resources\Catalogue\DepartmentsResource;
-use App\Http\Resources\Goods\Catalogue\MasterDepartmentsResource;
-use App\Http\Resources\Goods\Catalogue\MasterFamiliesResource;
 use App\Http\Resources\Goods\Catalogue\MasterSubDepartmentsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\MasterProductCategory;
 use App\Models\Catalogue\MasterShop;
-use App\Models\Catalogue\ProductCategory;
-use App\Models\Catalogue\Shop;
-use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -64,7 +53,7 @@ class IndexMasterSubDepartments extends GrpAction
         }
 
         $queryBuilder = QueryBuilder::for(MasterProductCategory::class);
-        if($parent instanceof MasterShop) {
+        if ($parent instanceof MasterShop) {
             $queryBuilder->where('master_product_categories.master_shop_id', $parent->id);
         }
 
@@ -103,7 +92,6 @@ class IndexMasterSubDepartments extends GrpAction
                     [
                         'title'       => __("No sub departments found"),
                     ],
-                    
                 )
                 ->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
 
