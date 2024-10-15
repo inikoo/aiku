@@ -229,7 +229,7 @@ class Webpage extends Model implements Auditable
 
     public function redirects(): HasMany
     {
-        return $this->hasMany(WebpageHasRedirect::class);
+        return $this->hasMany(Redirect::class);
     }
 
     public function getChildrenRecursively()
