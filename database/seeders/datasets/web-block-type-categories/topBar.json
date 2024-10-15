@@ -1,6 +1,6 @@
 {
 	"slug": "top-bar",
-	"name": "Website Top header",
+	"name": "Website Top Bar",
 	"icon": "fal fa-globe",
 	"scope": "website",
 	"webBlockTypes": [
