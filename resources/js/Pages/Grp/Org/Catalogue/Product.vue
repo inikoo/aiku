@@ -21,6 +21,7 @@ import ProductShowcase from "@/Components/Showcases/Grp/ProductShowcase.vue"
 import ProductService from "@/Components/Showcases/Grp/ProductService.vue"
 import ProductRental from "@/Components/Showcases/Grp/ProductRental.vue"
 import TableProductFavourites from "@/Components/Tables/Grp/Org/Catalogue/TableProductFavourites.vue"
+import TableProductBackToStockReminders from "@/Components/Tables/Grp/Org/Catalogue/TableProductBackToStockReminders.vue"
 
 import { capitalize } from "@/Composables/capitalize"
 import { PageHeading as PageHeadingTypes } from '@/types/PageHeading'
@@ -71,7 +72,8 @@ const component = computed(() => {
         service: ProductService,
         rental: ProductRental,
         history: ModelChangelog,
-        favourites: TableProductFavourites
+        favourites: TableProductFavourites,
+        reminders: TableProductBackToStockReminders
 
     }
 
