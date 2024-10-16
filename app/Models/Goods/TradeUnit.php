@@ -12,6 +12,7 @@ use App\Models\Helpers\Barcode;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SysAdmin\Group;
+use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use Eloquent;
@@ -53,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
+ * @property-read MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
@@ -77,6 +79,8 @@ class TradeUnit extends Model implements HasMedia, Auditable
     use HasImage;
     use HasFactory;
     use HasHistory;
+    use HasAttachments;
+
 
     protected $casts = [
         'data'       => 'array',

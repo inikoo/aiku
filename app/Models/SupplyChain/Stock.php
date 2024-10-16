@@ -15,7 +15,6 @@ use App\Models\Helpers\Media;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Inventory\OrgStock;
 use App\Models\SysAdmin\Group;
-use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
@@ -67,7 +66,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
- * @property-read MediaCollection<int, Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Barcode> $barcode
  * @property-read Group $group
@@ -95,7 +93,6 @@ class Stock extends Model implements HasMedia, Auditable
     use HasUniversalSearch;
     use HasImage;
     use HasFactory;
-    use HasAttachments;
     use HasHistory;
 
     protected $casts = [

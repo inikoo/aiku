@@ -15,6 +15,7 @@ use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Inventory\OrgStock\SyncOrgStockLocations;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
+use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Stock;
 use App\Transfers\Aurora\WithAuroraAttachments;
@@ -31,8 +32,7 @@ class FetchAuroraStocks extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): array
     {
-        $stock         = null;
-        $orgStock      = null;
+        $orgStock       = null;
         $effectiveStock = null;
 
         if ($stockData = $organisationSource->fetchStock($organisationSourceId)) {
@@ -41,7 +41,7 @@ class FetchAuroraStocks extends FetchAuroraAction
                     $stock = UpdateStock::make()->action(
                         stock: $stock,
                         modelData: $stockData['stock'],
-                        audit:false
+                        audit: false
                     );
                 }
             } else {
@@ -81,14 +81,13 @@ class FetchAuroraStocks extends FetchAuroraAction
             $organisation = $organisationSource->getOrganisation();
 
 
-            if ($effectiveStock and $effectiveStock->state == StockStateEnum::IN_PROCESS  and  $stockData['org_stock']['state'] != StockStateEnum::IN_PROCESS) {
-
+            if ($effectiveStock and $effectiveStock->state == StockStateEnum::IN_PROCESS and $stockData['org_stock']['state'] != StockStateEnum::IN_PROCESS) {
                 $effectiveStock = UpdateStock::make()->action(
                     stock: $effectiveStock,
                     modelData: [
                         'state' => StockStateEnum::ACTIVE
                     ],
-                    audit:false
+                    audit: false
                 );
             }
 
@@ -126,30 +125,39 @@ class FetchAuroraStocks extends FetchAuroraAction
             }
         }
 
-        if (in_array('attachments', $this->with)) {
-            $sourceData = explode(':', $stock->source_id);
-            foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
-                SaveModelAttachment::run(
-                    $stock,
-                    $attachmentData['fileData'],
-                    $attachmentData['modelData'],
+
+        if ($effectiveStock && in_array('attachments', $this->with)) {
+            /** @var TradeUnit $tradeUnit */
+            $tradeUnit = $effectiveStock->tradeUnits()->first();
+            $attachmentsToDelete = $tradeUnit->attachments()->pluck('source_id', 'model_has_attachments.id')->all();
+            foreach ($this->parseAttachments($effectiveStock->source_id) as $attachmentData) {
+                SaveModelAttachment::make()->action(
+                    model: $tradeUnit,
+                    modelData: $attachmentData['modelData'],
+                    hydratorsDelay: 30,
+                    strict: false
                 );
+                $attachmentsToDelete = array_diff($attachmentsToDelete, [$attachmentData['modelData']['source_id']]);
+
                 $attachmentData['temporaryDirectory']->delete();
             }
+            $tradeUnit->attachments()->whereIn('model_has_attachments.id', array_keys($attachmentsToDelete))->forceDelete();
         }
+
         return [
             'stock'    => $effectiveStock,
             'orgStock' => $orgStock
         ];
     }
 
-    private function parseAttachments($staffKey): array
+    private function parseAttachments($modelSource): array
     {
-        $attachments = $this->getModelAttachmentsCollection(
+        $modelSourceData = explode(':', $modelSource);
+        $attachments     = $this->getModelAttachmentsCollection(
             'Part',
-            $staffKey
-        )->map(function ($auroraAttachment) {
-            return $this->fetchAttachment($auroraAttachment);
+            $modelSourceData[1]
+        )->map(function ($auroraAttachment) use ($modelSourceData) {
+            return $this->fetchAttachment($auroraAttachment, $modelSourceData[0]);
         });
 
         return $attachments->toArray();
