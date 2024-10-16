@@ -34,6 +34,7 @@ use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebBlocks extends OrgAction
@@ -116,6 +117,8 @@ class FetchAuroraWebBlocks extends OrgAction
         $visibility = ["loggedIn" => true, "loggedOut" => true]
     ): void {
         $models = [];
+
+
 
         switch ($auroraBlock["type"]) {
             case "images":
@@ -238,11 +241,17 @@ class FetchAuroraWebBlocks extends OrgAction
         // add fixed value to show the component can editable or not
         data_set($layout, 'fixed', false, false);
 
-        data_set($layout, "properties.padding.unit", "px");
-        data_set($layout, "properties.padding.left.value", 20);
-        data_set($layout, "properties.padding.right.value", 20);
-        data_set($layout, "properties.padding.bottom.value", 20);
-        data_set($layout, "properties.padding.top.value", 20);
+        $defaultPropertiesFromJson = Arr::get($webBlockType->data, 'properties');
+        if ($defaultPropertiesFromJson) {
+            data_set($layout, "properties", $defaultPropertiesFromJson);
+        } else {
+            data_set($layout, "properties.padding.unit", "px");
+            data_set($layout, "properties.padding.left.value", 20);
+            data_set($layout, "properties.padding.right.value", 20);
+            data_set($layout, "properties.padding.bottom.value", 20);
+            data_set($layout, "properties.padding.top.value", 20);
+            data_set($layout, "properties.padding.top.value", 20);
+        }
 
         $webBlock = StoreWebBlock::make()->action(
             $webBlockType,
