@@ -33,8 +33,10 @@ const props = defineProps<{
     title: string,
     pageHead: PageHeadingTypes,
     webpage: RootWebpage
-    webBlockTypeCategories: Root
+    webBlockTypes: Root
 }>()
+
+
 
 const comment = ref("")
 const isLoading = ref<string | boolean>(false)
@@ -246,7 +248,7 @@ onMounted(() => {
         <!-- Section: Side editor -->
         <div class="col-span-1 lg:block hidden h-full border-2 bg-gray-200 px-3 py-1 ">
             <WebpageSideEditor v-model="isModalBlockList" :isLoadingDelete :isAddBlockLoading :webpage="props.webpage"
-                :webBlockTypeCategories="webBlockTypeCategories" @update="sendBlockUpdate" @delete="sendDeleteBlock"
+                :webBlockTypes="webBlockTypes" @update="sendBlockUpdate" @delete="sendDeleteBlock"
                 @add="addNewBlock" @order="sendOrderBlock" />
         </div>
 
@@ -256,9 +258,15 @@ onMounted(() => {
                 <div class="py-1 px-2 cursor-pointer lg:hidden block" title="Desktop view" v-tooltip="'Navigation'">
                     <FontAwesomeIcon :icon='faBars' aria-hidden='true' @click="() => openDrawer = true" />
                     <Drawer v-model:visible="openDrawer" :header="''" :dismissable="true">
-                        <WebpageSideEditor v-model="isModalBlockList" ref="_WebpageSideEditor" :webpage="data"
-                            :webBlockTypeCategories="webBlockTypeCategories" @update="sendBlockUpdate"
-                            @delete="sendDeleteBlock" @add="addNewBlock" @order="sendOrderBlock"
+                        <WebpageSideEditor 
+                            v-model="isModalBlockList" 
+                            ref="_WebpageSideEditor" 
+                            :webpage="data"
+                            :webBlockTypes="webBlockTypes" 
+                            @update="sendBlockUpdate"
+                            @delete="sendDeleteBlock" 
+                            @add="addNewBlock" 
+                            @order="sendOrderBlock"
                             @openBlockList="() => { openDrawer = false, isModalBlockList = true }" />
                     </Drawer>
                 </div>
