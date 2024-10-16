@@ -7,6 +7,7 @@
 
 
 use App\Stubs\Migrations\HasCatalogueStats;
+use App\Stubs\Migrations\HasFavouritesStats;
 use App\Stubs\Migrations\HasSalesIntervals;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasCatalogueStats;
     use HasSalesIntervals;
+    use HasFavouritesStats;
 
     public function up(): void
     {
@@ -24,6 +26,7 @@ return new class () extends Migration {
             $table->foreign('product_category_id')->references('id')->on('product_categories');
             $table = $this->catalogueFamilyStats($table);
             $table = $this->catalogueProductsStats($table);
+            $table = $this->getCustomersWhoFavouritedStatsFields($table);
             $table = $this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
             $table->timestampsTz();
         });
