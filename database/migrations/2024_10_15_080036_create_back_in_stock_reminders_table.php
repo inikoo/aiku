@@ -27,7 +27,7 @@ return new class () extends Migration {
             $table->foreign('department_id')->references('id')->on('product_categories');
 
             $table->timestampsTz();
-            $table->dateTimeTz('unreminded_at')->nullable()->index();
+            $table->dateTimeTz('un_reminded_at')->nullable()->index();
             $table->unsignedBigInteger('current_reminder_id')->index()->nullable();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();

@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $department_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property \Illuminate\Support\Carbon|null $unreminded_at
+ * @property \Illuminate\Support\Carbon|null $un_reminded_at
  * @property int|null $current_reminder_id
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at
@@ -48,7 +48,7 @@ class BackInStockReminder extends Model
     use InShop;
 
     protected $casts = [
-        'unreminded_at'  => 'datetime'
+        'un_reminded_at'  => 'datetime'
     ];
 
     protected $guarded = [];

@@ -33,8 +33,8 @@ class CustomerHydrateBackInStockReminders
     public function handle(Customer $customer): void
     {
         $stats = [
-            'number_reminders' => $customer->backInStockReminder()->whereNull('unreminded_at')->count(),
-            'number_unreminded' => $customer->backInStockReminder()->whereNotNull('unreminded_at')->count(),
+            'number_reminders' => $customer->backInStockReminder()->whereNull('un_reminded_at')->count(),
+            'number_unreminded' => $customer->backInStockReminder()->whereNotNull('un_reminded_at')->count(),
         ];
 
         $customer->stats()->update($stats);

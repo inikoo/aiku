@@ -159,4 +159,6 @@ interface SourceOrganisationService
 
     public function fetchFavourite($id);
 
+    public function fetchBackInStockReminder($id);
+
 }

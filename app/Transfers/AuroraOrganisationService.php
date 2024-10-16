@@ -12,6 +12,7 @@ use App\Models\Procurement\PurchaseOrder;
 use App\Transfers\Aurora\FetchAuroraAdjustment;
 use App\Transfers\Aurora\FetchAuroraAgent;
 use App\Transfers\Aurora\FetchAuroraArtefact;
+use App\Transfers\Aurora\FetchAuroraBackInStockReminder;
 use App\Transfers\Aurora\FetchAuroraBarcode;
 use App\Transfers\Aurora\FetchAuroraCharge;
 use App\Transfers\Aurora\FetchAuroraClockingMachine;
@@ -473,6 +474,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchFavourite($id): ?array
     {
         return (new FetchAuroraFavourite($this))->fetch($id);
+    }
+
+    public function fetchBackInStockReminder($id): ?array
+    {
+        return (new FetchAuroraBackInStockReminder($this))->fetch($id);
     }
 
 

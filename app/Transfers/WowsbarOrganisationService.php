@@ -409,4 +409,10 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchBackInStockReminder($id): ?array
+    {
+        return null;
+    }
+
+
 }

@@ -8,8 +8,8 @@
 
 namespace App\Actions\CRM\BackInStockReminder;
 
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoRemindedInCategories;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoReminded;
-use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateCustomersWhoReminded;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateBackInStockReminders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -26,9 +26,9 @@ class UpdateBackInStockReminder extends OrgAction
     {
         $backInStockReminder = $this->update($backInStockReminder, $modelData, ['data']);
 
-        CustomerHydrateBackInStockReminders::run($backInStockReminder->customer);
-        ProductHydrateCustomersWhoReminded::run($backInStockReminder->product);
-        ProductCategoryHydrateCustomersWhoReminded::run($backInStockReminder->product);
+        CustomerHydrateBackInStockReminders::dispatch($backInStockReminder->customer)->delay($this->hydratorsDelay);
+        ProductHydrateCustomersWhoReminded::dispatch($backInStockReminder->product)->delay($this->hydratorsDelay);
+        ProductHydrateCustomersWhoRemindedInCategories::dispatch($backInStockReminder->product)->delay($this->hydratorsDelay);
 
         return $backInStockReminder;
     }

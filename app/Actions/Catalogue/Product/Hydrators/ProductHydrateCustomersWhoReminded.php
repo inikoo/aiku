@@ -32,8 +32,8 @@ class ProductHydrateCustomersWhoReminded
     {
 
         $stats         = [
-            'number_customers_who_reminded' => $product->backInStockReminders()->whereNull('unreminded_at')->count(),
-            'number_customers_who_un_reminded' => $product->backInStockReminders()->whereNotNull('unreminded_at')->count()
+            'number_customers_who_reminded' => $product->backInStockReminders()->whereNull('un_reminded_at')->count(),
+            'number_customers_who_un_reminded' => $product->backInStockReminders()->whereNotNull('un_reminded_at')->count()
         ];
 
         $product->stats->update($stats);
