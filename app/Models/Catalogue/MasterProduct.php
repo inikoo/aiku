@@ -16,6 +16,7 @@ use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -166,6 +167,11 @@ class MasterProduct extends Model implements Auditable, HasMedia
     public function masterFamily(): BelongsTo
     {
         return $this->belongsTo(MasterProductCategory::class, 'master_family_id');
+    }
+
+    public function salesIntervals(): HasOne
+    {
+        return $this->hasOne(MasterProductSalesIntervals::class);
     }
 
 }

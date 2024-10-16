@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -162,5 +163,10 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
             ProductCategoryTypeEnum::FAMILY     => $this->hasMany(MasterProduct::class, 'master_family_id'),
             default                             => null
         };
+    }
+
+    public function salesIntervals(): HasOne
+    {
+        return $this->hasOne(MasterProductCategorySalesIntervals::class);
     }
 }

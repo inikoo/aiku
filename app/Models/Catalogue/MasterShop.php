@@ -146,5 +146,10 @@ class MasterShop extends Model implements HasMedia, Auditable
             ->withTimestamps();
     }
 
+    public function salesIntervals(): HasOne
+    {
+        return $this->hasOne(MasterShopSalesIntervals::class);
+    }
+
 
 }
