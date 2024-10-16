@@ -11,8 +11,10 @@ use App\Actions\CRM\Favourite\StoreFavourite;
 use App\Actions\CRM\Favourite\UpdateFavourite;
 use App\Models\CRM\Favourite;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraFavourites extends FetchAuroraAction
 {
@@ -28,28 +30,41 @@ class FetchAuroraFavourites extends FetchAuroraAction
 
             if ($favourite = Favourite::where('source_id', $favouriteData['favourite']['source_id'])
                 ->first()) {
-                $favourite = UpdateFavourite::make()->action(
-                    favourite: $favourite,
-                    modelData: $favouriteData['favourite'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
+                try {
+                    $favourite = UpdateFavourite::make()->action(
+                        favourite: $favourite,
+                        modelData: $favouriteData['favourite'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+                    $this->recordChange($organisationSource, $favourite->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $favouriteData['favourite'], 'Favourite', 'update');
+
+                    return null;
+                }
             } else {
                 data_set($modelData, 'parent_id', $favouriteData['favourite'], overwrite: false);
-                $favourite = StoreFavourite::make()->action(
-                    customer: $favouriteData['customer'],
-                    product: $favouriteData['product'],
-                    modelData: $favouriteData['favourite'],
-                    hydratorsDelay: 60,
-                    strict: false
-                );
+                try {
+                    $favourite = StoreFavourite::make()->action(
+                        customer: $favouriteData['customer'],
+                        product: $favouriteData['product'],
+                        modelData: $favouriteData['favourite'],
+                        hydratorsDelay: 60,
+                        strict: false
+                    );
+
+                    $sourceData = explode(':', $favourite->source_id);
+                    DB::connection('aurora')->table('Customer Favourite Product Fact')
+                        ->where('Customer Favourite Product Key', $sourceData[1])
+                        ->update(['aiku_id' => $favourite->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $favouriteData['favourite'], 'Favourite', 'store');
+
+                    return null;
+                }
             }
 
-
-            $sourceData = explode(':', $favourite->source_id);
-            DB::connection('aurora')->table('Customer Favourite Product Fact')
-                ->where('Customer Favourite Product Key', $sourceData[1])
-                ->update(['aiku_id' => $favourite->id]);
 
             return $favourite;
         }
