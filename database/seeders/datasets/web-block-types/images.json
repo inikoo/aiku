@@ -6,7 +6,18 @@
 	"icon": ["fal", "image"],
 	"blueprint": {
 		"fieldValue": {
-			"value": null
+			"value": [
+				{
+					"row": [
+						{
+							"properties": {
+								"width": 10
+							},
+							"images": []
+						}
+					]
+				}
+			]
 		},
 		"properties": {
 			"background": {
