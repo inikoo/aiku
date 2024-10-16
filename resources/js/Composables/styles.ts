@@ -1,6 +1,8 @@
 export const getStyles = (properties: any) => {
     if (properties) {
         return {
+            height : (properties?.dimension?.height?.value || 0) + properties?.dimension?.height?.unit,
+            width : (properties?.dimension?.width?.value || 0) + properties?.dimension?.width?.unit,
             color : properties?.text?.color,
             fontFamily : properties?.text?.fontFamily,
             paddingTop: (properties?.padding?.top?.value || 0) + properties?.padding?.unit,

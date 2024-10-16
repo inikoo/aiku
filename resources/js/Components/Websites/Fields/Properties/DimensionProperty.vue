@@ -62,7 +62,7 @@ const model = defineModel()
 
         <div class="pb-2">
             <div class="px-3 flex justify-between items-center mb-2">
-                <div class="text-xs">{{ trans('Height') }}</div>
+                <div class="text-xs">{{ trans('Width') }}</div>
                 <Popover v-slot="{ open }" class="relative">
                     <PopoverButton :class="open ? 'text-indigo-500' : ''" class="underline">
                         {{ model.width.unit }}

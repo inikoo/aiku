@@ -40,6 +40,7 @@ console.log('DDD',props.blocks.web_blocks)
         class="w-full">
 
         <component :is="getComponent(activityItem.type)" :key="activityItemIdx"
+          :properties="activityItem?.web_block?.layout?.properties"
           v-model="activityItem.web_block.layout.fieldValue" :isEditable="false"
           v-bind="activityItem.web_block.layout.fieldValue" />
 

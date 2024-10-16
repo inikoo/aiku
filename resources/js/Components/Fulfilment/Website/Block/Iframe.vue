@@ -14,6 +14,7 @@ import { ref } from "vue"
 import Popover from '@/Components/Popover.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import InputUseOption from "@/Components/Pure/InputUseOption.vue"
+import { getStyles } from "@/Composables/styles.js"
 
 library.add(faPresentation, faLink, faPaperclip)
 
@@ -21,6 +22,7 @@ const props = defineProps<{
     modelValue: any
     emptyState?: Boolean
     isEditable?: boolean
+    properties?: any
 }>()
 
 const optionWidthHeight = [
@@ -62,7 +64,7 @@ const onEnter = (e) => {
 
     <div v-else class="relative">
         <iframe :src="modelValue.link"
-            :style="{ width: `100%`, height: `100%` }"
+            :style="getStyles(properties)"
             title="I farme Block">
         </iframe>
         <!-- Buttons -->
