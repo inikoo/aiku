@@ -1,6 +1,6 @@
 {
 	"slug": "top-bar",
-	"name": "Website Top header",
+	"name": "Website Topbar",
 	"icon": "fal fa-globe",
 	"scope": "website",
 	"webBlockTypes": [
@@ -10,80 +10,58 @@
 			"data": {
 				"bluprint": [
 					{
+						"name": "Container",
+						"key": ["container", "properties"],
+						"type": ["properties"],
+						"props_data": {}
+					},
+					{
 						"name": "Title",
-						"key": "headerText",
-						"type": "EditorAndPanelProperties",
+						"key": ["main_title", "text"],
+						"type": ["text"],
+						"props_data": {}
+					},
+					{
+						"name": "Greeting",
+						"key": ["greeting", "text"],
+						"type": ["editorhtml"],
+						"replaceForm": [
+							{
+								"key": ["greeting", "visible"],
+								"type": ["VisibleLoggedIn"]
+							},
+							{
+								"key": ["greeting", "text"],
+								"type": ["editorhtml"]
+							}
+						],
 						"props_data": {}
 					}
 				],
-				"data": {
+				"fieldValue": {
 					"key": "Topheader",
-					"headerText": {
-						"text" : "<p><span>FAIRLY TRADING WHOLESALE GIFTS SINCE 1995</span></p>",
-						"visible" : "all",
+					"container": {
 						"properties": {
-							"padding": {
-								"unit": "px",
-								"top": {
-									"value": 0
-								},
-								"left": {
-									"value": 0
-								},
-								"right": {
-									"value": 0
-								},
-								"bottom": {
-									"value": 0
+							"background": {
+								"type": "color",
+								"color": "rgb(75,80,88)",
+								"image": {
+									"original": null
 								}
 							},
-							"margin": {
-								"unit": "px",
-								"top": {
-									"value": 0
-								},
-								"left": {
-									"value": 0
-								},
-								"right": {
-									"value": 0
-								},
-								"bottom": {
-									"value": 0
-								}
-							},
-							"border": {
-								"color": "#000000",
-								"unit": "px",
-								"rounded": {
-									"unit": "px",
-									"topright": {
-										"value": 0
-									},
-									"topleft": {
-										"value": 0
-									},
-									"bottomright": {
-										"value": 0
-									},
-									"bottomleft": {
-										"value": 0
-									}
-								},
-								"top": {
-									"value": 0
-								},
-								"left": {
-									"value": 0
-								},
-								"right": {
-									"value": 0
-								},
-								"bottom": {
-									"value": 0
-								}
+							"text": {
+								"color": "rgb(255,255,255)",
+								"fontFamily": "Raleway"
 							}
 						}
+					},
+					"main_title": {
+						"text" : "<p><span>FAIRLY TRADING WHOLESALE GIFTS SINCE 1995</span></p>",
+						"visible" : "all"
+					},
+					"greeting": {
+						"text" : "<p>Hello, {{ name }}.",
+						"visible" : "login"
 					}
 				}
 			}

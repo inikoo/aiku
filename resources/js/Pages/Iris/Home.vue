@@ -5,14 +5,14 @@
   -->
 
 <script setup lang="ts">
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+// import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCheck, faPlus, faMinus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
 import LayoutIris from '@/Layouts/Iris.vue'
 import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
 
-import { usePage } from '@inertiajs/vue3'
+// import { usePage } from '@inertiajs/vue3'
 
 // import "https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
 
@@ -39,10 +39,15 @@ console.log('DDD',props.blocks.web_blocks)
       <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"
         class="w-full">
 
-        <component :is="getComponent(activityItem.type)" :key="activityItemIdx"
-          :properties="activityItem?.web_block?.layout?.properties"
-          v-model="activityItem.web_block.layout.fieldValue" :isEditable="false"
-          v-bind="activityItem.web_block.layout.fieldValue" />
+        <component
+            v-if="activityItem.web_block?.layout?.data?.fieldValue"
+            :is="getComponent(activityItem.type)"
+            :key="activityItemIdx"
+            :properties="activityItem?.web_block?.layout?.properties"
+            v-model="activityItem.web_block.layout.fieldValue"
+            :isEditable="false"
+            v-bind="activityItem.web_block.layout.fieldValue"
+        />
 
       </div>
     </template>

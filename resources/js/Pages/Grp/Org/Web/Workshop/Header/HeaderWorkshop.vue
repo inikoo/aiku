@@ -69,7 +69,7 @@ const tabs = [
         icon: faPresentation,
     }, */
     {
-        label: "Website Top Bar",
+        label: "Website Topbar",
         key: 'topBar',
         icon: faPresentation,
     },
@@ -83,6 +83,7 @@ const tabsBar = ref(tabs[0])
 
 const onPickTemplate = (data: object) => {
     usedTemplates.value[tabsBar.value.key] = data.data
+    isModalOpen.value = false
 }
 
 const onPublish = async (action: routeType, popover: Function) => {
@@ -154,7 +155,7 @@ watch(usedTemplates, (newVal) => {
     if (newVal) debouncedSendUpdate(newVal)
 }, { deep: true })
 
-const openedAccordion = ref<string | null>(null)
+// const openedAccordion = ref<string | null>(null)
 
 const isOpenModalTopbarList = ref(false)
 const topbar = ref({
@@ -190,15 +191,20 @@ const onSelectTopbar = (xxx) => {
 const webBlockTypeCategoriesFilter = computed(() => {
     // Create a shallow copy of the props.webBlockTypeCategories
     const filteredData = { ...props.webBlockTypeCategories };
+
+    // console.log('fff', tabsBar.value.label)
     
     // Check if filteredData.data is an array before filtering
     if (Array.isArray(filteredData.data)) {
         // Filter the data based on the current tab label
-        filteredData.data = filteredData.data.filter(item => item.name === tabsBar.value.label);
+        // console.log('bb', filteredData.data, tabsBar.value.label)
+        filteredData.data = filteredData.data.filter(item => item.name === tabsBar.value.label)
+        // console.log('bb', filteredData.data, tabsBar.value.label)
     } else {
         // If data is not an array, set it to an empty array
         filteredData.data = [];
     }
+
     return filteredData;
 });
 
@@ -218,7 +224,7 @@ const webBlockTypeCategoriesFilter = computed(() => {
         </template>
     </PageHeading>
 
-    <div class="h-[84vh] grid grid-flow-row-dense grid-cols-10">
+    <div class="h-[84vh] flex">
         <div v-if="usedTemplates" class="col-span-2 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
            <!--  <Accordion>
                 <AccordionPanel value="topbar" @click="openedAccordion = 'topbar'">
@@ -245,18 +251,21 @@ const webBlockTypeCategoriesFilter = computed(() => {
                 </AccordionPanel>
             </Accordion> -->
 
-            <div class="flex h-full">
-                <div class="w-[10%] bg-slate-200 ">
+            <!-- Section: Side editor -->
+            <div class="flex h-full w-96">
+                <div class="min-w-fit w-[10%] bg-slate-200 ">
                     <div v-for="(tab, index) in tabs"
                         class="py-2 px-3 cursor-pointer transition duration-300 ease-in-out transform hover:scale-105"
                         :title="tab.label" @click="tabsBar = tab"
-                        :class="[tabsBar.key == tab.key ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']"
+                        :class="[tabsBar.key == tab.key ? 'bg-indigo-500 text-white' : 'hover:bg-gray-200/60']"
                         v-tooltip="tab.label">
-                        <FontAwesomeIcon :icon="tab.icon" :class="[tabsBar.key == tab.key ? 'text-indigo-300' : '']"
+                        <FontAwesomeIcon
+                            :icon="tab.icon"
                             aria-hidden='true' />
                     </div>
                 </div>
-                <div class="w-[90%] py-2 px-3">
+                
+                <div class="w-full py-2 px-3">
                     <div class="text-lg font-semibold flex items-center justify-between gap-3 border-b border-gray-300">
                         <div class="flex items-center gap-3">
                             <FontAwesomeIcon :icon="tabsBar.icon" aria-hidden="true" />
@@ -268,8 +277,13 @@ const webBlockTypeCategoriesFilter = computed(() => {
                             <FontAwesomeIcon icon="fas fa-th-large" aria-hidden='true' />
                         </div>
                     </div>
-                    <SideEditor 
-                        v-model="usedTemplates[tabsBar.key].data"
+                    <!-- ======================
+                    {{ tabsBar.key }}
+                    ====================
+                    <pre>{{ usedTemplates.topBar }}</pre> -->
+                    <SideEditor
+                        v-if="usedTemplates?.[tabsBar.key]?.fieldValue"
+                        v-model="usedTemplates[tabsBar.key].fieldValue"
                         :bluprint="usedTemplates[tabsBar.key].bluprint" 
                         :uploadImageRoute="uploadImageRoute" 
                     />
@@ -278,7 +292,7 @@ const webBlockTypeCategoriesFilter = computed(() => {
         </div>
 
 
-        <div :class="usedTemplates ? 'col-span-8' : 'col-span-10'">
+        <div :class="usedTemplates ? 'col-span-8' : 'col-span-10'" class="w-full">
             <div v-if="usedTemplates" class="h-full w-full bg-white">
                 <div class="flex justify-between bg-slate-200 border border-b-gray-300">
                     <div class="flex">
