@@ -169,4 +169,9 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
     {
         return $this->hasOne(MasterProductCategorySalesIntervals::class);
     }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(MasterProductCategoryStats::class);
+    }
 }

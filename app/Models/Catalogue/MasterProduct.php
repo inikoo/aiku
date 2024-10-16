@@ -174,4 +174,9 @@ class MasterProduct extends Model implements Auditable, HasMedia
         return $this->hasOne(MasterProductSalesIntervals::class);
     }
 
+    public function stats(): HasOne
+    {
+        return $this->hasOne(MasterProductStats::class);
+    }
+
 }
