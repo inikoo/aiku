@@ -29,11 +29,12 @@ const modelModalBlocklist = defineModel()
 
 const props = defineProps<{
     webpage: RootWebpage
-    webBlockTypeCategories: Root
+    webBlockTypes: Root
     isLoadingDelete: string | null
     isAddBlockLoading: string | null
 }>()
 
+console.log('dfsfsuuu',props)
 const emits = defineEmits<{
     (e: 'add', value: Daum): void
     (e: 'delete', value: Daum): void
@@ -89,8 +90,6 @@ defineExpose({
     modelModalBlocklist
 })
 
-
-console.log('popr',props)
 
 const selectedBlockOpenPanel = ref<number | null>(null)
 </script>
@@ -177,6 +176,6 @@ const selectedBlockOpenPanel = ref<number | null>(null)
 
 
     <Modal :isOpen="modelModalBlocklist" @onClose="openModalBlockList">
-        <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypeCategories" scope="webpage" />
+        <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" scope="webpage" />
     </Modal>
 </template>

@@ -7,6 +7,7 @@
 
 namespace App\Actions\SysAdmin\Group;
 
+use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\Web\WebBlockType\StoreWebBlockType;
 use App\Actions\Web\WebBlockType\UpdateWebBlockType;
 use App\Models\SysAdmin\Group;
@@ -22,8 +23,9 @@ class SeedWebBlockTypes
     public function handle(Group $group): void
     {
         foreach (Storage::disk('datasets')->files('web-block-types') as $file) {
-            $webBlockTypeData = Arr::only(
-                json_decode(Storage::disk('datasets')->get($file), true),
+            $rawWebBlockTypeData = Storage::disk('datasets')->json($file);
+            $webBlockTypeData    = Arr::only(
+                $rawWebBlockTypeData,
                 [
                     'scope',
                     'code',
@@ -33,11 +35,45 @@ class SeedWebBlockTypes
                 ]
             );
 
+            $data = [];
+
+            if (Arr::has($rawWebBlockTypeData, 'icon')) {
+                $data = [
+                    'icon' => Arr::get($rawWebBlockTypeData, 'icon')
+                ];
+            }
+
+            if (Arr::has($rawWebBlockTypeData, 'component')) {
+                $data = [
+                    'component' => Arr::get($rawWebBlockTypeData, 'component')
+                ];
+            }
+
+
+            if ($data != []) {
+                data_set($webBlockTypeData, 'data', $data);
+            }
+
+
             $webBlockType = $group->webBlockTypes()->where('code', Arr::get($webBlockTypeData, 'code'))->first();
             if ($webBlockType) {
-                UpdateWebBlockType::run($webBlockType, $webBlockTypeData);
+                $webBlockType = UpdateWebBlockType::run($webBlockType, $webBlockTypeData);
             } else {
-                StoreWebBlockType::run($group, $webBlockTypeData);
+                $webBlockType = StoreWebBlockType::run($group, $webBlockTypeData);
+            }
+
+
+            $imagePath = 'web-block-types/screenshots/'.$webBlockType->code.'.png';
+            if (Storage::disk('datasets')->exists($imagePath)) {
+                SaveModelImage::run(
+                    $webBlockType,
+                    [
+                        'path' => Storage::disk('datasets')->path($imagePath),
+                        'originalName' => $webBlockType->code.'.png',
+
+                    ],
+                    'screenshot'
+                );
             }
         }
     }

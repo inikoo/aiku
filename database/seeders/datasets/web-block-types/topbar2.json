@@ -1,0 +1,75 @@
+{
+	"scope": "website",
+	"slug": "top-bar-2",
+	"code": "top-bar-2",
+	"name": "Topbar Fantastic",
+	"component": "topbar",
+	"blueprint": {
+		"layout": [
+			{
+				"name": "Container",
+				"key": ["container", "properties"],
+				"type": ["properties"],
+				"props_data": {}
+			},
+			{
+				"name": "Title",
+				"key": ["main_title", "text"],
+				"type": ["text"],
+				"replaceForm": [
+					{
+						"key": ["greeting", "visible"],
+						"type": ["VisibleLoggedIn"]
+					},
+					{
+						"key": ["greeting", "text"],
+						"type": ["editorhtml"]
+					}
+				],
+				"props_data": {}
+			},
+			{
+				"name": "Greeting",
+				"key": ["greeting", "text"],
+				"type": ["editorhtml"],
+				"replaceForm": [
+					{
+						"key": ["greeting", "visible"],
+						"type": ["VisibleLoggedIn"]
+					},
+					{
+						"key": ["greeting", "text"],
+						"type": ["editorhtml"]
+					}
+				],
+				"props_data": {}
+			}
+		],
+		"fieldValue": {
+			"key": "Topheader",
+			"container": {
+				"properties": {
+					"background": {
+						"type": "color",
+						"color": "rgb(75,80,88)",
+						"image": {
+							"original": null
+						}
+					},
+					"text": {
+						"color": "rgb(255,255,255)",
+						"fontFamily": "Raleway"
+					}
+				}
+			},
+			"main_title": {
+				"text": "<p><span>Lorem ipsum dolor sit amet.</span></p>",
+				"visible": "all"
+			},
+			"greeting": {
+				"text": "<p>Hello, {{ name }}.",
+				"visible": "login"
+			}
+		}
+	}
+}

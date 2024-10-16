@@ -20,7 +20,7 @@ import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundCo
 
 export const getTopbarComponent = (componentName: string) => {
     const components: Component = {
-        'topbar1': Topbar1,
+        'topbar_1': Topbar1,
     }
 
     return components[componentName] || NotFoundComponents

@@ -11,6 +11,7 @@ use App\Actions\CRM\Prospect\Tags\Hydrators\TagHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCrmTags;
 use App\Http\Resources\Tag\TagResource;
+use App\Models\Catalogue\Product;
 use App\Models\Helpers\Tag;
 use App\Models\Inventory\Location;
 use App\Models\Catalogue\Shop;
@@ -84,6 +85,15 @@ class StoreTag extends OrgAction
         $this->fillFromRequest($request);
         $this->fill(['type' => 'inventory']);
         $this->initialisationFromWarehouse($location->warehouse, $request);
+
+        return $this->handle($this->validateAttributes());
+    }
+
+    public function inProduct(Product $product, ActionRequest $request): Tag
+    {
+        $this->fillFromRequest($request);
+        $this->fill(['type' => 'catalogue']);
+        $this->initialisationFromShop($product->shop, $request);
 
         return $this->handle($this->validateAttributes());
     }
