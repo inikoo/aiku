@@ -111,14 +111,18 @@ class IndexMasterSubDepartments extends GrpAction
         if ($this->parent instanceof MasterShop) {
             $subNavigation = $this->getMasterShopNavigation($this->parent);
         }
-        $title = __('Sub Departments');
+        $title = $this->parent->name;
         $model = '';
         $icon  = [
-            'icon'  => ['fal', 'fa-folder-tree'],
-            'title' => __('sub departments')
+            'icon'  => ['fal', 'fa-store-alt'],
+            'title' => __('master shop')
         ];
-        $afterTitle = null;
-        $iconRight = null;
+        $afterTitle = [
+            'label'     => __('Sub Departments')
+        ];
+        $iconRight    = [
+            'icon' => 'fal fa-folder-tree',
+        ];
 
         return Inertia::render(
             'Org/Catalogue/Families',

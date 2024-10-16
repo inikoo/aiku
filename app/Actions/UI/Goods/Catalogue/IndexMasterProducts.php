@@ -107,8 +107,28 @@ class IndexMasterProducts extends GrpAction
     {
         if ($this->parent instanceof Group) {
             $subNavigation = $this->getMasterCatalogueSubnavigation($this->parent);
+            $title = __('master products');
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-cube'],
+                'title' => __('master products')
+            ];
+            $afterTitle = null;
+            $iconRight    = null;
         } elseif ($this->parent instanceof MasterShop) {
             $subNavigation = $this->getMasterShopNavigation($this->parent);
+            $title = $this->parent->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-store-alt'],
+                'title' => __('master shop')
+            ];
+            $afterTitle = [
+                'label'     => __('Products')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-cube',
+            ];
         }
 
         return Inertia::render(
@@ -120,11 +140,11 @@ class IndexMasterProducts extends GrpAction
                 ),
                 'title'       => __('master products'),
                 'pageHead'    => [
-                    'title'         => __('Master Products'),
-                    'icon'          => [
-                        'icon'  => ['fal', 'fa-cube'],
-                        'title' => __('master products')
-                    ],
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
                 ],
                 'data'        => MasterProductsResource::collection($masterProducts),

@@ -111,14 +111,18 @@ class IndexMasterFamilies extends GrpAction
         if ($this->parent instanceof MasterShop) {
             $subNavigation = $this->getMasterShopNavigation($this->parent);
         }
-        $title = __('Families');
+        $title = $this->parent->name;
         $model = '';
         $icon  = [
-            'icon'  => ['fal', 'fa-folder-tree'],
-            'title' => __('families')
+            'icon'  => ['fal', 'fa-store-alt'],
+            'title' => __('master shop')
         ];
-        $afterTitle = null;
-        $iconRight = null;
+        $afterTitle = [
+            'label'     => __('Families')
+        ];
+        $iconRight    = [
+            'icon' => 'fal fa-folder-tree',
+        ];
 
         return Inertia::render(
             'Org/Catalogue/Families',
