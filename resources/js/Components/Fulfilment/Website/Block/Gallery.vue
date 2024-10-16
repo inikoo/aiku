@@ -65,24 +65,9 @@ const onCloseGallery = () => {
   <div class="bg-white" :style="getStyles(properties)">
     <div class="w-full">
 
-      <div class="grid grid-cols-4 gap-4">
-        <div v-if="modelValue.value?.gallery" v-for="(product, index) in modelValue.value?.gallery" :key="product.id">
-          <div class="bg-gray-200" @click="() => onOpenGallery(index)">
-            <div v-if="!product.image"
-              class="flex rounded-md border border-black border-dashed w-full p-10 justify-center">
-              <FontAwesomeIcon :icon="faImage" class="h-10 w-10 object-cover object-center group-hover:opacity-75" />
-            </div>
-            <div v-else class="w-full h-full">
-              <Image :src="product.image.source" class="object-cover object-center group-hover:opacity-75"></Image>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
 
       <div v-if="modelValue.value?.picture" class="flex justify-center">
-        <div class="flex bg-gray-200" @click="() => onOpenGallery(index)">
+        <div @click="() => onOpenGallery(index)">
           <div v-if="!modelValue.value?.picture.length"
             class="flex rounded-md border border-black border-dashed w-full p-10 justify-center">
             <FontAwesomeIcon :icon="faImage" class="h-10 w-10 object-cover object-center group-hover:opacity-75" />
@@ -93,6 +78,23 @@ const onCloseGallery = () => {
           </div>
         </div>
       </div>
+
+      <!--   maintace data galery from aurora -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div v-if="modelValue.value?.gallery" v-for="(product, index) in modelValue.value?.gallery" :key="product.id">
+          <div @click="() => onOpenGallery(index)">
+            <div v-if="!product.image"
+              class="flex rounded-md border border-black border-dashed w-full p-10 justify-center">
+              <FontAwesomeIcon :icon="faImage" class="h-10 w-10 object-cover object-center group-hover:opacity-75" />
+            </div>
+            <div v-else class="w-full h-full">
+              <Image :src="product.image.source"
+                class="object-cover object-center group-hover:opacity-75 w-full h-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 

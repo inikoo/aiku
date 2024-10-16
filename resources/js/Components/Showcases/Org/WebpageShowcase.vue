@@ -23,6 +23,7 @@ const props = defineProps<{
     }
 }>()
 
+console.log('iris',data.layout.web_blocks)
 
 </script>
 
@@ -56,6 +57,7 @@ const props = defineProps<{
                                     v-if="activityItem.web_block?.layout?.data?.fieldValue"
                                     :is="getComponent(activityItem.web_block?.layout?.data?.component)"
                                     :key="activityItemIdx"
+                                    :properties="activityItem?.web_block?.layout?.properties"
                                     v-model="activityItem.web_block.layout.data.fieldValue"
                                     :isEditable="false"
                                     v-bind="activityItem.web_block.layout.data.fieldValue"
