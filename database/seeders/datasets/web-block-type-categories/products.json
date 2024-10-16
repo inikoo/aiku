@@ -1,96 +1,83 @@
 {
-	"slug": "products",
-	"name": "Product showcases",
-	"icon": "fal fa-box-full",
-	"blueprint": {
-		"value": ""
-	},
 	"scope": "webpage",
-	"webBlockTypes": [
-		{
-			"code": "products",
-			"name": "List products",
-			"data": {
-				"component": "ProductList",
-				"icon": ["fal", "cube"],
-				"fieldValue": {
-					"value": ""
+	"slug": "products",
+	"code": "products",
+	"name": "List products",
+	"icon": ["fal", "cube"],
+	"fixed" : true,
+	"data": {
+		"fieldValue": {
+			"value": ""
+		},
+		"properties": {
+			"background": {
+				"type": "color",
+				"color": "#fff",
+				"image": {
+					"original": null
+				}
+			},
+			"padding": {
+				"unit": "px",
+				"top": {
+					"value": 0
 				},
-				"properties": {
-					"buttons": {
-						"login": true,
-						"logout": false
+				"left": {
+					"value": 0
+				},
+				"right": {
+					"value": 0
+				},
+				"bottom": {
+					"value": 0
+				}
+			},
+			"margin": {
+				"unit": "px",
+				"top": {
+					"value": 0
+				},
+				"left": {
+					"value": 0
+				},
+				"right": {
+					"value": 0
+				},
+				"bottom": {
+					"value": 0
+				}
+			},
+			"border": {
+				"color": "#000000",
+				"unit": "px",
+				"rounded": {
+					"unit": "px",
+					"topright": {
+						"value": 0
 					},
-					"background": {
-						"type": "color",
-						"color": "#fff",
-						"image": {
-							"original": null
-						}
+					"topleft": {
+						"value": 0
 					},
-					"padding": {
-						"unit": "px",
-						"top": {
-							"value": 0
-						},
-						"left": {
-							"value": 0
-						},
-						"right": {
-							"value": 0
-						},
-						"bottom": {
-							"value": 0
-						}
+					"bottomright": {
+						"value": 0
 					},
-					"margin": {
-						"unit": "px",
-						"top": {
-							"value": 0
-						},
-						"left": {
-							"value": 0
-						},
-						"right": {
-							"value": 0
-						},
-						"bottom": {
-							"value": 0
-						}
-					},
-					"border": {
-						"color": "#000000",
-						"unit": "px",
-						"rounded": {
-							"unit": "px",
-							"topright": {
-								"value": 0
-							},
-							"topleft": {
-								"value": 0
-							},
-							"bottomright": {
-								"value": 0
-							},
-							"bottomleft": {
-								"value": 0
-							}
-						},
-						"top": {
-							"value": 0
-						},
-						"left": {
-							"value": 0
-						},
-						"right": {
-							"value": 0
-						},
-						"bottom": {
-							"value": 0
-						}
+					"bottomleft": {
+						"value": 0
 					}
+				},
+				"top": {
+					"value": 0
+				},
+				"left": {
+					"value": 0
+				},
+				"right": {
+					"value": 0
+				},
+				"bottom": {
+					"value": 0
 				}
 			}
 		}
-	]
+	}
 }

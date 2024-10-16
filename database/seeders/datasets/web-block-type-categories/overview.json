@@ -1,25 +1,15 @@
 {
-	"slug": "overview",
-	"name": "Overview",
-	"icon": "fal fa-text",
-	"blueprint": {
-		"value": ""
-	},
 	"scope": "webpage",
-	"webBlockTypes": [
-		{
-			"code": "overview",
-			"name": "Overview",
-			"data": {
-				"component": "overview",
-				"icon": ["fal", "text"],
-				"fieldValue": {
-					"value": {
-						"images": [],
-						"texts": []
-					}
-				}
+	"slug": "overview",
+	"code": "overview",
+	"name": "Overview",
+	"icon": ["fal", "text"],
+	"data": {
+		"fieldValue": {
+			"value": {
+				"images": [],
+				"texts": []
 			}
 		}
-	]
+	}
 }

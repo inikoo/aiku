@@ -23,7 +23,7 @@ enum WebBlockTypeCategorySlugEnum: string
     case HEADER = 'header';
     case BANNER = 'banner';
     case TEXT = 'text';
-    case PICTURE = 'picture';
+    case IMAGES = 'images';
     case MAPS = 'maps';
     case CTE = 'cta';
     case PRODUCTS = 'products';
@@ -31,8 +31,9 @@ enum WebBlockTypeCategorySlugEnum: string
     case IFRAME = 'iframe';
     case BENTO_GRID = 'bento-grid';
     case MENU = 'menu';
-    case GRID = 'grid';
     case OVERVIEW = 'overview';
     case SCRIPT = 'script';
     case TOP_BAR = 'top-bar';
+    case BRICKS = 'bricks';
+    case GRID = 'grid'; //to do merge with bricks
 }

@@ -1,0 +1,87 @@
+{
+	"scope": "webpage",
+	"slug": "cta3",
+	"code": "cta3",
+	"name": "Call to action 3",
+	"icon": ["fal", "rectangle-wide"],
+	"data": {
+		"fieldValue": {
+			"description": "<div id='webpage_content_header_text' class='text-gray-600'><h1 class='text-xl font-bold'>Wholesale Nag Champa Incense</h1><div class='description mt-4'><p style='text-align: justify;'>Nag Champa is probably the best selling incense on the planet! Everyone should stock it as an essential item. &nbsp;<a class='_gre_ _str_' href='/tips-how-to-sell-more-nag-champa-incense' rel='noopener noreferrer' target='_blank'></a><a class='_gre_' href='https://www.ancientwisdom.biz/how-to-sell-nag-champa-incense'><strong>Check out our Sales Tips Page</strong>.</a> The original Blue pack made famous by the patronage of Satya Sai Baba is now only one of a whole range of incense and other scented products made with this distinctive fragrance.</p><p style='text-align: justify;'>Sticks: Each pack contains 15 Incense Sticks. &nbsp;</p><p class='mb-4'>Approx. burn time: 30 minutes. Cones: Each pack contains 12 Incense Cones. Approx. cone burn time: 20 minutes. Use with an incense holder for best results.&nbsp;</p><p class='text-lg'><strong>Made in Bangalore</strong></p><p style='text-align: justify;'><strong><span style='color: rgb(209, 72, 65);'>Make sure you order plenty and make a big stack</span></strong></p></div></div>",
+			"image": "https://www.ancientwisdom.biz/wi.php?id=1842040&s=690x690"
+		},
+		"properties": {
+			"buttons": {
+				"login": true,
+				"logout": false
+			},
+			"background": {
+				"type": "color",
+				"color": "#fff",
+				"image": {
+					"original": null
+				}
+			},
+			"padding": {
+				"unit": "px",
+				"top": {
+					"value": 0
+				},
+				"left": {
+					"value": 0
+				},
+				"right": {
+					"value": 0
+				},
+				"bottom": {
+					"value": 0
+				}
+			},
+			"margin": {
+				"unit": "px",
+				"top": {
+					"value": 0
+				},
+				"left": {
+					"value": 0
+				},
+				"right": {
+					"value": 0
+				},
+				"bottom": {
+					"value": 0
+				}
+			},
+			"border": {
+				"color": "#000000",
+				"unit": "px",
+				"rounded": {
+					"unit": "px",
+					"topright": {
+						"value": 0
+					},
+					"topleft": {
+						"value": 0
+					},
+					"bottomright": {
+						"value": 0
+					},
+					"bottomleft": {
+						"value": 0
+					}
+				},
+				"top": {
+					"value": 0
+				},
+				"left": {
+					"value": 0
+				},
+				"right": {
+					"value": 0
+				},
+				"bottom": {
+					"value": 0
+				}
+			}
+		}
+	}
+}

@@ -1,70 +1,64 @@
 {
-	"slug": "top-bar",
-	"name": "Website Topbar",
-	"icon": "fal fa-globe",
 	"scope": "website",
-	"webBlockTypes": [
-		{
-			"code": "top-header-1",
-			"name": "Top Header 1",
-			"data": {
-				"bluprint": [
+	"slug": "top-bar",
+	"code": "top-header-1",
+	"name": "Top Header 1",
+	"data": {
+		"bluprint": [
+			{
+				"name": "Container",
+				"key": ["container", "properties"],
+				"type": ["properties"],
+				"props_data": {}
+			},
+			{
+				"name": "Title",
+				"key": ["main_title", "text"],
+				"type": ["text"],
+				"props_data": {}
+			},
+			{
+				"name": "Greeting",
+				"key": ["greeting", "text"],
+				"type": ["editorhtml"],
+				"replaceForm": [
 					{
-						"name": "Container",
-						"key": ["container", "properties"],
-						"type": ["properties"],
-						"props_data": {}
+						"key": ["greeting", "visible"],
+						"type": ["VisibleLoggedIn"]
 					},
 					{
-						"name": "Title",
-						"key": ["main_title", "text"],
-						"type": ["text"],
-						"props_data": {}
-					},
-					{
-						"name": "Greeting",
 						"key": ["greeting", "text"],
-						"type": ["editorhtml"],
-						"replaceForm": [
-							{
-								"key": ["greeting", "visible"],
-								"type": ["VisibleLoggedIn"]
-							},
-							{
-								"key": ["greeting", "text"],
-								"type": ["editorhtml"]
-							}
-						],
-						"props_data": {}
+						"type": ["editorhtml"]
 					}
 				],
-				"fieldValue": {
-					"key": "Topheader",
-					"container": {
-						"properties": {
-							"background": {
-								"type": "color",
-								"color": "rgb(75,80,88)",
-								"image": {
-									"original": null
-								}
-							},
-							"text": {
-								"color": "rgb(255,255,255)",
-								"fontFamily": "Raleway"
-							}
+				"props_data": {}
+			}
+		],
+		"fieldValue": {
+			"key": "Topheader",
+			"container": {
+				"properties": {
+					"background": {
+						"type": "color",
+						"color": "rgb(75,80,88)",
+						"image": {
+							"original": null
 						}
 					},
-					"main_title": {
-						"text" : "<p><span>FAIRLY TRADING WHOLESALE GIFTS SINCE 1995</span></p>",
-						"visible" : "all"
-					},
-					"greeting": {
-						"text" : "<p>Hello, {{ name }}.",
-						"visible" : "login"
+					"text": {
+						"color": "rgb(255,255,255)",
+						"fontFamily": "Raleway"
 					}
 				}
+			},
+			"main_title": {
+				"text": "<p><span>FAIRLY TRADING WHOLESALE GIFTS SINCE 1995</span></p>",
+				"visible": "all"
+			},
+			"greeting": {
+				"text": "<p>Hello, {{ name }}.",
+				"visible": "login"
 			}
 		}
-	]
+	}
 }

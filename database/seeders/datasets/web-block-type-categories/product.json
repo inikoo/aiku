@@ -1,98 +1,85 @@
 {
 	"slug": "product",
-	"name": "Product showcase",
-	"icon": "fal fa-hand-holding-box",
-	"blueprint": {
-		"value": ""
-	},
 	"scope": "webpage",
-	"webBlockTypes": [
-		{
-			"code": "product",
-			"name": "Product showcase A",
-			"data": {
-				"component": "Product",
-				"icon": ["fal", "cube"],
-				"fieldValue": {
-					"value": {
-						"text": "bla bla"
+	"code": "product",
+	"name": "Product showcase A",
+	"icon": ["fal", "cube"],
+	"fixed" : true,
+	"data": {
+		"fieldValue": {
+			"value": {
+				"text": "bla bla"
+			}
+		},
+		"properties": {
+			"background": {
+				"type": "color",
+				"color": "#fff",
+				"image": {
+					"original": null
+				}
+			},
+			"padding": {
+				"unit": "px",
+				"top": {
+					"value": 0
+				},
+				"left": {
+					"value": 0
+				},
+				"right": {
+					"value": 0
+				},
+				"bottom": {
+					"value": 0
+				}
+			},
+			"margin": {
+				"unit": "px",
+				"top": {
+					"value": 0
+				},
+				"left": {
+					"value": 0
+				},
+				"right": {
+					"value": 0
+				},
+				"bottom": {
+					"value": 0
+				}
+			},
+			"border": {
+				"color": "#000000",
+				"unit": "px",
+				"rounded": {
+					"unit": "px",
+					"topright": {
+						"value": 0
+					},
+					"topleft": {
+						"value": 0
+					},
+					"bottomright": {
+						"value": 0
+					},
+					"bottomleft": {
+						"value": 0
 					}
 				},
-				"properties": {
-					"buttons": {
-						"login": true,
-						"logout": false
-					},
-					"background": {
-						"type": "color",
-						"color": "#fff",
-						"image": {
-							"original": null
-						}
-					},
-					"padding": {
-						"unit": "px",
-						"top": {
-							"value": 0
-						},
-						"left": {
-							"value": 0
-						},
-						"right": {
-							"value": 0
-						},
-						"bottom": {
-							"value": 0
-						}
-					},
-					"margin": {
-						"unit": "px",
-						"top": {
-							"value": 0
-						},
-						"left": {
-							"value": 0
-						},
-						"right": {
-							"value": 0
-						},
-						"bottom": {
-							"value": 0
-						}
-					},
-					"border": {
-						"color": "#000000",
-						"unit": "px",
-						"rounded": {
-							"unit": "px",
-							"topright": {
-								"value": 0
-							},
-							"topleft": {
-								"value": 0
-							},
-							"bottomright": {
-								"value": 0
-							},
-							"bottomleft": {
-								"value": 0
-							}
-						},
-						"top": {
-							"value": 0
-						},
-						"left": {
-							"value": 0
-						},
-						"right": {
-							"value": 0
-						},
-						"bottom": {
-							"value": 0
-						}
-					}
+				"top": {
+					"value": 0
+				},
+				"left": {
+					"value": 0
+				},
+				"right": {
+					"value": 0
+				},
+				"bottom": {
+					"value": 0
 				}
 			}
 		}
-	]
+	}
 }
