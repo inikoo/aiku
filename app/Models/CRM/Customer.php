@@ -31,6 +31,7 @@ use App\Models\Helpers\TaxNumber;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
+use App\Models\Reminder\BackToStockReminder;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -108,6 +109,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
  * @property-read MediaCollection<int, Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read Collection<int, BackToStockReminder> $backToStockReminder
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read Collection<int, CreditTransaction> $creditTransactions
  * @property-read Collection<int, \App\Models\CRM\CustomerNote> $customerNotes
@@ -403,5 +405,10 @@ class Customer extends Model implements HasMedia, Auditable
     public function favourites(): HasMany
     {
         return $this->hasMany(Favourite::class);
+    }
+
+    public function backToStockReminder(): HasMany
+    {
+        return $this->hasMany(BackToStockReminder::class);
     }
 }

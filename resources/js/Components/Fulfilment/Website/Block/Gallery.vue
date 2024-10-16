@@ -7,6 +7,8 @@ import Image from "@/Components/Image.vue"
 import { ref } from 'vue'
 import { cloneDeep } from "lodash";
 import { getStyles } from "@/Composables/styles";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faImage } from "@fas";
 
 library.add(faCube, faLink)
 
@@ -56,30 +58,43 @@ const onCloseGallery = () => {
   openGallery.value = false
   imagePick.value = null
 }
+
 </script>
 
 <template>
   <div class="bg-white" :style="getStyles(properties)">
-    <div class=" py-2 sm:py-2 lg:mx-auto lg:max-w-7xl lg:px-8">
-      <div class="w-full overflow-x-auto pb-6">
-        <ul role="list"
-          class="mx-4 inline-flex space-x-8 sm:mx-6 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-x-8 lg:space-x-0">
-          <li v-for="(product, index) in modelValue.value" :key="product.id"
-            class="inline-flex w-64 flex-col lg:w-auto">
-            <div>
-              <div class="aspect-h-1 aspect-w-1 w-full rounded-md bg-gray-200" @click="() => onOpenGallery(index)">
-                <img v-if="!product.image" :src="product.imageSrc" :alt="product.imageAlt"
-                  class="w-full object-cover object-center group-hover:opacity-75" />
-                <Image v-else :src="modelValue?.image?.source"
-                  class="w-full object-cover object-center group-hover:opacity-75"></Image>
-              </div>
-              <div class="mt-6">
-                <Editor v-model="product.text" @update:modelValue="() => emits('autoSave')" />
-              </div>
-            </div>
-          </li>
-        </ul>
+    <div class="w-full">
+
+
+      <div v-if="modelValue.value?.picture" class="flex justify-center">
+        <div @click="() => onOpenGallery(index)">
+          <div v-if="!modelValue.value?.picture.length"
+            class="flex rounded-md border border-black border-dashed w-full p-10 justify-center">
+            <FontAwesomeIcon :icon="faImage" class="h-10 w-10 object-cover object-center group-hover:opacity-75" />
+          </div>
+          <div v-else class="w-full h-full">
+            <Image :src="modelValue.value?.picture[0].image.source"
+              class="object-cover object-center group-hover:opacity-75"></Image>
+          </div>
+        </div>
       </div>
+
+      <!--   maintace data galery from aurora -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div v-if="modelValue.value?.gallery" v-for="(product, index) in modelValue.value?.gallery" :key="product.id">
+          <div @click="() => onOpenGallery(index)">
+            <div v-if="!product.image"
+              class="flex rounded-md border border-black border-dashed w-full p-10 justify-center">
+              <FontAwesomeIcon :icon="faImage" class="h-10 w-10 object-cover object-center group-hover:opacity-75" />
+            </div>
+            <div v-else class="w-full h-full">
+              <Image :src="product.image.source"
+                class="object-cover object-center group-hover:opacity-75 w-full h-full" />
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -87,6 +102,5 @@ const onCloseGallery = () => {
     :uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: id })" @onPick="setImage"
     @onUpload="onUpload">
   </Gallery>
-
 
 </template>

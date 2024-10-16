@@ -9,10 +9,10 @@ import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import TableWebpages from "@/Components/Tables/Grp/Org/Web/TableWebpages.vue"
 import { capitalize } from "@/Composables/capitalize"
-import { faShapes, faSortAmountDownAlt, faBrowser, faSortAmountDown, faHome, faSignInAlt, faThLarge, faColumns, faInfoCircle, faNewspaper } from '@fal'
+import { faShapes, faSortAmountDownAlt, faBrowser, faSortAmountDown, faHome, faSignInAlt, faBooks, faColumns, faInfoCircle, faNewspaper } from '@fal'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
-library.add(faShapes, faSortAmountDownAlt, faBrowser, faSortAmountDown, faHome, faSignInAlt, faThLarge, faColumns, faInfoCircle, faNewspaper)
+library.add(faShapes, faSortAmountDownAlt, faBrowser, faSortAmountDown, faHome, faSignInAlt, faBooks, faColumns, faInfoCircle, faNewspaper)
 
 const props = defineProps<{
   pageHead: TSPageHeading

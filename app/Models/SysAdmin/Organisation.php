@@ -183,6 +183,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, PurchaseOrder> $purchaseOrders
  * @property-read LaravelCollection<int, RawMaterial> $rawMaterials
  * @property-read LaravelCollection<int, RecurringBill> $recurringBills
+ * @property-read LaravelCollection<int, Redirect> $redirects
  * @property-read LaravelCollection<int, Rental> $rentals
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\OrganisationSalesIntervals|null $salesIntervals

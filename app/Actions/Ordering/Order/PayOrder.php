@@ -19,6 +19,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class PayOrder extends OrgAction
 {
@@ -69,8 +70,12 @@ class PayOrder extends OrgAction
         return $this->handle($order, $customer, $paymentAccount, $this->validatedData);
     }
 
-    public function htmlResponse(Payment $payment): \Symfony\Component\HttpFoundation\Response
+    public function htmlResponse(Payment $payment, ActionRequest $request): Response|null
     {
-        return Inertia::location(Arr::get($payment->data, 'links')[1]['href']);
+        if (Arr::exists($payment->data, 'links')) {
+            return Inertia::location(Arr::get($payment->data, 'links')[1]['href']);
+        }
+
+        return null;
     }
 }

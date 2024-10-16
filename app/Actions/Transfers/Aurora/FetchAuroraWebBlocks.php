@@ -34,6 +34,7 @@ use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebBlocks extends OrgAction
@@ -76,7 +77,9 @@ class FetchAuroraWebBlocks extends OrgAction
 
             foreach ($migrationTypes as $type) {
                 if (isset($webpage->migration_data[$type])) {
-                    $this->processMigrationData($webpage, $webpage->migration_data[$type]['blocks'], $oldMigrationsChecksum, $type);
+                    if (isset($webpage->migration_data[$type]['blocks'])) {
+                        $this->processMigrationData($webpage, $webpage->migration_data[$type]['blocks'], $oldMigrationsChecksum, $type);
+                    }
                 }
             }
         }
@@ -115,6 +118,8 @@ class FetchAuroraWebBlocks extends OrgAction
     ): void {
         $models = [];
 
+
+
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = WebBlockType::where("slug", "gallery")->first();
@@ -142,12 +147,14 @@ class FetchAuroraWebBlocks extends OrgAction
                 $webBlockType = WebBlockType::where("slug", "product")->first();
                 $layout       = $this->processProductData($auroraBlock);
                 $models[]     = Product::find($webpage->model_id);
+                data_set($layout, 'fixed', true, false);
                 break;
 
             case "category_products":
                 $webBlockType = WebBlockType::where("slug", "family")->first();
                 $models[]     = ProductCategory::find($webpage->model_id);
-                $layout       = $this->processFamilyData($auroraBlock);
+                $layout       = $this->processFamilyData($webpage, $auroraBlock);
+                data_set($layout, 'fixed', true, false);
                 break;
 
             case "see_also":
@@ -210,6 +217,7 @@ class FetchAuroraWebBlocks extends OrgAction
             case "category_categories":
                 $webBlockType = WebBlockType::where("slug", "department")->first();
                 $layout       = $this->processDepartmentData($models, $webpage, $auroraBlock);
+                data_set($layout, 'fixed', true, false);
                 break;
 
             case "blackboard":
@@ -230,11 +238,20 @@ class FetchAuroraWebBlocks extends OrgAction
             return;
         }
 
-        data_set($layout, "properties.padding.unit", "px");
-        data_set($layout, "properties.padding.left.value", 20);
-        data_set($layout, "properties.padding.right.value", 20);
-        data_set($layout, "properties.padding.bottom.value", 20);
-        data_set($layout, "properties.padding.top.value", 20);
+        // add fixed value to show the component can editable or not
+        data_set($layout, 'fixed', false, false);
+
+        $defaultPropertiesFromJson = Arr::get($webBlockType->data, 'properties');
+        if ($defaultPropertiesFromJson) {
+            data_set($layout, "properties", $defaultPropertiesFromJson);
+        } else {
+            data_set($layout, "properties.padding.unit", "px");
+            data_set($layout, "properties.padding.left.value", 20);
+            data_set($layout, "properties.padding.right.value", 20);
+            data_set($layout, "properties.padding.bottom.value", 20);
+            data_set($layout, "properties.padding.top.value", 20);
+            data_set($layout, "properties.padding.top.value", 20);
+        }
 
         $webBlock = StoreWebBlock::make()->action(
             $webBlockType,
@@ -291,7 +308,12 @@ class FetchAuroraWebBlocks extends OrgAction
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
                     $imageSources[] = ["image" => ["source" => $imageSource]];
                 }
-                data_set($layout, "fieldValue.value.images", $imageSources);
+                if (count($imageSources) <= 1) {
+                    data_set($layout, "fieldValue.value.picture", $imageSources);
+                } else {
+                    data_set($layout, "fieldValue.value.gallery", $imageSources);
+                }
+                data_forget($layout, "fieldValue.value.images");
             }
 
             $webBlock->updateQuietly([

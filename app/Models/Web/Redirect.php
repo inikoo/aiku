@@ -12,6 +12,15 @@ namespace App\Models\Web;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ *
+ *
+ * @property-read \App\Models\Web\Webpage|null $webpage
+ * @method static \Illuminate\Database\Eloquent\Builder|Redirect newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Redirect newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Redirect query()
+ * @mixin \Eloquent
+ */
 class Redirect extends Model
 {
     protected $table = 'webpage_has_redirects';

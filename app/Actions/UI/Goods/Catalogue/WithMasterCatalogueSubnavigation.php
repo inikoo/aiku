@@ -9,8 +9,6 @@
 namespace App\Actions\UI\Goods\Catalogue;
 
 use App\Models\Catalogue\MasterShop;
-use App\Models\Catalogue\Shop;
-use App\Models\SysAdmin\Group;
 
 trait WithMasterCatalogueSubnavigation
 {
@@ -48,7 +46,7 @@ trait WithMasterCatalogueSubnavigation
         return [
             [
                 'href'     => [
-                    'name'       => '',
+                    'name'       => 'grp.goods.catalogue.shops.index',
                     'parameters' => []
                 ],
                 'leftIcon' => [
@@ -58,14 +56,16 @@ trait WithMasterCatalogueSubnavigation
             ],
             [
                 'isAnchor' => true,
-                'label'    => __('Structure'),
+                'label'    => __($masterShop->name),
 
                 'href'     => [
-                    'name'       => '',
-                    'parameters' => []
+                    'name'       => 'grp.goods.catalogue.shops.show',
+                    'parameters' => [
+                        'masterShop' => $masterShop->slug
+                    ]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-code-branch'],
+                    'icon'    => ['fal', 'fa-store-alt'],
                     'tooltip' => __('Master Shop')
                 ]
 
@@ -76,8 +76,10 @@ trait WithMasterCatalogueSubnavigation
                 'number'   => 0,
                 'label'    => __('Departments'),
                 'href'     => [
-                    'name'       => '',
-                    'parameters' => []
+                    'name'       => 'grp.goods.catalogue.shops.show.departments.index',
+                    'parameters' => [
+                        'masterShop' => $masterShop->slug
+                    ]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
@@ -88,8 +90,10 @@ trait WithMasterCatalogueSubnavigation
                 'number'   => 0,
                 'label'    => __('Sub Departments'),
                 'href'     => [
-                    'name'       => '',
-                    'parameters' => []
+                    'name'       => 'grp.goods.catalogue.shops.show.sub-departments.index',
+                    'parameters' => [
+                        'masterShop' => $masterShop->slug
+                    ]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
@@ -100,8 +104,10 @@ trait WithMasterCatalogueSubnavigation
                 'number'   => 0,
                 'label'    => __('Families'),
                 'href'     => [
-                    'name'       => '',
-                    'parameters' => []
+                    'name'       => 'grp.goods.catalogue.shops.show.families.index',
+                    'parameters' => [
+                        'masterShop' => $masterShop->slug
+                    ]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
@@ -114,8 +120,10 @@ trait WithMasterCatalogueSubnavigation
                 'align'    => 'right',
                 'label'    => __('Products'),
                 'href'     => [
-                    'name'       => '',
-                    'parameters' => []
+                    'name'       => 'grp.goods.catalogue.shops.show.products.index',
+                    'parameters' => [
+                        'masterShop' => $masterShop->slug
+                    ]
                 ],
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],

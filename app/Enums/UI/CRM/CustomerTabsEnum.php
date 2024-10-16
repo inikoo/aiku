@@ -22,6 +22,7 @@ enum CustomerTabsEnum: string
     case DISPATCHED_EMAILS   = 'dispatched_emails';
     case CREDIT_TRANSACTIONS = 'credit_transactions';
     case FAVOURITES          = 'favourites';
+    case REMINDERS           = 'reminders';
 
 
     public function blueprint(): array
@@ -59,6 +60,12 @@ enum CustomerTabsEnum: string
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
+            ],
+            CustomerTabsEnum::REMINDERS => [
+                'title' => __('reminders'),
+                'icon'  => 'fal fa-bell',
+                'align' => 'right',
+                'type'  => 'icon',
             ],
             CustomerTabsEnum::FAVOURITES => [
                 'title' => __('favourites'),

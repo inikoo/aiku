@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Collection as LaravelCollection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
@@ -46,6 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property int $master_shop_id
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
  * @property-read LaravelCollection<int, MasterProductCategory> $children
  * @property-read MasterProductCategory|null $department
@@ -161,5 +163,15 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
             ProductCategoryTypeEnum::FAMILY     => $this->hasMany(MasterProduct::class, 'master_family_id'),
             default                             => null
         };
+    }
+
+    public function salesIntervals(): HasOne
+    {
+        return $this->hasOne(MasterProductCategorySalesIntervals::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(MasterProductCategoryStats::class);
     }
 }

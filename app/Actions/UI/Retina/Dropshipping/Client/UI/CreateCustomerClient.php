@@ -1,11 +1,11 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Wed, 16 Oct 2024 10:47:26 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Retina\Dropshipping\Client;
+namespace App\Actions\UI\Retina\Dropshipping\Client\UI;
 
 use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\RetinaAction;

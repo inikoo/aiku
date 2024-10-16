@@ -8,6 +8,7 @@
 namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\OrgAction;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,7 +26,18 @@ class ShowOrganisationDashboard extends OrgAction
             'Dashboard/OrganisationDashboard',
             [
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters(), __('Dashboard')),
+                'dashboard' => $this->getDashboardData($organisation)
 
+
+            ]
+        );
+    }
+
+    public function getDashboardData(Organisation $organisation): array
+    {
+        $data = [];
+        if ($organisation->type == OrganisationTypeEnum::SHOP) {
+            $data = [
                 'sales_intervals' => [
                     'all' => $organisation->salesIntervals->org_amount_all,
                     'ytd' => $organisation->salesIntervals->org_amount_ytd,
@@ -80,9 +92,12 @@ class ShowOrganisationDashboard extends OrgAction
                     'number_invoices'   =>  $organisation->catalogueStats->number_invoices,
                     'number_delivery_notes' => $organisation->catalogueStats->number_delivery_notes
                 ]
-            ]
-        );
+                ];
+        }
+
+        return $data;
     }
+
 
     public function asController(Organisation $organisation, ActionRequest $request): Response
     {

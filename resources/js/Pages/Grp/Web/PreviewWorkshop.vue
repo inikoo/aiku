@@ -119,6 +119,8 @@ const openModalBlock = () => {
     window.parent.postMessage('openModalBlockList', '*')
 };
 
+
+console.log('preview',data.value)
 </script>
 
 
@@ -142,7 +144,7 @@ const openModalBlock = () => {
                         <TransitionGroup tag="div" name="zzz" class="relative">
                             <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
                                 :key="activityItem.id" class="w-full">
-                                <component v-if="activityItem?.web_block?.layout?.fieldValue"
+                                <component v-if="activityItem?.web_block?.layout" class="w-full"
                                     :is="getComponent(activityItem?.type)" :webpageData="webpage"
                                     :properties="activityItem?.web_block?.layout?.properties" v-bind="activityItem"
                                     v-model="activityItem.web_block.layout.fieldValue" :isEditable="true"

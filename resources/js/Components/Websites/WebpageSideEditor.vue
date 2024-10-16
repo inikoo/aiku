@@ -113,7 +113,7 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                                         fixed-width aria-hidden='true' /> -->
                                 </div>
 
-                                <h3 class="text-sm capitalize font-medium select-none">
+                                <h3 class="lg:text-sm text-xs capitalize font-medium select-none">
                                     {{ element.type }}
                                 </h3>
                             </div>
@@ -123,17 +123,20 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                                 @click="(e) => { e.stopPropagation(), sendDeleteBlock(element) }">
                                 <LoadingIcon v-if="isLoadingDelete === ('deleteBlock' + element.id)"
                                     class="text-gray-400" />
-                                <FontAwesomeIcon v-else icon='fal fa-times' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon v-else icon='fal fa-times'
+                                    class="text-base sm:text-lg md:text-xl lg:text-2xl" fixed-width
+                                    aria-hidden='true' />
+
                             </div>
                         </div>
 
                         <!-- Section: Properties panel -->
-                        <Collapse v-if="element?.web_block?.layout?.data?.properties" as="section"
+                        <Collapse v-if="element?.web_block?.layout?.properties" as="section"
                             :when="selectedBlockOpenPanel === index">
 
                             <!-- {{ index }} -->
                             <!-- <pre>{{ element.web_block.layout.data?.properties }}</pre> -->
-                            <PanelProperties v-model="element.web_block.layout.data.properties"
+                            <PanelProperties v-model="element.web_block.layout.properties"
                                 @update:modelValue="() => (console.log('zzz'), debouncedSendUpdate(element))" />
                         </Collapse>
 

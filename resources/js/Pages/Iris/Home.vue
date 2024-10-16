@@ -26,7 +26,7 @@ const props = defineProps<{
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
 
-
+console.log('DDD',props.blocks.web_blocks)
 
 </script>
 
@@ -35,23 +35,22 @@ library.add(faCheck, faPlus, faMinus)
   <Head title="Warehouse Solution" />
 
   <div class="bg-white pb-20">
-
     <template v-if="props.blocks?.web_blocks?.length">
       <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"
         class="w-full">
 
         <component
             v-if="activityItem.web_block?.layout?.data?.fieldValue"
-            :is="getComponent(activityItem.web_block.layout.data.component)"
+            :is="getComponent(activityItem.type)"
             :key="activityItemIdx"
-            v-model="activityItem.web_block.layout.data.fieldValue"
+            :properties="activityItem?.web_block?.layout?.properties"
+            v-model="activityItem.web_block.layout.fieldValue"
             :isEditable="false"
-            v-bind="activityItem.web_block.layout.data.fieldValue"
+            v-bind="activityItem.web_block.layout.fieldValue"
         />
 
       </div>
     </template>
-
     <div v-else class="text-center text-2xl sm:text-4xl font-bold text-gray-400 mt-16">
       This page have no data
     </div>

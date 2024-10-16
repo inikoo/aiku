@@ -21,7 +21,8 @@ class UpdatePayment extends OrgAction
     public function handle(Payment $payment, array $modelData): Payment
     {
         $payment = $this->update($payment, $modelData, ['data']);
-        PaymentHydrateUniversalSearch::dispatch($payment)->delay($this->hydratorsDelay);
+
+        PaymentHydrateUniversalSearch::dispatch($payment);
 
         return $payment;
     }
@@ -32,21 +33,31 @@ class UpdatePayment extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("accounting.edit");
+        return $request->user()->hasPermissionTo("accounting.{$this->organisation->id}.edit");
     }
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'reference'    => ['sometimes', 'nullable', 'max:255', 'string'],
             'amount'       => ['sometimes', 'decimal:0,2'],
             'org_amount'   => ['sometimes', 'numeric'],
             'group_amount' => ['sometimes', 'numeric'],
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(Payment $payment, array $modelData, int $hydratorsDelay = 0): Payment
+    public function action(Payment $payment, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Payment
     {
+        $this->strict = $strict;
+        if (!$audit) {
+            Payment::disableAuditing();
+        }
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($payment->shop, $modelData);

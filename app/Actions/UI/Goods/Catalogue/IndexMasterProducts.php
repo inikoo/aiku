@@ -10,9 +10,7 @@ namespace App\Actions\UI\Goods\Catalogue;
 
 use App\Actions\GrpAction;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Http\Resources\Goods\Catalogue\MasterProductsResource;
-use App\Http\Resources\Goods\Catalogue\MasterShopsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\MasterProduct;
 use App\Models\Catalogue\MasterShop;
@@ -29,12 +27,14 @@ class IndexMasterProducts extends GrpAction
 {
     use WithMasterCatalogueSubnavigation;
 
+    private Group|MasterShop $parent;
+
     public function authorize(ActionRequest $request): bool
     {
         return $request->user()->hasPermissionTo("goods.{$this->group->id}.view");
     }
 
-    public function handle(Group $group, $prefix = null, $bucket = null): LengthAwarePaginator
+    public function handle(Group|MasterShop $parent, $prefix = null, $bucket = null): LengthAwarePaginator
     {
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -49,13 +49,18 @@ class IndexMasterProducts extends GrpAction
         }
 
         $queryBuilder = QueryBuilder::for(MasterProduct::class);
-
-        $queryBuilder->where('master_products.group_id', $group->id);
+        if ($parent instanceof Group) {
+            $queryBuilder->where('master_products.group_id', $parent->id);
+        } elseif ($parent instanceof MasterShop) {
+            $queryBuilder
+            ->join('master_shop_has_master_products', 'master_shop_has_master_products.master_product_id', '=', 'master_products.id')
+            ->where('master_shop_has_master_products.master_shop_id', $parent->id);
+        }
 
         return $queryBuilder
             ->defaultSort('master_products.code')
             ->select(
-                    [  
+                [
                         'master_shops.id',
                         'master_shops.code',
                         'master_shops.name',
@@ -64,7 +69,7 @@ class IndexMasterProducts extends GrpAction
                         'master_shops.status',
                         'master_shops.price',
                     ]
-                    )
+            )
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -83,7 +88,7 @@ class IndexMasterProducts extends GrpAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->withEmptyState(
-                        [
+                    [
                             'title'       => __("No master shops found"),
                         ],
                 )
@@ -100,7 +105,31 @@ class IndexMasterProducts extends GrpAction
 
     public function htmlResponse(LengthAwarePaginator $masterProducts, ActionRequest $request): Response
     {
-        $subNavigation = $this->getMasterCatalogueSubnavigation($this->group);
+        if ($this->parent instanceof Group) {
+            $subNavigation = $this->getMasterCatalogueSubnavigation($this->parent);
+            $title = __('master products');
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-cube'],
+                'title' => __('master products')
+            ];
+            $afterTitle = null;
+            $iconRight    = null;
+        } elseif ($this->parent instanceof MasterShop) {
+            $subNavigation = $this->getMasterShopNavigation($this->parent);
+            $title = $this->parent->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-store-alt'],
+                'title' => __('master shop')
+            ];
+            $afterTitle = [
+                'label'     => __('Products')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-cube',
+            ];
+        }
 
         return Inertia::render(
             'Goods/MasterShops',
@@ -111,11 +140,11 @@ class IndexMasterProducts extends GrpAction
                 ),
                 'title'       => __('master products'),
                 'pageHead'    => [
-                    'title'         => __('Master Products'),
-                    'icon'          => [
-                        'icon'  => ['fal', 'fa-cube'],
-                        'title' => __('master products')
-                    ],
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
                 ],
                 'data'        => MasterProductsResource::collection($masterProducts),
@@ -152,6 +181,19 @@ class IndexMasterProducts extends GrpAction
                     $suffix
                 ),
             ),
+            'grp.goods.catalogue.shops.show.products.index' =>
+            array_merge(
+                ShowMasterShop::make()->getBreadcrumbs($routeName, $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => [
+                            'masterShop' => $this->parent->slug
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
             default => []
         };
     }
@@ -159,9 +201,17 @@ class IndexMasterProducts extends GrpAction
     public function asController(ActionRequest $request): LengthAwarePaginator
     {
         $group = group();
+        $this->parent = $group;
         $this->initialisation($group, $request);
         return $this->handle($group, $request);
     }
 
-}
+    public function inMasterShop(MasterShop $masterShop, ActionRequest $request): LengthAwarePaginator
+    {
+        $group = group();
+        $this->parent = $masterShop;
+        $this->initialisation($group, $request);
+        return $this->handle($masterShop, $request);
+    }
 
+}

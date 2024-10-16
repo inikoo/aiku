@@ -17,6 +17,9 @@ return new class () extends Migration {
             $table->unsignedBigInteger('webpage_id')->index();
             $table->foreign('webpage_id')->references('id')->on('webpages');
             $table->unsignedInteger('child_id')->index();
+            $table->string('model_type')->index();
+            $table->unsignedInteger('model_id');
+            $table->string('scope')->nullable();
             $table->foreign('child_id')->references('id')->on('webpages');
             $table->timestampsTz();
         });
