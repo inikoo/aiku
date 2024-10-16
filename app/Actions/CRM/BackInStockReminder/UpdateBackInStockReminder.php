@@ -6,7 +6,7 @@
  * copyright 2024
 */
 
-namespace App\Actions\CRM\Favourite;
+namespace App\Actions\CRM\BackInStockReminder;
 
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoReminded;
 use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateCustomersWhoReminded;
