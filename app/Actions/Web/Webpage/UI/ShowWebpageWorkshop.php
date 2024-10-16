@@ -54,16 +54,15 @@ class ShowWebpageWorkshop extends OrgAction
                 ),
                 'pageHead'    => [
                     'title'     => $webpage->code,
-                    'model'     => __('Webpage'),
+                    'afterTitle'   => [
+                        'label'     => '../' . $webpage->url,
+                    ],
                     'icon'      => [
                         'title' => __('webpage'),
                         'icon'  => 'fal fa-browser'
                     ],
-                    'iconRight' =>
-                        [
-                            'icon'  => ['fal', 'drafting-compass'],
-                            'title' => __("Webpage's workshop")
-                        ],
+                    'model' => __('Workshop'),
+
                     'actions'   => [
                         [
                             'type'  => 'button',

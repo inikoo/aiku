@@ -48,7 +48,6 @@ onMounted(() => {
                         <div v-for="block in data" :key="block.code" @click="() => onPickBlock(block)"
                             class="group flex items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded 
                             cursor-pointer hover:bg-gray-100">
-                      
                             <div class="flex items-center justify-center">
                                 <FontAwesomeIcon :icon='block?.data?.icon' class='' fixed-width aria-hidden='true' />
                             </div>

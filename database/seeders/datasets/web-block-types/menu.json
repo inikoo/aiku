@@ -3,7 +3,8 @@
 	"slug": "menu",
 	"code": "menu1",
 	"name": "Menu 1",
-	"blueprint": {
+	"blueprint": {},
+	"data": {
 		"navigation": [
 			{
 				"label": "New In & Trending",

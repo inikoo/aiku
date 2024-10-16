@@ -9,7 +9,8 @@
 		"out" : true
 	},
 	"icon": ["fal", "code"],
-	"blueprint": {
+	"blueprint" : {},
+	"data": {
 		"fieldValue": {
 			"value": {}
 		},
