@@ -47,6 +47,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_subscriptions_state_in_process
  * @property int $number_subscriptions_state_active
  * @property int $number_subscriptions_state_discontinued
+ * @property int $number_customers_who_favourited
+ * @property int $number_customers_who_un_favourited
+ * @property int $number_customers_who_reminded
+ * @property int $number_customers_who_un_reminded
  * @property string $shop_amount_all
  * @property string $shop_amount_1y
  * @property string $shop_amount_1q

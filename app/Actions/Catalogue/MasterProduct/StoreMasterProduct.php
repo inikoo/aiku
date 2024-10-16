@@ -53,6 +53,7 @@ class StoreMasterProduct extends GrpAction
         if ($this->asAction) {
             return true;
         }
+        return false;
     }
 
     public function rules(): array

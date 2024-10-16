@@ -1,30 +1,33 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { Component } from 'vue'
 
-import Accordion from 'primevue/accordion';
-import AccordionPanel from 'primevue/accordionpanel';
-import AccordionHeader from 'primevue/accordionheader';
-import AccordionContent from 'primevue/accordioncontent';
-import InputText from 'primevue/inputtext';
-import { trans } from 'laravel-vue-i18n'
-import SelectButton from 'primevue/selectbutton';
+import Accordion from 'primevue/accordion'
+import AccordionPanel from 'primevue/accordionpanel'
+import AccordionHeader from 'primevue/accordionheader'
+import AccordionContent from 'primevue/accordioncontent'
+
 import EditorAndPanelProperties from "@/Components/Websites/Fields/EditorAndPanelProperties.vue"
-import ButtonVisibleLoggedIn from '@/Components/Websites/Fields/ButtonVisibleLoggedIn.vue';
-import PanelProperties from '@/Components/Websites/Fields/PanelProperties.vue';
+import ButtonVisibleLoggedIn from '@/Components/Websites/Fields/ButtonVisibleLoggedIn.vue'
+import PanelProperties from '@/Components/Websites/Fields/PanelProperties.vue'
+import SideEditorText from '@/Components/Websites/SideEditor/SideEditorText.vue'
+import SideEditorInputHTML from '@/Components/Websites/SideEditor/SideEditorInputHTML.vue'
 
 import UploadImage from '@/Components/Pure/UploadImage.vue'
 import Payments from '@/Components/Websites/Fields/Payment.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorForm.vue"
 import socialMedia from '@/Components/Websites/Fields/SocialMedia.vue'
-import FooterColumn from '@/Components/Websites/Fields/FooterColumn.vue';
-import { isArray } from 'lodash';
+import FooterColumn from '@/Components/Websites/Fields/FooterColumn.vue'
+import { isArray, set as setLodash } from 'lodash'
+import { routeType } from '@/types/route'
 
 
 const props = defineProps<{
-    modelValue: any,
     bluprint: Array
     uploadImageRoute?: routeType
 }>()
+
+const modelValue = defineModel()
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
@@ -32,9 +35,11 @@ const emits = defineEmits<{
 
 const openPanel = ref(0)
 
+// Component side editor
 const getComponent = (componentName: string) => {
     const components: Component = {
-        'text': InputText,
+        'text': SideEditorText,
+        'editorhtml': SideEditorInputHTML,
         'upload_image': UploadImage,
         'payment_templates': Payments,
         'editor': Editor,
@@ -48,17 +53,34 @@ const getComponent = (componentName: string) => {
     return components[componentName]
 }
 
-const visible = ref("all")
+// const visible = ref("all")
 
-const options = ref([
-    { label: 'All', value: 'all' },
-    { label: 'Logged In', value: 'login' },
-    { label: 'Logged Out', value: 'logout' },
-]);
+// const options = ref([
+//     { label: 'All', value: 'all' },
+//     { label: 'Logged In', value: 'login' },
+//     { label: 'Logged Out', value: 'logout' },
+// ]);
+
 const onUpdateValue = (field, value) => {
     emits('update:modelValue', {
-        ...props.modelValue, [field.key]: value
+        ...props.modelValue,
+        [field.key]: value
     })
+}
+
+// To trick the modelValue with deep object (['container', 'properties'])
+const getFormValue = (data: Object, fieldKeys: string | string[]) => {
+    if (Array.isArray(fieldKeys)) {
+        return fieldKeys.reduce((acc, key) => {
+            if (acc && typeof acc === "object" && key in acc) return acc[key]
+            return null
+        }, data)
+    } else {
+        return data[fieldKeys]
+    }
+}
+const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
+    setLodash(modelValue.value, fieldKeys, newVal)
 }
 
 
@@ -70,16 +92,68 @@ const onUpdateValue = (field, value) => {
             <AccordionHeader>
                 {{ field.name }}
             </AccordionHeader>
+
             <AccordionContent>
+                <!-- Component side editor -->
                 <div class="bg-white mt-[0px] py-4">
-                    <template v-if="isArray(field.type)" v-for="(type, indexType) in field.type">
-                        <component  :is="getComponent(type)"
-                            v-model="modelValue[field.key]" @update:modelValue="value => onUpdateValue(field, value)"
-                            :uploadRoutes="uploadImageRoute" v-bind="field?.props_data" />
+                    <!-- field key: {{ field.key }} -->
+                    <!-- model value: <pre>{{ modelValue }}</pre> -->
+                    <!-- {{ modelValue[field.key] }} -->
+                    <!-- <pre>{{ modelValue }}</pre> -->
+
+                    <!-- If field have 'replaceform' and in [] -->
+                    <template v-if="field.replaceForm">
+                        <template v-for="form in field.replaceForm">
+                            <!-- If field type is multi  -->
+                            <template v-if="isArray(form.type)">
+                                <component
+                                    v-for="(type, indexType) in form.type"
+                                    :is="getComponent(type)"
+                                    :modelValue="getFormValue(modelValue, form.key)"
+                                    @update:modelValue="newValue => setFormValue(modelValue, form.key, newValue)"
+                                    :uploadRoutes="uploadImageRoute"
+                                    v-bind="field?.props_data"
+                                />
+                            </template>
+
+                            <template v-else>
+                                <component
+                                    :is="getComponent(form.type)"
+                                    :key="form.key"
+                                    :modelValue="getFormValue(modelValue, form.key)"
+                                    @update:modelValue="newValue => setFormValue(modelValue, form.key, newValue)"
+                                    :uploadRoutes="uploadImageRoute"
+                                    v-bind="field?.props_data"
+                                />
+                            </template>
+                        </template>
                     </template>
-                    <component v-else :is="getComponent(field.type)" :key="field.key" v-model="modelValue[field.key]"
-                        @update:modelValue="value => onUpdateValue(field, value)" :uploadRoutes="uploadImageRoute"
-                        v-bind="field?.props_data" />
+                    
+                    <!-- If have no 'replaceform' -->
+                    <template v-else>
+                        <template v-if="isArray(field.type)">
+                            <component
+                                v-for="(type, indexType) in field.type"
+                                :is="getComponent(type)"
+                                :modelValue="getFormValue(modelValue, field.key)"
+                                @update:modelValue="newValue => setFormValue(modelValue, field.key, newValue)"
+                                :uploadRoutes="uploadImageRoute"
+                                v-bind="field?.props_data"
+                            />
+                        </template>
+    
+                        <template v-else>
+                            <component
+                                :is="getComponent(field.type)"
+                                :key="field.key"
+                                :modelValue="getFormValue(modelValue, field.key)"
+                                @update:modelValue="newValue => setFormValue(modelValue, field.key, newValue)"
+                                :uploadRoutes="uploadImageRoute"
+                                v-bind="field?.props_data"
+                            />
+                        </template>
+                    </template>
+
                 </div>
             </AccordionContent>
         </AccordionPanel>

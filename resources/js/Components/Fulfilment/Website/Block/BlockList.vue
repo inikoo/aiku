@@ -59,7 +59,7 @@ onMounted(() => {
             <section aria-labelledby="products-heading" class="h-full mx-auto w-full sm:px-6 lg:px-8 overflow-y-auto">
                 <TransitionGroup tag="div" name="zzz"
                     class="relative grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-3 gap-x-4 overflow-y-auto overflow-x-hidden">
-                    <template v-if="active.webBlockTypes.length">
+                    <template v-if="active?.webBlockTypes?.length">
                         <div v-for="block in active.webBlockTypes" :key="block.code" @click="() => onPickBlock(block)"
                             class="group flex items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded cursor-pointer hover:bg-gray-100">
                             <div class="flex items-center justify-center">

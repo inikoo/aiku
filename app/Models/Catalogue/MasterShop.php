@@ -50,6 +50,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\Catalogue\MasterProductCategory> $masterProductCategories
  * @property-read LaravelCollection<int, \App\Models\Catalogue\MasterProduct> $masterProducts
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
+ * @property-read \App\Models\Catalogue\MasterShopSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\ShopStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|MasterShop newModelQuery()

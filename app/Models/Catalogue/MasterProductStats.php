@@ -15,19 +15,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  *
  * @property int $id
- * @property int $product_id
- * @property int $number_product_variants
- * @property int $number_historic_assets
- * @property int $number_products_state_in_process
- * @property int $number_products_state_active
- * @property int $number_products_state_discontinuing
- * @property int $number_products_state_discontinued
+ * @property int $master_product_id
+ * @property int $number_master_products_state_in_process
+ * @property int $number_master_products_state_active
+ * @property int $number_master_products_state_discontinuing
+ * @property int $number_master_products_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\MasterProduct $masterProduct
- * @method static \Illuminate\Database\Eloquent\Builder|ProductStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder|MasterProductStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MasterProductStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MasterProductStats query()
  * @mixin \Eloquent
  */
 class MasterProductStats extends Model

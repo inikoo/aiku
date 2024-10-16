@@ -12,6 +12,7 @@ use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Models\CRM\Favourite;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\OrgStock;
+use App\Models\Reminder\BackInStockReminder;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -76,6 +77,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $historic_source_id
  * @property-read \App\Models\Catalogue\Asset|null $asset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, BackInStockReminder> $backInStockReminders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\Collection> $collections
  * @property-read \App\Models\Helpers\Currency $currency
  * @property-read \App\Models\Catalogue\ProductCategory|null $department
@@ -252,6 +254,11 @@ class Product extends Model implements Auditable, HasMedia
     public function favourites(): HasMany
     {
         return $this->hasMany(Favourite::class);
+    }
+
+    public function backInStockReminders(): HasMany
+    {
+        return $this->hasMany(BackInStockReminder::class);
     }
 
 }

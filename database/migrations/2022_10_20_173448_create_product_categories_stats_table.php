@@ -5,7 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
-
+use App\Stubs\Migrations\HasBackInStockReminderStats;
 use App\Stubs\Migrations\HasCatalogueStats;
 use App\Stubs\Migrations\HasFavouritesStats;
 use App\Stubs\Migrations\HasSalesIntervals;
@@ -17,6 +17,7 @@ return new class () extends Migration {
     use HasCatalogueStats;
     use HasSalesIntervals;
     use HasFavouritesStats;
+    use HasBackInStockReminderStats;
 
     public function up(): void
     {
@@ -27,6 +28,8 @@ return new class () extends Migration {
             $table = $this->catalogueFamilyStats($table);
             $table = $this->catalogueProductsStats($table);
             $table = $this->getCustomersWhoFavouritedStatsFields($table);
+            $table = $this->getCustomersWhoRemindedStatsFields($table);
+
             $table = $this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
             $table->timestampsTz();
         });

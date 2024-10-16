@@ -10,7 +10,7 @@ namespace App\Actions\Catalogue\Product\UI;
 use App\Actions\Catalogue\ProductCategory\UI\ShowDepartment;
 use App\Actions\Catalogue\ProductCategory\UI\ShowFamily;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
-use App\Actions\CRM\BackToStockReminder\UI\IndexProductBackToStockReminders;
+use App\Actions\CRM\BackInStockReminder\UI\IndexProductBackInStockReminders;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\CRM\Favourite\UI\IndexProductFavourites;
 use App\Actions\Fulfilment\Fulfilment\UI\ShowFulfilment;
@@ -19,7 +19,7 @@ use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
-use App\Http\Resources\Catalogue\ProductBackToStockRemindersResource;
+use App\Http\Resources\Catalogue\ProductBackInStockRemindersResource;
 use App\Http\Resources\Catalogue\ProductFavouritesResource;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\CRM\CustomersResource;
@@ -192,8 +192,8 @@ class ShowProduct extends OrgAction
                     : Inertia::lazy(fn () => ProductFavouritesResource::collection(IndexProductFavourites::run($product))),
 
                     ProductTabsEnum::REMINDERS->value => $this->tab == ProductTabsEnum::REMINDERS->value ?
-                    fn () => ProductBackToStockRemindersResource::collection(IndexProductBackToStockReminders::run($product))
-                    : Inertia::lazy(fn () => ProductBackToStockRemindersResource::collection(IndexProductBackToStockReminders::run($product))),
+                    fn () => ProductBackInStockRemindersResource::collection(IndexProductBackInStockReminders::run($product))
+                    : Inertia::lazy(fn () => ProductBackInStockRemindersResource::collection(IndexProductBackInStockReminders::run($product))),
 
                 // ProductTabsEnum::CUSTOMERS->value => $this->tab == ProductTabsEnum::CUSTOMERS->value ?
                 //     fn () => CustomersResource::collection(IndexCustomers::run($product))
@@ -206,7 +206,7 @@ class ShowProduct extends OrgAction
 
             ]
         )->table(IndexOrders::make()->tableStructure($product->asset, ProductTabsEnum::ORDERS->value))
-        ->table(IndexProductBackToStockReminders::make()->tableStructure($product, ProductTabsEnum::REMINDERS->value))
+        ->table(IndexProductBackInStockReminders::make()->tableStructure($product, ProductTabsEnum::REMINDERS->value))
         ->table(IndexProductFavourites::make()->tableStructure($product, ProductTabsEnum::FAVOURITES->value));
         // ->table(IndexCustomers::make()->tableStructure($product))
         // ->table(IndexMailshots::make()->tableStructure($product));

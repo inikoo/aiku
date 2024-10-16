@@ -11,11 +11,9 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\Website\GetWebsiteWorkshopFooter;
 use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
-use App\Http\Resources\Web\WebBlockTypeCategoryResource;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
-use App\Models\Web\WebBlockTypeCategory;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Inertia\Inertia;
@@ -54,14 +52,11 @@ class ShowWebpageWorkshopPreview extends OrgAction
     {
         /** @var Website $website */
         $website   = $webpage->website;
-        $home      = $website->storefront;
 
         return Inertia::render(
             'Web/PreviewWorkshop',
             [
-//                'blocks' => $home->unpublishedSnapshot->layout
                 'webpage'       => WebpageResource::make($webpage)->getArray(),
-                'webBlockTypeCategories' => WebBlockTypeCategoryResource::collection(WebBlockTypeCategory::all()),
                 'header' => GetWebsiteWorkshopHeader::run($website),
                 'footer' => GetWebsiteWorkshopFooter::run($website),
                 'navigation' => GetWebsiteWorkshopMenu::run($website)

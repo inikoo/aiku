@@ -52,7 +52,6 @@ export interface Layout2 {
   created_at: string
   updated_at: string
   description: any
-  web_block_type_category_id: number
 }
 
 export interface Data {

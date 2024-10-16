@@ -1,0 +1,15 @@
+{
+	"scope": "webpage",
+	"slug": "overview",
+	"code": "overview",
+	"name": "Overview",
+	"icon": ["fal", "text"],
+	"blueprint": {
+		"fieldValue": {
+			"value": {
+				"images": [],
+				"texts": []
+			}
+		}
+	}
+}

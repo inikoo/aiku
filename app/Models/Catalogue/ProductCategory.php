@@ -11,6 +11,7 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\CRM\Favourite;
 use App\Models\Helpers\UniversalSearch;
+use App\Models\Reminder\BackInStockReminder;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -67,7 +68,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ProductCategory> $children
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Collection> $collections
  * @property-read ProductCategory|null $department
+ * @property-read LaravelCollection<int, BackInStockReminder> $departmentBackInStockReminders
  * @property-read LaravelCollection<int, Favourite> $departmentFavourites
+ * @property-read LaravelCollection<int, BackInStockReminder> $familyBackInStockReminders
  * @property-read LaravelCollection<int, Favourite> $familyFavourites
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
@@ -79,6 +82,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\ProductCategoryStats|null $stats
  * @property-read ProductCategory|null $subDepartment
+ * @property-read LaravelCollection<int, BackInStockReminder> $subDepartmentBackInStockReminders
  * @property-read LaravelCollection<int, Favourite> $subDepartmentFavourites
  * @property-read LaravelCollection<int, ProductCategory> $subDepartments
  * @property-read UniversalSearch|null $universalSearch
@@ -227,5 +231,20 @@ class ProductCategory extends Model implements Auditable, HasMedia
     public function subDepartmentFavourites(): HasMany
     {
         return $this->hasMany(Favourite::class, 'sub_department_id');
+    }
+
+    public function departmentBackInStockReminders(): HasMany
+    {
+        return $this->hasMany(BackInStockReminder::class, 'department_id');
+    }
+
+    public function familyBackInStockReminders(): HasMany
+    {
+        return $this->hasMany(BackInStockReminder::class, 'family_id');
+    }
+
+    public function subDepartmentBackInStockReminders(): HasMany
+    {
+        return $this->hasMany(BackInStockReminder::class, 'sub_department_id');
     }
 }

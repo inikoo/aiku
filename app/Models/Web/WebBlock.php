@@ -24,7 +24,6 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  *
  * @property int $id
  * @property int $group_id
- * @property int $web_block_type_category_id
  * @property int $web_block_type_id
  * @property string|null $checksum
  * @property array $layout
