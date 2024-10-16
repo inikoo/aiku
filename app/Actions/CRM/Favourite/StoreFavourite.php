@@ -7,8 +7,8 @@
 
 namespace App\Actions\CRM\Favourite;
 
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoFavouritedInCategories;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoFavourited;
-use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateCustomersWhoFavourited;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateFavourites;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Product;
@@ -34,7 +34,7 @@ class StoreFavourite extends OrgAction
 
         CustomerHydrateFavourites::run($customer);
         ProductHydrateCustomersWhoFavourited::run($product);
-        ProductCategoryHydrateCustomersWhoFavourited::run($product);
+        ProductHydrateCustomersWhoFavouritedInCategories::run($product);
 
         return $favourite;
     }
