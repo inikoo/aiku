@@ -29,7 +29,7 @@ class StoreWebBlock extends GrpAction
         data_set(
             $modelData,
             'layout',
-            ['fieldValue' => Arr::get($webBlockType->data, 'fieldValue'), 'properties' => Arr::get($webBlockType->data, 'properties')],
+            ['data' => $webBlockType->data, 'blueprint' => $webBlockType->blueprint],
             overwrite: false
         );
 
