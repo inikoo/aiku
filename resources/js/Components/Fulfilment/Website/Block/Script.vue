@@ -19,20 +19,20 @@ const props = defineProps<{
 onMounted(() => {
   const script = document.createElement("script");
   script.type = "text/javascript";
-  script.innerHTML = `
-    richSnippetReviewsWidgets('carousel-inline-widget-810', {
-      store: 'ancient-wisdom-marketing-ltd',
-      widgetName: 'carousel-inline',
-      primaryClr: '#f47e27',
-      neutralClr: '#f4f4f4',
-      reviewTextClr: '#2f2f2f',
-      ratingTextClr: '#2f2f2f',
-      layout: 'fullWidth',
-      numReviews: 21
-    });
-  `;
-  document.getElementById('reviews-widget')?.appendChild(script);
-  console.log(props.modelValue, 'hehe');
+  script.innerHTML = props.modelValue;
+  /*   script.innerHTML = `
+      richSnippetReviewsWidgets('carousel-inline-widget-810', {
+        store: 'ancient-wisdom-marketing-ltd',
+        widgetName: 'carousel-inline',
+        primaryClr: '#f47e27',
+        neutralClr: '#f4f4f4',
+        reviewTextClr: '#2f2f2f',
+        ratingTextClr: '#2f2f2f',
+        layout: 'fullWidth',
+        numReviews: 21
+      });
+    `; */
+  /*  document.getElementById('reviews-widget')?.appendChild(script); */
 
 });
 </script>

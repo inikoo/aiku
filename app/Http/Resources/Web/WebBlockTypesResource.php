@@ -10,6 +10,7 @@ namespace App\Http\Resources\Web;
 use App\Http\Resources\HasSelfCall;
 use App\Models\Web\WebBlockType;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 
 class WebBlockTypesResource extends JsonResource
 {
@@ -30,6 +31,9 @@ class WebBlockTypesResource extends JsonResource
             'data'        => $webBlockType->data,
             'created_at'  => $webBlockType->created_at,
             'updated_at'  => $webBlockType->updated_at,
+            'screenshot'  => $webBlockType->imageSources(),
+            'component'   => Arr::get($webBlockType->data, 'component'),
+            'icon'        => Arr::get($webBlockType->data, 'icon')
 
         ];
     }

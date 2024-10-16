@@ -24,13 +24,7 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faHeart } from '@far'
 import { faBrowser } from '@fal'
 
-
-import Accordion from 'primevue/accordion'
-import AccordionPanel from 'primevue/accordionpanel'
-import AccordionHeader from 'primevue/accordionheader'
-import AccordionContent from 'primevue/accordioncontent'
 import { trans } from 'laravel-vue-i18n'
-import BackgroundProperty from '@/Components/Websites/Fields/Properties/BackgroundProperty.vue'
 
 library.add(faBrowser, faPresentation, faCube, faText, faHeart, faPaperclip)
 
@@ -45,11 +39,10 @@ const props = defineProps<{
         }
     }
     autosaveRoute: routeType
-    webBlockTypeCategories: Object
+    web_block_types: {}
 
 }>()
 
-console.log(props)
 const isModalOpen = ref(false)
 const usedTemplates = ref({ 
     header : props.data.data.header,
@@ -63,11 +56,6 @@ const iframeSrc = ref(route('grp.websites.header.preview', [route().params['webs
 const loginMode = ref(true)
 const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
 const tabs = [
-    /* {
-        label: "Body",
-        key: 'body',
-        icon: faPresentation,
-    }, */
     {
         label: "Website Topbar",
         key: 'topBar',
@@ -188,9 +176,10 @@ const onSelectTopbar = (xxx) => {
     isOpenModalTopbarList.value = false
 }
 
+console.log('ee', props.web_block_types)
 const webBlockTypeCategoriesFilter = computed(() => {
     // Create a shallow copy of the props.webBlockTypeCategories
-    const filteredData = { ...props.webBlockTypeCategories };
+    const filteredData = { ...props.web_block_types };
 
     // console.log('fff', tabsBar.value.label)
     
@@ -328,7 +317,7 @@ const webBlockTypeCategoriesFilter = computed(() => {
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
         <BlockList 
             :onPickBlock="onPickTemplate" 
-            :webBlockTypes="webBlockTypeCategoriesFilter" 
+            :webBlockTypes="web_block_types" 
             scope="website" 
         />
     </Modal>
