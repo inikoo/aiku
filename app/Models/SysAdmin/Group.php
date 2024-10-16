@@ -65,7 +65,6 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Web\Redirect;
 use App\Models\Web\WebBlockType;
-use App\Models\Web\WebBlockTypeCategory;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use Eloquent;
@@ -186,7 +185,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\User> $users
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
  * @property-read LaravelCollection<int, Warehouse> $warehouses
- * @property-read LaravelCollection<int, WebBlockTypeCategory> $webBlockTypeCategories
  * @property-read LaravelCollection<int, WebBlockType> $webBlockTypes
  * @property-read \App\Models\SysAdmin\GroupWebStats|null $webStats
  * @property-read LaravelCollection<int, WebUser> $webUsers
@@ -613,10 +611,6 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(Outbox::class);
     }
 
-    public function webBlockTypeCategories(): HasMany
-    {
-        return $this->hasMany(WebBlockTypeCategory::class);
-    }
 
     public function webBlockTypes(): HasMany
     {

@@ -25,7 +25,6 @@ class StoreWebBlock extends GrpAction
     {
         $models = Arr::pull($modelData, 'models', []);
         data_set($modelData, 'group_id', $webBlockType->group_id);
-        data_set($modelData, 'web_block_type_category_id', $webBlockType->web_block_type_category_id);
 
         data_set(
             $modelData,

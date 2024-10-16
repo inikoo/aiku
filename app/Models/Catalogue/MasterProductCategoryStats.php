@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @property int $id
  * @property int $master_product_category_id
- * @property int $number_master_sub_departments
+ * @property int $number_sub_departments
  * @property int $number_current_master_sub_departments state: active+discontinuing
  * @property int $number_master_sub_departments_state_in_process
  * @property int $number_master_sub_departments_state_active

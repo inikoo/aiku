@@ -109,7 +109,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\CRM\Appointment> $appointments
  * @property-read MediaCollection<int, Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
- * @property-read Collection<int, BackInStockReminder> $BackInStockReminder
+ * @property-read Collection<int, BackInStockReminder> $backInStockReminder
  * @property-read Collection<int, CustomerClient> $clients
  * @property-read Collection<int, CreditTransaction> $creditTransactions
  * @property-read Collection<int, \App\Models\CRM\CustomerNote> $customerNotes
@@ -407,7 +407,7 @@ class Customer extends Model implements HasMedia, Auditable
         return $this->hasMany(Favourite::class);
     }
 
-    public function BackInStockReminder(): HasMany
+    public function backInStockReminder(): HasMany
     {
         return $this->hasMany(BackInStockReminder::class);
     }
