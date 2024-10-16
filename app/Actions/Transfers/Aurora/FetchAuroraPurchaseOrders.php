@@ -7,7 +7,6 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Helpers\Attachment\SaveModelAttachment;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Models\Procurement\PurchaseOrder;
@@ -38,71 +37,45 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                 $this->fetchTransactions($organisationSource, $purchaseOrder);
                 $this->updateAurora($purchaseOrder);
                 $this->setAttachments($purchaseOrder);
+            } elseif ($purchaseOrderData['org_parent']) {
+                try {
+                    $purchaseOrder = StorePurchaseOrder::make()->action(
+                        organisation: $organisationSource->organisation,
+                        parent: $purchaseOrderData['org_parent'],
+                        modelData: $purchaseOrderData['purchase_order'],
+                        strict: false
+                    );
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $purchaseOrderData['purchase_order'], 'PurchaseOrder', 'store');
+
+                    return null;
+                }
+
+                $this->fetchTransactions($organisationSource, $purchaseOrder);
+
+                $this->updateAurora($purchaseOrder);
+
+                $this->setAttachments($purchaseOrder);
 
                 return $purchaseOrder;
             } else {
-                if ($purchaseOrderData['org_parent']) {
-                    try {
-                        $purchaseOrder = StorePurchaseOrder::make()->action(
-                            organisation: $organisationSource->organisation,
-                            parent: $purchaseOrderData['org_parent'],
-                            modelData: $purchaseOrderData['purchase_order'],
-                            strict: false
-                        );
-                    } catch (Exception $e) {
-                        $this->recordError($organisationSource, $e, $purchaseOrderData['purchase_order'], 'PurchaseOrder', 'store');
-
-                        return null;
-                    }
-
-                    $this->fetchTransactions($organisationSource, $purchaseOrder);
-
-                    $this->updateAurora($purchaseOrder);
-
-                    $this->setAttachments($purchaseOrder);
-
-                    return $purchaseOrder;
-                }
                 print "Warning purchase order ".$purchaseOrderData['purchase_order']['reference']."  Id:$organisationSourceId do not have parent\n";
                 dd($purchaseOrderData);
             }
         }
 
+
         return null;
     }
 
-    private function setAttachments($stockDelivery): void
+    private function setAttachments($purchaseOrder): void
     {
-        if (in_array('attachments', $this->with)) {
-            $sourceData = explode(':', $stockDelivery->source_id);
-            foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
-                SaveModelAttachment::run(
-                    $stockDelivery,
-                    $attachmentData['fileData'],
-                    $attachmentData['modelData'],
-                );
-                $attachmentData['temporaryDirectory']->delete();
-            }
-        }
+        $this->processFetchAttachments($purchaseOrder, 'Purchase Order');
     }
-
-    private function parseAttachments($staffKey): array
-    {
-        $attachments = $this->getModelAttachmentsCollection(
-            'Purchase Order',
-            $staffKey
-        )->map(function ($auroraAttachment) {
-            return $this->fetchAttachment($auroraAttachment);
-        });
-
-        return $attachments->toArray();
-    }
-
 
 
     private function fetchTransactions($organisationSource, PurchaseOrder $purchaseOrder): void
     {
-
         $transactionsToDelete = $purchaseOrder->purchaseOrderTransactions()->pluck('source_id', 'id')->all();
 
         $sourceData = explode(':', $purchaseOrder->source_id);

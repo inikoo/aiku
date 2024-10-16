@@ -7,7 +7,6 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Helpers\Attachment\SaveModelAttachment;
 use App\Actions\Helpers\Media\SaveModelImage;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
@@ -30,7 +29,7 @@ class FetchAuroraEmployees extends FetchAuroraAction
 {
     use WithAuroraAttachments;
 
-    public string $commandSignature = 'fetch:employees {organisations?*} {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: attachments}';
+    public string $commandSignature = 'fetch:employees {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Employee
     {
@@ -38,7 +37,6 @@ class FetchAuroraEmployees extends FetchAuroraAction
 
 
         if ($employeeData = $organisationSource->fetchEmployee($organisationSourceId)) {
-
             $sourceId = $employeeData['employee']['source_id'];
 
             if ($employee = Employee::where('source_id', $sourceId)->first()) {
@@ -64,7 +62,7 @@ class FetchAuroraEmployees extends FetchAuroraAction
                 Employee::enableAuditing();
                 $this->saveMigrationHistory(
                     $employee,
-                    Arr::except($employeeData['employee'], ['fetched_at', 'last_fetched_at', 'source_id','positions','user_model_status'])
+                    Arr::except($employeeData['employee'], ['fetched_at', 'last_fetched_at', 'source_id', 'positions', 'user_model_status'])
                 );
 
 
@@ -74,21 +72,17 @@ class FetchAuroraEmployees extends FetchAuroraAction
                 DB::connection('aurora')->table('Staff Dimension')
                     ->where('Staff Key', $sourceData[1])
                     ->update(['aiku_id' => $employee->id]);
-
-
             }
 
             UpdateEmployeeWorkingHours::run($employee, $employeeData['working_hours']);
 
 
             if (Arr::has($employeeData, 'user.source_id')) {
-
                 $updateUser = true;
                 $user       = $employee->getUser();
                 if (!$user) {
                     $user = $employee->group->users()->where('username', $employeeData['user']['username'])->first();
                     if ($user) {
-
                         $updateUser = false;
                         $user       = AttachEmployeeToUser::make()->action(
                             $user,
@@ -100,7 +94,6 @@ class FetchAuroraEmployees extends FetchAuroraAction
                         );
                     }
                 }
-
 
 
                 if ($user) {
@@ -160,19 +153,8 @@ class FetchAuroraEmployees extends FetchAuroraAction
                 }
             }
 
-            if (in_array('attachments', $this->with)) {
-                $sourceData = explode(':', $employee->source_id);
-                foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
-                    SaveModelAttachment::run(
-                        $employee,
-                        $attachmentData['fileData'],
-                        $attachmentData['modelData'],
-                    );
 
-                    $attachmentData['temporaryDirectory']->delete();
-                }
-            }
-
+            $this->processFetchAttachments($employee, 'Staff');
 
             return $employee;
         }
@@ -180,17 +162,6 @@ class FetchAuroraEmployees extends FetchAuroraAction
         return null;
     }
 
-    private function parseAttachments($staffKey): array
-    {
-        $attachments = $this->getModelAttachmentsCollection(
-            'Staff',
-            $staffKey
-        )->map(function ($auroraAttachment) {
-            return $this->fetchAttachment($auroraAttachment);
-        });
-
-        return $attachments->toArray();
-    }
 
     public function getModelsQuery(): Builder
     {

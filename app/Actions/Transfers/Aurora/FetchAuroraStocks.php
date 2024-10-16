@@ -10,7 +10,6 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\SyncStockTradeUnits;
 use App\Actions\Goods\Stock\UpdateStock;
-use App\Actions\Helpers\Attachment\SaveModelAttachment;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Inventory\OrgStock\SyncOrgStockLocations;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
@@ -28,7 +27,8 @@ class FetchAuroraStocks extends FetchAuroraAction
     use WithAuroraAttachments;
     use HasStockLocationsFetch;
 
-    public string $commandSignature = 'fetch:stocks {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset} {--w|with=* : Accepted values: attachments}';
+
+    public string $commandSignature = 'fetch:stocks {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): array
     {
@@ -126,22 +126,10 @@ class FetchAuroraStocks extends FetchAuroraAction
         }
 
 
-        if ($effectiveStock && in_array('attachments', $this->with)) {
+        if ($effectiveStock) {
             /** @var TradeUnit $tradeUnit */
             $tradeUnit = $effectiveStock->tradeUnits()->first();
-            $attachmentsToDelete = $tradeUnit->attachments()->pluck('source_id', 'model_has_attachments.id')->all();
-            foreach ($this->parseAttachments($effectiveStock->source_id) as $attachmentData) {
-                SaveModelAttachment::make()->action(
-                    model: $tradeUnit,
-                    modelData: $attachmentData['modelData'],
-                    hydratorsDelay: 30,
-                    strict: false
-                );
-                $attachmentsToDelete = array_diff($attachmentsToDelete, [$attachmentData['modelData']['source_id']]);
-
-                $attachmentData['temporaryDirectory']->delete();
-            }
-            $tradeUnit->attachments()->whereIn('model_has_attachments.id', array_keys($attachmentsToDelete))->forceDelete();
+            $this->processFetchAttachments($tradeUnit, 'Part');
         }
 
         return [
@@ -150,18 +138,7 @@ class FetchAuroraStocks extends FetchAuroraAction
         ];
     }
 
-    private function parseAttachments($modelSource): array
-    {
-        $modelSourceData = explode(':', $modelSource);
-        $attachments     = $this->getModelAttachmentsCollection(
-            'Part',
-            $modelSourceData[1]
-        )->map(function ($auroraAttachment) use ($modelSourceData) {
-            return $this->fetchAttachment($auroraAttachment, $modelSourceData[0]);
-        });
 
-        return $attachments->toArray();
-    }
 
     public function getModelsQuery(): Builder
     {

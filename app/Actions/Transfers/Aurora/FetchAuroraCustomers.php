@@ -9,7 +9,6 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Customer\UpdateCustomer;
-use App\Actions\Helpers\Attachment\SaveModelAttachment;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\CRM\Customer;
 use App\Transfers\Aurora\WithAuroraAttachments;
@@ -26,7 +25,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
     use WithAuroraAttachments;
     use WithAuroraParsers;
 
-    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users attachments portfolio favourites full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users portfolio favourites full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
@@ -166,19 +165,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
                 }
             }
 
-
-            if (in_array('attachments', $this->with) || in_array('full', $with)) {
-                $sourceData = explode(':', $customer->source_id);
-                foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
-                    SaveModelAttachment::run(
-                        $customer,
-                        $attachmentData['fileData'],
-                        $attachmentData['modelData'],
-                    );
-                    $attachmentData['temporaryDirectory']->delete();
-                }
-            }
-
+            $this->processFetchAttachments($customer, 'Customer');
 
             return $customer;
         }
@@ -186,17 +173,6 @@ class FetchAuroraCustomers extends FetchAuroraAction
         return null;
     }
 
-    private function parseAttachments($staffKey): array
-    {
-        $attachments = $this->getModelAttachmentsCollection(
-            'Customer',
-            $staffKey
-        )->map(function ($auroraAttachment) {
-            return $this->fetchAttachment($auroraAttachment);
-        });
-
-        return $attachments->toArray();
-    }
 
     public function getModelsQuery(): Builder
     {

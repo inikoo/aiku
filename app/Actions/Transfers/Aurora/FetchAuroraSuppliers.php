@@ -7,16 +7,14 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Transfers\Aurora\WithAuroraAttachments;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraSuppliers extends FetchAuroraAction
 {
     use FetchSuppliersTrait;
-    use WithAuroraAttachments;
 
-    public string $commandSignature = 'fetch:suppliers {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: attachments}';
+    public string $commandSignature = 'fetch:suppliers {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
 
 
     public function fetch($organisationSource, $organisationSourceId)

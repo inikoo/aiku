@@ -7,7 +7,6 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Helpers\Attachment\SaveModelAttachment;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
 use App\Models\Accounting\Payment;
@@ -22,7 +21,7 @@ class FetchAuroraOrders extends FetchAuroraAction
 {
     use WithAuroraAttachments;
 
-    public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments attachments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
     private bool $errorReported = false;
 
@@ -109,33 +108,8 @@ class FetchAuroraOrders extends FetchAuroraAction
             }
         }
 
-        if (in_array('attachments', $this->with)) {
-            $sourceData = explode(':', $order->source_id);
-            foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
-                SaveModelAttachment::run(
-                    $order,
-                    $attachmentData['fileData'],
-                    $attachmentData['modelData'],
-                );
-                $attachmentData['temporaryDirectory']->delete();
-            }
-        }
-
-
+        $this->processFetchAttachments($order, 'Order');
         return $order;
-    }
-
-
-    private function parseAttachments($staffKey): array
-    {
-        $attachments = $this->getModelAttachmentsCollection(
-            'Order',
-            $staffKey
-        )->map(function ($auroraAttachment) {
-            return $this->fetchAttachment($auroraAttachment);
-        });
-
-        return $attachments->toArray();
     }
 
     private function fetchPayments($organisationSource, Order $order): void

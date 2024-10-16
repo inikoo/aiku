@@ -1,13 +1,12 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 09 May 2023 14:50:49 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 09 May 2023 14:50:49 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Helpers\Attachment\SaveModelAttachment;
 use App\Actions\Procurement\StockDelivery\StoreStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStockDelivery;
 use App\Models\Procurement\StockDelivery;
@@ -20,7 +19,7 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
 {
     use WithAuroraAttachments;
 
-    public string $commandSignature = 'fetch:stock-deliveries {organisations?*} {--s|source_id=} {--w|with=* : Accepted values: attachments}';
+    public string $commandSignature = 'fetch:stock-deliveries {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?StockDelivery
     {
@@ -56,27 +55,8 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
 
     private function setAttachments($stockDelivery): void
     {
-        if (in_array('attachments', $this->with)) {
-            $sourceData = explode(':', $stockDelivery->source_id);
-            foreach ($this->parseAttachments($sourceData[1]) ?? [] as $attachmentData) {
+        $this->processFetchAttachments($stockDelivery, 'Supplier Delivery');
 
-                SaveModelAttachment::run(
-                    $stockDelivery,
-                    $attachmentData['fileData'],
-                    $attachmentData['modelData'],
-                );
-                $attachmentData['temporaryDirectory']->delete();
-            }
-        }
-    }
-
-    private function parseAttachments($staffKey): array
-    {
-        $attachments            = $this->getModelAttachmentsCollection(
-            'Supplier Delivery',
-            $staffKey
-        )->map(function ($auroraAttachment) {return $this->fetchAttachment($auroraAttachment);});
-        return $attachments->toArray();
     }
 
     /*
