@@ -29,7 +29,6 @@ use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Events\BroadcastPreviewWebpage;
 use App\Models\Catalogue\ProductCategory;
-use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
@@ -119,7 +118,7 @@ class FetchAuroraWebBlocks extends OrgAction
         $visibility = ["loggedIn" => true, "loggedOut" => true]
     ): void {
         $models = [];
-        $group=$webpage->group;
+        $group = $webpage->group;
 
         switch ($auroraBlock["type"]) {
             case "images":
@@ -127,7 +126,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 $layout       = $this->processGalleryData($auroraBlock);
                 break;
             case "text":
-                $webBlockType =$group->webBlockTypes()->where("slug", "text")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "text")->first();
                 $layout       = $this->processTextData($auroraBlock);
                 break;
             case "telephone":
