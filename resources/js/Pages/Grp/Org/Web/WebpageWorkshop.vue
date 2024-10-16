@@ -230,6 +230,7 @@ onMounted(() => {
 <template>
 
     <Head :title="capitalize(title)" />
+
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
             <Publish :isLoading="isLoading" :is_dirty="data.is_dirty" v-model="comment"
@@ -243,16 +244,16 @@ onMounted(() => {
 
     <div class="grid grid-cols-5 h-[85vh]">
         <!-- Section: Side editor -->
-        <div class="col-span-1 md:block hidden h-full border-2 bg-gray-200 px-3 py-1 ">
+        <div class="col-span-1 lg:block hidden h-full border-2 bg-gray-200 px-3 py-1 ">
             <WebpageSideEditor v-model="isModalBlockList" :isLoadingDelete :isAddBlockLoading :webpage="props.webpage"
                 :webBlockTypeCategories="webBlockTypeCategories" @update="sendBlockUpdate" @delete="sendDeleteBlock"
                 @add="addNewBlock" @order="sendOrderBlock" />
         </div>
 
         <!-- Section: Preview -->
-        <div v-if="true" class="md:col-span-4 col-span-5  h-full flex flex-col bg-gray-200">
+        <div v-if="true" class="lg:col-span-4 col-span-5  h-full flex flex-col bg-gray-200">
             <div class="flex justify-between">
-                <div class="py-1 px-2 cursor-pointer md:hidden block" title="Desktop view" v-tooltip="'Navigation'">
+                <div class="py-1 px-2 cursor-pointer lg:hidden block" title="Desktop view" v-tooltip="'Navigation'">
                     <FontAwesomeIcon :icon='faBars' aria-hidden='true' @click="() => openDrawer = true" />
                     <Drawer v-model:visible="openDrawer" :header="''" :dismissable="true">
                         <WebpageSideEditor v-model="isModalBlockList" ref="_WebpageSideEditor" :webpage="data"
