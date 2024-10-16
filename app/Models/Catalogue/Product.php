@@ -32,6 +32,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Tags\HasTags;
 
 /**
  *
@@ -118,7 +119,8 @@ class Product extends Model implements Auditable, HasMedia
     use HasHistory;
     use HasFactory;
     use HasImage;
-
+    use HasTags;
+    
     protected $guarded = [];
 
     protected $casts = [
