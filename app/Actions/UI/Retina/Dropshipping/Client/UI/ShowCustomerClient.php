@@ -1,22 +1,17 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Artha <artha@aw-advantage.com>
+ * Created: Wed, 16 Oct 2024 10:47:26 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Retina\Dropshipping\Client;
+namespace App\Actions\UI\Retina\Dropshipping\Client\UI;
 
 use App\Actions\RetinaAction;
-use App\Actions\Traits\Actions\WithActionButtons;
-use App\Actions\Traits\WithWebUserMeta;
 use App\Enums\UI\CRM\CustomerClientTabsEnum;
 use App\Enums\UI\CRM\CustomerTabsEnum;
 use App\Http\Resources\CRM\CustomerClientResource;
-use App\Models\Catalogue\Shop;
-use App\Models\CRM\Customer;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;

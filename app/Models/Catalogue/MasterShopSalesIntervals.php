@@ -6,7 +6,6 @@
  * copyright 2024
 */
 
-
 namespace App\Models\Catalogue;
 
 use Illuminate\Database\Eloquent\Model;

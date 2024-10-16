@@ -9,9 +9,10 @@
 
 use App\Actions\Dropshipping\ShopifyUser\DeleteShopifyUser;
 use App\Actions\Dropshipping\ShopifyUser\StoreShopifyUser;
-use App\Actions\UI\Retina\Dropshipping\Client\CreateCustomerClient;
-use App\Actions\UI\Retina\Dropshipping\Client\IndexCustomerClients;
-use App\Actions\UI\Retina\Dropshipping\Client\ShowCustomerClient;
+use App\Actions\UI\Retina\Dropshipping\Client\FetchCustomerClientFromShopify;
+use App\Actions\UI\Retina\Dropshipping\Client\UI\CreateCustomerClient;
+use App\Actions\UI\Retina\Dropshipping\Client\UI\IndexCustomerClients;
+use App\Actions\UI\Retina\Dropshipping\Client\UI\ShowCustomerClient;
 use App\Actions\UI\Retina\Dropshipping\Orders\IndexDropshippingRetinaOrders;
 use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexDropshippingRetinaPortfolio;
 use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexDropshippingRetinaProducts;
@@ -29,6 +30,7 @@ Route::prefix('platform')->as('platform.')->group(function () {
 Route::prefix('client')->as('client.')->group(function () {
     Route::get('/', IndexCustomerClients::class)->name('index');
     Route::get('create', CreateCustomerClient::class)->name('create');
+    Route::get('fetch', FetchCustomerClientFromShopify::class)->name('fetch');
     Route::get('{customerClient}/show', ShowCustomerClient::class)->name('show');
 });
 
