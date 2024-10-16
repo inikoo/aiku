@@ -8,6 +8,9 @@
 
 namespace App\Actions\CRM\Favourite;
 
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoReminded;
+use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateCustomersWhoReminded;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateBackInStockReminders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Reminder\BackInStockReminder;
@@ -17,13 +20,17 @@ class UpdateBackInStockReminder extends OrgAction
 {
     use WithActionUpdate;
 
-    private BackInStockReminder $BackInStockReminder;
+    private BackInStockReminder $backInStockReminder;
 
-    public function handle(BackInStockReminder $BackInStockReminder, array $modelData): BackInStockReminder
+    public function handle(BackInStockReminder $backInStockReminder, array $modelData): BackInStockReminder
     {
-        $BackInStockReminder = $this->update($BackInStockReminder, $modelData, ['data']);
+        $backInStockReminder = $this->update($backInStockReminder, $modelData, ['data']);
 
-        return $BackInStockReminder;
+        CustomerHydrateBackInStockReminders::run($backInStockReminder->customer);
+        ProductHydrateCustomersWhoReminded::run($backInStockReminder->product);
+        ProductCategoryHydrateCustomersWhoReminded::run($backInStockReminder->product);
+
+        return $backInStockReminder;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -46,16 +53,16 @@ class UpdateBackInStockReminder extends OrgAction
 
     }
 
-    public function action(BackInStockReminder $BackInStockReminder, array $modelData, int $hydratorsDelay = 0, bool $strict = true): BackInStockReminder
+    public function action(BackInStockReminder $backInStockReminder, array $modelData, int $hydratorsDelay = 0, bool $strict = true): BackInStockReminder
     {
         $this->strict = $strict;
 
         $this->asAction       = true;
-        $this->BackInStockReminder       = $BackInStockReminder;
+        $this->backInStockReminder       = $backInStockReminder;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisation($BackInStockReminder->organisation, $modelData);
+        $this->initialisation($backInStockReminder->organisation, $modelData);
 
-        return $this->handle($BackInStockReminder, $this->validatedData);
+        return $this->handle($backInStockReminder, $this->validatedData);
     }
 
 

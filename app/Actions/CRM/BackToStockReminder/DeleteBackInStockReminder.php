@@ -8,6 +8,9 @@
 
 namespace App\Actions\CRM\Favourite;
 
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoReminded;
+use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateCustomersWhoReminded;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateBackInStockReminders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Reminder\BackInStockReminder;
@@ -17,13 +20,17 @@ class DeleteBackInStockReminder extends OrgAction
 {
     use WithActionUpdate;
 
-    private BackInStockReminder $BackInStockReminder;
+    private BackInStockReminder $backInStockReminder;
 
-    public function handle(BackInStockReminder $BackInStockReminder): BackInStockReminder
+    public function handle(BackInStockReminder $backInStockReminder): BackInStockReminder
     {
-        $BackInStockReminder->delete();
+        $backInStockReminder->delete();
 
-        return $BackInStockReminder;
+        CustomerHydrateBackInStockReminders::run($this->backInStockReminder->customer);
+        ProductHydrateCustomersWhoReminded::run($this->backInStockReminder->product);
+        ProductCategoryHydrateCustomersWhoReminded::run($this->backInStockReminder->product);
+
+        return $backInStockReminder;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -36,13 +43,13 @@ class DeleteBackInStockReminder extends OrgAction
     }
 
 
-    public function action(BackInStockReminder $BackInStockReminder): BackInStockReminder
+    public function action(BackInStockReminder $backInStockReminder): BackInStockReminder
     {
-
+        $this->backInStockReminder = $backInStockReminder;
         $this->asAction       = true;
-        $this->initialisation($BackInStockReminder->organisation, []);
+        $this->initialisation($backInStockReminder->organisation, []);
 
-        return $this->handle($BackInStockReminder);
+        return $this->handle($backInStockReminder);
     }
 
 
