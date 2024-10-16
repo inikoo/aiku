@@ -7,6 +7,9 @@
 
 namespace App\Actions\CRM\Favourite;
 
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoFavourited;
+use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateCustomersWhoFavourited;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateFavourites;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\CRM\Favourite;
@@ -21,6 +24,10 @@ class UpdateFavourite extends OrgAction
     public function handle(Favourite $favourite, array $modelData): Favourite
     {
         $favourite = $this->update($favourite, $modelData, ['data']);
+
+        CustomerHydrateFavourites::run($favourite->customer);
+        ProductHydrateCustomersWhoFavourited::run($favourite->product);
+        ProductCategoryHydrateCustomersWhoFavourited::run($favourite->product);
 
         return $favourite;
     }
