@@ -8,11 +8,13 @@
 namespace App\Models\Web;
 
 use App\Enums\Web\WebBlockType\WebBlockTypeScopeEnum;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Spatie\MediaLibrary\HasMedia;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -25,6 +27,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property WebBlockTypeScopeEnum $scope
  * @property string $code
  * @property string $name
+ * @property int|null $image_id
  * @property bool $fixed
  * @property string|null $description
  * @property array $blueprint
@@ -32,6 +35,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\Helpers\Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \App\Models\Web\WebBlockTypeStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\WebBlock> $webBlocks
  * @method static Builder|WebBlockType newModelQuery()
@@ -39,10 +45,11 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder|WebBlockType query()
  * @mixin \Eloquent
  */
-class WebBlockType extends Model
+class WebBlockType extends Model implements HasMedia
 {
     use HasSlug;
     use InGroup;
+    use HasImage;
 
     protected $casts = [
         'blueprint' => 'array',
