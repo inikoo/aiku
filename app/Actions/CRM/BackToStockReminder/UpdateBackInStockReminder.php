@@ -10,20 +10,20 @@ namespace App\Actions\CRM\Favourite;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Reminder\BackToStockReminder;
+use App\Models\Reminder\BackInStockReminder;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateBackToStockReminder extends OrgAction
+class UpdateBackInStockReminder extends OrgAction
 {
     use WithActionUpdate;
 
-    private BackToStockReminder $backToStockReminder;
+    private BackInStockReminder $BackInStockReminder;
 
-    public function handle(BackToStockReminder $backToStockReminder, array $modelData): BackToStockReminder
+    public function handle(BackInStockReminder $BackInStockReminder, array $modelData): BackInStockReminder
     {
-        $backToStockReminder = $this->update($backToStockReminder, $modelData, ['data']);
+        $BackInStockReminder = $this->update($BackInStockReminder, $modelData, ['data']);
 
-        return $backToStockReminder;
+        return $BackInStockReminder;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -46,16 +46,16 @@ class UpdateBackToStockReminder extends OrgAction
 
     }
 
-    public function action(BackToStockReminder $backToStockReminder, array $modelData, int $hydratorsDelay = 0, bool $strict = true): BackToStockReminder
+    public function action(BackInStockReminder $BackInStockReminder, array $modelData, int $hydratorsDelay = 0, bool $strict = true): BackInStockReminder
     {
         $this->strict = $strict;
 
         $this->asAction       = true;
-        $this->backToStockReminder       = $backToStockReminder;
+        $this->BackInStockReminder       = $BackInStockReminder;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisation($backToStockReminder->organisation, $modelData);
+        $this->initialisation($BackInStockReminder->organisation, $modelData);
 
-        return $this->handle($backToStockReminder, $this->validatedData);
+        return $this->handle($BackInStockReminder, $this->validatedData);
     }
 
 

@@ -5,6 +5,7 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
+use App\Stubs\Migrations\HasBackInStockReminderStats;
 use App\Stubs\Migrations\HasCreditsStats;
 use App\Stubs\Migrations\HasFavouritesStats;
 use App\Stubs\Migrations\HasSalesStats;
@@ -18,7 +19,7 @@ return new class () extends Migration {
     use HasWebStats;
     use HasCreditsStats;
     use HasFavouritesStats;
-
+    use HasBackInStockReminderStats;
     public function up(): void
     {
         Schema::create('customer_stats', function (Blueprint $table) {
@@ -32,6 +33,7 @@ return new class () extends Migration {
             $table = $this->getCreditTransactionsStats($table);
             $table = $this->getTopUpsStats($table);
             $table = $this->getFavouritesStatsFields($table);
+            $table = $this->getRemindersStatsFields($table);
 
             $table->timestampsTz();
         });

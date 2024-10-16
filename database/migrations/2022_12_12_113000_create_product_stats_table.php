@@ -6,6 +6,7 @@
  */
 
 use App\Enums\Catalogue\Product\ProductStateEnum;
+use App\Stubs\Migrations\HasBackInStockReminderStats;
 use App\Stubs\Migrations\HasCatalogueStats;
 use App\Stubs\Migrations\HasFavouritesStats;
 use App\Stubs\Migrations\HasSalesIntervals;
@@ -17,6 +18,7 @@ return new class () extends Migration {
     use HasSalesIntervals;
     use HasCatalogueStats;
     use HasFavouritesStats;
+    use HasBackInStockReminderStats;
 
     public function up(): void
     {
@@ -27,6 +29,7 @@ return new class () extends Migration {
 
             $table = $this->productVariantFields($table);
             $table = $this->getCustomersWhoFavouritedStatsFields($table);
+            $table = $this->getCustomersWhoRemindedStatsFields($table);
 
             $table->unsignedInteger('number_historic_assets')->default(0);
             foreach (ProductStateEnum::cases() as $case) {

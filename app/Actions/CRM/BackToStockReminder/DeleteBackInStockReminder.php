@@ -10,20 +10,20 @@ namespace App\Actions\CRM\Favourite;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\Reminder\BackToStockReminder;
+use App\Models\Reminder\BackInStockReminder;
 use Lorisleiva\Actions\ActionRequest;
 
-class DeleteBackToStockReminder extends OrgAction
+class DeleteBackInStockReminder extends OrgAction
 {
     use WithActionUpdate;
 
-    private BackToStockReminder $backToStockReminder;
+    private BackInStockReminder $BackInStockReminder;
 
-    public function handle(BackToStockReminder $backToStockReminder): BackToStockReminder
+    public function handle(BackInStockReminder $BackInStockReminder): BackInStockReminder
     {
-        $backToStockReminder->delete();
+        $BackInStockReminder->delete();
 
-        return $backToStockReminder;
+        return $BackInStockReminder;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -36,13 +36,13 @@ class DeleteBackToStockReminder extends OrgAction
     }
 
 
-    public function action(BackToStockReminder $backToStockReminder): BackToStockReminder
+    public function action(BackInStockReminder $BackInStockReminder): BackInStockReminder
     {
 
         $this->asAction       = true;
-        $this->initialisation($backToStockReminder->organisation, []);
+        $this->initialisation($BackInStockReminder->organisation, []);
 
-        return $this->handle($backToStockReminder);
+        return $this->handle($BackInStockReminder);
     }
 
 

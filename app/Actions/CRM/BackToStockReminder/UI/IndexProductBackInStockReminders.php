@@ -6,15 +6,15 @@
  * copyright 2024
 */
 
-namespace App\Actions\CRM\BackToStockReminder\UI;
+namespace App\Actions\CRM\BackInStockReminder\UI;
 
 use App\Actions\OrgAction;
-use App\Http\Resources\Catalogue\ProductBackToStockRemindersResource;
+use App\Http\Resources\Catalogue\ProductBackInStockRemindersResource;
 use App\Http\Resources\Catalogue\ProductFavouritesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Product;
 use App\Models\CRM\Favourite;
-use App\Models\Reminder\BackToStockReminder;
+use App\Models\Reminder\BackInStockReminder;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -22,7 +22,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexProductBackToStockReminders extends OrgAction
+class IndexProductBackInStockReminders extends OrgAction
 {
     private Product $parent;
 
@@ -40,7 +40,7 @@ class IndexProductBackToStockReminders extends OrgAction
         }
 
 
-        $query = QueryBuilder::for(BackToStockReminder::class);
+        $query = QueryBuilder::for(BackInStockReminder::class);
 
         $query->where('back_to_stock_reminders.product_id', $parent->id);
 
@@ -106,7 +106,7 @@ class IndexProductBackToStockReminders extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $reminder): AnonymousResourceCollection
     {
-        return ProductBackToStockRemindersResource::collection($reminder);
+        return ProductBackInStockRemindersResource::collection($reminder);
     }
 
 }
