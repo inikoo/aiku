@@ -9,6 +9,7 @@ namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Http\Resources\Web\WebBlockTypesResource;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -42,15 +43,16 @@ class ShowWebpageWorkshop extends OrgAction
 
     public function htmlResponse(Webpage $webpage, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'Org/Web/WebpageWorkshop',
             [
-                'title'         => __("Webpage's workshop"),
-                'breadcrumbs'   => $this->getBreadcrumbs(
+                'title'       => __("Webpage's workshop"),
+                'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'pageHead'      => [
+                'pageHead'    => [
                     'title'     => $webpage->code,
                     'model'     => __('Webpage'),
                     'icon'      => [
@@ -84,7 +86,12 @@ class ShowWebpageWorkshop extends OrgAction
                         ],
                     ],
                 ],
-                'webpage'       => WebpageResource::make($webpage)->getArray(),
+                'webpage'     => WebpageResource::make($webpage)->getArray(),
+
+                'webBlockTypes' => WebBlockTypesResource::collection(
+                    $this->organisation->group->webBlockTypes()->where('fixed', false)->where('scope', 'webpage')->get()
+                )
+
             ]
         );
     }
