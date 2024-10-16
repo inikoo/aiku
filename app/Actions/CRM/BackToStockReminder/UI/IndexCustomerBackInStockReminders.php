@@ -10,10 +10,8 @@ namespace App\Actions\CRM\BackInStockReminder\UI;
 
 use App\Actions\OrgAction;
 use App\Http\Resources\CRM\CustomerBackInStockRemindersResource;
-use App\Http\Resources\CRM\CustomerFavouritesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\CRM\Customer;
-use App\Models\CRM\Favourite;
 use App\Models\Reminder\BackInStockReminder;
 use App\Services\QueryBuilder;
 use Closure;

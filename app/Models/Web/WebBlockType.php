@@ -11,7 +11,6 @@ use App\Enums\Web\WebBlockType\WebBlockTypeScopeEnum;
 use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Sluggable\HasSlug;
@@ -22,11 +21,11 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property int $group_id
- * @property int $web_block_type_category_id
  * @property string $slug
  * @property WebBlockTypeScopeEnum $scope
  * @property string $code
  * @property string $name
+ * @property bool $fixed
  * @property string|null $description
  * @property array $blueprint
  * @property array $data
@@ -34,7 +33,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Web\WebBlockTypeStats|null $stats
- * @property-read \App\Models\Web\WebBlockTypeCategory $webBlockTypeCategory
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\WebBlock> $webBlocks
  * @method static Builder|WebBlockType newModelQuery()
  * @method static Builder|WebBlockType newQuery()
@@ -65,11 +63,6 @@ class WebBlockType extends Model
             ->generateSlugsFrom('code')
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
-    }
-
-    public function webBlockTypeCategory(): BelongsTo
-    {
-        return $this->belongsTo(WebBlockTypeCategory::class);
     }
 
     public function stats(): HasOne

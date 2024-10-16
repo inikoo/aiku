@@ -7,8 +7,6 @@
 
 namespace App\Actions\Web\WebBlockType;
 
-use App\Enums\Web\WebBlockType\WebBlockTypeScopeEnum;
-use App\Enums\Web\WebBlockTypeCategory\WebBlockTypeCategoryScopeEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\Web\WebBlockType;
 use Exception;
@@ -23,20 +21,6 @@ class StoreWebBlockType
      */
     public function handle(Group $group, array $modelData): WebBlockType
     {
-
-
-        //        $scope = match ($webBlockTypeCategory->scope) {
-        //            WebBlockTypeCategoryScopeEnum::WEBPAGE => WebBlockTypeScopeEnum::WEBPAGE,
-        //            WebBlockTypeCategoryScopeEnum::WEBSITE => WebBlockTypeScopeEnum::WEBSITE,
-        //            default                                => null
-        //        };
-
-        //        if ($scope === null) {
-        //            throw new \Exception('Invalid Scope');
-        //        }
-
-        //   data_set($modelData, 'scope', $scope);
-        // print_r($modelData);
 
         /** @var WebBlockType $webBlockType */
 
