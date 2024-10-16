@@ -32,7 +32,7 @@ console.log('p-header',props)
         <!-- Section: Topbar -->
         <component
             v-if="data?.topBar?.fieldValue"
-            :is="getTopbarComponent('topbar1')"
+            :is="getTopbarComponent('topbar_1')"
             v-model="data.topBar.fieldValue"
             :loginMode="true"
             :previewMode="true"

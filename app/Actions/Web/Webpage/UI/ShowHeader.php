@@ -9,6 +9,7 @@ namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Web\Website\GetWebsiteWorkshopHeader;
+use App\Http\Resources\Web\WebBlockTypesResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -104,6 +105,9 @@ class ShowHeader extends OrgAction
                 ],
 
                 'data' => GetWebsiteWorkshopHeader::run($website),
+                'web_block_types' => WebBlockTypesResource::collection(
+                    $this->organisation->group->webBlockTypes()->where('fixed', false)->where('scope', 'website')->get()
+                )
             ]
         );
     }
