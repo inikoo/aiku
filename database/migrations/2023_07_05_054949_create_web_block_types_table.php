@@ -20,6 +20,8 @@ return new class () extends Migration {
             $table->string('scope')->index();
             $table->string('code');
             $table->string('name');
+            $table->unsignedInteger('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('media');
             $table->boolean('fixed')->default(false);
             $table->text('description')->nullable();
             $table->jsonb('blueprint');

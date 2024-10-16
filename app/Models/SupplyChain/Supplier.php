@@ -98,7 +98,6 @@ class Supplier extends Model implements HasMedia, Auditable
 {
     use SoftDeletes;
     use HasAddress;
-    use HasAddress;
     use HasAddresses;
     use HasSlug;
     use HasUniversalSearch;
