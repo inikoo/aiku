@@ -68,7 +68,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ProductCategory> $children
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Collection> $collections
  * @property-read ProductCategory|null $department
+ * @property-read LaravelCollection<int, BackInStockReminder> $departmentBackInStockReminders
  * @property-read LaravelCollection<int, Favourite> $departmentFavourites
+ * @property-read LaravelCollection<int, BackInStockReminder> $familyBackInStockReminders
  * @property-read LaravelCollection<int, Favourite> $familyFavourites
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
@@ -80,6 +82,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\ProductCategoryStats|null $stats
  * @property-read ProductCategory|null $subDepartment
+ * @property-read LaravelCollection<int, BackInStockReminder> $subDepartmentBackInStockReminders
  * @property-read LaravelCollection<int, Favourite> $subDepartmentFavourites
  * @property-read LaravelCollection<int, ProductCategory> $subDepartments
  * @property-read UniversalSearch|null $universalSearch

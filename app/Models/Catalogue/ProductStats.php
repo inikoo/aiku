@@ -16,6 +16,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $product_id
  * @property int $number_product_variants
+ * @property int $number_customers_who_favourited
+ * @property int $number_customers_who_un_favourited
+ * @property int $number_customers_who_reminded
+ * @property int $number_customers_who_un_reminded
  * @property int $number_historic_assets
  * @property int $number_products_state_in_process
  * @property int $number_products_state_active

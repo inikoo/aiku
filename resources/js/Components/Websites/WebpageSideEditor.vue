@@ -16,6 +16,7 @@ import debounce from 'lodash/debounce'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import Modal from "@/Components/Utils/Modal.vue"
 import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
+import ButtonVisibleLoggedIn from '@/Components/Websites/Fields/ButtonVisibleLoggedIn.vue';
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
@@ -88,6 +89,9 @@ defineExpose({
     modelModalBlocklist
 })
 
+
+console.log('popr',props)
+
 const selectedBlockOpenPanel = ref<number | null>(null)
 </script>
 
@@ -136,8 +140,17 @@ const selectedBlockOpenPanel = ref<number | null>(null)
 
                             <!-- {{ index }} -->
                             <!-- <pre>{{ element.web_block.layout.data?.properties }}</pre> -->
+                            <div v-if="element.visibility" class="border-t border-gray-300 bg-gray-100 pb-3">
+                                <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Visibility') }}</div>
+                                <ButtonVisibleLoggedIn 
+                                    :modelValue="element" 
+                                    @update:modelValue="(newValue) => element.visibility = newValue.visibility" 
+                                />
+                            </div>
+
+
                             <PanelProperties v-model="element.web_block.layout.properties"
-                                @update:modelValue="() => (console.log('zzz'), debouncedSendUpdate(element))" />
+                                @update:modelValue="() => (debouncedSendUpdate(element))" />
                         </Collapse>
 
                         <!-- <pre>{{ element.web_block.layout.data.properties }}</pre> -->

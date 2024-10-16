@@ -90,10 +90,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Catalogue\Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesIntervals newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesIntervals newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesIntervals query()
+ * @property-read \App\Models\Catalogue\MasterShop $masterShop
+ * @method static \Illuminate\Database\Eloquent\Builder|MasterShopSalesIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MasterShopSalesIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MasterShopSalesIntervals query()
  * @mixin \Eloquent
  */
 class MasterShopSalesIntervals extends Model

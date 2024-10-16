@@ -1,0 +1,84 @@
+{
+	"scope": "webpage",
+	"code": "cta2",
+	"slug": "cta2",
+	"name": "Call to action 2",
+	"icon": ["fal", "rectangle-wide"],
+	"blueprint": {
+		"fieldValue": {
+			"headline": "<h2><strong><span style='color: #FFFFFF'>Boost your productivity today</span></strong></h2>",
+			"description": "<p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'>Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim</span></p><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'> id veniam aliqua proident excepteur commodo do ea.</span></p><p></p>",
+			"button": "Get Started"
+		},
+		"properties": {
+			"background": {
+				"type": "color",
+				"color": "#fff",
+				"image": {
+					"original": null
+				}
+			},
+			"padding": {
+				"unit": "px",
+				"top": {
+					"value": 0
+				},
+				"left": {
+					"value": 0
+				},
+				"right": {
+					"value": 0
+				},
+				"bottom": {
+					"value": 0
+				}
+			},
+			"margin": {
+				"unit": "px",
+				"top": {
+					"value": 0
+				},
+				"left": {
+					"value": 0
+				},
+				"right": {
+					"value": 0
+				},
+				"bottom": {
+					"value": 0
+				}
+			},
+			"border": {
+				"color": "#000000",
+				"unit": "px",
+				"rounded": {
+					"unit": "px",
+					"topright": {
+						"value": 0
+					},
+					"topleft": {
+						"value": 0
+					},
+					"bottomright": {
+						"value": 0
+					},
+					"bottomleft": {
+						"value": 0
+					}
+				},
+				"top": {
+					"value": 0
+				},
+				"left": {
+					"value": 0
+				},
+				"right": {
+					"value": 0
+				},
+				"bottom": {
+					"value": 0
+				}
+			}
+		}
+	}
+}

@@ -12,6 +12,7 @@ use App\Actions\CRM\Customer\UI\IndexCustomers;
 use App\Actions\Mail\Mailshot\UI\IndexMailshots;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\RetinaAction;
+use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexDropshippingRetinaPortfolio;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\CRM\CustomersResource;
@@ -29,7 +30,6 @@ class ShowProduct extends RetinaAction
         return $product;
     }
 
-
     public function asController(Product $product, ActionRequest $request): Product
     {
         $this->initialisation($request)->withTab(ProductTabsEnum::values());
@@ -42,44 +42,44 @@ class ShowProduct extends RetinaAction
         return Inertia::render(
             'Dropshipping/Product/Product',
             [
-                'title'       => __('product'),
-                // 'breadcrumbs' => $this->getBreadcrumbs(
-                //     $request->route()->getName(),
-                //     $request->route()->originalParameters()
-                // ),
-                // 'navigation'  => [
-                //     'previous' => $this->getPrevious($product, $request),
-                //     'next'     => $this->getNext($product, $request),
-                // ],
-                'pageHead'    => [
-                    'title'   => $product->code,
-                    'model'   => __('product'),
-                    'icon'    =>
+                'title' => __('product'),
+                'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
+                    $request->route()->originalParameters()
+                ),
+//                'navigation' => [
+//                    'previous' => $this->getPrevious($product, $request),
+//                    'next' => $this->getNext($product, $request),
+//                ],
+                'pageHead' => [
+                    'title' => $product->code,
+                    'model' => __('product'),
+                    'icon' =>
                         [
-                            'icon'  => ['fal', 'fa-cube'],
+                            'icon' => ['fal', 'fa-cube'],
                             'title' => __('product')
                         ],
                     'actions' => [
                         $this->canEdit ? [
-                            'type'  => 'button',
+                            'type' => 'button',
                             'style' => 'edit',
                             'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'name' => preg_replace('/show$/', 'edit', $request->route()->getName()),
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
                         $this->canDelete ? [
-                            'type'  => 'button',
+                            'type' => 'button',
                             'style' => 'delete',
                             'route' => [
-                                'name'       => 'shops.show.products.remove',
+                                'name' => 'shops.show.products.remove',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false
                     ]
                 ],
-                'tabs'        => [
-                    'current'    => $this->tab,
+                'tabs' => [
+                    'current' => $this->tab,
                     'navigation' => ProductTabsEnum::navigation()
                 ],
 
@@ -112,107 +112,94 @@ class ShowProduct extends RetinaAction
         return new ProductsResource($product);
     }
 
-    // public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = ''): array
-    // {
-    //     $headCrumb = function (Product $palletDelivery, array $routeParameters, string $suffix) {
-    //         return [
-    //             [
-    //                 'type'           => 'modelWithIndex',
-    //                 'modelWithIndex' => [
-    //                     'index' => [
-    //                         'route' => $routeParameters['index'],
-    //                         'label' => __('pallet deliveries')
-    //                     ],
-    //                     'model' => [
-    //                         'route' => $routeParameters['model'],
-    //                         'label' => $palletDelivery->slug,
-    //                     ],
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = ''): array
+    {
+        $headCrumb = function (Product $product, array $routeParameters, string $suffix) {
+            return [
+                [
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => __($product->slug),
+                    ],
+                ],
+            ];
+        };
 
-    //                 ],
-    //                 'suffix' => $suffix
-    //             ],
-    //         ];
-    //     };
+        $portfolio = Product::where('slug', $routeParameters['product'])->first();
 
-    //     $palletDelivery = Product::where('slug', $routeParameters['palletDelivery'])->first();
+        return array_merge(
+            IndexDropshippingRetinaPortfolio::make()->getBreadcrumbs(),
+            $headCrumb(
+                $portfolio,
+                [
+                    'index' => [
+                        'name' => 'retina.dropshipping.portfolios.index',
+                        'parameters' => []
+                    ],
+                    'model' => [
+                        'name' => 'retina.dropshipping.portfolios.show',
+                        'parameters' => [$portfolio->slug]
+                    ]
+                ],
+                $suffix
+            ),
+        );
+    }
 
+    /*    public function getPrevious(Product $product, ActionRequest $request): ?array
+        {
+            $previous = Product::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
 
-    //     return match ($routeName) {
-    //         'retina.storage.pallet-deliveries.show' => array_merge(
-    //             ShowStorageDashboard::make()->getBreadcrumbs(),
-    //             $headCrumb(
-    //                 $palletDelivery,
-    //                 [
-    //                     'index' => [
-    //                         'name'       => 'retina.storage.pallet-deliveries.index',
-    //                         'parameters' => []
-    //                     ],
-    //                     'model' => [
-    //                         'name'       => 'retina.storage.pallet-deliveries.show',
-    //                         'parameters' => [$palletDelivery->slug]
-    //                     ]
-    //                 ],
-    //                 $suffix
-    //             ),
-    //         ),
+            return $this->getNavigation($previous, $request->route()->getName());
+        }
 
-    //         default => []
-    //     };
-    // }
+        public function getNext(Product $product, ActionRequest $request): ?array
+        {
+            $next = Product::where('slug', '>', $product->slug)->orderBy('slug')->first();
 
-    // public function getPrevious(Product $product, ActionRequest $request): ?array
-    // {
-    //     $previous = Product::where('slug', '<', $product->slug)->orderBy('slug', 'desc')->first();
+            return $this->getNavigation($next, $request->route()->getName());
+        }
 
-    //     return $this->getNavigation($previous, $request->route()->getName());
-    // }
+        private function getNavigation(?Product $product, string $routeName): ?array
+        {
+            if (!$product) {
+                return null;
+            }
 
-    // public function getNext(Product $product, ActionRequest $request): ?array
-    // {
-    //     $next = Product::where('slug', '>', $product->slug)->orderBy('slug')->first();
-
-    //     return $this->getNavigation($next, $request->route()->getName());
-    // }
-
-    // private function getNavigation(?Product $product, string $routeName): ?array
-    // {
-    //     if (!$product) {
-    //         return null;
-    //     }
-
-    //     return match ($routeName) {
-    //         'shops.products.show' => [
-    //             'label' => $product->name,
-    //             'route' => [
-    //                 'name'       => $routeName,
-    //                 'parameters' => [
-    //                     'product' => $product->slug,
-    //                 ],
-    //             ],
-    //         ],
-    //         'grp.org.shops.show.catalogue.products.show' => [
-    //             'label' => $product->name,
-    //             'route' => [
-    //                 'name'       => $routeName,
-    //                 'parameters' => [
-    //                     'organisation' => $this->parent->slug,
-    //                     'shop'         => $product->shop->slug,
-    //                     'product'      => $product->slug,
-    //                 ],
-    //             ],
-    //         ],
-    //         'grp.org.fulfilments.show.products.show' => [
-    //             'label' => $product->name,
-    //             'route' => [
-    //                 'name'       => $routeName,
-    //                 'parameters' => [
-    //                     'organisation' => $this->parent->slug,
-    //                     'fulfilment'   => $product->shop->fulfilment->slug,
-    //                     'product'      => $product->slug,
-    //                 ],
-    //             ],
-    //         ],
-    //         default => null,
-    //     };
-    // }
+            return match ($routeName) {
+                'shops.products.show' => [
+                    'label' => $product->name,
+                    'route' => [
+                        'name' => $routeName,
+                        'parameters' => [
+                            'product' => $product->slug,
+                        ],
+                    ],
+                ],
+                'grp.org.shops.show.catalogue.products.show' => [
+                    'label' => $product->name,
+                    'route' => [
+                        'name' => $routeName,
+                        'parameters' => [
+                            'organisation' => $this->parent->slug,
+                            'shop' => $product->shop->slug,
+                            'product' => $product->slug,
+                        ],
+                    ],
+                ],
+                'grp.org.fulfilments.show.products.show' => [
+                    'label' => $product->name,
+                    'route' => [
+                        'name' => $routeName,
+                        'parameters' => [
+                            'organisation' => $this->parent->slug,
+                            'fulfilment' => $product->shop->fulfilment->slug,
+                            'product' => $product->slug,
+                        ],
+                    ],
+                ],
+                default => null,
+            };
+        }*/
 }

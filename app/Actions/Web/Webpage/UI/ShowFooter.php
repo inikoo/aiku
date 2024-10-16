@@ -8,10 +8,7 @@
 namespace App\Actions\Web\Webpage\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Web\WebBlockTypeCategory\UI\IndexWebBlockTypeCategories;
 use App\Actions\Web\Website\GetWebsiteWorkshopFooter;
-use App\Enums\Web\WebBlockTypeCategory\WebBlockTypeCategorySlugEnum;
-use App\Http\Resources\Web\WebBlockTypeCategoryResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
@@ -95,7 +92,6 @@ class ShowFooter extends OrgAction
                 ],
 
                 'data' => GetWebsiteWorkshopFooter::run($website),
-                'webBlockTypeCategories' => WebBlockTypeCategoryResource::collection(IndexWebBlockTypeCategories::run(WebBlockTypeCategorySlugEnum::FOOTER->value))
             ]
         );
     }

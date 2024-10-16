@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 05 Jul 2023 15:48:50 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Wed, 05 Jul 2023 15:48:50 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -16,18 +16,15 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedSmallInteger('web_block_type_category_id');
-            $table->foreign('web_block_type_category_id')->references('id')->on('web_block_type_categories')->onUpdate('cascade')->onDelete('cascade');
-
             $table->string('slug')->unique()->index();
             $table->string('scope')->index();
             $table->string('code');
             $table->string('name');
+            $table->boolean('fixed')->default(false);
             $table->text('description')->nullable();
             $table->jsonb('blueprint');
             $table->jsonb('data');
             $table->timestampsTz();
-            $table->unique(['web_block_type_category_id', 'code']);
         });
     }
 

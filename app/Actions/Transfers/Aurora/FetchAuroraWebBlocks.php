@@ -29,7 +29,6 @@ use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Events\BroadcastPreviewWebpage;
 use App\Models\Catalogue\ProductCategory;
-use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
@@ -62,6 +61,8 @@ class FetchAuroraWebBlocks extends OrgAction
      */
     public function handle(Webpage $webpage, $reset = false, $dbSuffix = ''): Webpage
     {
+
+
         $this->organisationSource = $this->getOrganisationSource($webpage->organisation);
         $this->organisationSource->initialisation($webpage->organisation, $dbSuffix);
 
@@ -117,48 +118,47 @@ class FetchAuroraWebBlocks extends OrgAction
         $visibility = ["loggedIn" => true, "loggedOut" => true]
     ): void {
         $models = [];
-
-
+        $group = $webpage->group;
 
         switch ($auroraBlock["type"]) {
             case "images":
-                $webBlockType = WebBlockType::where("slug", "gallery")->first();
+                $webBlockType = $group->webBlockTypes()->where("code", "images")->first();
                 $layout       = $this->processGalleryData($auroraBlock);
                 break;
             case "text":
-                $webBlockType = WebBlockType::where("slug", "text")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "text")->first();
                 $layout       = $this->processTextData($auroraBlock);
                 break;
             case "telephone":
-                $webBlockType = WebBlockType::where("slug", "text")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "text")->first();
                 $layout       = $this->processPhoneData($auroraBlock);
                 break;
             case "code":
             case "reviews":
-                $webBlockType = WebBlockType::where("slug", "script")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "script")->first();
                 $layout       = $this->processScriptData($auroraBlock);
                 break;
             case "map":
             case "iframe":
-                $webBlockType = WebBlockType::where("slug", "iframe")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "iframe")->first();
                 $layout       = $this->processIFrameData($auroraBlock);
                 break;
             case "product":
-                $webBlockType = WebBlockType::where("slug", "product")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "product")->first();
                 $layout       = $this->processProductData($auroraBlock);
                 $models[]     = Product::find($webpage->model_id);
                 data_set($layout, 'fixed', true, false);
                 break;
 
             case "category_products":
-                $webBlockType = WebBlockType::where("slug", "family")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "family")->first();
                 $models[]     = ProductCategory::find($webpage->model_id);
                 $layout       = $this->processFamilyData($webpage, $auroraBlock);
                 data_set($layout, 'fixed', true, false);
                 break;
 
             case "see_also":
-                $webBlockType = WebBlockType::where("slug", "see_also")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "see_also")->first();
                 $productsId   = [];
                 $categoriesId = [];
                 foreach ($auroraBlock["items"] as $item) {
@@ -196,7 +196,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 break;
 
             case "products":
-                $webBlockType = WebBlockType::where("slug", "products")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "products")->first();
                 $productsId   = [];
                 foreach ($auroraBlock["items"] as $item) {
                     if ($item['type'] == "product") {
@@ -215,17 +215,17 @@ class FetchAuroraWebBlocks extends OrgAction
                 break;
 
             case "category_categories":
-                $webBlockType = WebBlockType::where("slug", "department")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "department")->first();
                 $layout       = $this->processDepartmentData($models, $webpage, $auroraBlock);
                 data_set($layout, 'fixed', true, false);
                 break;
 
             case "blackboard":
-                $webBlockType = WebBlockType::where("slug", "overview")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "overview")->first();
                 $layout       = $this->processOverviewData($auroraBlock);
                 break;
             case "button":
-                $webBlockType = WebBlockType::where("slug", "cta1")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "cta1")->first();
                 $layout       = $this->processCTA1Data($auroraBlock);
                 break;
             default:
@@ -241,7 +241,7 @@ class FetchAuroraWebBlocks extends OrgAction
         // add fixed value to show the component can editable or not
         data_set($layout, 'fixed', false, false);
 
-        $defaultPropertiesFromJson = Arr::get($webBlockType->data, 'properties');
+        $defaultPropertiesFromJson = Arr::get($webBlockType->layout, 'properties');
         if ($defaultPropertiesFromJson) {
             data_set($layout, "properties", $defaultPropertiesFromJson);
         } else {

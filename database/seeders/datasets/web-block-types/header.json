@@ -1,33 +1,29 @@
 {
-	"slug": "reviews",
-	"name": "Reviews",
-	"icon": "fal fa-star",
+	"scope": "website",
+	"slug": "header",
+	"code": "header-1",
+	"name": "Header 1",
 	"blueprint": {
-		"value": ""
-	},
-	"scope": "webpage",
-	"webBlockTypes": [
-		{
-			"code": "order_reviews",
-			"name": "Order reviews",
-			"data": {
-				"component": "Reviews",
-				"icon": ["fal", "stars"],
-				"fieldValue": {
-					"value": ""
-				},
+		"layout": [
+			{
+				"name": "Chip",
+				"key": "gold_member",
+				"type": "EditorAndPanelProperties"
+			},
+			{
+				"name": "Logo",
+				"key": "logo",
+				"type": "upload_image"
+			}
+		],
+		"data": {
+			"logo": {
+				"visible": "all",
+				"src": null,
+				"url": "https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png",
+				"alt": "",
+				"width": 50,
 				"properties": {
-					"buttons": {
-						"login": true,
-						"logout": false
-					},
-					"background": {
-						"type": "color",
-						"color": "#fff",
-						"image": {
-							"original": null
-						}
-					},
 					"padding": {
 						"unit": "px",
 						"top": {
@@ -90,25 +86,14 @@
 						}
 					}
 				}
-			}
-		},
-		{
-			"code": "product_review",
-			"name": "Product review",
-			"data": {
-				"component": "Reviews",
-				"icon": ["fal", "stars"],
-				"fieldValue": {
-					"value": ""
-				},
+			},
+			"gold_member": {
+				"visible": "all",
+				"text": "Become a Gold Reward Member",
 				"properties": {
-					"buttons": {
-						"login": true,
-						"logout": false
-					},
 					"background": {
 						"type": "color",
-						"color": "#fff",
+						"color": "#8E44AD",
 						"image": {
 							"original": null
 						}
@@ -116,16 +101,16 @@
 					"padding": {
 						"unit": "px",
 						"top": {
-							"value": 0
+							"value": 5
 						},
 						"left": {
-							"value": 0
+							"value": 10
 						},
 						"right": {
-							"value": 0
+							"value": 10
 						},
 						"bottom": {
-							"value": 0
+							"value": 5
 						}
 					},
 					"margin": {
@@ -149,16 +134,16 @@
 						"rounded": {
 							"unit": "px",
 							"topright": {
-								"value": 0
+								"value": 10
 							},
 							"topleft": {
-								"value": 0
+								"value": 10
 							},
 							"bottomright": {
-								"value": 0
+								"value": 10
 							},
 							"bottomleft": {
-								"value": 0
+								"value": 10
 							}
 						},
 						"top": {
@@ -177,5 +162,5 @@
 				}
 			}
 		}
-	]
+	}
 }

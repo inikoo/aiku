@@ -64,6 +64,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, MasterProduct> $masterProductVariants
  * @property-read \App\Models\Catalogue\MasterProductCategory|null $masterSubDepartment
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
+ * @property-read \App\Models\Catalogue\MasterProductSalesIntervals|null $salesIntervals
+ * @property-read \App\Models\Catalogue\MasterProductStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder|MasterProduct newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|MasterProduct newQuery()

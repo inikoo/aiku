@@ -56,6 +56,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read MasterProductCategory|null $parent
+ * @property-read \App\Models\Catalogue\MasterProductCategorySalesIntervals|null $salesIntervals
+ * @property-read \App\Models\Catalogue\MasterProductCategoryStats|null $stats
  * @property-read MasterProductCategory|null $subDepartment
  * @property-read LaravelCollection<int, MasterProductCategory> $subDepartments
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
