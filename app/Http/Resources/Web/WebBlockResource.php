@@ -19,7 +19,6 @@ class WebBlockResource extends JsonResource
     {
         /** @var WebBlock $webBlock */
         $webBlock = $this;
-        dd($webBlock);
         return [
             'id'     => $webBlock->id,
             'layout' => $webBlock->layout,
