@@ -304,6 +304,7 @@ Route::name('recurring-bill.')->prefix('recurring-bill/{recurringBill:id}')->gro
 
 Route::name('product.')->prefix('product')->group(function () {
     Route::post('/product/', StoreProduct::class)->name('store');
+    Route::post('/{product:id}/tags', [StoreTag::class, 'inProduct'])->name('tag.store');
     Route::patch('/{product:id}/update', UpdateProduct::class)->name('update');
     Route::delete('/{product:id}/delete', DeleteProduct::class)->name('delete');
 });
