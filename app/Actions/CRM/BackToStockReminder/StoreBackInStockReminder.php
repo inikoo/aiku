@@ -9,7 +9,10 @@
 namespace App\Actions\CRM\BackInStockReminder;
 
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoFavourited;
+use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoReminded;
 use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateCustomersWhoFavourited;
+use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateCustomersWhoReminded;
+use App\Actions\CRM\Customer\Hydrators\CustomerHydrateBackInStockReminders;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateFavourites;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Product;
@@ -33,9 +36,9 @@ class StoreBackInStockReminder extends OrgAction
         /** @var BackInStockReminder $reminder */
         $reminder = $customer->BackInStockReminder()->create($modelData);
 
-        // CustomerHydrateFavourites::run($customer);
-        // ProductHydrateCustomersWhoFavourited::run($product);
-        // ProductCategoryHydrateCustomersWhoFavourited::run($product);
+        CustomerHydrateBackInStockReminders::run($customer);
+        ProductHydrateCustomersWhoReminded::run($product);
+        ProductCategoryHydrateCustomersWhoReminded::run($product);
 
         return $reminder;
     }
