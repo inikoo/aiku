@@ -14,27 +14,19 @@
 				"component": "Iframe",
 				"icon": ["fal", "paperclip"],
 				"fieldValue": {
+					"visible" : "all",
 					"link": null,
-					"emptyState": true,
-					"height": {
-						"value": "335",
-						"unit": "px"
-					},
-					"width": {
-						"value": "100",
-						"unit": "%"
-					}
+					"emptyState": true
 				},
 				"properties": {
-					"buttons": {
-						"login": true,
-						"logout": false
-					},
-					"background": {
-						"type": "color",
-						"color": "#fff",
-						"image": {
-							"original": null
+					"dimension": {
+						"height": {
+							"value": "335",
+							"unit": "px"
+						},
+						"width": {
+							"value": "100",
+							"unit": "%"
 						}
 					},
 					"padding": {
