@@ -1,12 +1,12 @@
 <?php
 /*
  * author Arya Permana - Kirin
- * created on 16-10-2024-10h-59m
+ * created on 16-10-2024-11h-05m
  * github: https://github.com/KirinZero0
  * copyright 2024
 */
 
-namespace App\Http\Resources\CRM;
+namespace App\Http\Resources\Catalogue;
 
 use App\Http\Resources\HasSelfCall;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -22,7 +22,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $created_at
  * @property string $updated_at
  */
-class CustomerBackToStockRemindersResource extends JsonResource
+class ProductBackInStockRemindersResource extends JsonResource
 {
     use HasSelfCall;
 
@@ -32,8 +32,10 @@ class CustomerBackToStockRemindersResource extends JsonResource
             'id'                     => $this->id,
             'slug'                   => $this->slug,
             'name'                   => $this->name,
-            'description'            => $this->description,
-            'price'                  => $this->price,
+            'contact_name'           => $this->contact_name,
+            'reference'              => $this->reference,
+            'email'                  => $this->email,
+            'phone'                  => $this->phone,
         ];
     }
 }

@@ -6,7 +6,7 @@
  * copyright 2024
 */
 
-namespace App\Actions\CRM\BackToStockReminder;
+namespace App\Actions\CRM\BackInStockReminder;
 
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateCustomersWhoFavourited;
 use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateCustomersWhoFavourited;
@@ -14,12 +14,12 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateFavourites;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Product;
 use App\Models\CRM\Customer;
-use App\Models\Reminder\BackToStockReminder;
+use App\Models\Reminder\BackInStockReminder;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreBackToStockReminder extends OrgAction
+class StoreBackInStockReminder extends OrgAction
 {
-    public function handle(Customer $customer, Product $product, array $modelData): BackToStockReminder
+    public function handle(Customer $customer, Product $product, array $modelData): BackInStockReminder
     {
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
@@ -30,8 +30,8 @@ class StoreBackToStockReminder extends OrgAction
         data_set($modelData, 'family_id', $product->family_id);
 
 
-        /** @var BackToStockReminder $reminder */
-        $reminder = $customer->backToStockReminder()->create($modelData);
+        /** @var BackInStockReminder $reminder */
+        $reminder = $customer->BackInStockReminder()->create($modelData);
 
         // CustomerHydrateFavourites::run($customer);
         // ProductHydrateCustomersWhoFavourited::run($product);
@@ -63,7 +63,7 @@ class StoreBackToStockReminder extends OrgAction
     }
 
 
-    public function action(Customer $customer, Product $product, array $modelData, int $hydratorsDelay = 0, bool $strict = true): BackToStockReminder
+    public function action(Customer $customer, Product $product, array $modelData, int $hydratorsDelay = 0, bool $strict = true): BackInStockReminder
     {
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;

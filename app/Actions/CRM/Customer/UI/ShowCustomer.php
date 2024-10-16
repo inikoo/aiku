@@ -8,7 +8,7 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\CRM\BackToStockReminder\UI\IndexCustomerBackToStockReminders;
+use App\Actions\CRM\BackInStockReminder\UI\IndexCustomerBackInStockReminders;
 use App\Actions\CRM\Favourite\UI\IndexCustomerFavourites;
 use App\Actions\Mail\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Ordering\Order\UI\IndexOrders;
@@ -19,7 +19,7 @@ use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\CRM\CustomerDropshippingTabsEnum;
 use App\Enums\UI\CRM\CustomerTabsEnum;
-use App\Http\Resources\CRM\CustomerBackToStockRemindersResource;
+use App\Http\Resources\CRM\CustomerBackInStockRemindersResource;
 use App\Http\Resources\CRM\CustomerFavouritesResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
@@ -176,15 +176,15 @@ class ShowCustomer extends OrgAction
                     fn () => CustomerFavouritesResource::collection(IndexCustomerFavourites::run($customer))
                     : Inertia::lazy(fn () => CustomerFavouritesResource::collection(IndexCustomerFavourites::run($customer))),
                 $tabs::REMINDERS->value => $this->tab == $tabs::REMINDERS->value ?
-                    fn () => CustomerBackToStockRemindersResource::collection(IndexCustomerBackToStockReminders::run($customer))
-                    : Inertia::lazy(fn () => CustomerBackToStockRemindersResource::collection(IndexCustomerBackToStockReminders::run($customer))),
+                    fn () => CustomerBackInStockRemindersResource::collection(IndexCustomerBackInStockReminders::run($customer))
+                    : Inertia::lazy(fn () => CustomerBackInStockRemindersResource::collection(IndexCustomerBackInStockReminders::run($customer))),
 
 
             ]
         )->table(IndexOrders::make()->tableStructure($customer))
         //    ->table(IndexDropshippingRetinaProducts::make()->tableStructure($customer))
         ->table(IndexCustomerFavourites::make()->tableStructure($customer, $tabs::FAVOURITES->value))
-        ->table(IndexCustomerBackToStockReminders::make()->tableStructure($customer, $tabs::REMINDERS->value))
+        ->table(IndexCustomerBackInStockReminders::make()->tableStructure($customer, $tabs::REMINDERS->value))
         ->table(IndexDispatchedEmails::make()->tableStructure($customer));
 
     }

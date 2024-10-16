@@ -38,12 +38,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Product $product
  * @property-read \App\Models\Catalogue\Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder|BackToStockReminder newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BackToStockReminder newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BackToStockReminder query()
+ * @method static \Illuminate\Database\Eloquent\Builder|BackInStock newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BackInStock newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|BackInStock query()
  * @mixin \Eloquent
  */
-class BackToStockReminder extends Model
+class BackInStockReminder extends Model
 {
     use InShop;
 
