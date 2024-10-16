@@ -57,20 +57,24 @@ const loginMode = ref(true)
 const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
 const tabs = [
     {
-        label: "Website Topbar",
+        label: "Topbar settings",
+        componentName: "topbar",
         key: 'topBar',
         icon: faPresentation,
     },
     {
         label: "Website header",
+        componentName: "header",
         key: 'header',
         icon: faPresentation,
     }
 ]
-const tabsBar = ref(tabs[0])
+const selectedTab = ref(tabs[0])
 
 const onPickTemplate = (data: object) => {
-    usedTemplates.value[tabsBar.value.key] = data.data
+    // console.log('tt', usedTemplates.value)
+    usedTemplates.value[selectedTab.value.key] = data
+    // console.log('tt', usedTemplates.value)
     isModalOpen.value = false
 }
 
@@ -140,6 +144,7 @@ const handleIframeError = () => {
 }
 
 watch(usedTemplates, (newVal) => {
+    // console.log('klklk', newVal)
     if (newVal) debouncedSendUpdate(newVal)
 }, { deep: true })
 
@@ -176,26 +181,21 @@ const onSelectTopbar = (xxx) => {
     isOpenModalTopbarList.value = false
 }
 
-console.log('ee', props.web_block_types)
-const webBlockTypeCategoriesFilter = computed(() => {
-    // Create a shallow copy of the props.webBlockTypeCategories
-    const filteredData = { ...props.web_block_types };
-
-    // console.log('fff', tabsBar.value.label)
+// console.log('ee', props.web_block_types)
+const selectedWebBlock = computed(() => {
+    return props.web_block_types.data.filter(item => item.component === selectedTab.value.componentName)
     
-    // Check if filteredData.data is an array before filtering
-    if (Array.isArray(filteredData.data)) {
-        // Filter the data based on the current tab label
-        // console.log('bb', filteredData.data, tabsBar.value.label)
-        filteredData.data = filteredData.data.filter(item => item.name === tabsBar.value.label)
-        // console.log('bb', filteredData.data, tabsBar.value.label)
-    } else {
-        // If data is not an array, set it to an empty array
-        filteredData.data = [];
-    }
+    // const filteredData = { ...props.web_block_types };
 
-    return filteredData;
-});
+    
+    // if (Array.isArray(filteredData.data)) {
+    //     filteredData.data = filteredData.data.filter(item => item.name === tabsBar.value.label)
+    // } else {
+    //     filteredData.data = [];
+    // }
+
+    // return filteredData;
+})
 
 
 </script>
@@ -212,10 +212,10 @@ const webBlockTypeCategoriesFilter = computed(() => {
             />
         </template>
     </PageHeading>
-
+    
     <div class="h-[84vh] flex">
         <div v-if="usedTemplates" class="col-span-2 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
-           <!--  <Accordion>
+            <!--  <Accordion>
                 <AccordionPanel value="topbar" @click="openedAccordion = 'topbar'">
                     <AccordionHeader>
                         <div class="font-bold text-lg">Topbar Settings</div>
@@ -244,9 +244,9 @@ const webBlockTypeCategoriesFilter = computed(() => {
             <div class="flex h-full w-96">
                 <div class="min-w-fit w-[10%] bg-slate-200 ">
                     <div v-for="(tab, index) in tabs"
-                        class="py-2 px-3 cursor-pointer transition duration-300 ease-in-out transform hover:scale-105"
-                        :title="tab.label" @click="tabsBar = tab"
-                        :class="[tabsBar.key == tab.key ? 'bg-indigo-500 text-white' : 'hover:bg-gray-200/60']"
+                        class="py-2 px-3 cursor-pointer"
+                        :title="tab.label" @click="selectedTab = tab"
+                        :class="[selectedTab.key == tab.key ? 'bg-indigo-500 text-white' : 'hover:bg-gray-200/60']"
                         v-tooltip="tab.label">
                         <FontAwesomeIcon
                             :icon="tab.icon"
@@ -257,8 +257,8 @@ const webBlockTypeCategoriesFilter = computed(() => {
                 <div class="w-full py-2 px-3">
                     <div class="text-lg font-semibold flex items-center justify-between gap-3 border-b border-gray-300">
                         <div class="flex items-center gap-3">
-                            <FontAwesomeIcon :icon="tabsBar.icon" aria-hidden="true" />
-                            <span>{{ tabsBar.label }}</span>
+                            <FontAwesomeIcon :icon="selectedTab.icon" aria-hidden="true" />
+                            <span>{{ selectedTab.label }}</span>
                         </div>
 
                         <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'"
@@ -266,14 +266,13 @@ const webBlockTypeCategoriesFilter = computed(() => {
                             <FontAwesomeIcon icon="fas fa-th-large" aria-hidden='true' />
                         </div>
                     </div>
-                    <!-- ======================
-                    {{ tabsBar.key }}
-                    ====================
-                    <pre>{{ usedTemplates.topBar }}</pre> -->
+
+                    <!-- <pre>{{ usedTemplates?.[selectedTab.key].blueprint }}</pre> -->
+
                     <SideEditor
-                        v-if="usedTemplates?.[tabsBar.key]?.fieldValue"
-                        v-model="usedTemplates[tabsBar.key].fieldValue"
-                        :bluprint="usedTemplates[tabsBar.key].bluprint" 
+                        v-if="usedTemplates?.[selectedTab.key]?.blueprint.fieldValue"
+                        v-model="usedTemplates[selectedTab.key].blueprint.fieldValue"
+                        :bluprint="usedTemplates[selectedTab.key].blueprint" 
                         :uploadImageRoute="uploadImageRoute" 
                     />
                 </div>
@@ -296,8 +295,14 @@ const webBlockTypeCategoriesFilter = computed(() => {
                 <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
                     <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
                 </div>
-                <iframe :src="iframeSrc" :title="props.title" :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
-                    @error="handleIframeError" @load="isIframeLoading = false" />
+
+                <!-- <iframe
+                    :src="iframeSrc"
+                    :title="props.title"
+                    :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
+                    @error="handleIframeError"
+                    @load="isIframeLoading = false"
+                /> -->
 
             </div>
             <section v-else>
@@ -317,17 +322,17 @@ const webBlockTypeCategoriesFilter = computed(() => {
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
         <BlockList 
             :onPickBlock="onPickTemplate" 
-            :webBlockTypes="web_block_types" 
+            :webBlockTypes="selectedWebBlock" 
             scope="website" 
         />
     </Modal>
 
-    <Modal :isOpen="isOpenModalTopbarList" @onClose="isOpenModalTopbarList = false">
+    <!-- <Modal :isOpen="isOpenModalTopbarList" @onClose="isOpenModalTopbarList = false">
         <TopbarList 
             :onSelectTopbar
-            :topbarList="topbarList"
+            :topbarList="selectedWebBlock"
         />
-    </Modal>
+    </Modal> -->
 </template>
 
 

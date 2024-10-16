@@ -25,24 +25,23 @@ import Action from "@/Components/Forms/Fields/Action.vue"
 
 export const getComponent = (componentName: string) => {
     const components: Component = {
-        'bannerWowsbar': WowsbarBanner,
-        'productPage': ProductPage,
-        'text': Text,
-        'family': FamilyPageOffer,
-        'products': ProductList,
-        'cta': CTA,
+        'banner': WowsbarBanner,
+        "bento-grid-1": BentoGrid,
+        "bricks": Gallery,
+        //categories
+        'cta1': CTA,
         'cta2': CTA2,
-        'CTA3': SeeAlso,
-        'reviews': Rewiews,
-        'image': Image,
-        "gallery": Gallery,
-        "iframe": Iframe,
-        "bentoGrid": BentoGrid,
-        "product": Product,
-        "grid1": Grid1,
-        "overview": Overview,
+        'cta3': SeeAlso,
         "department": Department,
-        "script": Script
+        'family': FamilyPageOffer,
+        "iframe": Iframe,
+        'images': Image,
+        "overview": Overview,
+        'product': ProductPage,
+        'products': ProductList,
+        "script": Script,
+        'text': Text,
+        /* "product": Product, */
     }
 
     return components[componentName] ?? NotFoundComponents

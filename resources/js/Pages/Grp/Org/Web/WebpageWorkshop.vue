@@ -49,17 +49,6 @@ const _WebpageSideEditor = ref(null)
 
 const isAddBlockLoading = ref<string | null>(null)
 const addNewBlock = async (block: Daum) => {
-    // try {
-    //     const response = router.post(
-    //         route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
-    //         { web_block_type_id: block.id }
-    //     )
-    //     const set = { ...response.data.data }
-    //     data.value = set
-    // } catch (error: any) {
-    //     console.error('error', error)
-    // }
-    // isAddBlockLoading.value = null
     router.post(
         route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
         { web_block_type_id: block.id },
@@ -124,7 +113,6 @@ const sendOrderBlock = async (block: Object) => {
 
 const isLoadingDelete = ref<string | null>(null)
 const sendDeleteBlock = async (block: Daum) => {
-    console.log(block)
     // console.log('block', block)
     // isLoading.value = 'deleteBlock' + block.id
     // try {
@@ -243,6 +231,7 @@ onMounted(() => {
             <LoadingIcon v-tooltip="trans('Saving..')" />
         </template>
     </PageHeading>
+    
 
     <div class="grid grid-cols-5 h-[85vh]">
         <!-- Section: Side editor -->

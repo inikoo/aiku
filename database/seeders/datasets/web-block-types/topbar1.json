@@ -1,7 +1,7 @@
 {
 	"scope": "website",
 	"slug": "top-bar-1",
-	"code": "top-bar-2",
+	"code": "top-bar-1",
 	"name": "Topbar Simple",
 	"component": "topbar",
 	"blueprint": {
