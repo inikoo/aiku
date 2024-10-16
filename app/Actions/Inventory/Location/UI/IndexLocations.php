@@ -306,7 +306,7 @@ class IndexLocations extends OrgAction
                         'parameters' => []
                     ],
                 ],
-                'tagsList'    => TagResource::collection(Tag::all()),
+                'tagsList'    => TagResource::collection(Tag::where('type', 'inventory')->get()),
                 'data'        => LocationsResource::collection($locations),
 
             ]

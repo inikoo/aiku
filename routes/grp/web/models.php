@@ -106,6 +106,7 @@ use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
 use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 use App\Actions\Helpers\Tag\StoreTag;
+use App\Actions\Helpers\Tag\SyncTagsModel;
 use App\Actions\HumanResources\ClockingMachine\DeleteClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\ClockingMachine\UpdateClockingMachine;
@@ -305,6 +306,7 @@ Route::name('recurring-bill.')->prefix('recurring-bill/{recurringBill:id}')->gro
 Route::name('product.')->prefix('product')->group(function () {
     Route::post('/product/', StoreProduct::class)->name('store');
     Route::post('/{product:id}/tags', [StoreTag::class, 'inProduct'])->name('tag.store');
+    Route::patch('/{product:id}/tags/attach', [SyncTagsModel::class, 'inProduct'])->name('tag.attach');
     Route::patch('/{product:id}/update', UpdateProduct::class)->name('update');
     Route::delete('/{product:id}/delete', DeleteProduct::class)->name('delete');
 });
@@ -468,7 +470,7 @@ Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function ()
 });
 
 Route::patch('location/{location:id}', UpdateLocation::class)->name('location.update');
-Route::patch('location/{location:id}/tags', SyncTagsLocation::class)->name('location.tag.attach');
+Route::patch('location/{location:id}/tags', [SyncTagsModel::class, 'inLocation'])->name('location.tag.attach');
 Route::post('location/{location:id}/tags', [StoreTag::class, 'inLocation'])->name('location.tag.store');
 
 Route::name('warehouse-area.')->prefix('warehouse-area/{warehouseArea:id}')->group(function () {
