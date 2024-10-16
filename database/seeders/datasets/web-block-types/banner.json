@@ -4,7 +4,7 @@
 	"code": "banner",
 	"name": "Wowsbar banner",
 	"icon": ["fal", "presentation"],
-	"blueprint": {
+	"data": {
 		"fieldValue": {
 			"banner_id": null,
 			"banner_slug": null,
@@ -80,5 +80,6 @@
 				}
 			}
 		}
-	}
+	},
+	"blueprint": {}
 }

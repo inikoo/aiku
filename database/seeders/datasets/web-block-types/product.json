@@ -4,8 +4,9 @@
 	"code": "product",
 	"name": "Product showcase A",
 	"icon": ["fal", "cube"],
-	"fixed" : true,
-	"blueprint": {
+	"fixed": true,
+	"blueprint": {},
+	"data": {
 		"fieldValue": {
 			"value": {
 				"text": "bla bla"

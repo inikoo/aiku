@@ -5,7 +5,8 @@
 	"scope": "webpage",
 	"icon": ["fal", "building"],
 	"fixed" : true,
-	"blueprint": {
+	"blueprint" : {},
+	"data": {
 		"fieldValue": {
 			"value": {}
 		},

@@ -3,7 +3,8 @@
 	"slug": "footer",
 	"code": "FooterTheme1",
 	"name": "Footer 1",
-	"blueprint": {
+	"blueprint" : {},
+	"data": {
 		"footer": {
 			"column": {
 				"column_1": {

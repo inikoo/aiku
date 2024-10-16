@@ -5,7 +5,8 @@
 	"name": "Family",
 	"fixed": true,
 	"icon": ["fal", "folder"],
-	"blueprint": {
+	"blueprint" : {},
+	"data": {
 		"fieldValue": {
 			"value": {}
 		},

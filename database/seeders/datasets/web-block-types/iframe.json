@@ -4,7 +4,8 @@
 	"code": "iframe",
 	"name": "I Frame",
 	"icon": ["fal", "paperclip"],
-	"blueprint": {
+	"blueprint" : {},
+	"data": {
 		"fieldValue": {
 			"link": null,
 			"emptyState": true

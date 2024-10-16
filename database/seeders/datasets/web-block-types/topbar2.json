@@ -4,47 +4,7 @@
 	"code": "top-bar-2",
 	"name": "Topbar Fantastic",
 	"component": "topbar",
-	"blueprint": {
-		"layout": [
-			{
-				"name": "Container",
-				"key": ["container", "properties"],
-				"type": ["properties"],
-				"props_data": {}
-			},
-			{
-				"name": "Title",
-				"key": ["main_title", "text"],
-				"type": ["text"],
-				"replaceForm": [
-					{
-						"key": ["greeting", "visible"],
-						"type": ["VisibleLoggedIn"]
-					},
-					{
-						"key": ["greeting", "text"],
-						"type": ["editorhtml"]
-					}
-				],
-				"props_data": {}
-			},
-			{
-				"name": "Greeting",
-				"key": ["greeting", "text"],
-				"type": ["editorhtml"],
-				"replaceForm": [
-					{
-						"key": ["greeting", "visible"],
-						"type": ["VisibleLoggedIn"]
-					},
-					{
-						"key": ["greeting", "text"],
-						"type": ["editorhtml"]
-					}
-				],
-				"props_data": {}
-			}
-		],
+	"data": {
 		"fieldValue": {
 			"key": "Topheader",
 			"container": {
@@ -71,5 +31,45 @@
 				"visible": "login"
 			}
 		}
-	}
+	},
+	"blueprint": [
+		{
+			"name": "Container",
+			"key": ["container", "properties"],
+			"type": ["properties"],
+			"props_data": {}
+		},
+		{
+			"name": "Title",
+			"key": ["main_title", "text"],
+			"type": ["text"],
+			"replaceForm": [
+				{
+					"key": ["greeting", "visible"],
+					"type": ["VisibleLoggedIn"]
+				},
+				{
+					"key": ["greeting", "text"],
+					"type": ["editorhtml"]
+				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Greeting",
+			"key": ["greeting", "text"],
+			"type": ["editorhtml"],
+			"replaceForm": [
+				{
+					"key": ["greeting", "visible"],
+					"type": ["VisibleLoggedIn"]
+				},
+				{
+					"key": ["greeting", "text"],
+					"type": ["editorhtml"]
+				}
+			],
+			"props_data": {}
+		}
+	]
 }
