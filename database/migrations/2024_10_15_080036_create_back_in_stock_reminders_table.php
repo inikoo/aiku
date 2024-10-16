@@ -34,14 +34,14 @@ return new class () extends Migration {
             $table->string('source_id')->nullable()->unique();
         });
 
-        Schema::table('back_to_stock_reminders', function (Blueprint $table) {
-            $table->foreign('current_reminder_id')->references('id')->on('back_to_stock_reminders');
+        Schema::table('back_in_stock_reminders', function (Blueprint $table) {
+            $table->foreign('current_reminder_id')->references('id')->on('back_in_stock_reminders');
         });
     }
 
 
     public function down(): void
     {
-        Schema::dropIfExists('back_to_stock_reminders');
+        Schema::dropIfExists('back_in_stock_reminders');
     }
 };
