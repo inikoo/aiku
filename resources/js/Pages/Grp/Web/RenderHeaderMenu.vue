@@ -28,17 +28,32 @@ console.log('p-header',props)
 
 <template>
     <div>
+        <!-- <pre>{{ data?.topBar }}</pre> -->
+        <!-- Section: Topbar -->
+        <component
+            v-if="data?.topBar?.fieldValue"
+            :is="getTopbarComponent('topbar1')"
+            v-model="data.topBar.fieldValue"
+            :loginMode="true"
+            :previewMode="true"
+            :uploadImageRoute="null"
+            :colorThemed="colorThemed"
+        />
 
-        <!-- <IrisLoginInformation /> -->
-        <!-- {{ colorThemed }} -->
 
-        <component :is="getTopbarComponent('topbar1')" v-model="data.topBar.data" :loginMode="true"
-            :previewMode="true" :uploadImageRoute="null" :colorThemed="colorThemed" />
+        <!-- Section: Header -->
+        <component
+            v-if="data?.header?.data"
+            :is="getComponentsHeader(data?.header?.data?.key)"
+            v-model="data.header.data"
+            :loginMode="true"
+            :previewMode="true"
+            :uploadImageRoute="null"
+            :colorThemed="colorThemed"
+        />
 
 
-        <component :is="getComponentsHeader(data?.header?.data?.key)" :loginMode="true" :previewMode="true"
-            v-model="data.header.data" :uploadImageRoute="null" :colorThemed="colorThemed" />
-
+        <!-- Section: Menu -->
         <NavigationMenu v-if="menu" :data="menu" :colorThemed="colorThemed" class="hidden md:block" />
     </div>
 </template>

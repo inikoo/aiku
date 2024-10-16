@@ -10,7 +10,30 @@ import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import Modal from '@/Components/Utils/Modal.vue'
 import LoginPassword from '@/Components/Auth/LoginPassword.vue'
 import { Link } from '@inertiajs/vue3'
+import { getStyles } from '@/Composables/styles'
 library.add(faHeart, faShoppingCart, faSignOut, faUser, faSignIn, faUserPlus)
+
+interface ModelTopbar1 {
+    greeting: {
+        text: string
+    }
+    main_title: {
+        text: string
+        visible: string // 'all'
+    }
+    container: {
+        properties: {
+            color: {
+
+            }
+            background: {
+
+            }
+        }
+    }
+}
+
+const model = defineModel<ModelTopbar1>()
 
 const isLoggedIn = ref(false)
 const isDropshipping = ref(false)
@@ -29,20 +52,20 @@ const onClickLogin = () => {
     isModalOpen.value = true
     sectionAuth.value = 'login'
 }
+
 </script>
 
 <template>
-    <div id="top_bar" class="bg-[rgb(75,80,88)] text-white py-1 px-4 flex justify-between font-[Raleway]">
+    <div id="top_bar" class="py-1 px-4 flex justify-between"
+        :style="getStyles(model?.container.properties)"
+    >
+    <!-- <pre>{{ model.topbar.properties }}</pre> -->
         <div class="flex">
-            <div v-if="isLoggedIn">
-                <div>Hello,</div>
-                <div
-                    class="font-semibold max-w-[180px] text-ellipsis inline-block whitespace-nowrap ml-[5px] overflow-hidden">
-                    Katka Buchy
-                </div>
+            <!-- Section: greeting -->
+            <div v-if="!isLoggedIn" v-html="model?.greeting?.text?.replace('{{ name }}', 'Pphonofdshnjlcx')" class="flex items-center">
             </div>
 
-            <div id="top_bar_is_gold_reward_member" class="hide" style="margin-left: 20px;">
+            <!-- <div id="top_bar_is_gold_reward_member" class="hide" style="margin-left: 20px;">
                 <i class="fal fa-sparkles" style="color: #ffebb1;"></i>
                 <div id="top_bar_is_gold_reward_member_label"
                     style="padding: 1px 2px  1px 3px;color: #ffbf00;font-weight: 600;"></div>
@@ -56,7 +79,10 @@ const onClickLogin = () => {
                 <div id="top_bar_is_first_order_bonus_label"
                     style="padding: 1px 2px  1px 3px;color: #ffbf00;font-weight: 600;"></div>
                 <i class="fal fa-sparkles" style="color: #ffebb1;"></i>
-            </div>
+            </div> -->
+        </div>
+
+        <div class="text-center qwezxc" v-html="model.main_title.text">
         </div>
 
         <div class="action_buttons" style="display: flex; justify-content: flex-end; column-gap: 45px; grid-column: span 5 / span 5">

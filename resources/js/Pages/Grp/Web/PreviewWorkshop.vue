@@ -127,8 +127,12 @@ const openModalBlock = () => {
     <div class="container max-w-7xl mx-auto shadow-xl">
 
         <div class="relative">
-            <RenderHeaderMenu v-if="header?.data?.header" :data="layout.header" :menu="layout?.navigation"
-                :colorThemed="layout?.colorThemed" />
+            <RenderHeaderMenu
+                v-if="header?.data?.header"
+                :data="layout.header"
+                :menu="layout?.navigation"
+                :colorThemed="layout?.colorThemed"
+            />
         </div>
 
         <div v-if="data" class="relative">
@@ -172,8 +176,13 @@ const openModalBlock = () => {
             </div>
         </div>
 
-        <component v-if="footer?.footer?.data" :is="getComponentFooter(layout.footer.code)"
-            v-model="layout.footer.data.footer" :keyTemplate="layout.footer" :previewMode="editDataTools.previewMode"
-            :colorThemed="layout.colorThemed" />
+        <component
+            v-if="footer?.footer?.data"
+            :is="getComponentFooter(layout.footer.code)"
+            v-model="layout.footer.data.footer"
+            :keyTemplate="layout.footer"
+            :previewMode="editDataTools.previewMode"
+            :colorThemed="layout.colorThemed"
+        />
     </div>
 </template>
