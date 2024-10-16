@@ -1,17 +1,13 @@
 {
-	"slug": "script",
 	"scope": "webpage",
-	"code": "script",
-	"name": "Script",
-	"show" : true,
-	"visibility" : {
-		"in" : true,
-		"out" : true
-	},
-	"icon": ["fal", "code"],
-	"data": {
+	"slug": "products",
+	"code": "products",
+	"name": "List products",
+	"icon": ["fal", "cube"],
+	"fixed" : true,
+	"blueprint": {
 		"fieldValue": {
-			"value": {}
+			"value": ""
 		},
 		"properties": {
 			"background": {

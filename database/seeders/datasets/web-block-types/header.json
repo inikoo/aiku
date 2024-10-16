@@ -3,8 +3,8 @@
 	"slug": "header",
 	"code": "header-1",
 	"name": "Header 1",
-	"data": {
-		"bluprint": [
+	"blueprint": {
+		"layout": [
 			{
 				"name": "Chip",
 				"key": "gold_member",

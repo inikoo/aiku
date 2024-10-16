@@ -4,7 +4,7 @@
 	"code": "bricks",
 	"name": "Bricks",
 	"icon": ["fal", "chimney"],
-	"data": {
+	"blueprint": {
 		"fieldValue": {
 			"value": [
 				{

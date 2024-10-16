@@ -9,10 +9,7 @@ namespace App\Actions\SysAdmin\Group;
 
 use App\Actions\Web\WebBlockType\StoreWebBlockType;
 use App\Actions\Web\WebBlockType\UpdateWebBlockType;
-use App\Actions\Web\WebBlockTypeCategory\StoreWebBlockTypeCategory;
-use App\Actions\Web\WebBlockTypeCategory\UpdateWebBlockTypeCategory;
 use App\Models\SysAdmin\Group;
-use App\Models\Web\WebBlockTypeCategory;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
@@ -24,23 +21,23 @@ class SeedWebBlockTypes
 
     public function handle(Group $group): void
     {
-        foreach (Storage::disk('datasets')->files('web-block-type-categories') as $file) {
-            $webBlockTypeCategoryData = json_decode(Storage::disk('datasets')->get($file), true);
-            $webBlockTypeCategory     = WebBlockTypeCategory::where('slug', $webBlockTypeCategoryData['slug'])->first();
-            if ($webBlockTypeCategory) {
-                UpdateWebBlockTypeCategory::run($webBlockTypeCategory, Arr::except($webBlockTypeCategoryData, 'webBlockTypes'));
-            } else {
-                $webBlockTypeCategory = StoreWebBlockTypeCategory::run($group, Arr::except($webBlockTypeCategoryData, 'webBlockTypes'));
-            }
-            foreach (Arr::get($webBlockTypeCategoryData, 'webBlockTypes', []) as $webBlockTypeData) {
-                data_set($webBlockTypeData, 'blueprint', Arr::get($webBlockTypeCategory, 'blueprint'), overwrite: false);
+        foreach (Storage::disk('datasets')->files('web-block-types') as $file) {
+            $webBlockTypeData = Arr::only(
+                json_decode(Storage::disk('datasets')->get($file), true),
+                [
+                    'scope',
+                    'code',
+                    'name',
+                    'fixed',
+                    'blueprint'
+                ]
+            );
 
-                $webBlockType = $webBlockTypeCategory->webBlockTypes()->where('code', Arr::get($webBlockTypeData, 'code'))->first();
-                if ($webBlockType) {
-                    UpdateWebBlockType::run($webBlockType, $webBlockTypeData);
-                } else {
-                    StoreWebBlockType::run($webBlockTypeCategory, $webBlockTypeData);
-                }
+            $webBlockType = $group->webBlockTypes()->where('code', Arr::get($webBlockTypeData, 'code'))->first();
+            if ($webBlockType) {
+                UpdateWebBlockType::run($webBlockType, $webBlockTypeData);
+            } else {
+                StoreWebBlockType::run($group, $webBlockTypeData);
             }
         }
     }
@@ -50,7 +47,7 @@ class SeedWebBlockTypes
     public function asCommand(Command $command): int
     {
         foreach (Group::all() as $group) {
-            $command->info("Seeding web block types/categories for group: $group->name");
+            $command->info("Seeding web block types for group: $group->name");
             $this->handle($group);
         }
 

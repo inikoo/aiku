@@ -1,15 +1,14 @@
 {
 	"scope": "webpage",
-	"slug": "bento-grid",
-	"code": "bento-grid-1",
-	"name": "Three column bento grid",
+	"code": "cta2",
+	"slug": "cta2",
+	"name": "Call to action 2",
 	"icon": ["fal", "rectangle-wide"],
-	"data": {
+	"blueprint": {
 		"fieldValue": {
-			"headline": "<h2><strong><span style='color: #FFFFFF'>What ingredients should be considered when selecting body and hand soaps?</span></strong></h2>",
-			"description": "<p><span style='color: #FFFFFF'>Provide your customers with informed advice.</span></p><p></p>",
-			"button": "Read blog",
-			"image": null
+			"headline": "<h2><strong><span style='color: #FFFFFF'>Boost your productivity today</span></strong></h2>",
+			"description": "<p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'>Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim</span></p><p style='text-align: center'><span style='color: #D1D1D1; font-size: 20px'> id veniam aliqua proident excepteur commodo do ea.</span></p><p></p>",
+			"button": "Get Started"
 		},
 		"properties": {
 			"background": {

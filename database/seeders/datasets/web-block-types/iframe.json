@@ -1,20 +1,23 @@
 {
 	"scope": "webpage",
-	"slug": "products",
-	"code": "products",
-	"name": "List products",
-	"icon": ["fal", "cube"],
-	"fixed" : true,
-	"data": {
+	"slug": "iframe",
+	"code": "iframe",
+	"name": "I Frame",
+	"icon": ["fal", "paperclip"],
+	"blueprint": {
 		"fieldValue": {
-			"value": ""
+			"link": null,
+			"emptyState": true
 		},
 		"properties": {
-			"background": {
-				"type": "color",
-				"color": "#fff",
-				"image": {
-					"original": null
+			"dimension": {
+				"height": {
+					"value": "335",
+					"unit": "px"
+				},
+				"width": {
+					"value": "100",
+					"unit": "%"
 				}
 			},
 			"padding": {

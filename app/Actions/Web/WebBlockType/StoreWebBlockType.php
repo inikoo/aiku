@@ -9,8 +9,8 @@ namespace App\Actions\Web\WebBlockType;
 
 use App\Enums\Web\WebBlockType\WebBlockTypeScopeEnum;
 use App\Enums\Web\WebBlockTypeCategory\WebBlockTypeCategoryScopeEnum;
+use App\Models\SysAdmin\Group;
 use App\Models\Web\WebBlockType;
-use App\Models\Web\WebBlockTypeCategory;
 use Exception;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -21,24 +21,26 @@ class StoreWebBlockType
     /**
      * @throws Exception
      */
-    public function handle(WebBlockTypeCategory $webBlockTypeCategory, array $modelData): WebBlockType
+    public function handle(Group $group, array $modelData): WebBlockType
     {
 
-        data_set($modelData, 'group_id', $webBlockTypeCategory->group_id);
 
-        $scope = match ($webBlockTypeCategory->scope) {
-            WebBlockTypeCategoryScopeEnum::WEBPAGE => WebBlockTypeScopeEnum::WEBPAGE,
-            WebBlockTypeCategoryScopeEnum::WEBSITE => WebBlockTypeScopeEnum::WEBSITE,
-            default                                => null
-        };
+        //        $scope = match ($webBlockTypeCategory->scope) {
+        //            WebBlockTypeCategoryScopeEnum::WEBPAGE => WebBlockTypeScopeEnum::WEBPAGE,
+        //            WebBlockTypeCategoryScopeEnum::WEBSITE => WebBlockTypeScopeEnum::WEBSITE,
+        //            default                                => null
+        //        };
 
-        if ($scope === null) {
-            throw new \Exception('Invalid Scope');
-        }
+        //        if ($scope === null) {
+        //            throw new \Exception('Invalid Scope');
+        //        }
 
-        data_set($modelData, 'scope', $scope);
+        //   data_set($modelData, 'scope', $scope);
+        // print_r($modelData);
+
         /** @var WebBlockType $webBlockType */
-        $webBlockType = $webBlockTypeCategory->webBlockTypes()->create($modelData);
+
+        $webBlockType = $group->webBlockTypes()->create($modelData);
         $webBlockType->stats()->create();
         return $webBlockType;
     }

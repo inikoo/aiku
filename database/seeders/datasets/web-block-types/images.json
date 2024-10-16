@@ -1,12 +1,12 @@
 {
 	"scope": "webpage",
-	"slug": "categories",
-	"code": "categories",
-	"name": "Categories",
-	"icon": ["fal", "bars"],
-	"data": {
+	"slug": "images",
+	"name": "Images",
+	"code": "images",
+	"icon": ["fal", "image"],
+	"blueprint": {
 		"fieldValue": {
-			"value": {}
+			"value": null
 		},
 		"properties": {
 			"background": {

@@ -1,11 +1,11 @@
 {
-	"slug": "family",
+	"slug": "department",
+	"code": "department",
+	"name": "Department",
 	"scope": "webpage",
-	"code": "family",
-	"name": "Family",
-	"fixed": true,
-	"icon": ["fal", "folder"],
-	"data": {
+	"icon": ["fal", "building"],
+	"fixed" : true,
+	"blueprint": {
 		"fieldValue": {
 			"value": {}
 		},

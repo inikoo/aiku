@@ -3,8 +3,8 @@
 	"slug": "top-bar",
 	"code": "top-header-1",
 	"name": "Top Header 1",
-	"data": {
-		"bluprint": [
+	"blueprint": {
+		"layout": [
 			{
 				"name": "Container",
 				"key": ["container", "properties"],
@@ -52,7 +52,7 @@
 				}
 			},
 			"main_title": {
-				"text": "<p><span>FAIRLY TRADING WHOLESALE GIFTS SINCE 1995</span></p>",
+				"text": "<p><span>Lorem ipsum dolor sit amet.</span></p>",
 				"visible": "all"
 			},
 			"greeting": {

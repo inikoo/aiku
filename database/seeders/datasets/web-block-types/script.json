@@ -1,14 +1,17 @@
 {
+	"slug": "script",
 	"scope": "webpage",
-	"slug": "banner",
-	"code": "banner",
-	"name": "Wowsbar banner",
-	"icon": ["fal", "presentation"],
-	"data": {
+	"code": "script",
+	"name": "Script",
+	"show" : true,
+	"visibility" : {
+		"in" : true,
+		"out" : true
+	},
+	"icon": ["fal", "code"],
+	"blueprint": {
 		"fieldValue": {
-			"banner_id": null,
-			"banner_slug": null,
-			"emptyState": true
+			"value": {}
 		},
 		"properties": {
 			"background": {

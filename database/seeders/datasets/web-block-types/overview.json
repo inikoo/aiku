@@ -4,7 +4,7 @@
 	"code": "overview",
 	"name": "Overview",
 	"icon": ["fal", "text"],
-	"data": {
+	"blueprint": {
 		"fieldValue": {
 			"value": {
 				"images": [],

@@ -1,15 +1,15 @@
 {
-	"slug": "product",
+	"slug": "cta",
+	"code": "cta1",
+	"name": "Call to action 1",
 	"scope": "webpage",
-	"code": "product",
-	"name": "Product showcase A",
-	"icon": ["fal", "cube"],
-	"fixed" : true,
-	"data": {
+	"icon": ["fal", "rectangle-wide"],
+	"blueprint": {
 		"fieldValue": {
-			"value": {
-				"text": "bla bla"
-			}
+			"headline": "<h2><strong><span style='color: #FFFFFF'>What ingredients should be considered when selecting body and hand soaps?</span></strong></h2>",
+			"description": "<p><span style='color: #FFFFFF'>Provide your customers with informed advice.</span></p><p></p>",
+			"button": "Read blog",
+			"image": null
 		},
 		"properties": {
 			"background": {

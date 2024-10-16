@@ -1,23 +1,21 @@
 {
 	"scope": "webpage",
-	"slug": "iframe",
-	"code": "iframe",
-	"name": "I Frame",
-	"icon": ["fal", "paperclip"],
-	"data": {
+	"slug": "banner",
+	"code": "banner",
+	"name": "Wowsbar banner",
+	"icon": ["fal", "presentation"],
+	"blueprint": {
 		"fieldValue": {
-			"link": null,
+			"banner_id": null,
+			"banner_slug": null,
 			"emptyState": true
 		},
 		"properties": {
-			"dimension": {
-				"height": {
-					"value": "335",
-					"unit": "px"
-				},
-				"width": {
-					"value": "100",
-					"unit": "%"
+			"background": {
+				"type": "color",
+				"color": "#fff",
+				"image": {
+					"original": null
 				}
 			},
 			"padding": {
