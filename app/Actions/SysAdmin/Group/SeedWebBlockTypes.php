@@ -36,23 +36,23 @@ class SeedWebBlockTypes
                 ]
             );
 
-            $data = [];
+            $additionalData = [];
 
             if (Arr::has($rawWebBlockTypeData, 'icon')) {
-                $data = [
+                $additionalData = [
                     'icon' => Arr::get($rawWebBlockTypeData, 'icon')
                 ];
             }
 
             if (Arr::has($rawWebBlockTypeData, 'component')) {
-                $data = [
+                $additionalData = [
                     'component' => Arr::get($rawWebBlockTypeData, 'component')
                 ];
             }
 
 
-            if ($data != []) {
-                data_set($webBlockTypeData, 'data', $data);
+            if ($additionalData != []) {
+                data_set($webBlockTypeData, 'data', [$webBlockTypeData['data'], $additionalData]);
             }
 
 

@@ -53,6 +53,7 @@ class EditWebpage extends OrgAction
      */
     public function htmlResponse(Webpage $webpage, ActionRequest $request): Response
     {
+        // dump($webpage->toArray());
         $redirectUrlArr = Arr::pluck($webpage->redirects->toArray(), 'redirect');
         return Inertia::render(
             'EditModel',
@@ -98,7 +99,7 @@ class EditWebpage extends OrgAction
                                         'seotitle'       => Arr::get($webpage->data, 'seotitle')       ?? '',
                                         'seourl'         => Arr::get($webpage->data, 'seourl')         ?? '',
                                         'seodescription' => Arr::get($webpage->data, 'seodescription') ?? '',
-                                        'redirecturl'    => implode(",", $redirectUrlArr),  // TODO
+                                        'redirecturl'    => implode(",", $redirectUrlArr) ?? '',
                                     ],
                                     'noTitle'  => true,
                                 ]
