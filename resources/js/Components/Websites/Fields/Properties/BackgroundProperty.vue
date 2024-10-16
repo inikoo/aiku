@@ -74,6 +74,7 @@ const routeList = {
                     :imageCover="true"
                     @click="true"
                     class="h-12 aspect-square cursor-pointer "
+                    v-tooltip="trans('Image background')"
                 />
 
                 <div @click="() => isOpenGallery = true" class="hidden group-hover:flex absolute inset-0 bg-black/20 items-center justify-center cursor-pointer">
@@ -88,9 +89,10 @@ const routeList = {
         <div class="flex items-center gap-x-4 h-min" >
             <ColorPicker
                 :color="model.color"
-                class="h-8 w-8 rounded-md border border-gray-300"
+                class="h-12 aspect-square rounded-md shadow"
                 @changeColor="(newColor)=> model.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a}`"
                 closeButton
+                v-tooltip="trans('Color background')"
             />
             <!-- <div v-else class="h-8 w-8 rounded-md border border-gray-300 shadow" :style="{background: model.color}" /> -->
 

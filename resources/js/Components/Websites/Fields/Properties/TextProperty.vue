@@ -17,14 +17,57 @@ const model = defineModel<Borderproperty>({
     required: true
 })
 
-const fontFamilies = ([
-  "Arial, sans-serif",
-  "Verdana, sans-serif",
-  "Times New Roman, serif",
-  "Georgia, serif",
-  "Courier New, monospace",
-  "Lucida Console, monospace"
-]);
+const fontFamilies = [
+    {
+        label: "Arial",
+        value: "Arial, sans-serif",
+    },
+    {
+        label: "Comfortaa",
+        value: "'Comfortaa', sans-serif",
+    },
+    {
+        label: "Lobster",
+        value: "'Lobster', cursive",
+    },
+    {
+        label: "Laila",
+        value: "'Laila', sans-serif",
+    },
+    {
+        label: "Port Lligat Slab",
+        value: "'Port Lligat Slab', serif",
+    },
+    {
+        label: "Playfair",
+        value: "'Playfair Display', serif",
+    },
+    {
+        label: "Raleway",
+        value: "'Raleway', sans-serif",
+    },
+    {
+        label: "Roman Melikhov",
+        value: "'Roman Melikhov', serif",
+    },
+    {
+        label: "Source Sans Pro",
+        value: "'Source Sans Pro', sans-serif",
+    },
+    {
+        label: "Quicksand",
+        value: "'Quicksand', sans-serif",
+    },
+    {
+        label: "Times New Roman",
+        value: "'Times New Roman', serif",
+    },
+    {
+        label: "Yatra One",
+        value: "'Yatra One', cursive",
+    }
+]
+
 
 </script>
 
@@ -52,10 +95,26 @@ const fontFamilies = ([
                 <div class="text-xs mb-2">{{ trans('Font Families') }}</div>
                 <div class="col-span-4">
                     <PureMultiselect 
-                    v-model="model.fontFamily" 
-                    class="" 
-                    :options="fontFamilies"
-                    />
+                        v-model="model.fontFamily" 
+                        class=""
+                        required
+                        :options="fontFamilies"
+                    >
+                        <template #option="{ option, isSelected, isPointed, search }">
+                            <span :style="{
+                                fontFamily: option.value
+                            }">
+                                {{ option.label }}
+                            </span>
+                        </template>
+                        <template #label="{ value }">
+                            <div class="multiselect-single-label" :style="{
+                                fontFamily: value.value
+                            }">
+                                {{ value.label }}
+                            </div>
+                        </template>
+                    </PureMultiselect>
                 </div>
             </div>
 

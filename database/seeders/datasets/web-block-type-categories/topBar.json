@@ -19,6 +19,16 @@
 						"name": "Title",
 						"key": ["main_title", "text"],
 						"type": ["text"],
+						"replaceForm": [
+							{
+								"key": ["greeting", "visible"],
+								"type": ["VisibleLoggedIn"]
+							},
+							{
+								"key": ["greeting", "text"],
+								"type": ["editorhtml"]
+							}
+						],
 						"props_data": {}
 					},
 					{
