@@ -122,7 +122,6 @@ use App\Actions\HumanResources\Workplace\UpdateWorkplace;
 use App\Actions\Inventory\Location\DeleteLocation;
 use App\Actions\Inventory\Location\ImportLocation;
 use App\Actions\Inventory\Location\StoreLocation;
-use App\Actions\Inventory\Location\Tags\SyncTagsLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;

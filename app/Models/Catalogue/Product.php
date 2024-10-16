@@ -95,6 +95,7 @@ use Spatie\Tags\HasTags;
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $productVariants
  * @property-read \App\Models\Catalogue\ProductSalesIntervals|null $salesIntervals
+ * @property \Illuminate\Database\Eloquent\Collection<int, \Spatie\Tags\Tag> $tags
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\ProductStats|null $stats
  * @property-read \App\Models\Catalogue\ProductCategory|null $subDepartment
@@ -106,7 +107,12 @@ use Spatie\Tags\HasTags;
  * @method static \Illuminate\Database\Eloquent\Builder|Product newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Product onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|Product query()
+ * @method static \Illuminate\Database\Eloquent\Builder|Product withAllTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product withAllTagsOfAnyType($tags)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product withAnyTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product withAnyTagsOfAnyType($tags)
  * @method static \Illuminate\Database\Eloquent\Builder|Product withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder|Product withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
  * @method static \Illuminate\Database\Eloquent\Builder|Product withoutTrashed()
  * @mixin \Eloquent
  */
@@ -120,7 +126,7 @@ class Product extends Model implements Auditable, HasMedia
     use HasFactory;
     use HasImage;
     use HasTags;
-    
+
     protected $guarded = [];
 
     protected $casts = [
