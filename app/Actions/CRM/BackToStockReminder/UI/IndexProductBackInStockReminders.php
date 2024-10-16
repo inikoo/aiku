@@ -42,9 +42,9 @@ class IndexProductBackInStockReminders extends OrgAction
 
         $query = QueryBuilder::for(BackInStockReminder::class);
 
-        $query->where('back_to_stock_reminders.product_id', $parent->id);
+        $query->where('back_in_stock_reminders.product_id', $parent->id);
 
-        $query->leftJoin('customers', 'back_to_stock_reminders.customer_id', '=', 'customers.id');
+        $query->leftJoin('customers', 'back_in_stock_reminders.customer_id', '=', 'customers.id');
 
         return $query->defaultSort('customers.reference')
             ->select([

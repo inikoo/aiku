@@ -11,6 +11,7 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\CRM\Favourite;
 use App\Models\Helpers\UniversalSearch;
+use App\Models\Reminder\BackInStockReminder;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -227,5 +228,20 @@ class ProductCategory extends Model implements Auditable, HasMedia
     public function subDepartmentFavourites(): HasMany
     {
         return $this->hasMany(Favourite::class, 'sub_department_id');
+    }
+
+    public function departmentBackInStockReminders(): HasMany
+    {
+        return $this->hasMany(BackInStockReminder::class, 'department_id');
+    }
+
+    public function familyBackInStockReminders(): HasMany
+    {
+        return $this->hasMany(BackInStockReminder::class, 'family_id');
+    }
+
+    public function subDepartmentBackInStockReminders(): HasMany
+    {
+        return $this->hasMany(BackInStockReminder::class, 'sub_department_id');
     }
 }

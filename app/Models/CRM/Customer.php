@@ -407,7 +407,7 @@ class Customer extends Model implements HasMedia, Auditable
         return $this->hasMany(Favourite::class);
     }
 
-    public function BackInStockReminder(): HasMany
+    public function backInStockReminder(): HasMany
     {
         return $this->hasMany(BackInStockReminder::class);
     }

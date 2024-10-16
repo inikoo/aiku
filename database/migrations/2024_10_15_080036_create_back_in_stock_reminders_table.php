@@ -9,7 +9,7 @@ return new class () extends Migration {
     use HasGroupOrganisationRelationship;
     public function up(): void
     {
-        Schema::create('back_to_stock_reminders', function (Blueprint $table) {
+        Schema::create('back_in_stock_reminders', function (Blueprint $table) {
             $table->id();
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->index();
