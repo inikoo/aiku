@@ -23,7 +23,10 @@ trait ModelHasMediable
         $table->string('model_type');
         $table->unsignedInteger('model_id');
         $table->timestampsTz();
+        $table->datetimeTz('fetched_at')->nullable();
+        $table->datetimeTz('last_fetched_at')->nullable();
         $table->index(['model_type','model_id']);
+        $table->string('source_id')->nullable()->unique();
         $table->unique(['media_id','model_type','model_id','scope','sub_scope']);
         return $table;
     }

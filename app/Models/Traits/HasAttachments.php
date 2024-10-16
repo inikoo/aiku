@@ -17,7 +17,9 @@ trait HasAttachments
 
     public function attachments(): MorphToMany
     {
-        return $this->morphToMany(Media::class, 'model', 'model_has_attachments', )->withTimestamps();
+        return $this->morphToMany(Media::class, 'model', 'model_has_attachments', )
+            ->withPivot('scope', 'caption', 'fetched_at', 'last_fetched_at', 'source_id')
+            ->withTimestamps();
     }
 
 

@@ -24,7 +24,7 @@ trait WithAuroraAttachments
             ->get();
     }
 
-    public function fetchAttachment($auroraAttachmentData): array
+    public function fetchAttachment($auroraAttachmentData, $organisationID): array
     {
         $content = $auroraAttachmentData->{'Attachment Data'};
 
@@ -48,13 +48,15 @@ trait WithAuroraAttachments
 
         return [
             'temporaryDirectory' => $temporaryDirectory,
-            'fileData'           => [
+            'modelData'          => [
                 'path'         => $temporaryDirectory->path($temporalName),
                 'originalName' => $auroraAttachmentData->{'Attachment File Original Name'},
-            ],
-            'modelData'          => [
                 'scope'   => $auroraAttachmentData->{'Attachment Subject Type'},
                 'caption' => $auroraAttachmentData->{'Attachment Caption'},
+                'fetched_at'      => now(),
+                'last_fetched_at' => now(),
+                'source_id'       => $organisationID.':'.$auroraAttachmentData->{'Attachment Bridge Key'},
+
             ]
         ];
     }
