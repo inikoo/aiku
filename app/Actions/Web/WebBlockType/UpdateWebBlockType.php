@@ -17,7 +17,7 @@ class UpdateWebBlockType
 
     public function handle(WebBlockType $webBlock, array $modelData): WebBlockType
     {
-        return $this->update($webBlock, $modelData, ['data']);
+        return $this->update($webBlock, $modelData);
     }
 
 

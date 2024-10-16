@@ -24,6 +24,7 @@ class SyncTagsLocation extends OrgAction
 
     public function handle(Location $location, array $modelData): Location
     {
+        // dd($modelData);
         $oldTags = $location->tags()->pluck('id');
 
 
@@ -68,7 +69,7 @@ class SyncTagsLocation extends OrgAction
     public function asController(Location $location, ActionRequest $request): Location
     {
         $this->fillFromRequest($request);
-        $this->fill(['type' => 'crm']);
+        $this->fill(['type' => 'inventory']);
         $this->initialisationFromWarehouse($location->warehouse, $request);
 
         return $this->handle($location, $this->trimTags($this->validateAttributes()));
