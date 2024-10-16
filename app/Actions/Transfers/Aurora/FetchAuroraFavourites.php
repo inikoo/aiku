@@ -18,7 +18,7 @@ use Throwable;
 
 class FetchAuroraFavourites extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:favourites {organisations?*} {--S|shop= : Shop slug} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:favourites {organisations?*} {--S|shop= : Shop slug} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Favourite
@@ -93,8 +93,7 @@ class FetchAuroraFavourites extends FetchAuroraAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')
-            ->table('Customer Favourite Product Fact')
-            ->select('Customer Favourite Product Key as source_id');
+            ->table('Customer Favourite Product Fact');
 
         if ($this->onlyNew) {
             $query->whereNull('Customer Favourite Product Fact.aiku_id');
@@ -107,8 +106,5 @@ class FetchAuroraFavourites extends FetchAuroraAction
         return $query->count();
     }
 
-    public function reset(): void
-    {
-        DB::connection('aurora')->table('Page Store Dimension')->update(['aiku_id' => null]);
-    }
+
 }

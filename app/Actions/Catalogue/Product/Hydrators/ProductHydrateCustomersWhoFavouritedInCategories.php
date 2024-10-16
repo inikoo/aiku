@@ -1,19 +1,18 @@
 <?php
 /*
- * author Arya Permana - Kirin
- * created on 14-10-2024-09h-12m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 16 Oct 2024 16:37:54 Central Indonesia Time, Office, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\Catalogue\ProductCategory\Hydrators;
+namespace App\Actions\Catalogue\Product\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Models\Catalogue\Product;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ProductCategoryHydrateCustomersWhoFavourited
+class ProductHydrateCustomersWhoFavouritedInCategories
 {
     use AsAction;
     use WithEnumStats;

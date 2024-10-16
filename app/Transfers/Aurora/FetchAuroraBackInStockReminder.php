@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 09 Jun 2024 12:55:09 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Created: Wed, 16 Oct 2024 16:40:54 Central Indonesia Time, Office, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -9,20 +9,20 @@ namespace App\Transfers\Aurora;
 
 use Illuminate\Support\Facades\DB;
 
-class FetchAuroraFavourite extends FetchAurora
+class FetchAuroraBackInStockReminder extends FetchAurora
 {
     protected function parseModel(): void
     {
 
-        $customer = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Customer Favourite Product Customer Key'});
+        $customer = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Back in Stock Reminder Customer Key'});
         if (!$customer or $customer->deleted_at) {
             return;
         }
-        $product = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Customer Favourite Product Product ID'});
+        $product = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Back in Stock Reminder Product ID'});
         if (!$product or $product->deleted_at) {
             return;
         }
-        $createdAt = $this->parseDatetime($this->auroraModelData->{'Customer Favourite Product Creation Date'});
+        $createdAt = $this->parseDatetime($this->auroraModelData->{'Back in Stock Reminder Creation Date'});
         if (!$createdAt) {
             return;
         }
@@ -31,14 +31,12 @@ class FetchAuroraFavourite extends FetchAurora
             return;
         }
 
-
         $this->parsedData['customer'] = $customer;
         $this->parsedData['product']  = $product;
 
-
-        $this->parsedData['favourite'] = [
+        $this->parsedData['back_in_stock_reminder'] = [
             'created_at'      => $createdAt,
-            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Customer Favourite Product Key'},
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Back in Stock Reminder Key'},
             'fetched_at'      => now(),
             'last_fetched_at' => now(),
         ];
@@ -48,7 +46,7 @@ class FetchAuroraFavourite extends FetchAurora
     protected function fetchData($id): object|null
     {
         return DB::connection('aurora')
-            ->table('Customer Favourite Product Fact')
-            ->where('Customer Favourite Product Key', $id)->first();
+            ->table('Back in Stock Reminder Fact')
+            ->where('Back in Stock Reminder Key', $id)->first();
     }
 }

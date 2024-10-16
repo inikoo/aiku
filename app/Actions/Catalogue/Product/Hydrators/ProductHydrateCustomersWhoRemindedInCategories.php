@@ -1,19 +1,18 @@
 <?php
 /*
- * author Arya Permana - Kirin
- * created on 16-10-2024-11h-40m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 16 Oct 2024 16:37:54 Central Indonesia Time, Office, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\Catalogue\ProductCategory\Hydrators;
+namespace App\Actions\Catalogue\Product\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Models\Catalogue\Product;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class ProductCategoryHydrateCustomersWhoReminded
+class ProductHydrateCustomersWhoRemindedInCategories
 {
     use AsAction;
     use WithEnumStats;
@@ -41,8 +40,8 @@ class ProductCategoryHydrateCustomersWhoReminded
 
                 if (method_exists($productCategory, $methodName)) {
                     $stats = [
-                        'number_customers_who_reminded' => $productCategory->{$methodName}()->whereNull('unreminded_at')->count(),
-                        'number_customers_who_un_reminded' => $productCategory->{$methodName}()->whereNotNull('unreminded_at')->count(),
+                        'number_customers_who_reminded' => $productCategory->{$methodName}()->whereNull('un_reminded_at')->count(),
+                        'number_customers_who_un_reminded' => $productCategory->{$methodName}()->whereNotNull('un_reminded_at')->count(),
                     ];
 
                     $productCategory->stats->update($stats);
