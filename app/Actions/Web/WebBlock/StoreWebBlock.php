@@ -29,7 +29,7 @@ class StoreWebBlock extends GrpAction
         data_set(
             $modelData,
             'layout',
-            ['data' => $webBlockType->data, 'blueprint' => $webBlockType->blueprint],
+            ['icon' => $webBlockType->data[1] ?? null,'data' => $webBlockType->data[0], 'blueprint' => $webBlockType->blueprint],
             overwrite: false
         );
 
