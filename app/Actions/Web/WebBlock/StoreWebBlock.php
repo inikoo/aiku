@@ -29,9 +29,16 @@ class StoreWebBlock extends GrpAction
         data_set(
             $modelData,
             'layout',
-            ['icon' => $webBlockType->data[1] ?? null,'data' => $webBlockType->data[0], 'blueprint' => $webBlockType->blueprint],
+            ['data' => $webBlockType->data[0] ?? null, 'blueprint' => $webBlockType->blueprint],
             overwrite: false
         );
+
+        if (isset($webBlockType->data[1])) {
+            $icon = Arr::get($webBlockType->data[1], 'icon');
+            if ($icon) {
+                data_set($modelData, 'layout.icon', $icon, false);
+            }
+        }
 
         data_set($modelData, 'checksum', md5(json_encode($modelData['layout'])));
 
