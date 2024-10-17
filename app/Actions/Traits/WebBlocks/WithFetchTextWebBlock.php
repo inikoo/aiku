@@ -8,14 +8,21 @@
 
 namespace App\Actions\Traits\WebBlocks;
 
+use App\Models\Web\Webpage;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithFetchTextWebBlock
 {
     use AsAction;
-    public function processTextData($auroraBlock): array
+    public function processTextData(Webpage $webpage, $auroraBlock): array
     {
-        data_set($layout, "data.fieldValue.value", $auroraBlock["text_blocks"][0]["text"]);
+        $text = $auroraBlock["text_blocks"];
+        if (count($text) > 0) {
+            $text = $text[0]['text'] ?? null;
+            data_set($layout, "data.fieldValue.value", $text);
+        }
+        // preg_match('/\/<a[^>]*>([^<]+)<\/a>\/g/', $text, $output_array);
+        // // dd($text);
         return $layout;
     }
 
