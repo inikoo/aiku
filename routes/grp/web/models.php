@@ -38,6 +38,7 @@ use App\Actions\CRM\Prospect\ImportShopProspects;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
+use App\Actions\Dropshipping\CustomerClient\UpdateCustomerClient;
 use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\Fulfilment\Fulfilment\StoreFulfilmentFromUI;
 use App\Actions\Fulfilment\Fulfilment\UpdateFulfilment;
@@ -524,6 +525,7 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
 });
 
 Route::name('customer-client.')->prefix('customer-client/{customerClient:id}')->group(function () {
+    Route::patch('/', UpdateCustomerClient::class)->name('update');
     Route::post('order', [StoreOrder::class, 'inCustomerClient'])->name('order.store');
 });
 

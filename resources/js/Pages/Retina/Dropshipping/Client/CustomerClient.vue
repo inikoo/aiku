@@ -12,22 +12,22 @@
   import { computed, defineAsyncComponent, ref } from "vue"
   import type { Component } from 'vue'
   import Tabs from "@/Components/Navigation/Tabs.vue"
-  
+
   import TableProducts from "@/Components/Tables/Grp/Org/Catalogue/TableProducts.vue"
-  import CustomerShowcase from "@/Components/Showcases/Grp/CustomerShowcase.vue"
+  import CustomerClientShowcase from "@/Components/Showcases/Grp/CustomerClientShowcase.vue"
   import TableWebUsers from "@/Components/Tables/Grp/Org/CRM/TableWebUsers.vue"
   import { PageHeading as PageHeadingTS } from '@/types/PageHeading'
   import ModelDetails from "@/Components/ModelDetails.vue"
   import TableOrders from "@/Components/Tables/Grp/Org/Ordering/TableOrders.vue"
   import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue"
   const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
-  
-  
+
+
   import { library } from "@fortawesome/fontawesome-svg-core"
   import { faCodeCommit, faGlobe, faGraduationCap, faMoneyBill, faPaperclip, faPaperPlane, faStickyNote, faTags, faCube, faCodeBranch, faShoppingCart } from '@fal'
   library.add( faStickyNote, faGlobe, faMoneyBill, faGraduationCap, faTags, faCodeCommit, faPaperclip, faPaperPlane, faCube, faCodeBranch, faShoppingCart )
-  
-  
+
+
   const props = defineProps<{
       title: string
       pageHead: PageHeadingTS
@@ -36,37 +36,25 @@
           navigation: {}
       }
       showcase?: {}
-      orders?: {}
-      products?: {}
-      dispatched_emails?: {}
-      web_users?: {}
   }>()
-  
+
   let currentTab = ref(props.tabs.current)
   const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
-  
+
   const component = computed(() => {
       const components: Component = {
-          showcase: CustomerShowcase,
-          products: TableProducts,
-          orders: TableOrders,
-          details: ModelDetails,
-          history: ModelChangelog,
-          dispatched_emails: TableDispatchedEmails,
-          web_users: TableWebUsers,
+          showcase: CustomerClientShowcase,
       }
-  
+
       return components[currentTab.value]
   })
-  
-  
+
   </script>
-  
+
   <template>
       <Head :title="capitalize(title)" />
       <PageHeading :data="pageHead" />
-  
+
       <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
       <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
   </template>
-  

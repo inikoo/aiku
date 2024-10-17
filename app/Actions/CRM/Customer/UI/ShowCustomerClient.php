@@ -78,7 +78,7 @@ class ShowCustomerClient extends OrgAction
         }
 
         return Inertia::render(
-            'Org/Shop/CRM/Customer',
+            'Org/Shop/CRM/CustomerClient',
             [
                 'title'       => __('customer client'),
                 'breadcrumbs' => $this->getBreadcrumbs(
@@ -91,7 +91,7 @@ class ShowCustomerClient extends OrgAction
                 ],
                 'pageHead' => [
                     'title'     => $customerClient->name,
-                    'model'     => __('Client'),
+                    'model'     => __($customerClient->customer->name),
                     'icon'      => [
                         'icon'  => ['fal', 'fa-folder'],
                         'title' => __('customer client')
@@ -114,6 +114,16 @@ class ShowCustomerClient extends OrgAction
                                 ]
                             ]
                         ],
+                        [
+                            'type'    => 'button',
+                            'style'   => 'edit',
+                            'label'   => 'Edit Customer Client',
+                            'key'     => 'edit_customer_client',
+                            'route'   => [
+                                'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.edit',
+                                'parameters' => $request->route()->originalParameters()
+                            ]
+                        ],
                     ],
                     'subNavigation' => $subNavigation,
                 ],
@@ -123,9 +133,9 @@ class ShowCustomerClient extends OrgAction
 
                 ],
 
-                // CustomerTabsEnum::SHOWCASE->value => $this->tab == CustomerTabsEnum::SHOWCASE->value ?
-                //     fn () => GetCustomerClientShowcase::run($customerClient)
-                //     : Inertia::lazy(fn () => GetCustomerClientShowcase::run($customerClient)),
+                 CustomerClientTabsEnum::SHOWCASE->value => $this->tab == CustomerClientTabsEnum::SHOWCASE->value ?
+                     fn () => GetCustomerClientShowcase::run($customerClient)
+                     : Inertia::lazy(fn () => GetCustomerClientShowcase::run($customerClient)),
 
                 // CustomerTabsEnum::ORDERS->value => $this->tab == CustomerTabsEnum::ORDERS->value ?
                 //     fn () => OrderResource::collection(IndexOrders::run($customer))

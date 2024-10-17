@@ -66,6 +66,8 @@ class IndexInvoices extends OrgAction
             $queryBuilder->where('invoices.customer_id', $parent->customer->id);
         } elseif ($parent instanceof Customer) {
             $queryBuilder->where('invoices.customer_id', $parent->id);
+        } elseif ($parent instanceof CustomerClient) {
+            $queryBuilder->where('invoices.customer_client_id', $parent->id);
         } elseif ($parent instanceof Order) {
             $queryBuilder->where('invoices.order', $parent->id);
         } else {

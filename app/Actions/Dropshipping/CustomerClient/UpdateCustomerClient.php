@@ -12,9 +12,7 @@ use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\CRM\CustomerClientResource;
-use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\CustomerClient;
-use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use App\Rules\Phone;
 use App\Rules\ValidAddress;
@@ -99,10 +97,10 @@ class UpdateCustomerClient extends OrgAction
         return $rules;
     }
 
-    public function asController(Organisation $organisation, Shop $shop, CustomerClient $customerClient, ActionRequest $request): CustomerClient
+    public function asController(CustomerClient $customerClient, ActionRequest $request): CustomerClient
     {
         $this->customerClient = $customerClient;
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($customerClient->shop, $request);
 
         return $this->handle($customerClient, $this->validatedData);
     }

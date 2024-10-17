@@ -74,7 +74,7 @@ class ShowCustomerClient extends RetinaAction
                 // ],
                 'pageHead' => [
                     'title'     => $customerClient->name,
-                    'model'     => __('Client'),
+                    'model'     => __($customerClient->customer->name),
                     'icon'      => [
                         'icon'  => ['fal', 'fa-folder'],
                         'title' => __('customer client')
