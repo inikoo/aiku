@@ -7,9 +7,12 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Actions\Helpers\Attachment\SaveModelAttachment;
+use App\Actions\Helpers\Media\DeleteAttachment;
+use App\Actions\Helpers\Media\DetachAttachmentFromModel;
+use App\Actions\Helpers\Media\SaveModelAttachment;
 use App\Models\CRM\Customer;
 use App\Models\Goods\TradeUnit;
+use App\Models\Helpers\Media;
 use App\Models\HumanResources\Employee;
 use App\Models\Ordering\Order;
 use App\Models\Procurement\PurchaseOrder;
@@ -19,6 +22,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Mimey\MimeTypes;
 use Spatie\TemporaryDirectory\TemporaryDirectory;
+use Throwable;
 
 trait WithAuroraAttachments
 {
@@ -86,6 +90,17 @@ trait WithAuroraAttachments
             $attachmentData['temporaryDirectory']->delete();
         }
         $model->attachments()->whereIn('model_has_attachments.id', array_keys($attachmentsToDelete))->forceDelete();
+
+        foreach ($attachmentsToDelete as $attachmentID) {
+            /** @var Media $attachment */
+            $attachment = Media::find($attachmentID);
+            DetachAttachmentFromModel::make()->action($model, $attachment);
+            try {
+                DeleteAttachment::make()->action($attachment);
+            } catch (Throwable) {
+                // do nothing
+            }
+        }
     }
 
     protected function parseAttachments($modelSource, $auroraModelName): array

@@ -4,34 +4,6 @@
 	"code": "top-bar-2",
 	"name": "Topbar Fantastic",
 	"component": "topbar",
-	"data": {
-		"fieldValue": {
-			"key": "Topheader",
-			"container": {
-				"properties": {
-					"background": {
-						"type": "color",
-						"color": "rgb(75,80,88)",
-						"image": {
-							"original": null
-						}
-					},
-					"text": {
-						"color": "rgb(255,255,255)",
-						"fontFamily": "Raleway"
-					}
-				}
-			},
-			"main_title": {
-				"text": "<p><span>Lorem ipsum dolor sit amet.</span></p>",
-				"visible": "all"
-			},
-			"greeting": {
-				"text": "<p>Hello, {{ name }}.",
-				"visible": "login"
-			}
-		}
-	},
 	"blueprint": [
 		{
 			"name": "Container",
@@ -45,11 +17,11 @@
 			"type": ["text"],
 			"replaceForm": [
 				{
-					"key": ["greeting", "visible"],
+					"key": ["main_title", "visible"],
 					"type": ["VisibleLoggedIn"]
 				},
 				{
-					"key": ["greeting", "text"],
+					"key": ["main_title", "text"],
 					"type": ["editorhtml"]
 				}
 			],
@@ -71,5 +43,33 @@
 			],
 			"props_data": {}
 		}
-	]
+	],
+	"data": {
+		"fieldValue": {
+			"key": "Topheader",
+			"container": {
+				"properties": {
+					"background": {
+						"type": "color",
+						"color": "rgb(75,80,88)",
+						"image": {
+							"original": null
+						}
+					},
+					"text": {
+						"color": "rgb(255,255,255)",
+						"fontFamily": "Raleway"
+					}
+				}
+			},
+			"main_title": {
+				"text": "<p>Celebrating your membership anniversary!</p>",
+				"visible": "all"
+			},
+			"greeting": {
+				"text": "<p>Welcome, {{ name }}!",
+				"visible": "login"
+			}
+		}
+	}
 }
