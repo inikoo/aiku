@@ -5,6 +5,8 @@
   -->
 
 <script setup lang="ts">
+import Button from "@/Components/Elements/Buttons/Button.vue"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { Link } from "@inertiajs/vue3";
 import Table from "@/Components/Table/Table.vue";
 import { FulfilmentCustomer } from "@/types/Customer";
@@ -21,7 +23,7 @@ const locale = useLocaleStore();
 
 function mediaRoute(attachment: {}) {
             return route(
-                "grp.media.show",
+                "grp.media.download",
                 [
                     attachment.media_ulid
                 ]);;
@@ -68,8 +70,11 @@ function mediaRoute(attachment: {}) {
                 {{ attachment["scope"] }}
         </template>
         <template #cell(caption)="{ item: attachment }">
-            <Link :href="mediaRoute(attachment)" class="primaryLink">
             {{ attachment["caption"] }}
+        </template>
+        <template #cell(download)="{ item: attachment }">
+            <Link :href="mediaRoute(attachment)">
+                <Button type="tertiary" icon="fal fa-download" />
             </Link>
         </template>
     </Table>
