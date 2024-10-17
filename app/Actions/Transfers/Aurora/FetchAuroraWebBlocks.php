@@ -63,7 +63,7 @@ class FetchAuroraWebBlocks extends OrgAction
     public function handle(Webpage $webpage, $reset = false, $dbSuffix = ''): Webpage
     {
 
-        $this->dbSuffix=$dbSuffix;
+        $this->dbSuffix = $dbSuffix;
 
         $this->organisationSource = $this->getOrganisationSource($webpage->organisation);
         $this->organisationSource->initialisation($webpage->organisation, $dbSuffix);
@@ -87,25 +87,6 @@ class FetchAuroraWebBlocks extends OrgAction
                 }
             }
 
-            // if(count($allMigrationData) > 1) {
-
-            // }else {
-
-            // }
-            // $migrationsData = [];
-
-            // foreach($allMigrationsDataByType as $type => $migrationDataByType) {
-            //     foreach($migrationDataByType as $migrationData) {
-            //         $migrationChecksum = $migrationData['migrationChecksum'];
-            //         if(isset($migrationsData[$migrationChecksum])) {
-            //             $migrationsData[$migrationChecksum]['visibility'][$type] = true; // make it both
-            //             continue;
-            //         }
-            //         $migrationsData[$migrationChecksum] = $migrationData;
-            //     }
-
-            // }
-
             $migrationsData = [];
             foreach ($allMigrationsDataByType as $type => $migrationData) {
                 foreach ($migrationData as $data) {
@@ -126,7 +107,6 @@ class FetchAuroraWebBlocks extends OrgAction
                     }
                 }
             }
-            // dd($migrationsData);
 
             $this->processMigrationsData($migrationsData, $oldMigrationsChecksum);
         }
@@ -143,7 +123,6 @@ class FetchAuroraWebBlocks extends OrgAction
         $migrationData = [];
         foreach ($blocks as $index => $auroraBlock) {
             $migrationChecksum = md5(json_encode($auroraBlock));
-            // print $migrationChecksum . " " . $auroraBlock['type'] . " " . $type ."\n";
             $loggedInStatus = $type === 'loggedIn';
             $migrationData[] = [
                 'visibility' => [
@@ -163,20 +142,6 @@ class FetchAuroraWebBlocks extends OrgAction
 
     private function processMigrationsData(array $migrationsData, array &$oldMigrationsChecksum): void
     {
-        // $newPosition = 1;
-        // foreach($migrationsData as $migrationChecksum => $migrationData) {
-        //     if (isset($oldMigrationsChecksum[$migrationChecksum])) {
-        //         dd($migrationData['position'], $migrationsData[$migrationChecksum]['position']);
-        //         $modelHasWebBlocks = DB::table("model_has_web_blocks")->where('migration_checksum', $migrationChecksum);
-        //         $modelHasWebBlocks->update(['position' => $migrationData['position']]);
-        //         unset($oldMigrationsChecksum[$migrationChecksum]);
-        //         continue;
-        //     }
-        //     // $newPosition++;
-        //     // dd("kena", $oldMigrationsChecksum[$migrationChecksum] ?? null);
-        //     $this->processData($migrationData['webpage'], $migrationData['auroraBlock'], $migrationData['migrationChecksum'],$migrationData['position'], $migrationData['visibility']);
-        // }
-
         $newPosition = 1;
         foreach ($migrationsData as $checksum => $migrationData) {
             if (isset($oldMigrationsChecksum[$checksum])) {
@@ -211,7 +176,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 break;
             case "text":
                 $webBlockType = $group->webBlockTypes()->where("slug", "text")->first();
-                $layout       = $this->processTextData($auroraBlock);
+                $layout       = $this->processTextData($webpage, $auroraBlock);
                 break;
             case "telephone":
                 $webBlockType = $group->webBlockTypes()->where("slug", "text")->first();
@@ -319,22 +284,12 @@ class FetchAuroraWebBlocks extends OrgAction
             return;
         }
 
-        // add fixed value to show the component can editable or not
-        // data_set($layout, 'fixed', false, false);
-
-        // $defaultPropertiesFromJson = Arr::get($webBlockType->data, 'properties');
-        // dd($webBlockType->blueprint);
-        // if ($defaultPropertiesFromJson) {
-        //     data_set($layout, "properties", $defaultPropertiesFromJson);
-        // } else {
-        // }
         data_set($layout, "data.properties.padding.unit", "px");
         data_set($layout, "data.properties.padding.left.value", 20);
         data_set($layout, "data.properties.padding.right.value", 20);
         data_set($layout, "data.properties.padding.bottom.value", 20);
         data_set($layout, "data.properties.padding.top.value", 20);
         data_set($layout, "data.properties.padding.top.value", 20);
-        // dd($layout);
 
         $webBlock = StoreWebBlock::make()->action(
             $webBlockType,
