@@ -20,7 +20,7 @@ trait WithFetchScriptWebBlock
         $script = $matches[0] ?? null;
         $cleaned_script = preg_replace('/\s+/', ' ', trim($script));
 
-        data_set($layout, "fieldValue.value", $cleaned_script);
+        data_set($layout, "data.fieldValue.value", $cleaned_script);
 
         return $layout;
     }
