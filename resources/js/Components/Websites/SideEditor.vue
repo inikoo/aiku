@@ -12,7 +12,13 @@ import ButtonVisibleLoggedIn from '@/Components/Websites/Fields/ButtonVisibleLog
 import PanelProperties from '@/Components/Websites/Fields/PanelProperties.vue'
 import SideEditorText from '@/Components/Websites/SideEditor/SideEditorText.vue'
 import SideEditorInputHTML from '@/Components/Websites/SideEditor/SideEditorInputHTML.vue'
-
+import Border from '@/Components/Websites/Fields/Border.vue'
+import Padding from '@/Components/Websites/Fields/Padding.vue'
+import Margin from '@/Components/Websites/Fields/Margin.vue'
+import Dimension from '@/Components/Websites/Fields/Dimension.vue'
+import Link from '@/Components/Websites/Fields/Link.vue'
+import Background from '@/Components/Websites/Fields/Background.vue'
+import ButtonProperties from '@/Components/Websites/Fields/ButtonProperties.vue'
 import UploadImage from '@/Components/Pure/UploadImage.vue'
 import Payments from '@/Components/Websites/Fields/Payment.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorForm.vue"
@@ -20,6 +26,8 @@ import socialMedia from '@/Components/Websites/Fields/SocialMedia.vue'
 import FooterColumn from '@/Components/Websites/Fields/FooterColumn.vue'
 import { isArray, set as setLodash } from 'lodash'
 import { routeType } from '@/types/route'
+import BorderProperty from './Fields/Properties/BorderProperty.vue'
+import PaddingMarginProperty from './Fields/Properties/PaddingMarginProperty.vue'
 
 
 const props = defineProps<{
@@ -47,25 +55,21 @@ const getComponent = (componentName: string) => {
         'footerColumn': FooterColumn,
         "EditorAndPanelProperties": EditorAndPanelProperties,
         "VisibleLoggedIn": ButtonVisibleLoggedIn,
-        "properties" : PanelProperties
+        "properties" : PanelProperties,
+        "background" : Background,
+        "border" : Border,
+        "padding" : Padding,
+        "margin" : Margin,
+        "dimension" : Dimension,
+        "button" : ButtonProperties,
+        "link" : Link
     }
 
     return components[componentName]
 }
 
-// const visible = ref("all")
-
-// const options = ref([
-//     { label: 'All', value: 'all' },
-//     { label: 'Logged In', value: 'login' },
-//     { label: 'Logged Out', value: 'logout' },
-// ]);
-
-const onUpdateValue = (field, value) => {
-    emits('update:modelValue', {
-        ...props.modelValue,
-        [field.key]: value
-    })
+const onUpdateValue = () => {
+    emits('update:modelValue', modelValue.value)
 }
 
 // To trick the modelValue with deep object (['container', 'properties'])
@@ -81,6 +85,7 @@ const getFormValue = (data: Object, fieldKeys: string | string[]) => {
 }
 const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
     setLodash(modelValue.value, fieldKeys, newVal)
+    onUpdateValue()
 }
 
 
@@ -93,9 +98,9 @@ const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
                 {{ field.name }}
             </AccordionHeader>
 
-            <AccordionContent>
+            <AccordionContent class="px-0 py-2">
                 <!-- Component side editor -->
-                <div class="bg-white mt-[0px] py-4">
+                <div class="bg-white mt-[0px]">
                     <!-- field key: {{ field.key }} -->
                     <!-- model value: <pre>{{ modelValue }}</pre> -->
                     <!-- {{ modelValue[field.key] }} -->
@@ -181,6 +186,11 @@ const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
     /* color: #E2E8F0 !important; */
     border-radius: 0 !important;
 }
+
+/* :deep(.p-accordioncontent-content) {
+    padding: 0px;
+} */
+
 
 /* :deep(.p-accordionpanel:not(.p-disabled).p-accordionpanel-active > .p-accordionheader .p-accordionheader-toggle-icon) {
     color: #E2E8F0 !important;

@@ -4,81 +4,190 @@
 	"name": "Call to action 1",
 	"scope": "webpage",
 	"icon": ["fal", "rectangle-wide"],
-	"blueprint" : {},
+	"blueprint": [
+		{
+			"name": "Properties",
+			"key": ["container", "properties"],
+			"replaceForm": [
+				{
+					"key": ["container", "properties", "background"],
+					"type": ["background"],
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "padding"],
+					"type": ["padding"],
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "margin"],
+					"type": ["margin"],
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "border"],
+					"type": ["border"],
+					"props_data": {}
+				}
+			]
+		},
+		{
+			"name": "Button",
+			"key": ["button"],
+			"type": ["button"],
+			"props_data": {}
+		}
+	],
 	"data": {
 		"fieldValue": {
-			"headline": "<h2><strong><span style='color: #FFFFFF'>What ingredients should be considered when selecting body and hand soaps?</span></strong></h2>",
-			"description": "<p><span style='color: #FFFFFF'>Provide your customers with informed advice.</span></p><p></p>",
-			"button": "Read blog",
-			"image": null
-		},
-		"properties": {
-			"background": {
-				"type": "color",
-				"color": "#fff",
-				"image": {
-					"original": null
-				}
-			},
-			"padding": {
-				"unit": "px",
-				"top": {
-					"value": 0
-				},
-				"left": {
-					"value": 0
-				},
-				"right": {
-					"value": 0
-				},
-				"bottom": {
-					"value": 0
-				}
-			},
-			"margin": {
-				"unit": "px",
-				"top": {
-					"value": 0
-				},
-				"left": {
-					"value": 0
-				},
-				"right": {
-					"value": 0
-				},
-				"bottom": {
-					"value": 0
-				}
-			},
-			"border": {
-				"color": "#000000",
-				"unit": "px",
-				"rounded": {
-					"unit": "px",
-					"topright": {
-						"value": 0
-					},
-					"topleft": {
-						"value": 0
-					},
-					"bottomright": {
-						"value": 0
-					},
-					"bottomleft": {
-						"value": 0
+			"text": "<h2><strong><span style='color: #FFFFFF'>What ingredients should be considered when selecting body and hand soaps?</span></strong></h2>",
+			"button": {
+				"link": "",
+				"text": "Read More",
+				"container": {
+					"properties": {
+						"background": {
+							"type": "color",
+							"color": "#fff",
+							"image": {
+								"original": null
+							}
+						},
+						"padding": {
+							"unit": "px",
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"margin": {
+							"unit": "px",
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"border": {
+							"color": "#000000",
+							"unit": "px",
+							"rounded": {
+								"unit": "px",
+								"topright": {
+									"value": 0
+								},
+								"topleft": {
+									"value": 0
+								},
+								"bottomright": {
+									"value": 0
+								},
+								"bottomleft": {
+									"value": 0
+								}
+							},
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						}
 					}
-				},
-				"top": {
-					"value": 0
-				},
-				"left": {
-					"value": 0
-				},
-				"right": {
-					"value": 0
-				},
-				"bottom": {
-					"value": 0
+				}
+			},
+			"image": null,
+			"container": {
+				"properties": {
+					"background": {
+						"type": "color",
+						"color": "#fff",
+						"image": {
+							"original": null
+						}
+					},
+					"padding": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"margin": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"border": {
+						"color": "#000000",
+						"unit": "px",
+						"rounded": {
+							"unit": "px",
+							"topright": {
+								"value": 0
+							},
+							"topleft": {
+								"value": 0
+							},
+							"bottomright": {
+								"value": 0
+							},
+							"bottomleft": {
+								"value": 0
+							}
+						},
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					}
 				}
 			}
 		}
