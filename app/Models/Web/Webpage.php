@@ -243,5 +243,11 @@ class Webpage extends Model implements Auditable
         });
     }
 
+    public function getFullUrl(): string
+    {
+        return 'https://'.$this->website->domain.'/'.$this->url;
+    }
+
+
 
 }

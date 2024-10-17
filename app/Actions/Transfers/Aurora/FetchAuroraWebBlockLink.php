@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebBlockLink extends OrgAction
 {
-
     use WithAuroraParsers;
 
     public function handle(Website $website, $auroraLink): array
@@ -26,7 +25,7 @@ class FetchAuroraWebBlockLink extends OrgAction
         if (!$this->isInternalLink($website, $auroraLink)) {
             $linkData = [
                 'type' => 'external',
-                'link' => $auroraLink
+                'url'  => $auroraLink
             ];
         } else {
             $linkData = [
@@ -46,14 +45,22 @@ class FetchAuroraWebBlockLink extends OrgAction
                 ->orWhere('Webpage Canonical Code', $auroraLink)
                 ->first();
 
+            //todo look for webpage also in Page Redirection Dimension
 
             $linkedWebpage = $this->parseWebpage($website->organisation_id.':'.$auroraWebpageData->source_id);
 
             if ($linkedWebpage) {
                 data_set($linkData, 'webpage_id', $linkedWebpage->id);
+                data_set($linkData, 'url', $linkedWebpage->getFullUrl());
+            } else {
+                $linkData = [
+                    'type'      => 'external',
+                    'url'       => $auroraLink,
+                    'error'     => true,
+                    'error_msg' => 'Webpage count not be fetched'
+                ];
             }
         }
-
 
         return $linkData;
     }
