@@ -16,6 +16,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 trait WithFetchImagesWebBlock
 {
     use AsAction;
+
     public function processImagesData(Webpage $webpage, $auroraBlock): array|null
     {
         if (!isset($auroraBlock["images"])) {
@@ -28,23 +29,23 @@ trait WithFetchImagesWebBlock
         }
 
         $imagesArray = [];
-        // $linksData = [];
+
         foreach ($auroraBlock["images"] as $image) {
             if (isset($image["link"])) {
-                $linksData = FetchAuroraWebBlockLink::run($webpage->website, $image["link"]);
-
+                $linksData = FetchAuroraWebBlockLink::run($webpage->website, $image["link"], $this->dbSuffix);
             }
 
             if (!isset($image["src"])) {
                 continue;
             }
             $imagesArray[] = [
-                "link_data" => $linksData ?? null,
+                "link_data"     => $linksData ?? null,
                 "aurora_source" => $image["src"],
             ];
         }
 
         data_set($layout, "data.fieldValue.value.row", $imagesArray);
+
         return $layout;
     }
 
@@ -95,6 +96,7 @@ trait WithFetchImagesWebBlock
                 }
                 break;
         }
+
         return $code ?? null;
     }
 

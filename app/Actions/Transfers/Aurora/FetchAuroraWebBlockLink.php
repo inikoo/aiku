@@ -10,17 +10,27 @@
 namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\WithOrganisationSource;
 use App\Models\Web\Website;
 use App\Transfers\Aurora\WithAuroraParsers;
+use App\Transfers\AuroraOrganisationService;
+use App\Transfers\WowsbarOrganisationService;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebBlockLink extends OrgAction
 {
     use WithAuroraParsers;
+    use WithOrganisationSource;
 
-    public function handle(Website $website, $auroraLink): array
+    protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
+
+    /**
+     * @throws \Exception
+     */
+    public function handle(Website $website, $auroraLink, $dbSuffix = ''): array
     {
-        print $auroraLink."\n";
+        $this->organisationSource = $this->getOrganisationSource($website->organisation);
+        $this->organisationSource->initialisation($website->organisation, $dbSuffix);
 
         if (!$this->isInternalLink($website, $auroraLink)) {
             $linkData = [
