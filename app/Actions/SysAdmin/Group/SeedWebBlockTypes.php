@@ -52,7 +52,8 @@ class SeedWebBlockTypes
 
 
             if ($additionalData != []) {
-                data_set($webBlockTypeData, 'data', [$webBlockTypeData['data'], $additionalData]);
+                $data = array_merge($webBlockTypeData['data'], $additionalData);
+                data_set($webBlockTypeData, 'data', $data);
             }
 
 

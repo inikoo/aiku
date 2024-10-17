@@ -56,6 +56,10 @@ class ShowDropshipping extends RetinaAction
                     'parameters' => [],
                     'method'     => 'delete'
                 ],
+                'fetchCustomerRoute' => [
+                    'name'       => 'retina.dropshipping.client.fetch',
+                    'parameters' => []
+                ],
                 'connectRoute' => $customer->shopifyUser ? [
                     'url'       => route('pupil.authenticate', [
                         'shop' => $customer->shopifyUser?->name

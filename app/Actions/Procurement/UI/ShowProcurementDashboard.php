@@ -10,6 +10,7 @@ namespace App\Actions\Procurement\UI;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\UI\WithInertia;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -39,6 +40,22 @@ class ShowProcurementDashboard extends OrgAction
 
     public function htmlResponse(ActionRequest $request): Response
     {
+        $agents = null;
+
+        if ($this->organisation->type === OrganisationTypeEnum::SHOP) {
+            $agents = [
+                'name'         => __('agents'),
+                'icon'         => ['fal', 'fa-people-arrows'],
+                'href'         => [
+                    'name'       => 'grp.org.procurement.org_agents.index',
+                    'parameters' => ['organisation' => $this->organisation->slug]
+                ],
+                'index'        => [
+                    'number' => $this->organisation->procurementStats->number_active_org_agents
+                ],
+            ];
+        }
+        
         return Inertia::render(
             'Procurement/ProcurementDashboard',
             [
@@ -57,29 +74,8 @@ class ShowProcurementDashboard extends OrgAction
                 ],
                 'flatTreeMaps' => [
 
-                    [
-                        [
-                            'name'         => __('agents'),
-                            'icon'         => ['fal', 'fa-people-arrows'],
-                            'href'         => [
-                                'name'       => 'grp.org.procurement.org_agents.index',
-                                'parameters' => ['organisation' => $this->organisation->slug]
-                            ],
-                            'index'        => [
-                                'number' => $this->organisation->procurementStats->number_active_org_agents
-                            ],
-//                            'rightSubLink' => [
-//                                'tooltip'    => __('marketplace agents'),
-//                                'icon'       => ['fal', 'fa-store'],
-//                                'labelStyle' => 'bordered',
-//                                'href'       => [
-//                                    'name'       => 'grp.org.procurement.marketplace.org_agents.index',
-//                                    'parameters' => ['organisation' => $this->organisation->slug]
-//                                ],
-//
-//                            ]
-
-                        ],
+                    array_filter([
+                        $agents,
                         [
                             'name'         => __('suppliers'),
                             'icon'         => ['fal', 'fa-person-dolly'],
@@ -90,29 +86,20 @@ class ShowProcurementDashboard extends OrgAction
                             'index'        => [
                                 'number' => $this->organisation->procurementStats->number_active_independent_org_suppliers
                             ],
-//                            'rightSubLink' => [
-//                                'tooltip'    => __('marketplace suppliers'),
-//                                'icon'       => ['fal', 'fa-store'],
-//                                'labelStyle' => 'bordered',
-//                                'href'       => [
-//                                    'name'       => 'grp.org.procurement.marketplace.org_suppliers.index',
-//                                    'parameters' => ['organisation' => $this->organisation->slug]
-//                                ],
-//
-//                            ]
-
                         ],
                         [
                             'name'         => __('supplier products'),
                             'shortName'    => __('products'),
                             'icon'         => ['fal', 'fa-box-usd'],
-                            'href'         => ['name' => 'grp.org.procurement.org_supplier_products.index', 'parameters' => ['organisation' => $this->organisation->slug]],
+                            'href'         => [
+                                'name'       => 'grp.org.procurement.org_supplier_products.index',
+                                'parameters' => ['organisation' => $this->organisation->slug]
+                            ],
                             'index'        => [
                                 'number' => $this->organisation->procurementStats->number_current_org_supplier_products
                             ]
-
                         ],
-                    ],
+                    ]),
 
                     [
                         [
