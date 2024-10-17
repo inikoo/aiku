@@ -136,7 +136,6 @@ class FetchAuroraWebBlocks extends OrgAction
             ];
 
         }
-        // dd($migrationData);
         return $migrationData;
     }
 
@@ -166,9 +165,6 @@ class FetchAuroraWebBlocks extends OrgAction
         $group = $webpage->group;
 
 
-        // if($auroraBlock['type'] != "text") {
-        //     return;
-        // }
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = $group->webBlockTypes()->where("code", "images")->first();
@@ -446,11 +442,8 @@ class FetchAuroraWebBlocks extends OrgAction
 
         } else {
             foreach (Webpage::orderBy('id')->get() as $webpage) {
-                // if($webpage->slug != "storefront-uk") {
-                // }
                 $command->line("Webpage ".$webpage->slug." web blocks fetched");
                 $this->handle($webpage, $command->option("reset"), $command->option("db_suffix"));
-                // $command->line("Webpage ".$webpage->slug." web blocks fetched2");
             }
         }
 

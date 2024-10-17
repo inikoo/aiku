@@ -31,16 +31,17 @@ const props = withDefaults(defineProps<{
     modelValue: string,
     toogle?: string[],
     type?: string,
-    editable?:boolean
-    placeholder?:any | String
-}>(),{
-    editable : true,
+    editable?: boolean
+    placeholder?: any | String
+}>(), {
+    editable: true,
     type: 'Bubble',
-    placeholder : '',
+    placeholder: '',
     toogle: () => [
         'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',
         'orderedList', 'blockquote', 'divider', 'alignLeft', 'alignRight',
-        'alignCenter', 'link', 'undo', 'redo', 'highlight', 'color', 'clear'
+        'alignCenter', 'link', 'undo', 'redo', 'highlight', 'color', 'clear',
+        /* TODO 'fontFamily' */
     ]
 })
 
@@ -68,6 +69,7 @@ const toggleList = ref([
     { key: 'highlight', icon: 'fal fa-paint-brush-alt', action: () => onActionClick('highlight'), active: 'highlightcolor' },
     { key: 'color', icon: 'far fa-text', action: () => onActionClick('color'), active: 'textcolor' },
     { key: 'clear', icon: 'fal fa-eraser', action: () => onActionClick('clear'), active: 'clear' },
+    /* TODO { key: 'fontFamily', icon: 'fal fa-text', action: () => onActionClick('fontFamily'), active: 'fontFamily' }, */
 ])
 
 
@@ -86,11 +88,11 @@ const editor = useEditor({
         BulletList,
         ListItem,
         FontFamily.configure({
-            types: ['textStyle'],
+            types: ['textStyle']
         }),
         Placeholder.configure({
-          // Use a placeholder:
-          placeholder: props.placeholder,
+            // Use a placeholder:
+            placeholder: props.placeholder,
         }),
         TextAlign.configure({
             types: ['heading', 'paragraph'],
@@ -159,6 +161,9 @@ const onActionClick = (key: string, option: string = '') => {
             chain?.clearNodes().run()
             chain?.unsetAllMarks().run()
             break
+        /* TODO  case 'fontFamily':
+             chain.setFontFamily('cursive').run()
+             break */
         default:
             console.warn(`Action not found for key: ${key}`)
             break
@@ -199,16 +204,18 @@ defineExpose({
 <template>
     <div class="pt-1">
         <BubbleMenu v-if="type == 'Bubble' && editor" :editor="editor" :tippy-options="{ duration: 100 }">
-            <section class="buttons text-gray-700 flex text-xs items-center flex-wrap gap-x-4 border-t border-l border-r border-gray-400 p-1 bg-gray-200">
+            <section
+                class="buttons text-gray-700 flex text-xs items-center flex-wrap gap-x-4 border-t border-l border-r border-gray-400 p-1 bg-gray-200">
                 <EditorMenu v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
             </section>
         </BubbleMenu>
 
-        <section v-else-if="type == 'basic' && editor" class="buttons text-xs text-gray-700 flex items-center flex-wrap gap-x-4 border border-gray-400 p-2 rounded-t-lg bg-white">
+        <section v-else-if="type == 'basic' && editor"
+            class="buttons text-xs text-gray-700 flex items-center flex-wrap gap-x-4 border border-gray-400 p-2 rounded-t-lg bg-white">
             <EditorMenu v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
         </section>
 
-        <EditorContent  @click="onEditorClick" :editor="editor" class="basic-content" />
+        <EditorContent @click="onEditorClick" :editor="editor" class="basic-content" />
     </div>
 </template>
 
@@ -217,7 +224,7 @@ defineExpose({
 <style lang="scss">
 /* Basic editor styles */
 .tiptap {
-  /*   >*+* {
+    /*   >*+* {
         margin-top: 0.75em;
     } */
 
@@ -276,7 +283,8 @@ defineExpose({
 }
 
 .fixed-width-bubble-menu {
-    width: 300px; /* Set your desired fixed width */
+    width: 300px;
+    /* Set your desired fixed width */
 }
 
 .basic-content {
@@ -294,11 +302,11 @@ defineExpose({
 }
 
 .tiptap p.is-editor-empty:first-child::before {
-  color: #adb5bd;
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
+    color: #adb5bd;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
 }
 
 #blockTextContent blockquote {
@@ -361,5 +369,4 @@ defineExpose({
 .ProseMirror:focus {
     outline: none;
 }
-
 </style>
