@@ -164,15 +164,6 @@ class IndexCustomerClients extends RetinaAction
                         [
                             'type'    => 'button',
                             'style'   => 'create',
-                            'tooltip' => __('Fetch Clients'),
-                            'label'   => __('Fetch Clients'),
-                            'route'   => [
-                                'name'       => 'retina.dropshipping.client.fetch',
-                            ]
-                        ],
-                        [
-                            'type'    => 'button',
-                            'style'   => 'create',
                             'tooltip' => __('New Client'),
                             'label'   => __('New Client'),
                             'route'   => [

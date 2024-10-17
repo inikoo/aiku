@@ -15,9 +15,9 @@ import PureInputWithAddOn from '@/Components/Pure/PureInputWithAddOn.vue'
 import { notify } from '@kyvg/vue3-notification'
 
 
-import { faGlobe, faExternalLinkAlt, faUnlink } from '@fal'
+import {faGlobe, faExternalLinkAlt, faUnlink, faUsers} from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faGlobe, faExternalLinkAlt, faUnlink)
+library.add(faGlobe, faExternalLinkAlt, faUnlink, faUsers)
 
 const props = defineProps<{
     title: string,
@@ -29,9 +29,8 @@ const props = defineProps<{
     createRoute: routeType
     shopify_url: string
     unlinkRoute: routeType
-
+    fetchCustomerRoute: routeType
 }>()
-
 
 const isModalOpen = ref<string | boolean>(false)
 const websiteInput = ref<string | null>(null)
@@ -100,6 +99,20 @@ const onCreateStore = () => {
                                 <Button label="Open" key="secondary" full iconRight="fal fa-external-link-alt"
                                     size="xs" />
                             </a>
+                            <Link as="button" :href="route(fetchCustomerRoute.name, fetchCustomerRoute.parameters)"
+                                  :method="fetchCustomerRoute.method" @start="isLoading = 'fetch-customers'" @error="(error) => notify({
+                                    title: trans('Something went wrong.'),
+                                    text: trans('Please try again'),
+                                    type: 'error',
+                                }) " @finish="isLoading = false" @success="() =>
+                                    notify({
+                                    title: trans('Success fetch customers'),
+                                    type: 'success',
+                                    }
+                                )">
+                                <Button :loading="isLoading === 'fetch-customers'" type="positive"
+                                        icon="fal fa-users" size="xs" />
+                            </Link>
                         </div>
 
                         <!-- Button: Create -->
