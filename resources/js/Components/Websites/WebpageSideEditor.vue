@@ -97,7 +97,7 @@ const selectedBlockOpenPanel = ref<number | null>(null)
 
 <template>
     <div class="flex justify-between">
-        <h2 class="text-sm font-semibold leading-6">Blocks List</h2>
+        <h2 class="text-sm font-semibold leading-6">{{trans('Blocks')}} </h2>
         <Button icon="fas fa-plus" type="dashed" size="xs" @click="openModalBlockList" />
     </div>
     <div>
