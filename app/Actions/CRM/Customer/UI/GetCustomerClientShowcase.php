@@ -18,10 +18,7 @@ class GetCustomerClientShowcase
     public function handle(CustomerClient $customerClient): array
     {
         return [
-
-               'data' => CustomerClientResource::make($customerClient)->getArray()
-
-
+               'customer' => CustomerClientResource::make($customerClient)->getArray()
         ];
     }
 }

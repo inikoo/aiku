@@ -21,6 +21,7 @@ use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Str;
+
 class PublishWebsiteMarginal extends OrgAction
 {
     use WithActionUpdate;

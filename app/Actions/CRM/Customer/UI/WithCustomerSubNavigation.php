@@ -55,30 +55,6 @@ trait WithCustomerSubNavigation
                     'tooltip' => __('orders')
                 ]
             ],
-            [
-                'label'    => __('Delivery Notes'),
-                'number'   => $customer->stats->number_delivery_notes,
-                'href'     => [
-                    'name'       => 'grp.org.shops.show.crm.customers.show.delivery_notes.index',
-                    'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
-                ],
-                'leftIcon' => [
-                    'icon'    => ['fal', 'fa-truck'],
-                    'tooltip' => __('delivery notes')
-                ]
-            ],
-            [
-                'label'    => __('Invoices'),
-                'number'   => $customer->stats->number_invoices,
-                'href'     => [
-                    'name'       => 'grp.org.shops.show.crm.customers.show.invoices.index',
-                    'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
-                ],
-                'leftIcon' => [
-                    'icon'    => ['fal', 'fa-file-invoice-dollar'],
-                    'tooltip' => __('invoices')
-                ]
-            ],
         ];
     }
 
@@ -147,31 +123,6 @@ trait WithCustomerSubNavigation
                     'tooltip' => __('orders')
                 ]
             ],
-            [
-                'label'    => __('Delivery Notes'),
-                'number'   => $customer->stats->number_delivery_notes,
-                'href'     => [
-                    'name'       => 'grp.org.shops.show.crm.customers.show.delivery_notes.index',
-                    'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
-                ],
-                'leftIcon' => [
-                    'icon'    => ['fal', 'fa-truck'],
-                    'tooltip' => __('delivery notes')
-                ]
-            ],
-            [
-                'label'    => __('Invoices'),
-                'number'   => $customer->stats->number_invoices,
-                'href'     => [
-                    'name'       => 'grp.org.shops.show.crm.customers.show.invoices.index',
-                    'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
-                ],
-                'leftIcon' => [
-                    'icon'    => ['fal', 'fa-file-invoice-dollar'],
-                    'tooltip' => __('invoices')
-                ]
-            ],
-
         ];
     }
 

@@ -7,14 +7,18 @@
 
 namespace App\Actions\Ordering\Order\UI;
 
+use App\Actions\Accounting\Invoice\UI\IndexInvoices;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
+use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\OrgAction;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\UI\Ordering\OrdersTabsEnum;
+use App\Http\Resources\Accounting\InvoicesResource;
+use App\Http\Resources\Dispatching\DeliveryNotesResource;
 use App\Http\Resources\Ordering\OrdersResource;
 use App\Http\Resources\Sales\OrderResource;
 use App\InertiaTable\InertiaTable;
@@ -338,8 +342,20 @@ class IndexOrders extends OrgAction
                     : Inertia::lazy(fn () => OrdersResource::collection($orders)),
 
 
+                OrdersTabsEnum::INVOICES->value => $this->tab == OrdersTabsEnum::INVOICES->value ?
+                    fn () => InvoicesResource::collection(IndexInvoices::run($this->parent))
+                    : Inertia::lazy(fn () => InvoicesResource::collection(IndexInvoices::run($this->parent))),
+
+
+                OrdersTabsEnum::DELIVERY_NOTES->value => $this->tab == OrdersTabsEnum::DELIVERY_NOTES->value ?
+                    fn () => DeliveryNotesResource::collection(IndexDeliveryNotes::run($this->parent))
+                    : Inertia::lazy(fn () => DeliveryNotesResource::collection(IndexDeliveryNotes::run($this->parent))),
+
+
             ]
-        )->table($this->tableStructure($this->parent, OrdersTabsEnum::ORDERS->value));
+        )->table($this->tableStructure($this->parent, OrdersTabsEnum::ORDERS->value))
+            ->table(IndexInvoices::make()->tableStructure($this->parent))
+                ->table(IndexDeliveryNotes::make()->tableStructure($this->parent));
     }
 
     public function inOrganisation(Organisation $organisation, ActionRequest $request): LengthAwarePaginator

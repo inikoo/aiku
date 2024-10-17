@@ -34,9 +34,9 @@ class IndexDeliveryNotes extends OrgAction
 {
     use WithCustomerSubNavigation;
 
-    private Warehouse|Shop|Order|Customer $parent;
+    private Warehouse|Shop|Order|Customer|CustomerClient $parent;
 
-    public function handle(Warehouse|Shop|Order|Customer $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Warehouse|Shop|Order|Customer|CustomerClient $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -58,6 +58,8 @@ class IndexDeliveryNotes extends OrgAction
             $query->where('delivery_note_order.order_id', $parent->id);
         } elseif ($parent instanceof Customer) {
             $query->where('delivery_notes.customer_id', $parent->id);
+        } elseif ($parent instanceof CustomerClient) {
+            $query->where('delivery_notes.customer_client_id', $parent->id);
         } else {
             abort(419);
         }

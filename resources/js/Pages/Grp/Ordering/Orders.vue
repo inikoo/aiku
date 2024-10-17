@@ -17,6 +17,8 @@ import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faTags, faTasksAlt, faChartPie } from "@fal"
+import TableInvoices from "@/Components/Tables/Grp/Org/Accounting/TableInvoices.vue";
+import TableDeliveryNotes from "@/Components/Tables/Grp/Org/Dispatching/TableDeliveryNotes.vue";
 
 
 library.add(faTags, faTasksAlt, faChartPie)
@@ -30,6 +32,8 @@ const props = defineProps<{
     },
     backlog?: {}
     orders?: {}
+    invoices?: {}
+    delivery_notes?: {}
     mailshots?: {}
     stats?: {}
     history?: {}
@@ -43,7 +47,9 @@ const component = computed(() => {
     const components: any = {
         stats: OrdersStats,
         orders: TableOrders,
-        history: TableHistories,
+        invoices: TableInvoices,
+        delivery_notes: TableDeliveryNotes,
+        history: TableHistories
     }
 
     return components[currentTab.value]
