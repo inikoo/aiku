@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, computed  } from 'vue'
-import { Head } from '@inertiajs/vue3'
+import { ref, watch, computed, toRaw  } from 'vue'
+import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -14,6 +14,7 @@ import { debounce } from 'lodash'
 import ScreenView from "@/Components/ScreenView.vue"
 import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
 import TopbarList from '@/Components/Websites/Topbar/TopbarList.vue'
+import HeaderListModal from '@/Components/Websites/Header/HeaderListModal.vue'
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -25,6 +26,7 @@ import { faHeart } from '@far'
 import { faBrowser } from '@fal'
 
 import { trans } from 'laravel-vue-i18n'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue';
 
 library.add(faBrowser, faPresentation, faCube, faText, faHeart, faPaperclip)
 
@@ -54,7 +56,6 @@ const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const iframeSrc = ref(route('grp.websites.header.preview', [route().params['website']]))
 const loginMode = ref(true)
-const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
 const tabs = [
     {
         label: "Topbar settings",
@@ -69,61 +70,115 @@ const tabs = [
         icon: faPresentation,
     }
 ]
+const keySidebar = ref(0)
 const selectedTab = ref(tabs[0])
+const saveCancelToken = ref<Function | null>(null)
 
-const onPickTemplate = (data: object) => {
-    // console.log('tt', usedTemplates.value)
-    usedTemplates.value[selectedTab.value.key] = data
-    // console.log('tt', usedTemplates.value)
+const onSelectBlock = (selectedBlock: object) => {
+    const oldTemplate = {...toRaw(usedTemplates.value[selectedTab.value.key])}
+    
+    usedTemplates.value[selectedTab.value.key] = selectedBlock
+    
+    usedTemplates.value[selectedTab.value.key].data.fieldValue = {
+        ...usedTemplates.value[selectedTab.value.key].data.fieldValue,
+        ...oldTemplate.data.fieldValue
+    }
+
+    keySidebar.value++
     isModalOpen.value = false
 }
 
+const publishCancelToken = ref<{cancel: Function} | null>(null)
 const onPublish = async (action: routeType, popover: Function) => {
-    try {
-        // Ensure action is defined and has necessary properties
-        if (!action || !action.method || !action.name || !action.parameters) {
-            throw new Error('Invalid action parameters')
-        }
-
-        isLoading.value = true
-
-        // Make sure route and axios are defined and used correctly
-        const response = await axios[action.method](route(action.name, action.parameters), {
+    router[action.method || 'post'](
+        route(action.name, action.parameters),
+        {
             comment: comment.value,
             layout: usedTemplates.value
-        })
-        popover.close()
-    } catch (error) {
-        // Ensure the error is logged properly
-        console.error('Error:', error)
+        },
+        {
+            onStart: () => isLoading.value = true,
+            onCancelToken: (cancelToken) => publishCancelToken.value = cancelToken,
+            onFinish: () => {
+                isLoading.value = true
+                publishCancelToken.value = null
+            },
+            onError: (error) => {
+                notify({
+                    title: trans('Something went wrong.'),
+                    text: error.message,
+                    type: 'error',
+                })
+            }
+        }
+    )
 
-        // Ensure the error notification is user-friendly
-        const errorMessage = error.response?.data?.message || error.message || 'Unknown error occurred'
-        notify({
-            title: 'Something went wrong.',
-            text: errorMessage,
-            type: 'error',
-        })
-    } finally {
-        // Ensure loading state is updated
-        isLoading.value = false
-    }
-};
+    // try {
+    //     // Ensure action is defined and has necessary properties
+    //     if (!action || !action.method || !action.name || !action.parameters) {
+    //         throw new Error('Invalid action parameters')
+    //     }
 
-const autoSave = async (data: object) => {
-    try {
-        const response = await axios.patch(
-            route(props.autosaveRoute.name, props.autosaveRoute.parameters),
-            { layout: data }
-        )
-    } catch (error: any) {
-        notify({
-            title: 'Something went wrong.',
-            text: error.message,
-            type: 'error',
-        })
-    }
+    //     isLoading.value = true
+
+    //     // Make sure route and axios are defined and used correctly
+    //     const response = await axios[action.method](route(action.name, action.parameters), {
+    //         comment: comment.value,
+    //         layout: usedTemplates.value
+    //     })
+    //     popover.close()
+    // } catch (error) {
+    //     // Ensure the error is logged properly
+    //     console.error('Error:', error)
+
+    //     // Ensure the error notification is user-friendly
+    //     const errorMessage = error.response?.data?.message || error.message || 'Unknown error occurred'
+    //     notify({
+    //         title: 'Something went wrong.',
+    //         text: errorMessage,
+    //         type: 'error',
+    //     })
+    // } finally {
+    //     // Ensure loading state is updated
+    //     isLoading.value = false
+    // }
 }
+
+const isLoadingSave = ref(false)
+const onProgress = ref(false)
+const autoSave = async (data: object) => {
+    router.patch(
+        route(props.autosaveRoute.name, props.autosaveRoute.parameters),
+        { layout: data },
+        {
+            onStart: () => isLoadingSave.value = true,
+            onFinish: () => {
+                isLoadingSave.value = false,
+                saveCancelToken.value = null
+            },
+            onProgress: (progress) => {
+                onProgress.value = progress
+            },
+            onCancelToken: (cancelToken) => {
+                saveCancelToken.value = cancelToken.cancel
+            },
+            onCancel: () => {
+                console.log('on cancel')
+            },
+            onError: (error) => {
+                notify({
+                    title: trans('Something went wrong.'),
+                    text: error.message,
+                    type: 'error',
+                })
+            },
+            preserveScroll: true,
+            preserveState: true,
+        }
+    )
+}
+const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
+
 
 const setIframeView = (view: String) => {
     if (view === 'mobile') {
@@ -135,55 +190,32 @@ const setIframeView = (view: String) => {
     }
 }
 
+
 const openFullScreenPreview = () => {
     window.open(iframeSrc.value, '_blank')
 }
+
 
 const handleIframeError = () => {
     console.error('Failed to load iframe content.');
 }
 
+
+// If fieldvalue have changes, then auto save
 watch(usedTemplates, (newVal) => {
-    // console.log('klklk', newVal)
-    if (newVal) debouncedSendUpdate(newVal)
+    if (newVal) {
+        // If still on progress saving, cancel the save
+        if (saveCancelToken.value) {
+            saveCancelToken.value()
+        }
+
+        debouncedSendUpdate(newVal)
+    }
 }, { deep: true })
 
-// const openedAccordion = ref<string | null>(null)
 
-const isOpenModalTopbarList = ref(false)
-const topbar = ref({
-    template: null,
-    properties: {
-        background: {
-            type: 'color',
-            color: '#ff000054',
-            image: {
-                original: 'string'
-            }
-        }
-    }
-})
-const topbarList = [
-    {
-        code: 'codetopbar1',
-        name: 'Topbar Universe',
-        image: 'https://uploads.commoninja.com/searchengine/wordpress/zidi-topbar-menu.png'
-    },
-    {
-        code: 'codetopbar2',
-        name: 'Topbar Astronauts',
-        image: 'https://cdn-icons-png.flaticon.com/256/3596/3596219.png'
-    }
-]
-const onSelectTopbar = (xxx) => {
-    // console.log('zxcxz')
-    topbar.value.template = xxx
-    isOpenModalTopbarList.value = false
-}
-
-// console.log('ee', props.web_block_types)
 const selectedWebBlock = computed(() => {
-    return props.web_block_types.data.filter(item => item.component === selectedTab.value.componentName)
+    return props.web_block_types.filter(item => item.data.component === selectedTab.value.componentName)
     
     // const filteredData = { ...props.web_block_types };
 
@@ -202,11 +234,20 @@ const selectedWebBlock = computed(() => {
 
 <template>
     <Head :title="capitalize(title)" />
+
+    <!-- {{ onProgress }}
+    <div @click="() => saveCancelToken ? saveCancelToken() : autoSave(usedTemplates)">{{ saveCancelToken ? 'xxx' : 'gfgf' }} foidsa jfoidsajfodsjafdsa</div>
+    {{ saveCancelToken }} -->
+
     <PageHeading :data="pageHead">
+        <template #mainIcon v-if="isLoadingSave">
+            <LoadingIcon size="sm" />
+        </template>
+
         <template #button-publish="{ action }">
             <Publish
                 v-model="comment"
-                :isLoading="isLoading"
+                :isLoading="isLoading || isLoadingSave"
                 :is_dirty="true"
                 @onPublish="(popover) => onPublish(action.route, popover)"
             />
@@ -215,30 +256,6 @@ const selectedWebBlock = computed(() => {
     
     <div class="h-[84vh] flex">
         <div v-if="usedTemplates" class="col-span-2 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
-            <!--  <Accordion>
-                <AccordionPanel value="topbar" @click="openedAccordion = 'topbar'">
-                    <AccordionHeader>
-                        <div class="font-bold text-lg">Topbar Settings</div>
-                    </AccordionHeader>
-                    
-                    <AccordionContent>
-                        <div class="bg-white mt-[0px] ">
-                            <div class="py-2">
-                                <div>
-                                    {{ topbar.template }}
-                                </div>
-                                <Button @click="() => isOpenModalTopbarList = true" type="tertiary" :label="trans('Select topbar template')" full />
-                            </div>
-
-                            <div v-if="topbar?.properties.background" class="border-t border-gray-300  pb-3">
-                                <div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Background') }}</div>
-
-                                <BackgroundProperty v-model="topbar.properties.background" />
-                            </div>
-                        </div>
-                    </AccordionContent>
-                </AccordionPanel>
-            </Accordion> -->
 
             <!-- Section: Side editor -->
             <div class="flex h-full w-96">
@@ -270,8 +287,9 @@ const selectedWebBlock = computed(() => {
                     <!-- <pre>{{ usedTemplates?.[selectedTab.key].blueprint }}</pre> -->
 
                     <SideEditor
-                        v-if="usedTemplates?.[selectedTab.key]?.blueprint.fieldValue"
-                        v-model="usedTemplates[selectedTab.key].blueprint.fieldValue"
+                        v-if="usedTemplates?.[selectedTab.key]?.data.fieldValue"
+                        :key="keySidebar"
+                        v-model="usedTemplates[selectedTab.key].data.fieldValue"
                         :bluprint="usedTemplates[selectedTab.key].blueprint" 
                         :uploadImageRoute="uploadImageRoute" 
                     />
@@ -296,22 +314,27 @@ const selectedWebBlock = computed(() => {
                     <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
                 </div>
 
-                <!-- <iframe
+                <iframe
                     :src="iframeSrc"
                     :title="props.title"
                     :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
                     @error="handleIframeError"
                     @load="isIframeLoading = false"
-                /> -->
+                />
 
             </div>
+
             <section v-else>
                 <EmptyState
                     :data="{ description: 'You need pick a template from list', title: 'Pick Header Templates' }">
                     <template #button-empty-state>
                         <div class="mt-4 block">
-                            <Button type="secondary" label="Templates" icon="fas fa-th-large"
-                                @click="isModalOpen = true"></Button>
+                            <Button
+                                type="secondary"
+                                label="Templates"
+                                icon="fas fa-th-large"
+                                @click="isModalOpen = true"
+                            />
                         </div>
                     </template>
                 </EmptyState>
@@ -320,12 +343,13 @@ const selectedWebBlock = computed(() => {
     </div>
 
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
-        <BlockList 
-            :onPickBlock="onPickTemplate" 
-            :webBlockTypes="selectedWebBlock" 
-            scope="website" 
+        <HeaderListModal 
+            :onSelectBlock
+            :webBlockTypes="selectedWebBlock"
+            :currentTopbar="usedTemplates.topBar"
         />
     </Modal>
+
 
     <!-- <Modal :isOpen="isOpenModalTopbarList" @onClose="isOpenModalTopbarList = false">
         <TopbarList 
