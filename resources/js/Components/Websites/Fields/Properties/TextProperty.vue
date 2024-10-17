@@ -6,68 +6,19 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { faLink, faUnlink } from "@fal"
 import { faExclamation } from "@fas"
 import ColorPicker from '@/Components/Utils/ColorPicker.vue'
+import { useFontFamilyList } from '@/Composables/useFont'
 library.add(faExclamation, faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter, faLink, faUnlink)
 
 interface Borderproperty {
     color: string,
-    fontFamily : String
+    fontFamily: String
 }
 
 const model = defineModel<Borderproperty>({
     required: true
 })
 
-const fontFamilies = [
-    {
-        label: "Arial",
-        value: "Arial, sans-serif",
-    },
-    {
-        label: "Comfortaa",
-        value: "'Comfortaa', sans-serif",
-    },
-    {
-        label: "Lobster",
-        value: "'Lobster', cursive",
-    },
-    {
-        label: "Laila",
-        value: "'Laila', sans-serif",
-    },
-    {
-        label: "Port Lligat Slab",
-        value: "'Port Lligat Slab', serif",
-    },
-    {
-        label: "Playfair",
-        value: "'Playfair Display', serif",
-    },
-    {
-        label: "Raleway",
-        value: "'Raleway', sans-serif",
-    },
-    {
-        label: "Roman Melikhov",
-        value: "'Roman Melikhov', serif",
-    },
-    {
-        label: "Source Sans Pro",
-        value: "'Source Sans Pro', sans-serif",
-    },
-    {
-        label: "Quicksand",
-        value: "'Quicksand', sans-serif",
-    },
-    {
-        label: "Times New Roman",
-        value: "'Times New Roman', serif",
-    },
-    {
-        label: "Yatra One",
-        value: "'Yatra One', cursive",
-    }
-]
-
+const fontFamilies = [...useFontFamilyList];
 
 </script>
 
@@ -94,12 +45,7 @@ const fontFamilies = [
             <div class="px-3 items-center">
                 <div class="text-xs mb-2">{{ trans('Font Families') }}</div>
                 <div class="col-span-4">
-                    <PureMultiselect 
-                        v-model="model.fontFamily" 
-                        class=""
-                        required
-                        :options="fontFamilies"
-                    >
+                    <PureMultiselect v-model="model.fontFamily" class="" required :options="fontFamilies">
                         <template #option="{ option, isSelected, isPointed, search }">
                             <span :style="{
                                 fontFamily: option.value
