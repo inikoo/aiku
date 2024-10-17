@@ -58,6 +58,7 @@ class IndexAttachments extends OrgAction
                 'model_has_attachments.caption',
                 'model_has_attachments.scope',
                 'media.id as media_id',
+                'media.ulid as media_ulid'
             ]);
 
         return $queryBuilder->allowedSorts(['caption', 'scope'])

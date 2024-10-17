@@ -19,26 +19,13 @@ const props = defineProps<{
 
 const locale = useLocaleStore();
 
-// function favouriteRoute(favourite: {}) {
-//     switch (route().current()) {
-//         case "grp.org.shops.show.catalogue.products.current_products.show":
-//             return route(
-//                 "grp.org.shops.show.crm.customers.show",
-//                 [
-//                 route().params["organisation"],
-//                 route().params["shop"],
-//                 favourite.slug
-//                 ]);
-//         default:
-//             return route(
-//                 "grp.org.shops.show.crm.customers.show",
-//                 [
-//                     route().params["organisation"],
-//                     route().params["shop"],
-//                     customer.slug
-//                 ]);;
-//     }
-// }
+function mediaRoute(attachment: {}) {
+            return route(
+                "grp.media.show",
+                [
+                    attachment.media_ulid
+                ]);;
+    }
 
 // function customerRoute(customer: FulfilmentCustomer) {
 //     switch (route().current()) {
@@ -81,7 +68,9 @@ const locale = useLocaleStore();
                 {{ attachment["scope"] }}
         </template>
         <template #cell(caption)="{ item: attachment }">
-                {{ attachment["caption"] }}
+            <Link :href="mediaRoute(attachment)" class="primaryLink">
+            {{ attachment["caption"] }}
+            </Link>
         </template>
     </Table>
 </template>

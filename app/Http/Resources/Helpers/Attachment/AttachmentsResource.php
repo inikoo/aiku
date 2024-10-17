@@ -18,7 +18,8 @@ class AttachmentsResource extends JsonResource
             'id'         => $this->id,
             'caption'    => $this->caption,
             'scope'      => $this->scope,
-            'media_id'   => $this->media_id
+            'media_id'   => $this->media_id,
+            'media_ulid'   => $this->media_ulid
         ];
     }
 }
