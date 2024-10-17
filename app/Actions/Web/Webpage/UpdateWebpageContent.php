@@ -26,20 +26,12 @@ class UpdateWebpageContent extends OrgAction
 
         $layout  = [];
         foreach ($webpage->webBlocks as $webBlock) {
-            $visibility = "";
-            if ($webBlock->pivot->show_logged_in and $webBlock->pivot->show_logged_out) {
-                $visibility = 'all';
-            } elseif ($webBlock->pivot->show_logged_in) {
-                $visibility = 'loggedIn';
-            } else {
-                $visibility = 'loggedOut';
-            }
             $layout['web_blocks'][] =
                 [
                     'id'       => $webBlock->pivot->id,
                     'type'     => $webBlock->webBlockType->code,
                     'web_block' => WebBlockResource::make($webBlock)->getArray(),
-                    'visibility' => $visibility,
+                    'visibility' => ['in' => $webBlock->pivot->show_logged_in, 'out' => $webBlock->pivot->show_logged_out],
                     'show' => $webBlock->pivot->show,
                 ];
 

@@ -17,6 +17,7 @@ import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import Modal from "@/Components/Utils/Modal.vue"
 import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
 import ButtonVisibleLoggedIn from '@/Components/Websites/Fields/ButtonVisibleLoggedIn.vue';
+import SideEditor from '@/Components/Websites/SideEditor.vue'
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
@@ -34,7 +35,7 @@ const props = defineProps<{
     isAddBlockLoading: string | null
 }>()
 
-console.log('dfsfsuuu',props)
+console.log('dfsfsuuu', props)
 const emits = defineEmits<{
     (e: 'add', value: Daum): void
     (e: 'delete', value: Daum): void
@@ -64,9 +65,9 @@ const sendDeleteBlock = async (block: Daum) => {
 
 
 const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block), 1000, { leading: false, trailing: true })
-// const onUpdatedBlock = (block: Daum) => {
-//     debouncedSendUpdate(block)
-// }
+const onUpdatedBlock = (block: Daum) => {
+     debouncedSendUpdate(block)
+}
 
 const onChangeOrderBlock = () => {
     let payload = {}
@@ -134,22 +135,12 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                         </div>
 
                         <!-- Section: Properties panel -->
-                        <Collapse v-if="element?.web_block?.layout?.properties" as="section"
+                        <Collapse v-if="element?.web_block?.layout" as="section"
                             :when="selectedBlockOpenPanel === index">
-
-                            <!-- {{ index }} -->
-                            <!-- <pre>{{ element.web_block.layout.data?.properties }}</pre> -->
-                            <div v-if="element.visibility" class="border-t border-gray-300 bg-gray-100 pb-3">
-                                <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Visibility') }}</div>
-                                <ButtonVisibleLoggedIn 
-                                    :modelValue="element" 
-                                    @update:modelValue="(newValue) => element.visibility = newValue.visibility" 
-                                />
+                            <div class="p-2">
+                                <SideEditor v-model="element.web_block.layout.data.fieldValue"
+                                    :bluprint="element?.web_block?.layout?.blueprint" @update:modelValue="onUpdatedBlock(element)"/>
                             </div>
-
-
-                            <PanelProperties v-model="element.web_block.layout.properties"
-                                @update:modelValue="() => (debouncedSendUpdate(element))" />
                         </Collapse>
 
                         <!-- <pre>{{ element.web_block.layout.data.properties }}</pre> -->

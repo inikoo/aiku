@@ -24,7 +24,7 @@ trait WithFetchDepartmentWebBlock
             return null;
         }
         $sections = [];
-        data_set($layout, 'fieldValue.value.department_id', $webpage->model_id);
+        data_set($layout, 'data.fieldValue.value.department_id', $webpage->model_id);
         foreach ($auroraBlock["sections"] as $section) {
             $sections[] = [
                 "title" => $section["title"] ?? "",
@@ -43,7 +43,7 @@ trait WithFetchDepartmentWebBlock
             ];
         }
 
-        data_set($layout, "fieldValue.value.sections", $sections);
+        data_set($layout, "data.fieldValue.value.sections", $sections);
         return $layout;
     }
 }

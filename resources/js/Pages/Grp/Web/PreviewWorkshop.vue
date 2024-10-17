@@ -120,7 +120,6 @@ const openModalBlock = () => {
 };
 
 
-console.log('preview',data.value)
 </script>
 
 
@@ -146,8 +145,8 @@ console.log('preview',data.value)
                                 :key="activityItem.id" class="w-full">
                                 <component v-if="activityItem?.web_block?.layout" class="w-full"
                                     :is="getComponent(activityItem?.type)" :webpageData="webpage"
-                                    :properties="activityItem?.web_block?.layout?.properties" v-bind="activityItem"
-                                    v-model="activityItem.web_block.layout.fieldValue" :isEditable="true"
+                                    :properties="activityItem?.web_block?.layout?.data?.properties" v-bind="activityItem"
+                                    v-model="activityItem.web_block.layout.data.fieldValue" :isEditable="true"
                                     :style="{ width: '100%' }" @autoSave="() => onUpdatedBlock(activityItem)" />
                             </section>
                         </TransitionGroup>

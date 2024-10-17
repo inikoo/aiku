@@ -78,6 +78,7 @@ class FetchAuroraWebBlockMedia extends OrgAction
             }
         }
 
+        // return null;
         print ">>>media not found >>$originalAuroraImage<<<<<<<<<\n";
         return $this->downloadMediaFromWebpage($webBlock, $webpage, $auroraImage);
     }

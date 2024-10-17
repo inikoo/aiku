@@ -67,9 +67,17 @@ const layout = inject('layout', layoutStructure)
                         <Container :data="data.container" />
                     </div>
                 </div>
+
                 <div v-if="data.icon" class="inline text-gray-400">
-                    <FontAwesomeIcon v-tooltip="data.icon.tooltip || ''" aria-hidden="true"
-                        :icon="data.icon.icon || data.icon" size="sm" fixed-width />
+                    <slot name="mainIcon">
+                        <FontAwesomeIcon
+                            v-tooltip="data.icon.tooltip || ''"
+                            aria-hidden="true"
+                            :icon="data.icon.icon || data.icon"
+                            size="sm"
+                            fixed-width
+                        />
+                    </slot>
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-y-1.5 gap-x-3 items-center ">
