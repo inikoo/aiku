@@ -17,7 +17,6 @@ use App\Models\Ordering\Order;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\StockDelivery;
 use App\Models\SupplyChain\Supplier;
-use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -25,16 +24,16 @@ class AttachAttachmentToModel extends OrgAction
 {
     private Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order $parent;
 
-    public function handle (Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order $model, array $modelData): Media
+    public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order $model, array $modelData): Media
     {
         $file = $modelData['attachment'];
-            $attachmentData = [
-                'path'         => $file->getPathName(),
-                'originalName' => $file->getClientOriginalName(),
-                'scope'        => $modelData['scope']
-            ];
+        $attachmentData = [
+            'path'         => $file->getPathName(),
+            'originalName' => $file->getClientOriginalName(),
+            'scope'        => $modelData['scope']
+        ];
 
-            $attachment = SaveModelAttachment::make()->action($model, $attachmentData);
+        $attachment = SaveModelAttachment::make()->action($model, $attachmentData);
 
         return $attachment;
     }
@@ -118,4 +117,3 @@ class AttachAttachmentToModel extends OrgAction
         return $this->handle($order, $this->validatedData);
     }
 }
-
