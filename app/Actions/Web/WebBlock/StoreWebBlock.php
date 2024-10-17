@@ -29,12 +29,11 @@ class StoreWebBlock extends GrpAction
         data_set(
             $modelData,
             'layout',
-            ['data' => $webBlockType->data, 'blueprint' => $webBlockType->blueprint],
+            ['data' => $webBlockType->data ?? null, 'blueprint' => $webBlockType->blueprint],
             overwrite: false
         );
 
         data_set($modelData, 'checksum', md5(json_encode($modelData['layout'])));
-
 
         /** @var WebBlock $webBlock */
         $webBlock = $webBlockType->webBlocks()->create($modelData);
