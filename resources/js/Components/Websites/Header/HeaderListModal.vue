@@ -29,17 +29,17 @@ const currentTopbarCode = props.currentTopbar.code
         <div class="flex-1 p-4">
             <section aria-labelledby="products-heading" class="h-full mx-auto w-full sm:px-6 lg:px-8 overflow-y-auto">
                 <TransitionGroup tag="div" name="zzz"
-                    class="relative grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-3 gap-x-4 overflow-y-auto overflow-x-hidden">
+                    class="relative grid  gap-y-3 gap-x-4 overflow-y-auto overflow-x-hidden">
 
                     <div
                         v-for="block in webBlockTypes"
                         :key="block.code"
                         @click="() => (console.log('bbbbb', block), onSelectBlock(block))"
-                        class="overflow-hidden group flex flex-col items-center gap-x-2 relative border border-gray-300 hover:border-indigo-500 rounded cursor-pointer"
+                        class="overflow-hidden h-fit group flex flex-col items-center gap-x-2 relative border border-gray-300 hover:border-indigo-500 rounded cursor-pointer"
                     >
-                        <div class="h-full flex items-center bg-gray-100 w-full justify-center">
-                            <div>
-                                <Image :src="block.screenshot" />
+                        <div class="h-32 w-full aspect-[4/1] flex items-center bg-gray-100 justify-center">
+                            <div class="w-auto">
+                                <Image :src="block.screenshot" class="object-contain"/>
                             </div>
                         </div>
 

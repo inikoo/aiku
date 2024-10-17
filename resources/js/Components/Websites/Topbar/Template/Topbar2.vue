@@ -56,36 +56,22 @@ const onClickLogin = () => {
 </script>
 
 <template>
-    <div id="top_bar" class="py-1 px-4 flex justify-between"
-        :style="getStyles(model?.container.properties)"
+    <div id="top_bar" class="py-1 px-4 flex justify-between bg-[]"
+        style="background: linear-gradient(90deg, rgba(221,245,254,1) 0%, rgba(252,247,255,1) 16%, rgba(255,252,246,1) 35%, rgba(248,240,255,1) 57%, rgba(255,250,246,1) 83%)"
+        :style="'getStyles(model?.container.properties)'"
     >
-    <!-- <pre>{{ model.topbar.properties }}</pre> -->
-        <div class="flex">
-            <!-- Section: greeting -->
-            <div v-if="!isLoggedIn" v-html="model?.greeting?.text?.replace('{{ name }}', 'Pphonofdshnjlcx')" class="flex items-center">
-            </div>
 
-            <!-- <div id="top_bar_is_gold_reward_member" class="hide" style="margin-left: 20px;">
-                <i class="fal fa-sparkles" style="color: #ffebb1;"></i>
-                <div id="top_bar_is_gold_reward_member_label"
-                    style="padding: 1px 2px  1px 3px;color: #ffbf00;font-weight: 600;"></div>
-                <i class="fal fa-sparkles" style="color: #ffebb1;"></i>
-                <div id="top_bar_is_gold_reward_member_until"
-                    style="white-space: nowrap;display: inline-block;font-size: 0.7rem;margin-left: 2px;"></div>
-            </div>
+        
+        <!-- Section: greeting -->
+        <div v-if="!isLoggedIn" v-html="model?.greeting?.text?.replace('{{ name }}', 'Pphonofdshnjlcx')" class="flex items-center">
 
-            <div id="top_bar_is_first_order_bonus" class="hide" style="margin-left: 20px;">
-                <i class="fal fa-sparkles" style="color: #ffebb1;"></i>
-                <div id="top_bar_is_first_order_bonus_label"
-                    style="padding: 1px 2px  1px 3px;color: #ffbf00;font-weight: 600;"></div>
-                <i class="fal fa-sparkles" style="color: #ffebb1;"></i>
-            </div> -->
         </div>
 
-        <div class="text-center" v-html="model.main_title.text">
+        
+        <div class="text-center flex items-center" v-html="model.main_title.text">
         </div>
 
-        <div class="action_buttons" style="display: flex; justify-content: flex-end; column-gap: 45px; grid-column: span 5 / span 5">
+        <div class="action_buttons" style="display: flex; justify-content: flex-end; column-gap: 15px; grid-column: span 5 / span 5">
             <template v-if="isLoggedIn">
                 <a href="#" class="space-x-1.5" style="margin-left: 0px;">
                     <!-- <i class="far fa-flip-horizontal fa-sign-out" title="Log out" aria-hidden="true"></i> -->
@@ -114,6 +100,7 @@ const onClickLogin = () => {
                 </a>
             </template>
 
+            <!-- Section: Logged out (Login, Register) -->
             <template v-else>
                 <template v-if="isDropshipping">
                     <a href="/login.sys" class="space-x-1.5" id="">
@@ -122,19 +109,41 @@ const onClickLogin = () => {
                 </template>
 
                 <template v-else>
-                    <div @click="() => onClickLogin()" href="/login.sys" class="space-x-1.5" id="">
+                    <div @click="() => onClickLogin()"
+                        href="/login.sys"
+                        class="space-x-1.5 cursor-pointer"
+                        id=""
+                        :style="getStyles(model?.button_1.container.properties)"
+                        
+                    >
                         <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
-                        <span>Login</span>
+                        <span>{{ model?.button_1.text }}</span>
                     </div>
-                    <div @click="() => onClickRegister()" href="/register.sys" class="space-x-1.5">
+
+                    <div @click="() => onClickRegister()"
+                        href="/register.sys"
+                        class="space-x-1.5 cursor-pointer"
+                        id=""
+                        :style="getStyles(model?.button_2.container.properties)"
+                        
+                    >
+                        <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
+                        <span>{{ model?.button_2.text }}</span>
+                    </div>
+
+                    <!-- <div @click="() => onClickRegister()" href="/register.sys" class="space-x-1.5">
                         <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
                         <span>Register</span>
-                    </div>
+                    </div> -->
                 </template>
             </template>
 
         </div>
     </div>
+
+    <!-- <pre>{{model?.button_2}}</pre>
+
+    ========== -->
 
     <Modal :isOpen="isModalOpen" @onClose="() => isModalOpen = false">
         <div v-if="sectionAuth === 'login'" class="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">

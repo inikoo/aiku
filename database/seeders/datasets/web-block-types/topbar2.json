@@ -7,39 +7,94 @@
 	"blueprint": [
 		{
 			"name": "Container",
-			"key": ["container", "properties"],
-			"type": ["properties"],
+			"key": [
+				"container",
+				"properties"
+			],
+			"type": [
+				"properties"
+			],
 			"props_data": {}
 		},
 		{
 			"name": "Title",
-			"key": ["main_title", "text"],
-			"type": ["text"],
+			"key": [
+				"main_title",
+				"text"
+			],
+			"type": [
+				"text"
+			],
 			"replaceForm": [
 				{
-					"key": ["main_title", "visible"],
-					"type": ["VisibleLoggedIn"]
+					"key": [
+						"main_title",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
 				},
 				{
-					"key": ["main_title", "text"],
-					"type": ["editorhtml"]
+					"key": [
+						"main_title",
+						"text"
+					],
+					"type": [
+						"editorhtml"
+					]
 				}
 			],
 			"props_data": {}
 		},
 		{
 			"name": "Greeting",
-			"key": ["greeting", "text"],
-			"type": ["editorhtml"],
+			"key": [
+				"greeting",
+				"text"
+			],
+			"type": [
+				"editorhtml"
+			],
 			"replaceForm": [
 				{
-					"key": ["greeting", "visible"],
-					"type": ["VisibleLoggedIn"]
+					"key": [
+						"greeting",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
 				},
 				{
-					"key": ["greeting", "text"],
-					"type": ["editorhtml"]
+					"key": [
+						"greeting",
+						"text"
+					],
+					"type": [
+						"editorhtml"
+					]
 				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Login",
+			"key": [
+				"button_1"
+			],
+			"type": [
+				"button"
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Register",
+			"key": [
+				"button_2"
+			],
+			"type": [
+				"button"
 			],
 			"props_data": {}
 		}
@@ -67,8 +122,166 @@
 				"visible": "all"
 			},
 			"greeting": {
-				"text": "<p>Welcome, {{ name }}!",
+				"text": "<p>Welcome, <strong>{{ name }}</strong>!",
 				"visible": "login"
+			},
+			"button_1": {
+				"link": null,
+				"text": "Login",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(255, 255, 255, 1)"
+						},
+						"border": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"color": "rgba(231, 231, 231, 1)",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							},
+							"rounded": {
+								"unit": "px",
+								"topleft": {
+									"value": 5
+								},
+								"topright": {
+									"value": 5
+								},
+								"bottomleft": {
+									"value": 5
+								},
+								"bottomright": {
+									"value": 5
+								}
+							}
+						},
+						"margin": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						},
+						"background": {
+							"type": "color",
+							"color": "rgba(10, 10, 10, 1)",
+							"image": {
+								"original": null
+							}
+						}
+					}
+				}
+			},
+			"button_2": {
+				"link": null,
+				"text": "Register",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(10, 10, 10, 1)"
+						},
+						"border": {
+							"top": {
+								"value": 1
+							},
+							"left": {
+								"value": 1
+							},
+							"unit": "px",
+							"color": "rgba(10, 10, 10, 1)",
+							"right": {
+								"value": 1
+							},
+							"bottom": {
+								"value": 1
+							},
+							"rounded": {
+								"unit": "px",
+								"topleft": {
+									"value": 5
+								},
+								"topright": {
+									"value": 5
+								},
+								"bottomleft": {
+									"value": 5
+								},
+								"bottomright": {
+									"value": 5
+								}
+							}
+						},
+						"margin": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						},
+						"background": {
+							"type": "color",
+							"color": "rgba(10, 10, 10, 0)",
+							"image": {
+								"original": null
+							}
+						}
+					}
+				}
 			}
 		}
 	}

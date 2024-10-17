@@ -109,7 +109,7 @@ const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
                     <!-- If field have 'replaceform' and in [] -->
                     <template v-if="field.replaceForm">
                         <template v-for="form in field.replaceForm">
-                            <!-- If field type is multi  -->
+                            <!-- If multi type -->
                             <template v-if="isArray(form.type)">
                                 <component
                                     v-for="(type, indexType) in form.type"
@@ -122,6 +122,7 @@ const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
                             </template>
 
                             <template v-else>
+                            <!-- If single type -->
                                 <component
                                     :is="getComponent(form.type)"
                                     :key="form.key"
@@ -137,6 +138,7 @@ const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
                     <!-- If have no 'replaceform' -->
                     <template v-else>
                         <template v-if="isArray(field.type)">
+                            <!-- If multi type -->
                             <component
                                 v-for="(type, indexType) in field.type"
                                 :is="getComponent(type)"
@@ -148,6 +150,7 @@ const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
                         </template>
     
                         <template v-else>
+                            <!-- If single type -->
                             <component
                                 :is="getComponent(field.type)"
                                 :key="field.key"

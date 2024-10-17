@@ -129,12 +129,15 @@ const openModalBlock = () => {
 
         <div class="relative">
             <RenderHeaderMenu
-                v-if="header?.data?.header"
+                v-if="header?.data"
                 :data="layout.header"
                 :menu="layout?.navigation"
                 :colorThemed="layout?.colorThemed"
             />
         </div>
+
+        <!-- <pre>{{ layout.header }}</pre> -->
+        
 
         <div v-if="data" class="relative">
             <div class="container max-w-7xl mx-auto">
