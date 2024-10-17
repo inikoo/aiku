@@ -55,7 +55,7 @@ class ShowProcurementDashboard extends OrgAction
                 ],
             ];
         }
-        
+
         return Inertia::render(
             'Procurement/ProcurementDashboard',
             [
