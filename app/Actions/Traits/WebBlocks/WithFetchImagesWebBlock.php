@@ -30,8 +30,9 @@ trait WithFetchImagesWebBlock
         $imagesArray = [];
         // $linksData = [];
         foreach ($auroraBlock["images"] as $image) {
+            $imageLink = null;
             if (isset($image["link"])) {
-                $linksData = FetchAuroraWebBlockLink::run($webpage->website, $image["link"]);
+                $imageLink = FetchAuroraWebBlockLink::run($webpage->website, $image["link"]);
 
             }
 
@@ -39,12 +40,12 @@ trait WithFetchImagesWebBlock
                 continue;
             }
             $imagesArray[] = [
-                "link_data" => $linksData ?? null,
+                "link_data" => $imageLink,
                 "aurora_source" => $image["src"],
             ];
         }
 
-        data_set($layout, "data.fieldValue.value.row", $imagesArray);
+        data_set($layout, "data.fieldValue.value", $imagesArray);
         return $layout;
     }
 

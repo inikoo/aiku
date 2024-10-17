@@ -199,7 +199,7 @@ class FetchAuroraWebBlocks extends OrgAction
         $group = $webpage->group;
 
 
-        // if($auroraBlock['type'] != "images") {
+        // if($auroraBlock['type'] != "text") {
         //     return;
         // }
         switch ($auroraBlock["type"]) {
@@ -383,20 +383,13 @@ class FetchAuroraWebBlocks extends OrgAction
                 }
                 data_set($layout, "data.fieldValue.value.sections", $sections);
             } else {
-                $imageSources  = [];
-                $imagesRawData = $webBlock->layout['data']["fieldValue"]["value"]["row"];
-                foreach ($imagesRawData as $index => $imageRawData) {
+                foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
-                    $imageSources[] = ["image" => ["source" => $imageSource]];
-                    unset($layout['data']["fieldValue"]["value"]["row"][$index]);
+                    $layout['data']["fieldValue"]["value"][$index]['source'] = $imageSource;
+                    unset($layout['data']["fieldValue"]["value"][$index]['aurora_source']);
                 }
-                data_set($layout, "data.fieldValue.value.row.images", $imageSources);
-                $propertiesInRows = $webBlockType->data['fieldValue']['value'][0]['row'][0]['properties'] ?? null;
-                if ($propertiesInRows) {
-                    data_set($layout, "data.fieldValue.value.row.properties", $propertiesInRows);
-                }
-            }
 
+            }
             $webBlock->updateQuietly([
                 "layout" => $layout,
             ]);
