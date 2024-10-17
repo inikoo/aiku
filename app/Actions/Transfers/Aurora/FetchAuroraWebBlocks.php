@@ -33,7 +33,6 @@ use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
 use Exception;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebBlocks extends OrgAction
@@ -56,12 +55,15 @@ class FetchAuroraWebBlocks extends OrgAction
 
     protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
 
+    private string $dbSuffix;
+
     /**
      * @throws \Exception
      */
     public function handle(Webpage $webpage, $reset = false, $dbSuffix = ''): Webpage
     {
 
+        $this->dbSuffix=$dbSuffix;
 
         $this->organisationSource = $this->getOrganisationSource($webpage->organisation);
         $this->organisationSource->initialisation($webpage->organisation, $dbSuffix);

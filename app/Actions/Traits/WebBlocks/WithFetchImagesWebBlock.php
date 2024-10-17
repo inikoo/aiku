@@ -16,6 +16,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 trait WithFetchImagesWebBlock
 {
     use AsAction;
+
     public function processImagesData(Webpage $webpage, $auroraBlock): array|null
     {
         if (!isset($auroraBlock["images"])) {
@@ -28,7 +29,7 @@ trait WithFetchImagesWebBlock
         }
 
         $imagesArray = [];
-        // $linksData = [];
+
         foreach ($auroraBlock["images"] as $image) {
             $imageLink = null;
             if (isset($image["link"])) {
@@ -96,6 +97,7 @@ trait WithFetchImagesWebBlock
                 }
                 break;
         }
+
         return $code ?? null;
     }
 
