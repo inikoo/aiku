@@ -9,6 +9,7 @@
 namespace App\Actions\Traits\WebBlocks;
 
 use App\Actions\Transfers\Aurora\FetchAuroraWebBlockLink;
+use App\Actions\Transfers\Aurora\FetchAuroraWebBlockMedia;
 use App\Models\Web\Webpage;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -22,16 +23,53 @@ trait WithFetchTextWebBlock
             $text = $text[0]['text'] ?? null;
             data_set($layout, "data.fieldValue.value", $text);
         }
-        $pattern = '/<a\s+[^>]*href=["\']([^"\']*)["\'][^>]*>/i'; // just link for the 'a' tag
+        // link for the 'a' tag
+        $pattern = '/<a\s+[^>]*href=["\']([^"\']*)["\'][^>]*>/i';
         preg_match_all($pattern, $text, $matches);
         $links = $matches[1];
 
-        $linksData = [];
-        foreach ($links as $link) {
-            $linksData[] = FetchAuroraWebBlockLink::run($webpage->website, $link);
-        }
+        // $linksData = [];
+        // foreach ($links as $link) {
+        //     $linksData[] = FetchAuroraWebBlockLink::run($webpage->website, $link);
+        // }
+        // data_set($layout, "data.fieldValue.link_data", $linksData, false);
 
-        data_set($layout, "data.fieldValue.link_data", $linksData, false);
+
+        // $text = $layout['data']['fieldValue']['value'];
+
+
+
+        // $pattern = '/<img\s+[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
+        // $text = preg_replace($pattern,"xxx", $text);
+        // $text = preg_replace_callback($pattern, 'textImageParser', $text);
+        // $text = preg_replace_callback($pattern, function ($match) {
+
+
+        //     $originalImage = $match[0];
+
+
+        //     $imageData = FetchAuroraWebBlockMedia::run()
+
+        //     // dd($originalImage);
+        //     return $originalImage;
+        // }, $text);
+
+
+        // dd($text);
+        // link for the a img
+        // preg_match_all($pattern, $text, $matchesImg);
+        // if(count($matchesImg) > 0) {
+        //     $links = $matchesImg[1];
+        //     $imgSources = [];
+        //     foreach($links as $link) {
+        //         // $this->
+        //     }
+        //     dd($links);
+        // }
+
+
+
+        // dd($layout);
         return $layout ?? null;
     }
 
@@ -51,5 +89,10 @@ trait WithFetchTextWebBlock
         data_set($layout, "data.fieldValue.value", $html);
 
         return $layout;
+    }
+
+    private function getLink()
+    {
+
     }
 }
