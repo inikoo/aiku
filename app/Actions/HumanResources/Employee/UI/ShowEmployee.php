@@ -7,8 +7,8 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
-use App\Actions\Helpers\Attachment\UI\IndexAttachments;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;

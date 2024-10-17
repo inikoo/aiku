@@ -6,7 +6,7 @@
  * copyright 2024
 */
 
-namespace App\Actions\Helpers\Attachment\UI;
+namespace App\Actions\Helpers\Media\UI;
 
 use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
