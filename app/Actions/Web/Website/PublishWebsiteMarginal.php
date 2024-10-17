@@ -94,67 +94,67 @@ class PublishWebsiteMarginal extends OrgAction
         return $website;
     }
 
-    public function htmlResponse(Website $website): Response
-    {
-        $url   = url()->previous();
-        $route = app('router')->getRoutes()->match(app('request')->create($url))->getName();
+    // public function htmlResponse(Website $website): Response
+    // {
+    //     $url   = url()->previous();
+    //     $route = app('router')->getRoutes()->match(app('request')->create($url))->getName();
 
-        if (Str::contains($route, 'grp.org.shops.show.web.websites.workshop')) {
-            return match ($this->marginal) {
-                'header' =>
-                Inertia::location(route('grp.org.shops.show.web.websites.workshop.header', [
-                    'organisation' => $website->organisation->slug,
-                    'shop'         => $website->shop->slug,
-                    'website'      => $website->slug,
-                ])),
-                'footer' =>
-                Inertia::location(route('grp.org.shops.show.web.websites.workshop.footer', [
-                    'organisation' => $website->organisation->slug,
-                    'shop'         => $website->shop->slug,
-                    'website'      => $website->slug,
-                ])),
-                'menu' =>
-                Inertia::location(route('grp.org.shops.show.web.websites.workshop.menu', [
-                    'organisation' => $website->organisation->slug,
-                    'shop'         => $website->shop->slug,
-                    'website'      => $website->slug,
-                ])),
-                default =>
-                Inertia::location(route('grp.org.shops.show.web.websites.workshop', [
-                    'organisation' => $website->organisation->slug,
-                    'shop'         => $website->shop->slug,
-                    'website'      => $website->slug,
-                ])),
-            };
-        } else {
-            return match ($this->marginal) {
-                'header' =>
-                Inertia::location(route('grp.org.fulfilments.show.web.websites.workshop.header', [
-                    'organisation' => $website->organisation->slug,
-                    'fulfilment'   => $this->shop->fulfilment->slug,
-                    'website'      => $website->slug,
-                ])),
-                'footer' =>
-                Inertia::location(route('grp.org.fulfilments.show.web.websites.workshop.footer', [
-                    'organisation' => $website->organisation->slug,
-                    'fulfilment'   => $this->shop->fulfilment->slug,
-                    'website'      => $website->slug,
-                ])),
-                'menu' =>
-                Inertia::location(route('grp.org.fulfilments.show.web.websites.workshop.menu', [
-                    'organisation' => $website->organisation->slug,
-                    'fulfilment'   => $this->shop->fulfilment->slug,
-                    'website'      => $website->slug,
-                ])),
-                default =>
-                Inertia::location(route('grp.org.fulfilments.show.web.websites.workshop', [
-                    'organisation' => $website->organisation->slug,
-                    'fulfilment'   => $this->shop->fulfilment->slug,
-                    'website'      => $website->slug,
-                ])),
-            };
-        }
-    }
+    //     if (Str::contains($route, 'grp.org.shops.show.web.websites.workshop')) {
+    //         return match ($this->marginal) {
+    //             'header' =>
+    //             Inertia::location(route('grp.org.shops.show.web.websites.workshop.header', [
+    //                 'organisation' => $website->organisation->slug,
+    //                 'shop'         => $website->shop->slug,
+    //                 'website'      => $website->slug,
+    //             ])),
+    //             'footer' =>
+    //             Inertia::location(route('grp.org.shops.show.web.websites.workshop.footer', [
+    //                 'organisation' => $website->organisation->slug,
+    //                 'shop'         => $website->shop->slug,
+    //                 'website'      => $website->slug,
+    //             ])),
+    //             'menu' =>
+    //             Inertia::location(route('grp.org.shops.show.web.websites.workshop.menu', [
+    //                 'organisation' => $website->organisation->slug,
+    //                 'shop'         => $website->shop->slug,
+    //                 'website'      => $website->slug,
+    //             ])),
+    //             default =>
+    //             Inertia::location(route('grp.org.shops.show.web.websites.workshop', [
+    //                 'organisation' => $website->organisation->slug,
+    //                 'shop'         => $website->shop->slug,
+    //                 'website'      => $website->slug,
+    //             ])),
+    //         };
+    //     } else {
+    //         return match ($this->marginal) {
+    //             'header' =>
+    //             Inertia::location(route('grp.org.fulfilments.show.web.websites.workshop.header', [
+    //                 'organisation' => $website->organisation->slug,
+    //                 'fulfilment'   => $this->shop->fulfilment->slug,
+    //                 'website'      => $website->slug,
+    //             ])),
+    //             'footer' =>
+    //             Inertia::location(route('grp.org.fulfilments.show.web.websites.workshop.footer', [
+    //                 'organisation' => $website->organisation->slug,
+    //                 'fulfilment'   => $this->shop->fulfilment->slug,
+    //                 'website'      => $website->slug,
+    //             ])),
+    //             'menu' =>
+    //             Inertia::location(route('grp.org.fulfilments.show.web.websites.workshop.menu', [
+    //                 'organisation' => $website->organisation->slug,
+    //                 'fulfilment'   => $this->shop->fulfilment->slug,
+    //                 'website'      => $website->slug,
+    //             ])),
+    //             default =>
+    //             Inertia::location(route('grp.org.fulfilments.show.web.websites.workshop', [
+    //                 'organisation' => $website->organisation->slug,
+    //                 'fulfilment'   => $this->shop->fulfilment->slug,
+    //                 'website'      => $website->slug,
+    //             ])),
+    //         };
+    //     }
+    // }
 
     public function authorize(ActionRequest $request): bool
     {
@@ -188,28 +188,28 @@ class PublishWebsiteMarginal extends OrgAction
     }
 
 
-    public function header(Website $website, ActionRequest $request): Website
+    public function header(Website $website, ActionRequest $request): void
     {
         $this->initialisationFromShop($website->shop, $request);
-        return $this->handle($website, 'header', $this->validatedData);
+        $this->handle($website, 'header', $this->validatedData);
     }
 
-    public function footer(Website $website, ActionRequest $request): Website
+    public function footer(Website $website, ActionRequest $request): void
     {
         $this->initialisationFromShop($website->shop, $request);
-        return $this->handle($website, 'footer', $this->validatedData);
+        $this->handle($website, 'footer', $this->validatedData);
     }
 
-    public function color(Website $website, ActionRequest $request): Website
+    public function color(Website $website, ActionRequest $request): void
     {
         $this->initialisationFromShop($website->shop, $request);
-        return $this->handle($website, 'color', $this->validatedData);
+        $this->handle($website, 'color', $this->validatedData);
     }
 
-    public function menu(Website $website, ActionRequest $request): Website
+    public function menu(Website $website, ActionRequest $request): void
     {
         $this->initialisationFromShop($website->shop, $request);
-        return $this->handle($website, 'menu', $this->validatedData);
+        $this->handle($website, 'menu', $this->validatedData);
     }
 
     public function action(Website $website, $marginal, $modelData): string

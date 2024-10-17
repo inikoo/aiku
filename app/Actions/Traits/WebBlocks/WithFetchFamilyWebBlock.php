@@ -20,7 +20,7 @@ trait WithFetchFamilyWebBlock
         if (!isset($auroraBlock["type"])) {
             return null;
         }
-        data_set($layout, 'fieldValue.value.family_id', $webpage->model_id);
+        data_set($layout, 'data.fieldValue.value.family_id', $webpage->model_id);
         $items = [];
         foreach ($auroraBlock['items'] as $index => $item) {
             $type = $item["type"];
@@ -38,7 +38,7 @@ trait WithFetchFamilyWebBlock
             }
         }
 
-        data_set($layout, "fieldValue.value.items", $items);
+        data_set($layout, "data.fieldValue.value.items", $items);
         return $layout;
     }
 }

@@ -266,7 +266,6 @@ class IndexWebpages extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $webpages, ActionRequest $request): Response
     {
-        // dump($webpages);
         $subNavigation = [];
 
         if ($this->parent instanceof Website) {

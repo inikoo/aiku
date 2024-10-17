@@ -34,6 +34,7 @@ import ModelDetails from "@/Components/ModelDetails.vue";
 import DataModel from "@/Components/DataModel.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
 import TableTimesheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue";
 import TableJobPositions from "@/Components/Tables/Grp/Org/HumanResources/TableJobPositions.vue";
 import type {Table} from "@/types/Table.ts"
@@ -79,6 +80,7 @@ const props = defineProps<{
     data?:object
     timesheets?:object
     job_positions?: Table
+    attachments?: {}
 
 }>()
 
@@ -93,6 +95,7 @@ const component = computed(() => {
         data: DataModel,
         timesheets: TableTimesheets,
         job_positions: TableJobPositions,
+        attachments: TableAttachments
     };
     return components[currentTab.value];
 

@@ -51,27 +51,37 @@ const onUpload = (e) => {
     }
 };
 
+console.log(props.modelValue)
+
 
 </script>
 
 <template>
-    <div class="w-full bg-gray-600 py-4 px-10 md:py-4 md:px-12 xl:py-4 xl:px-20" :style="getStyles(properties)">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="col-span-2 relative" @click="() => { if (isEditable) openGallery = !openGallery }">
-                <img v-if="!modelValue?.image"
+    <div class="w-full bg-gray-700 py-6 px-8 md:py-8 md:px-12 xl:py-8 xl:px-20 rounded-lg shadow-lg" :style="getStyles(properties)">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="col-span-2 relative cursor-pointer"  @click="() => { if (isEditable) openGallery = !openGallery }">
+                <img 
+                    v-if="!modelValue?.image"
                     src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png"
-                    alt="Informative Image" class="w-full h-full object-cover rounded-md">
-                <Image v-else :src="modelValue?.image?.source" class="w-full h-full object-cover rounded-md"></Image>
+                    alt="Informative Image" 
+                    class="w-full h-full object-cover rounded-lg shadow-md transition-transform transform hover:scale-105">
+                <Image 
+                    v-else 
+                    :src="modelValue?.image?.source" 
+                    class="w-full h-full object-cover rounded-lg shadow-md transition-transform transform hover:scale-105" />
             </div>
-
-            <div class="flex flex-col md:px-3 md:pt-3 lg:px-14 lg:pt-14">
-                <Editor v-if="modelValue?.headline" v-model="modelValue.headline" :editable="isEditable"
-                    @update:modelValue="() => emits('autoSave')" />
-                <Editor v-if="modelValue?.description" v-model="modelValue.description" :editable="isEditable"
-                    @update:modelValue="() => emits('autoSave')" />
-                <button v-if="modelValue?.button" class="place-self-center bg-white text-gray-800 py-2 px-8 w-max">
-                    <Editor :editable="isEditable" v-model="modelValue.button"
-                        @update:modelValue="() => emits('autoSave')" :toogle="[]" />
+            <div class="flex flex-col justify-between md:px-4 lg:px-8">
+                <Editor 
+                    v-if="modelValue?.text" 
+                    v-model="modelValue.text" 
+                    :editable="isEditable" 
+                    @update:modelValue="() => emits('autoSave')" 
+                    class="mb-4" />
+                
+                <button 
+                    v-if="modelValue?.button" 
+                    class="self-center bg-white text-gray-800 py-2 px-6 rounded-md shadow hover:bg-gray-200 transition">
+                    {{  modelValue.button.text }}
                 </button>
             </div>
         </div>

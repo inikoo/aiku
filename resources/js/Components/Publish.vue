@@ -11,12 +11,13 @@ import { faSpinnerThird } from '@fad'
 import { faAsterisk } from '@fas'
 import { faRocketLaunch } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 library.add(faSpinnerThird, faAsterisk, faRocketLaunch)
 
 const props = defineProps<{
     modelValue: string
-    is_dirty: Boolean
-    isLoading: true
+    is_dirty: boolean
+    isLoading: boolean
 }>()
 
 const compRandomKey = computed(() => {
@@ -66,8 +67,7 @@ const emits = defineEmits<{
                         <Button size="xs"  icon="far fa-rocket-launch" label="Publish" @click=" ()=>emits('onPublish', {open, close})"
                             :key="modelValue.length" :style="modelValue.length ? 'primary' : 'disabled'">
                             <template #icon>
-                                <FontAwesomeIcon v-if="isLoading" icon='fad fa-spinner-third' class='animate-spin'
-                                    aria-hidden='true' />
+                                <LoadingIcon v-if="isLoading" />
                                 <FontAwesomeIcon v-else icon='far fa-rocket-launch' class='' aria-hidden='true' />
                             </template>
                         </Button>

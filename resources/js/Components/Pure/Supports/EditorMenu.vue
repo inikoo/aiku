@@ -60,7 +60,7 @@ const onHeadingClick = (index: number) => {
             </div>
         </div>
         <div
-            class="w-min cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
+            class="w-min h-48 overflow-y-auto cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
             <div v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
                 class="w-full block py-1.5 px-3 leading-none text-left cursor-pointer hover:bg-gray-300"
                 :class="{ 'bg-slate-700 text-white hover:bg-slate-700': parseInt(editor?.getAttributes('textStyle').fontSize, 10) == fontsize }"
