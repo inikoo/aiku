@@ -8,7 +8,10 @@
 		{
 			"name": "Link",
 			"key":  "link",
-			"type": "link"
+			"type": "text",
+			"props_data": {
+				"placeholder" : "https://"
+			}
 		},
 		{
 			"name": "Properties",
