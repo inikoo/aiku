@@ -29,7 +29,7 @@ class StoreModelHasWebBlock extends OrgAction
 
     public function handle(Webpage $webpage, array $modelData): ModelHasWebBlocks
     {
-        $position    = $webpage->webBlocks()->count();
+        $position    = $webpage->webBlocks()->count() + 1; // +1 cause the position start from 1
         $webBlockType = WebBlockType::find($modelData['web_block_type_id']);
 
         $webBlock = StoreWebBlock::run($webBlockType, $modelData);

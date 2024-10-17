@@ -15,7 +15,7 @@ trait WithFetchTextWebBlock
     use AsAction;
     public function processTextData($auroraBlock): array
     {
-        data_set($layout, "fieldValue.value", $auroraBlock["text_blocks"][0]["text"]);
+        data_set($layout, "data.fieldValue.value", $auroraBlock["text_blocks"][0]["text"]);
         return $layout;
     }
 
@@ -32,8 +32,12 @@ trait WithFetchTextWebBlock
         $html .= '<p style="text-align: center"><strong>' . $cleanedTitle . '</strong></p>';
         $html .= '<h1 style="text-align: center"><mark data-color="#A9FF00" style="background-color: #A9FF00; color: inherit">' . $cleanedTelephone . '</mark></h1>';
 
-        data_set($layout, "fieldValue.value", $html);
+        data_set($layout, "data.fieldValue.value", $html);
 
         return $layout;
     }
+
+    // public function processLinkIsInternal() {
+
+    // }
 }

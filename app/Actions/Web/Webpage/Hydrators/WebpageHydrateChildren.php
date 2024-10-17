@@ -43,7 +43,7 @@ class WebpageHydrateChildren
             $weblockType = $webBlock->webBlockType->code;
             switch ($weblockType) {
                 case 'department':
-                    $departmentId = Arr::get($webBlock->layout, 'fieldValue.value.department_id');
+                    $departmentId = Arr::get($webBlock->layout, 'data.fieldValue.value.department_id');
                     $department = ProductCategory::findOrFail($departmentId);
                     if ($department) {
                         foreach ($department->getFamilies() as $family) {
@@ -57,7 +57,7 @@ class WebpageHydrateChildren
                     break;
                 case 'family':
 
-                    $familyId = Arr::get($webBlock->layout, 'fieldValue.value.family_id');
+                    $familyId = Arr::get($webBlock->layout, 'data.fieldValue.value.family_id');
                     $family = ProductCategory::findOrFail($familyId);
                     if ($family) {
                         foreach ($family->products as $product) {

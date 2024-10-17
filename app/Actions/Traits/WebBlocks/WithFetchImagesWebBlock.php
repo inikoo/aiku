@@ -24,21 +24,22 @@ trait WithFetchImagesWebBlock
         $layoutType = $this->getImagesLayoutTypeByReso($auroraBlock);
 
         if ($layoutType) {
-            // dd($auroraBlock);
             data_set($layout, "data.fieldValue.value.layout_type", $layoutType);
         }
 
         $imagesArray = [];
+        // $linksData = [];
         foreach ($auroraBlock["images"] as $image) {
             if (isset($image["link"])) {
-                $isInternal = FetchAuroraWebBlockLink::run($webpage->website, $image["link"]);
+                $linksData = FetchAuroraWebBlockLink::run($webpage->website, $image["link"]);
+
             }
-            // FetchAuroraWebBlockLink::run($webpage->website,$image["link"]);
 
             if (!isset($image["src"])) {
                 continue;
             }
             $imagesArray[] = [
+                "link_data" => $linksData ?? null,
                 "aurora_source" => $image["src"],
             ];
         }
@@ -47,23 +48,6 @@ trait WithFetchImagesWebBlock
         return $layout;
     }
 
-    // public function getImagesLayoutType($auroraBlock): string|null {
-    //     $images = $auroraBlock['images'];
-    //     $numberOfImages = count($images);
-
-    //     switch ($numberOfImages) {
-    //         case 1:
-    //             return '1';
-    //         case 2:
-    //            return "2";
-    //         case 3:
-    //             return '3';
-    //         case 4:
-    //             return '4';
-    //         default:
-    //             return null;
-    //     }
-    // }
     public function getImagesLayoutTypeByReso($auroraBlock): string|null
     {
         $images = $auroraBlock['images'];
