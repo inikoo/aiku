@@ -16,6 +16,7 @@ use App\Models\Ordering\Order;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\StockDelivery;
 use App\Models\SupplyChain\Supplier;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class DetachAttachmentFromModel extends OrgAction
@@ -45,6 +46,17 @@ class DetachAttachmentFromModel extends OrgAction
         $this->initialisationForGroup($model->group, []);
 
         return $this->handle($model, $attachment);
+    }
+
+    public function authorize(ActionRequest $request)
+    {
+        return true;
+    }
+
+    public function inEmployee(Employee $employee, Media $attachment)
+    {
+        $this->initialisation($employee->organisation, []);
+        return $this->handle($employee, $attachment);
     }
 
 }
