@@ -75,17 +75,18 @@ const selectedTab = ref(tabs[0])
 const saveCancelToken = ref<Function | null>(null)
 
 const onSelectBlock = (selectedBlock: object) => {
-    const oldTemplate = {...toRaw(usedTemplates.value[selectedTab.value.key])}
-    
-    usedTemplates.value[selectedTab.value.key] = selectedBlock
-    
-    usedTemplates.value[selectedTab.value.key].data.fieldValue = {
-        ...usedTemplates.value[selectedTab.value.key].data.fieldValue,
-        ...oldTemplate.data.fieldValue
-    }
+    const selectedKey = selectedTab.value.key;
+    const currentTemplate = toRaw(usedTemplates.value[selectedKey]);
+    const newTemplate = { ...toRaw(selectedBlock) };
 
-    keySidebar.value++
-    isModalOpen.value = false
+    newTemplate.data.fieldValue = {
+        ...currentTemplate.data.fieldValue,
+        ...newTemplate.data.fieldValue
+    };
+
+    usedTemplates.value[selectedKey] = newTemplate;
+    keySidebar.value++;
+    isModalOpen.value = false;
 }
 
 const publishCancelToken = ref<{cancel: Function} | null>(null)
@@ -146,7 +147,7 @@ const onPublish = async (action: routeType, popover: Function) => {
 
 const isLoadingSave = ref(false)
 const onProgress = ref(false)
-const autoSave = async (data: object) => {
+const autoSave = async (data: {}) => {
     router.patch(
         route(props.autosaveRoute.name, props.autosaveRoute.parameters),
         { layout: data },
@@ -163,7 +164,7 @@ const autoSave = async (data: object) => {
                 saveCancelToken.value = cancelToken.cancel
             },
             onCancel: () => {
-                console.log('on cancel')
+                console.log('The saving progress canceled.')
             },
             onError: (error) => {
                 notify({
@@ -209,7 +210,7 @@ watch(usedTemplates, (newVal) => {
             saveCancelToken.value()
         }
 
-        debouncedSendUpdate(newVal)
+        debouncedSendUpdate(toRaw(newVal))
     }
 }, { deep: true })
 
@@ -314,6 +315,7 @@ const selectedWebBlock = computed(() => {
                     <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
                 </div>
 
+                <!-- Workshop Preview -->
                 <iframe
                     :src="iframeSrc"
                     :title="props.title"

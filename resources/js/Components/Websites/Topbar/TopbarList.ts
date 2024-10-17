@@ -9,6 +9,8 @@ import type { Component } from 'vue'
 
 //Components
 import Topbar1 from '@/Components/Websites/Topbar/Template/Topbar1.vue'
+import Topbar2 from '@/Components/Websites/Topbar/Template/Topbar2.vue'
+import Topbar3 from '@/Components/Websites/Topbar/Template/Topbar3.vue'
 import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundComponent.vue'
 
 
@@ -20,7 +22,9 @@ import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundCo
 
 export const getTopbarComponent = (componentName: string) => {
     const components: Component = {
-        'topbar_1': Topbar1,
+        'top-bar-1': Topbar1,
+        'top-bar-2': Topbar2,
+        'top-bar-3': Topbar3,
     }
 
     return components[componentName] || NotFoundComponents

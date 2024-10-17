@@ -90,7 +90,7 @@ const routeList = {
             <ColorPicker
                 :color="model.color"
                 class="h-12 aspect-square rounded-md shadow"
-                @changeColor="(newColor)=> model.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a}`"
+                @changeColor="(newColor)=> model.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a})`"
                 closeButton
                 v-tooltip="trans('Color background')"
             />

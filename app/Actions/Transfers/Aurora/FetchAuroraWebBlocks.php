@@ -136,6 +136,7 @@ class FetchAuroraWebBlocks extends OrgAction
             ];
 
         }
+        // dd($migrationData);
         return $migrationData;
     }
 
@@ -165,6 +166,13 @@ class FetchAuroraWebBlocks extends OrgAction
         $group = $webpage->group;
 
 
+        // if($auroraBlock['type'] == "text") {
+        //     $webBlockType = $group->webBlockTypes()->where("slug", "text")->first();
+        //     $layout       = $this->processTextData($webpage, $auroraBlock);
+        //     return;
+        // }else {
+        //     return;
+        // }
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = $group->webBlockTypes()->where("code", "images")->first();
@@ -297,8 +305,92 @@ class FetchAuroraWebBlocks extends OrgAction
             strict: false
         );
 
+        // if (
+        //     $webBlock->webBlockType->code == "images"
+        //     || $webBlock->webBlockType->code == "overview"
+        //     || $webBlock->webBlockType->code == "cta1"
+        //     || $webBlock->webBlockType->code == "family"
+        //     || $webBlock->webBlockType->code == "department"
+        // ) {
+        //     $code = $webBlock->webBlockType->code;
+
+        //     if ($code == "family") {
+        //         $items  = $webBlock->layout['data']["fieldValue"]["value"]["items"];
+        //         $addOns = [];
+        //         foreach ($items as $item) {
+        //             if ($item['type'] == "image") {
+        //                 $imageSource = $this->processImage($webBlock, $item, $webpage);
+        //                 $addOns[]    = ['position' => $item['position'], "type" => $item['type'], "source" => $imageSource];
+        //             } else {
+        //                 $addOns[] = $item;
+        //             }
+        //         }
+        //         data_set($layout, "data.fieldValue.value.addOns", $addOns);
+        //         unset($layout['data']["fieldValue"]["value"]["items"]);
+        //     } elseif ($code == "department") {
+        //         $sections = $webBlock->layout['data']["fieldValue"]["value"]["sections"];
+        //         foreach ($sections as $sectionPosition => $section) {
+        //             $items = $section['items'];
+        //             if ($items) {
+        //                 foreach ($items as $index => $item) {
+        //                     if ($item['type'] == "image") {
+        //                         $imageSource             = $this->processImage($webBlock, $item, $webpage);
+        //                         $items[$index]["source"] = $imageSource;
+        //                         unset($items[$index]["aurora_source"]);
+        //                     }
+        //                 }
+        //                 $sections[$sectionPosition]["items"] = $items;
+        //             }
+        //         }
+        //         data_set($layout, "data.fieldValue.value.sections", $sections);
+        //     } else {
+        //         foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
+        //             $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
+        //             $layout['data']["fieldValue"]["value"][$index]['source'] = $imageSource;
+        //             unset($layout['data']["fieldValue"]["value"][$index]['aurora_source']);
+        //         }
+
+        //     }
+        //     $webBlock->updateQuietly([
+        //         "layout" => $layout,
+        //     ]);
+        // }
+
+        $this->processImages($webBlock, $webpage, $layout);
+
+        $modelHasWebBlocksData = [
+            'show_logged_in'     => $visibility['loggedIn'],
+            'show_logged_out'    => $visibility['loggedOut'],
+            "group_id"           => $webpage->group_id,
+            "organisation_id"    => $webpage->organisation_id,
+            "shop_id"            => $webpage->shop_id,
+            "website_id"         => $webpage->website_id,
+            "webpage_id"         => $webpage->id,
+            "position"           => $position,
+            "model_id"           => $webpage->id,
+            "model_type"         => class_basename(Webpage::class),
+            "web_block_id"       => $webBlock->id,
+            "migration_checksum" => $migrationChecksum,
+        ];
+
+        if (isset($auroraBlock["show"])) {
+            $modelHasWebBlocksData['show'] = boolval($auroraBlock["show"]);
+        }
+
+
+        $webpage->modelHasWebBlocks()->create($modelHasWebBlocksData);
+
+
+        UpdateWebpageContent::run($webpage->refresh());
+
+        BroadcastPreviewWebpage::dispatch($webpage);
+    }
+
+    private function processImages($webBlock, $webpage, &$layout)
+    {
         if (
             $webBlock->webBlockType->code == "images"
+            || $webBlock->webBlockType->code == "text"
             || $webBlock->webBlockType->code == "overview"
             || $webBlock->webBlockType->code == "cta1"
             || $webBlock->webBlockType->code == "family"
@@ -335,6 +427,23 @@ class FetchAuroraWebBlocks extends OrgAction
                     }
                 }
                 data_set($layout, "data.fieldValue.value.sections", $sections);
+            } elseif ($code == "text") {
+                $text = $layout['data']['fieldValue']['value'];
+                $pattern = '/<img\s+[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
+
+                $text = preg_replace_callback($pattern, function ($match) use ($webBlock, $webpage) {
+                    $originalImage = $match[1];
+                    $media = FetchAuroraWebBlockMedia::run($webBlock, $webpage, $originalImage);
+                    $imageElement = $match[0];
+
+                    if ($media) {
+                        $image = $media->getImage();
+                        $picture = GetPictureSources::run($image);
+                        $imageUrl = $picture['original'];
+                        $imageElement = preg_replace('/src="([^"]*)"/', 'src="'.$imageUrl.'"', $imageElement);
+                    }
+                    return $imageElement;
+                }, $text);
             } else {
                 foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
@@ -347,33 +456,6 @@ class FetchAuroraWebBlocks extends OrgAction
                 "layout" => $layout,
             ]);
         }
-
-        $modelHasWebBlocksData = [
-            'show_logged_in'     => $visibility['loggedIn'],
-            'show_logged_out'    => $visibility['loggedOut'],
-            "group_id"           => $webpage->group_id,
-            "organisation_id"    => $webpage->organisation_id,
-            "shop_id"            => $webpage->shop_id,
-            "website_id"         => $webpage->website_id,
-            "webpage_id"         => $webpage->id,
-            "position"           => $position,
-            "model_id"           => $webpage->id,
-            "model_type"         => class_basename(Webpage::class),
-            "web_block_id"       => $webBlock->id,
-            "migration_checksum" => $migrationChecksum,
-        ];
-
-        if (isset($auroraBlock["show"])) {
-            $modelHasWebBlocksData['show'] = boolval($auroraBlock["show"]);
-        }
-
-
-        $webpage->modelHasWebBlocks()->create($modelHasWebBlocksData);
-
-
-        UpdateWebpageContent::run($webpage->refresh());
-
-        BroadcastPreviewWebpage::dispatch($webpage);
     }
 
     private function processImage($webBlock, array|string $imageRawData, $webpage): array|null
@@ -442,8 +524,11 @@ class FetchAuroraWebBlocks extends OrgAction
 
         } else {
             foreach (Webpage::orderBy('id')->get() as $webpage) {
+                // if($webpage->slug != "storefront-uk") {
+                // }
                 $command->line("Webpage ".$webpage->slug." web blocks fetched");
                 $this->handle($webpage, $command->option("reset"), $command->option("db_suffix"));
+                // $command->line("Webpage ".$webpage->slug." web blocks fetched2");
             }
         }
 

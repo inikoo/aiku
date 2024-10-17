@@ -105,6 +105,7 @@ class IndexCustomers extends OrgAction
                 'customers.name',
                 'customers.slug',
                 'customers.created_at',
+                'customer_dropshipping_stats.number_current_portfolios',
                 'customer_stats.number_current_clients',
                 'customer_stats.last_invoiced_at',
                 'customer_stats.number_invoices_type_invoice',
@@ -112,14 +113,20 @@ class IndexCustomers extends OrgAction
                 'customer_stats.invoiced_org_net_amount',
                 'customer_stats.invoiced_grp_net_amount',
                 'customer_stats.currency_id',
-
-
+                'platforms.name as platform_name'
             ])
+            ->leftJoin('model_has_platforms', function ($join) {
+                $join->on('customers.id', '=', 'model_has_platforms.model_id')
+                    ->where('model_has_platforms.model_type', '=', class_basename(Customer::class));
+            })
+            ->leftJoin('platforms', 'model_has_platforms.platform_id', '=', 'platforms.id')
+            ->leftJoin('customer_dropshipping_stats', 'customers.id', 'customer_dropshipping_stats.customer_id')
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->allowedSorts([
                 'reference',
                 'name',
                 'number_current_clients',
+                'number_current_portfolios',
                 'slug',
                 'created_at',
                 'number_invoices_type_invoice',
@@ -201,6 +208,9 @@ class IndexCustomers extends OrgAction
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true)
                 ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_current_clients', label: __('Clients'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_current_portfolios', label: __('Portfolios'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'platforms', label: __('Platforms'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'last_invoiced_at', label: __('last invoice'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_invoices_type_invoice', label: __('invoices'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'invoiced_net_amount', label: __('sales'), canBeHidden: false, sortable: true, searchable: true);

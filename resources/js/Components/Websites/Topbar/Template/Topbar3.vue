@@ -82,7 +82,7 @@ const onClickLogin = () => {
             </div> -->
         </div>
 
-        <div class="text-center" v-html="model.main_title.text">
+        <div class="text-center qwezxc" v-html="model.main_title.text">
         </div>
 
         <div class="action_buttons" style="display: flex; justify-content: flex-end; column-gap: 45px; grid-column: span 5 / span 5">
