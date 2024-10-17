@@ -106,7 +106,8 @@ class ShowEmployee extends OrgAction
 
 
             ]
-        )->table(IndexHistory::make()->tableStructure(prefix: EmployeeTabsEnum::HISTORY->value)
+        )->table(
+            IndexHistory::make()->tableStructure(prefix: EmployeeTabsEnum::HISTORY->value)
         )->table(IndexAttachments::make()->tableStructure(prefix: EmployeeTabsEnum::ATTACHMENTS->value));
     }
 
