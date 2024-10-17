@@ -41,6 +41,8 @@ class CustomersResource extends JsonResource
             'location'                     => $this->location,
             'created_at'                   => $this->created_at,
             'number_current_clients'       => $this->number_current_clients,
+            'number_current_portfolios'    => $this->number_current_portfolios,
+            'platforms'                    => $this->platform_name ?? 'none',
             'last_invoiced_at'             => $this->last_invoiced_at,
             'number_invoices_type_invoice' => $this->number_invoices_type_invoice,
             'invoiced_net_amount'          => $this->invoiced_net_amount,

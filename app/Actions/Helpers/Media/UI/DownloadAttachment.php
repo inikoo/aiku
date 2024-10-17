@@ -9,10 +9,9 @@
 namespace App\Actions\Helpers\Media\UI;
 
 use App\Models\Helpers\Media;
-use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class DownloadAttachment 
+class DownloadAttachment
 {
     use AsAction;
 
