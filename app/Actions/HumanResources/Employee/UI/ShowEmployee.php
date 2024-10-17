@@ -7,12 +7,14 @@
 
 namespace App\Actions\HumanResources\Employee\UI;
 
+use App\Actions\Helpers\Attachment\UI\IndexAttachments;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\HumanResources\WithEmployeeSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\HumanResources\ShowHumanResourcesDashboard;
 use App\Enums\UI\HumanResources\EmployeeTabsEnum;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Models\HumanResources\Employee;
 use App\Models\SysAdmin\Organisation;
@@ -54,7 +56,7 @@ class ShowEmployee extends OrgAction
         // Uncomment this to test the error page
         //valid values 500, 503, 404, 403, 422
         // abort(403);
-
+        // dd(AttachmentsResource::collection(IndexAttachments::run($employee)));
         return Inertia::render(
             'Org/HumanResources/Employee',
             [
@@ -98,10 +100,14 @@ class ShowEmployee extends OrgAction
                 EmployeeTabsEnum::HISTORY->value => $this->tab == EmployeeTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($employee))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($employee))),
+                EmployeeTabsEnum::ATTACHMENTS->value => $this->tab == EmployeeTabsEnum::ATTACHMENTS->value ?
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($employee))
+                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($employee))),
 
 
             ]
-        )->table(IndexHistory::make()->tableStructure(prefix: EmployeeTabsEnum::HISTORY->value));
+        )->table(IndexHistory::make()->tableStructure(prefix: EmployeeTabsEnum::HISTORY->value)
+        )->table(IndexAttachments::make()->tableStructure(prefix: EmployeeTabsEnum::ATTACHMENTS->value));
     }
 
 
