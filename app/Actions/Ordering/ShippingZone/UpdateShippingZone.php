@@ -58,7 +58,7 @@ class UpdateShippingZone extends OrgAction
         return $rules;
     }
 
-    public function action(ShippingZone $shippingZone, array $modelData, bool $strict = true, bool $audit = true): ShippingZone
+    public function action(ShippingZone $shippingZone, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): ShippingZone
     {
         if (!$audit) {
             ShippingZone::disableAuditing();
@@ -66,6 +66,7 @@ class UpdateShippingZone extends OrgAction
         $this->strict       = $strict;
         $this->asAction     = true;
         $this->shippingZone = $shippingZone;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($shippingZone->shop, $modelData);
 
         return $this->handle($shippingZone, $this->validatedData);
