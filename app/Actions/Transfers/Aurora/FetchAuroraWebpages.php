@@ -74,7 +74,6 @@ class FetchAuroraWebpages extends FetchAuroraAction
 
                     if (in_array('web-blocks', $this->with)) {
                         FetchAuroraWebBlocks::run($webpage, reset: true, dbSuffix: $this->dbSuffix);
-
                         $currentPublishedAt = Arr::get($webpage->migration_data, 'webpage.last_published_at');
                         if ($currentPublishedAt) {
                             $currentPublishedAt = Carbon::parse($currentPublishedAt);
@@ -90,6 +89,7 @@ class FetchAuroraWebpages extends FetchAuroraAction
                         }
                     }
                 } catch (Exception $e) {
+
                     $this->recordError($organisationSource, $e, $webpageData['webpage'], 'Webpage', 'update');
 
                     return null;

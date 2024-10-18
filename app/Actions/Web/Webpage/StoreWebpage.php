@@ -35,6 +35,9 @@ class StoreWebpage extends OrgAction
 
     private Webpage|Website $parent;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Website|Webpage $parent, array $modelData): Webpage
     {
         data_set($modelData, 'url', '', overwrite: false);
@@ -172,11 +175,15 @@ class StoreWebpage extends OrgAction
     }
 
 
+    /**
+     * @throws \Throwable
+     */
     public function action(Website|Webpage $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Webpage
     {
         if (!$audit) {
             Webpage::disableAuditing();
         }
+
 
         $this->asAction       = true;
         $this->strict         = $strict;

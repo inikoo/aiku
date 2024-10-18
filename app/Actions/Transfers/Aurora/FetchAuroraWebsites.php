@@ -70,13 +70,17 @@ class FetchAuroraWebsites extends FetchAuroraAction
 
 
             if ($website->state == WebsiteStateEnum::LIVE) {
+
                 $this->saveFixedWebpageMigrationData($website, $website->storefront, 'home.sys', 'loggedIn');
+
+
                 $this->saveFixedWebpageMigrationData($website, $website->storefront, 'home_logout.sys', 'loggedOut');
 
                 $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::CONTACT)->first(), 'contact.sys');
                 $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::ABOUT_US)->first(), 'about.sys');
                 $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::CHECKOUT)->first(), 'checkout.sys');
                 $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::BASKET)->first(), 'basket.sys');
+
                 $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::SHIPPING)->first(), 'shipping.sys');
                 $this->saveFixedWebpageMigrationData($website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::TERMS_AND_CONDITIONS)->first(), 'tac.sys');
 
@@ -115,6 +119,18 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 }
             }
 
+
+            foreach ($website->webpages()->where('is_fixed', true)->get() as $webpage) {
+                FetchAuroraWebBlocks::run($webpage, reset: true, dbSuffix: $this->dbSuffix);
+                PublishWebpage::make()->action(
+                    $webpage,
+                    [
+                        'comment' => 'Initial publish after migration',
+                    ]
+                );
+            }
+
+
             return $website;
         }
 
@@ -135,7 +151,12 @@ class FetchAuroraWebsites extends FetchAuroraAction
             ->where('Webpage Code', $code)->first();
 
 
+
+
+
         if ($auroraModelData) {
+
+
 
             $firstTime = $webpage->source_id == null;
 
@@ -150,11 +171,13 @@ class FetchAuroraWebsites extends FetchAuroraAction
             }
 
 
+
             $webpage    = FetchAuroraWebpages::run($this->organisationSource, $auroraModelData->{'Page Key'});
+
 
             if ($webpage) {
 
-                FetchAuroraWebBlocks::run($webpage, reset: true, dbSuffix: $this->dbSuffix);
+
 
                 if ($firstTime) {
                     $this->saveMigrationHistory(
@@ -165,12 +188,7 @@ class FetchAuroraWebsites extends FetchAuroraAction
                         ]
                     );
 
-                    PublishWebpage::make()->action(
-                        $webpage,
-                        [
-                            'comment' => 'Initial publish after migration',
-                        ]
-                    );
+
 
                 }
 

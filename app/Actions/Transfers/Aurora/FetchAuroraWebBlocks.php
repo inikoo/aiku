@@ -328,7 +328,7 @@ class FetchAuroraWebBlocks extends OrgAction
         BroadcastPreviewWebpage::dispatch($webpage);
     }
 
-    private function postProcessLayout($webBlock, $webpage, &$layout)
+    private function postProcessLayout($webBlock, $webpage, &$layout): void
     {
         $code = $webBlock->webBlockType->code;
         if (
@@ -382,7 +382,7 @@ class FetchAuroraWebBlocks extends OrgAction
                         $picture = GetPictureSources::run($image);
                         $imageUrl = $picture['original'];
                         $imageElement = preg_replace('/src="([^"]*)"/', 'src="'.$imageUrl.'"', $imageElement);
-                        $imageElement = preg_replace("/(fr\-fil|fr\-dii)/", "", $imageElement); // remove class fr-fil & fr-dii
+                        $imageElement = preg_replace("/(fr-fil|fr-dii)/", "", $imageElement); // remove class fr-fil & fr-dii
                     }
 
                     return $imageElement;

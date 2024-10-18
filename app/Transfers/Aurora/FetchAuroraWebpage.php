@@ -212,6 +212,11 @@ class FetchAuroraWebpage extends FetchAurora
         }
 
 
+        if ($url == 'shipping.sys') {
+            $url = 'shipping';
+        }
+
+
         $webpage =
             [
                 'parent_id'       => $parentId,
