@@ -37,14 +37,19 @@ class UpdateBarcode extends GrpAction
 
     public function rules(): array
     {
-        return [
-            'number'          => ['sometimes', 'required', 'numeric'],
-            'note'            => ['sometimes', 'nullable', 'string', 'max:1000'],
-            'data'            => ['sometimes', 'nullable', 'array'],
-            'status'          => ['sometimes', 'required', Rule::enum(BarcodeStatusEnum::class)],
-            'last_fetched_at' => ['sometimes', 'date'],
+        $rules = [
+            'number' => ['sometimes', 'required', 'numeric'],
+            'note'   => ['sometimes', 'nullable', 'string', 'max:1000'],
+            'data'   => ['sometimes', 'nullable', 'array'],
+            'status' => ['sometimes', 'required', Rule::enum(BarcodeStatusEnum::class)],
 
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
     public function asController(Barcode $barcode, ActionRequest $request): Barcode
@@ -54,13 +59,15 @@ class UpdateBarcode extends GrpAction
         return $this->handle($barcode, $request->validated());
     }
 
-    public function action(Barcode $barcode, array $modelData, bool $audit = true): Barcode
+    public function action(Barcode $barcode, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Barcode
     {
+        $this->strict = $strict;
         if (!$audit) {
             Barcode::disableAuditing();
         }
-        $this->asAction = true;
-        $this->barcode  = $barcode;
+        $this->asAction       = true;
+        $this->barcode        = $barcode;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($barcode->group, $modelData);
 
         return $this->handle($barcode, $this->validatedData);

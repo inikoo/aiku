@@ -205,10 +205,17 @@ class IndexWebpages extends OrgAction
             $queryBuilder->where('webpages.type', WebpageTypeEnum::STOREFRONT);
         }
 
+        $queryBuilder->leftJoin('organisations', 'webpages.organisation_id', '=', 'organisations.id');
+        $queryBuilder->leftJoin('shops', 'webpages.shop_id', '=', 'shops.id');
+        $queryBuilder->leftJoin('websites', 'webpages.website_id', '=', 'websites.id');
 
         return $queryBuilder
             ->defaultSort('webpages.level')
-            ->select(['code', 'id', 'type', 'slug', 'level', 'sub_type', 'url'])
+            ->select(['webpages.code', 'webpages.id', 'webpages.type', 'webpages.slug', 'webpages.level', 'webpages.sub_type', 'webpages.url',
+                'organisations.slug as organisation_slug',
+                'shops.slug as shop_slug',
+                'websites.domain as website_url',
+                'websites.slug as website_slug'])
             ->allowedSorts(['code', 'type', 'level', 'url'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)

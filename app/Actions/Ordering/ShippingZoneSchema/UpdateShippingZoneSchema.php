@@ -9,7 +9,7 @@ namespace App\Actions\Ordering\ShippingZoneSchema;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaTypeEnum;
+use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaStateEnum;
 use App\Models\Ordering\ShippingZoneSchema;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -29,20 +29,27 @@ class UpdateShippingZoneSchema extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'name'                     => ['sometimes', 'max:255', 'string'],
-            'type'                     => ['sometimes', Rule::enum(ShippingZoneSchemaTypeEnum::class)],
-            'last_fetched_at'          => ['sometimes', 'date'],
+        $rules = [
+            'name' => ['sometimes', 'max:255', 'string'],
         ];
+        if (!$this->strict) {
+            $rules['state']            = ['sometimes', Rule::enum(ShippingZoneSchemaStateEnum::class)];
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(ShippingZoneSchema $shippingZoneSchema, array $modelData, bool $audit = true): ShippingZoneSchema
+    public function action(ShippingZoneSchema $shippingZoneSchema, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): ShippingZoneSchema
     {
         if (!$audit) {
             ShippingZoneSchema::disableAuditing();
         }
+        $this->strict             = $strict;
         $this->shippingZoneSchema = $shippingZoneSchema;
+        $this->hydratorsDelay     = $hydratorsDelay;
         $this->initialisationFromShop($shippingZoneSchema->shop, $modelData);
+
         return $this->handle($shippingZoneSchema, $this->validatedData);
     }
 
@@ -51,9 +58,9 @@ class UpdateShippingZoneSchema extends OrgAction
     {
         $this->shippingZoneSchema = $shippingZoneSchema;
         $this->initialisationFromShop($shippingZoneSchema->shop, $request);
+
         return $this->handle($shippingZoneSchema, $this->validatedData);
     }
-
 
 
 }

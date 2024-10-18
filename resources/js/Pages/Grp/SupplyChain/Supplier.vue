@@ -26,6 +26,7 @@ import TableStockDeliveries from "@/Components/Tables/Grp/Org/Procurement/TableS
 import TablePurchaseOrders from "@/Components/Tables/Grp/Org/Procurement/TablePurchaseOrders.vue";
 import SupplierShowcase from "@/Components/Showcases/Grp/SupplierShowcase.vue";
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
 import { capitalize } from "@/Composables/capitalize"
 library.add(
     faInventory,
@@ -59,6 +60,7 @@ const props = defineProps<{
     deliveries?:object,
     errors?: object,
     history?: object,
+    attachments?: {}
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -73,7 +75,8 @@ const component = computed(() => {
         purchase_orders: TablePurchaseOrders,
         deliveries: TableStockDeliveries,
         details: ModelDetails,
-        history: TableHistories
+        history: TableHistories,
+        attachments: TableAttachments,
     };
     return components[currentTab.value];
 

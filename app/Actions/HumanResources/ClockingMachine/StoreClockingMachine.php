@@ -20,6 +20,7 @@ use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -30,9 +31,11 @@ class StoreClockingMachine extends OrgAction
 {
     private Organisation|Workplace $parent;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Organisation|Workplace $parent, array $modelData): ClockingMachine
     {
-
         if ($parent instanceof Organisation) {
             $workplaceId = Arr::get($modelData, 'workplace_id');
             $workplace   = $parent->workplaces()->where('id', $workplaceId)->firstOrFail();
@@ -48,22 +51,26 @@ class StoreClockingMachine extends OrgAction
             data_set($modelData, 'data.nfc_tag', $this->get('nfc_tag'));
             Arr::forget($modelData, 'nfc_tag');
         }
+        $clockingMachine = DB::transaction(function () use ($workplace, $modelData) {
+            /** @var ClockingMachine $clockingMachine */
+            $clockingMachine = $workplace->clockingMachines()->create($modelData);
+            $clockingMachine->stats()->create();
 
-        /** @var ClockingMachine $clockingMachine */
-        $clockingMachine =  $workplace->clockingMachines()->create($modelData);
-        $clockingMachine->stats()->create();
+            $clockingMachine->updateQuietly(
+                [
+                    'qr_code' => base_convert($clockingMachine->id, 10, 36).Str::random(6)
+                ]
+            );
 
-        $clockingMachine->updateQuietly(
-            [
-                'qr_code' => base_convert($clockingMachine->id, 10, 36).Str::random(6)
-            ]
-        );
+            return $clockingMachine;
+        });
 
         OrganisationHydrateClockingMachines::dispatch($workplace->organisation);
         GroupHydrateClockingMachines::dispatch($clockingMachine->group);
         WorkplaceHydrateClockingMachines::dispatch($workplace);
 
         ClockingMachineHydrateUniversalSearch::dispatch($clockingMachine);
+
         return $clockingMachine;
     }
 
@@ -80,23 +87,29 @@ class StoreClockingMachine extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'name'  => ['required', 'max:64', 'string',
-                        new IUnique(
-                            table: 'clocking_machines',
-                            extraConditions: [
-                                ['column' => 'organisation_id', 'value' => $this->organisation->id],
-                            ]
-                        ),
-                ],
-            'type'        => ['required', Rule::enum(ClockingMachineTypeEnum::class)],
-            'nfc_tag'     => ['sometimes', 'string'],
-            'source_id'   => 'sometimes|string|max:255',
-            'created_at'  => 'sometimes|date',
-            'fetched_at'  => ['sometimes', 'date'],
+            'name'    => [
+                'required',
+                'max:64',
+                'string',
+                new IUnique(
+                    table: 'clocking_machines',
+                    extraConditions: [
+                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                    ]
+                ),
+            ],
+            'type'    => ['required', Rule::enum(ClockingMachineTypeEnum::class)],
+            'nfc_tag' => ['sometimes', 'string'],
         ];
 
         if ($this->parent instanceof Organisation) {
             $rules['workplace_id'] = ['required', Rule::Exists('workplaces', 'id')->where('organisation_id', $this->organisation->id)];
+        }
+
+        if (!$this->strict) {
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['created_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
         }
 
         return $rules;
@@ -109,35 +122,56 @@ class StoreClockingMachine extends OrgAction
         }
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function inOrganisation(Organisation $organisation, ActionRequest $request): ClockingMachine
     {
         $this->parent = $organisation;
         $this->initialisation($organisation, $request);
+
         return $this->handle($organisation, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(Workplace $workplace, ActionRequest $request): ClockingMachine
     {
         $this->parent = $workplace;
         $this->initialisation($workplace->organisation, $request);
+
         return $this->handle($workplace, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function api(Workplace $workplace, ActionRequest $request): ClockingMachine
     {
         // todo we might need to make a proper authorisation check here
         $this->asAction = true;
         $this->parent   = $workplace;
         $this->initialisation($workplace->organisation, $request);
+
         return $this->handle($workplace, $this->validatedData);
     }
 
 
-    public function action(Workplace $workplace, array $modelData): ClockingMachine
+    /**
+     * @throws \Throwable
+     */
+    public function action(Workplace $workplace, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): ClockingMachine
     {
-        $this->asAction = true;
-        $this->parent   = $workplace;
+        if (!$audit) {
+            ClockingMachine::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->parent         = $workplace;
         $this->initialisation($workplace->organisation, $modelData);
+
         return $this->handle($workplace, $this->validatedData);
     }
 
@@ -152,6 +186,7 @@ class StoreClockingMachine extends OrgAction
             ]
         );
     }
+
     public function jsonResponse(ClockingMachine $clockingMachine): ClockingMachineResource
     {
         return ClockingMachineResource::make($clockingMachine);

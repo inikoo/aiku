@@ -21,7 +21,8 @@ import {useTabChange} from "@/Composables/tab-change";
 import {computed, defineAsyncComponent, ref} from "vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import PageHeading from '@/Components/Headings/PageHeading.vue';
-import { capitalize } from "@/Composables/capitalize"
+import { capitalize } from "@/Composables/capitalize";
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
 
 
 library.add(
@@ -51,6 +52,7 @@ const props = defineProps<{
     invoices?: object
     delivery_notes?: object
     payments?: object
+    attachments?: {}
 }>()
 
 let currentTab = ref(props.tabs?.current);
@@ -64,6 +66,7 @@ const component = computed(() => {
         delivery_notes: TableDeliveryNotes,
         details: ModelDetails,
         history: ModelChangelog,
+        attachments: TableAttachments,
     };
     return components[currentTab.value];
 

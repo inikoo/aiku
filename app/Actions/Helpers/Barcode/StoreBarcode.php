@@ -36,23 +36,31 @@ class StoreBarcode extends GrpAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'number'      => ['required', 'numeric'],
             'note'        => ['sometimes', 'nullable', 'string', 'max:1000'],
             'data'        => ['sometimes', 'nullable', 'array'],
             'status'      => ['required', Rule::enum(BarcodeStatusEnum::class)],
             'type'        => ['required', Rule::enum(BarcodeTypeEnum::class)],
-            'source_id'   => ['sometimes', 'required', 'string', 'max:255'],
             'assigned_at' => ['sometimes', 'nullable', 'date'],
-            'fetched_at'  => ['sometimes', 'date'],
-
         ];
+        if (!$this->strict) {
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+        }
+
+        return $rules;
     }
 
-    public function action(Group $group, array $modelData): Barcode
+    public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Barcode
     {
+        if (!$audit) {
+            Barcode::disableAuditing();
+        }
 
-        $this->asAction = true;
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($group, $modelData);
 
         return $this->handle($group, $this->validatedData);

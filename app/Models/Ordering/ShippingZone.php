@@ -41,8 +41,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $current_historic_asset_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $fetched_at
- * @property string|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read \App\Models\Catalogue\Asset|null $asset
@@ -76,6 +76,8 @@ class ShippingZone extends Model implements Auditable
         'territories' => 'array',
         'price'       => 'array',
         'status'      => 'boolean',
+        'fetched_at'         => 'datetime',
+        'last_fetched_at'    => 'datetime',
     ];
 
     protected $attributes = [

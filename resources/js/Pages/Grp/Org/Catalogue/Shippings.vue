@@ -23,36 +23,15 @@ library.add(faTags,faTasksAlt,faChartPie)
 const props = defineProps<{
   pageHead: TSPageHeading
   title: string
-  tabs: {
-    current: string;
-    navigation: {}
-  },
-  current?: {}
-  offer?: {}
-  schemas?: {}
-  history?: {}
+  data: {}
 
 }>()
-
-const currentTab = ref<string>(props.tabs.current)
-const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
-
-const component = computed(() => {
-  const components: any = {
-    schemas: TableShippingZoneSchemas,
-    history: TableHistories,
-  }
-
-  return components[currentTab.value]
-})
-
 
 </script>
 
 <template>
   <Head :title="capitalize(title)"/>
   <PageHeading :data="pageHead"></PageHeading>
-  <Tabs :current="currentTab" :navigation="tabs.navigation" @update:tab="handleTabUpdate"/>
-  <component :is="component" :tab="currentTab" :data="props[currentTab]" ></component>
+  <TableShippingZoneSchemas :data="data" />
 </template>
 

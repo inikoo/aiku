@@ -11,8 +11,11 @@ use App\Actions\Ordering\ShippingZone\StoreShippingZone;
 use App\Actions\Ordering\ShippingZone\UpdateShippingZone;
 use App\Models\Ordering\ShippingZone;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraShippingZones extends FetchAuroraAction
 {
@@ -22,20 +25,44 @@ class FetchAuroraShippingZones extends FetchAuroraAction
     {
         if ($shippingZoneData = $organisationSource->fetchShippingZone($organisationSourceId)) {
             if ($shippingZone = ShippingZone::where('source_id', $shippingZoneData['shipping-zone']['source_id'])->first()) {
-                $shippingZone = UpdateShippingZone::make()->action(
-                    shippingZone: $shippingZone,
-                    modelData: $shippingZoneData['shipping-zone'],
-                    strict: false,
-                    audit:false
-                );
+                try {
+                    $shippingZone = UpdateShippingZone::make()->action(
+                        shippingZone: $shippingZone,
+                        modelData: $shippingZoneData['shipping-zone'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordChange($organisationSource, $shippingZone->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $shippingZoneData['shipping-zone'], 'ShippingZone', 'update');
+                    return null;
+                }
             } else {
+                try {
+                    $shippingZone = StoreShippingZone::make()->action(
+                        shippingZoneSchema: $shippingZoneData['shipping-zone-schema'],
+                        modelData: $shippingZoneData['shipping-zone'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    ShippingZone::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $shippingZone,
+                        Arr::except($shippingZoneData['shipping-zone'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
 
-                $shippingZone = StoreShippingZone::make()->action(
-                    shippingZoneSchema: $shippingZoneData['shipping-zone-schema'],
-                    modelData: $shippingZoneData['shipping-zone'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $shippingZone->source_id);
+                    DB::connection('aurora')->table('Shipping Zone Dimension')
+                        ->where('Shipping Zone Key', $sourceData[1])
+                        ->update(['aiku_id' => $shippingZone->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $shippingZoneData['shipping-zone'], 'ShippingZone', 'store');
+                    return null;
+                }
             }
 
             return $shippingZone;

@@ -105,6 +105,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id
  * @property int $timezone_id
  * @property int|null $image_id
+ * @property int|null $shipping_zone_schema_id
+ * @property int|null $discount_shipping_zone_schema_id
  * @property array $data
  * @property array $settings
  * @property int|null $sender_email_id
@@ -423,6 +425,16 @@ class Shop extends Model implements HasMedia, Auditable
     public function shippingZoneSchemas(): HasMany
     {
         return $this->hasMany(ShippingZoneSchema::class);
+    }
+
+    public function currentShippingZoneSchema(): BelongsTo
+    {
+        return $this->belongsTo(ShippingZoneSchema::class, 'shipping_zone_schema_id');
+    }
+
+    public function discountShippingZoneSchema(): BelongsTo
+    {
+        return $this->belongsTo(ShippingZoneSchema::class, 'discount_shipping_zone_schema_id');
     }
 
     public function shippingZones(): HasMany

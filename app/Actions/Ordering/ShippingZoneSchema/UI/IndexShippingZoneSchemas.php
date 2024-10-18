@@ -11,6 +11,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\Catalogue\WithFamilySubNavigation;
+use App\Actions\Ordering\ShippingZoneSchema\WithShippingZoneSchemaSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\ShippingTabsEnum;
@@ -32,9 +33,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexShippingZoneSchemas extends OrgAction
 {
     use HasCatalogueAuthorisation;
-    use WithDepartmentSubNavigation;
-    use WithFamilySubNavigation;
-    use WithCollectionSubNavigation;
+    use WithShippingZoneSchemaSubNavigation;
 
     private Shop $parent;
 
@@ -59,14 +58,21 @@ class IndexShippingZoneSchemas extends OrgAction
             abort(419);
         }
 
+        $queryBuilder->leftjoin('shipping_zone_schema_stats', 'shipping_zone_schema_stats.shipping_zone_schema_id', '=', 'shipping_zone_schemas.id');
+
         $queryBuilder
             ->defaultSort('shipping_zone_schemas.name')
             ->select([
                 'shipping_zone_schemas.id',
                 'shipping_zone_schemas.slug',
                 'shipping_zone_schemas.name',
-                'shipping_zone_schemas.type',
                 'shipping_zone_schemas.created_at',
+                'shipping_zone_schema_stats.number_customers',
+                'shipping_zone_schema_stats.number_orders',
+                'shipping_zone_schema_stats.number_shipping_zones',
+                'shipping_zone_schema_stats.amount',
+                'shipping_zone_schema_stats.first_used_at',
+                'shipping_zone_schema_stats.last_used_at'
             ]);
 
         return $queryBuilder->allowedSorts(['name', 'status'])
@@ -112,7 +118,14 @@ class IndexShippingZoneSchemas extends OrgAction
                         ] : null
                     ]*/
                 );
+            $table->column(key: 'slug', label: __('code'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'zones', label: __('zones'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'first_used', label: __('first used'), canBeHidden: false, sortable: false, searchable: false);
+            $table->column(key: 'last_used', label: __('last used'), canBeHidden: false, sortable: false, searchable: false);
+            $table->column(key: 'number_customers', label: __('customers'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'number_orders', label: __('orders'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
 
@@ -136,6 +149,7 @@ class IndexShippingZoneSchemas extends OrgAction
 
         if ($this->parent instanceof Shop) {
             $model = __('billables');
+            $subNavigation = $this->getShippingZoneSchemaSubNavigation($this->parent);
         }
         return Inertia::render(
             'Org/Catalogue/Shippings',
@@ -165,18 +179,18 @@ class IndexShippingZoneSchemas extends OrgAction
                     ],
                     'subNavigation' => $subNavigation,
                 ],
-                'tabs'        => [
-                    'current'    => $this->tab,
-                    'navigation' => ShippingTabsEnum::navigation(),
-                ],
+                // 'tabs'        => [
+                //     'current'    => $this->tab,
+                //     'navigation' => ShippingTabsEnum::navigation(),
+                // ],
                 'data'        => ShippingZoneSchemasResource::collection($shippingZoneSchemas),
 
-                ShippingTabsEnum::SCHEMAS->value => $this->tab == ShippingTabsEnum::SCHEMAS->value ?
-                    fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)
-                    : Inertia::lazy(fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)),
+                // ShippingTabsEnum::SCHEMAS->value => $this->tab == ShippingTabsEnum::SCHEMAS->value ?
+                //     fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)
+                //     : Inertia::lazy(fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)),
 
-            ]
-        )->table($this->tableStructure(parent: $this->parent, prefix: ShippingTabsEnum::SCHEMAS->value));
+            ])->table($this->tableStructure($this->parent));
+        // )->table($this->tableStructure(parent: $this->parent, prefix: ShippingTabsEnum::SCHEMAS->value));
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator

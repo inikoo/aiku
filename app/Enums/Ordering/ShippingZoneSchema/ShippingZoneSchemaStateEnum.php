@@ -9,11 +9,11 @@ namespace App\Enums\Ordering\ShippingZoneSchema;
 
 use App\Enums\EnumHelperTrait;
 
-enum ShippingZoneSchemaTypeEnum: string
+enum ShippingZoneSchemaStateEnum: string
 {
     use EnumHelperTrait;
-    case CURRENT    = 'current';
-    case DEAL       = 'deal';
-    case IN_RESERVE = 'in-reserve';
+    case IN_PROCESS    = 'in-process';
+    case LIVE       = 'live';
+    case DECOMMISSIONED = 'decommissioned';
 
 }

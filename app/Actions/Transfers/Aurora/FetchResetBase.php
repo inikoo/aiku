@@ -69,6 +69,13 @@ class FetchResetBase
                             $aikuIdField => null,
                         ]
                     );
+                DB::connection('aurora')->table('Barcode Dimension')
+                    ->update(
+                        [
+                            $aikuIdField      => null,
+                        ]
+                    );
+
 
                 DB::connection('aurora')->table('Staff Dimension')
                     ->update(

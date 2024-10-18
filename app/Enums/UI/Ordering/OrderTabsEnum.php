@@ -23,7 +23,7 @@ enum OrderTabsEnum: string
 
     // case HISTORY                     = 'history';
 
-    // case ATTACHMENTS                 = 'attachments';
+    case ATTACHMENTS                 = 'attachments';
 
     // case SENT_EMAILS                 = 'sent_emails';
 
@@ -74,12 +74,13 @@ enum OrderTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            // OrderTabsEnum::ATTACHMENTS => [
-            //     'title' => __('attachments'),
-            //     'icon'  => 'fal fa-paperclip',
-            //     'type'  => 'icon',
-            //     'align' => 'right',
-            // ],OrderTabsEnum::HISTORY => [
+            OrderTabsEnum::ATTACHMENTS => [
+                'title' => __('attachments'),
+                'icon'  => 'fal fa-paperclip',
+                'type'  => 'icon',
+                'align' => 'right',
+            ],
+            //OrderTabsEnum::HISTORY => [
             //     'title' => __('history'),
             //     'icon'  => 'fal fa-clock',
             //     'type'  => 'icon',

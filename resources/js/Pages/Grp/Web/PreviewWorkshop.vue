@@ -181,7 +181,7 @@ provide('isPreviewLoggedIn', isPreviewLoggedIn)
                     <div v-else class="py-8">
                         <div v-if="isInWorkshop" class="mx-auto">
                             <div class="text-center text-gray-500">
-                                {{ trans('No block exist. Click button below to add') }}
+                                {{ trans('Your journey starts here') }}
                             </div>
                             <div class="w-64 mx-auto">
                                 <Button label="add new block" class="mt-3" full type="dashed" @click="() => iframeToParent('openModalBlockList')">

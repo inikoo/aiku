@@ -16,6 +16,7 @@ enum ShippingZoneSchemaTabsEnum: string
     use HasTabs;
 
     case SHOWCASE      = 'showcase';
+    case ZONES         = 'zones';
     case HISTORY       = 'history';
 
 
@@ -26,6 +27,10 @@ enum ShippingZoneSchemaTabsEnum: string
             ShippingZoneSchemaTabsEnum::SHOWCASE => [
                 'title' => __('details'),
                 'icon'  => 'fal fa-shopping-cart',
+            ],
+            ShippingZoneSchemaTabsEnum::ZONES => [
+                'title' => __('zones'),
+                'icon'  => 'fal fa-map',
             ],
             ShippingZoneSchemaTabsEnum::HISTORY => [
                 'title' => __('history'),

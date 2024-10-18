@@ -8,10 +8,13 @@
 namespace App\Actions\Ordering\ShippingZoneSchema\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Ordering\ShippingZone\UI\IndexShippingZones;
+use App\Actions\Ordering\ShippingZoneSchema\WithShippingZoneSchemaSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\ShippingZoneSchemaTabsEnum;
 use App\Http\Resources\Catalogue\ShippingZoneSchemaResource;
+use App\Http\Resources\Catalogue\ShippingZonesResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\SysAdmin\Organisation;
@@ -22,6 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowShippingZoneSchema extends OrgAction
 {
     use HasCatalogueAuthorisation;
+    use WithShippingZoneSchemaSubNavigation;
 
     public function handle(ShippingZoneSchema $shippingZoneSchema): ShippingZoneSchema
     {
@@ -75,15 +79,19 @@ class ShowShippingZoneSchema extends OrgAction
                             //     ]
 
                             // ] : false
-                        ]
+                                ],
+                        'subNavigation' => $this->getShippingZoneSchemaSubNavigation($shippingZoneSchema->shop),
                     ],
                     'tabs' => [
                         'current'    => $this->tab,
                         'navigation' => ShippingZoneSchemaTabsEnum::navigation()
 
                     ],
+                    ShippingZoneSchemaTabsEnum::ZONES->value => $this->tab == ShippingZoneSchemaTabsEnum::ZONES->value ?
+                    fn () => ShippingZonesResource::collection(IndexShippingZones::run($shippingZoneSchema))
+                    : Inertia::lazy(fn () => ShippingZonesResource::collection(IndexShippingZones::run($shippingZoneSchema)))
             ]
-        );
+        )->table(IndexShippingZones::make()->tableStructure(parent: $shippingZoneSchema, prefix: ShippingZoneSchemaTabsEnum::ZONES->value));
     }
 
 

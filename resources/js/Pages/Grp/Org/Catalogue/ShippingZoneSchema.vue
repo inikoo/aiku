@@ -11,6 +11,7 @@
   import PageHeading from '@/Components/Headings/PageHeading.vue';
   import {useLocaleStore} from '@/Stores/locale';
   import {library} from '@fortawesome/fontawesome-svg-core';
+  import TableShippingZones from '@/Components/Tables/Grp/Org/Catalogue/TableShippingZones.vue';
   import {
       faInventory,
       faBox,
@@ -52,6 +53,7 @@
           navigation: object;
       }
       showcase?: object,
+      zones?: {}
   
   }>()
   
@@ -62,6 +64,7 @@
   
       const components = {
           history: ModelChangelog,
+          zones: TableShippingZones
       };
       return components[currentTab.value];
   
