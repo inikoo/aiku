@@ -136,6 +136,7 @@ class FetchAuroraWebBlocks extends OrgAction
             ];
 
         }
+        // dd($migrationData);
         return $migrationData;
     }
 
@@ -165,6 +166,13 @@ class FetchAuroraWebBlocks extends OrgAction
         $group = $webpage->group;
 
 
+        // if($auroraBlock['type'] == "text") {
+        //     $webBlockType = $group->webBlockTypes()->where("slug", "text")->first();
+        //     $layout       = $this->processTextData($webpage, $auroraBlock);
+        //     return;
+        // }else {
+        //     return;
+        // }
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = $group->webBlockTypes()->where("code", "images")->first();
@@ -280,12 +288,12 @@ class FetchAuroraWebBlocks extends OrgAction
             return;
         }
 
-        data_set($layout, "data.properties.padding.unit", "px");
-        data_set($layout, "data.properties.padding.left.value", 20);
-        data_set($layout, "data.properties.padding.right.value", 20);
-        data_set($layout, "data.properties.padding.bottom.value", 20);
-        data_set($layout, "data.properties.padding.top.value", 20);
-        data_set($layout, "data.properties.padding.top.value", 20);
+        data_set($layout, "data.fieldValue.container.properties.padding.unit", "px");
+        data_set($layout, "data.fieldValue.container.properties.padding.left.value", 20);
+        data_set($layout, "data.fieldValue.container.properties.padding.right.value", 20);
+        data_set($layout, "data.fieldValue.container.properties.padding.bottom.value", 20);
+        data_set($layout, "data.fieldValue.container.properties.padding.top.value", 20);
+        data_set($layout, "data.fieldValue.container.properties.padding.top.value", 20);
 
         $webBlock = StoreWebBlock::make()->action(
             $webBlockType,
@@ -297,56 +305,7 @@ class FetchAuroraWebBlocks extends OrgAction
             strict: false
         );
 
-        if (
-            $webBlock->webBlockType->code == "images"
-            || $webBlock->webBlockType->code == "overview"
-            || $webBlock->webBlockType->code == "cta1"
-            || $webBlock->webBlockType->code == "family"
-            || $webBlock->webBlockType->code == "department"
-        ) {
-            $code = $webBlock->webBlockType->code;
-
-            if ($code == "family") {
-                $items  = $webBlock->layout['data']["fieldValue"]["value"]["items"];
-                $addOns = [];
-                foreach ($items as $item) {
-                    if ($item['type'] == "image") {
-                        $imageSource = $this->processImage($webBlock, $item, $webpage);
-                        $addOns[]    = ['position' => $item['position'], "type" => $item['type'], "source" => $imageSource];
-                    } else {
-                        $addOns[] = $item;
-                    }
-                }
-                data_set($layout, "data.fieldValue.value.addOns", $addOns);
-                unset($layout['data']["fieldValue"]["value"]["items"]);
-            } elseif ($code == "department") {
-                $sections = $webBlock->layout['data']["fieldValue"]["value"]["sections"];
-                foreach ($sections as $sectionPosition => $section) {
-                    $items = $section['items'];
-                    if ($items) {
-                        foreach ($items as $index => $item) {
-                            if ($item['type'] == "image") {
-                                $imageSource             = $this->processImage($webBlock, $item, $webpage);
-                                $items[$index]["source"] = $imageSource;
-                                unset($items[$index]["aurora_source"]);
-                            }
-                        }
-                        $sections[$sectionPosition]["items"] = $items;
-                    }
-                }
-                data_set($layout, "data.fieldValue.value.sections", $sections);
-            } else {
-                foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
-                    $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
-                    $layout['data']["fieldValue"]["value"][$index]['source'] = $imageSource;
-                    unset($layout['data']["fieldValue"]["value"][$index]['aurora_source']);
-                }
-
-            }
-            $webBlock->updateQuietly([
-                "layout" => $layout,
-            ]);
-        }
+        $this->postProcessLayout($webBlock, $webpage, $layout);
 
         $modelHasWebBlocksData = [
             'show_logged_in'     => $visibility['loggedIn'],
@@ -374,6 +333,94 @@ class FetchAuroraWebBlocks extends OrgAction
         UpdateWebpageContent::run($webpage->refresh());
 
         BroadcastPreviewWebpage::dispatch($webpage);
+    }
+
+    private function postProcessLayout($webBlock, $webpage, &$layout)
+    {
+        $code = $webBlock->webBlockType->code;
+        if (
+            $code == "images"
+            || $code == "text"
+            || $code == "overview"
+            || $code == "cta1"
+            || $code == "family"
+            || $code == "department"
+        ) {
+            if ($code == "family") {
+                $items  = $layout['data']["fieldValue"]["value"]["items"];
+                $addOns = [];
+                foreach ($items as $item) {
+                    if ($item['type'] == "image") {
+                        $imageSource = $this->processImage($webBlock, $item, $webpage);
+                        $addOns[]    = ['position' => $item['position'], "type" => $item['type'], "source" => $imageSource];
+                    } else {
+                        $addOns[] = $item;
+                    }
+                }
+                data_set($layout, "data.fieldValue.value.addOns", $addOns);
+                unset($layout['data']["fieldValue"]["value"]["items"]);
+            } elseif ($code == "department") {
+                $sections = $layout['data']["fieldValue"]["value"]["sections"];
+                foreach ($sections as $sectionPosition => $section) {
+                    $items = $section['items'];
+                    if ($items) {
+                        foreach ($items as $index => $item) {
+                            if ($item['type'] == "image") {
+                                $imageSource             = $this->processImage($webBlock, $item, $webpage);
+                                $items[$index]["source"] = $imageSource;
+                                unset($items[$index]["aurora_source"]);
+                            }
+                        }
+                        $sections[$sectionPosition]["items"] = $items;
+                    }
+                }
+                data_set($layout, "data.fieldValue.value.sections", $sections);
+            } elseif ($code == "text") {
+                $text = $layout['data']['fieldValue']['value'];
+                $pattern = '/<img\s+[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
+
+                $text = preg_replace_callback($pattern, function ($match) use ($webBlock, $webpage) {
+                    $originalImage = $match[1];
+                    $media = FetchAuroraWebBlockMedia::run($webBlock, $webpage, $originalImage);
+                    $imageElement = $match[0];
+
+                    if ($media) {
+                        $image = $media->getImage();
+                        $picture = GetPictureSources::run($image);
+                        $imageUrl = $picture['original'];
+                        $imageElement = preg_replace('/src="([^"]*)"/', 'src="'.$imageUrl.'"', $imageElement);
+                    }
+                    return $imageElement;
+                }, $text);
+                // todo for the links
+                // $text = $layout['data']['fieldValue']['value'];
+                // $pattern = '/<img\s+[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
+
+                // $text = preg_replace_callback($pattern, function ($match) use ($webBlock, $webpage) {
+                //     $originalImage = $match[1];
+                //     $media = FetchAuroraWebBlockMedia::run($webBlock, $webpage, $originalImage);
+                //     $imageElement = $match[0];
+
+                //     if ($media) {
+                //         $image = $media->getImage();
+                //         $picture = GetPictureSources::run($image);
+                //         $imageUrl = $picture['original'];
+                //         $imageElement = preg_replace('/src="([^"]*)"/', 'src="'.$imageUrl.'"', $imageElement);
+                //     }
+                //     return $imageElement;
+                // }, $text);
+            } else {
+                foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
+                    $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
+                    $layout['data']["fieldValue"]["value"][$index]['source'] = $imageSource;
+                    unset($layout['data']["fieldValue"]["value"][$index]['aurora_source']);
+                }
+
+            }
+            $webBlock->updateQuietly([
+                "layout" => $layout,
+            ]);
+        }
     }
 
     private function processImage($webBlock, array|string $imageRawData, $webpage): array|null

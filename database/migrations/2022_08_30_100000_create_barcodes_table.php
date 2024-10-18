@@ -25,11 +25,11 @@ return new class () extends Migration {
             $table->string('note')->nullable();
             $table->dateTimeTz('assigned_at')->nullable();
             $table->jsonb('data');
-            $table->string('source_id')->nullable()->unique();
+            $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->timestampsTz();
             $table->softDeletesTz();
+            $table->string('source_id')->nullable()->unique();
             $table->unique(['group_id', 'number']);
         });
     }
