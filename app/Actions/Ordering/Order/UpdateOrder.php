@@ -43,7 +43,6 @@ class UpdateOrder extends OrgAction
         data_forget($modelData, 'delivery_address');
 
 
-
         $order         = $this->update($order, $modelData, ['data']);
         $changedFields = $order->getChanges();
 
@@ -96,7 +95,6 @@ class UpdateOrder extends OrgAction
         }
 
 
-
         OrderRecordSearch::dispatch($order);
 
         if (array_key_exists('state', $changedFields)) {
@@ -144,7 +142,7 @@ class UpdateOrder extends OrgAction
         return $rules;
     }
 
-    public function action(Order $order, array $modelData, bool $strict = true, int $hydratorsDelay = 0, bool $audit = true): Order
+    public function action(Order $order, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Order
     {
         if (!$audit) {
             Order::disableAuditing();
@@ -153,7 +151,6 @@ class UpdateOrder extends OrgAction
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->order          = $order;
-
 
 
         $this->initialisationFromShop($order->shop, $modelData);

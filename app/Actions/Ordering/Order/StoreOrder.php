@@ -26,6 +26,7 @@ use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
@@ -45,6 +46,11 @@ class StoreOrder extends OrgAction
 
     public int $hydratorsDelay = 0;
 
+    private CustomerClient|Customer $parent;
+
+    /**
+     * @throws \Throwable
+     */
     public function handle(Shop|Customer|CustomerClient $parent, array $modelData): Order
     {
         if (!Arr::get($modelData, 'reference')) {
@@ -112,68 +118,72 @@ class StoreOrder extends OrgAction
 
         $modelData = $this->processExchanges($modelData, $parent->shop);
 
-        /** @var Order $order */
-        $order = Order::create($modelData);
-        $order->refresh();
-        $order->stats()->create();
+        $order = DB::transaction(function () use ($parent, $modelData, $billingAddress, $deliveryAddress) {
+            /** @var Order $order */
+            $order = Order::create($modelData);
+            $order->refresh();
+            $order->stats()->create();
 
-        if ($order->billing_locked) {
-            $order = $this->createFixedAddress(
-                $order,
-                $billingAddress,
-                'Ordering',
-                'billing',
-                'billing_address_id'
-            );
-        } else {
-            $order = $this->addAddressToModel(
-                model: $order,
-                addressData: Arr::except($billingAddress->toArray(), ['id']),
-                scope: 'billing',
-                updateLocation: false,
-                updateAddressField: 'billing_address_id'
-            );
-        }
-
-        $order->updateQuietly(
-            [
-                'billing_country_id' => $order->billingAddress->country_id
-            ]
-        );
-
-
-        if ($order->handing_type == OrderHandingTypeEnum::SHIPPING) {
-            if ($order->delivery_locked) {
+            if ($order->billing_locked) {
                 $order = $this->createFixedAddress(
                     $order,
-                    $deliveryAddress,
+                    $billingAddress,
                     'Ordering',
-                    'delivery',
-                    'delivery_address_id'
+                    'billing',
+                    'billing_address_id'
                 );
             } else {
                 $order = $this->addAddressToModel(
                     model: $order,
-                    addressData: Arr::except($deliveryAddress->toArray(), ['id']),
-                    scope: 'delivery',
+                    addressData: Arr::except($billingAddress->toArray(), ['id']),
+                    scope: 'billing',
                     updateLocation: false,
-                    updateAddressField: 'delivery_address_id'
+                    updateAddressField: 'billing_address_id'
                 );
             }
 
             $order->updateQuietly(
                 [
-                    'delivery_country_id' => $order->deliveryAddress->country_id
+                    'billing_country_id' => $order->billingAddress->country_id
                 ]
             );
-        } else {
-            $order->updateQuietly(
-                [
-                    'collection_address_id' => $order->shop->collection_address_id,
-                    'delivery_country_id'   => $order->shop->collectionAddress->country_id
-                ]
-            );
-        }
+
+
+            if ($order->handing_type == OrderHandingTypeEnum::SHIPPING) {
+                if ($order->delivery_locked) {
+                    $order = $this->createFixedAddress(
+                        $order,
+                        $deliveryAddress,
+                        'Ordering',
+                        'delivery',
+                        'delivery_address_id'
+                    );
+                } else {
+                    $order = $this->addAddressToModel(
+                        model: $order,
+                        addressData: Arr::except($deliveryAddress->toArray(), ['id']),
+                        scope: 'delivery',
+                        updateLocation: false,
+                        updateAddressField: 'delivery_address_id'
+                    );
+                }
+
+                $order->updateQuietly(
+                    [
+                        'delivery_country_id' => $order->deliveryAddress->country_id
+                    ]
+                );
+            } else {
+                $order->updateQuietly(
+                    [
+                        'collection_address_id' => $order->shop->collection_address_id,
+                        'delivery_country_id'   => $order->shop->collectionAddress->country_id
+                    ]
+                );
+            }
+
+            return $order;
+        });
 
         $this->orderHydrators($order);
 
@@ -206,24 +216,21 @@ class StoreOrder extends OrgAction
             'state'              => ['sometimes', Rule::enum(OrderStateEnum::class)],
             'status'             => ['sometimes', Rule::enum(OrderStatusEnum::class)],
             'handing_type'       => ['sometimes', 'required', Rule::enum(OrderHandingTypeEnum::class)],
-
-            'created_at'   => ['sometimes', 'required', 'date'],
-            'cancelled_at' => ['sometimes', 'nullable', 'date'],
-
-            'billing_address'  => ['sometimes', new ValidAddress()],
-            'delivery_address' => ['sometimes', new ValidAddress()],
-            'billing_locked'   => ['sometimes', 'boolean'],
-            'delivery_locked'  => ['sometimes', 'boolean'],
-
-            'source_id'       => ['sometimes', 'string', 'max:64'],
-            'tax_category_id' => ['sometimes', 'required', 'exists:tax_categories,id'],
-            'fetched_at'      => ['sometimes', 'required', 'date'],
+            'billing_address'    => ['sometimes', new ValidAddress()],
+            'delivery_address'   => ['sometimes', new ValidAddress()],
+            'billing_locked'     => ['sometimes', 'boolean'],
+            'delivery_locked'    => ['sometimes', 'boolean'],
+            'tax_category_id'    => ['sometimes', 'required', 'exists:tax_categories,id'],
 
         ];
 
         if (!$this->strict) {
-            $rules['reference'] = ['sometimes', 'string', 'max:64'];
-            $rules              = $this->mergeOrderingAmountNoStrictFields($rules);
+            $rules['reference']    = ['sometimes', 'string', 'max:64'];
+            $rules['source_id']    = ['sometimes', 'string', 'max:64'];
+            $rules['fetched_at']   = ['sometimes', 'required', 'date'];
+            $rules['created_at']   = ['sometimes', 'required', 'date'];
+            $rules['cancelled_at'] = ['sometimes', 'nullable', 'date'];
+            $rules                 = $this->mergeOrderingAmountNoStrictFields($rules);
         }
 
         return $rules;
@@ -261,12 +268,15 @@ class StoreOrder extends OrgAction
         };
     }
 
-    public function action(
-        Shop|Customer|CustomerClient $parent,
-        array $modelData,
-        bool $strict = true,
-        int $hydratorsDelay = 60
-    ): Order {
+    /**
+     * @throws \Throwable
+     */
+    public function action(Shop|Customer|CustomerClient $parent, array $modelData, bool $strict = true, int $hydratorsDelay = 60, $audit = true): Order
+    {
+        if (!$audit) {
+            Order::disableAuditing();
+        }
+
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->strict         = $strict;
@@ -282,6 +292,9 @@ class StoreOrder extends OrgAction
         return $this->handle($parent, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function inCustomer(Customer $customer, ActionRequest $request): Order
     {
         $this->parent = $customer;
@@ -290,6 +303,9 @@ class StoreOrder extends OrgAction
         return $this->handle($customer, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function inCustomerClient(CustomerClient $customerClient, ActionRequest $request): Order
     {
         $this->parent = $customerClient;
