@@ -9,9 +9,11 @@ namespace App\Actions\Goods\TradeUnit\UI;
 
 use App\Actions\Goods\HasGoodsAuthorisation;
 use App\Actions\GrpAction;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Enums\UI\SupplyChain\TradeUnitTabsEnum;
 use App\Http\Resources\Goods\TradeUnitResource;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Models\Goods\TradeUnit;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Group;
@@ -86,8 +88,12 @@ class ShowTradeUnit extends GrpAction
                         'navigation' => TradeUnitTabsEnum::navigation()
 
                     ],
+                    TradeUnitTabsEnum::ATTACHMENTS->value => $this->tab == TradeUnitTabsEnum::ATTACHMENTS->value ?
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($tradeUnit))
+                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($tradeUnit))),
+
             ]
-        );
+        )->table(IndexAttachments::make()->tableStructure($tradeUnit, TradeUnitTabsEnum::ATTACHMENTS->value));
     }
 
 

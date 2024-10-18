@@ -33,9 +33,9 @@ class UpdateClockingMachine extends OrgAction
         $clockingMachine = $this->update($clockingMachine, $modelData, ['data']);
 
         if ($clockingMachine->wasChanged(['type', 'status'])) {
-            OrganisationHydrateClockingMachines::dispatch($clockingMachine->organisation);
-            GroupHydrateClockingMachines::dispatch($clockingMachine->group);
-            WorkplaceHydrateClockingMachines::dispatch($clockingMachine->workplace);
+            OrganisationHydrateClockingMachines::dispatch($clockingMachine->organisation)->delay($this->hydratorsDelay);
+            GroupHydrateClockingMachines::dispatch($clockingMachine->group)->delay($this->hydratorsDelay);
+            WorkplaceHydrateClockingMachines::dispatch($clockingMachine->workplace)->delay($this->hydratorsDelay);
         }
 
 
@@ -57,8 +57,8 @@ class UpdateClockingMachine extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'name'      => [
+        $rules = [
+            'name' => [
                 'sometimes',
                 'required',
                 'max:255',
@@ -79,11 +79,16 @@ class UpdateClockingMachine extends OrgAction
                 ),
 
             ],
-            'type'                                  => ['required', Rule::enum(ClockingMachineTypeEnum::class)],
-            'source_id'                             => 'sometimes|string|max:255',
-            'last_fetched_at'                       => ['sometimes', 'date'],
+            'type' => ['required', Rule::enum(ClockingMachineTypeEnum::class)],
 
         ];
+
+        if (!$this->strict) {
+            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
     public function asController(Organisation $organisation, ClockingMachine $clockingMachine, ActionRequest $request): ClockingMachine
@@ -94,10 +99,15 @@ class UpdateClockingMachine extends OrgAction
         return $this->handle($clockingMachine, $this->validatedData);
     }
 
-    public function action(ClockingMachine $clockingMachine, array $modelData): ClockingMachine
+    public function action(ClockingMachine $clockingMachine, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): ClockingMachine
     {
+        $this->strict = $strict;
+        if (!$audit) {
+            ClockingMachine::disableAuditing();
+        }
         $this->asAction        = true;
         $this->clockingMachine = $clockingMachine;
+        $this->hydratorsDelay  = $hydratorsDelay;
         $this->initialisation($clockingMachine->organisation, $modelData);
 
         return $this->handle($clockingMachine, $this->validatedData);

@@ -10,6 +10,7 @@ namespace App\Actions\CRM\Customer\UI;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\BackInStockReminder\UI\IndexCustomerBackInStockReminders;
 use App\Actions\CRM\Favourite\UI\IndexCustomerFavourites;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Mail\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
@@ -22,6 +23,7 @@ use App\Enums\UI\CRM\CustomerTabsEnum;
 use App\Http\Resources\CRM\CustomerBackInStockRemindersResource;
 use App\Http\Resources\CRM\CustomerFavouritesResource;
 use App\Http\Resources\CRM\CustomersResource;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -178,6 +180,9 @@ class ShowCustomer extends OrgAction
                 $tabs::REMINDERS->value => $this->tab == $tabs::REMINDERS->value ?
                     fn () => CustomerBackInStockRemindersResource::collection(IndexCustomerBackInStockReminders::run($customer))
                     : Inertia::lazy(fn () => CustomerBackInStockRemindersResource::collection(IndexCustomerBackInStockReminders::run($customer))),
+                $tabs::ATTACHMENTS->value => $this->tab == $tabs::ATTACHMENTS->value ?
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($customer))
+                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($customer))),
 
 
             ]
@@ -185,6 +190,7 @@ class ShowCustomer extends OrgAction
         //    ->table(IndexDropshippingRetinaProducts::make()->tableStructure($customer))
         ->table(IndexCustomerFavourites::make()->tableStructure($customer, $tabs::FAVOURITES->value))
         ->table(IndexCustomerBackInStockReminders::make()->tableStructure($customer, $tabs::REMINDERS->value))
+        ->table(IndexAttachments::make()->tableStructure($customer, $tabs::ATTACHMENTS->value))
         ->table(IndexDispatchedEmails::make()->tableStructure($customer));
 
     }

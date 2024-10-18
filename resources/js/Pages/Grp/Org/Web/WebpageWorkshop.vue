@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { ref, defineExpose, onMounted, provide } from 'vue'
+import { ref, defineExpose, onMounted, onUnmounted, watch } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -15,6 +15,7 @@ import { notify } from "@kyvg/vue3-notification"
 import ScreenView from "@/Components/ScreenView.vue"
 import WebpageSideEditor from "@/Components/Websites/WebpageSideEditor.vue"
 import Drawer from 'primevue/drawer';
+import { socketWeblock } from '@/Composables/SocketWebBlock'
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
@@ -68,18 +69,6 @@ const addNewBlock = async (block: Daum) => {
 
 const isSavingBlock = ref(false)
 const sendBlockUpdate = async (block: Daum) => {
-    // try {
-    //     const response = router.patch(
-    //         route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
-    //         { layout: block.web_block.layout }
-    //     )
-    //     const set = { ...response.data.data }
-    //     data.value = set
-    // } catch (error: any) {
-    //     console.error('error', error)
-    // }
-    // console.log('on send block update')
-
     router.patch(
         route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
         { layout: block.web_block.layout },
@@ -113,18 +102,6 @@ const sendOrderBlock = async (block: Object) => {
 
 const isLoadingDelete = ref<string | null>(null)
 const sendDeleteBlock = async (block: Daum) => {
-    // console.log('block', block)
-    // isLoading.value = 'deleteBlock' + block.id
-    // try {
-    //     const response = await axios.delete(
-    //         route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id })
-    //     )
-    //     const set = { ...response.data.data }
-    //     data.value = set
-    // } catch (error: any) {
-    //     console.error('error', error)
-    // }
-
     router.delete(
         route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
         {
@@ -191,24 +168,15 @@ const openFullScreenPreview = () => {
     window.open(iframeSrc.value, '_blank')
 }
 
-// const zzz = () => {
-//     console.log('print from parent')
-// }
-// const isModalBlocksList = ref(false)
-// const updateModalBlock = (newVal: boolean) => {
-//     isModalBlocksList.value = newVal
-// }
-// provide('updateModalBlock', updateModalBlock)
-
-// const _iframeRef = ref(null)
-// const sendMessageToIframe = () => {
-//     if (_iframeRef.value && _iframeRef.value.contentWindow) {
-//         const message = { methodName: 'myMethod', params: { key: zzz } };
-//         _iframeRef.value.contentWindow.postMessage(message, '*');
-//     }
-// }
 const isModalBlockList = ref(false)
+const socketConnectionWebpage = props.webpage ? socketWeblock(props.webpage.slug) : null;
+onUnmounted(() => {
+    if (socketConnectionWebpage) socketConnectionWebpage.actions.unsubscribe();
+});
+
+
 onMounted(() => {
+    if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { console.log("dd"), data.value = {...data.value,...value} });
     window.addEventListener('message', (event) => {
         if (event.data === 'openModalBlockList') {
             isModalBlockList.value = true
@@ -216,12 +184,11 @@ onMounted(() => {
     });
 });
 
+
 </script>
 
 <template>
-
     <Head :title="capitalize(title)" />
-
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
             <Publish :isLoading="isLoading" :is_dirty="data.is_dirty" v-model="comment"
@@ -237,7 +204,7 @@ onMounted(() => {
     <div class="grid grid-cols-5 h-[85vh]">
         <!-- Section: Side editor -->
         <div class="col-span-1 lg:block hidden h-full border-2 bg-gray-200 px-3 py-1 ">
-            <WebpageSideEditor v-model="isModalBlockList" :isLoadingDelete :isAddBlockLoading :webpage="props.webpage"
+            <WebpageSideEditor v-model="isModalBlockList" :isLoadingDelete :isAddBlockLoading :webpage="data"
                 :webBlockTypes="webBlockTypes" @update="sendBlockUpdate" @delete="sendDeleteBlock"
                 @add="addNewBlock" @order="sendOrderBlock" />
         </div>

@@ -28,9 +28,9 @@ return new class () extends Migration {
             $table->string('device_uuid')->index()->unique()->nullable();
             $table->string('qr_code')->nullable()->index()->unique();
             $table->jsonb('data');
+            $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->timestampsTz();
             $table->softDeletes();
             $table->string('source_id')->nullable()->unique();
             $table->unique(['group_id', 'slug']);

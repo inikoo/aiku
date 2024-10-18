@@ -9,12 +9,14 @@ namespace App\Actions\SupplyChain\Supplier\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\SupplyChain\Agent\UI\ShowAgent;
 use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Enums\UI\SupplyChain\SupplierTabsEnum;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\StockDeliveryResource;
@@ -170,12 +172,17 @@ class ShowSupplier extends GrpAction
 
                 SupplierTabsEnum::HISTORY->value => $this->tab == SupplierTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($supplier))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($supplier)))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($supplier))),
+
+                SupplierTabsEnum::ATTACHMENTS->value => $this->tab == SupplierTabsEnum::ATTACHMENTS->value ?
+                    fn () => AttachmentsResource::collection(IndexAttachments::run($supplier))
+                    : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($supplier)))
             ]
         )->table(IndexSupplierProducts::make()->tableStructure())
             ->table(IndexSupplierProducts::make()->tableStructure())
             ->table(IndexPurchaseOrders::make()->tableStructure())
             ->table(IndexStockDeliveries::make()->tableStructure())
+            ->table(IndexAttachments::make()->tableStructure(SupplierTabsEnum::ATTACHMENTS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value));
     }
 
