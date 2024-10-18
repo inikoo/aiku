@@ -15,6 +15,7 @@ use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Rules\IUnique;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -23,6 +24,9 @@ class StoreShippingZone extends OrgAction
     use AsAction;
     use WithAttributes;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(ShippingZoneSchema $shippingZoneSchema, array $modelData): ShippingZone
     {
         data_set($modelData, 'group_id', $shippingZoneSchema->group_id);
@@ -30,46 +34,48 @@ class StoreShippingZone extends OrgAction
         data_set($modelData, 'shop_id', $shippingZoneSchema->shop_id);
         data_set($modelData, 'currency_id', $shippingZoneSchema->shop->currency_id);
 
-        /** @var $shippingZone ShippingZone */
-        $shippingZone = $shippingZoneSchema->shippingZone()->create($modelData);
-        $shippingZone->stats()->create();
-        $shippingZone->refresh();
 
-        $asset = StoreAsset::run(
-            $shippingZone,
-            [
-                'units' => 1,
-                'unit'  => 'charge',
-                'price' => null,
-                'type'  => AssetTypeEnum::CHARGE,
-                'state' => $shippingZone->status ? AssetStateEnum::ACTIVE : AssetStateEnum::DISCONTINUED,
+        return DB::transaction(function () use ($shippingZoneSchema, $modelData) {
+            /** @var $shippingZone ShippingZone */
+            $shippingZone = $shippingZoneSchema->shippingZone()->create($modelData);
+            $shippingZone->stats()->create();
+            $shippingZone->refresh();
 
-            ],
-            $this->hydratorsDelay
-        );
+            $asset = StoreAsset::run(
+                $shippingZone,
+                [
+                    'units' => 1,
+                    'unit'  => 'charge',
+                    'price' => null,
+                    'type'  => AssetTypeEnum::CHARGE,
+                    'state' => $shippingZone->status ? AssetStateEnum::ACTIVE : AssetStateEnum::DISCONTINUED,
 
-        $shippingZone->updateQuietly(
-            [
-                'asset_id' => $asset->id
-            ]
-        );
+                ],
+                $this->hydratorsDelay
+            );
 
-        $historicAsset = StoreHistoricAsset::run(
-            $shippingZone
-        );
-        $asset->update(
-            [
-                'current_historic_asset_id' => $historicAsset->id,
-            ]
-        );
-        $shippingZone->updateQuietly(
-            [
-                'current_historic_asset_id' => $historicAsset->id,
-            ]
-        );
+            $shippingZone->updateQuietly(
+                [
+                    'asset_id' => $asset->id
+                ]
+            );
 
+            $historicAsset = StoreHistoricAsset::run(
+                $shippingZone
+            );
+            $asset->update(
+                [
+                    'current_historic_asset_id' => $historicAsset->id,
+                ]
+            );
+            $shippingZone->updateQuietly(
+                [
+                    'current_historic_asset_id' => $historicAsset->id,
+                ]
+            );
 
-        return $shippingZone;
+            return $shippingZone;
+        });
     }
 
     public function rules(): array
@@ -105,10 +111,16 @@ class StoreShippingZone extends OrgAction
         return $rules;
     }
 
-    public function action(ShippingZoneSchema $shippingZoneSchema, array $modelData, int $hydratorsDelay = 0, bool $strict = true): ShippingZone
+    /**
+     * @throws \Throwable
+     */
+    public function action(ShippingZoneSchema $shippingZoneSchema, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): ShippingZone
     {
-        $this->strict        = $strict;
-        $this->asAction      = true;
+        if (!$audit) {
+            ShippingZone::disableAuditing();
+        }
+        $this->strict         = $strict;
+        $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($shippingZoneSchema->shop, $modelData);
 

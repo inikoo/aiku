@@ -47,6 +47,10 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('timezone_id');
             $table->foreign('timezone_id')->references('id')->on('timezones');
             $table->unsignedInteger('image_id')->nullable();
+
+            $table->unsignedSmallInteger('shipping_zone_schema_id')->nullable();
+            $table->unsignedSmallInteger('discount_shipping_zone_schema_id')->nullable();
+
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->unsignedSmallInteger('sender_email_id')->nullable();

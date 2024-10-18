@@ -49,7 +49,7 @@ class IndexAttachments extends OrgAction
         $queryBuilder->join('model_has_attachments', 'model_has_attachments.media_id', '=', 'media.id')
                 ->where('model_has_attachments.model_type', class_basename($parent))
                 ->where('model_has_attachments.model_id', $parent->id);
-                
+
         $queryBuilder
             ->defaultSort('model_has_attachments.id')
             ->select([
