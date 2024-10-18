@@ -91,6 +91,9 @@ class FetchAuroraWebBlockLink extends OrgAction
         }
         $domain       = $website->domain;
         $auroraLink   = $this->cleanUrl($auroraLink);
+        if (str_starts_with($auroraLink, "tel")) {
+            return false;
+        }
         $auroraDomain = preg_replace('/\/.*$/', "", $auroraLink);
 
         return $domain == $auroraDomain;
