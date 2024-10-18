@@ -75,7 +75,7 @@ const component = computed(() => {
         purchase_orders: TablePurchaseOrders,
         deliveries: TableStockDeliveries,
         details: ModelDetails,
-        history: TableHistories
+        history: TableHistories,
         attachments: TableAttachments,
     };
     return components[currentTab.value];

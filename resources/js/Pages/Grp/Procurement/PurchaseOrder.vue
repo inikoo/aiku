@@ -65,7 +65,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
     const components: Component = {
         history: TableHistories,
-        items: TablePurchaseOrderTransactions
+        items: TablePurchaseOrderTransactions,
         attachments: TableAttachments,
     }
 
