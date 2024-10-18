@@ -387,7 +387,7 @@ class FetchAuroraWebBlocks extends OrgAction
 
                     return $imageElement;
                 }, $text);
-            } elseif($code == "images"){
+            } elseif ($code == "images") {
                 foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
                     $layout['data']["fieldValue"]["value"][$index]['source'] = $imageSource;
