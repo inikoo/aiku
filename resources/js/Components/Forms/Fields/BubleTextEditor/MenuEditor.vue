@@ -1,19 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useEditor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
-import StarterKit from '@tiptap/starter-kit'
-import TextStyle from '@tiptap/extension-text-style'
-import Underline from '@tiptap/extension-underline'
-import Subscript from '@tiptap/extension-subscript'
-import Superscript from '@tiptap/extension-superscript'
-import BulletList from '@tiptap/extension-bullet-list'
-import ListItem from '@tiptap/extension-list-item'
-import Heading from '@tiptap/extension-heading'
-import TextAlign from '@tiptap/extension-text-align'
-import Highlight from '@tiptap/extension-highlight'
-import { Color } from '@tiptap/extension-color'
-import FontSize from 'tiptap-extension-font-size'
-import Link from '@tiptap/extension-link'
 
 import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -30,7 +16,6 @@ const props = withDefaults(defineProps<{
 }>(), {
 
 });
-
 
 const onHeadingClick = (index: number) => {
     props.editor.chain().focus().toggleHeading({ level: index }).run()
@@ -108,6 +93,8 @@ const onHeadingClick = (index: number) => {
             <FontAwesomeIcon :icon='action.icon' />
         </span>
     </button>
+
+    
 
 
 </template>

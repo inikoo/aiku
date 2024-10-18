@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText } from '@fal'
 import draggable from "vuedraggable"
 import PanelProperties from '@/Components/Websites/Fields/PanelProperties.vue'
@@ -23,6 +23,7 @@ import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
 import { Collapse } from 'vue-collapsed'
 import { trans } from 'laravel-vue-i18n'
+import { set } from 'lodash'
 
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText)
@@ -35,7 +36,6 @@ const props = defineProps<{
     isAddBlockLoading: string | null
 }>()
 
-console.log('dfsfsuuu', props)
 const emits = defineEmits<{
     (e: 'add', value: Daum): void
     (e: 'delete', value: Daum): void
@@ -44,8 +44,6 @@ const emits = defineEmits<{
     (e: 'openBlockList', value: Boolean): void
 }>()
 
-// const isModalBlocksList = ref(false)
-// const isLoading = ref<string | boolean>(false)
 
 const sendNewBlock = async (block: Daum) => {
     emits('add', block)
@@ -65,7 +63,7 @@ const sendDeleteBlock = async (block: Daum) => {
 
 
 const debouncedSendUpdate = debounce((block) => sendBlockUpdate(block), 1000, { leading: false, trailing: true })
-const onUpdatedBlock = (block: Daum) => {
+const onUpdatedBlock = (block) => {
      debouncedSendUpdate(block)
 }
 
@@ -86,6 +84,7 @@ const openModalBlockList = () => {
     modelModalBlocklist.value = !modelModalBlocklist.value
     emits('openBlockList', !modelModalBlocklist.value)
 }
+
 
 defineExpose({
     modelModalBlocklist
@@ -138,8 +137,11 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                         <Collapse v-if="element?.web_block?.layout" as="section"
                             :when="selectedBlockOpenPanel === index">
                             <div class="p-2">
-                                <SideEditor v-model="element.web_block.layout.data.fieldValue"
-                                    :bluprint="element?.web_block?.layout?.blueprint" @update:modelValue="onUpdatedBlock(element)"/>
+                                <SideEditor 
+                                    v-model="element.web_block.layout.data.fieldValue"
+                                    :bluprint="element?.web_block?.layout?.blueprint" 
+                                    @update:modelValue="onUpdatedBlock(element)"
+                                />
                             </div>
                         </Collapse>
 

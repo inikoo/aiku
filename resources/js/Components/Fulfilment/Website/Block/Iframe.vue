@@ -64,7 +64,7 @@ const onEnter = (e) => {
 
     <div v-else class="relative">
         <iframe :src="modelValue.link"
-            :style="getStyles(properties)"
+            :style="getStyles(modelValue.container.properties)"
             title="I farme Block">
         </iframe>
         <!-- Buttons -->
