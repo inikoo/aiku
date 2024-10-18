@@ -179,18 +179,18 @@ class IndexShippingZoneSchemas extends OrgAction
                     ],
                     'subNavigation' => $subNavigation,
                 ],
-                'tabs'        => [
-                    'current'    => $this->tab,
-                    'navigation' => ShippingTabsEnum::navigation(),
-                ],
+                // 'tabs'        => [
+                //     'current'    => $this->tab,
+                //     'navigation' => ShippingTabsEnum::navigation(),
+                // ],
                 'data'        => ShippingZoneSchemasResource::collection($shippingZoneSchemas),
 
-                ShippingTabsEnum::SCHEMAS->value => $this->tab == ShippingTabsEnum::SCHEMAS->value ?
-                    fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)
-                    : Inertia::lazy(fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)),
+                // ShippingTabsEnum::SCHEMAS->value => $this->tab == ShippingTabsEnum::SCHEMAS->value ?
+                //     fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)
+                //     : Inertia::lazy(fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)),
 
-            ]
-        )->table($this->tableStructure(parent: $this->parent, prefix: ShippingTabsEnum::SCHEMAS->value));
+            ])->table($this->tableStructure($this->parent));
+        // )->table($this->tableStructure(parent: $this->parent, prefix: ShippingTabsEnum::SCHEMAS->value));
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator

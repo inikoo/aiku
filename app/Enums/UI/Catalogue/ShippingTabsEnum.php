@@ -14,10 +14,10 @@ enum ShippingTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
-
+    
+    case SCHEMAS      = 'schemas';
     case CURRENT      = 'current';
     case OFFER        = 'offer';
-    case SCHEMAS      = 'schemas';
     case HISTORY      = 'history';
 
 
@@ -36,8 +36,6 @@ enum ShippingTabsEnum: string
             ShippingTabsEnum::SCHEMAS => [
                 'title' => __('schemas'),
                 'icon'  => 'fal fa-tags',
-                'type'  => 'icon',
-                'align' => 'right'
             ],
             ShippingTabsEnum::HISTORY => [
                 'title' => __('history'),
