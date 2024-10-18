@@ -8,6 +8,7 @@
 namespace App\Actions\Dropshipping\Portfolio;
 
 use App\Actions\OrgAction;
+use App\Enums\Catalogue\Portfolio\PortfolioTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Dropshipping\Portfolio;
@@ -73,6 +74,7 @@ class StorePortfolio extends OrgAction
                     ]
                 ),
             ],
+            'type'            => ['sometimes', Rule::enum(PortfolioTypeEnum::class)],
             'status'          => 'sometimes|boolean',
             'created_at'      => 'sometimes|date',
             'last_added_at'   => 'sometimes|date',

@@ -19,28 +19,28 @@
   }>();
   
   
-  // function shopRoute(schema: {}) {
-  //   console.log(route().current())
-  //   switch (route().current()) {
-  //     case "grp.org.shops.show.assets.shipping.index":
-  //       return route(
-  //           "grp.org.shops.show.assets.shipping.show",
-  //           [route().params["organisation"],route().params["shop"], schema.slug]);
-  //     default:
-  //       return null;
-  //   }
-  // }
+  function shopRoute(zone: {}) {
+    console.log(route().current())
+    switch (route().current()) {
+      case "grp.org.shops.show.assets.shipping.show":
+        return route(
+            "grp.org.shops.show.assets.shipping.show.shipping-zone.show",
+            [route().params["organisation"],route().params["shop"], route().params["shippingZoneSchema"], zone.slug]);
+      default:
+        return null;
+    }
+  }
   
   
   </script>
   
   <template>
     <Table :resource="data" :name="tab" class="mt-5">
-      <!-- <template #cell(name)="{ item: schema }">
-        <Link :href="shopRoute(schema)" class="primaryLink">
-        {{ schema["name"] }}
+      <template #cell(name)="{ item: zone }">
+        <Link :href="shopRoute(zone)" class="primaryLink">
+        {{ zone["name"] }}
       </Link>
-      </template> -->
+      </template>
     </Table>
   </template>
   
