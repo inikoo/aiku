@@ -26,7 +26,7 @@ const props = defineProps<{
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
 
-console.log('DDD',props.blocks.web_blocks)
+console.log('DDD', props.blocks.web_blocks)
 
 </script>
 
@@ -39,15 +39,10 @@ console.log('DDD',props.blocks.web_blocks)
       <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"
         class="w-full">
 
-        <component
-            v-if="activityItem.web_block?.layout?.data?.fieldValue"
-            :is="getComponent(activityItem.type)"
-            :key="activityItemIdx"
-            :properties="activityItem?.web_block?.layout?.properties"
-            v-model="activityItem.web_block.layout.fieldValue"
-            :isEditable="false"
-            v-bind="activityItem.web_block.layout.fieldValue"
-        />
+        <component v-if="activityItem.web_block?.layout?.data?.fieldValue" :is="getComponent(activityItem.type)"
+          :key="activityItemIdx" :properties="activityItem?.web_block?.layout?.data?.fieldValue?.properties"
+          v-model="activityItem.web_block.layout.data.fieldValue" :isEditable="false"
+          v-bind="activityItem.web_block.layout.data.fieldValue" />
 
       </div>
     </template>

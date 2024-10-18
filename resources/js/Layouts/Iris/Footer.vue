@@ -16,9 +16,9 @@ console.log('footer data', props)
 </script>
 
 <template>
-    <div>
-        <component :is="getComponent(data.code)"  v-model="data.data.footer"
-        :keyTemplate="data.code" :previewMode="true" :colorThemed="colorThemed" />
+    <div v-if="data?.data?.footer">
+        <component :is="getComponent(data.code)" v-model="data.data.footer" :keyTemplate="data.code" :previewMode="true"
+            :colorThemed="colorThemed" />
     </div>
 
 </template>

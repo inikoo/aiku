@@ -4,21 +4,10 @@
 	"name": "Images",
 	"code": "images",
 	"icon": ["fal", "image"],
-	"blueprint": {},
+	"blueprint": [],
 	"data": {
 		"fieldValue": {
-			"value": [
-				{
-					"row": [
-						{
-							"properties": {
-								"width": 10
-							},
-							"images": []
-						}
-					]
-				}
-			],
+			"value": [],
 			"container": {
 				"properties": {
 					"background": {

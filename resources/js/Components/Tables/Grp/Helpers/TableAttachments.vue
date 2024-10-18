@@ -13,6 +13,7 @@ import { FulfilmentCustomer } from "@/types/Customer";
 import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 import { useFormatTime } from "@/Composables/useFormatTime";
 import { useLocaleStore } from "@/Stores/locale";
+import { ref } from "vue";
 
 const props = defineProps<{
     data: object,
@@ -20,14 +21,15 @@ const props = defineProps<{
 }>();
 
 const locale = useLocaleStore();
+const isModalUploadOpen = ref(false)
 
 function mediaRoute(attachment: {}) {
-            return route(
-                "grp.media.download",
-                [
-                    attachment.media_ulid
-                ]);;
-    }
+    return route(
+        "grp.media.download",
+        [
+            attachment.media_ulid
+        ]);;
+}
 
 // function customerRoute(customer: FulfilmentCustomer) {
 //     switch (route().current()) {
@@ -67,17 +69,15 @@ function mediaRoute(attachment: {}) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(scope)="{ item: attachment }">
-                {{ attachment["scope"] }}
+            {{ attachment["scope"] }}
         </template>
         <template #cell(caption)="{ item: attachment }">
             {{ attachment["caption"] }}
         </template>
         <template #cell(download)="{ item: attachment }">
             <Link :href="mediaRoute(attachment)">
-                <Button type="tertiary" icon="fal fa-download" />
+            <Button type="tertiary" icon="fal fa-download" />
             </Link>
         </template>
     </Table>
 </template>
-
-
