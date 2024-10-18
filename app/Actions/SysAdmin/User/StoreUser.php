@@ -17,6 +17,7 @@ use App\Models\SysAdmin\User;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
@@ -26,6 +27,9 @@ class StoreUser extends GrpAction
 {
     private Employee|Guest $parent;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Guest|Employee $parent, array $modelData = []): User
     {
         data_set($modelData, 'group_id', $parent->group_id);
@@ -35,31 +39,37 @@ class StoreUser extends GrpAction
         $userModelStatus = $this->get('user_model_status', Arr::get($modelData, 'status', false));
         data_forget($modelData, 'user_model_status');
 
-        /** @var User $user */
-        $user = User::create($modelData);
-        $user->stats()->create();
-        $user->refresh();
+        $user = DB::transaction(function () use ($parent, $modelData, $userModelStatus) {
+            /** @var User $user */
+            $user = User::create($modelData);
+            $user->stats()->create();
+            $user->refresh();
 
 
-        if ($parent instanceof Employee) {
-            $user = AttachEmployeeToUser::make()->action($user, $parent, [
-                'status'    => $userModelStatus,
-                'source_id' => $user->source_id
-            ]);
-        } else {
-            $user = AttachGuestToUser::make()->action($user, $parent, [
-                'status'    => $userModelStatus,
-                'source_id' => $user->source_id
-            ]);
-        }
+            if ($parent instanceof Employee) {
+                $user = AttachEmployeeToUser::make()->action($user, $parent, [
+                    'status'    => $userModelStatus,
+                    'source_id' => $user->source_id
+                ]);
+            } else {
+                $user = AttachGuestToUser::make()->action($user, $parent, [
+                    'status'    => $userModelStatus,
+                    'source_id' => $user->source_id
+                ]);
+            }
 
-        if ($this->hydratorsDelay) {
-            SetIconAsUserImage::dispatch($user)->delay($this->hydratorsDelay);
-        } else {
-            SetIconAsUserImage::run($user);
-        }
+            if ($this->hydratorsDelay) {
+                SetIconAsUserImage::dispatch($user)->delay($this->hydratorsDelay);
+            } else {
+                SetIconAsUserImage::run($user);
+            }
 
-        SyncRolesFromJobPositions::run($user);
+            SyncRolesFromJobPositions::run($user);
+
+            return $user;
+        });
+
+
         UserRecordSearch::dispatch($user);
         GroupHydrateUsers::dispatch($user->group)->delay($this->hydratorsDelay);
 
@@ -143,8 +153,15 @@ class StoreUser extends GrpAction
     }
 
 
-    public function action(Guest|Employee $parent, array $modelData = [], int $hydratorsDelay = 0, bool $strict = true): User
+    /**
+     * @throws \Throwable
+     */
+    public function action(Guest|Employee $parent, array $modelData = [], int $hydratorsDelay = 0, bool $strict = true, $audit = true): User
     {
+        if (!$audit) {
+            User::disableAuditing();
+        }
+
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
