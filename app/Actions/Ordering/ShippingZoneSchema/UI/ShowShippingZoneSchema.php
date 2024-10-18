@@ -8,6 +8,7 @@
 namespace App\Actions\Ordering\ShippingZoneSchema\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Ordering\ShippingZoneSchema\WithShippingZoneSchemaSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\ShippingZoneSchemaTabsEnum;
@@ -22,6 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowShippingZoneSchema extends OrgAction
 {
     use HasCatalogueAuthorisation;
+    use WithShippingZoneSchemaSubNavigation;
 
     public function handle(ShippingZoneSchema $shippingZoneSchema): ShippingZoneSchema
     {
@@ -75,7 +77,8 @@ class ShowShippingZoneSchema extends OrgAction
                             //     ]
 
                             // ] : false
-                        ]
+                                ],
+                        'subNavigation' => $this->getShippingZoneSchemaSubNavigation($shippingZoneSchema->shop),
                     ],
                     'tabs' => [
                         'current'    => $this->tab,
