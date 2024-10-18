@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
-import { ref, onMounted, onUnmounted, reactive, watch } from 'vue'
+import { ref, onMounted, onUnmounted, reactive, watch, inject, provide } from 'vue'
 import WebPreview from "@/Layouts/WebPreview.vue";
 import axios from 'axios'
 import debounce from 'lodash/debounce'
@@ -24,6 +24,7 @@ import { routeType } from '@/types/route'
 import { trans } from 'laravel-vue-i18n'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import Toggle from '@/Components/Pure/Toggle.vue'
 
 
 defineOptions({ layout: WebPreview })
@@ -84,6 +85,8 @@ const autoSave = async (data: Object) => {
     }
 }
 
+const isPreviewLoggedIn = ref(false)
+
 onMounted(() => {
     if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { data.value = { ...value } });
     if (socketLayout) socketLayout.actions.subscribe((value) => {
@@ -98,6 +101,13 @@ onMounted(() => {
                 previewMode: event.data.previewMode
             }
         });
+
+    window.addEventListener('message', (event) => {
+        // Listen: if workshop change toggle logged in
+        if (event.data.key === 'isPreviewLoggedIn') {
+            isPreviewLoggedIn.value = event.data.value
+        }
+    });
 });
 
 
@@ -115,9 +125,15 @@ watch(layout.footer, (newVal) => {
 const isInWorkshop = JSON.parse(route().params.isInWorkshop || false)
 
 
-const openModalBlock = () => {
-    window.parent.postMessage('openModalBlockList', '*')
-};
+// const openModalBlock = () => {
+//     window.parent.postMessage('openModalBlockList', '*')
+// };
+
+const iframeToParent = (data: any) => {
+    window.parent.postMessage(data, '*')
+}
+
+provide('isPreviewLoggedIn', isPreviewLoggedIn)
 
 
 </script>
@@ -127,6 +143,16 @@ const openModalBlock = () => {
 
     <div class="container max-w-7xl mx-auto shadow-xl">
 
+        <!-- Section: Toggle loggedin -->
+        <div v-if="!isInWorkshop" class="left-1/2 -translate-x-1/2 fixed bottom-16">
+            <div class="text-center">View</div>
+            <div class="bg-gray-100 px-8 py-4 rounded-full flex items-center gap-x-2">
+                <span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged out</span>
+                <Toggle v-model="isPreviewLoggedIn" class="" />
+                <span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged in</span>
+            </div>
+        </div>
+
         <div class="relative">
             <RenderHeaderMenu
                 v-if="header?.data"
@@ -134,10 +160,7 @@ const openModalBlock = () => {
                 :menu="layout?.navigation"
                 :colorThemed="layout?.colorThemed"
             />
-        </div>
-
-        <!-- <pre>{{ layout.header }}</pre> -->
-        
+        </div>        
 
         <div v-if="data" class="relative">
             <div class="container max-w-7xl mx-auto">
@@ -161,7 +184,7 @@ const openModalBlock = () => {
                                 {{ trans('No block exist. Click button below to add') }}
                             </div>
                             <div class="w-64 mx-auto">
-                                <Button label="add new block" class="mt-3" full type="dashed" @click="openModalBlock">
+                                <Button label="add new block" class="mt-3" full type="dashed" @click="() => iframeToParent('openModalBlockList')">
                                     <div class="text-gray-500">
                                         <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
                                         {{ trans('Add block') }}
