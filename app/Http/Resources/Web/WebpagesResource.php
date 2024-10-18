@@ -35,6 +35,11 @@ class WebpagesResource extends JsonResource
             "level" => $this->level,
             "code" => $this->code,
             "url" => $this->url,
+            "url_workshop" => route('grp.org.shops.show.web.webpages.workshop', [
+                'organisation' => $this->organisation->slug,
+                'shop' => $this->shop->slug,
+                'website' => $this->website->slug
+            ]),
             "type" => $this->type,
             "typeIcon" => $this->type->stateIcon()[$this->type->value] ?? ["fal", "fa-browser"],
             /* 	"typeIcon2" => match ($this->type) {
