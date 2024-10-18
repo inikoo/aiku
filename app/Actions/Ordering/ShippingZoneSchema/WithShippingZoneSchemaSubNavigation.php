@@ -34,7 +34,7 @@ trait WithShippingZoneSchemaSubNavigation
                     'parameters' => [$this->organisation->slug, $shop->slug, $shop->currentShippingZoneSchema->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-shipping'],
+                    'icon'    => ['fal', 'fa-cube'],
                     'tooltip' => __('Current Schema')
                 ]
             ],
@@ -45,7 +45,7 @@ trait WithShippingZoneSchemaSubNavigation
                     'parameters' => [$this->organisation->slug, $shop->slug, $shop->discountShippingZoneSchema->slug]
                 ],
                 'leftIcon' => [
-                    'icon'    => ['fal', 'fa-shipping'],
+                    'icon'    => ['fal', 'fa-cube'],
                     'tooltip' => __('Discount Schema')
                 ]
             ],
