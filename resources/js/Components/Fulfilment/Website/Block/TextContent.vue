@@ -19,7 +19,7 @@ const emits = defineEmits<{
 </script>
 
 <template>
-    <div class="relative overflow-hidden" id="blockTextContent" :style="getStyles(properties)">
+    <div  id="blockTextContent" :style="getStyles(modelValue.container.properties)">
         <Editor v-if="isEditable" v-model="modelValue.value" @update:modelValue="() => emits('autoSave')" />
         <div v-else v-html="modelValue?.value"></div>
     </div>

@@ -14,12 +14,10 @@ import Highlight from '@tiptap/extension-highlight'
 import { Color } from '@tiptap/extension-color'
 import FontSize from 'tiptap-extension-font-size'
 import Link from '@tiptap/extension-link'
-import MenuEditor from './MenuEditor.vue'
 import Placeholder from '@tiptap/extension-placeholder'
 import FontFamily from '@tiptap/extension-font-family'
+import Toogle from '@/Components/Forms/Fields/BubleTextEditor/Toogle.vue'
 
-import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faText, faUndoAlt, faRedoAlt } from '@far'
 import { faHorizontalRule, faQuoteRight, faMarker } from '@fas'
@@ -31,16 +29,16 @@ const props = withDefaults(defineProps<{
     modelValue: string,
     toogle?: string[],
     type?: string,
-    editable?:boolean
-    placeholder?:any | String
-}>(),{
-    editable : true,
+    editable?: boolean
+    placeholder?: any | String
+}>(), {
+    editable: true,
     type: 'Bubble',
-    placeholder : '',
+    placeholder: '',
     toogle: () => [
         'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',
         'orderedList', 'blockquote', 'divider', 'alignLeft', 'alignRight',
-        'alignCenter', 'link', 'undo', 'redo', 'highlight', 'color', 'clear'
+        'alignCenter', 'link', 'undo', 'redo', 'highlight', 'color', 'clear',"image"
     ]
 })
 
@@ -89,8 +87,8 @@ const editor = useEditor({
             types: ['textStyle'],
         }),
         Placeholder.configure({
-          // Use a placeholder:
-          placeholder: props.placeholder,
+            // Use a placeholder:
+            placeholder: props.placeholder,
         }),
         TextAlign.configure({
             types: ['heading', 'paragraph'],
@@ -198,6 +196,9 @@ onMounted(() => {
     editor.value?.commands.setContent(newValue, false)
 }) */
 
+
+const isModalOpen = ref(false)
+
 defineExpose({
     editor
 })
@@ -206,28 +207,39 @@ defineExpose({
 </script>
 
 <template>
-    <div v-if="editable" class="">
+    <div v-if="editable" class="z-50">
         <BubbleMenu v-if="type == 'Bubble' && editor" :editor="editor" :tippy-options="{ duration: 100 }">
-            <section class="buttons text-gray-700 flex text-xs items-center flex-wrap gap-x-4 border-t border-l border-r border-gray-400 p-1 bg-gray-200">
-                <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
+            <section
+                class="text-gray-700 text-lg border border-gray-400 z-50 p-1 min-w-[10px] max-w-[700px] rounded-md bg-[#333333] text-white">
+                <Toogle :editor="editor" :toogles="toggleList" />
             </section>
         </BubbleMenu>
 
-        <section v-else-if="type == 'basic' && editor" class="buttons text-xs text-gray-700 flex items-center flex-wrap gap-x-4 border border-gray-400 p-2 rounded-t-lg bg-white">
-            <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
+
+        <section v-else-if="type == 'basic' && editor"
+            class="buttons text-xs text-gray-700 flex items-center flex-wrap gap-x-4 border border-gray-400 p-2 rounded-t-lg bg-white">
+            <Toogle :editor="editor" :toogles="toggleList" />
         </section>
 
-        <EditorContent  @click="onEditorClick" :editor="editor" :class="type == 'basic' ? 'basic-content' : ''"/>
+        <EditorContent @click="onEditorClick" :editor="editor" :class="type == 'basic' ? 'basic-content' : ''" />
     </div>
-    <div v-else id="blockTextContent"><div v-html="modelValue"/></div>
+    <div v-else id="blockTextContent">
+        <div v-html="modelValue" />
+    </div>
+
+    <!--     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-[600px]">
+        <div class="space-y-4">
+            <LinkForm />
+        </div>
+    </Modal> -->
 </template>
 
 
 
-<style lang="scss">
+<style lang="scss" scoped>
 /* Basic editor styles */
 .tiptap {
-  /*   >*+* {
+    /*   >*+* {
         margin-top: 0.75em;
     } */
 
@@ -285,8 +297,16 @@ defineExpose({
 
 }
 
+section {
+  display: inline-block; /* Ensure it's not inline, so width constraints apply */
+  min-width: 10px; /* Apply minimum width */
+  max-width: 700px; /* Apply maximum width */
+}
+
+
 .fixed-width-bubble-menu {
-    width: 300px; /* Set your desired fixed width */
+    min-width: 10px !important;
+    max-width : 700px !important
 }
 
 .basic-content {
@@ -306,11 +326,11 @@ defineExpose({
 }
 
 .tiptap p.is-editor-empty:first-child::before {
-  color: #adb5bd;
-  content: attr(data-placeholder);
-  float: left;
-  height: 0;
-  pointer-events: none;
+    color: #adb5bd;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
 }
 
 #blockTextContent blockquote {
@@ -368,8 +388,4 @@ defineExpose({
 #blockTextContent p:empty::after {
     content: "\00A0";
 }
-
-
-
-
 </style>
