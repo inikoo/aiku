@@ -22,7 +22,7 @@ trait WithFetchImagesWebBlock
         if (!isset($auroraBlock["images"])) {
             return null;
         }
-        $layoutType = $this->getImagesLayoutTypeByReso($auroraBlock);
+        $layoutType = $this->getImagesLayoutTypeByResolution($auroraBlock);
 
         if ($layoutType) {
             data_set($layout, "data.fieldValue.value.layout_type", $layoutType);
@@ -33,9 +33,7 @@ trait WithFetchImagesWebBlock
         foreach ($auroraBlock["images"] as $image) {
             $imageLink = null;
             if (!empty($image["link"])) {
-                print ">>>>>>>>>img -> ".$image["link"].">>>>>>>>>>>\n";
                 $imageLink = FetchAuroraWebBlockLink::run($webpage->website, $image["link"], $this->dbSuffix);
-
             }
 
             if (!isset($image["src"])) {
@@ -51,7 +49,7 @@ trait WithFetchImagesWebBlock
         return $layout;
     }
 
-    public function getImagesLayoutTypeByReso($auroraBlock): string|null
+    public function getImagesLayoutTypeByResolution($auroraBlock): string|null
     {
         $images = $auroraBlock['images'];
 
@@ -99,7 +97,7 @@ trait WithFetchImagesWebBlock
                 break;
         }
 
-        return $code ?? null;
+        return $code;
     }
 
 }

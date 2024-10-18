@@ -30,7 +30,7 @@ class FetchAuroraWebBlockLink extends OrgAction
     public function handle(Website $website, $auroraLink, $dbSuffix = ''): array
     {
 
-        print "Original link >>>$auroraLink<<<<\n";
+      //  print "Original link >>>$auroraLink<<<<\n";
 
         $this->organisationSource = $this->getOrganisationSource($website->organisation);
         $this->organisationSource->initialisation($website->organisation, $dbSuffix);
@@ -95,14 +95,20 @@ class FetchAuroraWebBlockLink extends OrgAction
     public function isInternalLink($website, $auroraLink): bool
     {
 
+        if (str_starts_with($auroraLink, "tel:")) {
+            return false;
+        }
+        if (str_starts_with($auroraLink, "mailto:")) {
+            return false;
+        }
+
         if (!str_starts_with($auroraLink, "http")) {
             return true;
         }
         $domain       = $website->domain;
         $auroraLink   = $this->cleanUrl($auroraLink);
-        if (str_starts_with($auroraLink, "tel")) {
-            return false;
-        }
+
+
         $auroraDomain = preg_replace('/\/.*$/', "", $auroraLink);
 
         return $domain == $auroraDomain;
