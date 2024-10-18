@@ -28,8 +28,10 @@ use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -38,16 +40,26 @@ class StoreClocking extends OrgAction
     use WithBase64FileConverter;
     use WithUpdateModelImage;
 
-    public Employee $employee;
 
+    private Employee $employee;
+
+    /**
+     * @throws \Throwable
+     */
     public function handle(Organisation|User|Employee|Guest $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData): Clocking
     {
-
         data_set($modelData, 'generator_type', class_basename($generator));
         data_set($modelData, 'generator_id', $generator->id);
 
+        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'organisation_id', $parent->organisation_id);
 
-        $uploadedPhoto = Arr::pull($modelData, 'photo');
+
+        $uploadedPhoto = null;
+        if (Arr::has($modelData, 'photo')) {
+            /** @var UploadedFile $uploadedPhoto */
+            $uploadedPhoto = Arr::pull($modelData, 'photo');
+        }
 
 
         if (class_basename($parent::class) == 'ClockingMachine') {
@@ -64,23 +76,26 @@ class StoreClocking extends OrgAction
         data_set($modelData, 'timesheet_id', $timesheet->id);
 
 
-        /** @var Clocking $clocking */
-        $clocking = $subject->clockings()->create($modelData);
-        AddClockingToTimeTracker::run($timesheet, $clocking);
+        $clocking = DB::transaction(function () use ($parent, $modelData, $subject, $timesheet, $uploadedPhoto) {
+            /** @var Clocking $clocking */
+            $clocking = $subject->clockings()->create($modelData);
+            AddClockingToTimeTracker::run($timesheet, $clocking);
 
-        $clocking->refresh();
+            $clocking->refresh();
 
-        if ($uploadedPhoto) {
+            if ($uploadedPhoto) {
+                SetClockingPhotoFromImage::run(
+                    clocking: $clocking,
+                    imagePath: $uploadedPhoto->getPathName(),
+                    originalFilename: $uploadedPhoto->getClientOriginalName(),
+                    extension: $uploadedPhoto->getClientOriginalExtension()
+                );
+            }
 
-            SetClockingPhotoFromImage::run(
-                clocking: $clocking,
-                imagePath: $uploadedPhoto->getPathName(),
-                originalFilename: $uploadedPhoto->getClientOriginalName(),
-                extension: $uploadedPhoto->getClientOriginalExtension()
-            );
-        }
+            TimesheetHydrateTimeTrackers::run($timesheet);
 
-        TimesheetHydrateTimeTrackers::run($timesheet);
+            return $clocking;
+        });
 
         if ($subject instanceof Employee) {
             EmployeeHydrateClockings::dispatch($subject)->delay($this->hydratorsDelay);
@@ -108,27 +123,38 @@ class StoreClocking extends OrgAction
 
         if ($request->user() instanceof ClockingMachine) {
             $employeeWorkplace = $this->employee->workplaces()
-            ->wherePivot('workplace_id', $request->user()->workplace_id)
-            ->count() > 0;
+                    ->wherePivot('workplace_id', $request->user()->workplace_id)
+                    ->count() > 0;
 
             return ($this->organisation->id === $request->user()->organisation_id)
-            && $employeeWorkplace && $this->employee->state === EmployeeStateEnum::WORKING;
+                && $employeeWorkplace
+                && $this->employee->state === EmployeeStateEnum::WORKING;
         }
 
-        return $request->user()->hasPermissionTo("human-resources.workplaces.{$this->organisation->id}.edit");
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
     }
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'clocked_at' => ['sometimes', 'required', 'date'],
             'photo'      => [
                 'sometimes',
                 'nullable'
             ],
         ];
+
+        if (!$this->strict) {
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+        }
+
+        return $rules;
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(ClockingMachine|Workplace $parent, Employee|Guest $subject, ActionRequest $request): Clocking
     {
         $this->initialisation($parent->organisation, $request);
@@ -136,22 +162,33 @@ class StoreClocking extends OrgAction
         return $this->handle($request->user(), $parent, $subject, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function han(Employee $employee, ActionRequest $request): Clocking
     {
-
         $this->han = true;
 
 
         if ($request->user()->organisation_id !== $employee->organisation_id) {
             abort(404);
         }
-        if (in_array($employee->state, [EmployeeStateEnum::HIRED,EmployeeStateEnum::LEFT])) {
+        if (in_array($employee->state, [EmployeeStateEnum::HIRED, EmployeeStateEnum::LEFT])) {
             abort(405);
         }
-
-        $clockingMachine = $request->user();
+        $modelData = [];
+        if ($request->has('photo')) {
+            data_set(
+                $modelData,
+                'photo',
+                $this->convertBase64ToFile($this->get('photo'), $employee)
+            );
+        }
         $this->employee  = $employee;
-        $this->initialisation($clockingMachine->organisation, $request->only(['photo']));
+        $clockingMachine = $request->user();
+
+        $this->initialisation($clockingMachine->organisation, $modelData);
+
         return $this->handle($employee, $clockingMachine, $employee, $this->validatedData);
     }
 
@@ -176,17 +213,19 @@ class StoreClocking extends OrgAction
         if ($this->has('clocked_at') && is_string($this->get('clocked_at'))) {
             $this->set('clocked_at', Carbon::parse($this->get('clocked_at')));
         }
-
-        if ($this->has('photo')) {
-            $this->set('photo', $this->convertBase64ToFile($this->get('photo'), $this->employee));
-        }
     }
 
-    public function action(Organisation|User|Employee|Guest $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData, int $hydratorsDelay = 0): Clocking
+    /**
+     * @throws \Throwable
+     */
+    public function action(Organisation|User|Employee|Guest $generator, ClockingMachine|Workplace $parent, Employee|Guest $subject, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Clocking
     {
+
         $this->asAction       = true;
+        $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($parent->organisation, $modelData);
+
         return $this->handle($generator, $parent, $subject, $this->validatedData);
     }
 }

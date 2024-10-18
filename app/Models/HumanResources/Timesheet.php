@@ -49,11 +49,11 @@ class Timesheet extends Model
 
 
     protected $casts = [
-        'date'     => 'date',
-        'start_at' => 'datetime',
-        'end_at'   => 'datetime',
-        'fetched_at'         => 'datetime',
-        'last_fetched_at'    => 'datetime',
+        'date'            => 'date',
+        'start_at'        => 'datetime',
+        'end_at'          => 'datetime',
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
     protected $guarded = [];

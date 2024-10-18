@@ -60,6 +60,8 @@ class FetchAuroraTimesheet extends FetchAurora
             $parsedClocking = [
                 'clocked_at' => $clockingsDatum->{'Timesheet Record Date'},
                 'source_id'  => $this->organisation->id.':'.$clockingsDatum->{'Timesheet Record Key'},
+                'fetched_at'      => now(),
+                'last_fetched_at' => now(),
             ];
 
             $generator = $this->organisation;
@@ -81,7 +83,8 @@ class FetchAuroraTimesheet extends FetchAurora
                 'parent'       => $parent,
                 'generator'    => $generator,
                 'subject'      => $this->parsedData['employee'],
-                'clockingData' => $parsedClocking
+                'clockingData' => $parsedClocking,
+
             ];
         }
     }

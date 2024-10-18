@@ -7,21 +7,23 @@
 
 namespace App\Models\HumanResources;
 
-use App\Actions\Helpers\Images\GetPictureSources;
 use App\Enums\HumanResources\Clocking\ClockingTypeEnum;
 use App\Models\Helpers\Media;
+use App\Models\Traits\HasImage;
+use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
 /**
  *
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
  * @property int|null $workplace_id
  * @property int|null $timesheet_id
  * @property ClockingTypeEnum $type
@@ -36,13 +38,18 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property int|null $image_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $deleted_by_type
  * @property int|null $deleted_by_id
  * @property string|null $source_id
  * @property-read \App\Models\HumanResources\ClockingMachine|null $clockingMachine
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
- * @property-read Media|null $photo
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Model|\Eloquent|null $subject
  * @property-read \App\Models\HumanResources\Timesheet|null $timesheet
  * @property-read \App\Models\HumanResources\Workplace|null $workplace
@@ -57,11 +64,14 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 class Clocking extends Model implements HasMedia
 {
     use SoftDeletes;
-    use InteractsWithMedia;
+    use InOrganisation;
+    use HasImage;
 
     protected $casts = [
-        'clocked_at' => 'datetime:Y-m-d H:i:s',
-        'type'       => ClockingTypeEnum::class
+        'clocked_at'      => 'datetime:Y-m-d H:i:s',
+        'type'            => ClockingTypeEnum::class,
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
 
@@ -87,24 +97,5 @@ class Clocking extends Model implements HasMedia
         return $this->belongsTo(Timesheet::class);
     }
 
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('photo')
-            ->singleFile();
-    }
-
-    public function photo(): BelongsTo
-    {
-        return $this->belongsTo(Media::class, 'image_id');
-    }
-
-    public function photoImageSources($width = 0, $height = 0)
-    {
-        if ($this->photo) {
-            $photoThumbnail = $this->photo->getImage()->resize($width, $height);
-            return GetPictureSources::run($photoThumbnail);
-        }
-        return null;
-    }
 
 }

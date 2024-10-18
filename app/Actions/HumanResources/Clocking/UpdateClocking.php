@@ -21,11 +21,7 @@ class UpdateClocking extends OrgAction
 
     public function handle(Clocking $clocking, array $modelData): Clocking
     {
-        $clocking =  $this->update($clocking, $modelData, ['data']);
-
-        //        HydrateClocking::run($clocking);
-
-        return $clocking;
+        return $this->update($clocking, $modelData, ['data']);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -33,28 +29,40 @@ class UpdateClocking extends OrgAction
         if ($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("human-resources.workplaces.{$this->organisation->id}.edit");
+
+        return $request->user()->hasPermissionTo("human-resources.{$this->organisation->id}.edit");
     }
 
     public function rules(): array
     {
-        return [
-            'code'         => ['sometimes', 'required', 'unique:locations', 'between:2,64', 'alpha_dash'],
+        $rules = [
+            'code' => ['sometimes', 'required', 'unique:locations', 'between:2,64', 'alpha_dash'],
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
-    public function action(Clocking $clocking, array $modelData): Clocking
+
+    public function action(Clocking $clocking, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Clocking
     {
+        $this->strict   = $strict;
         $this->asAction = true;
         $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->hydratorsDelay = $hydratorsDelay;
 
-        return $this->handle($clocking, $validatedData);
+        $this->initialisation($clocking->organisation, $modelData);
+
+        return $this->handle($clocking, $this->validatedData);
     }
 
     public function asController(Organisation $organisation, Clocking $clocking, ActionRequest $request): Clocking
     {
-        $request->validate();
-        return $this->handle($clocking, $request->all());
+        $this->initialisation($clocking->organisation, $request);
+
+        return $this->handle($clocking, $this->validatedData);
     }
 
     public function jsonResponse(Clocking $clocking): LocationResource
