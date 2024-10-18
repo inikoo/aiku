@@ -18,7 +18,7 @@ use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateProductCategory extends GrpAction
+class UpdateMasterProductCategory extends GrpAction
 {
     use WithActionUpdate;
 
