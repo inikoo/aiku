@@ -7,7 +7,7 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaTypeEnum;
+use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraShippingZoneSchema extends FetchAurora
@@ -16,21 +16,27 @@ class FetchAuroraShippingZoneSchema extends FetchAurora
     {
         $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Shipping Zone Schema Store Key'});
 
+        $isCurrent         = false;
+        $isCurrentDiscount = false;
+        $state             = ShippingZoneSchemaStateEnum::DECOMMISSIONED;
+        if ($this->auroraModelData->{'Shipping Zone Schema Type'} == 'Current') {
+            $isCurrent = true;
+            $state     = ShippingZoneSchemaStateEnum::LIVE;
+        } elseif ($this->auroraModelData->{'Shipping Zone Schema Type'} == 'Deal') {
+            $isCurrentDiscount = true;
+            $state             = ShippingZoneSchemaStateEnum::LIVE;
+        }
 
-        $type = match ($this->auroraModelData->{'Shipping Zone Schema Type'}) {
-            'Current'   => ShippingZoneSchemaTypeEnum::CURRENT,
-            'InReserve' => ShippingZoneSchemaTypeEnum::IN_RESERVE,
-            'Deal'      => ShippingZoneSchemaTypeEnum::DEAL,
-            default     => null
-        };
 
         $this->parsedData['shop']                 = $shop;
         $this->parsedData['shipping-zone-schema'] = [
-            'type'            => $type,
-            'name'            => $this->auroraModelData->{'Shipping Zone Schema Label'},
-            'fetched_at'      => now(),
-            'last_fetched_at' => now(),
-            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Shipping Zone Schema Key'},
+            'state'               => $state,
+            'is_current'          => $isCurrent,
+            'is_current_discount' => $isCurrentDiscount,
+            'name'                => $this->auroraModelData->{'Shipping Zone Schema Label'},
+            'fetched_at'          => now(),
+            'last_fetched_at'     => now(),
+            'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Shipping Zone Schema Key'},
 
         ];
 

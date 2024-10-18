@@ -67,6 +67,23 @@ class FetchAuroraShippingZoneSchemas extends FetchAuroraAction
                     return null;
                 }
 
+
+                if ($shippingZoneSchema->is_current) {
+                    $shippingZoneSchema->shop->updateQuietly(
+                        [
+                            'shipping_zone_schema_id' => $shippingZoneSchema->id
+                        ]
+                    );
+                }
+
+                if ($shippingZoneSchema->is_current_discount) {
+                    $shippingZoneSchema->shop->updateQuietly(
+                        [
+                            'discount_shipping_zone_schema_id' => $shippingZoneSchema->id
+                        ]
+                    );
+                }
+
                 return $shippingZoneSchema;
             }
         }

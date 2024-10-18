@@ -8,7 +8,7 @@
 namespace App\Actions\Ordering\ShippingZoneSchema;
 
 use App\Actions\OrgAction;
-use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaTypeEnum;
+use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaStateEnum;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Catalogue\Shop;
 use Illuminate\Http\RedirectResponse;
@@ -38,13 +38,20 @@ class StoreShippingZoneSchema extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'name'       => ['required', 'max:255', 'string'],
-            'type'       => ['sometimes', Rule::enum(ShippingZoneSchemaTypeEnum::class)],
-            'fetched_at' => ['sometimes', 'date'],
-            'source_id'  => ['sometimes', 'nullable', 'string'],
-            'created_at' => ['sometimes', 'nullable', 'date'],
+        $rules = [
+            'name' => ['required', 'max:255', 'string'],
         ];
+
+        if (!$this->strict) {
+            $rules['is_current']          = ['sometimes', 'boolean'];
+            $rules['is_current_discount'] = ['sometimes', 'boolean'];
+            $rules['fetched_at']          = ['sometimes', 'date'];
+            $rules['created_at']          = ['sometimes', 'date'];
+            $rules['source_id']           = ['sometimes', 'nullable', 'string'];
+            $rules['state']               = ['sometimes', Rule::enum(ShippingZoneSchemaStateEnum::class)];
+        }
+
+        return $rules;
     }
 
     /**

@@ -84,9 +84,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_charges_state_active
  * @property int $number_charges_state_discontinued
  * @property int $number_shipping_zone_schemas
- * @property int $number_shipping_zone_schemas_type_current
- * @property int $number_shipping_zone_schemas_type_deal
- * @property int $number_shipping_zone_schemas_type_in_reserve
+ * @property int $number_shipping_zone_schemas_state_in_process
+ * @property int $number_shipping_zone_schemas_state_live
+ * @property int $number_shipping_zone_schemas_state_decommissioned
  * @property int $number_shipping_zones
  * @property int $number_adjustments
  * @property int $number_adjustments_type_error_net

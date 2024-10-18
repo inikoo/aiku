@@ -9,7 +9,7 @@ namespace App\Actions\Ordering\ShippingZoneSchema;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaTypeEnum;
+use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaStateEnum;
 use App\Models\Ordering\ShippingZoneSchema;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -33,7 +33,7 @@ class UpdateShippingZoneSchema extends OrgAction
             'name' => ['sometimes', 'max:255', 'string'],
         ];
         if (!$this->strict) {
-            $rules['type']            = ['sometimes', Rule::enum(ShippingZoneSchemaTypeEnum::class)];
+            $rules['state']            = ['sometimes', Rule::enum(ShippingZoneSchemaStateEnum::class)];
             $rules['last_fetched_at'] = ['sometimes', 'date'];
         }
 

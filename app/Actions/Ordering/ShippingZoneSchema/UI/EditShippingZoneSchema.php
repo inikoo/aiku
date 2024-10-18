@@ -9,14 +9,12 @@ namespace App\Actions\Ordering\ShippingZoneSchema\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
-use Spatie\LaravelOptions\Options;
 
 class EditShippingZoneSchema extends OrgAction
 {
@@ -77,14 +75,6 @@ class EditShippingZoneSchema extends OrgAction
                                     'label' => __('name'),
                                     'value' => $shippingZoneSchema->name
                                 ],
-                                'type' => [
-                                        'type'        => 'select',
-                                        'label'       => __('type'),
-                                        'options'     => Options::forEnum(ShippingZoneSchemaTypeEnum::class),
-                                        'placeholder' => __('Select a type'),
-                                        'mode'        => 'single',
-                                        'value'       => $shippingZoneSchema->type
-                                    ],
                             ],
                         ]
                     ],

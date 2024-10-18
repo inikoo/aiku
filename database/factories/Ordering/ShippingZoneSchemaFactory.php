@@ -7,7 +7,6 @@
 
 namespace Database\Factories\Ordering;
 
-use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ShippingZoneSchemaFactory extends Factory
@@ -16,8 +15,6 @@ class ShippingZoneSchemaFactory extends Factory
     {
         return [
             'name'   => fake()->name,
-            'status' => false,
-            'type'   => ShippingZoneSchemaTypeEnum::CURRENT,
         ];
     }
 }
