@@ -33,6 +33,7 @@ use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebBlocks extends OrgAction
@@ -136,7 +137,6 @@ class FetchAuroraWebBlocks extends OrgAction
             ];
 
         }
-        // dd($migrationData);
         return $migrationData;
     }
 
@@ -260,12 +260,12 @@ class FetchAuroraWebBlocks extends OrgAction
 
             case "category_categories":
                 $webBlockType = $group->webBlockTypes()->where("slug", "department")->first();
-                $layout       = $this->processDepartmentData($models, $webpage, $auroraBlock);
+                $layout       = $this->processDepartmentData($webpage, $auroraBlock);
                 break;
 
             case "blackboard":
                 $webBlockType = $group->webBlockTypes()->where("slug", "overview")->first();
-                $layout       = $this->processOverviewData($auroraBlock);
+                $layout       = $this->processOverviewData($webpage, $auroraBlock);
                 break;
             case "button":
                 $webBlockType = $group->webBlockTypes()->where("slug", "cta1")->first();
@@ -387,11 +387,27 @@ class FetchAuroraWebBlocks extends OrgAction
 
                     return $imageElement;
                 }, $text);
-            } elseif($code == "images"){
+            } elseif ($code == "images") {
+                $imgResources = [];
                 foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
-                    $layout['data']["fieldValue"]["value"][$index]['source'] = $imageSource;
-                    unset($layout['data']["fieldValue"]["value"][$index]['aurora_source']);
+                    $linkData = $layout['data']["fieldValue"]["value"][$index]['link_data'];
+                    $imgResources[] = ["source" => $imageSource, "link_data" => $linkData];
+                    unset($layout['data']["fieldValue"]["value"][$index]);
+                }
+                // make like this, to set img placed in the correct key
+                $layout['data']['fieldValue']['value']["images"] = $imgResources;
+                $layout['data']['fieldValue']['value']["layout_type"] = Arr::get($layout, "data.fieldValue.layout_type");
+                Arr::forget($layout, "data.fieldValue.layout_type");
+            } else {
+                foreach ($layout['data']["fieldValue"]["value"] as $key => $container) {
+                    if ($key == "images") {
+                        foreach ($container as $index => $imageRawData) {
+                            $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
+                            $layout['data']["fieldValue"]["value"][$key][$index]['source'] = $imageSource;
+                            unset($layout['data']["fieldValue"]["value"][$key][$index]['aurora_source']);
+                        }
+                    }
                 }
             }
             $webBlock->updateQuietly([
