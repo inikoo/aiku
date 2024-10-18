@@ -59,9 +59,6 @@ trait WithFetchTextWebBlock
 
             $patternAttributeAnchor = '/<a\s+(.*?)(href="([^"]*)")(.*?)>/i';
             foreach ($links as $index => $link) {
-                // print ">>>>>>>>>".$originalAnchor[$index].">>>>>>>>>>>";
-                // print ">>>>>>>>>".$link.">>>>>>>>>>>";
-                // print $link . "\n";
                 $originalLink = FetchAuroraWebBlockLink::run($webpage->website, $link, $this->dbSuffix);
                 preg_match($patternAttributeAnchor, $originalAnchor[$index], $matchesInside);
                 $additionalAttribute = '';
