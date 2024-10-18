@@ -36,11 +36,12 @@ class WebpagesResource extends JsonResource
             "code" => $this->code,
             "url" => $this->url,
             "url_workshop" => route('grp.org.shops.show.web.webpages.workshop', [
-                'organisation' => $this->organisation->slug,
-                'shop' => $this->shop->slug,
-                'website' => $this->website->slug,
+                'organisation' => $this->organisation_slug,
+                'shop' => $this->shop_slug,
+                'website' => $this->website_slug,
                 'webpage' => $this->slug,
             ]),
+            "url_iris" => $this->website_url . '/' . $this->url,
             "type" => $this->type,
             "typeIcon" => $this->type->stateIcon()[$this->type->value] ?? ["fal", "fa-browser"],
             /* 	"typeIcon2" => match ($this->type) {
