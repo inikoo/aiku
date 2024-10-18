@@ -10,13 +10,17 @@ import { data as footerData, bluprintForm as bluprintFormFooter } from '@/Compon
 import { navigation as navigationData } from '@/Components/Websites/Menu/Descriptor'
 import { usePage } from '@inertiajs/vue3'
 import ScreenWarning from '@/Components/Utils/ScreenWarning.vue'
-import { inject } from 'vue'
-import { layoutStructure } from '@/Composables/useLayoutStructure'
+import { provide } from 'vue'
+import { initialiseIrisApp } from '@/Composables/initialiseIris'
+import { useIrisLayoutStore } from "@/Stores/irisLayout"
 
+initialiseIrisApp()
 
 const props = defineProps<{}>()
+const layout = useIrisLayoutStore()
 
-const layout = inject('layout', layoutStructure)
+// const layout = inject('layout', useIrisLayoutStore())
+provide('layout', layout)
 
 const header = usePage().props?.iris?.header ? usePage().props?.iris?.header : { key : "header1" , data : headerData, bluprint : bluprintFormHeader }
 const footer =  usePage().props?.iris?.footer ? usePage().props?.iris?.footer :  { key : "footer1" , data : footerData, bluprint : bluprintFormFooter }
@@ -30,7 +34,7 @@ const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color
         <ScreenWarning v-if="layout.app.environment === 'staging'" />
         <div  class="container max-w-7xl mx-auto shadow-xl">
             <IrisLoginInformation />
-         <!--    <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation"/> -->
+            <!--    <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation"/> -->
 
             
             <!-- Main Content -->
@@ -38,7 +42,7 @@ const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color
                 <slot />
             </main>
 
-              <Footer :data="footer" :colorThemed="colorThemed"/>
+            <Footer :data="footer" :colorThemed="colorThemed"/>
         </div>
     </div>
 
