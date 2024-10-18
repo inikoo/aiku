@@ -166,13 +166,13 @@ class FetchAuroraWebBlocks extends OrgAction
         $group = $webpage->group;
 
 
-        // if($auroraBlock['type'] == "text") {
-        //     $webBlockType = $group->webBlockTypes()->where("slug", "text")->first();
-        //     $layout       = $this->processTextData($webpage, $auroraBlock);
-        //     return;
-        // }else {
-        //     return;
-        // }
+        if ($auroraBlock['type'] == "text") {
+            $webBlockType = $group->webBlockTypes()->where("slug", "text")->first();
+            $layout       = $this->processTextData($webpage, $auroraBlock);
+            return;
+        } else {
+            return;
+        }
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = $group->webBlockTypes()->where("code", "images")->first();
