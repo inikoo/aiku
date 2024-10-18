@@ -7,10 +7,62 @@ import { getTopbarComponent } from '@/Components/Websites/Topbar/TopbarList'
 
 const props = defineProps<{
     data: {
-        key: string,
-        data: object,
-        bluprint: object
-        loginRoute?: routeType
+        topBar: {
+            id: number
+            code: string
+            data: {
+                component: string
+                fieldValue: {
+                    key: string
+                    greeting: {
+                        text: string
+                        visible: string
+                    }
+                    container: {
+                        properties: {
+                            text: {
+                                color: string
+                                fontFamily: string
+                            }
+                            background: {
+                                type: string
+                                color: string
+                                image: {
+                                    original: string | null
+                                }
+                            }
+                        }
+                    }
+                    main_title: {
+                        text: string
+                        visible: string
+                    }
+                }
+            }
+            icon: string | null
+            name: string
+            show: boolean
+            scope: string
+            blueprint: {
+                key: string[]
+                name: string
+                type: string[]
+                props_data: any[]
+                replaceForm?: {
+                    key: string[]
+                    type: string[]
+                }[]
+            }[]
+            component: string
+            created_at: string
+            screenshot: string | null
+            updated_at: string
+            visibility: {
+                in: boolean
+                out: boolean
+            }
+            description: string | null
+        }
     }
     menu: {
         key: string,
@@ -22,18 +74,18 @@ const props = defineProps<{
     }
 }>()
 
-console.log('p-header',props)
+// console.log('p-header', props)
 
 </script>
 
 <template>
     <div>
-        <!-- <pre>{{ data?.topBar }}</pre> -->
+        <!-- <pre>{{ data.topBar.data }}</pre> -->
         <!-- Section: Topbar -->
         <component
-            v-if="data?.topBar?.fieldValue"
-            :is="getTopbarComponent('topbar_1')"
-            v-model="data.topBar.fieldValue"
+            v-if="data?.topBar?.data.fieldValue"
+            :is="getTopbarComponent(data?.topBar.code)"
+            v-model="data.topBar.data.fieldValue"
             :loginMode="true"
             :previewMode="true"
             :uploadImageRoute="null"

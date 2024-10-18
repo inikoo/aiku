@@ -55,7 +55,7 @@ class UpdateLocation extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'code' => [
+            'code'               => [
                 'sometimes',
                 'required',
                 'max:64',
@@ -72,23 +72,23 @@ class UpdateLocation extends OrgAction
                     ]
                 ),
             ],
-            'allow_stocks'           => ['sometimes', 'required', 'boolean'],
-            'allow_fulfilment'       => ['sometimes', 'required', 'boolean'],
-            'allow_dropshipping'     => ['sometimes', 'required', 'boolean'],
-            'max_weight' => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
-            'max_volume' => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
+            'allow_stocks'       => ['sometimes', 'required', 'boolean'],
+            'allow_fulfilment'   => ['sometimes', 'required', 'boolean'],
+            'allow_dropshipping' => ['sometimes', 'required', 'boolean'],
+            'max_weight'         => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
+            'max_volume'         => ['sometimes', 'nullable', 'numeric', 'min:0.1', 'max:1000000'],
         ];
 
         if (!$this->strict) {
-            $rules['code'] = [
+            $rules['code']            = [
                 'required',
                 'max:64',
                 'string',
             ];
             $rules['last_fetched_at'] = ['sometimes', 'date'];
         }
-        return $rules;
 
+        return $rules;
     }
 
     public function action(Location $location, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Location
