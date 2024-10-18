@@ -32,7 +32,8 @@ trait WithFetchImagesWebBlock
 
         foreach ($auroraBlock["images"] as $image) {
             $imageLink = null;
-            if (isset($image["link"])) {
+            if (!empty($image["link"])) {
+                print ">>>>>>>>>img -> ".$image["link"].">>>>>>>>>>>\n";
                 $imageLink = FetchAuroraWebBlockLink::run($webpage->website, $image["link"], $this->dbSuffix);
 
             }

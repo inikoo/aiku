@@ -29,6 +29,9 @@ class FetchAuroraWebBlockLink extends OrgAction
      */
     public function handle(Website $website, $auroraLink, $dbSuffix = ''): array
     {
+
+        print "Original link >>>$auroraLink<<<<\n";
+
         $this->organisationSource = $this->getOrganisationSource($website->organisation);
         $this->organisationSource->initialisation($website->organisation, $dbSuffix);
 
