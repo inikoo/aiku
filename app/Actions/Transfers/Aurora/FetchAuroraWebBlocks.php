@@ -372,7 +372,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 $text = $layout['data']['fieldValue']['value'];
                 $pattern = '/<img\s+[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
 
-                $text = preg_replace_callback($pattern, function ($match) use ($webBlock, $webpage) {
+                preg_replace_callback($pattern, function ($match) use ($webBlock, $webpage) {
                     $originalImage = $match[1];
                     $media = FetchAuroraWebBlockMedia::run($webBlock, $webpage, $originalImage);
                     $imageElement = $match[0];
@@ -384,15 +384,15 @@ class FetchAuroraWebBlocks extends OrgAction
                         $imageElement = preg_replace('/src="([^"]*)"/', 'src="'.$imageUrl.'"', $imageElement);
                         $imageElement = preg_replace("/(fr\-fil|fr\-dii)/", "", $imageElement); // remove class fr-fil & fr-dii
                     }
+
                     return $imageElement;
                 }, $text);
-            } else {
+            } elseif($code == "images"){
                 foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
                     $layout['data']["fieldValue"]["value"][$index]['source'] = $imageSource;
                     unset($layout['data']["fieldValue"]["value"][$index]['aurora_source']);
                 }
-
             }
             $webBlock->updateQuietly([
                 "layout" => $layout,
