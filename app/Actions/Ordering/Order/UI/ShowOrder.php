@@ -12,6 +12,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\Ordering\Transaction\UI\IndexNonProductItems;
 use App\Actions\Ordering\Transaction\UI\IndexTransactions;
 use App\Actions\OrgAction;
@@ -33,6 +34,7 @@ use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Http\Resources\CRM\CustomerResource;
 use App\Http\Resources\Dispatching\DeliveryNotesResource;
 use App\Http\Resources\Helpers\AddressResource;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Http\Resources\Ordering\NonProductItemsResource;
 use App\Models\Helpers\Address;
@@ -463,6 +465,10 @@ class ShowOrder extends OrgAction
                      fn () => DeliveryNotesResource::collection(IndexDeliveryNotes::run(parent: $order, prefix: OrderTabsEnum::DELIVERY_NOTES->value))
                      : Inertia::lazy(fn () => DeliveryNotesResource::collection(IndexDeliveryNotes::run(parent: $order, prefix: OrderTabsEnum::DELIVERY_NOTES->value))),
 
+                 OrderTabsEnum::ATTACHMENTS->value => $this->tab == OrderTabsEnum::ATTACHMENTS->value ?
+                     fn () => AttachmentsResource::collection(IndexAttachments::run(parent: $order, prefix: OrderTabsEnum::DELIVERY_NOTES->value))
+                     : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run(parent: $order, prefix: OrderTabsEnum::DELIVERY_NOTES->value))),
+
             ]
         )
             ->table(
@@ -475,6 +481,9 @@ class ShowOrder extends OrgAction
             ->table(IndexInvoices::make()->tableStructure(
                 parent: $order,
                 prefix: OrderTabsEnum::INVOICES->value
+            ))
+            ->table(IndexAttachments::make()->tableStructure(
+                prefix: OrderTabsEnum::ATTACHMENTS->value
             ))
             ->table(IndexDeliveryNotes::make()->tableStructure(
                 parent: $order,
