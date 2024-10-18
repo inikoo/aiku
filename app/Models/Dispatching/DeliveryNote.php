@@ -48,6 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $warehouse_id
  * @property int $shop_id
  * @property int $customer_id
+ * @property int|null $customer_client_id
  * @property string $reference
  * @property DeliveryNoteTypeEnum $type
  * @property DeliveryNoteStateEnum $state
@@ -77,13 +78,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $dispatched_at
  * @property \Illuminate\Support\Carbon|null $cancelled_at
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $fetched_at
- * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
- * @property int|null $customer_client_id
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits

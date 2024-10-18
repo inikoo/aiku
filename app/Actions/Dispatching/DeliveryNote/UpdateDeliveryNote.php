@@ -87,7 +87,7 @@ class UpdateDeliveryNote extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'reference'        => [
                 'sometimes',
                 'string',
@@ -106,12 +106,18 @@ class UpdateDeliveryNote extends OrgAction
             'phone'            => ['sometimes', 'nullable', 'string'],
             'date'             => ['sometimes', 'date'],
             'delivery_address' => ['sometimes', 'required', new ValidAddress()],
-            'last_fetched_at'  => ['sometimes', 'date'],
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(DeliveryNote $deliveryNote, array $modelData, int $hydratorsDelay = 0, bool $audit = true): DeliveryNote
+    public function action(DeliveryNote $deliveryNote, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): DeliveryNote
     {
+        $this->strict = $strict;
         if (!$audit) {
             DeliveryNote::disableAuditing();
         }
