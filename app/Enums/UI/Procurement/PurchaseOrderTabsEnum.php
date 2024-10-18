@@ -18,6 +18,7 @@ enum PurchaseOrderTabsEnum: string
     case SHOWCASE            = 'showcase';
     case ITEMS               = 'items';
     case HISTORY             = 'history';
+    case ATTACHMENTS         = 'attachments';
 
 
     public function blueprint(): array
@@ -37,6 +38,12 @@ enum PurchaseOrderTabsEnum: string
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
+            ],
+            PurchaseOrderTabsEnum::ATTACHMENTS => [
+                'align' => 'right',
+                'title' => __('attachments'),
+                'icon'  => 'fal fa-paperclip',
+                'type'  => 'icon'
             ],
         };
     }

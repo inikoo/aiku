@@ -24,6 +24,7 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import AlertMessage from '@/Components/Utils/AlertMessage.vue'
 import BoxNote from '@/Components/Pallet/BoxNote.vue'
 import Popover from '@/Components/Popover.vue'
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -55,6 +56,7 @@ const props = defineProps<{
         updateOrderRoute: routeType
         products_list: routeType
     }
+    attachments?: {}
 }>()
 
 
@@ -64,6 +66,7 @@ const component = computed(() => {
     const components: Component = {
         history: TableHistories,
         items: TablePurchaseOrderTransactions
+        attachments: TableAttachments,
     }
 
     return components[currentTab.value]
