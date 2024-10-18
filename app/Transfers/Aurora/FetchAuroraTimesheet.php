@@ -51,6 +51,9 @@ class FetchAuroraTimesheet extends FetchAurora
         $this->parsedData['timesheet'] = [
             'date'      => $this->auroraModelData->{'Timesheet Date'},
             'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Timesheet Key'},
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
+
         ];
 
         foreach ($clockingsData as $clockingsDatum) {

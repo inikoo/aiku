@@ -17,14 +17,9 @@ class UpdateTimesheet extends OrgAction
     use WithActionUpdate;
 
 
-
     public function handle(Timesheet $timesheet, array $modelData): Timesheet
     {
-
-
-        $timesheet = $this->update($timesheet, $modelData, ['data']);
-
-        return $timesheet;
+        return $this->update($timesheet, $modelData, ['data']);
     }
 
 
@@ -33,19 +28,25 @@ class UpdateTimesheet extends OrgAction
         if ($this->asAction) {
             return true;
         }
+
         return false;
     }
 
     public function rules(): array
     {
-        return [
+        $rules = [];
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
 
-        ];
+        return $rules;
     }
 
-    public function action(Timesheet $timesheet, $modelData): Timesheet
+    public function action(Timesheet $timesheet, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Timesheet
     {
-        $this->asAction = true;
+        $this->strict         = $strict;
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($timesheet->organisation, $modelData);
 
         return $this->handle($timesheet, $this->validatedData);

@@ -29,9 +29,9 @@ class StoreTimesheet extends OrgAction
         $timesheet = $parent->timesheets()->create($modelData);
 
         if ($parent instanceof Employee) {
-            EmployeeHydrateTimesheets::dispatch($parent)->delay(now()->addSeconds(10));
+            EmployeeHydrateTimesheets::dispatch($parent)->delay($this->hydratorsDelay);
         } else {
-            GuestHydrateTimesheets::dispatch($parent)->delay(now()->addSeconds(10));
+            GuestHydrateTimesheets::dispatch($parent)->delay($this->hydratorsDelay);
         }
         $timesheet->refresh();
 
@@ -50,16 +50,23 @@ class StoreTimesheet extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'date'      => ['required', 'date'],
-            'source_id' => ['sometimes', 'string', 'max:64'],
+        $rules = [
+            'date' => ['required', 'date'],
         ];
+        if (!$this->strict) {
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+        }
+
+        return $rules;
     }
 
 
-    public function action(Employee|Guest $parent, $modelData): Timesheet
+    public function action(Employee|Guest $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Timesheet
     {
-        $this->asAction = true;
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($parent->organisation, $modelData);
 
         return $this->handle($parent, $this->validatedData);

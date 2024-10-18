@@ -32,8 +32,12 @@ class FetchAuroraTimesheets extends FetchAuroraAction
                 try {
                     $timesheet = UpdateTimesheet::make()->action(
                         timesheet: $timesheet,
-                        modelData: $timesheetData['timesheet']
+                        modelData: $timesheetData['timesheet'],
+                        hydratorsDelay: 60,
+                        strict: false,
                     );
+                    $this->recordChange($organisationSource, $timesheet->wasChanged());
+
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $timesheetData['timesheet'], 'Timesheet', 'update');
 
@@ -44,7 +48,11 @@ class FetchAuroraTimesheets extends FetchAuroraAction
                     $timesheet = StoreTimesheet::make()->action(
                         parent: $timesheetData['employee'],
                         modelData: $timesheetData['timesheet'],
+                        hydratorsDelay: 60,
+                        strict: false,
                     );
+                    $this->recordNew($organisationSource);
+
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $timesheetData['timesheet'], 'Timesheet', 'store');
                     return null;
@@ -52,13 +60,17 @@ class FetchAuroraTimesheets extends FetchAuroraAction
 
                 foreach ($timesheetData['clockings'] as $clockingData) {
                     try {
-                        StoreClocking::make()->action(
+                        $timesheet = StoreClocking::make()->action(
                             generator: $clockingData['generator'],
                             parent: $clockingData['parent'],
                             subject: $clockingData['subject'],
                             modelData: $clockingData['clockingData'],
                             hydratorsDelay:120
                         );
+                        $sourceData = explode(':', $timesheet->source_id);
+                        DB::connection('aurora')->table('Timesheet Dimension')
+                            ->where('Timesheet Key', $sourceData[1])
+                            ->update(['aiku_id' => $timesheet->id]);
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $clockingData['clockingData'], 'Clocking', 'store');
                         return null;

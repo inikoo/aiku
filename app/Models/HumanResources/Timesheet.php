@@ -31,6 +31,8 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property int $total_duration seconds
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
@@ -50,6 +52,8 @@ class Timesheet extends Model
         'date'     => 'date',
         'start_at' => 'datetime',
         'end_at'   => 'datetime',
+        'fetched_at'         => 'datetime',
+        'last_fetched_at'    => 'datetime',
     ];
 
     protected $guarded = [];
