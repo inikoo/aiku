@@ -18,6 +18,12 @@ class ShippingZoneSchemasResource extends JsonResource
             'slug'                     => $this->slug,
             'name'                     => $this->name,
             'created_at'               => $this->created_at,
+            'number_customers'         => $this->number_customers,
+            'number_orders'            => $this->number_orders,
+            'zones'                    => $this->number_shipping_zones,
+            'amount'                   => $this->amount,
+            'first_used'               => $this->first_used_at,
+            'last_used'                => $this->last_used_at
         ];
     }
 }
