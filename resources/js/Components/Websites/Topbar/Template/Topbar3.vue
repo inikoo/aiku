@@ -11,11 +11,14 @@ import Modal from '@/Components/Utils/Modal.vue'
 import LoginPassword from '@/Components/Auth/LoginPassword.vue'
 import { Link } from '@inertiajs/vue3'
 import { getStyles } from '@/Composables/styles'
+import { checkVisible } from '@/Composables/Workshop'
+
 library.add(faHeart, faShoppingCart, faSignOut, faUser, faSignIn, faUserPlus)
 
 interface ModelTopbar1 {
     greeting: {
         text: string
+        visible: string
     }
     main_title: {
         text: string
@@ -35,7 +38,7 @@ interface ModelTopbar1 {
 
 const model = defineModel<ModelTopbar1>()
 
-const isLoggedIn = ref(false)
+const isLoggedIn = inject('isPreviewLoggedIn', false)
 const isDropshipping = ref(false)
 const sectionAuth = ref<string | null>()
 
@@ -53,88 +56,106 @@ const onClickLogin = () => {
     sectionAuth.value = 'login'
 }
 
+
 </script>
 
 <template>
-    <div id="top_bar" class="py-1 px-4 flex justify-between"
+    <div id="top_bar" class="py-2 px-4 flex justify-between"
         :style="getStyles(model?.container.properties)"
     >
-    <!-- <pre>{{ model.topbar.properties }}</pre> -->
-        <div class="flex">
-            <!-- Section: greeting -->
-            <div v-if="!isLoggedIn" v-html="model?.greeting?.text?.replace('{{ name }}', 'Pphonofdshnjlcx')" class="flex items-center">
-            </div>
 
-            <!-- <div id="top_bar_is_gold_reward_member" class="hide" style="margin-left: 20px;">
-                <i class="fal fa-sparkles" style="color: #ffebb1;"></i>
-                <div id="top_bar_is_gold_reward_member_label"
-                    style="padding: 1px 2px  1px 3px;color: #ffbf00;font-weight: 600;"></div>
-                <i class="fal fa-sparkles" style="color: #ffebb1;"></i>
-                <div id="top_bar_is_gold_reward_member_until"
-                    style="white-space: nowrap;display: inline-block;font-size: 0.7rem;margin-left: 2px;"></div>
-            </div>
+        <div class="flex gap-x-2">
+            <!-- Button 5: Profile -->
+            <a v-if="checkVisible(model?.button_5?.visible || null, isLoggedIn)"
+                id="profile_button"
+                :href="model?.button_5?.link"
+                class="space-x-1.5"
+                :style="getStyles(model?.button_5.container.properties)"
+            >
+                <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
+                <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width
+                    aria-hidden='true' />
+                <span v-html="model?.button_5?.text.replace(/\{\{\s*name\s*\}\}/g, 'John Doe')"></span>
+            </a>
 
-            <div id="top_bar_is_first_order_bonus" class="hide" style="margin-left: 20px;">
-                <i class="fal fa-sparkles" style="color: #ffebb1;"></i>
-                <div id="top_bar_is_first_order_bonus_label"
-                    style="padding: 1px 2px  1px 3px;color: #ffbf00;font-weight: 600;"></div>
-                <i class="fal fa-sparkles" style="color: #ffebb1;"></i>
+            <!-- Button 6: Logout -->
+            <a v-if="checkVisible(model?.button_6?.visible || null, isLoggedIn)"
+                :href="model?.button_6?.link"
+                class="space-x-1.5"
+                :style="getStyles(model?.button_6.container.properties)"
+            >
+                <!-- <i class="far fa-flip-horizontal fa-sign-out" title="Log out" aria-hidden="true"></i> -->
+                <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width
+                    aria-hidden='true' />
+                <span>Log out</span>
+            </a>
+
+            <!-- Login -->
+            <div v-if="checkVisible(model?.button_1.visible || null, isLoggedIn)" @click="() => onClickLogin()"
+                :href="model?.button_1?.visible"
+                class="space-x-1.5 cursor-pointer"
+                id=""
+                :style="getStyles(model?.button_1.container.properties)"
+                
+            >
+                <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
+                <span>{{ model?.button_1.text }}</span>
+            </div>
+            
+            <!-- Register -->
+            <div v-if="checkVisible(model?.button_2.visible || null, isLoggedIn)" @click="() => onClickRegister()"
+                :href="model?.button_2?.visible"
+                class="space-x-1.5 cursor-pointer"
+                id=""
+                :style="getStyles(model?.button_2.container.properties)"
+                
+            >
+                <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
+                <span>{{ model?.button_2.text }}</span>
+            </div>
+        </div>
+
+        <!-- Section: Main title -->
+        <div v-if="checkVisible(model?.main_title.visible || null, isLoggedIn)" class="text-center flex items-center" v-html="model.main_title.text">
+        </div>
+
+        <div class="action_buttons" style="display: flex; justify-content: flex-end; column-gap: 5px; grid-column: span 5 / span 5">
+
+            <!-- Button 4: Favourites -->
+            <a v-if="checkVisible(model?.button_4?.visible || null, isLoggedIn)"
+                id="favorites_button"
+                :href="model?.button_4?.link"
+                class="mx-0 space-x-1.5"
+                :style="getStyles(model?.button_4.container.properties)"
+            >
+                <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
+                <span v-html="model?.button_4?.text.replace(/\{\{\s*favouritesCount\s*\}\}/g, '28')"></span>
+            </a>
+
+            <!-- Button 3: Cart -->
+            <a v-if="checkVisible(model?.button_3?.visible || null, isLoggedIn)"
+                id="header_order_totals"
+                :href="model?.button_3?.visible"
+                class="space-x-1.5"
+                :style="getStyles(model?.button_3.container.properties)"
+            >
+                <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')"
+                    fixed-width aria-hidden='true' />
+                <span v-html="model?.button_3?.text.replace(/\{\{\s*cartNumber\s*\}\}/g, '15')"></span>
+            </a>
+
+
+            <!-- <div @click="() => onClickRegister()" href="/register.sys" class="space-x-1.5">
+                <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
+                <span>Register</span>
             </div> -->
-        </div>
-
-        <div class="text-center qwezxc" v-html="model.main_title.text">
-        </div>
-
-        <div class="action_buttons" style="display: flex; justify-content: flex-end; column-gap: 45px; grid-column: span 5 / span 5">
-            <template v-if="isLoggedIn">
-                <a href="#" class="space-x-1.5" style="margin-left: 0px;">
-                    <!-- <i class="far fa-flip-horizontal fa-sign-out" title="Log out" aria-hidden="true"></i> -->
-                    <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width
-                        aria-hidden='true' />
-                    <span>Log out</span>
-                </a>
-                <a id="profile_button" href="profile.sys" class="space-x-1.5">
-                    <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
-                    <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width
-                        aria-hidden='true' />
-                    <span>Profile</span>
-                </a>
-                <a id="favorites_button" href="favourites.sys" class="mx-0 space-x-1.5">
-                    <!-- <i class=" far fa-heart" title="My favourites" aria-hidden="true"></i> -->
-                    <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
-                    <span>My favourites</span>
-                </a>
-                <a id="header_order_totals" href="basket.sys" class="space-x-1.5" style="">
-                    <span class="ordered_products_number">11</span>
-                    <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')"
-                        fixed-width aria-hidden='true' />
-                    <span class="order_amount" title="" style="font-weight: 600; font-size: 1.1rem;">
-                        ${{ 4561237486 }}
-                    </span>
-                </a>
-            </template>
-
-            <template v-else>
-                <template v-if="isDropshipping">
-                    <a href="/login.sys" class="space-x-1.5" id="">
-                        <span>Call us</span>
-                    </a>
-                </template>
-
-                <template v-else>
-                    <div @click="() => onClickLogin()" href="/login.sys" class="space-x-1.5" id="">
-                        <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
-                        <span>Login</span>
-                    </div>
-                    <div @click="() => onClickRegister()" href="/register.sys" class="space-x-1.5">
-                        <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
-                        <span>Register</span>
-                    </div>
-                </template>
-            </template>
 
         </div>
     </div>
+
+    <!-- <pre>{{model?.button_2}}</pre>
+
+    ========== -->
 
     <Modal :isOpen="isModalOpen" @onClose="() => isModalOpen = false">
         <div v-if="sectionAuth === 'login'" class="flex min-h-full flex-1 flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -227,12 +248,6 @@ const onClickLogin = () => {
                 </div>
             </div>
 
-            <!-- <p class="mt-10 text-center text-sm text-gray-500">
-                Not a member?
-                {{ ' ' }}
-                <a href="#" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Start a 14 day
-                    free trial</a>
-            </p> -->
         </div>
 
         <!-- Register -->
@@ -277,11 +292,11 @@ const onClickLogin = () => {
                 </div>
 
                 <div>
-                            <button type="submit"
-                                class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                Register
-                            </button>
-                        </div>
+                    <button type="submit"
+                        class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        Register
+                    </button>
+                </div>
                 <!-- <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <Checkbox name="remember-me" id="remember-me" v-model:checked="form.remember" />

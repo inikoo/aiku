@@ -247,13 +247,13 @@
 				"properties": {
 					"background": {
 						"type": "color",
-						"color": "rgb(75,80,88)",
+						"color": "linear-gradient(90deg, rgba(221,245,254,1) 0%, rgba(252,247,255,1) 16%, rgba(255,252,246,1) 35%, rgba(248,240,255,1) 57%, rgba(255,250,246,1) 83%)",
 						"image": {
 							"original": null
 						}
 					},
 					"text": {
-						"color": "rgb(255,255,255)",
+						"color": "rgba(10,10,10,1)",
 						"fontFamily": "Raleway"
 					}
 				}
@@ -269,7 +269,7 @@
 			"button_1": {
 				"link": null,
 				"text": "Login",
-				"visible": "login",
+				"visible": "logout",
 				"container": {
 					"properties": {
 						"text": {
@@ -349,7 +349,7 @@
 			"button_2": {
 				"link": null,
 				"text": "Register",
-				"visible": "login",
+				"visible": "logout",
 				"container": {
 					"properties": {
 						"text": {

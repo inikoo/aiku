@@ -7,38 +7,234 @@
 	"blueprint": [
 		{
 			"name": "Container",
-			"key": ["container", "properties"],
-			"type": ["properties"],
+			"icon": {
+				"icon": "fal fa-rectangle-wide",
+				"tooltip": "Container"
+			},
+			"key": [
+				"container",
+				"properties"
+			],
+			"type": [
+				"properties"
+			],
 			"props_data": {}
 		},
 		{
 			"name": "Title",
-			"key": ["main_title", "text"],
-			"type": ["text"],
+			"icon": {
+				"icon": "fal fa-text",
+				"tooltip": "Text"
+			},
 			"replaceForm": [
 				{
-					"key": ["main_title", "visible"],
-					"type": ["VisibleLoggedIn"]
+					"key": [
+						"main_title",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
 				},
 				{
-					"key": ["main_title", "text"],
-					"type": ["editorhtml"]
+					"key": [
+						"main_title",
+						"text"
+					],
+					"type": [
+						"editorhtml"
+					]
 				}
 			],
 			"props_data": {}
 		},
 		{
 			"name": "Greeting",
-			"key": ["greeting", "text"],
-			"type": ["editorhtml"],
+			"icon": {
+				"icon": "fal fa-text",
+				"tooltip": "Text"
+			},
 			"replaceForm": [
 				{
-					"key": ["greeting", "visible"],
-					"type": ["VisibleLoggedIn"]
+					"key": [
+						"greeting",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
 				},
 				{
-					"key": ["greeting", "text"],
-					"type": ["editorhtml"]
+					"key": [
+						"greeting",
+						"text"
+					],
+					"type": [
+						"editorhtml"
+					]
+				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Login",
+			"icon": {
+				"icon": "far fa-dot-circle",
+				"tooltip": "Action"
+			},
+			
+			"replaceForm": [
+				{
+					"key": [
+						"button_1",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": [
+						"button_1"
+					],
+					"type": [
+						"button"
+					]
+				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Register",
+			"icon": {
+				"icon": "far fa-dot-circle",
+				"tooltip": "Action"
+			},
+			"replaceForm": [
+				{
+					"key": [
+						"button_2",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": [
+						"button_2"
+					],
+					"type": [
+						"button"
+					]
+				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Button 3",
+			"icon": {
+				"icon": "far fa-dot-circle",
+				"tooltip": "Action"
+			},
+			"replaceForm": [
+				{
+					"key": [
+						"button_3",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": [
+						"button_3"
+					],
+					"type": [
+						"button"
+					]
+				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Button 4",
+			"icon": {
+				"icon": "far fa-dot-circle",
+				"tooltip": "Action"
+			},
+			"replaceForm": [
+				{
+					"key": [
+						"button_4",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": [
+						"button_4"
+					],
+					"type": [
+						"button"
+					]
+				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Button 5",
+			"icon": {
+				"icon": "far fa-dot-circle",
+				"tooltip": "Action"
+			},
+			"replaceForm": [
+				{
+					"key": [
+						"button_5",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": [
+						"button_5"
+					],
+					"type": [
+						"button"
+					]
+				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Button 6",
+			"icon": {
+				"icon": "far fa-dot-circle",
+				"tooltip": "Action"
+			},
+			"replaceForm": [
+				{
+					"key": [
+						"button_6",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": [
+						"button_6"
+					],
+					"type": [
+						"button"
+					]
 				}
 			],
 			"props_data": {}
@@ -51,66 +247,289 @@
 				"properties": {
 					"background": {
 						"type": "color",
-						"color": "rgb(75,80,88)",
+						"color": "rgba(20,20,20,1)",
 						"image": {
 							"original": null
 						}
 					},
 					"text": {
-						"color": "rgb(255,255,255)",
+						"color": "rgba(255,255,255,1)",
 						"fontFamily": "Raleway"
 					}
 				}
 			},
 			"main_title": {
-				"text": "<p><span>Lorem ipsum dolor sit amet.</span></p>",
+				"text": "<p><strong>Stay Fit & Healthy: Save 15% on Natural Supplements!</strong></p>",
 				"visible": "all"
 			},
-			"greeting": {
-				"text": "<p>Hello, {{ name }}.",
-				"visible": "login"
+			"button_1": {
+				"link": null,
+				"text": "Login",
+				"visible": "logout",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(255, 255, 255, 1)"
+						},
+						"border": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"color": "rgba(231, 231, 231, 1)",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							},
+							"rounded": {
+								"unit": "px",
+								"topleft": {
+									"value": 5
+								},
+								"topright": {
+									"value": 5
+								},
+								"bottomleft": {
+									"value": 5
+								},
+								"bottomright": {
+									"value": 5
+								}
+							}
+						},
+						"margin": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						},
+						"background": {
+							"type": "color",
+							"color": "rgba(10, 10, 10, 1)",
+							"image": {
+								"original": null
+							}
+						}
+					}
+				}
+			},
+			"button_2": {
+				"link": null,
+				"text": "Register",
+				"visible": "logout",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(255, 255, 255, 1)"
+						},
+						"border": {
+							"top": {
+								"value": 1
+							},
+							"left": {
+								"value": 1
+							},
+							"unit": "px",
+							"color": "rgba(255, 255, 255, 1)",
+							"right": {
+								"value": 1
+							},
+							"bottom": {
+								"value": 1
+							},
+							"rounded": {
+								"unit": "px",
+								"topleft": {
+									"value": 5
+								},
+								"topright": {
+									"value": 5
+								},
+								"bottomleft": {
+									"value": 5
+								},
+								"bottomright": {
+									"value": 5
+								}
+							}
+						},
+						"margin": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						},
+						"background": {
+							"type": "color",
+							"color": "rgba(10, 10, 10, 0)",
+							"image": {
+								"original": null
+							}
+						}
+					}
+				}
+			},
+			"button_3": {
+				"link": "/cart.sys",
+				"text": "{{ cartNumber }} items",
+				"visible": "login",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(255, 255, 255, 1)"
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						}
+					}
+				}
+			},
+			"button_4": {
+				"link": "/favourites.sys",
+				"text": "{{ favouritesCount }}",
+				"visible": "login",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(255, 255, 255, 1)"
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						}
+					}
+				}
+			},
+			"button_5": {
+				"link": "/profile.sys",
+				"text": "{{ name }}",
+				"visible": "login",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(255, 255, 255, 1)"
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						}
+					}
+				}
+			},
+			"button_6": {
+				"link": "/logout.sys",
+				"text": "Log out",
+				"visible": "login",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(255, 255, 255, 1)"
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						}
+					}
+				}
 			}
 		}
-	},
-	"blueprint": [
-		{
-			"name": "Container",
-			"key": ["container", "properties"],
-			"type": ["properties"],
-			"props_data": {}
-		},
-		{
-			"name": "Title",
-			"key": ["main_title", "text"],
-			"replaceForm": [
-				{
-					"key": ["greeting", "visible"],
-					"type": ["VisibleLoggedIn"],
-					"props_data": {}
-				},
-				{
-					"key": ["greeting", "text"],
-					"type": ["editorhtml"],
-					"props_data": {}
-				}
-			],
-			"props_data": {}
-		},
-		{
-			"name": "Greeting",
-			"key": ["greeting", "text"],
-			"replaceForm": [
-				{
-					"key": ["greeting", "visible"],
-					"type": ["VisibleLoggedIn"],
-					"props_data": {}
-				},
-				{
-					"key": ["greeting", "text"],
-					"type": ["editorhtml"],
-					"props_data": {}
-				}
-			]
-		}
-	]
+	}
 }

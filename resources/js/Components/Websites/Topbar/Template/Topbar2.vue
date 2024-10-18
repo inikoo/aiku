@@ -61,8 +61,7 @@ const onClickLogin = () => {
 
 <template>
     <div id="top_bar" class="py-2 px-4 flex justify-between bg-[]"
-        style="background: linear-gradient(90deg, rgba(221,245,254,1) 0%, rgba(252,247,255,1) 16%, rgba(255,252,246,1) 35%, rgba(248,240,255,1) 57%, rgba(255,250,246,1) 83%)"
-        :style="'getStyles(model?.container.properties)'"
+        :style="getStyles(model?.container.properties)"
     >
         
         <!-- Section: Greeting -->
@@ -256,12 +255,6 @@ const onClickLogin = () => {
                 </div>
             </div>
 
-            <!-- <p class="mt-10 text-center text-sm text-gray-500">
-                Not a member?
-                {{ ' ' }}
-                <a href="#" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Start a 14 day
-                    free trial</a>
-            </p> -->
         </div>
 
         <!-- Register -->
@@ -306,11 +299,11 @@ const onClickLogin = () => {
                 </div>
 
                 <div>
-                            <button type="submit"
-                                class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
-                                Register
-                            </button>
-                        </div>
+                    <button type="submit"
+                        class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+                        Register
+                    </button>
+                </div>
                 <!-- <div class="flex items-center justify-between">
                     <div class="flex items-center">
                         <Checkbox name="remember-me" id="remember-me" v-model:checked="form.remember" />
