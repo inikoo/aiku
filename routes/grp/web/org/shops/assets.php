@@ -9,6 +9,7 @@ use App\Actions\Catalogue\Charge\UI\CreateCharge;
 use App\Actions\Catalogue\Charge\UI\EditCharge;
 use App\Actions\Catalogue\Charge\UI\IndexCharges;
 use App\Actions\Catalogue\Charge\UI\ShowCharge;
+use App\Actions\Ordering\ShippingZone\UI\EditShippingZone;
 use App\Actions\Ordering\ShippingZone\UI\ShowShippingZone;
 use App\Actions\Ordering\ShippingZoneSchema\UI\CreateShippingZoneSchema;
 use App\Actions\Ordering\ShippingZoneSchema\UI\EditShippingZoneSchema;
@@ -33,6 +34,7 @@ Route::name("shipping.")->prefix('shipping')
             Route::get('edit', EditShippingZoneSchema::class)->name('edit');
             Route::prefix('shipping-zone/{shippingZone}')->name('show.shipping-zone')->group(function () {
                 Route::get('', ShowShippingZone::class)->name('.show');
+                Route::get('/edit', EditShippingZone::class)->name('.edit');
             });
         });
     });
