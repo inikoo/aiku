@@ -57,23 +57,25 @@ trait WithFetchTextWebBlock
                 return;
             }
 
+            // TODO: change anchor tag to be <CustomLinkExtension type="internal" workshop="https://tailwindcss.com/docs/z-index" id="1" url="https://tailwindcss.com/docs/z-index">link test </CustomLinkExtension>
             $patternAttributeAnchor = '/<a\s+(.*?)(href="([^"]*)")(.*?)>/i';
             foreach ($links as $index => $link) {
                 $originalLink = FetchAuroraWebBlockLink::run($webpage->website, $link, $this->dbSuffix);
                 preg_match($patternAttributeAnchor, $originalAnchor[$index], $matchesInside);
                 $additionalAttribute = '';
                 if ($originalLink['type'] == 'internal') {
+                    // app.aiku.test/org/{organisation}/shops/{shop}/web/{website}/webpages
                     $workshopRoute = $originalLink['workshop_route'];
                     $workshopUrl = route($workshopRoute['name'], $workshopRoute['parameters']);
                     $additionalAttribute .=
                         sprintf(
-                            'data-webpage-id="%s" data-workshop-url="%s"',
+                            'id="%s" workshop="%s"',
                             $originalLink['webpage_id'],
                             $workshopUrl,
                         );
                 }
                 $replaceStatement = sprintf(
-                    '<a href="%s" data-type="%s" %s %s>',
+                    '<a url="%s" type="%s" %s %s',
                     $originalLink['url'],
                     $originalLink['type'],
                     $additionalAttribute,
