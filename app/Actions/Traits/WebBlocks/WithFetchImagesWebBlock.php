@@ -33,7 +33,7 @@ trait WithFetchImagesWebBlock
         foreach ($auroraBlock["images"] as $image) {
             $imageLink = null;
             if (isset($image["link"])) {
-                $imageLink = FetchAuroraWebBlockLink::run($webpage->website, $image["link"]);
+                $imageLink = FetchAuroraWebBlockLink::run($webpage->website, $image["link"], $this->dbSuffix);
 
             }
 

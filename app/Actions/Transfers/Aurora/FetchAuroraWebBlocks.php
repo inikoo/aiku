@@ -166,13 +166,6 @@ class FetchAuroraWebBlocks extends OrgAction
         $group = $webpage->group;
 
 
-        if ($auroraBlock['type'] == "text") {
-            $webBlockType = $group->webBlockTypes()->where("slug", "text")->first();
-            $layout       = $this->processTextData($webpage, $auroraBlock);
-            return;
-        } else {
-            return;
-        }
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = $group->webBlockTypes()->where("code", "images")->first();
@@ -392,23 +385,6 @@ class FetchAuroraWebBlocks extends OrgAction
                     }
                     return $imageElement;
                 }, $text);
-                // todo for the links
-                // $text = $layout['data']['fieldValue']['value'];
-                // $pattern = '/<img\s+[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
-
-                // $text = preg_replace_callback($pattern, function ($match) use ($webBlock, $webpage) {
-                //     $originalImage = $match[1];
-                //     $media = FetchAuroraWebBlockMedia::run($webBlock, $webpage, $originalImage);
-                //     $imageElement = $match[0];
-
-                //     if ($media) {
-                //         $image = $media->getImage();
-                //         $picture = GetPictureSources::run($image);
-                //         $imageUrl = $picture['original'];
-                //         $imageElement = preg_replace('/src="([^"]*)"/', 'src="'.$imageUrl.'"', $imageElement);
-                //     }
-                //     return $imageElement;
-                // }, $text);
             } else {
                 foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
