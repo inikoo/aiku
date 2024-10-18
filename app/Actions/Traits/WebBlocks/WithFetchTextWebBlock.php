@@ -9,7 +9,6 @@
 namespace App\Actions\Traits\WebBlocks;
 
 use App\Actions\Transfers\Aurora\FetchAuroraWebBlockLink;
-use App\Actions\Transfers\Aurora\FetchAuroraWebBlockMedia;
 use App\Models\Web\Webpage;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -22,11 +21,43 @@ trait WithFetchTextWebBlock
         if (count($text) > 0) {
             $text = $text[0]['text'] ?? null;
             data_set($layout, "data.fieldValue.value", $text);
+            if ($text) {
+                $patternAnchors = '/<a\s+[^>]*href=["\']([^"\']*)["\'][^>]*>/i';
+                preg_match_all($patternAnchors, $text, $matches);
+                $links = $matches[1];
+                // $originalAnchor = $matches[0];
+
+                // $patternAttributeAnchor = '/<a\s+(.*?)(href="([^"]*)")(.*?)>/i';
+                // print_r($links);
+                // print "\n";
+                foreach ($links as $index => $link) {
+                    print $link . "<<<<\n";
+                    $originalLink = FetchAuroraWebBlockLink::run($webpage->website, $link);
+                    // preg_match($patternAttributeAnchor, $originalAnchor[$index], $matchesInside);
+                    print_r($originalLink);
+                    print "\n";
+                    // $additionalAttribute = '';
+                    // if($originalLink['type'] == 'internal') {
+
+                    // }
+                    // if($matchesInside[1]) {
+                    //     $replaceStatement = "<a href='test' $1 $4>";
+                    // }else {
+                    //     $replaceStatement = "<a href='test' $4>";
+                    // }
+                    // dd($originalLink);
+                    // $anchorElement = preg_replace($patternAttributeAnchor, $replaceStatement, $originalAnchor[$index]);
+                    // $text = str_replace($originalAnchor[$index], $anchorElement, $text);
+                }
+            }
         }
-        // link for the 'a' tag
-        $pattern = '/<a\s+[^>]*href=["\']([^"\']*)["\'][^>]*>/i';
-        preg_match_all($pattern, $text, $matches);
-        $links = $matches[1];
+        // print $text;
+        // dd($text);
+        // // link for the 'a' tag
+        // $pattern = '/<a\s+[^>]*href=["\']([^"\']*)["\'][^>]*>/i';
+        // preg_match_all($pattern, $text, $matches);
+        // $links = $matches[1];
+        // print_r($links);
 
         // $linksData = [];
         // foreach ($links as $link) {
@@ -36,40 +67,6 @@ trait WithFetchTextWebBlock
 
 
         // $text = $layout['data']['fieldValue']['value'];
-
-
-
-        // $pattern = '/<img\s+[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
-        // $text = preg_replace($pattern,"xxx", $text);
-        // $text = preg_replace_callback($pattern, 'textImageParser', $text);
-        // $text = preg_replace_callback($pattern, function ($match) {
-
-
-        //     $originalImage = $match[0];
-
-
-        //     $imageData = FetchAuroraWebBlockMedia::run()
-
-        //     // dd($originalImage);
-        //     return $originalImage;
-        // }, $text);
-
-
-        // dd($text);
-        // link for the a img
-        // preg_match_all($pattern, $text, $matchesImg);
-        // if(count($matchesImg) > 0) {
-        //     $links = $matchesImg[1];
-        //     $imgSources = [];
-        //     foreach($links as $link) {
-        //         // $this->
-        //     }
-        //     dd($links);
-        // }
-
-
-
-        // dd($layout);
         return $layout ?? null;
     }
 
