@@ -208,7 +208,7 @@ class IndexWebpages extends OrgAction
 
         return $queryBuilder
             ->defaultSort('webpages.level')
-            ->select(['code', 'id', 'type', 'slug', 'level', 'sub_type', 'url'])
+           /*  ->select(['code', 'id', 'type', 'slug', 'level', 'sub_type', 'url']) */
             ->allowedSorts(['code', 'type', 'level', 'url'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
