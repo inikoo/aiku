@@ -8,7 +8,7 @@
 namespace App\Models\Ordering;
 
 use App\Actions\Utils\Abbreviate;
-use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaTypeEnum;
+use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaStateEnum;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InShop;
 use Eloquent;
@@ -30,9 +30,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $shop_id
- * @property ShippingZoneSchemaTypeEnum $type
+ * @property ShippingZoneSchemaStateEnum $state
  * @property string $slug
  * @property string $name
+ * @property bool $is_current
+ * @property bool $is_current_discount
+ * @property \Illuminate\Support\Carbon|null $live_at
+ * @property \Illuminate\Support\Carbon|null $decommissioned_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
@@ -63,9 +67,11 @@ class ShippingZoneSchema extends Model implements Auditable
     use HasHistory;
 
     protected $casts = [
-        'type'            => ShippingZoneSchemaTypeEnum::class,
-        'fetched_at'      => 'datetime',
-        'last_fetched_at' => 'datetime',
+        'state'             => ShippingZoneSchemaStateEnum::class,
+        'live_at'           => 'datetime',
+        'decommissioned_at' => 'datetime',
+        'fetched_at'        => 'datetime',
+        'last_fetched_at'   => 'datetime',
     ];
 
     protected $guarded = [];

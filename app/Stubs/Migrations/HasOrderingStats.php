@@ -9,7 +9,7 @@ namespace App\Stubs\Migrations;
 
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
 use App\Enums\Ordering\Adjustment\AdjustmentTypeEnum;
-use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaTypeEnum;
+use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasOrderingStats
@@ -23,8 +23,8 @@ trait HasOrderingStats
         }
 
         $table->unsignedInteger('number_shipping_zone_schemas')->default(0);
-        foreach (ShippingZoneSchemaTypeEnum::cases() as $case) {
-            $table->unsignedInteger('number_shipping_zone_schemas_type_'.$case->snake())->default(0);
+        foreach (ShippingZoneSchemaStateEnum::cases() as $case) {
+            $table->unsignedInteger('number_shipping_zone_schemas_state_'.$case->snake())->default(0);
         }
 
         $table->unsignedInteger('number_shipping_zones')->default(0);
