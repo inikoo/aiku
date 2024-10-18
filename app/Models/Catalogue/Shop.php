@@ -427,6 +427,16 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(ShippingZoneSchema::class);
     }
 
+    public function currentShippingZoneSchema(): BelongsTo
+    {
+        return $this->belongsTo(ShippingZoneSchema::class, 'shipping_zone_schema_id');
+    }
+
+    public function discountShippingZoneSchema(): BelongsTo
+    {
+        return $this->belongsTo(ShippingZoneSchema::class, 'discount_shipping_zone_schema_id');
+    }
+
     public function shippingZones(): HasMany
     {
         return $this->hasMany(ShippingZone::class);

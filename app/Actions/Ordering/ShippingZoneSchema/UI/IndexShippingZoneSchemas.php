@@ -11,6 +11,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\Catalogue\WithDepartmentSubNavigation;
 use App\Actions\Catalogue\WithFamilySubNavigation;
+use App\Actions\Ordering\ShippingZoneSchema\WithShippingZoneSchemaSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\ShippingTabsEnum;
@@ -32,9 +33,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexShippingZoneSchemas extends OrgAction
 {
     use HasCatalogueAuthorisation;
-    use WithDepartmentSubNavigation;
-    use WithFamilySubNavigation;
-    use WithCollectionSubNavigation;
+    use WithShippingZoneSchemaSubNavigation;
 
     private Shop $parent;
 
@@ -150,6 +149,7 @@ class IndexShippingZoneSchemas extends OrgAction
 
         if ($this->parent instanceof Shop) {
             $model = __('billables');
+            $subNavigation = $this->getShippingZoneSchemaSubNavigation($this->parent);
         }
         return Inertia::render(
             'Org/Catalogue/Shippings',
@@ -179,18 +179,18 @@ class IndexShippingZoneSchemas extends OrgAction
                     ],
                     'subNavigation' => $subNavigation,
                 ],
-                'tabs'        => [
-                    'current'    => $this->tab,
-                    'navigation' => ShippingTabsEnum::navigation(),
-                ],
+                // 'tabs'        => [
+                //     'current'    => $this->tab,
+                //     'navigation' => ShippingTabsEnum::navigation(),
+                // ],
                 'data'        => ShippingZoneSchemasResource::collection($shippingZoneSchemas),
 
-                ShippingTabsEnum::SCHEMAS->value => $this->tab == ShippingTabsEnum::SCHEMAS->value ?
-                    fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)
-                    : Inertia::lazy(fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)),
+                // ShippingTabsEnum::SCHEMAS->value => $this->tab == ShippingTabsEnum::SCHEMAS->value ?
+                //     fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)
+                //     : Inertia::lazy(fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)),
 
-            ]
-        )->table($this->tableStructure(parent: $this->parent, prefix: ShippingTabsEnum::SCHEMAS->value));
+            ])->table($this->tableStructure($this->parent));
+        // )->table($this->tableStructure(parent: $this->parent, prefix: ShippingTabsEnum::SCHEMAS->value));
     }
 
     public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
