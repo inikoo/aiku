@@ -87,6 +87,7 @@ class IndexPortfolios extends OrgAction
                 'portfolios.organisation_id',
                 'portfolios.shop_id',
                 'portfolios.customer_id',
+                'portfolios.type',
                 'products.code as product_code',
                 'products.name as product_name',
                 'products.slug as slug',
@@ -138,6 +139,7 @@ class IndexPortfolios extends OrgAction
                 ->column(key: 'product_code', label: __('product'), canBeHidden: false, searchable: true)
                 ->column(key: 'product_name', label: __('product name'), canBeHidden: false, searchable: true)
                 ->column(key: 'reference', label: __('customer reference'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'created_at', label: __('created at'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'action', label: __('action'), canBeHidden: false);
         };
