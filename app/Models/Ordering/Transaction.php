@@ -33,6 +33,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $organisation_id
  * @property int $shop_id
  * @property int $customer_id
+ * @property int|null $customer_client_id
  * @property int|null $order_id
  * @property int|null $invoice_id
  * @property string $date

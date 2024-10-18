@@ -17,6 +17,8 @@ return new class () extends Migration {
             $table->id();
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('master_shop_id')->index();
+            $table->foreign('master_shop_id')->references('id')->on('master_shops')->onUpdate('cascade')->onDelete('cascade');
             $table->string('type')->index();
             $table->string('state')->index()->default(ProductCategoryStateEnum::IN_PROCESS->value);
             $table->unsignedInteger('master_department_id')->nullable()->index();

@@ -15,6 +15,7 @@ return new class () extends Migration {
 
             $table->unsignedSmallInteger('product_id');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            $table->unsignedBigInteger('shopify_product_id');
 
             $table->timestampsTz();
         });

@@ -24,6 +24,7 @@ use Spatie\Sluggable\SlugOptions;
  *
  *
  * @property int $id
+ * @property string|null $ulid
  * @property int $group_id
  * @property int $organisation_id
  * @property int $fulfilment_customer_id
@@ -39,7 +40,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property array|null $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $ulid
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemAuditDelta> $deltas
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment

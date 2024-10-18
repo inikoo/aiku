@@ -25,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property int $customer_id
  * @property int $product_id
  * @property string|null $reference This is the reference that the customer uses to identify the product
+ * @property string $type
  * @property bool $status
  * @property string|null $last_added_at
  * @property string|null $last_removed_at
@@ -33,7 +34,6 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $source_id
- * @property string $type
  * @property-read Customer $customer
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation

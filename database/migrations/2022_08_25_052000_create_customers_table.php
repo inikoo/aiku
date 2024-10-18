@@ -36,6 +36,7 @@ return new class () extends Migration {
             $table->foreign('delivery_address_id')->references('id')->on('addresses');
             $table->string('status')->index();
             $table->string('state')->index()->default(CustomerStateEnum::IN_PROCESS->value);
+            $table->decimal('balance', 16)->default(0);
             $table->string('trade_state')->index()->default(CustomerTradeStateEnum::NONE->value)->comment('number of invoices');
             $table->boolean('is_fulfilment')->index()->default(false);
             $table->boolean('is_dropshipping')->index()->default(false);

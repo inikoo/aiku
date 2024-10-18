@@ -46,6 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $reference
  * @property int $shop_id
  * @property int $customer_id
+ * @property int|null $customer_client_id
  * @property int|null $order_id
  * @property int|null $recurring_bill_id
  * @property int|null $address_id
@@ -78,7 +79,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
- * @property int|null $customer_client_id
  * @property-read Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Address|null $billingAddress

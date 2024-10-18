@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Enums\Catalogue\Portfolio\PortfolioTypeEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -25,6 +26,7 @@ return new class () extends Migration {
             $table->unsignedInteger('product_id');
             $table->foreign('product_id')->references('id')->on('products');
             $table->string('reference')->index()->nullable()->comment('This is the reference that the customer uses to identify the product');
+            $table->string('type')->default(PortfolioTypeEnum::MANUAL->value);
             $table->boolean('status')->default(true);
             $table->dateTimeTz('last_added_at')->nullable();
             $table->dateTimeTz('last_removed_at')->nullable()->nullable;
