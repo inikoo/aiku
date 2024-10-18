@@ -8,19 +8,10 @@
 
 namespace App\Actions\Ordering\ShippingZone\UI;
 
-use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\Catalogue\WithCollectionSubNavigation;
-use App\Actions\Catalogue\WithDepartmentSubNavigation;
-use App\Actions\Catalogue\WithFamilySubNavigation;
-use App\Actions\Ordering\ShippingZoneSchema\WithShippingZoneSchemaSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Enums\UI\Catalogue\ShippingTabsEnum;
-use App\Http\Resources\Catalogue\ProductsResource;
-use App\Http\Resources\Catalogue\ShippingZoneSchemasResource;
 use App\Http\Resources\Catalogue\ShippingZonesResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Shop;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\SysAdmin\Organisation;
@@ -28,9 +19,6 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Inertia\Inertia;
-use Inertia\Response;
-use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexShippingZones extends OrgAction

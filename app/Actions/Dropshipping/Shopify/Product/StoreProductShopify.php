@@ -7,9 +7,13 @@
 
 namespace App\Actions\Dropshipping\Shopify\Product;
 
+use App\Actions\Dropshipping\Portfolio\StorePortfolio;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Catalogue\Portfolio\PortfolioTypeEnum;
 use App\Models\Dropshipping\ShopifyUser;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -19,6 +23,20 @@ class StoreProductShopify extends OrgAction
     use AsAction;
     use WithAttributes;
     use WithActionUpdate;
+
+    public function handle(ShopifyUser $shopifyUser, array $modelData)
+    {
+        DB::transaction(function () use ($shopifyUser, $modelData) {
+            foreach (Arr::get($modelData, 'products') as $product) {
+                StorePortfolio::run($shopifyUser->customer, [
+                    'product_id' => $product,
+                    'type' => PortfolioTypeEnum::SHOPIFY->value,
+                ]);
+            }
+
+            HandleApiProductToShopify::dispatch($shopifyUser, $modelData);
+        });
+    }
 
     public function rules(): array
     {
@@ -31,6 +49,6 @@ class StoreProductShopify extends OrgAction
     {
         $this->initialisationFromShop($shopifyUser->customer->shop, $request);
 
-        HandleApiProductToShopify::dispatch($shopifyUser, $this->validatedData);
+        $this->handle($shopifyUser, $this->validatedData);
     }
 }

@@ -9,15 +9,10 @@
 namespace App\Actions\Ordering\ShippingZone\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\Ordering\ShippingZone\UI\IndexShippingZones;
-use App\Actions\Ordering\ShippingZoneSchema\WithShippingZoneSchemaSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Enums\UI\Catalogue\ShippingZoneSchemaTabsEnum;
 use App\Enums\UI\Catalogue\ShippingZoneTabsEnum;
 use App\Http\Resources\Catalogue\ShippingZoneResource;
-use App\Http\Resources\Catalogue\ShippingZoneSchemaResource;
-use App\Http\Resources\Catalogue\ShippingZonesResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;

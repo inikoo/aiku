@@ -23,10 +23,7 @@ trait WithFetchImagesWebBlock
             return null;
         }
         $layoutType = $this->getImagesLayoutTypeByResolution($auroraBlock);
-
-        if ($layoutType) {
-            data_set($layout, "data.fieldValue.value.layout_type", $layoutType);
-        }
+        data_set($layout, "data.fieldValue.layout_type", $layoutType);
 
         $imagesArray = [];
 
@@ -35,7 +32,6 @@ trait WithFetchImagesWebBlock
             if (!empty($image["link"])) {
                 $imageLink = FetchAuroraWebBlockLink::run($webpage->website, $image["link"], $this->dbSuffix);
             }
-
             if (!isset($image["src"])) {
                 continue;
             }
@@ -53,9 +49,8 @@ trait WithFetchImagesWebBlock
     {
         $images = $auroraBlock['images'];
 
-        $widths = array_column($images, 'width'); // Get all widths in the current set
-        // print_r($widths);
-        $totalWidth = array_sum($widths); // Sum of all widths to calculate ratios
+        $widths = array_column($images, 'width');
+        $totalWidth = array_sum($widths);
 
         // Calculate the ratios of each image width to the total width
         $ratios = array_map(

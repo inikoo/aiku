@@ -28,6 +28,7 @@ class PortfolioResource extends JsonResource
             'product_name'           => $portfolio->product_name,
             'product_code'           => $portfolio->product_code,
             'slug'                   => $portfolio->slug,
+            'type'                   => $portfolio->type,
             'created_at'             => $portfolio->created_at,
             'routes'                 => [
                 'delete_route' => [

@@ -36,13 +36,17 @@ const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color
             <IrisLoginInformation />
             <!--    <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation"/> -->
 
-            
+
             <!-- Main Content -->
             <main class="text-gray-700">
                 <slot />
             </main>
 
+<<<<<<< HEAD
+<!--              <Footer :data="footer" :colorThemed="colorThemed"/>-->
+=======
             <Footer :data="footer" :colorThemed="colorThemed"/>
+>>>>>>> origin/main
         </div>
     </div>
 

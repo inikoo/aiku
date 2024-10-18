@@ -14,7 +14,7 @@ enum ShippingTabsEnum: string
 {
     use EnumHelperTrait;
     use HasTabs;
-    
+
     case SCHEMAS      = 'schemas';
     case CURRENT      = 'current';
     case OFFER        = 'offer';

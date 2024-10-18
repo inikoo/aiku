@@ -9,18 +9,20 @@
 
 namespace App\Actions\Traits\WebBlocks;
 
+use App\Models\Web\Webpage;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithFetchOverviewWebBlock
 {
     use AsAction;
-    public function processOverviewData($auroraBlock): array
+    public function processOverviewData(Webpage $webpage, $auroraBlock): array
     {
         $textsArray = [];
         foreach ($auroraBlock["texts"] as $text) {
             if (!isset($text["text"])) {
                 continue;
             }
+            $this->replaceAnchor($webpage, $text["text"]); // should use WithFetchText
             $textsArray[] = [
                 "text" => $text["text"],
             ];
@@ -37,8 +39,7 @@ trait WithFetchOverviewWebBlock
                 "aurora_source" => $image["src"],
             ];
         }
-        $imgValue["value"] = $imagesArray;
-        data_set($layout, "data.fieldValue.value.images", $imgValue["value"]);
+        data_set($layout, "data.fieldValue.value.images", $imagesArray);
         return $layout;
     }
 }

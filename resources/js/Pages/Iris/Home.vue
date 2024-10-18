@@ -39,7 +39,7 @@ console.log('DDD',props.blocks.web_blocks)
       <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"
         class="w-full">
 
-        <component
+<!--        <component
             v-if="activityItem.web_block?.layout?.data?.fieldValue"
             :is="getComponent(activityItem.type)"
             :key="activityItemIdx"
@@ -47,7 +47,7 @@ console.log('DDD',props.blocks.web_blocks)
             v-model="activityItem.web_block.layout.fieldValue"
             :isEditable="false"
             v-bind="activityItem.web_block.layout.fieldValue"
-        />
+        />-->
 
       </div>
     </template>
