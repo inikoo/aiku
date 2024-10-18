@@ -55,9 +55,14 @@ class FetchAuroraWebBlockLink extends OrgAction
                 ->orWhere('Webpage Canonical Code', $auroraLink)
                 ->first();
 
+            print "Looking for link >>>$auroraLink<<<<\n";
+
             //todo look for webpage also in Page Redirection Dimension
 
-            $linkedWebpage = $this->parseWebpage($website->organisation_id.':'.$auroraWebpageData->source_id);
+            $linkedWebpage = false;
+            if ($auroraWebpageData) {
+                $linkedWebpage = $this->parseWebpage($website->organisation_id.':'.$auroraWebpageData->source_id);
+            }
 
             if ($linkedWebpage) {
                 data_set($linkData, 'webpage_id', $linkedWebpage->id);
@@ -86,6 +91,7 @@ class FetchAuroraWebBlockLink extends OrgAction
 
     public function isInternalLink($website, $auroraLink): bool
     {
+
         if (!str_starts_with($auroraLink, "http")) {
             return true;
         }
