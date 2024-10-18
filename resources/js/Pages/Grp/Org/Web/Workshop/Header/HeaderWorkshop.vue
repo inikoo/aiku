@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed, toRaw  } from 'vue'
+import { ref, watch, computed, toRaw, onMounted, Component, IframeHTMLAttributes  } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -27,6 +27,7 @@ import { faBrowser } from '@fal'
 
 import { trans } from 'laravel-vue-i18n'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue';
+import Toggle from '@/Components/Pure/Toggle.vue'
 
 library.add(faBrowser, faPresentation, faCube, faText, faHeart, faPaperclip)
 
@@ -45,7 +46,6 @@ const props = defineProps<{
 
 }>()
 
-const isModalOpen = ref(false)
 const usedTemplates = ref({ 
     header : props.data.data.header,
     topBar : props.data.data.topBar
@@ -80,8 +80,8 @@ const onSelectBlock = (selectedBlock: object) => {
     const newTemplate = { ...toRaw(selectedBlock) };
 
     newTemplate.data.fieldValue = {
-        ...currentTemplate.data.fieldValue,
-        ...newTemplate.data.fieldValue
+        ...currentTemplate?.data?.fieldValue,
+        ...newTemplate?.data?.fieldValue
     };
 
     usedTemplates.value[selectedKey] = newTemplate;
@@ -89,6 +89,7 @@ const onSelectBlock = (selectedBlock: object) => {
     isModalOpen.value = false;
 }
 
+// Method: Publish
 const publishCancelToken = ref<{cancel: Function} | null>(null)
 const onPublish = async (action: routeType, popover: Function) => {
     router[action.method || 'post'](
@@ -145,6 +146,7 @@ const onPublish = async (action: routeType, popover: Function) => {
     // }
 }
 
+// Method: auto save
 const isLoadingSave = ref(false)
 const onProgress = ref(false)
 const autoSave = async (data: {}) => {
@@ -231,14 +233,26 @@ const selectedWebBlock = computed(() => {
 })
 
 
+const isModalOpen = ref(false)
+onMounted(() => {
+    window.addEventListener('message', (event) => {
+        if (event.data === 'openModalBlockList') {
+            isModalOpen.value = true
+        }
+    })
+})
+
+const isPreviewLoggedIn = ref(false)
+// Section Iframe
+const _iframe = ref<IframeHTMLAttributes | null>(null)
+const sendToIframe = (data: any) => {
+    _iframe.value?.contentWindow.postMessage(data, '*')
+}
+
 </script>
 
 <template>
     <Head :title="capitalize(title)" />
-
-    <!-- {{ onProgress }}
-    <div @click="() => saveCancelToken ? saveCancelToken() : autoSave(usedTemplates)">{{ saveCancelToken ? 'xxx' : 'gfgf' }} foidsa jfoidsajfodsjafdsa</div>
-    {{ saveCancelToken }} -->
 
     <PageHeading :data="pageHead">
         <template #mainIcon v-if="isLoadingSave">
@@ -301,13 +315,20 @@ const selectedWebBlock = computed(() => {
 
         <div :class="usedTemplates ? 'col-span-8' : 'col-span-10'" class="w-full">
             <div v-if="usedTemplates" class="h-full w-full bg-white">
-                <div class="flex justify-between bg-slate-200 border border-b-gray-300">
+                <!-- Section: Screenview -->
+                <div class="flex justify-between max-w-7xl mx-auto bg-slate-200 border border-b-gray-300 pr-6">
                     <div class="flex">
                         <ScreenView @screenView="setIframeView" />
                         <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
                             @click="openFullScreenPreview">
                             <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
                         </div>
+                    </div>
+
+                    <div class="flex items-center gap-x-2">
+                        <span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged out</span>
+                        <Toggle v-model="isPreviewLoggedIn" @update:modelValue="(newVal) => sendToIframe({key: 'isPreviewLoggedIn', value: newVal})" />
+                        <span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged in</span>
                     </div>
                 </div>
 
@@ -317,7 +338,8 @@ const selectedWebBlock = computed(() => {
 
                 <!-- Workshop Preview -->
                 <iframe
-                    :src="iframeSrc"
+                    ref="_iframe"
+                    :src="iframeSrc + '?isInWorkshop=true'"
                     :title="props.title"
                     :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
                     @error="handleIframeError"

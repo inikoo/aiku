@@ -11,11 +11,14 @@ import Modal from '@/Components/Utils/Modal.vue'
 import LoginPassword from '@/Components/Auth/LoginPassword.vue'
 import { Link } from '@inertiajs/vue3'
 import { getStyles } from '@/Composables/styles'
+import { checkVisible } from '@/Composables/Workshop'
+
 library.add(faHeart, faShoppingCart, faSignOut, faUser, faSignIn, faUserPlus)
 
 interface ModelTopbar1 {
     greeting: {
         text: string
+        visible: string
     }
     main_title: {
         text: string
@@ -35,7 +38,7 @@ interface ModelTopbar1 {
 
 const model = defineModel<ModelTopbar1>()
 
-const isLoggedIn = ref(false)
+const isLoggedIn = inject('isPreviewLoggedIn', false)
 const isDropshipping = ref(false)
 const sectionAuth = ref<string | null>()
 
@@ -53,90 +56,107 @@ const onClickLogin = () => {
     sectionAuth.value = 'login'
 }
 
+
 </script>
 
 <template>
-    <div id="top_bar" class="py-1 px-4 flex justify-between bg-[]"
+    <div id="top_bar" class="py-2 px-4 flex justify-between bg-[]"
         style="background: linear-gradient(90deg, rgba(221,245,254,1) 0%, rgba(252,247,255,1) 16%, rgba(255,252,246,1) 35%, rgba(248,240,255,1) 57%, rgba(255,250,246,1) 83%)"
         :style="'getStyles(model?.container.properties)'"
     >
-
         
-        <!-- Section: greeting -->
-        <div v-if="!isLoggedIn" v-html="model?.greeting?.text?.replace('{{ name }}', 'Pphonofdshnjlcx')" class="flex items-center">
-
+        <!-- Section: Greeting -->
+        <div v-if="checkVisible(model?.greeting.visible || null, isLoggedIn)" v-html="model?.greeting?.text?.replace(/\{\{\s*name\s*\}\}/g, 'Pphonofdshnjlcx')" class="flex items-center">
         </div>
 
-        
-        <div class="text-center flex items-center" v-html="model.main_title.text">
+        <!-- Section: Main title -->
+        <div v-if="checkVisible(model?.main_title.visible || null, isLoggedIn)" class="text-center flex items-center" v-html="model.main_title.text">
         </div>
 
         <div class="action_buttons" style="display: flex; justify-content: flex-end; column-gap: 15px; grid-column: span 5 / span 5">
-            <template v-if="isLoggedIn">
-                <a href="#" class="space-x-1.5" style="margin-left: 0px;">
-                    <!-- <i class="far fa-flip-horizontal fa-sign-out" title="Log out" aria-hidden="true"></i> -->
-                    <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width
-                        aria-hidden='true' />
-                    <span>Log out</span>
-                </a>
-                <a id="profile_button" href="profile.sys" class="space-x-1.5">
-                    <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
-                    <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width
-                        aria-hidden='true' />
-                    <span>Profile</span>
-                </a>
-                <a id="favorites_button" href="favourites.sys" class="mx-0 space-x-1.5">
-                    <!-- <i class=" far fa-heart" title="My favourites" aria-hidden="true"></i> -->
-                    <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
-                    <span>My favourites</span>
-                </a>
-                <a id="header_order_totals" href="basket.sys" class="space-x-1.5" style="">
-                    <span class="ordered_products_number">11</span>
-                    <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')"
-                        fixed-width aria-hidden='true' />
-                    <span class="order_amount" title="" style="font-weight: 600; font-size: 1.1rem;">
-                        ${{ 4561237486 }}
-                    </span>
-                </a>
-            </template>
+            <!-- Button 6: Logout -->
+            <a v-if="checkVisible(model?.button_6?.visible || null, isLoggedIn)"
+                :href="model?.button_6?.link"
+                class="space-x-1.5"
+                :style="getStyles(model?.button_6.container.properties)"
+            >
+                <!-- <i class="far fa-flip-horizontal fa-sign-out" title="Log out" aria-hidden="true"></i> -->
+                <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width
+                    aria-hidden='true' />
+                <span>Log out</span>
+            </a>
+
+            <!-- Button 4: Favourites -->
+            <a v-if="checkVisible(model?.button_4?.visible || null, isLoggedIn)"
+                id="favorites_button"
+                :href="model?.button_4?.link"
+                class="mx-0 space-x-1.5"
+                :style="getStyles(model?.button_4.container.properties)"
+            >
+                <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
+                <span v-html="model?.button_4?.text.replace(/\{\{\s*favouritesCount\s*\}\}/g, '28')"></span>
+            </a>
+
+            <!-- Button 3: Cart -->
+            <a v-if="checkVisible(model?.button_3?.visible || null, isLoggedIn)"
+                id="header_order_totals"
+                :href="model?.button_3?.visible"
+                class="space-x-1.5"
+                :style="getStyles(model?.button_3.container.properties)"
+            >
+                <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')"
+                    fixed-width aria-hidden='true' />
+                <span v-html="model?.button_3?.text.replace(/\{\{\s*cartNumber\s*\}\}/g, '15')"></span>
+            </a>
+
+            <!-- Button 5: Profile -->
+            <a v-if="checkVisible(model?.button_5?.visible || null, isLoggedIn)"
+                id="profile_button"
+                :href="model?.button_5?.link"
+                class="space-x-1.5"
+                :style="getStyles(model?.button_5.container.properties)"
+            >
+                <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
+                <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width
+                    aria-hidden='true' />
+                <span v-html="model?.button_5?.text"></span>
+            </a>
 
             <!-- Section: Logged out (Login, Register) -->
-            <template v-else>
-                <template v-if="isDropshipping">
-                    <a href="/login.sys" class="space-x-1.5" id="">
-                        <span>Call us</span>
-                    </a>
-                </template>
-
-                <template v-else>
-                    <div @click="() => onClickLogin()"
-                        href="/login.sys"
-                        class="space-x-1.5 cursor-pointer"
-                        id=""
-                        :style="getStyles(model?.button_1.container.properties)"
-                        
-                    >
-                        <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
-                        <span>{{ model?.button_1.text }}</span>
-                    </div>
-
-                    <div @click="() => onClickRegister()"
-                        href="/register.sys"
-                        class="space-x-1.5 cursor-pointer"
-                        id=""
-                        :style="getStyles(model?.button_2.container.properties)"
-                        
-                    >
-                        <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
-                        <span>{{ model?.button_2.text }}</span>
-                    </div>
-
-                    <!-- <div @click="() => onClickRegister()" href="/register.sys" class="space-x-1.5">
-                        <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
-                        <span>Register</span>
-                    </div> -->
-                </template>
+            <template v-if="isDropshipping">
+                <a href="/login.sys" class="space-x-1.5" id="">
+                    <span>Call us</span>
+                </a>
             </template>
+
+            <!-- Register -->
+            <div v-if="checkVisible(model?.button_2.visible || null, isLoggedIn)" @click="() => onClickRegister()"
+                :href="model?.button_2?.visible"
+                class="space-x-1.5 cursor-pointer"
+                id=""
+                :style="getStyles(model?.button_2.container.properties)"
+                
+            >
+                <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
+                <span>{{ model?.button_2.text }}</span>
+            </div>
+
+            <!-- Login -->
+            <div v-if="checkVisible(model?.button_1.visible || null, isLoggedIn)" @click="() => onClickLogin()"
+                :href="model?.button_1?.visible"
+                class="space-x-1.5 cursor-pointer"
+                id=""
+                :style="getStyles(model?.button_1.container.properties)"
+                
+            >
+                <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
+                <span>{{ model?.button_1.text }}</span>
+            </div>
+
+            <!-- <div @click="() => onClickRegister()" href="/register.sys" class="space-x-1.5">
+                <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
+                <span>Register</span>
+            </div> -->
 
         </div>
     </div>

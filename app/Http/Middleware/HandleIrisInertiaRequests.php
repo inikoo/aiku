@@ -36,8 +36,9 @@ class HandleIrisInertiaRequests extends Middleware
         return array_merge(
             $firstLoadOnlyProps,
             [
+                // 'auth'  => $webUser ? LoggedWebUserResource::make($webUser)->getArray() : null,
                 'auth'  => [
-                    'user' => $webUser ? LoggedWebUserResource::make($webUser)->getArray() : null,
+                    'name' => 'John Doe'
                 ],
                 'flash' => [
                     'notification' => fn () => $request->session()->get('notification')

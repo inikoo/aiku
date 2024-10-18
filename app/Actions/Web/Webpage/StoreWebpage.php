@@ -184,7 +184,6 @@ class StoreWebpage extends OrgAction
             Webpage::disableAuditing();
         }
 
-
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;

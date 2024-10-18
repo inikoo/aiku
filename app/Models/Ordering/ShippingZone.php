@@ -14,6 +14,7 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -114,6 +115,11 @@ class ShippingZone extends Model implements Auditable
     public function stats(): HasOne
     {
         return $this->hasOne(ShippingZoneStats::class);
+    }
+
+    public function schema(): BelongsTo
+    {
+        return $this->belongsTo(ShippingZoneSchema::class, 'shipping_zone_schema_id');
     }
 
 

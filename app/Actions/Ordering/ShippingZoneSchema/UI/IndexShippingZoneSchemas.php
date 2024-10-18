@@ -8,9 +8,6 @@
 namespace App\Actions\Ordering\ShippingZoneSchema\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\Catalogue\WithCollectionSubNavigation;
-use App\Actions\Catalogue\WithDepartmentSubNavigation;
-use App\Actions\Catalogue\WithFamilySubNavigation;
 use App\Actions\Ordering\ShippingZoneSchema\WithShippingZoneSchemaSubNavigation;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
@@ -189,7 +186,8 @@ class IndexShippingZoneSchemas extends OrgAction
                 //     fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)
                 //     : Inertia::lazy(fn () => ShippingZoneSchemasResource::collection($shippingZoneSchemas)),
 
-            ])->table($this->tableStructure($this->parent));
+            ]
+        )->table($this->tableStructure($this->parent));
         // )->table($this->tableStructure(parent: $this->parent, prefix: ShippingTabsEnum::SCHEMAS->value));
     }
 

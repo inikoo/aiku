@@ -21,7 +21,7 @@ const props = defineProps<{
     currentTopbar: {}
 }>()
 
-const currentTopbarCode = props.currentTopbar.code
+const currentTopbarCode = props.currentTopbar?.code
 </script>
 
 <template>

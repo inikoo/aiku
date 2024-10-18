@@ -207,13 +207,14 @@ class FetchAuroraWebpage extends FetchAurora
 
                 break;
             default:
+
                 $parentId = $website->storefront_id;
                 break;
         }
 
 
-        if ($url == 'shipping.sys') {
-            $url = 'shipping';
+        if (strtolower($url) == 'products') {
+            $url = 'products-showcase';
         }
 
 

@@ -28,6 +28,13 @@ import { isArray, set as setLodash } from 'lodash'
 import { routeType } from '@/types/route'
 import BorderProperty from './Fields/Properties/BorderProperty.vue'
 import PaddingMarginProperty from './Fields/Properties/PaddingMarginProperty.vue'
+import Icon from '@/Components/Icon.vue';
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faRectangleWide } from '@fal'
+import { faDotCircle } from '@far'
+import { library } from '@fortawesome/fontawesome-svg-core'
+library.add(faRectangleWide, faDotCircle)
 
 
 const props = defineProps<{
@@ -95,7 +102,10 @@ const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
     <Accordion>
         <AccordionPanel v-for="(field, index) in bluprint" :key="index" :value="index" @click="openPanel = index">
             <AccordionHeader>
-                {{ field.name }}
+                <div>
+                    <Icon :data="field.icon" />
+                    {{ field.name }}
+                </div>
             </AccordionHeader>
 
             <AccordionContent class="px-0 py-2">
