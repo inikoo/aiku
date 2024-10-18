@@ -382,6 +382,7 @@ class FetchAuroraWebBlocks extends OrgAction
                         $picture = GetPictureSources::run($image);
                         $imageUrl = $picture['original'];
                         $imageElement = preg_replace('/src="([^"]*)"/', 'src="'.$imageUrl.'"', $imageElement);
+                        $imageElement = preg_replace("/(fr\-fil|fr\-dii)/", "", $imageElement); // remove class fr-fil & fr-dii
                     }
                     return $imageElement;
                 }, $text);

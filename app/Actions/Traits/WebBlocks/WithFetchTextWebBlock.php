@@ -63,11 +63,13 @@ trait WithFetchTextWebBlock
                 preg_match($patternAttributeAnchor, $originalAnchor[$index], $matchesInside);
                 $additionalAttribute = '';
                 if ($originalLink['type'] == 'internal') {
+                    $workshopRoute = $originalLink['workshop_route'];
+                    $workshopUrl = route($workshopRoute['name'], $workshopRoute['parameters']);
                     $additionalAttribute .=
                         sprintf(
-                            'data-webpage-id="%s" data-workshop-route="%s"',
+                            'data-webpage-id="%s" data-workshop-url="%s"',
                             $originalLink['webpage_id'],
-                            json_encode($originalLink['workshop_route']),
+                            $workshopUrl,
                         );
                 }
                 $replaceStatement = sprintf(
