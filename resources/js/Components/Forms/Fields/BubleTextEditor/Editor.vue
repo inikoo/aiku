@@ -14,15 +14,10 @@ import Highlight from '@tiptap/extension-highlight'
 import { Color } from '@tiptap/extension-color'
 import FontSize from 'tiptap-extension-font-size'
 import Link from '@tiptap/extension-link'
-import MenuEditor from './MenuEditor.vue'
 import Placeholder from '@tiptap/extension-placeholder'
 import FontFamily from '@tiptap/extension-font-family'
 import Toogle from '@/Components/Forms/Fields/BubleTextEditor/Toogle.vue'
-import Modal from '@/Components/Utils/Modal.vue'
-import LinkForm from '@/Components/Websites/Fields/Link.vue'
 
-import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faText, faUndoAlt, faRedoAlt } from '@far'
 import { faHorizontalRule, faQuoteRight, faMarker } from '@fas'
@@ -43,7 +38,7 @@ const props = withDefaults(defineProps<{
     toogle: () => [
         'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',
         'orderedList', 'blockquote', 'divider', 'alignLeft', 'alignRight',
-        'alignCenter', 'link', 'undo', 'redo', 'highlight', 'color', 'clear'
+        'alignCenter', 'link', 'undo', 'redo', 'highlight', 'color', 'clear',"image"
     ]
 })
 
@@ -223,7 +218,7 @@ defineExpose({
 
         <section v-else-if="type == 'basic' && editor"
             class="buttons text-xs text-gray-700 flex items-center flex-wrap gap-x-4 border border-gray-400 p-2 rounded-t-lg bg-white">
-            <MenuEditor v-for="action in toggleList" :key="action.key" :editor="editor" :action="action" />
+            <Toogle :editor="editor" :toogles="toggleList" />
         </section>
 
         <EditorContent @click="onEditorClick" :editor="editor" :class="type == 'basic' ? 'basic-content' : ''" />

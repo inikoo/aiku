@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 
+import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faText, faUndoAlt, faRedoAlt } from '@far'
@@ -72,12 +73,15 @@ const props = withDefaults(
             </div>
 
 
-            <ColorPicker v-else-if="action.key == 'highlight'" :color="editor?.getAttributes('highlight').color"
+            <div v-else-if="action.key == 'highlight'" class="z-50">
+                <ColorPicker  :color="editor?.getAttributes('highlight').color"
                 @changeColor="(color) => editor?.chain().setHighlight({ color: color.hex }).run()"
                 class="flex items-center justify-center w-6 aspect-square rounded cursor-pointer border border-gray-700"
                 :style="{ backgroundColor: editor?.getAttributes('highlight').color }">
                 <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-gray-500' fixed-width aria-hidden='true' />
             </ColorPicker>
+            </div>
+           
 
 
             <ColorPicker v-else-if="action.key == 'color'" :color="editor?.getAttributes('textStyle').color"
