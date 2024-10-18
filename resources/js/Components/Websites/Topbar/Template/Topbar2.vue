@@ -66,14 +66,14 @@ const onClickLogin = () => {
     >
         
         <!-- Section: Greeting -->
-        <div v-if="checkVisible(model?.greeting.visible || null, isLoggedIn)" v-html="model?.greeting?.text?.replace(/\{\{\s*name\s*\}\}/g, 'Pphonofdshnjlcx')" class="flex items-center">
+        <div v-if="checkVisible(model?.greeting.visible || null, isLoggedIn)" v-html="model?.greeting?.text?.replace(/\{\{\s*name\s*\}\}/g, 'John Doe')" class="flex items-center">
         </div>
 
         <!-- Section: Main title -->
         <div v-if="checkVisible(model?.main_title.visible || null, isLoggedIn)" class="text-center flex items-center" v-html="model.main_title.text">
         </div>
 
-        <div class="action_buttons" style="display: flex; justify-content: flex-end; column-gap: 15px; grid-column: span 5 / span 5">
+        <div class="action_buttons" style="display: flex; justify-content: flex-end; column-gap: 5px; grid-column: span 5 / span 5">
             <!-- Button 6: Logout -->
             <a v-if="checkVisible(model?.button_6?.visible || null, isLoggedIn)"
                 :href="model?.button_6?.link"
