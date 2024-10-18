@@ -22,6 +22,7 @@ import TableOrders from "@/Components/Tables/Grp/Org/Ordering/TableOrders.vue"
 import TableDispatchedEmails from "@/Components/Tables/TableDispatchedEmails.vue"
 import TableCustomerFavourites from '@/Components/Tables/Grp/Org/CRM/TableCustomerFavourites.vue'
 import TableCustomerBackInStockReminders from '@/Components/Tables/Grp/Org/CRM/TableCustomerBackInStockReminders.vue'
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 
@@ -42,6 +43,7 @@ const props = defineProps<{
     products?: {}
     dispatched_emails?: {}
     web_users?: {}
+    attachments?: {}
 }>()
 
 let currentTab = ref(props.tabs.current)
@@ -57,7 +59,8 @@ const component = computed(() => {
         dispatched_emails: TableDispatchedEmails,
         web_users: TableWebUsers,
         favourites: TableCustomerFavourites,
-        reminders: TableCustomerBackInStockReminders
+        reminders: TableCustomerBackInStockReminders,
+        attachments: TableAttachments,
     }
 
     return components[currentTab.value]
