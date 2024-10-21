@@ -91,6 +91,20 @@ class ShowEmployee extends OrgAction
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],
                 ],
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name' => 'grp.models.employee.attachment.attach',
+                        'parameters' => [
+                            'employee' => $employee->id,
+                        ]
+                    ],
+                    'detachRoute' => [
+                        'name' => 'grp.models.employee.attachment.detach',
+                        'parameters' => [
+                            'employee' => $employee->id,
+                        ]
+                    ]
+                ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => EmployeeTabsEnum::navigation()
