@@ -21,8 +21,8 @@ trait WithFetchTextWebBlock
         $text = $auroraBlock["text_blocks"];
         if (count($text) > 0) {
             $text = $text[0]['text'] ?? null;
-            data_set($layout, "data.fieldValue.value", $text);
             $this->replaceAnchor($webpage, $text);
+            data_set($layout, "data.fieldValue.value", $text);
         }
         return $layout ?? null;
     }
@@ -85,7 +85,6 @@ trait WithFetchTextWebBlock
                     $attributeAfterHref[$index],
                     $textInsideAnchor[$index],
                 );
-                // dd($customeExtensionElement);
 
                 $text = str_replace($originalAnchor[$index], $customeExtensionElement, $text);
             }
