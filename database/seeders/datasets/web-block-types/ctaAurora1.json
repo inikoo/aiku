@@ -1,0 +1,195 @@
+{
+	"slug": "cta",
+	"code": "cta1",
+	"name": "Call to action 1",
+	"scope": "webpage",
+	"icon": ["fal", "rectangle-wide"],
+	"blueprint": [
+		{
+			"name": "Properties",
+			"key": ["container", "properties"],
+			"replaceForm": [
+				{
+					"key": ["container", "properties", "background"],
+					"type": ["background"],
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "padding"],
+					"type": ["padding"],
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "margin"],
+					"type": ["margin"],
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "border"],
+					"type": ["border"],
+					"props_data": {}
+				}
+			]
+		},
+		{
+			"name": "Button",
+			"key": ["button"],
+			"type": ["button"],
+			"props_data": {}
+		}
+	],
+	"data": {
+		"fieldValue": {
+			"text": "All currently trending Indian handcrafted gifts directly imported from Artisans",
+            "title" : "Discover Made in India",
+			"button": {
+				"link": "",
+				"text": "Explore Here",
+				"container": {
+					"properties": {
+						"background": {
+							"type": "color",
+							"color": "#fff",
+							"image": {
+								"original": null
+							}
+						},
+						"padding": {
+							"unit": "px",
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"margin": {
+							"unit": "px",
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"border": {
+							"color": "#000000",
+							"unit": "px",
+							"rounded": {
+								"unit": "px",
+								"topright": {
+									"value": 0
+								},
+								"topleft": {
+									"value": 0
+								},
+								"bottomright": {
+									"value": 0
+								},
+								"bottomleft": {
+									"value": 0
+								}
+							},
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						}
+					}
+				}
+			},
+			"container": {
+				"properties": {
+					"background": {
+						"type": "color",
+						"color": "#fff",
+						"image": {
+							"original": null
+						}
+					},
+					"padding": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"margin": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"border": {
+						"color": "#000000",
+						"unit": "px",
+						"rounded": {
+							"unit": "px",
+							"topright": {
+								"value": 0
+							},
+							"topleft": {
+								"value": 0
+							},
+							"bottomright": {
+								"value": 0
+							},
+							"bottomleft": {
+								"value": 0
+							}
+						},
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					}
+				}
+			}
+		}
+	}
+}

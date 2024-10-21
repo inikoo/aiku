@@ -83,6 +83,20 @@ class ShowTradeUnit extends GrpAction
                             // ] : false
                         ]
                     ],
+                    'attachmentRoutes' => [
+                        'attachRoute' => [
+                            'name' => 'grp.models.trade-unit.attachment.attach',
+                            'parameters' => [
+                                'tradeUnit' => $tradeUnit->id,
+                            ]
+                        ],
+                        'detachRoute' => [
+                            'name' => 'grp.models.trade-unit.attachment.detach',
+                            'parameters' => [
+                                'tradeUnit' => $tradeUnit->id,
+                            ]
+                        ]
+                    ],
                     'tabs' => [
                         'current'    => $this->tab,
                         'navigation' => TradeUnitTabsEnum::navigation()

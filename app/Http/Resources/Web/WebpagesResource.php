@@ -35,13 +35,13 @@ class WebpagesResource extends JsonResource
             "level" => $this->level,
             "code" => $this->code,
             "url" => $this->url,
-            "url_workshop" => route('grp.org.shops.show.web.webpages.workshop', [
+            "workshop" => route('grp.org.shops.show.web.webpages.workshop', [
                 'organisation' => $this->organisation_slug,
                 'shop' => $this->shop_slug,
                 'website' => $this->website_slug,
                 'webpage' => $this->slug,
             ]),
-            "url_iris" => $this->website_url . '/' . $this->url,
+            "url" => $this->website_url . '/' . $this->url,
             "type" => $this->type,
             "typeIcon" => $this->type->stateIcon()[$this->type->value] ?? ["fal", "fa-browser"],
             /* 	"typeIcon2" => match ($this->type) {

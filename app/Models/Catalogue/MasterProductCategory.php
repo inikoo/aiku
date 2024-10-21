@@ -176,4 +176,9 @@ class MasterProductCategory extends Model implements Auditable, HasMedia
     {
         return $this->hasOne(MasterProductCategoryStats::class);
     }
+
+    public function masterShop(): BelongsTo
+    {
+        return $this->belongsTo(MasterShop::class);
+    }
 }

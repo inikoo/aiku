@@ -149,6 +149,20 @@ class ShowCustomer extends OrgAction
                     ],
                     'subNavigation' => $subNavigation,
                 ],
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name' => 'grp.models.customer.attachment.attach',
+                        'parameters' => [
+                            'customer' => $customer->id,
+                        ]
+                    ],
+                    'detachRoute' => [
+                        'name' => 'grp.models.customer.attachment.detach',
+                        'parameters' => [
+                            'customer' => $customer->id,
+                        ]
+                    ]
+                ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => $tabs::navigation()

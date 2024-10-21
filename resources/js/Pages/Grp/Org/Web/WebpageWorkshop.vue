@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { ref, defineExpose, onMounted, onUnmounted, watch } from 'vue'
+import { ref, defineExpose, onMounted, onUnmounted, watch, IframeHTMLAttributes} from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -16,6 +16,7 @@ import ScreenView from "@/Components/ScreenView.vue"
 import WebpageSideEditor from "@/Components/Websites/WebpageSideEditor.vue"
 import Drawer from 'primevue/drawer';
 import { socketWeblock } from '@/Composables/SocketWebBlock'
+import Toggle from '@/Components/Pure/Toggle.vue'
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
@@ -47,6 +48,7 @@ const data = ref({ ...props.webpage })
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const _WebpageSideEditor = ref(null)
+const isPreviewLoggedIn = ref(false)
 
 const isAddBlockLoading = ref<string | null>(null)
 const addNewBlock = async (block: Daum) => {
@@ -71,7 +73,12 @@ const isSavingBlock = ref(false)
 const sendBlockUpdate = async (block: Daum) => {
     router.patch(
         route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
-        { layout: block.web_block.layout },
+        {
+            layout: block.web_block.layout,
+            show_logged_in: block.visibility.in,
+            show_logged_out: block.visibility.out,
+            show: block.show
+        },
         {
             onStart: () => isSavingBlock.value = true,
             onFinish: () => isSavingBlock.value = false,
@@ -118,7 +125,6 @@ const sendDeleteBlock = async (block: Daum) => {
     )
     // isLoading.value = false
 }
-
 
 const onPublish = async (action: {}, popover: {}) => {
     try {
@@ -174,9 +180,15 @@ onUnmounted(() => {
     if (socketConnectionWebpage) socketConnectionWebpage.actions.unsubscribe();
 });
 
+const _iframe = ref<IframeHTMLAttributes | null>(null)
+const sendToIframe = (data: any) => {
+    _iframe.value?.contentWindow.postMessage(data, '*')
+}
+
+
 
 onMounted(() => {
-    if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { console.log("dd"), data.value = { ...data.value, ...value } });
+    if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { data.value = { ...data.value, ...value } });
     window.addEventListener('message', (event) => {
         if (event.data === 'openModalBlockList') {
             isModalBlockList.value = true
@@ -204,7 +216,7 @@ onMounted(() => {
 
     <div class="grid grid-cols-5 h-[85vh]">
         <!-- Section: Side editor -->
-        <div class="col-span-1 lg:block hidden h-full border-2 bg-gray-200 px-3 py-1 ">
+        <div class="col-span-1 lg:block hidden h-full border-2 bg-gray-200 px-3 py-1 overflow-auto">
             <WebpageSideEditor v-model="isModalBlockList" :isLoadingDelete :isAddBlockLoading :webpage="data"
                 :webBlockTypes="webBlockTypes" @update="sendBlockUpdate" @delete="sendDeleteBlock" @add="addNewBlock"
                 @order="sendOrderBlock" />
@@ -231,6 +243,16 @@ onMounted(() => {
                         <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
                     </div>
                 </div>
+
+                <div class="flex gap-3 items-center px-4">
+                    <div class="flex items-center gap-x-2">
+                        <span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged out</span>
+                        <Toggle v-model="isPreviewLoggedIn" @update:modelValue="(newVal) => sendToIframe({key: 'isPreviewLoggedIn', value: newVal})" />
+                        <span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged in</span>
+                    </div>
+                </div>
+
+
             </div>
 
             <div class="border-2 h-full w-full">
@@ -238,8 +260,8 @@ onMounted(() => {
                     <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
                 </div>
 
-                <div class="h-full w-full bg-white">
-                    <iframe ref="_iframeRef" :src="iframeSrc" :title="props.title"
+                <div class="h-full w-full bg-white overflow-auto">
+                    <iframe ref="_iframe" :src="iframeSrc" :title="props.title"
                         :class="[iframeClass, isIframeLoading ? 'hidden' : '']" @error="handleIframeError"
                         @load="isIframeLoading = false" />
                 </div>
