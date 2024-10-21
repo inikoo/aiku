@@ -16,6 +16,7 @@ enum WebsiteTabsEnum: string
     use HasTabs;
 
     case SHOWCASE  = 'showcase';
+    case EXTERNAL_LINKS  = 'external_links';
     case ANALYTICS = 'analytics';
     case WEB_USERS = 'web_users';
     case CHANGELOG = 'changelog';
@@ -26,6 +27,10 @@ enum WebsiteTabsEnum: string
             WebsiteTabsEnum::SHOWCASE => [
                 'title' => __('website'),
                 'icon'  => 'fas fa-info-circle',
+            ],
+            WebsiteTabsEnum::EXTERNAL_LINKS => [
+                'title' => __('external links'),
+                'icon'  => 'fal fa-external-link',
             ],
             WebsiteTabsEnum::ANALYTICS => [
                 'title' => __('analytics'),
