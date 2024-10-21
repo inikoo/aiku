@@ -34,7 +34,7 @@ class UpdateMasterShop extends GrpAction
 
     public function handle(MasterShop $masterShop, array $modelData): MasterShop
     {
-        $masterProductCategory = $this->update($masterShop, $modelData, ['data']);
+        $masterShop = $this->update($masterShop, $modelData, ['data']);
 
         return $masterShop;
     }
