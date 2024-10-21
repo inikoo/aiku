@@ -43,7 +43,6 @@ class StoreMasterProductCategory extends GrpAction
             data_set($modelData, 'master_shop_id', $parent->id);
         }
 
-        // dd($modelData);
         /** @var MasterProductCategory $masterProductCategory */
         $masterProductCategory = MasterProductCategory::create($modelData);
         $masterProductCategory->refresh();
