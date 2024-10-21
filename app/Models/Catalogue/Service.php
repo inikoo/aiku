@@ -64,12 +64,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ServiceStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Catalogue\ServiceFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Service newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Service newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Service onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Service query()
- * @method static \Illuminate\Database\Eloquent\Builder|Service withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Service withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Service withoutTrashed()
  * @mixin \Eloquent
  */
 class Service extends Model implements Auditable

@@ -13,9 +13,9 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * App\Models\Mail\EmailTemplatePivotEmailCategory
  *
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplatePivotEmailCategory newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplatePivotEmailCategory newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplatePivotEmailCategory query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplatePivotEmailCategory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplatePivotEmailCategory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplatePivotEmailCategory query()
  * @mixin \Eloquent
  */
 class EmailTemplatePivotEmailCategory extends Model

@@ -234,9 +234,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static \Illuminate\Database\Eloquent\Builder|GroupSalesIntervals newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupSalesIntervals newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupSalesIntervals query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupSalesIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupSalesIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupSalesIntervals query()
  * @mixin \Eloquent
  */
 class GroupSalesIntervals extends Model

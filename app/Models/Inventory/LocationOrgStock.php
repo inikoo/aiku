@@ -46,9 +46,9 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read \App\Models\Inventory\OrgStock $orgStock
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Inventory\Warehouse $warehouse
- * @method static \Illuminate\Database\Eloquent\Builder|LocationOrgStock newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LocationOrgStock newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LocationOrgStock query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocationOrgStock newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocationOrgStock newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocationOrgStock query()
  * @mixin \Eloquent
  */
 class LocationOrgStock extends Model implements Auditable

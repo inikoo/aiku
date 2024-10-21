@@ -63,12 +63,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Web\BannerStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Snapshot|null $unpublishedSnapshot
- * @method static \Illuminate\Database\Eloquent\Builder|Banner newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Banner newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Banner onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Banner query()
- * @method static \Illuminate\Database\Eloquent\Builder|Banner withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Banner withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Banner newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Banner newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Banner onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Banner query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Banner withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Banner withoutTrashed()
  * @mixin \Eloquent
  */
 class Banner extends Model implements HasMedia, Auditable

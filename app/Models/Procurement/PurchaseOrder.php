@@ -87,12 +87,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderTransaction> $purchaseOrderTransactions
  * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])
- * @method static Builder|PurchaseOrder newModelQuery()
- * @method static Builder|PurchaseOrder newQuery()
- * @method static Builder|PurchaseOrder onlyTrashed()
- * @method static Builder|PurchaseOrder query()
- * @method static Builder|PurchaseOrder withTrashed()
- * @method static Builder|PurchaseOrder withoutTrashed()
+ * @method static Builder<static>|PurchaseOrder newModelQuery()
+ * @method static Builder<static>|PurchaseOrder newQuery()
+ * @method static Builder<static>|PurchaseOrder onlyTrashed()
+ * @method static Builder<static>|PurchaseOrder query()
+ * @method static Builder<static>|PurchaseOrder withTrashed()
+ * @method static Builder<static>|PurchaseOrder withoutTrashed()
  * @mixin Eloquent
  */
 class PurchaseOrder extends Model implements Auditable, HasMedia

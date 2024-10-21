@@ -61,12 +61,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read Transaction|null $transaction
- * @method static Builder|InvoiceTransaction newModelQuery()
- * @method static Builder|InvoiceTransaction newQuery()
- * @method static Builder|InvoiceTransaction onlyTrashed()
- * @method static Builder|InvoiceTransaction query()
- * @method static Builder|InvoiceTransaction withTrashed()
- * @method static Builder|InvoiceTransaction withoutTrashed()
+ * @method static Builder<static>|InvoiceTransaction newModelQuery()
+ * @method static Builder<static>|InvoiceTransaction newQuery()
+ * @method static Builder<static>|InvoiceTransaction onlyTrashed()
+ * @method static Builder<static>|InvoiceTransaction query()
+ * @method static Builder<static>|InvoiceTransaction withTrashed()
+ * @method static Builder<static>|InvoiceTransaction withoutTrashed()
  * @mixin Eloquent
  */
 class InvoiceTransaction extends Model

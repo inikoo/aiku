@@ -57,9 +57,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Web\Website $website
- * @method static Builder|WebsiteStats newModelQuery()
- * @method static Builder|WebsiteStats newQuery()
- * @method static Builder|WebsiteStats query()
+ * @method static Builder<static>|WebsiteStats newModelQuery()
+ * @method static Builder<static>|WebsiteStats newQuery()
+ * @method static Builder<static>|WebsiteStats query()
  * @mixin Eloquent
  */
 class WebsiteStats extends Model

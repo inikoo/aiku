@@ -49,12 +49,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read \App\Models\Accounting\PaymentServiceProviderStats|null $stats
  * @method static \Database\Factories\Accounting\PaymentServiceProviderFactory factory($count = null, $state = [])
- * @method static Builder|PaymentServiceProvider newModelQuery()
- * @method static Builder|PaymentServiceProvider newQuery()
- * @method static Builder|PaymentServiceProvider onlyTrashed()
- * @method static Builder|PaymentServiceProvider query()
- * @method static Builder|PaymentServiceProvider withTrashed()
- * @method static Builder|PaymentServiceProvider withoutTrashed()
+ * @method static Builder<static>|PaymentServiceProvider newModelQuery()
+ * @method static Builder<static>|PaymentServiceProvider newQuery()
+ * @method static Builder<static>|PaymentServiceProvider onlyTrashed()
+ * @method static Builder<static>|PaymentServiceProvider query()
+ * @method static Builder<static>|PaymentServiceProvider withTrashed()
+ * @method static Builder<static>|PaymentServiceProvider withoutTrashed()
  * @mixin Eloquent
  */
 class PaymentServiceProvider extends Model implements Auditable, HasMedia

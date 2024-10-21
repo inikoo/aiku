@@ -64,12 +64,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Stock> $stocks
  * @property-read Collection<int, SupplierProduct> $supplierProducts
  * @method static \Database\Factories\Goods\TradeUnitFactory factory($count = null, $state = [])
- * @method static Builder|TradeUnit newModelQuery()
- * @method static Builder|TradeUnit newQuery()
- * @method static Builder|TradeUnit onlyTrashed()
- * @method static Builder|TradeUnit query()
- * @method static Builder|TradeUnit withTrashed()
- * @method static Builder|TradeUnit withoutTrashed()
+ * @method static Builder<static>|TradeUnit newModelQuery()
+ * @method static Builder<static>|TradeUnit newQuery()
+ * @method static Builder<static>|TradeUnit onlyTrashed()
+ * @method static Builder<static>|TradeUnit query()
+ * @method static Builder<static>|TradeUnit withTrashed()
+ * @method static Builder<static>|TradeUnit withoutTrashed()
  * @mixin Eloquent
  */
 class TradeUnit extends Model implements HasMedia, Auditable

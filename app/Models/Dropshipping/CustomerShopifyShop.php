@@ -12,9 +12,9 @@ use Illuminate\Database\Eloquent\Model;
 /**
  *
  *
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerShopifyShop newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerShopifyShop newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerShopifyShop query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerShopifyShop newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerShopifyShop newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerShopifyShop query()
  * @mixin \Eloquent
  */
 class CustomerShopifyShop extends Model

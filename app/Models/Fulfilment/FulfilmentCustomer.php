@@ -137,12 +137,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Fulfilment\StoredItemAudit|null $storedItemAudit
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItem> $storedItems
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer query()
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentCustomer withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentCustomer newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentCustomer newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentCustomer onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentCustomer query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentCustomer withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentCustomer withoutTrashed()
  * @mixin \Eloquent
  */
 class FulfilmentCustomer extends Model

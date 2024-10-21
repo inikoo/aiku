@@ -80,9 +80,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @method static Builder|OrganisationAccountingStats newModelQuery()
- * @method static Builder|OrganisationAccountingStats newQuery()
- * @method static Builder|OrganisationAccountingStats query()
+ * @method static Builder<static>|OrganisationAccountingStats newModelQuery()
+ * @method static Builder<static>|OrganisationAccountingStats newQuery()
+ * @method static Builder<static>|OrganisationAccountingStats query()
  * @mixin Eloquent
  */
 class OrganisationAccountingStats extends Model

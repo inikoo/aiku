@@ -23,9 +23,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Mail\Mailshot|null $mailshot
- * @method static Builder|EmailAddress newModelQuery()
- * @method static Builder|EmailAddress newQuery()
- * @method static Builder|EmailAddress query()
+ * @method static Builder<static>|EmailAddress newModelQuery()
+ * @method static Builder<static>|EmailAddress newQuery()
+ * @method static Builder<static>|EmailAddress query()
  * @mixin Eloquent
  */
 class EmailAddress extends Model

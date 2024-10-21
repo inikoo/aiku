@@ -22,9 +22,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Subscription|null $asset
- * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SubscriptionStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubscriptionStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubscriptionStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SubscriptionStats query()
  * @mixin \Eloquent
  */
 class SubscriptionStats extends Model

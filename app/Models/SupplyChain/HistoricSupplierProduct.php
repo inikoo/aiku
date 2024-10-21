@@ -39,12 +39,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SupplyChain\HistoricSupplierProductStats|null $stats
  * @property-read \App\Models\SupplyChain\SupplierProduct|null $supplierProduct
- * @method static Builder|HistoricSupplierProduct newModelQuery()
- * @method static Builder|HistoricSupplierProduct newQuery()
- * @method static Builder|HistoricSupplierProduct onlyTrashed()
- * @method static Builder|HistoricSupplierProduct query()
- * @method static Builder|HistoricSupplierProduct withTrashed()
- * @method static Builder|HistoricSupplierProduct withoutTrashed()
+ * @method static Builder<static>|HistoricSupplierProduct newModelQuery()
+ * @method static Builder<static>|HistoricSupplierProduct newQuery()
+ * @method static Builder<static>|HistoricSupplierProduct onlyTrashed()
+ * @method static Builder<static>|HistoricSupplierProduct query()
+ * @method static Builder<static>|HistoricSupplierProduct withTrashed()
+ * @method static Builder<static>|HistoricSupplierProduct withoutTrashed()
  * @mixin Eloquent
  */
 class HistoricSupplierProduct extends Model

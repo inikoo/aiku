@@ -44,9 +44,9 @@ use Illuminate\Support\Facades\Auth;
  * @property-read \App\Models\Mail\Mailshot|null $mailshot
  * @property-read \App\Models\Mail\Outbox|null $outbox
  * @property-read Model|\Eloquent|null $recipient
- * @method static \Illuminate\Database\Eloquent\Builder|DispatchedEmail newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DispatchedEmail newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|DispatchedEmail query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DispatchedEmail newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DispatchedEmail newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|DispatchedEmail query()
  * @mixin \Eloquent
  */
 class DispatchedEmail extends Model

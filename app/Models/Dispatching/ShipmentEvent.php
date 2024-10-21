@@ -24,9 +24,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Dispatching\Shipment $shipment
- * @method static \Illuminate\Database\Eloquent\Builder|ShipmentEvent newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShipmentEvent newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShipmentEvent query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShipmentEvent newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShipmentEvent newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShipmentEvent query()
  * @mixin \Eloquent
  */
 class ShipmentEvent extends Model

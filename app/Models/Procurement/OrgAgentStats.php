@@ -59,9 +59,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Procurement\OrgAgent $orgAgent
- * @method static \Illuminate\Database\Eloquent\Builder|OrgAgentStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgAgentStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgAgentStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgAgentStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgAgentStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgAgentStats query()
  * @mixin \Eloquent
  */
 class OrgAgentStats extends Model

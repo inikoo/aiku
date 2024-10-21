@@ -69,9 +69,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static \Illuminate\Database\Eloquent\Builder|GroupMailStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupMailStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupMailStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupMailStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupMailStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupMailStats query()
  * @mixin \Eloquent
  */
 class GroupMailStats extends Model

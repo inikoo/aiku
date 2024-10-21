@@ -33,9 +33,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SupplyChain\Stock $stock
- * @method static Builder|StockStats newModelQuery()
- * @method static Builder|StockStats newQuery()
- * @method static Builder|StockStats query()
+ * @method static Builder<static>|StockStats newModelQuery()
+ * @method static Builder<static>|StockStats newQuery()
+ * @method static Builder<static>|StockStats query()
  * @mixin Eloquent
  */
 class StockStats extends Model

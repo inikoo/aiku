@@ -77,9 +77,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $total_price
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturnStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturnStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturnStats query()
  * @mixin \Eloquent
  */
 class PalletReturnStats extends Model

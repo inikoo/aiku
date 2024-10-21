@@ -23,9 +23,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Helpers\Currency $currency
- * @method static Builder|CurrencyExchange newModelQuery()
- * @method static Builder|CurrencyExchange newQuery()
- * @method static Builder|CurrencyExchange query()
+ * @method static Builder<static>|CurrencyExchange newModelQuery()
+ * @method static Builder<static>|CurrencyExchange newQuery()
+ * @method static Builder<static>|CurrencyExchange query()
  * @mixin Eloquent
  */
 class CurrencyExchange extends Model

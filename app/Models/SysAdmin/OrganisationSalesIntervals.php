@@ -272,9 +272,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @method static Builder|OrganisationSalesIntervals newModelQuery()
- * @method static Builder|OrganisationSalesIntervals newQuery()
- * @method static Builder|OrganisationSalesIntervals query()
+ * @method static Builder<static>|OrganisationSalesIntervals newModelQuery()
+ * @method static Builder<static>|OrganisationSalesIntervals newQuery()
+ * @method static Builder<static>|OrganisationSalesIntervals query()
  * @mixin Eloquent
  */
 class OrganisationSalesIntervals extends Model

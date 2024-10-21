@@ -44,9 +44,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Procurement\OrgSupplierStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\StockDelivery> $stockDeliveries
  * @property-read Supplier $supplier
- * @method static Builder|OrgSupplier newModelQuery()
- * @method static Builder|OrgSupplier newQuery()
- * @method static Builder|OrgSupplier query()
+ * @method static Builder<static>|OrgSupplier newModelQuery()
+ * @method static Builder<static>|OrgSupplier newQuery()
+ * @method static Builder<static>|OrgSupplier query()
  * @mixin Eloquent
  */
 class OrgSupplier extends Model

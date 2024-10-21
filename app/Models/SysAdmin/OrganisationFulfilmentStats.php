@@ -113,9 +113,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @method static Builder|OrganisationFulfilmentStats newModelQuery()
- * @method static Builder|OrganisationFulfilmentStats newQuery()
- * @method static Builder|OrganisationFulfilmentStats query()
+ * @method static Builder<static>|OrganisationFulfilmentStats newModelQuery()
+ * @method static Builder<static>|OrganisationFulfilmentStats newQuery()
+ * @method static Builder<static>|OrganisationFulfilmentStats query()
  * @mixin Eloquent
  */
 class OrganisationFulfilmentStats extends Model

@@ -16,9 +16,9 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * App\Models\Procurement\SupplierProductTradeUnit
  *
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
- * @method static Builder|SupplierProductTradeUnit newModelQuery()
- * @method static Builder|SupplierProductTradeUnit newQuery()
- * @method static Builder|SupplierProductTradeUnit query()
+ * @method static Builder<static>|SupplierProductTradeUnit newModelQuery()
+ * @method static Builder<static>|SupplierProductTradeUnit newQuery()
+ * @method static Builder<static>|SupplierProductTradeUnit query()
  * @mixin Eloquent
  */
 class SupplierProductTradeUnit extends Pivot

@@ -57,12 +57,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Mail\OutboxStats|null $stats
  * @property-read Website|null $website
  * @method static \Database\Factories\Mail\OutboxFactory factory($count = null, $state = [])
- * @method static Builder|Outbox newModelQuery()
- * @method static Builder|Outbox newQuery()
- * @method static Builder|Outbox onlyTrashed()
- * @method static Builder|Outbox query()
- * @method static Builder|Outbox withTrashed()
- * @method static Builder|Outbox withoutTrashed()
+ * @method static Builder<static>|Outbox newModelQuery()
+ * @method static Builder<static>|Outbox newQuery()
+ * @method static Builder<static>|Outbox onlyTrashed()
+ * @method static Builder<static>|Outbox query()
+ * @method static Builder<static>|Outbox withTrashed()
+ * @method static Builder<static>|Outbox withoutTrashed()
  * @mixin Eloquent
  */
 class Outbox extends Model

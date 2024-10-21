@@ -12,9 +12,9 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 /**
  *
  *
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDeliveryPhysicalGood newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDeliveryPhysicalGood newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDeliveryPhysicalGood query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDeliveryPhysicalGood newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDeliveryPhysicalGood newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDeliveryPhysicalGood query()
  * @mixin \Eloquent
  */
 class PalletDeliveryPhysicalGood extends Pivot

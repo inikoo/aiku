@@ -53,12 +53,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read Model|\Eloquent|null $item
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Fulfilment\RecurringBill $recurringBill
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringBillTransaction newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringBillTransaction newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringBillTransaction onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringBillTransaction query()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringBillTransaction withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringBillTransaction withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RecurringBillTransaction newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RecurringBillTransaction newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RecurringBillTransaction onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RecurringBillTransaction query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RecurringBillTransaction withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RecurringBillTransaction withoutTrashed()
  * @mixin \Eloquent
  */
 class RecurringBillTransaction extends Model

@@ -97,12 +97,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\InvoiceFactory factory($count = null, $state = [])
- * @method static Builder|Invoice newModelQuery()
- * @method static Builder|Invoice newQuery()
- * @method static Builder|Invoice onlyTrashed()
- * @method static Builder|Invoice query()
- * @method static Builder|Invoice withTrashed()
- * @method static Builder|Invoice withoutTrashed()
+ * @method static Builder<static>|Invoice newModelQuery()
+ * @method static Builder<static>|Invoice newQuery()
+ * @method static Builder<static>|Invoice onlyTrashed()
+ * @method static Builder<static>|Invoice query()
+ * @method static Builder<static>|Invoice withTrashed()
+ * @method static Builder<static>|Invoice withoutTrashed()
  * @mixin Eloquent
  */
 class Invoice extends Model implements Auditable

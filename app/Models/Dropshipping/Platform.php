@@ -32,9 +32,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read \App\Models\Dropshipping\PlatformStats|null $stats
- * @method static \Illuminate\Database\Eloquent\Builder|Platform newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Platform newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Platform query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Platform newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Platform newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Platform query()
  * @mixin \Eloquent
  */
 class Platform extends Model

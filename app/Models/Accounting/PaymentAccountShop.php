@@ -21,9 +21,9 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static Builder|PaymentAccountShop newModelQuery()
- * @method static Builder|PaymentAccountShop newQuery()
- * @method static Builder|PaymentAccountShop query()
+ * @method static Builder<static>|PaymentAccountShop newModelQuery()
+ * @method static Builder<static>|PaymentAccountShop newQuery()
+ * @method static Builder<static>|PaymentAccountShop query()
  * @mixin Eloquent
  */
 class PaymentAccountShop extends Pivot

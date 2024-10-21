@@ -93,9 +93,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static \Illuminate\Database\Eloquent\Builder|GroupCatalogueStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupCatalogueStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupCatalogueStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupCatalogueStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupCatalogueStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupCatalogueStats query()
  * @mixin \Eloquent
  */
 class GroupCatalogueStats extends Model

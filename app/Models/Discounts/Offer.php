@@ -53,12 +53,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Discounts\OfferStats|null $stats
  * @method static \Database\Factories\Discounts\OfferFactory factory($count = null, $state = [])
- * @method static Builder|Offer newModelQuery()
- * @method static Builder|Offer newQuery()
- * @method static Builder|Offer onlyTrashed()
- * @method static Builder|Offer query()
- * @method static Builder|Offer withTrashed()
- * @method static Builder|Offer withoutTrashed()
+ * @method static Builder<static>|Offer newModelQuery()
+ * @method static Builder<static>|Offer newQuery()
+ * @method static Builder<static>|Offer onlyTrashed()
+ * @method static Builder<static>|Offer query()
+ * @method static Builder<static>|Offer withTrashed()
+ * @method static Builder<static>|Offer withoutTrashed()
  * @mixin Eloquent
  */
 class Offer extends Model implements Auditable

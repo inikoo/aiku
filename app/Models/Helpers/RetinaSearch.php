@@ -34,9 +34,9 @@ use Laravel\Scout\Searchable;
  * @property array $result
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|RetinaSearch newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RetinaSearch newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RetinaSearch query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RetinaSearch newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RetinaSearch newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RetinaSearch query()
  * @mixin \Eloquent
  */
 class RetinaSearch extends Model

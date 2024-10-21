@@ -23,9 +23,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Fulfilment\RentalAgreement $rentalAgreement
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreementStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreementStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreementStats query()
  * @mixin \Eloquent
  */
 class RentalAgreementStats extends Model

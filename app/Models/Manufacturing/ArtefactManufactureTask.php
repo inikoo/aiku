@@ -15,9 +15,9 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Manufacturing\Artefact $artefact
  * @property-read \App\Models\Manufacturing\ManufactureTask $manufactureTask
- * @method static \Illuminate\Database\Eloquent\Builder|ArtefactManufactureTask newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ArtefactManufactureTask newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ArtefactManufactureTask query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ArtefactManufactureTask newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ArtefactManufactureTask newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ArtefactManufactureTask query()
  * @mixin \Eloquent
  */
 

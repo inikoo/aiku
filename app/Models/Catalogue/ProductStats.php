@@ -28,9 +28,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Product $product
- * @method static \Illuminate\Database\Eloquent\Builder|ProductStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductStats query()
  * @mixin \Eloquent
  */
 class ProductStats extends Model

@@ -26,9 +26,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $last_fetched_at
  * @property string|null $source_id
  * @property-read \App\Models\Helpers\Upload|null $excel
- * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|UploadRecord query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UploadRecord newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UploadRecord newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|UploadRecord query()
  * @mixin \Eloquent
  */
 

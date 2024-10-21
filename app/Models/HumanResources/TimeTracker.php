@@ -33,12 +33,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read Model|\Eloquent $subject
  * @property-read \App\Models\HumanResources\Timesheet|null $timesheet
- * @method static Builder|TimeTracker newModelQuery()
- * @method static Builder|TimeTracker newQuery()
- * @method static Builder|TimeTracker onlyTrashed()
- * @method static Builder|TimeTracker query()
- * @method static Builder|TimeTracker withTrashed()
- * @method static Builder|TimeTracker withoutTrashed()
+ * @method static Builder<static>|TimeTracker newModelQuery()
+ * @method static Builder<static>|TimeTracker newQuery()
+ * @method static Builder<static>|TimeTracker onlyTrashed()
+ * @method static Builder<static>|TimeTracker query()
+ * @method static Builder<static>|TimeTracker withTrashed()
+ * @method static Builder<static>|TimeTracker withoutTrashed()
  * @mixin \Eloquent
  */
 class TimeTracker extends Model

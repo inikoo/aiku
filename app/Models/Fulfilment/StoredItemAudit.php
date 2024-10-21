@@ -49,9 +49,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAudit newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAudit newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAudit query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemAudit newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemAudit newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemAudit query()
  * @mixin \Eloquent
  */
 class StoredItemAudit extends Model implements Auditable

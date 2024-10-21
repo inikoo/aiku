@@ -60,12 +60,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Shop> $shops
  * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
  * @method static \Database\Factories\Accounting\PaymentAccountFactory factory($count = null, $state = [])
- * @method static Builder|PaymentAccount newModelQuery()
- * @method static Builder|PaymentAccount newQuery()
- * @method static Builder|PaymentAccount onlyTrashed()
- * @method static Builder|PaymentAccount query()
- * @method static Builder|PaymentAccount withTrashed()
- * @method static Builder|PaymentAccount withoutTrashed()
+ * @method static Builder<static>|PaymentAccount newModelQuery()
+ * @method static Builder<static>|PaymentAccount newQuery()
+ * @method static Builder<static>|PaymentAccount onlyTrashed()
+ * @method static Builder<static>|PaymentAccount query()
+ * @method static Builder<static>|PaymentAccount withTrashed()
+ * @method static Builder<static>|PaymentAccount withoutTrashed()
  * @mixin Eloquent
  */
 class PaymentAccount extends Model implements Auditable

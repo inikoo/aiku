@@ -53,9 +53,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SupplyChain\Supplier $supplier
- * @method static Builder|SupplierStats newModelQuery()
- * @method static Builder|SupplierStats newQuery()
- * @method static Builder|SupplierStats query()
+ * @method static Builder<static>|SupplierStats newModelQuery()
+ * @method static Builder<static>|SupplierStats newQuery()
+ * @method static Builder<static>|SupplierStats query()
  * @mixin Eloquent
  */
 class SupplierStats extends Model

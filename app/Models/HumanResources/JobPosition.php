@@ -46,9 +46,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
  * @property-read \App\Models\HumanResources\JobPositionStats|null $stats
- * @method static Builder|JobPosition newModelQuery()
- * @method static Builder|JobPosition newQuery()
- * @method static Builder|JobPosition query()
+ * @method static Builder<static>|JobPosition newModelQuery()
+ * @method static Builder<static>|JobPosition newQuery()
+ * @method static Builder<static>|JobPosition query()
  * @mixin Eloquent
  */
 class JobPosition extends Model implements Auditable

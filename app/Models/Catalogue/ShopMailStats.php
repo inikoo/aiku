@@ -70,9 +70,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Shop $shop
- * @method static Builder|ShopMailStats newModelQuery()
- * @method static Builder|ShopMailStats newQuery()
- * @method static Builder|ShopMailStats query()
+ * @method static Builder<static>|ShopMailStats newModelQuery()
+ * @method static Builder<static>|ShopMailStats newQuery()
+ * @method static Builder<static>|ShopMailStats query()
  * @mixin Eloquent
  */
 class ShopMailStats extends Model

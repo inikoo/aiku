@@ -271,9 +271,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder|ShopOrdersIntervals newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopOrdersIntervals newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopOrdersIntervals query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopOrdersIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopOrdersIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopOrdersIntervals query()
  * @mixin \Eloquent
  */
 class ShopOrdersIntervals extends Model

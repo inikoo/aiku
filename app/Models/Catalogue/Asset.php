@@ -71,12 +71,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Service|null $service
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\AssetStats|null $stats
- * @method static \Illuminate\Database\Eloquent\Builder|Asset newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Asset newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Asset onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Asset query()
- * @method static \Illuminate\Database\Eloquent\Builder|Asset withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Asset withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset withoutTrashed()
  * @mixin \Eloquent
  */
 class Asset extends Model implements HasMedia

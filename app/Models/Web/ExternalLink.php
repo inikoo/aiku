@@ -27,9 +27,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\WebBlock> $webBlocks
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\Webpage> $webpages
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\Website> $websites
- * @method static \Illuminate\Database\Eloquent\Builder|ExternalLink newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ExternalLink newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ExternalLink query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExternalLink newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExternalLink newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ExternalLink query()
  * @mixin \Eloquent
  */
 class ExternalLink extends Model

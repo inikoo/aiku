@@ -60,12 +60,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Stock|null $stock
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Inventory\OrgStockFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStock newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStock newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStock onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStock query()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStock withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStock withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStock newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStock newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStock onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStock query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStock withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStock withoutTrashed()
  * @mixin \Eloquent
  */
 class OrgStock extends Model

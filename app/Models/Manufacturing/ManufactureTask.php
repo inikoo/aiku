@@ -54,12 +54,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Manufacturing\Production $production
  * @property-read \App\Models\Manufacturing\ManufactureTaskStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|ManufactureTask newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ManufactureTask newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ManufactureTask onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|ManufactureTask query()
- * @method static \Illuminate\Database\Eloquent\Builder|ManufactureTask withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|ManufactureTask withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManufactureTask newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManufactureTask newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManufactureTask onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManufactureTask query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManufactureTask withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ManufactureTask withoutTrashed()
  * @mixin \Eloquent
  */
 

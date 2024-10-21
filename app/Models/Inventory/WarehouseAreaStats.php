@@ -85,9 +85,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouse
- * @method static Builder|WarehouseAreaStats newModelQuery()
- * @method static Builder|WarehouseAreaStats newQuery()
- * @method static Builder|WarehouseAreaStats query()
+ * @method static Builder<static>|WarehouseAreaStats newModelQuery()
+ * @method static Builder<static>|WarehouseAreaStats newQuery()
+ * @method static Builder<static>|WarehouseAreaStats query()
  * @mixin Eloquent
  */
 class WarehouseAreaStats extends Model

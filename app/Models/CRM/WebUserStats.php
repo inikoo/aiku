@@ -25,9 +25,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\CRM\WebUser $webUser
- * @method static \Illuminate\Database\Eloquent\Builder|WebUserStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WebUserStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WebUserStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebUserStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebUserStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebUserStats query()
  * @mixin \Eloquent
  */
 class WebUserStats extends Model

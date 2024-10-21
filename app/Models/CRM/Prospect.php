@@ -90,17 +90,17 @@ use Spatie\Tags\Tag;
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\CRM\ProspectFactory factory($count = null, $state = [])
- * @method static Builder|Prospect newModelQuery()
- * @method static Builder|Prospect newQuery()
- * @method static Builder|Prospect onlyTrashed()
- * @method static Builder|Prospect query()
- * @method static Builder|Prospect withAllTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
- * @method static Builder|Prospect withAllTagsOfAnyType($tags)
- * @method static Builder|Prospect withAnyTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
- * @method static Builder|Prospect withAnyTagsOfAnyType($tags)
- * @method static Builder|Prospect withTrashed()
- * @method static Builder|Prospect withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
- * @method static Builder|Prospect withoutTrashed()
+ * @method static Builder<static>|Prospect newModelQuery()
+ * @method static Builder<static>|Prospect newQuery()
+ * @method static Builder<static>|Prospect onlyTrashed()
+ * @method static Builder<static>|Prospect query()
+ * @method static Builder<static>|Prospect withAllTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static Builder<static>|Prospect withAllTagsOfAnyType($tags)
+ * @method static Builder<static>|Prospect withAnyTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static Builder<static>|Prospect withAnyTagsOfAnyType($tags)
+ * @method static Builder<static>|Prospect withTrashed()
+ * @method static Builder<static>|Prospect withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static Builder<static>|Prospect withoutTrashed()
  * @mixin Eloquent
  */
 class Prospect extends Model implements Auditable

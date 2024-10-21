@@ -104,12 +104,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Web\WebsiteStats|null $webStats
  * @property-read Collection<int, \App\Models\Web\Webpage> $webpages
  * @method static \Database\Factories\Web\WebsiteFactory factory($count = null, $state = [])
- * @method static Builder|Website newModelQuery()
- * @method static Builder|Website newQuery()
- * @method static Builder|Website onlyTrashed()
- * @method static Builder|Website query()
- * @method static Builder|Website withTrashed()
- * @method static Builder|Website withoutTrashed()
+ * @method static Builder<static>|Website newModelQuery()
+ * @method static Builder<static>|Website newQuery()
+ * @method static Builder<static>|Website onlyTrashed()
+ * @method static Builder<static>|Website query()
+ * @method static Builder<static>|Website withTrashed()
+ * @method static Builder<static>|Website withoutTrashed()
  * @mixin Eloquent
  */
 class Website extends Model implements Auditable, HasMedia

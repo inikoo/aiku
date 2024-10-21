@@ -33,9 +33,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property-read Model|\Eloquent $parent
  * @property-read Model|\Eloquent $scope
- * @method static \Illuminate\Database\Eloquent\Builder|Query newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Query newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Query query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Query newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Query newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Query query()
  * @mixin \Eloquent
  */
 class Query extends Model

@@ -38,9 +38,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Product $product
  * @property-read \App\Models\Catalogue\Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder|BackInStockReminder newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BackInStockReminder newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BackInStockReminder query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BackInStockReminder newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BackInStockReminder newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BackInStockReminder query()
  * @mixin \Eloquent
  */
 class BackInStockReminder extends Model

@@ -49,9 +49,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\Procurement\PurchaseOrder $purchaseOrder
  * @property-read SupplierProduct $supplierProduct
  * @method static \Database\Factories\Procurement\PurchaseOrderTransactionFactory factory($count = null, $state = [])
- * @method static Builder|PurchaseOrderTransaction newModelQuery()
- * @method static Builder|PurchaseOrderTransaction newQuery()
- * @method static Builder|PurchaseOrderTransaction query()
+ * @method static Builder<static>|PurchaseOrderTransaction newModelQuery()
+ * @method static Builder<static>|PurchaseOrderTransaction newQuery()
+ * @method static Builder<static>|PurchaseOrderTransaction query()
  * @mixin Eloquent
  */
 class PurchaseOrderTransaction extends Model

@@ -23,9 +23,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property-read Model|\Eloquent $model
  * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read \App\Models\SysAdmin\User|null $user
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationAuthorisedModels newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationAuthorisedModels newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationAuthorisedModels query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationAuthorisedModels newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationAuthorisedModels newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationAuthorisedModels query()
  * @mixin \Eloquent
  */
 class OrganisationAuthorisedModels extends Model

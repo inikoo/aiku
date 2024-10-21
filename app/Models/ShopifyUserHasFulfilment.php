@@ -19,9 +19,9 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Order $order
  * @property-read ShopifyUser $shopifyUser
- * @method static \Illuminate\Database\Eloquent\Builder|ShopifyUserHasFulfilment newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopifyUserHasFulfilment newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopifyUserHasFulfilment query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopifyUserHasFulfilment newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopifyUserHasFulfilment newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopifyUserHasFulfilment query()
  * @mixin \Eloquent
  */
 class ShopifyUserHasFulfilment extends Pivot

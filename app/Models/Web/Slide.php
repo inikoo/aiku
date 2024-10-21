@@ -34,9 +34,9 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property-read Media|null $imageTablet
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read Snapshot|null $snapshot
- * @method static \Illuminate\Database\Eloquent\Builder|Slide newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Slide newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Slide query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Slide newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Slide newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Slide query()
  * @mixin \Eloquent
  */
 class Slide extends Model implements HasMedia

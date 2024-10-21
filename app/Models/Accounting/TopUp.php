@@ -50,9 +50,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Accounting\Payment $payment
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|TopUp newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TopUp newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TopUp query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TopUp newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TopUp newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TopUp query()
  * @mixin \Eloquent
  */
 class TopUp extends Model implements Auditable

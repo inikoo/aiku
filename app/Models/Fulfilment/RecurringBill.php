@@ -73,12 +73,12 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property-read TaxCategory $taxCategory
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBillTransaction> $transactions
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill query()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RecurringBill withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RecurringBill newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RecurringBill newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RecurringBill onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RecurringBill query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RecurringBill withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RecurringBill withoutTrashed()
  * @mixin \Eloquent
  */
 class RecurringBill extends Model implements Auditable

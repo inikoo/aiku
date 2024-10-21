@@ -51,12 +51,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Manufacturing\Production $production
  * @property-read \App\Models\Manufacturing\RawMaterialStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|RawMaterial newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RawMaterial newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RawMaterial onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RawMaterial query()
- * @method static \Illuminate\Database\Eloquent\Builder|RawMaterial withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RawMaterial withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RawMaterial newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RawMaterial newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RawMaterial onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RawMaterial query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RawMaterial withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RawMaterial withoutTrashed()
  * @mixin \Eloquent
  */
 class RawMaterial extends Model implements Auditable

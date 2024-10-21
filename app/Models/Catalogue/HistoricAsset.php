@@ -40,12 +40,12 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Model|\Eloquent $model
  * @property-read \App\Models\Catalogue\HistoricAssetStats|null $stats
- * @method static Builder|HistoricAsset newModelQuery()
- * @method static Builder|HistoricAsset newQuery()
- * @method static Builder|HistoricAsset onlyTrashed()
- * @method static Builder|HistoricAsset query()
- * @method static Builder|HistoricAsset withTrashed()
- * @method static Builder|HistoricAsset withoutTrashed()
+ * @method static Builder<static>|HistoricAsset newModelQuery()
+ * @method static Builder<static>|HistoricAsset newQuery()
+ * @method static Builder<static>|HistoricAsset onlyTrashed()
+ * @method static Builder<static>|HistoricAsset query()
+ * @method static Builder<static>|HistoricAsset withTrashed()
+ * @method static Builder<static>|HistoricAsset withoutTrashed()
  * @mixin Eloquent
  */
 class HistoricAsset extends Model implements Auditable

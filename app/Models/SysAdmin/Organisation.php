@@ -206,9 +206,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Website> $websites
  * @property-read LaravelCollection<int, Workplace> $workplaces
  * @method static \Database\Factories\SysAdmin\OrganisationFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Organisation newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Organisation newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Organisation query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Organisation query()
  * @mixin \Eloquent
  */
 class Organisation extends Model implements HasMedia, Auditable

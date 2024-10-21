@@ -70,9 +70,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Mail\PostRoom|null $postRoom
- * @method static Builder|PostRoomStats newModelQuery()
- * @method static Builder|PostRoomStats newQuery()
- * @method static Builder|PostRoomStats query()
+ * @method static Builder<static>|PostRoomStats newModelQuery()
+ * @method static Builder<static>|PostRoomStats newQuery()
+ * @method static Builder<static>|PostRoomStats query()
  * @mixin Eloquent
  */
 class PostRoomStats extends Model

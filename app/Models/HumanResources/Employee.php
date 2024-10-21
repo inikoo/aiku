@@ -98,12 +98,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, User> $users
  * @property-read Collection<int, \App\Models\HumanResources\Workplace> $workplaces
  * @method static \Database\Factories\HumanResources\EmployeeFactory factory($count = null, $state = [])
- * @method static Builder|Employee newModelQuery()
- * @method static Builder|Employee newQuery()
- * @method static Builder|Employee onlyTrashed()
- * @method static Builder|Employee query()
- * @method static Builder|Employee withTrashed()
- * @method static Builder|Employee withoutTrashed()
+ * @method static Builder<static>|Employee newModelQuery()
+ * @method static Builder<static>|Employee newQuery()
+ * @method static Builder<static>|Employee onlyTrashed()
+ * @method static Builder<static>|Employee query()
+ * @method static Builder<static>|Employee withTrashed()
+ * @method static Builder<static>|Employee withoutTrashed()
  * @mixin Eloquent
  */
 class Employee extends Model implements HasMedia, Auditable

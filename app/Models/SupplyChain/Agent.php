@@ -67,12 +67,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\SupplyChain\Supplier> $suppliers
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\SupplyChain\AgentFactory factory($count = null, $state = [])
- * @method static Builder|Agent newModelQuery()
- * @method static Builder|Agent newQuery()
- * @method static Builder|Agent onlyTrashed()
- * @method static Builder|Agent query()
- * @method static Builder|Agent withTrashed()
- * @method static Builder|Agent withoutTrashed()
+ * @method static Builder<static>|Agent newModelQuery()
+ * @method static Builder<static>|Agent newQuery()
+ * @method static Builder<static>|Agent onlyTrashed()
+ * @method static Builder<static>|Agent query()
+ * @method static Builder<static>|Agent withTrashed()
+ * @method static Builder<static>|Agent withoutTrashed()
  * @mixin Eloquent
  */
 class Agent extends Model implements HasMedia, Auditable

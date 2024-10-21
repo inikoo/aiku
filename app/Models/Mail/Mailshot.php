@@ -38,12 +38,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Shop|null $shop
  * @property-read \App\Models\Mail\MailshotStats|null $stats
  * @method static \Database\Factories\Mail\MailshotFactory factory($count = null, $state = [])
- * @method static Builder|Mailshot newModelQuery()
- * @method static Builder|Mailshot newQuery()
- * @method static Builder|Mailshot onlyTrashed()
- * @method static Builder|Mailshot query()
- * @method static Builder|Mailshot withTrashed()
- * @method static Builder|Mailshot withoutTrashed()
+ * @method static Builder<static>|Mailshot newModelQuery()
+ * @method static Builder<static>|Mailshot newQuery()
+ * @method static Builder<static>|Mailshot onlyTrashed()
+ * @method static Builder<static>|Mailshot query()
+ * @method static Builder<static>|Mailshot withTrashed()
+ * @method static Builder<static>|Mailshot withoutTrashed()
  * @mixin Eloquent
  */
 class Mailshot extends Model

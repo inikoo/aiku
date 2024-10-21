@@ -49,12 +49,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Dispatching\Shipment> $shipments
  * @property-read Collection<int, \App\Models\Dispatching\ShippingEvent> $shippingEvents
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static Builder|Shipper newModelQuery()
- * @method static Builder|Shipper newQuery()
- * @method static Builder|Shipper onlyTrashed()
- * @method static Builder|Shipper query()
- * @method static Builder|Shipper withTrashed()
- * @method static Builder|Shipper withoutTrashed()
+ * @method static Builder<static>|Shipper newModelQuery()
+ * @method static Builder<static>|Shipper newQuery()
+ * @method static Builder<static>|Shipper onlyTrashed()
+ * @method static Builder<static>|Shipper query()
+ * @method static Builder<static>|Shipper withTrashed()
+ * @method static Builder<static>|Shipper withoutTrashed()
  * @mixin Eloquent
  */
 class Shipper extends Model

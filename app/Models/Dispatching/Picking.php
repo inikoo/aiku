@@ -52,9 +52,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
- * @method static Builder|Picking newModelQuery()
- * @method static Builder|Picking newQuery()
- * @method static Builder|Picking query()
+ * @method static Builder<static>|Picking newModelQuery()
+ * @method static Builder<static>|Picking newQuery()
+ * @method static Builder<static>|Picking query()
  * @mixin Eloquent
  */
 class Picking extends Model

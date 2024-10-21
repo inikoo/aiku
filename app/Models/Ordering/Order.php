@@ -132,12 +132,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Ordering\Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Ordering\OrderFactory factory($count = null, $state = [])
- * @method static Builder|Order newModelQuery()
- * @method static Builder|Order newQuery()
- * @method static Builder|Order onlyTrashed()
- * @method static Builder|Order query()
- * @method static Builder|Order withTrashed()
- * @method static Builder|Order withoutTrashed()
+ * @method static Builder<static>|Order newModelQuery()
+ * @method static Builder<static>|Order newQuery()
+ * @method static Builder<static>|Order onlyTrashed()
+ * @method static Builder<static>|Order query()
+ * @method static Builder<static>|Order withTrashed()
+ * @method static Builder<static>|Order withoutTrashed()
  * @mixin Eloquent
  */
 class Order extends Model implements HasMedia, Auditable

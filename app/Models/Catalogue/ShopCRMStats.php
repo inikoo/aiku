@@ -54,9 +54,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Shop $shop
- * @method static Builder|ShopCRMStats newModelQuery()
- * @method static Builder|ShopCRMStats newQuery()
- * @method static Builder|ShopCRMStats query()
+ * @method static Builder<static>|ShopCRMStats newModelQuery()
+ * @method static Builder<static>|ShopCRMStats newQuery()
+ * @method static Builder<static>|ShopCRMStats query()
  * @mixin Eloquent
  */
 class ShopCRMStats extends Model

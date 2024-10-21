@@ -32,9 +32,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\Fulfilment\Pallet $pallet
  * @property-read \App\Models\Fulfilment\StoredItem $storedItem
  * @property-read \App\Models\Fulfilment\StoredItemAudit|null $storedItemAudit
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAuditDelta newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAuditDelta newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItemAuditDelta query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemAuditDelta newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemAuditDelta newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemAuditDelta query()
  * @mixin \Eloquent
  */
 class StoredItemAuditDelta extends Model

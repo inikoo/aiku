@@ -53,12 +53,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\MasterShopSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\ShopStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|MasterShop newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterShop newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterShop onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterShop query()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterShop withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterShop withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShop newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShop newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShop onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShop query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShop withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShop withoutTrashed()
  * @mixin \Eloquent
  */
 class MasterShop extends Model implements HasMedia, Auditable

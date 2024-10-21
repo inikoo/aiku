@@ -71,12 +71,12 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\TopUp> $topUps
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\PaymentFactory factory($count = null, $state = [])
- * @method static Builder|Payment newModelQuery()
- * @method static Builder|Payment newQuery()
- * @method static Builder|Payment onlyTrashed()
- * @method static Builder|Payment query()
- * @method static Builder|Payment withTrashed()
- * @method static Builder|Payment withoutTrashed()
+ * @method static Builder<static>|Payment newModelQuery()
+ * @method static Builder<static>|Payment newQuery()
+ * @method static Builder<static>|Payment onlyTrashed()
+ * @method static Builder<static>|Payment query()
+ * @method static Builder<static>|Payment withTrashed()
+ * @method static Builder<static>|Payment withoutTrashed()
  * @mixin Eloquent
  */
 class Payment extends Model implements Auditable

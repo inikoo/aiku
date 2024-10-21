@@ -270,9 +270,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static \Illuminate\Database\Eloquent\Builder|GroupOrdersIntervals newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupOrdersIntervals newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupOrdersIntervals query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupOrdersIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupOrdersIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupOrdersIntervals query()
  * @mixin \Eloquent
  */
 class GroupOrdersIntervals extends Model

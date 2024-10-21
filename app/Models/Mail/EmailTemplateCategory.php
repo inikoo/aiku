@@ -18,9 +18,9 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Mail\EmailTemplateCategory
  *
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\EmailTemplate> $templates
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplateCategory query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplateCategory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplateCategory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplateCategory query()
  * @mixin \Eloquent
  */
 class EmailTemplateCategory extends Model

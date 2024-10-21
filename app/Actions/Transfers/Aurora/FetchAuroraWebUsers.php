@@ -10,9 +10,11 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Models\CRM\WebUser;
+use App\Models\Inventory\Location;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebUsers extends FetchAuroraAction
@@ -23,14 +25,19 @@ class FetchAuroraWebUsers extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?WebUser
     {
         if ($webUserData = $organisationSource->fetchWebUser($organisationSourceId)) {
-
             $customer = $webUserData['customer'];
 
             if ($customer and !$customer->trashed()) {
                 if ($webUser = WebUser::withTrashed()->where('source_id', $webUserData['webUser']['source_id'])
                     ->first()) {
                     try {
-                        $webUser = UpdateWebUser::make()->action($webUser, $webUserData['webUser'], 60, false);
+                        $webUser = UpdateWebUser::make()->action(
+                            $webUser,
+                            $webUserData['webUser'],
+                            60,
+                            false,
+                            audit: false
+                        );
                         $this->recordChange($organisationSource, $webUser->wasChanged());
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $webUserData['webUser'], 'WebUser', 'update');
@@ -39,8 +46,27 @@ class FetchAuroraWebUsers extends FetchAuroraAction
                     }
                 } else {
                     try {
-                        $webUser = StoreWebUser::make()->action($customer, $webUserData['webUser'], 60, false);
+                        $webUser = StoreWebUser::make()->action(
+                            $customer,
+                            $webUserData['webUser'],
+                            60,
+                            false,
+                            audit: false
+                        );
                         $this->recordNew($organisationSource);
+
+                        WebUser::enableAuditing();
+                        $this->saveMigrationHistory(
+                            $webUser,
+                            Arr::except($webUserData['webUser'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                        );
+                        $this->recordNew($organisationSource);
+
+                        $sourceData = explode(':', $webUser->source_id);
+                        DB::connection('aurora')->table('Website User Dimension')
+                            ->where('Website User Key', $sourceData[1])
+                            ->update(['aiku_id' => $webUser->id]);
+
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $webUserData['webUser'], 'WebUser', 'store');
 
@@ -48,10 +74,7 @@ class FetchAuroraWebUsers extends FetchAuroraAction
                     }
                 }
 
-                $sourceData = explode(':', $webUser->source_id);
-                DB::connection('aurora')->table('Website User Dimension')
-                    ->where('Website User Key', $sourceData[1])
-                    ->update(['aiku_id' => $webUser->id]);
+
 
                 return $webUser;
             }

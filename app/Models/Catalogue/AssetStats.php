@@ -31,9 +31,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Asset $asset
- * @method static Builder|AssetStats newModelQuery()
- * @method static Builder|AssetStats newQuery()
- * @method static Builder|AssetStats query()
+ * @method static Builder<static>|AssetStats newModelQuery()
+ * @method static Builder<static>|AssetStats newQuery()
+ * @method static Builder<static>|AssetStats query()
  * @mixin Eloquent
  */
 class AssetStats extends Model

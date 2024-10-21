@@ -54,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read \App\Models\Catalogue\MasterShop $masterShop
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read MasterProductCategory|null $parent
  * @property-read \App\Models\Catalogue\MasterProductCategorySalesIntervals|null $salesIntervals
@@ -61,12 +62,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read MasterProductCategory|null $subDepartment
  * @property-read LaravelCollection<int, MasterProductCategory> $subDepartments
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|MasterProductCategory newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterProductCategory newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterProductCategory onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterProductCategory query()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterProductCategory withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterProductCategory withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategory onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategory query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategory withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProductCategory withoutTrashed()
  * @mixin \Eloquent
  */
 class MasterProductCategory extends Model implements Auditable, HasMedia

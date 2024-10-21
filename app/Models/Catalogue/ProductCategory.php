@@ -88,12 +88,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Webpage|null $webpage
  * @method static \Database\Factories\Catalogue\ProductCategoryFactory factory($count = null, $state = [])
- * @method static Builder|ProductCategory newModelQuery()
- * @method static Builder|ProductCategory newQuery()
- * @method static Builder|ProductCategory onlyTrashed()
- * @method static Builder|ProductCategory query()
- * @method static Builder|ProductCategory withTrashed()
- * @method static Builder|ProductCategory withoutTrashed()
+ * @method static Builder<static>|ProductCategory newModelQuery()
+ * @method static Builder<static>|ProductCategory newQuery()
+ * @method static Builder<static>|ProductCategory onlyTrashed()
+ * @method static Builder<static>|ProductCategory query()
+ * @method static Builder<static>|ProductCategory withTrashed()
+ * @method static Builder<static>|ProductCategory withoutTrashed()
  * @mixin Eloquent
  */
 class ProductCategory extends Model implements Auditable, HasMedia

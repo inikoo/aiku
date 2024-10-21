@@ -45,12 +45,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Asset> $product
  * @property-read Collection<int, Stock> $stock
  * @property-read Collection<int, TradeUnit> $tradeUnit
- * @method static Builder|Barcode newModelQuery()
- * @method static Builder|Barcode newQuery()
- * @method static Builder|Barcode onlyTrashed()
- * @method static Builder|Barcode query()
- * @method static Builder|Barcode withTrashed()
- * @method static Builder|Barcode withoutTrashed()
+ * @method static Builder<static>|Barcode newModelQuery()
+ * @method static Builder<static>|Barcode newQuery()
+ * @method static Builder<static>|Barcode onlyTrashed()
+ * @method static Builder<static>|Barcode query()
+ * @method static Builder<static>|Barcode withTrashed()
+ * @method static Builder<static>|Barcode withoutTrashed()
  * @mixin Eloquent
  */
 class Barcode extends Model implements Auditable

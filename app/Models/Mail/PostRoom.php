@@ -33,9 +33,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Collection<int, \App\Models\Mail\Outbox> $outboxes
  * @property-read \App\Models\Mail\PostRoomStats|null $stats
- * @method static Builder|PostRoom newModelQuery()
- * @method static Builder|PostRoom newQuery()
- * @method static Builder|PostRoom query()
+ * @method static Builder<static>|PostRoom newModelQuery()
+ * @method static Builder<static>|PostRoom newQuery()
+ * @method static Builder<static>|PostRoom query()
  * @mixin Eloquent
  */
 class PostRoom extends Model

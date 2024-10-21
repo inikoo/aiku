@@ -98,12 +98,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
- * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn query()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletReturn withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturn newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturn newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturn onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturn query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturn withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturn withoutTrashed()
  * @mixin \Eloquent
  */
 

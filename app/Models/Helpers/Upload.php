@@ -44,9 +44,9 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\UploadRecord> $records
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read User|null $user
- * @method static \Illuminate\Database\Eloquent\Builder|Upload newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Upload newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Upload query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Upload newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Upload newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Upload query()
  * @mixin \Eloquent
  */
 class Upload extends Model implements Auditable

@@ -20,9 +20,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property array $limits
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|GroupSetUpKey newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupSetUpKey newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupSetUpKey query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupSetUpKey newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupSetUpKey newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupSetUpKey query()
  * @mixin \Eloquent
  */
 class GroupSetUpKey extends Model

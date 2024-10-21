@@ -23,9 +23,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Fulfilment\Pallet $pallet
  * @property-read \App\Models\Fulfilment\StoredItem $storedItem
- * @method static \Illuminate\Database\Eloquent\Builder|PalletStoredItem newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletStoredItem newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletStoredItem query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletStoredItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletStoredItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletStoredItem query()
  * @mixin \Eloquent
  */
 class PalletStoredItem extends Model

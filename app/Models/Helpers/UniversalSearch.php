@@ -46,9 +46,9 @@ use Laravel\Scout\Searchable;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Model|\Eloquent|null $model
- * @method static Builder|UniversalSearch newModelQuery()
- * @method static Builder|UniversalSearch newQuery()
- * @method static Builder|UniversalSearch query()
+ * @method static Builder<static>|UniversalSearch newModelQuery()
+ * @method static Builder<static>|UniversalSearch newQuery()
+ * @method static Builder<static>|UniversalSearch query()
  * @mixin \Eloquent
  */
 class UniversalSearch extends Model

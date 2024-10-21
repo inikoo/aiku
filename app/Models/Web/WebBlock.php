@@ -38,9 +38,9 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductCategory> $productCategories
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read \App\Models\Web\WebBlockType $webBlockType
- * @method static Builder|WebBlock newModelQuery()
- * @method static Builder|WebBlock newQuery()
- * @method static Builder|WebBlock query()
+ * @method static Builder<static>|WebBlock newModelQuery()
+ * @method static Builder<static>|WebBlock newQuery()
+ * @method static Builder<static>|WebBlock query()
  * @mixin \Eloquent
  */
 class WebBlock extends Model implements HasMedia

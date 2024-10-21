@@ -40,9 +40,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \App\Models\Web\WebBlockTypeStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\WebBlock> $webBlocks
- * @method static Builder|WebBlockType newModelQuery()
- * @method static Builder|WebBlockType newQuery()
- * @method static Builder|WebBlockType query()
+ * @method static Builder<static>|WebBlockType newModelQuery()
+ * @method static Builder<static>|WebBlockType newQuery()
+ * @method static Builder<static>|WebBlockType query()
  * @mixin \Eloquent
  */
 class WebBlockType extends Model implements HasMedia

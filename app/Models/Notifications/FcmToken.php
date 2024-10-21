@@ -20,9 +20,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Model|\Eloquent $fcmable
  * @property-read string $token
- * @method static \Illuminate\Database\Eloquent\Builder|FcmToken newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FcmToken newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FcmToken query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FcmToken newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FcmToken newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FcmToken query()
  * @mixin Eloquent
  */
 class FcmToken extends Model

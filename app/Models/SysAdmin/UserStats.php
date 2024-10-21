@@ -27,9 +27,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\User $user
- * @method static Builder|UserStats newModelQuery()
- * @method static Builder|UserStats newQuery()
- * @method static Builder|UserStats query()
+ * @method static Builder<static>|UserStats newModelQuery()
+ * @method static Builder<static>|UserStats newQuery()
+ * @method static Builder<static>|UserStats query()
  * @mixin Eloquent
  */
 class UserStats extends Model

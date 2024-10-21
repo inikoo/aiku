@@ -47,9 +47,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount
- * @method static Builder|PaymentAccountStats newModelQuery()
- * @method static Builder|PaymentAccountStats newQuery()
- * @method static Builder|PaymentAccountStats query()
+ * @method static Builder<static>|PaymentAccountStats newModelQuery()
+ * @method static Builder<static>|PaymentAccountStats newQuery()
+ * @method static Builder<static>|PaymentAccountStats query()
  * @mixin Eloquent
  */
 class PaymentAccountStats extends Model

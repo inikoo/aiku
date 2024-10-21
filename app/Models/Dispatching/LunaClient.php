@@ -12,9 +12,9 @@ use Laravel\Sanctum\HasApiTokens;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
- * @method static \Illuminate\Database\Eloquent\Builder|LunaClient newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LunaClient newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LunaClient query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LunaClient newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LunaClient newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LunaClient query()
  * @mixin \Eloquent
  */
 class LunaClient extends Model

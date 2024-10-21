@@ -43,9 +43,9 @@ use Illuminate\Support\Arr;
  * @property-read Model|\Eloquent|null $publisher
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Slide> $slides
  * @property-read \App\Models\Helpers\SnapshotStats|null $stats
- * @method static Builder|Snapshot newModelQuery()
- * @method static Builder|Snapshot newQuery()
- * @method static Builder|Snapshot query()
+ * @method static Builder<static>|Snapshot newModelQuery()
+ * @method static Builder<static>|Snapshot newQuery()
+ * @method static Builder<static>|Snapshot query()
  * @mixin \Eloquent
  */
 class Snapshot extends Model

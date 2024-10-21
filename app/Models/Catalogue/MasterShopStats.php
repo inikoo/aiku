@@ -47,9 +47,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\MasterShop $masterShop
- * @method static \Illuminate\Database\Eloquent\Builder|MasterShopStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterShopStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterShopStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShopStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShopStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShopStats query()
  * @mixin \Eloquent
  */
 class MasterShopStats extends Model

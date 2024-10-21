@@ -57,12 +57,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read UniversalSearch|null $universalSearch
  * @property-read \App\Models\HumanResources\Workplace $workplace
- * @method static Builder|ClockingMachine newModelQuery()
- * @method static Builder|ClockingMachine newQuery()
- * @method static Builder|ClockingMachine onlyTrashed()
- * @method static Builder|ClockingMachine query()
- * @method static Builder|ClockingMachine withTrashed()
- * @method static Builder|ClockingMachine withoutTrashed()
+ * @method static Builder<static>|ClockingMachine newModelQuery()
+ * @method static Builder<static>|ClockingMachine newQuery()
+ * @method static Builder<static>|ClockingMachine onlyTrashed()
+ * @method static Builder<static>|ClockingMachine query()
+ * @method static Builder<static>|ClockingMachine withTrashed()
+ * @method static Builder<static>|ClockingMachine withoutTrashed()
  * @mixin Eloquent
  */
 class ClockingMachine extends Authenticatable implements Auditable

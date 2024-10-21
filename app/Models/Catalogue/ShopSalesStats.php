@@ -75,9 +75,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopSalesStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopSalesStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopSalesStats query()
  * @mixin \Eloquent
  */
 class ShopSalesStats extends Model

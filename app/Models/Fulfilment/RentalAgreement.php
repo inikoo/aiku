@@ -52,12 +52,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RentalAgreementSnapshot> $snapshots
  * @property-read \App\Models\Fulfilment\RentalAgreementStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement query()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreement withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreement newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreement newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreement onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreement query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreement withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreement withoutTrashed()
  * @mixin \Eloquent
  */
 class RentalAgreement extends Model implements Auditable

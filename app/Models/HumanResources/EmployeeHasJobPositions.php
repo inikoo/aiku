@@ -12,9 +12,9 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 /**
  *
  *
- * @method static \Illuminate\Database\Eloquent\Builder|EmployeeHasJobPositions newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EmployeeHasJobPositions newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EmployeeHasJobPositions query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmployeeHasJobPositions newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmployeeHasJobPositions newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmployeeHasJobPositions query()
  * @mixin \Eloquent
  */
 class EmployeeHasJobPositions extends Pivot

@@ -50,12 +50,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Ordering\ShippingZoneSchemaStats|null $stats
  * @method static \Database\Factories\Ordering\ShippingZoneSchemaFactory factory($count = null, $state = [])
- * @method static Builder|ShippingZoneSchema newModelQuery()
- * @method static Builder|ShippingZoneSchema newQuery()
- * @method static Builder|ShippingZoneSchema onlyTrashed()
- * @method static Builder|ShippingZoneSchema query()
- * @method static Builder|ShippingZoneSchema withTrashed()
- * @method static Builder|ShippingZoneSchema withoutTrashed()
+ * @method static Builder<static>|ShippingZoneSchema newModelQuery()
+ * @method static Builder<static>|ShippingZoneSchema newQuery()
+ * @method static Builder<static>|ShippingZoneSchema onlyTrashed()
+ * @method static Builder<static>|ShippingZoneSchema query()
+ * @method static Builder<static>|ShippingZoneSchema withTrashed()
+ * @method static Builder<static>|ShippingZoneSchema withoutTrashed()
  * @mixin Eloquent
  */
 class ShippingZoneSchema extends Model implements Auditable

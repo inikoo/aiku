@@ -35,9 +35,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\Procurement\StockDelivery $stockDelivery
  * @property-read SupplierProduct $supplierProduct
  * @method static \Database\Factories\Procurement\StockDeliveryItemFactory factory($count = null, $state = [])
- * @method static Builder|StockDeliveryItem newModelQuery()
- * @method static Builder|StockDeliveryItem newQuery()
- * @method static Builder|StockDeliveryItem query()
+ * @method static Builder<static>|StockDeliveryItem newModelQuery()
+ * @method static Builder<static>|StockDeliveryItem newQuery()
+ * @method static Builder<static>|StockDeliveryItem query()
  * @mixin Eloquent
  */
 class StockDeliveryItem extends Model

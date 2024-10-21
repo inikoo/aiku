@@ -91,9 +91,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\MasterShop $masterShop
- * @method static \Illuminate\Database\Eloquent\Builder|MasterShopSalesIntervals newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterShopSalesIntervals newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterShopSalesIntervals query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShopSalesIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShopSalesIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterShopSalesIntervals query()
  * @mixin \Eloquent
  */
 class MasterShopSalesIntervals extends Model

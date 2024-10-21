@@ -32,9 +32,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder|ModelHasPlatform newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ModelHasPlatform newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ModelHasPlatform query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ModelHasPlatform newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ModelHasPlatform newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ModelHasPlatform query()
  * @mixin \Eloquent
  */
 class ModelHasPlatform extends Model

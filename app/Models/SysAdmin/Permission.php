@@ -25,13 +25,13 @@ use Spatie\Permission\Models\Permission as SpatiePermission;
  * @property-read Collection<int, SpatiePermission> $permissions
  * @property-read Collection<int, \Spatie\Permission\Models\Role> $roles
  * @property-read Collection<int, \App\Models\SysAdmin\User> $users
- * @method static Builder|Permission newModelQuery()
- * @method static Builder|Permission newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Permission permission($permissions, $without = false)
- * @method static Builder|Permission query()
- * @method static \Illuminate\Database\Eloquent\Builder|Permission role($roles, $guard = null, $without = false)
- * @method static \Illuminate\Database\Eloquent\Builder|Permission withoutPermission($permissions)
- * @method static \Illuminate\Database\Eloquent\Builder|Permission withoutRole($roles, $guard = null)
+ * @method static Builder<static>|Permission newModelQuery()
+ * @method static Builder<static>|Permission newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Permission permission($permissions, $without = false)
+ * @method static Builder<static>|Permission query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Permission role($roles, $guard = null, $without = false)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Permission withoutPermission($permissions)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Permission withoutRole($roles, $guard = null)
  * @mixin Eloquent
  */
 class Permission extends SpatiePermission

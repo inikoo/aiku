@@ -80,12 +80,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, UniversalSearch> $universalSearches
  * @property-read Collection<int, \App\Models\Inventory\WarehouseArea> $warehouseAreas
  * @method static \Database\Factories\Inventory\WarehouseFactory factory($count = null, $state = [])
- * @method static Builder|Warehouse newModelQuery()
- * @method static Builder|Warehouse newQuery()
- * @method static Builder|Warehouse onlyTrashed()
- * @method static Builder|Warehouse query()
- * @method static Builder|Warehouse withTrashed()
- * @method static Builder|Warehouse withoutTrashed()
+ * @method static Builder<static>|Warehouse newModelQuery()
+ * @method static Builder<static>|Warehouse newQuery()
+ * @method static Builder<static>|Warehouse onlyTrashed()
+ * @method static Builder<static>|Warehouse query()
+ * @method static Builder<static>|Warehouse withTrashed()
+ * @method static Builder<static>|Warehouse withoutTrashed()
  * @mixin Eloquent
  */
 class Warehouse extends Model implements Auditable

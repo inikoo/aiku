@@ -44,9 +44,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_prospects_dont_contact_me
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|TagCrmStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TagCrmStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TagCrmStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TagCrmStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TagCrmStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TagCrmStats query()
  * @mixin \Eloquent
  */
 class TagCrmStats extends Model

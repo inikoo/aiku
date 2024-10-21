@@ -47,9 +47,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_departments_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionStats query()
  * @mixin \Eloquent
  */
 class CollectionStats extends Model
