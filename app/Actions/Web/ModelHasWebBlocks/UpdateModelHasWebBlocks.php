@@ -44,7 +44,10 @@ class UpdateModelHasWebBlocks extends OrgAction
     public function rules(): array
     {
         return [
-            'layout'       => ['sometimes', 'array'],
+            'layout'            => ['sometimes', 'array'],
+            'show'              => ['sometimes', 'boolean'],
+            'show_logged_in'    => ['sometimes', 'boolean'],
+            'show_logged_out'   => ['sometimes', 'boolean'],
         ];
     }
 
