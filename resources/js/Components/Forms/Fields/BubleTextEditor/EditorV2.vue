@@ -75,7 +75,7 @@ const props = withDefaults(defineProps<{
     toogle: () => [
         'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',
         'orderedList', 'blockquote', 'divider', 'alignLeft', 'alignRight', "customLink",
-        'alignCenter',  'undo', 'redo', 'highlight', 'color', 'clear', "image"
+        'alignCenter', 'undo', 'redo', 'highlight', 'color', 'clear', "image"
     ]
 })
 
@@ -90,15 +90,25 @@ const showAddImageDialog = ref<boolean>(false)
 const showLinkDialog = ref<boolean>()
 
 const editorInstance = useEditor({
-    content: props.modelValue,
-    /* content: `
+     content: props.modelValue,
+   /*  content: `
     <p>This is a paragraph.
+
      <CustomLinkExtension
       type="internal"
       workshop="https://tailwindcss.com/docs/z-index"
       id="1"
       url="https://tailwindcss.com/docs/z-index">link test
       </CustomLinkExtension>
+
+      <CustomLinkExtension url="https://ancientwisdom.biz/showroom" 
+      type="internal"
+       id="9" 
+       workshop="http://app.aiku.test/org/aw/shops/uk/web/aw/webpages/showroom-uk/workshop"   
+       rel="noopener noreferrer" 
+       target="_blank">
+       <span style="{color: rgb(232, 121, 40)}">Showroom</span>
+       </CustomLinkExtension>
       </p>
   `, */
     editorProps: {
@@ -366,7 +376,7 @@ onBeforeUnmount(() => {
         <TiptapImageDialog v-if="showAddImageDialog" :show="showAddImageDialog" @close="showAddImageDialog = false"
             @insert="insertImage" />
         <TiptapLinkDialog v-if="showLinkDialog" :show="showLinkDialog" :current-url="currentLinkInDialog"
-        @close="() => { showLinkDialog = false; showDialog = false; }" @update="updateLink" />
+            @close="() => { showLinkDialog = false; showDialog = false; }" @update="updateLink" />
     </div>
 </template>
 
