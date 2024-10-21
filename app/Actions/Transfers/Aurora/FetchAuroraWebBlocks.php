@@ -109,6 +109,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 }
             }
 
+
             $this->processMigrationsData($migrationsData, $oldMigrationsChecksum);
         }
 
@@ -142,16 +143,16 @@ class FetchAuroraWebBlocks extends OrgAction
 
     private function processMigrationsData(array $migrationsData, array &$oldMigrationsChecksum): void
     {
-        $newPosition = 1;
+        // the position will duplicate example: 1,1
+        // because there type of loggedIn and loggedOut, if continue with a new position the loggedOut will after the loggedIn webBlock
         foreach ($migrationsData as $checksum => $migrationData) {
             if (isset($oldMigrationsChecksum[$checksum])) {
                 $modelHasWebBlocks = DB::table("model_has_web_blocks")->where('migration_checksum', $checksum);
-                $modelHasWebBlocks->update(['position' => $newPosition]);
+                $modelHasWebBlocks->update(['position' => $migrationData['position']]);
                 unset($oldMigrationsChecksum[$checksum]);
             } else {
-                $this->processData($migrationData['webpage'], $migrationData['auroraBlock'], $migrationData['migrationChecksum'], $newPosition, $migrationData['visibility']);
+                $this->processData($migrationData['webpage'], $migrationData['auroraBlock'], $migrationData['migrationChecksum'], $migrationData['position'], $migrationData['visibility']);
             }
-            $newPosition++;
         }
     }
 
@@ -164,7 +165,6 @@ class FetchAuroraWebBlocks extends OrgAction
     ): void {
         $models = [];
         $group = $webpage->group;
-
 
         switch ($auroraBlock["type"]) {
             case "images":
