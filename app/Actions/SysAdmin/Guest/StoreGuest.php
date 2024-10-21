@@ -24,12 +24,14 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
+use Throwable;
 
 class StoreGuest extends GrpAction
 {
@@ -38,6 +40,9 @@ class StoreGuest extends GrpAction
 
     private bool $validatePhone = false;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Group $group, array $modelData): Guest
     {
         $positions = Arr::get($modelData, 'positions', []);
@@ -52,13 +57,16 @@ class StoreGuest extends GrpAction
         data_set($userData, 'contact_name', Arr::get($modelData, 'contact_name'), overwrite: false);
         data_set($userData, 'email', Arr::get($modelData, 'email'), overwrite: false);
 
+        $guest = DB::transaction(function () use ($group, $modelData, $userData, $positions) {
+            /** @var Guest $guest */
+            $guest = $group->guests()->create(Arr::except($modelData, ['user',]));
+            $guest->stats()->create();
+            $user = StoreUser::make()->action($guest, $userData, $this->hydratorsDelay, strict: $this->strict);
+            SyncUserJobPositions::run($user, $positions);
 
-        /** @var Guest $guest */
-        $guest = $group->guests()->create(Arr::except($modelData, ['user',]));
-        $guest->stats()->create();
-        $user = StoreUser::make()->action($guest, $userData, $this->hydratorsDelay, strict: $this->strict);
+            return $guest;
+        });
 
-        SyncUserJobPositions::run($user, $positions);
         GuestHydrateUniversalSearch::dispatch($guest);
         GroupHydrateGuests::dispatch($group);
 
@@ -174,10 +182,10 @@ class StoreGuest extends GrpAction
         ];
 
         if (!$this->strict) {
-            $rules['deleted_at']           = ['sometimes', 'date'];
-            $rules['created_at']           = ['sometimes', 'date'];
-            $rules['fetched_at']           = ['sometimes', 'date'];
-            $rules['source_id']            = ['sometimes', 'string', 'max:255'];
+            $rules['deleted_at'] = ['sometimes', 'date'];
+            $rules['created_at'] = ['sometimes', 'date'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
 
             $rules['user.deleted_at']      = ['sometimes', 'date'];
             $rules['user.created_at']      = ['sometimes', 'date'];
@@ -191,6 +199,9 @@ class StoreGuest extends GrpAction
     }
 
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(ActionRequest $request): Guest
     {
         $this->initialisation(app('group'), $request);
@@ -199,11 +210,17 @@ class StoreGuest extends GrpAction
     }
 
 
-    public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Guest
+    /**
+     * @throws \Throwable
+     */
+    public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Guest
     {
+        if (!$audit) {
+            Guest::disableAuditing();
+        }
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->asAction = true;
+        $this->asAction       = true;
         $this->initialisation($group, $modelData);
 
 
@@ -220,6 +237,7 @@ class StoreGuest extends GrpAction
         $this->asAction = true;
 
         try {
+            /** @var Group $group */
             $group       = Group::where('slug', $command->argument('group'))->firstOrFail();
             $this->group = $group;
             app()->instance('group', $group);
@@ -248,8 +266,13 @@ class StoreGuest extends GrpAction
 
         $this->fill($fields);
 
-        $guest = $this->handle($group, $this->validateAttributes());
+        try {
+            $guest = $this->handle($group, $this->validateAttributes());
+        } catch (Exception|Throwable $e) {
+            $command->error($e->getMessage());
 
+            return 1;
+        }
 
         $command->info("Guest <fg=yellow>$guest->slug</> created 👍");
 

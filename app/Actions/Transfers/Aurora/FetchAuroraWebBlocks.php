@@ -33,6 +33,7 @@ use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraWebBlocks extends OrgAction
@@ -108,6 +109,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 }
             }
 
+
             $this->processMigrationsData($migrationsData, $oldMigrationsChecksum);
         }
 
@@ -136,22 +138,21 @@ class FetchAuroraWebBlocks extends OrgAction
             ];
 
         }
-        // dd($migrationData);
         return $migrationData;
     }
 
     private function processMigrationsData(array $migrationsData, array &$oldMigrationsChecksum): void
     {
-        $newPosition = 1;
+        // the position will duplicate example: 1,1
+        // because there type of loggedIn and loggedOut, if continue with a new position the loggedOut will after the loggedIn webBlock
         foreach ($migrationsData as $checksum => $migrationData) {
             if (isset($oldMigrationsChecksum[$checksum])) {
                 $modelHasWebBlocks = DB::table("model_has_web_blocks")->where('migration_checksum', $checksum);
-                $modelHasWebBlocks->update(['position' => $newPosition]);
+                $modelHasWebBlocks->update(['position' => $migrationData['position']]);
                 unset($oldMigrationsChecksum[$checksum]);
             } else {
-                $this->processData($migrationData['webpage'], $migrationData['auroraBlock'], $migrationData['migrationChecksum'], $newPosition, $migrationData['visibility']);
+                $this->processData($migrationData['webpage'], $migrationData['auroraBlock'], $migrationData['migrationChecksum'], $migrationData['position'], $migrationData['visibility']);
             }
-            $newPosition++;
         }
     }
 
@@ -164,7 +165,6 @@ class FetchAuroraWebBlocks extends OrgAction
     ): void {
         $models = [];
         $group = $webpage->group;
-
 
         switch ($auroraBlock["type"]) {
             case "images":
@@ -260,12 +260,12 @@ class FetchAuroraWebBlocks extends OrgAction
 
             case "category_categories":
                 $webBlockType = $group->webBlockTypes()->where("slug", "department")->first();
-                $layout       = $this->processDepartmentData($models, $webpage, $auroraBlock);
+                $layout       = $this->processDepartmentData($webpage, $auroraBlock);
                 break;
 
             case "blackboard":
                 $webBlockType = $group->webBlockTypes()->where("slug", "overview")->first();
-                $layout       = $this->processOverviewData($auroraBlock);
+                $layout       = $this->processOverviewData($webpage, $auroraBlock);
                 break;
             case "button":
                 $webBlockType = $group->webBlockTypes()->where("slug", "cta1")->first();
@@ -372,7 +372,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 $text = $layout['data']['fieldValue']['value'];
                 $pattern = '/<img\s+[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
 
-                preg_replace_callback($pattern, function ($match) use ($webBlock, $webpage) {
+                $text = preg_replace_callback($pattern, function ($match) use ($webBlock, $webpage) {
                     $originalImage = $match[1];
                     $media = FetchAuroraWebBlockMedia::run($webBlock, $webpage, $originalImage);
                     $imageElement = $match[0];
@@ -387,11 +387,28 @@ class FetchAuroraWebBlocks extends OrgAction
 
                     return $imageElement;
                 }, $text);
+                $layout['data']['fieldValue']['value'] = $text; // result for image still not found event the imageUrl is not empty
             } elseif ($code == "images") {
+                $imgResources = [];
                 foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
-                    $layout['data']["fieldValue"]["value"][$index]['source'] = $imageSource;
-                    unset($layout['data']["fieldValue"]["value"][$index]['aurora_source']);
+                    $linkData = $layout['data']["fieldValue"]["value"][$index]['link_data'];
+                    $imgResources[] = ["source" => $imageSource, "link_data" => $linkData];
+                    unset($layout['data']["fieldValue"]["value"][$index]);
+                }
+                // make like this, to set img placed in the correct key
+                $layout['data']['fieldValue']['value']["images"] = $imgResources;
+                $layout['data']['fieldValue']['value']["layout_type"] = Arr::get($layout, "data.fieldValue.layout_type");
+                Arr::forget($layout, "data.fieldValue.layout_type");
+            } else {
+                foreach ($layout['data']["fieldValue"]["value"] as $key => $container) {
+                    if ($key == "images") {
+                        foreach ($container as $index => $imageRawData) {
+                            $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
+                            $layout['data']["fieldValue"]["value"][$key][$index]['source'] = $imageSource;
+                            unset($layout['data']["fieldValue"]["value"][$key][$index]['aurora_source']);
+                        }
+                    }
                 }
             }
             $webBlock->updateQuietly([

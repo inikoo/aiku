@@ -115,15 +115,6 @@ class FetchAuroraEmployee extends FetchAurora
 
 
             $userData = $this->parseUserFromEmployee();
-            //            if ($userData) {
-            //                $this->parsedData['employee']['username']          = $userData['username'];
-            //                $this->parsedData['employee']['legacy_password']   = $userData['legacy_password'];
-            //                $this->parsedData['employee']['reset_password']    = $userData['reset_password'];
-            //                $this->parsedData['employee']['user_model_status'] = $userData['user_model_status'];
-            //                $this->parsedData['employee']['password']          = $userData['password'];
-            //            }
-
-
             $this->parsedData['user'] = $userData;
 
             $this->parsedData['photo'] = $this->parseUserPhoto();

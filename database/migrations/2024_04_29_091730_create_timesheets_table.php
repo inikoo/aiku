@@ -30,8 +30,11 @@ return new class () extends Migration {
             $table->unsignedInteger('breaks_duration')->default(0)->comment('seconds');
             $table->unsignedInteger('total_duration')->default(0)->comment('seconds');
             $table->timestampsTz();
-            $table->unique(['date','subject_type', 'subject_id']);
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->string('source_id')->index()->nullable();
+            $table->unique(['date','subject_type', 'subject_id']);
+
         });
 
         Schema::table('clockings', function (Blueprint $table) {

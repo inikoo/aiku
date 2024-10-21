@@ -176,7 +176,7 @@ onUnmounted(() => {
 
 
 onMounted(() => {
-    if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { console.log("dd"), data.value = {...data.value,...value} });
+    if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { console.log("dd"), data.value = { ...data.value, ...value } });
     window.addEventListener('message', (event) => {
         if (event.data === 'openModalBlockList') {
             isModalBlockList.value = true
@@ -184,6 +184,7 @@ onMounted(() => {
     });
 });
 
+console.log(props.webpage)
 
 </script>
 
@@ -199,14 +200,14 @@ onMounted(() => {
             <LoadingIcon v-tooltip="trans('Saving..')" />
         </template>
     </PageHeading>
-    
+
 
     <div class="grid grid-cols-5 h-[85vh]">
         <!-- Section: Side editor -->
         <div class="col-span-1 lg:block hidden h-full border-2 bg-gray-200 px-3 py-1 ">
             <WebpageSideEditor v-model="isModalBlockList" :isLoadingDelete :isAddBlockLoading :webpage="data"
-                :webBlockTypes="webBlockTypes" @update="sendBlockUpdate" @delete="sendDeleteBlock"
-                @add="addNewBlock" @order="sendOrderBlock" />
+                :webBlockTypes="webBlockTypes" @update="sendBlockUpdate" @delete="sendDeleteBlock" @add="addNewBlock"
+                @order="sendOrderBlock" />
         </div>
 
         <!-- Section: Preview -->
@@ -215,15 +216,9 @@ onMounted(() => {
                 <div class="py-1 px-2 cursor-pointer lg:hidden block" title="Desktop view" v-tooltip="'Navigation'">
                     <FontAwesomeIcon :icon='faBars' aria-hidden='true' @click="() => openDrawer = true" />
                     <Drawer v-model:visible="openDrawer" :header="''" :dismissable="true">
-                        <WebpageSideEditor 
-                            v-model="isModalBlockList" 
-                            ref="_WebpageSideEditor" 
-                            :webpage="data"
-                            :webBlockTypes="webBlockTypes" 
-                            @update="sendBlockUpdate"
-                            @delete="sendDeleteBlock" 
-                            @add="addNewBlock" 
-                            @order="sendOrderBlock"
+                        <WebpageSideEditor v-model="isModalBlockList" ref="_WebpageSideEditor" :webpage="data"
+                            :webBlockTypes="webBlockTypes" @update="sendBlockUpdate" @delete="sendDeleteBlock"
+                            @add="addNewBlock" @order="sendOrderBlock"
                             @openBlockList="() => { openDrawer = false, isModalBlockList = true }" />
                     </Drawer>
                 </div>
@@ -259,3 +254,5 @@ iframe {
     transition: width 0.3s ease;
 }
 </style>
+
+

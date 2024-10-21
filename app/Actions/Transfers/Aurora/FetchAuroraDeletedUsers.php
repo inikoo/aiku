@@ -28,7 +28,6 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?User
     {
         if ($userData = $organisationSource->fetchDeletedUser($organisationSourceId)) {
-
             if ($userData['user']) {
                 if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
                     if (Arr::get($user->data, 'deleted.source') == 'aurora') {
@@ -60,7 +59,6 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
                     $user = User::withTrashed()->where('group_id', $group_id)->where('username', $userData['related_username'])->first();
 
 
-
                     if ($user) {
                         $sourceData = explode(':', $userData['user']['source_id']);
                         DB::connection('aurora')->table('User Deleted Dimension')
@@ -68,28 +66,10 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
                             ->update(['aiku_related_id' => $user->id]);
 
 
-                        DB::transaction(function () use ($user, $userData) {
-                            $sourcesUsers   = Arr::get($user->sources, 'users', []);
-                            $sourcesParents = Arr::get($user->sources, 'parents', []);
-
-
-                            $sourcesUsers[] = $userData['user']['source_id'];
-                            if ($userData['parentSource']) {
-                                $sourcesParents[] = $userData['parentSource'];
-                            }
-                            $sourcesUsers   = array_unique($sourcesUsers);
-                            $sourcesParents = array_unique($sourcesParents);
-                            $user->updateQuietly([
-                                'sources' => [
-                                    'users'   => $sourcesUsers,
-                                    'parents' => $sourcesParents
-                                ]
-                            ]);
-                        });
+                        $user = FetchAuroraUsers::make()->updateUserSources($user, $userData);
                     }
 
                     if ($userData['add_guest']) {
-
                         $guest = StoreGuest::make()->action(
                             $organisationSource->getOrganisation()->group,
                             $userData['guest'],
@@ -98,31 +78,32 @@ class FetchAuroraDeletedUsers extends FetchAuroraAction
                         );
 
                         return $guest->getUser();
-
                     }
 
                     return $user;
                 }
 
 
-                //   try {
-                $user = StoreUser::make()->action(
-                    parent: $userData['parent'],
-                    modelData: $userData['user'],
-                    hydratorsDelay: $this->hydratorsDelay,
-                    strict: false
-                );
+                try {
+                    $user = StoreUser::make()->action(
+                        parent: $userData['parent'],
+                        modelData: $userData['user'],
+                        hydratorsDelay: $this->hydratorsDelay,
+                        strict: false,
+                        audit: false
+                    );
 
-                $sourceData = explode(':', $user->source_id);
-                DB::connection('aurora')->table('User Deleted Dimension')
-                    ->where('User Deleted Key', $sourceData[1])
-                    ->update(['aiku_id' => $user->id]);
+                    $sourceData = explode(':', $user->source_id);
+                    DB::connection('aurora')->table('User Deleted Dimension')
+                        ->where('User Deleted Key', $sourceData[1])
+                        ->update(['aiku_id' => $user->id]);
 
-                $this->recordNew($organisationSource);
-                //   } catch (Exception $e) {
-                //       $this->recordError($organisationSource, $e, $userData['user'], 'DeletedUser', 'store');
-                //       return null;
-                //   }
+                    $this->recordNew($organisationSource);
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $userData['user'], 'DeletedUser', 'store');
+
+                    return null;
+                }
 
 
                 return $user;

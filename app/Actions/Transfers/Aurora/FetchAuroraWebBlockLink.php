@@ -36,6 +36,8 @@ class FetchAuroraWebBlockLink extends OrgAction
         $this->organisationSource->initialisation($website->organisation, $dbSuffix);
 
         if (!$this->isInternalLink($website, $auroraLink)) {
+            print "External link >>>$auroraLink<<<<\n";
+
             $linkData = [
                 'type' => 'external',
                 'url'  => $auroraLink
@@ -58,7 +60,7 @@ class FetchAuroraWebBlockLink extends OrgAction
                 ->orWhere('Webpage Canonical Code', $auroraLink)
                 ->first();
 
-            print "Looking for link >>>$auroraLink<<<<\n";
+
 
             //todo look for webpage also in Page Redirection Dimension
 
@@ -85,6 +87,7 @@ class FetchAuroraWebBlockLink extends OrgAction
                      ]
                     ]);
             } else {
+                print "Internal for link not found >>>$auroraLink<<<<\n";
                 $linkData = [
                     'type'      => 'external',
                     'url'       => $auroraLink,

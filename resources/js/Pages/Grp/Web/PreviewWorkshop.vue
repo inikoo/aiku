@@ -146,7 +146,7 @@ provide('isPreviewLoggedIn', isPreviewLoggedIn)
         <!-- Section: Toggle loggedin -->
         <div v-if="!isInWorkshop" class="left-1/2 -translate-x-1/2 fixed bottom-16">
             <div class="text-center">View</div>
-            <div class="bg-gray-100 px-8 py-4 rounded-full flex items-center gap-x-2">
+            <div class="bg-gray-100 shadow-xl px-8 py-4 rounded-full flex items-center gap-x-2">
                 <span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged out</span>
                 <Toggle v-model="isPreviewLoggedIn" class="" />
                 <span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged in</span>

@@ -8,6 +8,7 @@
 namespace App\Transfers\Wowsbar;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class FetchWowsbarEmployee extends FetchWowsbar
 {
@@ -17,7 +18,7 @@ class FetchWowsbarEmployee extends FetchWowsbar
 
         if ($this->wowModelData) {
             $this->parseModel();
-
+            $this->parseUserFromEmployee();
             $this->parseJobPositions();
         }
 
@@ -27,25 +28,22 @@ class FetchWowsbarEmployee extends FetchWowsbar
 
     protected function parseModel(): void
     {
-
-
         $this->parsedData['employee'] = [
-            'alias'                    => $this->wowModelData->alias,
-            'contact_name'             => $this->wowModelData->contact_name,
-            'worker_number'            => $this->wowModelData->worker_number,
-            'employment_start_at'      => $this->wowModelData->employment_start_at,
-            'job_title'                => $this->wowModelData->job_title,
-            'type'                     => $this->wowModelData->type,
-            'state'                    => $this->wowModelData->state,
-            'created_at'               => $this->wowModelData->created_at,
-            'source_id'                => $this->organisation->id.':'.$this->wowModelData->id
+            'alias'               => $this->wowModelData->alias,
+            'contact_name'        => $this->wowModelData->contact_name,
+            'worker_number'       => $this->wowModelData->worker_number,
+            'employment_start_at' => $this->wowModelData->employment_start_at,
+            'job_title'           => $this->wowModelData->job_title,
+            'type'                => $this->wowModelData->type,
+            'state'               => $this->wowModelData->state,
+            'created_at'          => $this->wowModelData->created_at,
+            'source_id'           => $this->organisation->id.':'.$this->wowModelData->id
 
         ];
     }
 
     private function parseJobPositions(): void
     {
-
         $query = DB::connection('wowsbar')
             ->table('job_positionables')
             ->leftJoin('job_positions', 'job_positionables.job_position_id', '=', 'job_positions.id')
@@ -57,9 +55,32 @@ class FetchWowsbarEmployee extends FetchWowsbar
         foreach ($query as $jobPosition) {
             $this->parsedData['employee']['positions'][] = $this->parseJobPosition($jobPosition->slug);
         }
+    }
+
+    private function parseUserFromEmployee(): void
+    {
+        $wowsbarUserData = DB::connection('wowsbar')
+            ->table('organisation_users')
+            ->where('parent_type', 'Employee')
+            ->where('parent_id', $this->wowModelData->id)
+            ->first();
 
 
+        if ($wowsbarUserData) {
+            $userData = [
+                'source_id'         => $this->organisation->id.':'.$wowsbarUserData->id,
+                'username'          => $wowsbarUserData->username,
+                'status'            => $wowsbarUserData->status,
+                'user_model_status' => $wowsbarUserData->status,
+                'created_at'        => $wowsbarUserData->created_at,
+                'password'          => (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true)),
+                'reset_password'    => false,
+                'fetched_at'        => now(),
+                'last_fetched_at'   => now()
+            ];
 
+            $this->parsedData['user'] = $userData;
+        }
     }
 
     protected function fetchData($id): object|null
@@ -72,12 +93,12 @@ class FetchWowsbarEmployee extends FetchWowsbar
     protected function parseJobPosition($sourceCode): string
     {
         return match ($sourceCode) {
-            'dev-m'    => 'saas-m',
-            'dev-w'    => 'saas-c',
+            'dev-m' => 'saas-m',
+            'dev-w' => 'saas-c',
             'social-w' => 'social-c',
-            'ppc-w'    => 'ppc-c',
-            'seo-w'    => 'seo-c',
-            default    => $sourceCode
+            'ppc-w' => 'ppc-c',
+            'seo-w' => 'seo-c',
+            default => $sourceCode
         };
     }
 }

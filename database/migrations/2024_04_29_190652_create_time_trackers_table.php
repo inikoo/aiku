@@ -23,9 +23,9 @@ return new class () extends Migration {
             $table->string('status')->index();
             $table->dateTimeTz('starts_at')->nullable();
             $table->dateTimeTz('ends_at')->nullable();
-            $table->unsignedInteger('start_clocking_id')->nullable()->index();
+            $table->unsignedBigInteger('start_clocking_id')->nullable()->index();
             $table->foreign('start_clocking_id')->references('id')->on('clockings');
-            $table->unsignedInteger('end_clocking_id')->nullable()->index();
+            $table->unsignedBigInteger('end_clocking_id')->nullable()->index();
             $table->foreign('end_clocking_id')->references('id')->on('clockings');
             $table->unsignedInteger('duration')->nullable()->comment('seconds');
             $table->timestampsTz();

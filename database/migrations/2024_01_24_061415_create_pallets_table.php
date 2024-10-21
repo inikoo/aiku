@@ -50,9 +50,7 @@ return new class () extends Migration {
                 $table->string('status')->index()->default(PalletStatusEnum::IN_PROCESS->value);
                 $table->string('state')->index()->default(PalletStateEnum::IN_PROCESS->value);
                 $table->string('type')->index()->default(PalletTypeEnum::PALLET->value);
-
-
-                $table->unsignedSmallInteger('current_recurring_bill_id')->nullable()->index()->after('pallet_return_id');
+                $table->unsignedSmallInteger('current_recurring_bill_id')->nullable()->index();
                 $table->dateTimeTz('received_at')->nullable();
                 $table->dateTimeTz('booking_in_at')->nullable();
                 $table->dateTimeTz('set_as_not_received_at')->nullable();

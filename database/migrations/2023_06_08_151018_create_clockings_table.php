@@ -5,15 +5,18 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
         Schema::create('clockings', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
+            $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('workplace_id')->nullable()->index();
             $table->foreign('workplace_id')->references('id')->on('workplaces');
             $table->unsignedInteger('timesheet_id')->nullable()->index();
@@ -30,6 +33,8 @@ return new class () extends Migration {
             $table->unsignedInteger('image_id')->nullable();
             $table->foreign('image_id')->references('id')->on('media')->onDelete('cascade');
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletes();
             $table->nullableMorphs('deleted_by');
             $table->string('source_id')->nullable()->unique();

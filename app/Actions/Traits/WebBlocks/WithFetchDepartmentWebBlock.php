@@ -16,7 +16,6 @@ trait WithFetchDepartmentWebBlock
     use AsAction;
     use WithAuroraParsers;
     public function processDepartmentData(
-        array &$models,
         $webpage,
         $auroraBlock
     ): array|null {
@@ -30,7 +29,7 @@ trait WithFetchDepartmentWebBlock
                 "title" => $section["title"] ?? "",
                 "subtitle" => $section["subtitle"] ?? "",
                 "items" => array_filter(
-                    array_map(function ($item) use ($webpage, &$models) {
+                    array_map(function ($item) {
                         if ($item["type"] == "image") {
                             return [
                                 "type" => $item["type"],

@@ -18,6 +18,7 @@ use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraDeliveryNotes extends FetchAuroraAction
 {
@@ -26,32 +27,54 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?DeliveryNote
     {
         if ($deliveryNoteData = $organisationSource->fetchDeliveryNote($organisationSourceId)) {
-
             if (!empty($deliveryNoteData['delivery_note']['source_id']) and $deliveryNote = DeliveryNote::withTrashed()->where('source_id', $deliveryNoteData['delivery_note']['source_id'])->first()) {
-                UpdateDeliveryNote::make()->action(
-                    $deliveryNote,
-                    $deliveryNoteData['delivery_note'],
-                    audit:false
-                );
+                try {
+                    $deliveryNote = UpdateDeliveryNote::make()->action(
+                        $deliveryNote,
+                        $deliveryNoteData['delivery_note'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordChange($organisationSource, $deliveryNote->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $deliveryNoteData['delivery_note'], 'DeliveryNote', 'update');
+
+                    return null;
+                }
 
                 if (in_array('transactions', $this->with) or $forceWithTransactions) {
                     $this->fetchDeliveryNoteTransactions($organisationSource, $deliveryNote);
                 }
 
-                $this->updateAurora($deliveryNote);
+
 
                 return $deliveryNote;
             } else {
                 if ($deliveryNoteData['order']) {
-
                     try {
                         $deliveryNote = StoreDeliveryNote::make()->action(
                             $deliveryNoteData['order'],
                             $deliveryNoteData['delivery_note'],
+                            hydratorsDelay: 60,
+                            strict: false,
+                            audit: false
                         );
 
+                        DeliveryNote::enableAuditing();
+                        $this->saveMigrationHistory(
+                            $deliveryNote,
+                            Arr::except($deliveryNoteData['delivery_note'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                        );
 
-                    } catch (Exception $e) {
+                        $this->recordNew($organisationSource);
+
+                        $sourceData = explode(':', $deliveryNote->source_id);
+                        DB::connection('aurora')->table('Delivery Note Dimension')
+                            ->where('Delivery Note Key', $sourceData[1])
+                            ->update(['aiku_id' => $deliveryNote->id]);
+
+                    } catch (Exception|Throwable $e) {
                         $this->recordError($organisationSource, $e, $deliveryNoteData['delivery_note'], 'DeliveryNote', 'store');
 
                         return null;
@@ -61,7 +84,6 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                         $this->fetchDeliveryNoteTransactions($organisationSource, $deliveryNote);
                     }
 
-                    $this->updateAurora($deliveryNote);
 
 
                     if ($deliveryNoteData['shipment'] and !Arr::get($deliveryNoteData['order'], 'data.delivery_data.collection')) {
@@ -79,8 +101,6 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                 exit;
             }
         }
-
-        // print "Warning error fetching delivery note $organisationSourceId\n";
 
 
         return null;
@@ -105,21 +125,13 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
         $deliveryNote->deliveryNoteItems()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }
 
-    public function updateAurora(DeliveryNote $deliveryNote): void
-    {
-        $sourceData = explode(':', $deliveryNote->source_id);
-        DB::connection('aurora')->table('Delivery Note Dimension')
-            ->where('Delivery Note Key', $sourceData[1])
-            ->update(['aiku_id' => $deliveryNote->id]);
-    }
+
 
     public function getModelsQuery(): Builder
     {
         $query = DB::connection('aurora')
             ->table('Delivery Note Dimension')
             ->select('Delivery Note Key as source_id');
-
-        //$query->where('Delivery Note State', '!=', 'Cancelled');
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
@@ -132,7 +144,6 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')->table('Delivery Note Dimension');
-        //$query->where('Delivery Note State', '!=', 'Cancelled');
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');

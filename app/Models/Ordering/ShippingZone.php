@@ -53,6 +53,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\HistoricAsset|null $historicAsset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
  * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Ordering\ShippingZoneSchema $schema
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Ordering\ShippingZoneStats|null $stats
  * @method static \Database\Factories\Ordering\ShippingZoneFactory factory($count = null, $state = [])

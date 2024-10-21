@@ -10,18 +10,23 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\SysAdmin\Guest\StoreGuest;
 use App\Actions\SysAdmin\User\UpdateUser;
 use App\Actions\SysAdmin\User\UpdateUsersPseudoJobPositions;
+use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\User;
 use App\Transfers\SourceOrganisationService;
 use Arr;
 use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraUsers extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:users {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?User
     {
         $user = null;
@@ -54,14 +59,11 @@ class FetchAuroraUsers extends FetchAuroraAction
 
 
                 if (!$userData['parent']) {
-
-
                     $group_id = $organisationSource->getOrganisation()->group_id;
                     $user     = User::withTrashed()->where('group_id', $group_id)->where('username', $userData['related_username'])->first();
 
 
                     if ($user) {
-
                         if ($userData['user']['status']) {
                             $user = UpdateUsersPseudoJobPositions::make()->action(
                                 $user,
@@ -72,50 +74,40 @@ class FetchAuroraUsers extends FetchAuroraAction
                             );
                         }
 
-
-                        DB::transaction(function () use ($user, $userData) {
-                            $sourcesUsers   = Arr::get($user->sources, 'users', []);
-                            $sourcesParents = Arr::get($user->sources, 'parents', []);
-                            $sourcesUsers[] = $userData['user']['source_id'];
-                            if ($userData['parentSource']) {
-                                $sourcesParents[] = $userData['parentSource'];
-                            }
-                            $sourcesUsers   = array_unique($sourcesUsers);
-                            $sourcesParents = array_unique($sourcesParents);
-                            $user->updateQuietly([
-                                'sources' => [
-                                    'users'   => $sourcesUsers,
-                                    'parents' => $sourcesParents
-                                ]
-                            ]);
-                        });
+                        $user = $this->updateUserSources($user, $userData);
                     }
 
 
-
                     if ($userData['add_guest']) {
+                        try {
+                            $guest = StoreGuest::make()->action(
+                                $organisationSource->getOrganisation()->group,
+                                $userData['guest'],
+                                hydratorsDelay: 60,
+                                strict: false,
+                                audit: false
+                            );
 
-                        $guest = StoreGuest::make()->action(
-                            $organisationSource->getOrganisation()->group,
-                            $userData['guest'],
-                            hydratorsDelay: 60,
-                            strict: false
-                        );
+                            Guest::enableAuditing();
+                            $this->saveMigrationHistory(
+                                $guest,
+                                Arr::except($userData['guest'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                            );
 
-                        return $guest->getUser();
+                            $this->recordNew($organisationSource);
 
+
+                            return $guest->getUser();
+                        } catch (Exception|Throwable $e) {
+                            $this->recordError($organisationSource, $e, $userData['guest'], 'Guest', 'store');
+
+                            return null;
+                        }
                     }
 
 
                     return $user;
                 }
-
-
-
-
-
-
-
             }
 
 
@@ -126,13 +118,24 @@ class FetchAuroraUsers extends FetchAuroraAction
         return null;
     }
 
-
-    private function updateAurora($user): void
+    public function updateUserSources(User $user, array $userData): User
     {
-        $sourceData = explode(':', $user->source_id);
-        DB::connection('aurora')->table('User Deleted Dimension')
-            ->where('User Key', $sourceData[1])
-            ->update(['aiku_id' => $user->id]);
+        $sourcesUsers   = Arr::get($user->sources, 'users', []);
+        $sourcesParents = Arr::get($user->sources, 'parents', []);
+        $sourcesUsers[] = $userData['user']['source_id'];
+        if ($userData['parentSource']) {
+            $sourcesParents[] = $userData['parentSource'];
+        }
+        $sourcesUsers   = array_unique($sourcesUsers);
+        $sourcesParents = array_unique($sourcesParents);
+        $user->updateQuietly([
+            'sources' => [
+                'users'   => $sourcesUsers,
+                'parents' => $sourcesParents
+            ]
+        ]);
+
+        return $user;
     }
 
     public function getModelsQuery(): Builder

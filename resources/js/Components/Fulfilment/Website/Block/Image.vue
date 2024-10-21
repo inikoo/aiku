@@ -66,21 +66,26 @@ const openImageGallery = (index: number) => {
     openGallery.value = true
 }
 
+const getColumnWidthClass = (index: any) => {
+
+}
+
 </script>
 
 <template>
-    <div v-if="web_block?.layout?.data?.fieldValue" class="flex flex-wrap w-full">
+    <div v-if="web_block?.layout?.data?.fieldValue?.value?.images" class="flex flex-wrap w-full">
         <!-- Third Row: 3 Images (33.33% width each) -->
-        <div v-for="(image, index) in web_block?.layout?.data?.fieldValue" :key="index" class="w-full md:w-1/3 p-2">
+        <div v-for="(image, index) in web_block?.layout?.data?.fieldValue?.value?.images" :key="index" class="p-2"
+            :class="getColumnWidthClass(web_block?.layout?.data?.fieldValue?.layout_type)">
             <!-- Show image if available -->
-            <div v-if="image?.value?.source" class="transition-shadow aspect-h-1 aspect-w-1 w-full bg-gray-200">
+            <div v-if="image?.source" class="transition-shadow aspect-h-1 aspect-w-1 w-full bg-gray-200">
                 <div v-if="isEditable" class="absolute top-2 right-2 flex space-x-2">
                     <Button :icon="['far', 'fa-pencil']" size="xs" @click="openImageGallery(index)" />
                 </div>
-                <Image :src="image?.value?.source" class="w-full object-cover object-center group-hover:opacity-75" />
+                <Image :src="image?.source" class="w-full object-cover object-center group-hover:opacity-75" />
             </div>
             <!-- Show image picker if no image -->
-            <div v-if="!image?.value && isEditable" class="p-5">
+            <div v-if="!image?.source && isEditable" class="p-5">
                 <div type="button" @click="openImageGallery(index)"
                     class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                     <font-awesome-icon :icon="['fas', 'image']" class="mx-auto h-12 w-12 text-gray-400" />

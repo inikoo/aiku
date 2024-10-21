@@ -31,8 +31,11 @@ return new class () extends Migration {
             $table->rememberToken();
             $table->unsignedSmallInteger('number_api_tokens')->default(0);
             $table->text('about')->nullable();
+            $table->date('password_updated_at')->nullable();
+            $table->integer('theme_support_level')->nullable();
             $table->jsonb('data');
             $table->jsonb('settings');
+
             $table->boolean('reset_password')->default(false);
             $table->unsignedSmallInteger('language_id')->default(68);
             $table->foreign('language_id')->references('id')->on('languages');

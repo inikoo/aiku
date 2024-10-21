@@ -18,9 +18,8 @@ return new class () extends Migration {
     {
         Schema::create('stored_item_audits', function (Blueprint $table) {
             $table->increments('id');
+            $table->ulid()->nullable();
             $table = $this->groupOrgRelationship($table);
-
-
             $table->unsignedSmallInteger('fulfilment_customer_id');
             $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
             $table->unsignedSmallInteger('fulfilment_id');
@@ -29,9 +28,7 @@ return new class () extends Migration {
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('reference')->unique()->index();
-
             $table->string('state')->default(StoredItemAuditStateEnum::IN_PROCESS->value);
-
             $table->dateTimeTz('in_process_at')->nullable();
             $table->dateTimeTz('completed_at')->nullable();
             $table->text('public_notes')->nullable();

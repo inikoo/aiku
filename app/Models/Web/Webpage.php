@@ -248,6 +248,13 @@ class Webpage extends Model implements Auditable
         return 'https://'.$this->website->domain.'/'.$this->url;
     }
 
+    public function externalLinks()
+    {
+        return $this->belongsToMany(ExternalLink::class, 'web_block_has_external_link')
+                    ->withPivot('website_id', 'web_block_id', 'show')
+                    ->withTimestamps();
+    }
+
 
 
 }

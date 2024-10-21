@@ -45,7 +45,7 @@ const onEnter = (e) => {
 </script>
 
 <template>
-    <div type="button" v-if="modelValue.emptyState && isEditable"
+    <div type="button" v-if="modelValue?.emptyState && isEditable"
         class="relative block w-full p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
         <font-awesome-icon :icon="['fal', 'paperclip']" class="mx-auto h-12 w-12 text-gray-400" />
         <span class="mt-2 block text-sm font-semibold text-gray-900">I Frame</span>
@@ -63,9 +63,7 @@ const onEnter = (e) => {
     </div>
 
     <div v-else class="relative">
-        <iframe :src="modelValue.link"
-            :style="getStyles(modelValue.container.properties)"
-            title="I farme Block">
+        <iframe :src="modelValue?.link" :style="getStyles(modelValue?.container?.properties)" title="I farme Block">
         </iframe>
         <!-- Buttons -->
         <div v-if="isEditable" class="absolute top-2 right-2 flex space-x-2">

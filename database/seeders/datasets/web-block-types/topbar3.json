@@ -7,38 +7,234 @@
 	"blueprint": [
 		{
 			"name": "Container",
-			"key": ["container", "properties"],
-			"type": ["properties"],
+			"icon": {
+				"icon": "fal fa-rectangle-wide",
+				"tooltip": "Container"
+			},
+			"key": [
+				"container",
+				"properties"
+			],
+			"type": [
+				"properties"
+			],
 			"props_data": {}
 		},
 		{
 			"name": "Title",
-			"key": ["main_title", "text"],
-			"type": ["text"],
+			"icon": {
+				"icon": "fal fa-text",
+				"tooltip": "Text"
+			},
 			"replaceForm": [
 				{
-					"key": ["main_title", "visible"],
-					"type": ["VisibleLoggedIn"]
+					"key": [
+						"main_title",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
 				},
 				{
-					"key": ["main_title", "text"],
-					"type": ["editorhtml"]
+					"key": [
+						"main_title",
+						"text"
+					],
+					"type": [
+						"editorhtml"
+					]
 				}
 			],
 			"props_data": {}
 		},
 		{
 			"name": "Greeting",
-			"key": ["greeting", "text"],
-			"type": ["editorhtml"],
+			"icon": {
+				"icon": "fal fa-text",
+				"tooltip": "Text"
+			},
 			"replaceForm": [
 				{
-					"key": ["greeting", "visible"],
-					"type": ["VisibleLoggedIn"]
+					"key": [
+						"greeting",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
 				},
 				{
-					"key": ["greeting", "text"],
-					"type": ["editorhtml"]
+					"key": [
+						"greeting",
+						"text"
+					],
+					"type": [
+						"editorhtml"
+					]
+				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Login",
+			"icon": {
+				"icon": "far fa-dot-circle",
+				"tooltip": "Action"
+			},
+			
+			"replaceForm": [
+				{
+					"key": [
+						"button_1",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": [
+						"button_1"
+					],
+					"type": [
+						"button"
+					]
+				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Register",
+			"icon": {
+				"icon": "far fa-dot-circle",
+				"tooltip": "Action"
+			},
+			"replaceForm": [
+				{
+					"key": [
+						"button_2",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": [
+						"button_2"
+					],
+					"type": [
+						"button"
+					]
+				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Button 3",
+			"icon": {
+				"icon": "far fa-dot-circle",
+				"tooltip": "Action"
+			},
+			"replaceForm": [
+				{
+					"key": [
+						"button_3",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": [
+						"button_3"
+					],
+					"type": [
+						"button"
+					]
+				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Button 4",
+			"icon": {
+				"icon": "far fa-dot-circle",
+				"tooltip": "Action"
+			},
+			"replaceForm": [
+				{
+					"key": [
+						"button_4",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": [
+						"button_4"
+					],
+					"type": [
+						"button"
+					]
+				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Button 5",
+			"icon": {
+				"icon": "far fa-dot-circle",
+				"tooltip": "Action"
+			},
+			"replaceForm": [
+				{
+					"key": [
+						"button_5",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": [
+						"button_5"
+					],
+					"type": [
+						"button"
+					]
+				}
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Button 6",
+			"icon": {
+				"icon": "far fa-dot-circle",
+				"tooltip": "Action"
+			},
+			"replaceForm": [
+				{
+					"key": [
+						"button_6",
+						"visible"
+					],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": [
+						"button_6"
+					],
+					"type": [
+						"button"
+					]
 				}
 			],
 			"props_data": {}
@@ -51,24 +247,288 @@
 				"properties": {
 					"background": {
 						"type": "color",
-						"color": "linear-gradient(90deg, rgba(221,245,254,1) 0%, rgba(252,247,255,1) 16%, rgba(255,252,246,1) 35%, rgba(248,240,255,1) 57%, rgba(255,250,246,1) 83%)",
+						"color": "linear-gradient(to right, rgb(204, 251, 241), rgb(99, 102, 241))",
 						"image": {
 							"original": null
 						}
 					},
 					"text": {
-						"color": "rgb(255,255,255)",
-						"fontFamily": "Raleway"
+						"color": "rgba(10,10,10,1)",
+						"fontFamily": "Comfortaa"
 					}
 				}
 			},
 			"main_title": {
-				"text": "<p> <a href='#'> <strong>GeneriCon 2023</strong> <svg viewBox='0 0 2 2' style='margin-left: 0.5rem; margin-right: 0.5rem; display: inline; height: 0.125rem; width: 0.125rem; fill: currentColor;' aria-hidden='true'> <circle cx='1' cy='1' r='1' /> </svg> Join us in Denver from June 7 - 9 to see what’s coming next&nbsp; <span aria-hidden='true'>→</span> </a> </p>",
+				"text": "<p><strong>Pure Ingredients, Pure Health: 20% Off on Organic Goods!</strong></p>",
 				"visible": "all"
 			},
-			"greeting": {
-				"text": "<p>{{ name }}!",
-				"visible": "login"
+			"button_1": {
+				"link": null,
+				"text": "Login",
+				"visible": "logout",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(20, 20, 20, 1)"
+						},
+						"border": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"color": "rgba(20, 20, 20, 1)",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							},
+							"rounded": {
+								"unit": "px",
+								"topleft": {
+									"value": 0
+								},
+								"topright": {
+									"value": 0
+								},
+								"bottomleft": {
+									"value": 0
+								},
+								"bottomright": {
+									"value": 0
+								}
+							}
+						},
+						"margin": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						},
+						"background": {
+							"type": "color",
+							"color": "rgba(10, 10, 10, 0)",
+							"image": {
+								"original": null
+							}
+						}
+					}
+				}
+			},
+			"button_2": {
+				"link": null,
+				"text": "Register",
+				"visible": "logout",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(10, 10, 10, 1)"
+						},
+						"border": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"color": "rgba(10, 10, 10, 1)",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							},
+							"rounded": {
+								"unit": "px",
+								"topleft": {
+									"value": 5
+								},
+								"topright": {
+									"value": 5
+								},
+								"bottomleft": {
+									"value": 5
+								},
+								"bottomright": {
+									"value": 5
+								}
+							}
+						},
+						"margin": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						},
+						"background": {
+							"type": "color",
+							"color": "rgba(10, 10, 10, 0)",
+							"image": {
+								"original": null
+							}
+						}
+					}
+				}
+			},
+			"button_3": {
+				"link": "/cart.sys",
+				"text": "{{ cartNumber }} items",
+				"visible": "login",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(10, 10, 10, 1)"
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						}
+					}
+				}
+			},
+			"button_4": {
+				"link": "/favourites.sys",
+				"text": "{{ favouritesCount }}",
+				"visible": "login",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(10, 10, 10, 1)"
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						}
+					}
+				}
+			},
+			"button_5": {
+				"link": "/profile.sys",
+				"text": "<strong>{{name}}<strong>",
+				"visible": "login",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(10, 10, 10, 1)"
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						}
+					}
+				}
+			},
+			"button_6": {
+				"link": "/logout.sys",
+				"text": "Log out",
+				"visible": "login",
+				"container": {
+					"properties": {
+						"text": {
+							"color": "rgba(10, 10, 10, 1)"
+						},
+						"padding": {
+							"top": {
+								"value": 5
+							},
+							"left": {
+								"value": 20
+							},
+							"unit": "px",
+							"right": {
+								"value": 20
+							},
+							"bottom": {
+								"value": 5
+							}
+						}
+					}
+				}
 			}
 		}
 	}

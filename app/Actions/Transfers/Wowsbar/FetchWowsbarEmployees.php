@@ -9,11 +9,17 @@ namespace App\Actions\Transfers\Wowsbar;
 
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
+use App\Actions\SysAdmin\User\StoreUser;
+use App\Actions\SysAdmin\User\UpdateUser;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\Workplace;
+use App\Models\SysAdmin\User;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchWowsbarEmployees extends FetchWowsbarAction
 {
@@ -39,6 +45,30 @@ class FetchWowsbarEmployees extends FetchWowsbarAction
                     hydratorsDelay: 60,
                     strict: false
                 );
+            }
+
+            if (Arr::has($employeeData, 'user.source_id')) {
+                if ($user = User::where('source_id', $employeeData['user']['source_id'])->first()) {
+                    UpdateUser::make()->action(
+                        user: $user,
+                        modelData: $employeeData['user'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+                } else {
+                    try {
+                        StoreUser::make()->action(
+                            parent: $employee,
+                            modelData: $employeeData['user'],
+                            hydratorsDelay: 60,
+                            strict: false,
+                        );
+                    } catch (Exception|Throwable $e) {
+                        $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'store');
+
+                        return null;
+                    }
+                }
             }
 
 

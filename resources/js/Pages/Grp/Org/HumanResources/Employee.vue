@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import {library} from '@fortawesome/fontawesome-svg-core';
+import { library } from '@fortawesome/fontawesome-svg-core';
 import {
     faEnvelope,
     faIdCard,
@@ -24,7 +24,7 @@ import {
     faCameraRetro,
     faKey
 } from '@fal';
-import {faCheckCircle} from '@fas';
+import { faCheckCircle } from '@fas';
 import { router } from '@inertiajs/vue3'
 import { capitalize } from "@/Composables/capitalize"
 import PageHeading from '@/Components/Headings/PageHeading.vue';
@@ -37,11 +37,13 @@ import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
 import TableTimesheets from "@/Components/Tables/Grp/Org/HumanResources/TableTimesheets.vue";
 import TableJobPositions from "@/Components/Tables/Grp/Org/HumanResources/TableJobPositions.vue";
-import type {Table} from "@/types/Table.ts"
+import type { Table } from "@/types/Table.ts"
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 import type { Navigation } from "@/types/Tabs";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Popover from '@/Components/Popover.vue'
+import Button from '@/Components/Elements/Buttons/Button.vue';
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue';
 
 library.add(
     faIdCard,
@@ -63,8 +65,8 @@ library.add(
     faKey
 )
 
-const createEmployeeUser = () =>{
-    router.post(route('grp.org.hr.employees.show.user.store',props['employee'].data.id), {})
+const createEmployeeUser = () => {
+    router.post(route('grp.org.hr.employees.show.user.store', props['employee'].data.id), {})
 }
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
@@ -77,8 +79,8 @@ const props = defineProps<{
         navigation: Navigation;
     },
     history?: object
-    data?:object
-    timesheets?:object
+    data?: object
+    timesheets?: object
     job_positions?: Table
     attachments?: {}
 
@@ -86,6 +88,7 @@ const props = defineProps<{
 
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
+const isModalUploadOpen = ref(false)
 
 const component = computed(() => {
 
@@ -113,11 +116,12 @@ const component = computed(() => {
                 <Popover v-if="data.label" class="flex items-end" position="left-0">
                     <template #button>
                         <div class="flex items-end text-xs leading-none gap-x-1">
-                            <FontAwesomeIcon v-if="data.leftIcon" v-tooltip="data.leftIcon.tooltip" fixed-width aria-hidden="true" :icon="data.leftIcon.icon" class="text-gray-400" />
+                            <FontAwesomeIcon v-if="data.leftIcon" v-tooltip="data.leftIcon.tooltip" fixed-width
+                                aria-hidden="true" :icon="data.leftIcon.icon" class="text-gray-400" />
                             <div class="flex items-end leading-none">XXXXXX</div>
                         </div>
                     </template>
-                    
+
                     <template #content="{ close: closed }">
                         <div class="w-full whitespace-nowrap">
                             <strong>Pin</strong> : {{ data.label }}
@@ -126,6 +130,9 @@ const component = computed(() => {
                 </Popover>
                 <div v-else>Not Set</div>
             </div>
+        </template>
+        <template #other>
+            <Button @click="() => isModalUploadOpen = true" />
         </template>
 
     </PageHeading>
@@ -169,5 +176,9 @@ const component = computed(() => {
     -->
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
-</template>
 
+    <UploadAttachment v-model="isModalUploadOpen" scope="attachment" :title="{
+        label: 'Upload your file',
+        information: 'The list of column file: customer_reference, notes, stored_items'
+    }" progressDescription="Adding Pallet Deliveries" />
+</template>

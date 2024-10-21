@@ -11,6 +11,7 @@ use App\Actions\Helpers\Snapshot\UI\IndexSnapshots;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\UI\WithInertia;
+use App\Actions\Web\ExternalLink\UI\IndexExternalLinks;
 use App\Actions\Web\HasWorkshopAction;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -18,6 +19,7 @@ use App\Enums\UI\Web\WebpageTabsEnum;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Http\Resources\Helpers\SnapshotResource;
+use App\Http\Resources\Web\ExternalLinksResource;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Product;
@@ -231,6 +233,10 @@ class ShowWebpage extends OrgAction
                     fn () => SnapshotResource::collection(IndexSnapshots::run(parent: $webpage, prefix: 'snapshots'))
                     : Inertia::lazy(fn () => SnapshotResource::collection(IndexSnapshots::run(parent: $webpage, prefix: 'snapshots'))),
 
+                WebpageTabsEnum::EXTERNAL_LINKS->value => $this->tab == WebpageTabsEnum::EXTERNAL_LINKS->value ?
+                    fn () => ExternalLinksResource::collection(IndexExternalLinks::run($webpage))
+                    : Inertia::lazy(fn () => ExternalLinksResource::collection(IndexExternalLinks::run($webpage))),
+
                 WebpageTabsEnum::WEBPAGES->value => $this->tab == WebpageTabsEnum::WEBPAGES->value
                     ?
                     fn () => WebpageResource::collection(
@@ -257,6 +263,8 @@ class ShowWebpage extends OrgAction
             ]
         )->table(
             IndexWebpages::make()->tableStructure(parent: $webpage, prefix: 'webpages')
+        )->table(
+            IndexExternalLinks::make()->tableStructure(parent: $webpage, prefix: WebpageTabsEnum::EXTERNAL_LINKS->value)
         )->table(
             IndexSnapshots::make()->tableStructure(
                 parent: $webpage,

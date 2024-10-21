@@ -52,6 +52,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $remember_token
  * @property int $number_api_tokens
  * @property string|null $about
+ * @property string|null $password_updated_at
+ * @property int|null $theme_support_level
  * @property array $data
  * @property array $settings
  * @property bool $reset_password
@@ -61,8 +63,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
- * @property string|null $password_updated_at
- * @property int|null $theme_support_level
  * @property WebUserTypeEnum $state
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \Osiset\ShopifyApp\Storage\Models\Charge> $charges

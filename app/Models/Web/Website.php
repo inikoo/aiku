@@ -252,4 +252,11 @@ class Website extends Model implements Auditable, HasMedia
         return $this->hasMany(Redirect::class);
     }
 
+    public function externalLinks()
+    {
+        return $this->belongsToMany(ExternalLink::class, 'web_block_has_external_link')
+                    ->withPivot('webpage_id', 'web_block_id', 'show')
+                    ->withTimestamps();
+    }
+
 }

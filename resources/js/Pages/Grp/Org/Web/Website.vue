@@ -12,7 +12,8 @@ import {
     faChartLine, faDraftingCompass, faRoad, faSlidersH, faUsersClass, faClock, faSeedling,
     faBroadcastTower,
     faSkull,
-    faRocket
+    faRocket, 
+    faExternalLink
 } from "@fal"
 
 import PageHeading from "@/Components/Headings/PageHeading.vue"
@@ -21,6 +22,7 @@ import { useTabChange } from "@/Composables/tab-change"
 import ModelDetails from "@/Components/ModelDetails.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import TableWebpages from "@/Components/Tables/Grp/Org/Web/TableWebpages.vue"
+import TableExternalLinks from "@/Components/Tables/Grp/Org/Web/TableExternalLinks.vue"
 import { capitalize } from "@/Composables/capitalize"
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import WebsiteShowcase from "@/Components/Showcases/Org/WebsiteShowcase.vue"
@@ -39,7 +41,8 @@ library.add(
     faSeedling,
     faBroadcastTower,
     faSkull,
-    faRocket
+    faRocket,
+    faExternalLink
 )
 
 
@@ -54,6 +57,7 @@ const props = defineProps<{
     changelog?: object
     showcase?: object
     web_users?: object
+    external_links?: {}
 }>()
 
 let currentTab = ref(props.tabs.current)
@@ -67,7 +71,8 @@ const component = computed(() => {
         analytics: WebsiteAnalytics,
         changelog: TableHistories,
         showcase: WebsiteShowcase,
-        web_users: TableWebUsers
+        web_users: TableWebUsers,
+        external_links: TableExternalLinks
     }
     return components[currentTab.value]
 

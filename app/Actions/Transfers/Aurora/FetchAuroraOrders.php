@@ -15,13 +15,15 @@ use App\Transfers\Aurora\WithAuroraAttachments;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraOrders extends FetchAuroraAction
 {
     use WithAuroraAttachments;
 
-    public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug}  {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug} {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
     private bool $errorReported = false;
 
@@ -46,7 +48,6 @@ class FetchAuroraOrders extends FetchAuroraAction
             if (in_array('payments', $this->with) or in_array('full_todo', $this->with)) {
                 $this->fetchPayments($organisationSource, $order);
             }
-            $this->updateAurora($order);
 
             $sourceData = explode(':', $order->source_id);
 
@@ -87,7 +88,13 @@ class FetchAuroraOrders extends FetchAuroraAction
         $order = null;
         if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])->first()) {
             try {
-                $order = UpdateOrder::make()->action(order: $order, modelData: ['order'], strict: false, audit: false);
+                $order = UpdateOrder::make()->action(
+                    order: $order,
+                    modelData: ['order'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
             } catch (Exception $e) {
                 $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'update');
                 $this->errorReported = true;
@@ -98,9 +105,23 @@ class FetchAuroraOrders extends FetchAuroraAction
                     parent: $orderData['parent'],
                     modelData: $orderData['order'],
                     strict: false,
-                    hydratorsDelay: $this->hydratorsDelay
+                    hydratorsDelay: $this->hydratorsDelay,
+                    audit: false
                 );
-            } catch (Exception $e) {
+
+                Order::enableAuditing();
+                $this->saveMigrationHistory(
+                    $order,
+                    Arr::except($orderData['order'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
+
+                $this->recordNew($organisationSource);
+
+                $sourceData = explode(':', $order->source_id);
+                DB::connection('aurora')->table('Order Dimension')
+                    ->where('Order Key', $sourceData[1])
+                    ->update(['aiku_id' => $order->id]);
+            } catch (Exception|Throwable $e) {
                 $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'store');
                 $this->errorReported = true;
 
@@ -109,6 +130,7 @@ class FetchAuroraOrders extends FetchAuroraAction
         }
 
         $this->processFetchAttachments($order, 'Order');
+
         return $order;
     }
 
@@ -189,14 +211,6 @@ class FetchAuroraOrders extends FetchAuroraAction
             FetchAuroraNoProductTransactions::run($organisationSource, $auroraData->{'Order No Product Transaction Fact Key'}, $order);
         }
         $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->forceDelete();
-    }
-
-    public function updateAurora(Order $order): void
-    {
-        $sourceData = explode(':', $order->source_id);
-        DB::connection('aurora')->table('Order Dimension')
-            ->where('Order Key', $sourceData[1])
-            ->update(['aiku_id' => $order->id]);
     }
 
     public function getModelsQuery(): Builder

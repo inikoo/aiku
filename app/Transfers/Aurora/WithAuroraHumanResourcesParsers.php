@@ -18,7 +18,6 @@ trait WithAuroraHumanResourcesParsers
         $rawJobPositions = $this->parseJobPositions();
 
 
-
         $shops = [];
 
 
@@ -83,8 +82,6 @@ trait WithAuroraHumanResourcesParsers
                 ];
             }
         }
-
-
 
 
         return $positions;
@@ -201,9 +198,11 @@ trait WithAuroraHumanResourcesParsers
                 $shops[$shop->slug] = true;
             }
             if ($rawScope->{'Scope'} == 'Website') {
-                $website = $this->parseWebsite($this->organisation->id.':'.$rawScope->{'Scope Key'});
-
-                $shops[$website->shop->slug] = true;
+                $auroraShopFromWebsiteData = DB::connection('aurora')->table('Website Dimension')->select('Website Store Key')->where('Website Key', $userID)->first();
+                if ($auroraShopFromWebsiteData) {
+                    $shop               = $this->parseShop($this->organisation->id.':'.$auroraShopFromWebsiteData->{'Website Store Key'});
+                    $shops[$shop->slug] = true;
+                }
             }
         }
 

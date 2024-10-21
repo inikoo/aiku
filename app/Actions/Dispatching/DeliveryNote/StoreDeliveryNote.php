@@ -21,6 +21,7 @@ use App\Models\Dispatching\DeliveryNote;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\ActionRequest;
@@ -34,9 +35,11 @@ class StoreDeliveryNote extends OrgAction
     use WithFixedAddressActions;
     use WithModelAddressActions;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Order $order, array $modelData): DeliveryNote
     {
-
         $deliveryAddress = $modelData['delivery_address'];
         data_forget($modelData, 'delivery_address');
 
@@ -45,32 +48,36 @@ class StoreDeliveryNote extends OrgAction
         data_set($modelData, 'group_id', $order->group_id);
         data_set($modelData, 'organisation_id', $order->organisation_id);
 
-        /** @var DeliveryNote $deliveryNote */
-        $deliveryNote = $order->deliveryNotes()->create($modelData);
-        $deliveryNote->stats()->create();
+        $deliveryNote = DB::transaction(function () use ($order, $modelData, $deliveryAddress) {
+            /** @var DeliveryNote $deliveryNote */
+            $deliveryNote = $order->deliveryNotes()->create($modelData);
+            $deliveryNote->stats()->create();
 
-        if ($deliveryNote->delivery_locked) {
-            $deliveryNote = $this->createFixedAddress(
-                $deliveryNote,
-                $deliveryAddress,
-                'Ordering',
-                'delivery',
-                'address_id'
-            );
-        } else {
-            $deliveryNote = $this->addAddressToModel(
-                model: $deliveryNote,
-                addressData: $deliveryAddress->toArray(),
-                scope: 'delivery',
-                updateLocation: false,
-            );
-        }
+            if ($deliveryNote->delivery_locked) {
+                $deliveryNote = $this->createFixedAddress(
+                    $deliveryNote,
+                    $deliveryAddress,
+                    'Ordering',
+                    'delivery',
+                    'address_id'
+                );
+            } else {
+                $deliveryNote = $this->addAddressToModel(
+                    model: $deliveryNote,
+                    addressData: $deliveryAddress->toArray(),
+                    scope: 'delivery',
+                    updateLocation: false,
+                );
+            }
 
-        $deliveryNote->updateQuietly(
-            [
-                'delivery_country_id' => $deliveryNote->address->country_id
-            ]
-        );
+            $deliveryNote->updateQuietly(
+                [
+                    'delivery_country_id' => $deliveryNote->address->country_id
+                ]
+            );
+
+            return $deliveryNote;
+        });
 
         DeliveryNoteRecordSearch::dispatch($deliveryNote)->delay($this->hydratorsDelay);
         GroupHydrateDeliveryNotes::dispatch($deliveryNote->group)->delay($this->hydratorsDelay);
@@ -110,28 +117,34 @@ class StoreDeliveryNote extends OrgAction
             'email'            => ['sometimes', 'nullable', 'email'],
             'phone'            => ['sometimes', 'nullable', 'string'],
             'date'             => ['required', 'date'],
-            'submitted_at'     => ['sometimes', 'date'],
-            'created_at'       => ['sometimes', 'date'],
-            'cancelled_at'     => ['sometimes', 'date'],
-            'source_id'        => ['sometimes', 'string'],
             'warehouse_id'     => [
                 'required',
                 Rule::exists('warehouses', 'id')
                     ->where('organisation_id', $this->organisation->id),
             ],
             'delivery_locked'  => ['sometimes', 'boolean'],
-            'fetched_at'       => ['sometimes', 'date'],
         ];
 
         if (!$this->strict) {
-            $rules['reference'] = ['required', 'max:64', 'string'];
+            $rules['reference']    = ['required', 'max:64', 'string'];
+            $rules['fetched_at']   = ['sometimes', 'date'];
+            $rules['created_at']   = ['sometimes', 'date'];
+            $rules['cancelled_at'] = ['sometimes', 'date'];
+            $rules['submitted_at'] = ['sometimes', 'date'];
+            $rules['source_id']    = ['sometimes', 'string', 'max:64',];
         }
 
         return $rules;
     }
 
-    public function action(Order $order, array $modelData, int $hydratorsDelay = 0, bool $strict = true): DeliveryNote
+    /**
+     * @throws \Throwable
+     */
+    public function action(Order $order, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): DeliveryNote
     {
+        if (!$audit) {
+            DeliveryNote::disableAuditing();
+        }
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;

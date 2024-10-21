@@ -17,6 +17,9 @@ trait HasSalesTransactionParents
         $table->foreign('shop_id')->references('id')->on('shops');
         $table->unsignedInteger('customer_id')->index();
         $table->foreign('customer_id')->references('id')->on('customers');
+        $table->unsignedInteger('customer_client_id')->nullable()->index();
+        $table->foreign('customer_client_id')->references('id')->on('customer_clients');
+
         $table->unsignedInteger('order_id')->nullable()->index();
         $table->foreign('order_id')->references('id')->on('orders');
         if ($table->getTable() === 'invoices') {

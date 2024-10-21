@@ -18,11 +18,25 @@ trait WithAuroraSysAdminParsers
 {
     protected function parseUser($sourceId): ?User
     {
-        $user   = User::withTrashed()->where('source_id', $sourceId)->first();
-        $sourceData = explode(':', $sourceId);
-        if (!$user) {
-            $user = FetchAuroraUsers::run($this->organisationSource, $sourceData[1]);
+        $user = User::withTrashed()->where('source_id', $sourceId)->first();
+        if ($user) {
+            return $user;
         }
+
+        $user = User::withTrashed()
+            ->where('group_id', $this->organisation->group_id)
+            ->whereJsonContains('sources->users', $sourceId)
+            ->first();
+
+
+        if ($user) {
+            return $user;
+        }
+
+
+        $sourceData = explode(':', $sourceId);
+        $user = FetchAuroraUsers::run($this->organisationSource, $sourceData[1]);
+
         if (!$user) {
             $user = FetchAuroraDeletedUsers::run($this->organisationSource, $sourceData[1]);
         }
@@ -33,8 +47,6 @@ trait WithAuroraSysAdminParsers
 
     protected function parseUserFromHistory(): User|WebUser|null
     {
-
-
         $user = null;
 
         if ($this->auroraModelData->{'Subject'} == 'Staff' and $this->auroraModelData->{'Subject Key'} > 0) {
@@ -69,10 +81,6 @@ trait WithAuroraSysAdminParsers
                         $user = User::withTrashed()->find($userHasModel->user_id);
                     }
                 }
-
-
-
-
             }
 
             if (!$user) {
@@ -83,9 +91,6 @@ trait WithAuroraSysAdminParsers
             }
 
 
-
-
-
             if (!$user) {
                 dd($this->auroraModelData);
             }
@@ -93,8 +98,6 @@ trait WithAuroraSysAdminParsers
 
 
         if ($this->auroraModelData->{'Subject'} == 'Customer' and $this->auroraModelData->{'Subject Key'} > 0) {
-
-
             foreach (
                 DB::connection('aurora')
                     ->table('Website User Dimension')
@@ -104,7 +107,6 @@ trait WithAuroraSysAdminParsers
             ) {
                 $user = $this->parseWebUser($this->organisation->id.':'.$webUserData->source_id);
             }
-
         }
 
         if ($user) {
