@@ -185,7 +185,7 @@ Route::post('/agent/', StoreAgent::class)->name('agent.store');
 
 Route::prefix('employee/{employee:id}')->name('employee.')->group(function () {
     Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inEmployee'])->name('attachment.attach');
-    Route::post('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inEmployee'])->name('attachment.detach')->withoutScopedBindings();
+    Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inEmployee'])->name('attachment.detach')->withoutScopedBindings();
     Route::patch('', UpdateEmployee::class)->name('update');
     Route::delete('', DeleteEmployee::class)->name('.delete');
 });
@@ -524,7 +524,7 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::patch('address/update', UpdateCustomerAddress::class)->name('address.update');
     Route::delete('address/{address:id}/delete', [DeleteCustomerDeliveryAddress::class, 'inCustomer'])->name('delivery-address.delete')->withoutScopedBindings();
     Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inCustomer'])->name('attachment.attach');
-    Route::post('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inCustomer'])->name('attachment.detach')->withoutScopedBindings();
+    Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inCustomer'])->name('attachment.detach')->withoutScopedBindings();
     Route::post('client', StoreCustomerClient::class)->name('client.store');
     Route::post('order', [StoreOrder::class, 'inCustomer'])->name('order.store');
 });
@@ -568,6 +568,11 @@ Route::delete('/guest/{guest:id}', DeleteGuest::class)->name('guest.delete');
 Route::name('collection.')->prefix('collection/{collection:id}')->group(function () {
     Route::post('attach-models', AttachCollectionToModels::class)->name('attach-models');
     Route::delete('detach-models', DetachModelFromCollection::class)->name('detach-models');
+});
+
+Route::name('supplier.')->prefix('supplier/{supplier:id}')->group(function () {
+    Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inSupplier'])->name('attachment.attach');
+    Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inSupplier'])->name('attachment.detach')->withoutScopedBindings();
 });
 
 require __DIR__."/models/inventory/location_org_stock.php";
