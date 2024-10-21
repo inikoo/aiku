@@ -15,7 +15,7 @@ trait HasBackInStockReminderStats
     public function getRemindersStatsFields(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_reminders')->default(0);
-        $table->unsignedSmallInteger('number_unreminded')->default(0);
+        $table->unsignedSmallInteger('number_reminders_cancelled')->default(0);
         return $table;
     }
 

@@ -11,8 +11,11 @@ use App\Actions\Dispatching\Shipper\StoreShipper;
 use App\Actions\Dispatching\Shipper\UpdateShipper;
 use App\Models\Dispatching\Shipper;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraShippers extends FetchAuroraAction
 {
@@ -26,14 +29,39 @@ class FetchAuroraShippers extends FetchAuroraAction
 
                 $shipper = UpdateShipper::make()->action(
                     shipper:   $shipper,
-                    modelData: $shipperData['shipper']
-                );
-            } else {
-
-                $shipper = StoreShipper::make()->action(
-                    organisation: $organisationSource->getOrganisation(),
                     modelData: $shipperData['shipper'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
                 );
+                $this->recordChange($organisationSource, $shipper->wasChanged());
+            } else {
+                try {
+                    $shipper = StoreShipper::make()->action(
+                        organisation: $organisationSource->getOrganisation(),
+                        modelData: $shipperData['shipper'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+
+                    Shipper::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $shipper,
+                        Arr::except($shipperData['shipper'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $shipper->source_id);
+                    DB::connection('aurora')->table('Shipper Dimension')
+                        ->where('Shipper Key', $sourceData[1])
+                        ->update(['aiku_id' => $shipper->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $shipperData['shipper'], 'Shipper', 'store');
+                    return null;
+                }
+
             }
 
 

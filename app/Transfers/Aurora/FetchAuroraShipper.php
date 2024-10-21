@@ -20,40 +20,37 @@ class FetchAuroraShipper extends FetchAurora
             if ($code == 'dpd') {
                 $code = 'sk-dpd2';
             }
-            if (in_array($code, ['tnt','dhl','kuehnenagel','gls','ups'])) {
+            if (in_array($code, ['tnt', 'dhl', 'kuehnenagel', 'gls', 'ups'])) {
                 $code = 'sk-'.$code;
             }
         }
 
 
         if ($this->organisation->slug == 'es') {
-
-            if (in_array($code, ['gls','tnt','dhl','ups'])) {
+            if (in_array($code, ['gls', 'tnt', 'dhl', 'ups'])) {
                 $code = 'es-'.$code;
             }
         }
 
         if ($this->organisation->slug == 'aroma') {
-
-            if (in_array($code, ['apc','gls','tnt','dhl','ups','dpd','simarco'])) {
+            if (in_array($code, ['apc', 'gls', 'tnt', 'dhl', 'ups', 'dpd', 'simarco'])) {
                 $code = 'aro-'.$code;
             }
         }
 
 
         $this->parsedData['shipper'] = [
-
-            'code'         => $code,
-            'name'         => $this->auroraModelData->{'Shipper Name'},
-            'website'      => $this->auroraModelData->{'Shipper Website'},
-            'company_name' => $this->auroraModelData->{'Shipper Fiscal Name'},
-            'contact_name' => $this->auroraModelData->{'Shipper Name'},
-            'phone'        => $this->auroraModelData->{'Shipper Telephone'},
-            'status'       => $this->auroraModelData->{'Shipper Active'} === 'Yes',
-            'tracking_url' => $this->auroraModelData->{'Shipper Tracking URL'},
-            'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Shipper Key'},
-
-
+            'code'            => $code,
+            'name'            => $this->auroraModelData->{'Shipper Name'},
+            'website'         => $this->auroraModelData->{'Shipper Website'},
+            'company_name'    => $this->auroraModelData->{'Shipper Fiscal Name'},
+            'contact_name'    => $this->auroraModelData->{'Shipper Name'},
+            'phone'           => $this->auroraModelData->{'Shipper Telephone'},
+            'status'          => $this->auroraModelData->{'Shipper Active'} === 'Yes',
+            'tracking_url'    => $this->auroraModelData->{'Shipper Tracking URL'},
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Shipper Key'},
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
         ];
     }
 

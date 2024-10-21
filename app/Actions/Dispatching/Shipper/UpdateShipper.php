@@ -47,7 +47,7 @@ class UpdateShipper extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'code'         => [
                 'required',
                 'between:2,16',
@@ -76,13 +76,23 @@ class UpdateShipper extends OrgAction
             'website'      => ['sometimes', 'nullable', 'url'],
             'tracking_url' => ['sometimes', 'nullable', 'string', 'max:255'],
         ];
+
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+        }
+
+        return $rules;
     }
 
-    public function action(Shipper $shipper, array $modelData): Shipper
+    public function action(Shipper $shipper, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Shipper
     {
+        $this->strict = $strict;
+        if (!$audit) {
+            Shipper::disableAuditing();
+        }
         $this->asAction = true;
         $this->shipper  = $shipper;
-
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($shipper->organisation, $modelData);
 
         return $this->handle($shipper, $this->validatedData);

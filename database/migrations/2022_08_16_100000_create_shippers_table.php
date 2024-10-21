@@ -30,6 +30,8 @@ return new class () extends Migration {
             $table->string('tracking_url')->nullable();
             $table->jsonb('data');
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
             $table->unique(['group_id','code']);
