@@ -73,7 +73,8 @@ const sendBlockUpdate = async (block: Daum) => {
     router.patch(
         route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
         { layout: block.web_block.layout,
-          visibility : block.visibility, 
+          show_logged_in : block.visibility.in, 
+          show_logged_out : block.visibility.out, 
           show : block.show
         },
         {
