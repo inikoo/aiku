@@ -57,7 +57,6 @@ class StoreCreditTransaction extends OrgAction
             'amount'     => ['required', 'numeric'],
             'date'       => ['sometimes', 'date'],
             'type'       => ['required', Rule::enum(CreditTransactionTypeEnum::class)],
-            'source_id'  => ['sometimes', 'string'],
             'payment_id' => [
                 'sometimes',
                 'nullable',
@@ -70,12 +69,13 @@ class StoreCreditTransaction extends OrgAction
                 Rule::exists('top_ups', 'id')
                     ->where('shop_id', $this->shop->id)
             ],
-            'fetched_at'  => ['sometimes', 'date'],
         ];
         if (!$this->strict) {
             $rules['grp_exchange'] = ['sometimes', 'numeric'];
             $rules['org_exchange'] = ['sometimes', 'numeric'];
-
+            $rules['source_id'] = ['sometimes', 'string'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['created_at'] = ['sometimes', 'date'];
         }
 
         return $rules;

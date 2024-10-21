@@ -97,11 +97,11 @@ class StoreProspect extends OrgAction
             return $prospect;
         });
 
-        ProspectRecordSearch::dispatch($prospect);
-        OrganisationHydrateProspects::dispatch($shop->organisation)->delay(now()->addSeconds(2));
-        ShopHydrateProspects::dispatch($shop);
+        ProspectRecordSearch::dispatch($prospect)->delay($this->hydratorsDelay);
+        OrganisationHydrateProspects::dispatch($shop->organisation)->delay($this->hydratorsDelay);
+        ShopHydrateProspects::dispatch($shop)->delay($this->hydratorsDelay);
 
-        HydrateModelTypeQueries::dispatch('Prospect')->delay(now()->addSeconds(2));
+        HydrateModelTypeQueries::dispatch('Prospect')->delay($this->hydratorsDelay);
 
         if ($tags && count($tags)) {
             SyncTagsProspect::make()->action($prospect, ['tags' => $tags, 'type' => 'crm']);
@@ -172,6 +172,7 @@ class StoreProspect extends OrgAction
                 'min:5',
                 'max:24'
             ];
+            $rules['created_at'] = ['sometimes', 'date'];
             $rules['fetched_at'] = ['sometimes', 'date'];
             $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
             $rules['source_id']  = ['sometimes', 'string', 'max:255'];

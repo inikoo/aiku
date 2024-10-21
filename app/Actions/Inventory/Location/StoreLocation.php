@@ -94,6 +94,7 @@ class StoreLocation extends OrgAction
                 'max:64',
                 'string',
             ];
+            $rules['created_at'] = ['sometimes', 'date'];
             $rules['fetched_at'] = ['sometimes', 'date'];
             $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
             $rules['source_id']  = ['sometimes', 'string', 'max:255'];
