@@ -274,7 +274,6 @@ class Customer extends Model implements HasMedia, Auditable
         return $this->hasMany(CustomerClient::class);
     }
 
-
     public function stats(): HasOne
     {
         return $this->hasOne(CustomerStats::class);
