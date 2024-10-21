@@ -40,11 +40,13 @@ const updateValue = (value) => {
     props.updateAttributes({...props.node.attrs, ...value, id : value.id.id});
 };
 
+console.log(props.node.attrs.content )
+
 </script>
 
 <template>
     <NodeViewWrapper class="inline">
-        <a 
+        <span 
             class="custom-link" 
             role="button" 
             tabindex="0" 
@@ -59,7 +61,7 @@ const updateValue = (value) => {
                 :icon="faDraftingCompass" 
                 class="icon" 
             />
-        </a>
+        </span>
     </NodeViewWrapper>
     <TiptapLinkDialog 
         v-if="showLinkDialog" 
@@ -69,6 +71,7 @@ const updateValue = (value) => {
         @update="updateValue"
     />
 </template>
+
 
 <style scoped lang="scss">
 .custom-link {

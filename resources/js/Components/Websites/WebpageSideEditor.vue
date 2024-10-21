@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { ref, watch } from 'vue'
-import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText } from '@fal'
+import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText, faEye, faEyeSlash } from '@fal'
 import draggable from "vuedraggable"
 import PanelProperties from '@/Components/Websites/Fields/PanelProperties.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -26,7 +26,7 @@ import { trans } from 'laravel-vue-i18n'
 import { set } from 'lodash'
 
 
-library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText)
+library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText, faEye, faEyeSlash )
 const modelModalBlocklist = defineModel()
 
 const props = defineProps<{
@@ -117,15 +117,24 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                                 </h3>
                             </div>
 
-                            <div v-tooltip="'Delete this block'"
-                                class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer"
-                                @click="(e) => { e.stopPropagation(), sendDeleteBlock(element) }">
-                                <LoadingIcon v-if="isLoadingDelete === ('deleteBlock' + element.id)"
-                                    class="text-gray-400" />
-                                <FontAwesomeIcon v-else icon='fal fa-times'
-                                    class="text-base sm:text-lg md:text-xl lg:text-2xl" fixed-width
-                                    aria-hidden='true' />
-
+                            <div class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer">
+                                <div class="flex gap-4">
+                                    <div>
+                                        <FontAwesomeIcon v-tooltip="'show this block'" v-if="!element.show" icon='fal fa-eye-slash'
+                                            class="text-base sm:text-lg md:text-xl lg:text-2xl" fixed-width
+                                            aria-hidden='true'  @click="(e) => { e.stopPropagation(), element.show = true}"/>
+                                        <FontAwesomeIcon v-tooltip="'hide this block'" v-else icon='fal fa-eye'
+                                            class="text-base sm:text-lg md:text-xl lg:text-2xl" fixed-width
+                                            aria-hidden='true' @click="(e) => { e.stopPropagation(), element.show = false}" />
+                                    </div>
+                                    <div v-if="!element.show">
+                                        <LoadingIcon v-if="isLoadingDelete === ('deleteBlock' + element.id)"
+                                            class="text-gray-400" />
+                                        <FontAwesomeIcon v-else icon='fal fa-times' v-tooltip="'Delete this block'"
+                                            class="text-base sm:text-lg md:text-xl lg:text-2xl" fixed-width
+                                            aria-hidden='true'   @click="(e) => { e.stopPropagation(), sendDeleteBlock(element) }"/>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -136,12 +145,9 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                                 <div class="px-2">
                                     <ButtonVisibleLoggedIn v-model="element.visibility" />
                                 </div>
-                               
-                                <SideEditor 
-                                    v-model="element.web_block.layout.data.fieldValue"
-                                    :bluprint="element?.web_block?.layout?.blueprint" 
-                                    @update:modelValue="onUpdatedBlock(element)"
-                                />
+                                <SideEditor v-model="element.web_block.layout.data.fieldValue"
+                                    :bluprint="element?.web_block?.layout?.blueprint"
+                                    @update:modelValue="onUpdatedBlock(element)" />
                             </div>
                         </Collapse>
                     </div>

@@ -87,11 +87,12 @@ export default Node.create({
   },
 
   renderHTML({ HTMLAttributes }) {
-    if (!isAllowedUri(HTMLAttributes.href, this.options.protocols)) {
-      return ['CustomLinkExtension', mergeAttributes(this.options.HTMLAttributes, { href: '' }), 0];
+    if (!isAllowedUri(HTMLAttributes.url, this.options.protocols)) {
+        return ['span', mergeAttributes(this.options.HTMLAttributes, { href: '' }), 0];
     }
-    return ['CustomLinkExtension', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
-  },
+    return ['span', mergeAttributes(this.options.HTMLAttributes, HTMLAttributes), 0];
+},
+
 
   addNodeView() {
     return VueNodeViewRenderer(CustomLink);
