@@ -106,6 +106,7 @@ use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
 use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
+use App\Actions\Helpers\Media\AttachAttachmentToModel;
 use App\Actions\Helpers\Tag\StoreTag;
 use App\Actions\Helpers\Tag\SyncTagsModel;
 use App\Actions\HumanResources\ClockingMachine\DeleteClockingMachine;
@@ -182,6 +183,7 @@ Route::patch('notifications', MarkAllNotificationAsRead::class)->name('notificat
 Route::post('/agent/', StoreAgent::class)->name('agent.store');
 
 Route::prefix('employee/{employee:id}')->name('employee.')->group(function () {
+    Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inEmployee'])->name('attachment.attach');
     Route::patch('', UpdateEmployee::class)->name('update');
     Route::delete('', DeleteEmployee::class)->name('.delete');
 });
@@ -519,7 +521,7 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::post('address', AddDeliveryAddressToCustomer::class)->name('address.store');
     Route::patch('address/update', UpdateCustomerAddress::class)->name('address.update');
     Route::delete('address/{address:id}/delete', [DeleteCustomerDeliveryAddress::class, 'inCustomer'])->name('delivery-address.delete')->withoutScopedBindings();
-
+    Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inCustomer'])->name('attachment.attach');
     Route::post('client', StoreCustomerClient::class)->name('client.store');
     Route::post('order', [StoreOrder::class, 'inCustomer'])->name('order.store');
 });
