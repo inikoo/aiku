@@ -216,7 +216,7 @@ onMounted(() => {
 
     <div class="grid grid-cols-5 h-[85vh]">
         <!-- Section: Side editor -->
-        <div class="col-span-1 lg:block hidden h-full border-2 bg-gray-200 px-3 py-1 ">
+        <div class="col-span-1 lg:block hidden h-full border-2 bg-gray-200 px-3 py-1 overflow-auto">
             <WebpageSideEditor v-model="isModalBlockList" :isLoadingDelete :isAddBlockLoading :webpage="data"
                 :webBlockTypes="webBlockTypes" @update="sendBlockUpdate" @delete="sendDeleteBlock" @add="addNewBlock"
                 @order="sendOrderBlock" />
@@ -260,7 +260,7 @@ onMounted(() => {
                     <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
                 </div>
 
-                <div class="h-full w-full bg-white">
+                <div class="h-full w-full bg-white overflow-auto">
                     <iframe ref="_iframe" :src="iframeSrc" :title="props.title"
                         :class="[iframeClass, isIframeLoading ? 'hidden' : '']" @error="handleIframeError"
                         @load="isIframeLoading = false" />

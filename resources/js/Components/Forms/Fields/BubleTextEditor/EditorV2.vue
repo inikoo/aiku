@@ -53,13 +53,14 @@ import {
     faAlignLeft,
     faAlignCenter,
     faAlignRight,
+    faFileVideo
 } from "@far"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import TiptapLinkCustomDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapCustomLinkDialog.vue"
 import TiptapLinkDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapLinkDialog.vue"
-/* import TiptapVideoDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapVideoDialog.vue"
-import TiptapTableDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapTableDialog.vue" */
+import TiptapVideoDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapVideoDialog.vue"
+/* import TiptapTableDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapTableDialog.vue" */
 import TiptapImageDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapImageDialog.vue"
 
 const props = withDefaults(defineProps<{
@@ -75,9 +76,11 @@ const props = withDefaults(defineProps<{
     toogle: () => [
         'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',
         'orderedList', 'blockquote', 'divider', 'alignLeft', 'alignRight', "customLink",
-        'alignCenter', 'undo', 'redo', 'highlight', 'color', 'clear', "image"
+        'alignCenter', 'undo', 'redo', 'highlight', 'color', 'clear', "image", "video"
     ]
 })
+
+console.log(props.editable)
 
 const _bubbleMenu = ref(null)
 const showDialog = ref(false)
@@ -90,27 +93,28 @@ const showAddImageDialog = ref<boolean>(false)
 const showLinkDialog = ref<boolean>()
 
 const editorInstance = useEditor({
-     content: props.modelValue,
-   /*  content: `
-    <p>This is a paragraph.
-
-     <CustomLinkExtension
-      type="internal"
-      workshop="https://tailwindcss.com/docs/z-index"
-      id="1"
-      url="https://tailwindcss.com/docs/z-index">link test
-      </CustomLinkExtension>
-
-      <CustomLinkExtension url="https://ancientwisdom.biz/showroom" 
-      type="internal"
-       id="9" 
-       workshop="http://app.aiku.test/org/aw/shops/uk/web/aw/webpages/showroom-uk/workshop"   
-       rel="noopener noreferrer" 
-       target="_blank">
-       <span style="{color: rgb(232, 121, 40)}">Showroom</span>
+    content: props.modelValue,
+    editable: props.editable,
+    /*  content: `
+     <p>This is a paragraph.
+ 
+      <CustomLinkExtension
+       type="internal"
+       workshop="https://tailwindcss.com/docs/z-index"
+       id="1"
+       url="https://tailwindcss.com/docs/z-index">link test
        </CustomLinkExtension>
-      </p>
-  `, */
+ 
+       <CustomLinkExtension url="https://ancientwisdom.biz/showroom" 
+       type="internal"
+        id="9" 
+        workshop="http://app.aiku.test/org/aw/shops/uk/web/aw/webpages/showroom-uk/workshop"   
+        rel="noopener noreferrer" 
+        target="_blank">
+        <span style="{color: rgb(232, 121, 40)}">Showroom</span>
+        </CustomLinkExtension>
+       </p>
+   `, */
     editorProps: {
         attributes: {
             class: "blog",
@@ -240,8 +244,6 @@ function insertTable(table: DataTable) {
         .run()
 }
 
-
-
 onMounted(() => {
     setTimeout(() => (contentResult.value = editorInstance.value?.getHTML()), 250)
 })
@@ -252,7 +254,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div id="tiptap" class="divide-y divide-gray-400 rounded-md border border-gray-400">
+    <div id="tiptap" class="divide-y divide-gray-400">
         <BubbleMenu ref="_bubbleMenu" :editor="editorInstance" :tippy-options="{ duration: 100 }"
             v-if="editorInstance && !showDialog">
             <section id="tiptap-toolbar" class="bg-gray-100 rounded-xl border border-gray-300 divide-x divide-gray-400">
@@ -354,6 +356,10 @@ onBeforeUnmount(() => {
                         @click="showAddImageDialog = true">
                         <FontAwesomeIcon :icon="faImage" class="h-5 w-5" />
                     </TiptapToolbarButton>
+                    <TiptapToolbarButton v-if="toogle.includes('video')" label="Youtube Video"
+                        @click="() => { showAddYoutubeDialog = true, showDialog = true }">
+                        <FontAwesomeIcon :icon="faFileVideo" class="h-5 w-5" />
+                    </TiptapToolbarButton>
                     <TiptapToolbarButton v-if="toogle.includes('blockquote')" label="Blockquote"
                         :is-active="editorInstance?.isActive('blockquote')"
                         @click="editorInstance?.chain().focus().toggleBlockquote().run()">
@@ -377,6 +383,8 @@ onBeforeUnmount(() => {
             @insert="insertImage" />
         <TiptapLinkDialog v-if="showLinkDialog" :show="showLinkDialog" :current-url="currentLinkInDialog"
             @close="() => { showLinkDialog = false; showDialog = false; }" @update="updateLink" />
+        <TiptapVideoDialog v-if="showAddYoutubeDialog" :show="showAddYoutubeDialog" @insert="insertYoutubeVideo"
+            @close="() => { showAddYoutubeDialog = false; showDialog = false; }" />
     </div>
 </template>
 

@@ -6,6 +6,10 @@ import { faDraftingCompass } from '@fortawesome/free-solid-svg-icons';
 import TiptapLinkDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapCustomLinkDialog.vue";
 
 const props = defineProps({
+    editor : {
+        type: Object,
+        required: true,
+    },
     node: {
         type: Object,
         required: true,
@@ -15,7 +19,7 @@ const props = defineProps({
         required: true,
     },
 });
-
+console.log()
 const showLinkDialog = ref<boolean>(false);
 
 const openUrl = () => {
@@ -46,7 +50,7 @@ console.log(props.node.attrs.content )
 
 <template>
     <NodeViewWrapper class="inline">
-        <span 
+        <span v-if="props.editor.view.editable"
             class="custom-link" 
             role="button" 
             tabindex="0" 
@@ -62,6 +66,7 @@ console.log(props.node.attrs.content )
                 class="icon" 
             />
         </span>
+        <a v-else :href="props.node.attrs.url" target="_blank" >{{ props.node.attrs.content }}</a>
     </NodeViewWrapper>
     <TiptapLinkDialog 
         v-if="showLinkDialog" 
