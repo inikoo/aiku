@@ -108,14 +108,10 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                         <div @click="() => selectedBlockOpenPanel === index ? selectedBlockOpenPanel = null : selectedBlockOpenPanel = index"
                             class="group flex justify-between items-center gap-x-2 relative px-3 py-2 w-full cursor-pointer"
                             :class="selectedBlockOpenPanel === index ? 'bg-indigo-500 text-white' : 'hover:bg-gray-100'">
-                            <!-- <pre>{{ element.web_block.layout.data }}</pre> -->
                             <div class="flex gap-x-2">
                                 <div class="flex items-center justify-center">
                                     <FontAwesomeIcon icon="fal fa-bars" class="handle text-sm cursor-grab pr-3 mr-2" />
-                                    <!--   <FontAwesomeIcon :icon='element?.web_block?.layout?.data?.icon' class='text-xs'
-                                        fixed-width aria-hidden='true' /> -->
                                 </div>
-
                                 <h3 class="lg:text-sm text-xs capitalize font-medium select-none">
                                     {{ element.type }}
                                 </h3>
@@ -137,6 +133,10 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                         <Collapse v-if="element?.web_block?.layout" as="section"
                             :when="selectedBlockOpenPanel === index">
                             <div class="p-2">
+                                <div class="px-2">
+                                    <ButtonVisibleLoggedIn v-model="element.visibility" />
+                                </div>
+                               
                                 <SideEditor 
                                     v-model="element.web_block.layout.data.fieldValue"
                                     :bluprint="element?.web_block?.layout?.blueprint" 
@@ -144,8 +144,6 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                                 />
                             </div>
                         </Collapse>
-
-                        <!-- <pre>{{ element.web_block.layout.data.properties }}</pre> -->
                     </div>
                 </template>
             </draggable>

@@ -77,7 +77,7 @@ trait WithFetchTextWebBlock
                 }
 
                 $customeExtensionElement = sprintf(
-                    '<CustomeExtension url="%s" type="%s" %s %s %s>%s</CustomeExtension>',
+                    '<CustomLinkExtension url="%s" type="%s" %s %s %s>%s</CustomLinkExtension>',
                     $originalLink['url'],
                     $originalLink['type'],
                     $additionalAttribute,

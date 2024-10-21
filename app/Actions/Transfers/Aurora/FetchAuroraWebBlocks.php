@@ -372,7 +372,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 $text = $layout['data']['fieldValue']['value'];
                 $pattern = '/<img\s+[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
 
-                preg_replace_callback($pattern, function ($match) use ($webBlock, $webpage) {
+                $text = preg_replace_callback($pattern, function ($match) use ($webBlock, $webpage) {
                     $originalImage = $match[1];
                     $media = FetchAuroraWebBlockMedia::run($webBlock, $webpage, $originalImage);
                     $imageElement = $match[0];
@@ -387,6 +387,7 @@ class FetchAuroraWebBlocks extends OrgAction
 
                     return $imageElement;
                 }, $text);
+                $layout['data']['fieldValue']['value'] = $text; // result for image still not found event the imageUrl is not empty
             } elseif ($code == "images") {
                 $imgResources = [];
                 foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
