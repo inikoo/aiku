@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
-import { ref, onMounted, onUnmounted, reactive, watch, inject, provide } from 'vue'
+import { ref, onMounted, onUnmounted, reactive, watch, computed, provide } from 'vue'
 import WebPreview from "@/Layouts/WebPreview.vue";
 import axios from 'axios'
 import debounce from 'lodash/debounce'
@@ -136,13 +136,22 @@ const iframeToParent = (data: any) => {
 provide('isPreviewLoggedIn', isPreviewLoggedIn)
 
 
+
+const ShowWebpage = (activityItem) => {
+    if (activityItem?.web_block?.layout && activityItem.show) {
+        if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
+        else if (!isPreviewLoggedIn.value && activityItem.visibility.out) return true
+        else return false
+    } else return false
+}
+
+console.log(props.webpage)
 </script>
 
 
 <template>
 
     <div class="container max-w-7xl mx-auto shadow-xl">
-
         <!-- Section: Toggle loggedin -->
         <div v-if="!isInWorkshop" class="left-1/2 -translate-x-1/2 fixed bottom-16">
             <div class="text-center">View</div>
@@ -169,11 +178,18 @@ provide('isPreviewLoggedIn', isPreviewLoggedIn)
                         <TransitionGroup tag="div" name="zzz" class="relative">
                             <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
                                 :key="activityItem.id" class="w-full">
-                                <component v-if="activityItem?.web_block?.layout && activityItem.show" class="w-full"
-                                    :is="getComponent(activityItem?.type)" :webpageData="webpage"
-                                    :properties="activityItem?.web_block?.layout?.data?.properties" v-bind="activityItem"
-                                    v-model="activityItem.web_block.layout.data.fieldValue" :isEditable="true"
-                                    :style="{ width: '100%' }" @autoSave="() => onUpdatedBlock(activityItem)" />
+                                <component 
+                                    v-if="ShowWebpage(activityItem)" 
+                                    class="w-full"
+                                    :is="getComponent(activityItem?.type)" 
+                                    :webpageData="webpage"
+                                    :properties="activityItem?.web_block?.layout?.data?.properties" 
+                                    v-bind="activityItem"
+                                    v-model="activityItem.web_block.layout.data.fieldValue" 
+                                    :isEditable="true"
+                                    :style="{ width: '100%' }" 
+                                    @autoSave="() => onUpdatedBlock(activityItem)" 
+                                />
                             </section>
                         </TransitionGroup>
 

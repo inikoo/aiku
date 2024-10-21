@@ -16,7 +16,7 @@ import debounce from 'lodash/debounce'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import Modal from "@/Components/Utils/Modal.vue"
 import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
-import ButtonVisibleLoggedIn from '@/Components/Websites/Fields/ButtonVisibleLoggedIn.vue';
+import VisibleCheckmark from '@/Components/Websites/Fields/VisibleCheckmark.vue';
 import SideEditor from '@/Components/Websites/SideEditor.vue'
 
 import { Root, Daum } from '@/types/webBlockTypes'
@@ -149,7 +149,7 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                             :when="selectedBlockOpenPanel === index">
                             <div class="p-2">
                                 <div class="px-2">
-                                    <ButtonVisibleLoggedIn v-model="element.visibility" />
+                                    <VisibleCheckmark v-model="element.visibility" @update:modelValue="onUpdatedBlock(element)"/>
                                 </div>
                                 <SideEditor v-model="element.web_block.layout.data.fieldValue"
                                     :bluprint="element?.web_block?.layout?.blueprint"

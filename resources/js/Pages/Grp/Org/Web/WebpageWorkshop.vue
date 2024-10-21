@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { ref, defineExpose, onMounted, onUnmounted, watch } from 'vue'
+import { ref, defineExpose, onMounted, onUnmounted, watch, IframeHTMLAttributes} from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -16,6 +16,7 @@ import ScreenView from "@/Components/ScreenView.vue"
 import WebpageSideEditor from "@/Components/Websites/WebpageSideEditor.vue"
 import Drawer from 'primevue/drawer';
 import { socketWeblock } from '@/Composables/SocketWebBlock'
+import Toggle from '@/Components/Pure/Toggle.vue'
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
@@ -47,6 +48,7 @@ const data = ref({ ...props.webpage })
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const _WebpageSideEditor = ref(null)
+const isPreviewLoggedIn = ref(false)
 
 const isAddBlockLoading = ref<string | null>(null)
 const addNewBlock = async (block: Daum) => {
@@ -69,13 +71,13 @@ const addNewBlock = async (block: Daum) => {
 
 const isSavingBlock = ref(false)
 const sendBlockUpdate = async (block: Daum) => {
-    console.log(props.webpage.update_model_has_web_blocks_route.name)
     router.patch(
         route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
-        { layout: block.web_block.layout,
-          show_logged_in : block.visibility.in, 
-          show_logged_out : block.visibility.out, 
-          show : block.show
+        {
+            layout: block.web_block.layout,
+            show_logged_in: block.visibility.in,
+            show_logged_out: block.visibility.out,
+            show: block.show
         },
         {
             onStart: () => isSavingBlock.value = true,
@@ -123,7 +125,6 @@ const sendDeleteBlock = async (block: Daum) => {
     )
     // isLoading.value = false
 }
-
 
 const onPublish = async (action: {}, popover: {}) => {
     try {
@@ -179,9 +180,15 @@ onUnmounted(() => {
     if (socketConnectionWebpage) socketConnectionWebpage.actions.unsubscribe();
 });
 
+const _iframe = ref<IframeHTMLAttributes | null>(null)
+const sendToIframe = (data: any) => {
+    _iframe.value?.contentWindow.postMessage(data, '*')
+}
+
+
 
 onMounted(() => {
-    if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { console.log("dd"), data.value = { ...data.value, ...value } });
+    if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { data.value = { ...data.value, ...value } });
     window.addEventListener('message', (event) => {
         if (event.data === 'openModalBlockList') {
             isModalBlockList.value = true
@@ -189,11 +196,11 @@ onMounted(() => {
     });
 });
 
-console.log(props.webpage)
 
 </script>
 
 <template>
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
@@ -236,6 +243,16 @@ console.log(props.webpage)
                         <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
                     </div>
                 </div>
+
+                <div class="flex gap-3 items-center px-4">
+                    <div class="flex items-center gap-x-2">
+                        <span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged out</span>
+                        <Toggle v-model="isPreviewLoggedIn" @update:modelValue="(newVal) => sendToIframe({key: 'isPreviewLoggedIn', value: newVal})" />
+                        <span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged in</span>
+                    </div>
+                </div>
+
+
             </div>
 
             <div class="border-2 h-full w-full">
@@ -244,7 +261,7 @@ console.log(props.webpage)
                 </div>
 
                 <div class="h-full w-full bg-white">
-                    <iframe ref="_iframeRef" :src="iframeSrc" :title="props.title"
+                    <iframe ref="_iframe" :src="iframeSrc" :title="props.title"
                         :class="[iframeClass, isIframeLoading ? 'hidden' : '']" @error="handleIframeError"
                         @load="isIframeLoading = false" />
                 </div>
@@ -259,5 +276,3 @@ iframe {
     transition: width 0.3s ease;
 }
 </style>
-
-
