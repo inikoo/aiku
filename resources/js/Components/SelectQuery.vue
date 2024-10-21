@@ -229,7 +229,7 @@ defineExpose({
 
         <template #singlelabel="{value}" >
             <slot name="singlelabel" :value="value" >
-                <div class="flex justify-start w-full px-2">
+                <div class="flex justify-start w-full px-2 z-50">
                     {{ value[props.label] }}
                 </div>
             </slot>

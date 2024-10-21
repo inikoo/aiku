@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
+import EditorV2 from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue";
 import { getStyles } from '@/Composables/styles'
 
 const props = withDefaults(defineProps<{
@@ -20,8 +21,9 @@ const emits = defineEmits<{
 
 <template>
     <div id="blockTextContent" :style="getStyles(modelValue?.container.properties)">
-        <Editor v-if="isEditable" v-model="modelValue.value" @update:modelValue="() => emits('autoSave')" />
-        <div v-else v-html="modelValue?.value"></div>
+        <!-- Editor v-if="isEditable" v-model="modelValue.value" @update:modelValue="() => emits('autoSave')" /> -->
+        <EditorV2 v-model="modelValue.value"/>
+        <!-- <div v-else v-html="modelValue?.value"></div> -->
     </div>
 </template>
 <style lang="scss" scoped>
