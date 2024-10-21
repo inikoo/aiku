@@ -32,6 +32,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $migration_checksum
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Collection> $collections
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\ExternalLink> $externalLinks
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ProductCategory> $productCategories

@@ -77,6 +77,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Webpage> $children
  * @property-read Collection<int, Deployment> $deployments
+ * @property-read Collection<int, \App\Models\Web\ExternalLink> $externalLinks
  * @property-read Group $group
  * @property-read Model|\Eloquent|null $model
  * @property-read Collection<int, ModelHasWebBlocks> $modelHasWebBlocks

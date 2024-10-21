@@ -87,6 +87,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read mixed $condition
  * @property-read Collection<int, Deployment> $deployments
+ * @property-read Collection<int, \App\Models\Web\ExternalLink> $externalLinks
  * @property-read Group $group
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
  * @property-read Snapshot|null $liveSnapshot
