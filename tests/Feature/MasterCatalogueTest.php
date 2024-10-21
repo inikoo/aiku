@@ -10,6 +10,7 @@
 use App\Actions\Catalogue\MasterProductCategory\StoreMasterProductCategory;
 use App\Actions\Catalogue\MasterProductCategory\UpdateMasterProductCategory;
 use App\Actions\Catalogue\MasterShop\StoreMasterShop;
+use App\Actions\Catalogue\MasterShop\UpdateMasterShop;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
@@ -63,6 +64,26 @@ test('create master shop', function () {
 
     return $masterShop;
 });
+
+
+test('update master shop', function (MasterShop $masterShop) {
+    $updatedMasterShop = UpdateMasterShop::make()->action(
+        $masterShop,
+        [
+            'name' => "shop2",
+            'type' => ShopTypeEnum::FULFILMENT,
+            'state' => ShopStateEnum::IN_PROCESS
+        ]
+    );
+
+    $updatedMasterShop->refresh();
+
+    expect($updatedMasterShop)->toBeInstanceOf(MasterShop::class);
+    expect($updatedMasterShop)->not->toBeNull()
+        ->and($updatedMasterShop->name)->toBe('shop2')
+        ->and($updatedMasterShop->type)->toBe(ShopTypeEnum::FULFILMENT)
+        ->and($updatedMasterShop->state)->toBe(ShopStateEnum::IN_PROCESS);
+})->depends('create master shop');
 
 test('create master product category', function (MasterShop $masterShop) {
     $masterProductCategory = StoreMasterProductCategory::make()->action(
