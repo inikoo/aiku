@@ -575,6 +575,11 @@ Route::name('supplier.')->prefix('supplier/{supplier:id}')->group(function () {
     Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inSupplier'])->name('attachment.detach')->withoutScopedBindings();
 });
 
+Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->group(function () {
+    Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inPurchaseOrder'])->name('attachment.attach');
+    Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inPurchaseOrder'])->name('attachment.detach')->withoutScopedBindings();
+});
+
 require __DIR__."/models/inventory/location_org_stock.php";
 require __DIR__."/models/ordering/order.php";
 require __DIR__."/models/stock/stock.php";
