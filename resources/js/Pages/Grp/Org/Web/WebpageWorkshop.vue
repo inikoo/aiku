@@ -184,11 +184,11 @@ onMounted(() => {
     });
 });
 
+console.log(props.webpage)
 
 </script>
 
 <template>
-
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
@@ -254,3 +254,5 @@ iframe {
     transition: width 0.3s ease;
 }
 </style>
+
+
