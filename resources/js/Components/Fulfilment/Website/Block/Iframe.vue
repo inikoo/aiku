@@ -41,7 +41,6 @@ const onEnter = (e) => {
     emits('update:modelValue', { ...props.modelValue, emptyState: false })
     emits('autoSave')
 }
-
 </script>
 
 <template>

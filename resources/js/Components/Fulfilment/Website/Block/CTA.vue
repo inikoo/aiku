@@ -8,7 +8,6 @@
 import { faCube, faLink } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { ref } from "vue"
-import Button from '@/Components/Elements/Buttons/Button.vue';
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
 import Image from "@/Components/Image.vue"
 import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue";
@@ -57,18 +56,18 @@ console.log(props.modelValue)
 </script>
 
 <template>
-    <div class="w-full bg-gray-700 py-6 px-8 md:py-8 md:px-12 xl:py-8 xl:px-20 rounded-lg shadow-lg" :style="getStyles(properties)">
+    <div class="w-full bg-gray-700 py-6 px-8 md:py-8 md:px-12 xl:py-8 xl:px-20 rounded-lg shadow-lg" :style="getStyles(modelValue.container.properties)">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="col-span-2 relative cursor-pointer"  @click="() => { if (isEditable) openGallery = !openGallery }">
                 <img 
                     v-if="!modelValue?.image"
                     src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png"
                     alt="Informative Image" 
-                    class="w-full h-full object-cover rounded-lg shadow-md transition-transform transform hover:scale-105">
+                    class="w-full h-full object-cover  shadow-md transition-transform transform ">
                 <Image 
                     v-else 
                     :src="modelValue?.image?.source" 
-                    class="w-full h-full object-cover rounded-lg shadow-md transition-transform transform hover:scale-105" />
+                    class="w-full h-full object-cover rounded-lg shadow-md transition-transform transform" />
             </div>
             <div class="flex flex-col justify-between md:px-4 lg:px-8">
                 <Editor 
@@ -80,6 +79,7 @@ console.log(props.modelValue)
                 
                 <button 
                     v-if="modelValue?.button" 
+                    :style="getStyles(modelValue.button.container.properties)"
                     class="self-center bg-white text-gray-800 py-2 px-6 rounded-md shadow hover:bg-gray-200 transition">
                     {{  modelValue.button.text }}
                 </button>

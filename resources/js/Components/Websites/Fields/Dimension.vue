@@ -12,7 +12,6 @@ const compModel = computed(() => {
 
 const emit = defineEmits();
 watch(compModel, () => {
-    console.log('on change compModel')
     emit('update:modelValue', model.value)
 })
 

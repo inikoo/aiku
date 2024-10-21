@@ -281,6 +281,11 @@ class FetchAuroraWebBlocks extends OrgAction
             return;
         }
 
+        // fe: want to add dimension that already added in iframe.json
+        if ($auroraBlock['type'] == "iframe") {
+            data_set($layout, "data.fieldValue.container.properties.dimension", Arr::get($webBlockType, "data.fieldValue.container.properties.dimension"));
+        }
+
         data_set($layout, "data.fieldValue.container.properties.padding.unit", "px");
         data_set($layout, "data.fieldValue.container.properties.padding.left.value", 20);
         data_set($layout, "data.fieldValue.container.properties.padding.right.value", 20);
