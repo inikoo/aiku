@@ -73,7 +73,6 @@ const getColumnWidthClass = (index: any) => {
 </script>
 
 <template>
-    <pre>{{ web_block }}</pre>
     <div v-if="web_block?.layout?.data?.fieldValue?.value?.images" class="flex flex-wrap w-full">
         <!-- Third Row: 3 Images (33.33% width each) -->
         <div v-for="(image, index) in web_block?.layout?.data?.fieldValue?.value?.images" :key="index" class="p-2"
