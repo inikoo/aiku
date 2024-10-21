@@ -58,6 +58,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property WebUserTypeEnum $state
@@ -76,14 +78,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Website $website
- * @method static Builder|WebUser newModelQuery()
- * @method static Builder|WebUser newQuery()
- * @method static Builder|WebUser onlyTrashed()
- * @method static Builder|WebUser permission($permissions, $without = false)
- * @method static Builder|WebUser query()
- * @method static Builder|WebUser withTrashed()
- * @method static Builder|WebUser withoutPermission($permissions)
- * @method static Builder|WebUser withoutTrashed()
+ * @method static Builder<static>|WebUser newModelQuery()
+ * @method static Builder<static>|WebUser newQuery()
+ * @method static Builder<static>|WebUser onlyTrashed()
+ * @method static Builder<static>|WebUser permission($permissions, $without = false)
+ * @method static Builder<static>|WebUser query()
+ * @method static Builder<static>|WebUser withTrashed()
+ * @method static Builder<static>|WebUser withoutPermission($permissions)
+ * @method static Builder<static>|WebUser withoutTrashed()
  * @mixin Eloquent
  */
 class WebUser extends Authenticatable implements HasMedia, Auditable
@@ -100,6 +102,8 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
         'settings'  => 'array',
         'state'     => WebUserTypeEnum::class,
         'auth_type' => WebUserAuthTypeEnum::class,
+        'fetched_at'         => 'datetime',
+        'last_fetched_at'    => 'datetime',
     ];
 
     protected $attributes = [

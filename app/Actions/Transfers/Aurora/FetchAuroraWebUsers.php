@@ -10,12 +10,12 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\CRM\WebUser\UpdateWebUser;
 use App\Models\CRM\WebUser;
-use App\Models\Inventory\Location;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraWebUsers extends FetchAuroraAction
 {
@@ -53,7 +53,6 @@ class FetchAuroraWebUsers extends FetchAuroraAction
                             false,
                             audit: false
                         );
-                        $this->recordNew($organisationSource);
 
                         WebUser::enableAuditing();
                         $this->saveMigrationHistory(
@@ -66,14 +65,12 @@ class FetchAuroraWebUsers extends FetchAuroraAction
                         DB::connection('aurora')->table('Website User Dimension')
                             ->where('Website User Key', $sourceData[1])
                             ->update(['aiku_id' => $webUser->id]);
-
-                    } catch (Exception $e) {
+                    } catch (Exception|Throwable $e) {
                         $this->recordError($organisationSource, $e, $webUserData['webUser'], 'WebUser', 'store');
 
                         return null;
                     }
                 }
-
 
 
                 return $webUser;
