@@ -22,7 +22,7 @@ const emits = defineEmits<{
 <template>
     <div id="blockTextContent" :style="getStyles(modelValue?.container.properties)">
         <!-- Editor v-if="isEditable" v-model="modelValue.value" @update:modelValue="() => emits('autoSave')" /> -->
-        <EditorV2 v-model="modelValue.value"/>
+        <EditorV2 v-model="modelValue.value" :editable="isEditable"/>
         <!-- <div v-else v-html="modelValue?.value"></div> -->
     </div>
 </template>
