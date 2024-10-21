@@ -13,13 +13,8 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Catalogue\MasterProductCategory;
 use App\Models\Catalogue\MasterShop;
-use App\Models\Catalogue\ProductCategory;
-use App\Models\Catalogue\Shop;
-use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -119,21 +114,3 @@ class StoreMasterProductCategory extends GrpAction
         return $this->handle(parent: $masterProductCategory, modelData: $this->validatedData);
     }
 }
-
-// public function htmlResponse(ProductCategory $productCategory, ActionRequest $request): RedirectResponse
-// {
-//     if (class_basename($productCategory->parent) == 'ProductCategory') {
-//         return Redirect::route('grp.org.shops.show.catalogue.departments.show.families.show', [
-//             'organisation' => $productCategory->organisation->slug,
-//             'shop'         => $productCategory->shop->slug,
-//             'department'   => $productCategory->parent->slug,
-//             'family'       => $productCategory->slug,
-//         ]);
-//     } else {
-//         return Redirect::route('grp.org.shops.show.catalogue.departments.show', [
-//             'organisation' => $productCategory->organisation->slug,
-//             'shop'         => $productCategory->shop->slug,
-//             'department'   => $productCategory->slug,
-//         ]);
-//     }
-// }
