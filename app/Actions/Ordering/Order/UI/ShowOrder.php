@@ -449,6 +449,21 @@ class ShowOrder extends OrgAction
                 'currency'       => CurrencyResource::make($order->currency)->toArray(request()),
                 'data'           => OrderResource::make($order),
                 'delivery_note'  => $deliveryNoteResource,
+
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name' => 'grp.models.order.attachment.attach',
+                        'parameters' => [
+                            'order' => $order->id,
+                        ]
+                    ],
+                    'detachRoute' => [
+                        'name' => 'grp.models.order.attachment.detach',
+                        'parameters' => [
+                            'order' => $order->id,
+                        ]
+                    ]
+                ],
                 // 'nonProductItems' => $nonProductItems,
                 // 'showcase'=> GetOrderShowcase::run($order),
 

@@ -140,6 +140,20 @@ class ShowSupplier extends GrpAction
                     ]
 
                 ],
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name' => 'grp.models.supplier.attachment.attach',
+                        'parameters' => [
+                            'supplier' => $supplier->id,
+                        ]
+                    ],
+                    'detachRoute' => [
+                        'name' => 'grp.models.supplier.attachment.detach',
+                        'parameters' => [
+                            'supplier' => $supplier->id,
+                        ]
+                    ]
+                ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => SupplierTabsEnum::navigation()
