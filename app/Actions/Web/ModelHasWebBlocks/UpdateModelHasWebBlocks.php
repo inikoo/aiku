@@ -15,6 +15,7 @@ use App\Events\BroadcastPreviewHeaderFooter;
 use App\Events\BroadcastPreviewWebpage;
 use App\Http\Resources\Web\WebpageResource;
 use App\Models\Dropshipping\ModelHasWebBlocks;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateModelHasWebBlocks extends OrgAction
@@ -25,7 +26,8 @@ class UpdateModelHasWebBlocks extends OrgAction
 
     public function handle(ModelHasWebBlocks $modelHasWebBlocks, array $modelData): ModelHasWebBlocks
     {
-        $this->update($modelHasWebBlocks->webBlock, $modelData, ['data', 'layout']);
+        $this->update($modelHasWebBlocks, Arr::only($modelData, ['show', 'show_logged_in', 'show_logged_out']));
+        $this->update($modelHasWebBlocks->webBlock, Arr::only($modelData, ['layout']), ['data', 'layout']);
         $modelHasWebBlocks->refresh();
         UpdateWebpageContent::run($modelHasWebBlocks->webpage);
 
