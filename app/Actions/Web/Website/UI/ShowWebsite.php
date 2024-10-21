@@ -14,11 +14,13 @@ use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Actions\Web\ExternalLink\UI\IndexExternalLinks;
 use App\Actions\Web\HasWorkshopAction;
 use App\Enums\UI\Web\WebsiteTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\CRM\WebUsersResource;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Web\ExternalLinksResource;
 use App\Http\Resources\Web\WebsiteResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -124,7 +126,11 @@ class ShowWebsite extends OrgAction
                     )),
                 WebsiteTabsEnum::CHANGELOG->value => $this->tab == WebsiteTabsEnum::CHANGELOG->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($website))
-                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($website)))
+                    : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($website))),
+
+                WebsiteTabsEnum::EXTERNAL_LINKS->value => $this->tab == WebsiteTabsEnum::EXTERNAL_LINKS->value ?
+                    fn () => ExternalLinksResource::collection(IndexExternalLinks::run($website))
+                    : Inertia::lazy(fn () => ExternalLinksResource::collection(IndexExternalLinks::run($website)))
             ]
         )->table(
             IndexWebUsers::make()->tableStructure(
@@ -140,7 +146,8 @@ class ShowWebsite extends OrgAction
                 ],
                 prefix: 'web_users'
             )
-        )->table(IndexHistory::make()->tableStructure(prefix: WebsiteTabsEnum::CHANGELOG->value));
+        )->table(IndexHistory::make()->tableStructure(prefix: WebsiteTabsEnum::CHANGELOG->value))
+        ->table(IndexExternalLinks::make()->tableStructure(parent: $website, prefix: WebsiteTabsEnum::EXTERNAL_LINKS->value));
     }
 
 
