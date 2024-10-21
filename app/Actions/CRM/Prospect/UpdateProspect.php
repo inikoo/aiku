@@ -55,7 +55,6 @@ class UpdateProspect extends OrgAction
                     'location' => $prospect->address->getLocation()
                 ]
             );
-
         }
 
         ProspectRecordSearch::dispatch($prospect);
@@ -85,7 +84,7 @@ class UpdateProspect extends OrgAction
             'address'           => ['sometimes', 'nullable', new ValidAddress()],
             'email'             => [
                 'sometimes',
-                'string:500',
+                $this->strict ? 'email' : 'string:500',
                 new IUnique(
                     table: 'prospects',
                     extraConditions: [
@@ -99,62 +98,35 @@ class UpdateProspect extends OrgAction
             'phone'             => [
                 'sometimes',
                 'nullable',
-                'string',
-                'max:24',
+                $this->strict ? new Phone() : 'string:255',
+                new IUnique(
+                    table: 'prospects',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'id', 'operator' => '!=', 'value' => $this->prospect->id]
+
+                    ]
+                ),
             ],
             'contact_website'   => [
                 'sometimes',
                 'nullable',
-                'string',
-                'max:500',
+                $this->strict ? 'url:http,https' : 'string:255',
+                new IUnique(
+                    table: 'prospects',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'id', 'operator' => '!=', 'value' => $this->prospect->id]
+
+                    ]
+                ),
             ],
         ];
 
-        if ($this->strict) {
-            $strictRules = [
-                'email'           => [
-                    'sometimes',
-                    'email',
-                    'max:500',
-                    new IUnique(
-                        table: 'prospects',
-                        extraConditions: [
-                            ['column' => 'shop_id', 'value' => $this->shop->id],
-                            ['column' => 'id', 'operator' => '!=', 'value' => $this->prospect->id]
-
-                        ]
-                    ),
-
-                ],
-                'phone'           => [
-                    'sometimes',
-                    'nullable',
-                    new Phone(),
-                    new IUnique(
-                        table: 'prospects',
-                        extraConditions: [
-                            ['column' => 'shop_id', 'value' => $this->shop->id],
-                            ['column' => 'id', 'operator' => '!=', 'value' => $this->prospect->id]
-
-                        ]
-                    ),
-                ],
-                'contact_website' => [
-                    'sometimes',
-                    'nullable',
-                    'url:http,https',
-                    new IUnique(
-                        table: 'prospects',
-                        extraConditions: [
-                            ['column' => 'shop_id', 'value' => $this->shop->id],
-                            ['column' => 'id', 'operator' => '!=', 'value' => $this->prospect->id]
-
-                        ]
-                    ),
-                ],
-            ];
-            $rules       = array_merge($rules, $strictRules);
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
         }
+
 
         return $rules;
     }
@@ -167,11 +139,14 @@ class UpdateProspect extends OrgAction
         return $this->handle($prospect, $this->validatedData);
     }
 
-    public function action(Prospect $prospect, $modelData, int $hydratorsDelay = 0, bool $strict = true): Prospect
+    public function action(Prospect $prospect, $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Prospect
     {
+        $this->strict = $strict;
+        if (!$audit) {
+            Prospect::disableAuditing();
+        }
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->strict         = $strict;
         $this->prospect       = $prospect;
         $this->initialisationFromShop($prospect->shop, $modelData);
 

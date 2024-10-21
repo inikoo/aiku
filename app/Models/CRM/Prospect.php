@@ -64,8 +64,6 @@ use Spatie\Tags\Tag;
  * @property bool $can_contact_by_phone
  * @property bool $can_contact_by_address
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $contacted_at
  * @property \Illuminate\Support\Carbon|null $last_contacted_at
  * @property \Illuminate\Support\Carbon|null $last_opened_at
@@ -75,6 +73,10 @@ use Spatie\Tags\Tag;
  * @property \Illuminate\Support\Carbon|null $registered_at
  * @property \Illuminate\Support\Carbon|null $invoiced_at
  * @property \Illuminate\Support\Carbon|null $last_soft_bounced_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
@@ -129,6 +131,8 @@ class Prospect extends Model implements Auditable
         'registered_at'        => 'datetime',
         'invoiced_at'          => 'datetime',
         'last_soft_bounced_at' => 'datetime',
+        'fetched_at'           => 'datetime',
+        'last_fetched_at'      => 'datetime',
 
     ];
 

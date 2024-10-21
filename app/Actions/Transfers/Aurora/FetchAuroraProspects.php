@@ -13,7 +13,9 @@ use App\Models\CRM\Prospect;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraProspects extends FetchAuroraAction
 {
@@ -30,7 +32,8 @@ class FetchAuroraProspects extends FetchAuroraAction
                         $prospect,
                         $prospectData['prospect'],
                         60,
-                        false
+                        false,
+                        audit: false
                     );
                     $this->recordChange($organisationSource, $prospect->wasChanged());
                 } catch (Exception $e) {
@@ -44,21 +47,27 @@ class FetchAuroraProspects extends FetchAuroraAction
                         $prospectData['shop'],
                         $prospectData['prospect'],
                         60,
-                        false
+                        false,
+                        audit: false
+                    );
+                    Prospect::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $prospect,
+                        Arr::except($prospectData['prospect'], ['fetched_at', 'last_fetched_at', 'source_id'])
                     );
                     $this->recordNew($organisationSource);
-                } catch (Exception $e) {
+
+                    $sourceData = explode(':', $prospect->source_id);
+                    DB::connection('aurora')->table('Prospect Dimension')
+                        ->where('Prospect Key', $sourceData[1])
+                        ->update(['aiku_id' => $prospect->id]);
+                } catch (Exception|Throwable $e) {
                     $this->recordError($organisationSource, $e, $prospectData['prospect'], 'Prospect', 'store');
 
                     return null;
                 }
             }
 
-
-            $sourceData = explode(':', $prospect->source_id);
-            DB::connection('aurora')->table('Prospect Dimension')
-                ->where('Prospect Key', $sourceData[1])
-                ->update(['aiku_id' => $prospect->id]);
 
             return $prospect;
         }

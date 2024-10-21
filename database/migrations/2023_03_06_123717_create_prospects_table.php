@@ -45,7 +45,7 @@ return new class () extends Migration {
             $table->boolean('can_contact_by_phone')->default(false);
             $table->boolean('can_contact_by_address')->default(false);
             $table->jsonb('data');
-            $table->timestampsTz();
+
             $table->dateTimeTz('contacted_at')->nullable()->index();
             $table->dateTimeTz('last_contacted_at')->nullable()->index();
             $table->dateTimeTz('last_opened_at')->nullable()->index();
@@ -55,6 +55,9 @@ return new class () extends Migration {
             $table->dateTimeTz('registered_at')->nullable();
             $table->dateTimeTz('invoiced_at')->nullable();
             $table->dateTimeTz('last_soft_bounced_at')->nullable();
+            $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
         });
