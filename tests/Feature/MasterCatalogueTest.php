@@ -10,6 +10,7 @@
 use App\Actions\Catalogue\MasterProductCategory\StoreMasterProductCategory;
 use App\Actions\Catalogue\MasterProductCategory\UpdateMasterProductCategory;
 use App\Actions\Catalogue\MasterShop\StoreMasterShop;
+use App\Actions\Catalogue\MasterShop\UpdateMasterShop;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
@@ -64,6 +65,26 @@ test('create master shop', function () {
     return $masterShop;
 });
 
+
+test('update master shop', function (MasterShop $masterShop) {
+    $updatedMasterShop = UpdateMasterShop::make()->action(
+        $masterShop,
+        [
+            'name' => "shop2",
+            'type' => ShopTypeEnum::FULFILMENT,
+            'state' => ShopStateEnum::IN_PROCESS
+        ]
+    );
+
+    $updatedMasterShop->refresh();
+
+    expect($updatedMasterShop)->toBeInstanceOf(MasterShop::class);
+    expect($updatedMasterShop)->not->toBeNull()
+        ->and($updatedMasterShop->name)->toBe('shop2')
+        ->and($updatedMasterShop->type)->toBe(ShopTypeEnum::FULFILMENT)
+        ->and($updatedMasterShop->state)->toBe(ShopStateEnum::IN_PROCESS);
+})->depends('create master shop');
+
 test('create master product category', function (MasterShop $masterShop) {
     $masterProductCategory = StoreMasterProductCategory::make()->action(
         $masterShop,
@@ -89,23 +110,21 @@ test('create master product category', function (MasterShop $masterShop) {
 
 test('update master product category', function (MasterProductCategory $masterProductCategory) {
 
-    $updatedData = [
-        'code'  => 'PRODUCT_CATEGORY2',
-        'name'  => 'product category 2',
-        'state' => ProductCategoryStateEnum::IN_PROCESS,
-    ];
-
     $updatedMasterProductCategory = UpdateMasterProductCategory::make()->action(
         $masterProductCategory,
-        $updatedData
+        [
+            'code'  => 'PRODUCT_CATEGORY2',
+            'name'  => 'product category 2',
+            'state' => ProductCategoryStateEnum::IN_PROCESS,
+        ]
     );
 
     $updatedMasterProductCategory->refresh();
 
     expect($updatedMasterProductCategory)->toBeInstanceOf(MasterProductCategory::class);
     expect($updatedMasterProductCategory)->not->toBeNull()
-        ->and($updatedMasterProductCategory->code)->toBe('PRODUCT_CATEGORY2')  // Check that the code was updated
-        ->and($updatedMasterProductCategory->name)->toBe('product category 2') // Check that the name was updated
-        ->and($updatedMasterProductCategory->state)->toBe(ProductCategoryStateEnum::IN_PROCESS); // Check the state
+        ->and($updatedMasterProductCategory->code)->toBe('PRODUCT_CATEGORY2')
+        ->and($updatedMasterProductCategory->name)->toBe('product category 2')
+        ->and($updatedMasterProductCategory->state)->toBe(ProductCategoryStateEnum::IN_PROCESS);
 
 })->depends("create master product category");

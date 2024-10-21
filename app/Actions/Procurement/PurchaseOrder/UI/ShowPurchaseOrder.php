@@ -101,6 +101,21 @@ class ShowPurchaseOrder extends OrgAction
                         // ]
                     ]
                 ],
+
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name' => 'grp.models.purchase-order.attachment.attach',
+                        'parameters' => [
+                            'purchaseOrder' => $purchaseOrder->id,
+                        ]
+                    ],
+                    'detachRoute' => [
+                        'name' => 'grp.models.purchase-order.attachment.detach',
+                        'parameters' => [
+                            'purchaseOrder' => $purchaseOrder->id,
+                        ]
+                    ]
+                ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => PurchaseOrderTabsEnum::navigation()

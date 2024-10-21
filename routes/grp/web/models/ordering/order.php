@@ -21,6 +21,8 @@ use App\Actions\Dispatching\Picking\UpdatePickingStateToPicked;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToPicking;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToQueried;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToWaiting;
+use App\Actions\Helpers\Media\AttachAttachmentToModel;
+use App\Actions\Helpers\Media\DetachAttachmentFromModel;
 use App\Actions\Ordering\Order\PayOrder;
 use App\Actions\Ordering\Order\SendOrderToWarehouse;
 use App\Actions\Ordering\Order\UpdateOrder;
@@ -39,6 +41,11 @@ Route::name('order.')->prefix('order/{order:id}')->group(function () {
     Route::patch('update', UpdateOrder::class)->name('update');
     Route::post('customer/{customer:id}/payment/{paymentAccount:id}', PayOrder::class)->name('payment.store')->withoutScopedBindings();
 
+
+    Route::name('attachment.')->prefix('attachment')->group(function () {
+        Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inOrder'])->name('attach');
+        Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inOrder'])->name('detach')->withoutScopedBindings();
+    });
 
     Route::name('transaction.')->prefix('transaction')->group(function () {
         Route::patch('{transaction:id}', UpdateTransaction::class)->name('update')->withoutScopedBindings();
