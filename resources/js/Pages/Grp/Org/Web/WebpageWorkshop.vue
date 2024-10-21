@@ -69,9 +69,13 @@ const addNewBlock = async (block: Daum) => {
 
 const isSavingBlock = ref(false)
 const sendBlockUpdate = async (block: Daum) => {
+    console.log(props.webpage.update_model_has_web_blocks_route.name)
     router.patch(
         route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
-        { layout: block.web_block.layout },
+        { layout: block.web_block.layout,
+          visibility : block.visibility, 
+          show : block.show
+        },
         {
             onStart: () => isSavingBlock.value = true,
             onFinish: () => isSavingBlock.value = false,

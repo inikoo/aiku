@@ -85,6 +85,12 @@ const openModalBlockList = () => {
     emits('openBlockList', !modelModalBlocklist.value)
 }
 
+const setShowBlock = (e,value) => {
+    e.stopPropagation()
+    value.show = !value.show 
+    onUpdatedBlock(value)
+}
+
 
 defineExpose({
     modelModalBlocklist
@@ -122,10 +128,10 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                                     <div>
                                         <FontAwesomeIcon v-tooltip="'show this block'" v-if="!element.show" icon='fal fa-eye-slash'
                                             class="text-base sm:text-lg md:text-xl lg:text-2xl" fixed-width
-                                            aria-hidden='true'  @click="(e) => { e.stopPropagation(), element.show = true}"/>
+                                            aria-hidden='true'  @click="(e)=>setShowBlock(e,element)"/>
                                         <FontAwesomeIcon v-tooltip="'hide this block'" v-else icon='fal fa-eye'
                                             class="text-base sm:text-lg md:text-xl lg:text-2xl" fixed-width
-                                            aria-hidden='true' @click="(e) => { e.stopPropagation(), element.show = false}" />
+                                            aria-hidden='true' @click="(e)=>setShowBlock(e,element)" />
                                     </div>
                                     <div v-if="!element.show">
                                         <LoadingIcon v-if="isLoadingDelete === ('deleteBlock' + element.id)"

@@ -169,7 +169,7 @@ provide('isPreviewLoggedIn', isPreviewLoggedIn)
                         <TransitionGroup tag="div" name="zzz" class="relative">
                             <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
                                 :key="activityItem.id" class="w-full">
-                                <component v-if="activityItem?.web_block?.layout" class="w-full"
+                                <component v-if="activityItem?.web_block?.layout && activityItem.show" class="w-full"
                                     :is="getComponent(activityItem?.type)" :webpageData="webpage"
                                     :properties="activityItem?.web_block?.layout?.data?.properties" v-bind="activityItem"
                                     v-model="activityItem.web_block.layout.data.fieldValue" :isEditable="true"
