@@ -13,6 +13,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Catalogue\MasterProductCategory;
+use App\Models\Catalogue\MasterShop;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
@@ -24,8 +25,11 @@ class UpdateMasterProductCategory extends GrpAction
 
     private MasterProductCategory $masterProductCategory;
 
+    private MasterShop $masterShop;
+
     public function handle(MasterProductCategory $masterProductCategory, array $modelData): MasterProductCategory
     {
+        // dd($modelData);
         $masterProductCategory = $this->update($masterProductCategory, $modelData, ['data']);
 
         return $masterProductCategory;
@@ -49,12 +53,12 @@ class UpdateMasterProductCategory extends GrpAction
                 $this->strict ? 'max:32' : 'max:255',
                 new AlphaDashDot(),
                 new IUnique(
-                    table: 'product_categories',
+                    table: 'master_product_categories',
                     extraConditions: [
-                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'master_shop_id', 'value' => $this->masterShop->id],
                         ['column' => 'deleted_at', 'operator' => 'notNull'],
-                        ['column' => 'type', 'value' => $this->productCategory->type, 'operator' => '='],
-                        ['column' => 'id', 'value' => $this->productCategory->id, 'operator' => '!=']
+                        ['column' => 'type', 'value' => $this->masterProductCategory->type, 'operator' => '='],
+                        ['column' => 'id', 'value' => $this->masterProductCategory->id, 'operator' => '!=']
 
                     ]
                 ),
@@ -81,9 +85,11 @@ class UpdateMasterProductCategory extends GrpAction
     {
         $this->asAction        = true;
         $this->masterProductCategory = $masterProductCategory;
+        $this->masterShop = $masterProductCategory->masterShop;
         $this->hydratorsDelay  = $hydratorsDelay;
         $this->strict          = $strict;
         $this->initialisation($masterProductCategory->group, $modelData);
+        // dd($this->masterShop);
 
         return $this->handle($masterProductCategory, $this->validatedData);
     }

@@ -9,19 +9,12 @@
 namespace App\Actions\Catalogue\MasterShop;
 
 use App\Actions\GrpAction;
-use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
-use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
-use App\Models\Catalogue\MasterProductCategory;
+use App\Enums\Catalogue\Shop\ShopStateEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Catalogue\MasterShop;
-use App\Models\Catalogue\ProductCategory;
-use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
-use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -41,8 +34,8 @@ class StoreMasterShop extends GrpAction
     public function rules(): array
     {
         $rules = [
-            'type'                 => ['required', Rule::enum(ProductCategoryTypeEnum::class)],
-            'state'                 => ['sometimes', Rule::enum(ProductStateEnum::class)],
+            'type'                 => ['required', Rule::enum(ShopTypeEnum::class)],
+            'state'                 => ['sometimes', Rule::enum(ShopStateEnum::class)],
             'code'                 => [
                 'required',
                 $this->strict ? 'max:32' : 'max:255',
