@@ -12,7 +12,6 @@ const compModel = computed(() => {
 
 const emit = defineEmits();
 watch(compModel, () => {
-    console.log('on change compModel')
     emit('update:modelValue', model.value)
 })
 
@@ -20,7 +19,7 @@ watch(compModel, () => {
 </script>
 
 <template>
-    <div class="border-t border-gray-300 bg-gray-100 pb-3">
+    <div v-if="model" class="border-t border-gray-300 bg-gray-100 pb-3">
         <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Padding') }}</div>
         <PaddingMarginProperty v-model="model" />
     </div>
