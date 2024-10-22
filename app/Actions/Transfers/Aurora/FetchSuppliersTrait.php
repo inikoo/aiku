@@ -32,6 +32,7 @@ trait FetchSuppliersTrait
     {
         $supplierData = $this->fetch($organisationSource, $organisationSourceId);
 
+
         if (!$supplierData) {
             return null;
         }
@@ -56,7 +57,6 @@ trait FetchSuppliersTrait
                 }
             }
             $baseSupplier = Supplier::withTrashed()->where('source_slug', $supplierData['supplier']['source_slug'])->first();
-
 
         } else {
             try {
@@ -106,7 +106,7 @@ trait FetchSuppliersTrait
         $this->processFetchAttachments($effectiveSupplier, 'Supplier');
 
 
-        return $supplier;
+        return $effectiveSupplier;
     }
 
     public function createOrgSupplier(Supplier $supplier, Organisation $organisation, $supplierData, $organisationSource): OrgSupplier|null

@@ -10,6 +10,7 @@ namespace App\Actions\Procurement\PurchaseOrder;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydratePurchaseOrders;
 use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydratePurchaseOrders;
+use App\Actions\Procurement\WithPrepareDeliveryStoreFields;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurchaseOrders;
@@ -19,7 +20,6 @@ use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
-use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
@@ -27,27 +27,15 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StorePurchaseOrder extends OrgAction
 {
+    use WithPrepareDeliveryStoreFields;
+    use WithNoStrictRules;
+
     private OrgSupplier|OrgAgent|OrgPartner $parent;
 
-    public function handle(Organisation $organisation, OrgSupplier|OrgAgent|OrgPartner $parent, array $modelData): PurchaseOrder
+    public function handle(OrgSupplier|OrgAgent|OrgPartner $parent, array $modelData): PurchaseOrder
     {
-        data_set($modelData, 'organisation_id', $organisation->id);
-        data_set($modelData, 'group_id', $organisation->group_id);
 
-        if (class_basename($parent) == 'OrgSupplier') {
-            data_set($modelData, 'supplier_id', $parent->supplier_id);
-            data_set($modelData, 'parent_code', $parent->supplier->code, false);
-            data_set($modelData, 'parent_name', $parent->supplier->name, false);
-        } elseif (class_basename($parent) == 'OrgAgent') {
-            data_set($modelData, 'agent_id', $parent->agent_id);
-            data_set($modelData, 'parent_code', $parent->agent->code, false);
-            data_set($modelData, 'parent_name', $parent->agent->name, false);
-        } elseif (class_basename($parent) == 'OrgPartner') {
-            data_set($modelData, 'partner_id', $parent->organisation_id);
-            data_set($modelData, 'parent_code', $parent->organisation->code, false);
-            data_set($modelData, 'parent_name', $parent->organisation->name, false);
-        }
-
+        $modelData = $this->prepareDeliveryStoreFields($parent, $modelData);
 
         /** @var PurchaseOrder $purchaseOrder */
         $purchaseOrder = $parent->purchaseOrders()->create($modelData);
@@ -131,35 +119,36 @@ class StorePurchaseOrder extends OrgAction
         }
     }
 
-    public function action(Organisation $organisation, OrgAgent|OrgSupplier|OrgPartner $parent, array $modelData, bool $strict = true): \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function action(OrgAgent|OrgSupplier|OrgPartner $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): PurchaseOrder
     {
         $this->asAction = true;
         $this->parent   = $parent;
         $this->strict   = $strict;
-        $this->initialisation($organisation, $modelData);
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisation($parent->organisation, $modelData);
 
 
-        return $this->handle($organisation, $parent, $this->validatedData);
+        return $this->handle($parent, $this->validatedData);
     }
 
-    public function inOrgAgent(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): \Illuminate\Http\RedirectResponse
+    public function inOrgAgent(OrgAgent $orgAgent, ActionRequest $request): \Illuminate\Http\RedirectResponse
     {
         $this->parent = $orgAgent;
 
 
-        $this->initialisation($organisation, $request);
+        $this->initialisation($orgAgent->organisation, $request);
 
-        $purchaseOrder = $this->handle($organisation, $orgAgent, $this->validatedData);
+        $purchaseOrder = $this->handle($orgAgent, $this->validatedData);
 
         return redirect()->route('grp.org.procurement.purchase_orders.show', $purchaseOrder->slug);
     }
 
-    public function inOrgSupplier(Organisation $organisation, OrgSupplier $orgSupplier, ActionRequest $request): \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function inOrgSupplier(OrgSupplier $orgSupplier, ActionRequest $request): \Illuminate\Http\RedirectResponse|PurchaseOrder
     {
         $this->parent = $orgSupplier;
-        $this->initialisation($organisation, $request);
+        $this->initialisation($orgSupplier->organisation, $request);
 
-        $purchaseOrder = $this->handle($organisation, $orgSupplier, $this->validatedData);
+        $purchaseOrder = $this->handle($orgSupplier, $this->validatedData);
 
         return redirect()->route('grp.org.procurement.purchase_orders.show', $purchaseOrder->slug);
     }

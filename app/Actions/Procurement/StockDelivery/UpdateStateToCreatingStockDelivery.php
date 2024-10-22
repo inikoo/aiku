@@ -26,7 +26,7 @@ class UpdateStateToCreatingStockDelivery
     public function handle(StockDelivery $stockDelivery): StockDelivery
     {
         $data = [
-            'state' => StockDeliveryStateEnum::CREATING,
+            'state' => StockDeliveryStateEnum::IN_PROCESS,
         ];
 
         if ($stockDelivery->state == StockDeliveryStateEnum::DISPATCHED) {
@@ -35,7 +35,7 @@ class UpdateStateToCreatingStockDelivery
 
             $stockDelivery = $this->update($stockDelivery, $data);
 
-            $this->runHydrators($stockDelivery);
+            $this->runStockDeliveryHydrators($stockDelivery);
 
             return $stockDelivery;
         }

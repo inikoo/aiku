@@ -409,7 +409,7 @@ test('create supplier delivery items by selected purchase order', function (Stoc
 
 test('change supplier delivery state to dispatch from creating', function (StockDelivery $stockDelivery) {
     expect($stockDelivery)->toBeInstanceOf(StockDelivery::class)
-        ->and($stockDelivery->state)->toBe(StockDeliveryStateEnum::CREATING);
+        ->and($stockDelivery->state)->toBe(StockDeliveryStateEnum::IN_PROCESS);
     $stockDelivery = UpdateStateToDispatchStockDelivery::make()->action($stockDelivery);
     expect($stockDelivery->state)->toBe(StockDeliveryStateEnum::DISPATCHED);
 })->depends('create supplier delivery');

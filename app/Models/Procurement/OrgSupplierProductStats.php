@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_purchase_orders
  * @property int $number_purchase_orders_except_cancelled Number purchase orders (except cancelled and failed)
  * @property int $number_open_purchase_orders Number purchase orders (except creating, settled)
- * @property int $number_purchase_orders_state_creating
+ * @property int $number_purchase_orders_state_in_process
  * @property int $number_purchase_orders_state_submitted
  * @property int $number_purchase_orders_state_confirmed
  * @property int $number_purchase_orders_state_manufactured
@@ -32,12 +32,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_purchase_orders_status_settled_cancelled
  * @property int $number_stock_deliveries Number supplier deliveries
  * @property int $number_stock_deliveries_except_cancelled Number supplier deliveries
- * @property int $number_stock_deliveries_state_creating
+ * @property int $number_stock_deliveries_state_in_process
  * @property int $number_stock_deliveries_state_dispatched
  * @property int $number_stock_deliveries_state_received
  * @property int $number_stock_deliveries_state_checked
  * @property int $number_stock_deliveries_state_settled
  * @property int $number_stock_deliveries_status_processing
+ * @property int $number_stock_deliveries_status_not_received
  * @property int $number_stock_deliveries_status_settled_placed
  * @property int $number_stock_deliveries_status_settled_cancelled
  * @property \Illuminate\Support\Carbon|null $created_at

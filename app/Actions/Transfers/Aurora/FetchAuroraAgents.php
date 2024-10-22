@@ -35,8 +35,12 @@ class FetchAuroraAgents extends FetchAuroraAction
 
             $baseAgent = null;
 
+
+
             if (isset($agentData['foundAgent'])) {
                 $agent = $agentData['foundAgent'];
+                $this->updateAgentSources($agent, $agentData['agent']['source_id']);
+
             } elseif ($baseAgent = Agent::withTrashed()->where('source_slug', $agentData['agent']['source_slug'])->first()) {
                 if ($agent = Agent::withTrashed()->where('source_id', $agentData['agent']['source_id'])->first()) {
                     $agent = UpdateAgent::make()->action(
@@ -80,50 +84,42 @@ class FetchAuroraAgents extends FetchAuroraAction
                 }
             }
 
+            $effectiveAgent = $agent ?? $baseAgent;
+            $this->updateAgentSources($effectiveAgent, $agentData['agent']['source_id']);
 
-            if ($agent) {
-                $agent->refresh();
-                $orgAgent = OrgAgent::where('organisation_id', $organisation->id)->where('agent_id', $agent->id)->first();
-                if ($orgAgent) {
-                    return $agent;
+            if ($effectiveAgent) {
+                $orgAgent = OrgAgent::where('organisation_id', $organisation->id)->where('agent_id', $effectiveAgent->id)->first();
+                if (!$orgAgent) {
+                    StoreOrgAgent::make()->action(
+                        $organisation,
+                        $effectiveAgent,
+                        [
+                            'source_id' => $agentData['agent']['source_id'],
+                        ]
+                    );
                 }
-
-                StoreOrgAgent::make()->action(
-                    $organisation,
-                    $agent,
-                    [
-                        'source_id' => $agentData['agent']['source_id'],
-                    ]
-                );
-
-
-                $sourceData = explode(':', $agentData['agent']['source_id']);
-
-                DB::connection('aurora')->table('Agent Dimension')
-                    ->where('Agent Key', $sourceData[1])
-                    ->update(['aiku_id' => $agent->id]);
-            } elseif ($baseAgent) {
-                $orgAgent = OrgAgent::where('organisation_id', $organisation->id)->where('agent_id', $baseAgent->id)->first();
-                if ($orgAgent) {
-                    return $agent;
-                }
-
-                StoreOrgAgent::make()->action(
-                    $organisation,
-                    $baseAgent,
-                    [
-                        'source_id' => $agentData['agent']['source_id'],
-                    ]
-                );
             }
 
 
-            return $agent;
+
+            return $effectiveAgent;
         }
 
         return null;
     }
 
+    public function updateAgentSources(Agent $agent, string $source): void
+    {
+        $sources   = Arr::get($agent->sources, 'agents', []);
+        $sources[] = $source;
+        $sources   = array_unique($sources);
+
+        $agent->updateQuietly([
+            'sources' => [
+                'agents' => $sources,
+            ]
+        ]);
+    }
 
     public function getModelsQuery(): Builder
     {
