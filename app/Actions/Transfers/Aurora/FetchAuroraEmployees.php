@@ -142,7 +142,7 @@ class FetchAuroraEmployees extends FetchAuroraAction
                             ),
                             strict: false
                         );
-                    } catch (Exception $e) {
+                    } catch (Exception|Throwable $e) {
                         $this->recordError($organisationSource, $e, $employeeData['user'], 'User', 'store');
 
                         return null;
