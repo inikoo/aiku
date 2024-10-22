@@ -12,9 +12,11 @@ namespace App\Actions\Web\ExternalLink;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Models\Web\ExternalLink;
+use App\Models\Web\WebBlock;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use App\Rules\AlphaDashSlash;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreExternalLink extends OrgAction
@@ -24,21 +26,24 @@ class StoreExternalLink extends OrgAction
 
     private Webpage $webpage;
 
-    // desc model there in issue: ExternalLink Model 1066
-    public function handle(Webpage $webpage, array $modelData): ExternalLink
+    public function handle(WebPage $webpage, array $modelData): ExternalLink
     {
-        $show = data_get($modelData, 'show', true); // Default 'show' to true if not provided
-        unset($modelData['show']);
-
-
         data_set($modelData, 'status', "200");
-        // data_set($modelData, 'group_id', $webpage->website->group_id);
-        // data_set($modelData, 'organisation_id', $webpage->website->organisation_id);
-        // data_set($modelData, 'show', true);
-        $externalLink = $webpage->externalLinks()->create($modelData);
-        $webpage->externalLinks()->attach($externalLink->id, [
-            'show' => $show,
-        ]);
+    
+        $externalLink = ExternalLink::create($modelData);
+
+        foreach ($webpage->webBlocks as $webBlock) {
+            if($webBlock->id == Arr::get($modelData, 'web_block_id')){
+                $webBlock->externalLinks()->attach($externalLink->id, [
+                    'group_id' => $webpage->group_id,
+                    'organisation_id' => $webpage->organisation_id,
+                    'webpage_id'    => $webpage->id,
+                    'website_id'    => $webpage->website_id,
+                    'show' => $webBlock->pivot->show,
+                ]);
+            }
+        }
+    
         return $externalLink;
     }
 
