@@ -31,7 +31,7 @@ const props = defineProps<{
         information?: string
     }
     additionalDataToSend?: string[]
-    upload_spreadsheet?: Upload
+    attachmentRoutes?: object
 }>()
 
 const model = defineModel()
@@ -62,7 +62,7 @@ const onUploadFile = async (fileUploaded: File) => {
     if (fileExtention) {
         selectedFile.value = fileUploaded
     } else {
-        errorMessage.value = trans('File extension is not one of these:') + ' .csv, .xlsx, .xls'
+        errorMessage.value = trans('File extension is not one of these:')
     }
 
     // console.log('aa', fileUploaded)
@@ -71,36 +71,46 @@ const onUploadFile = async (fileUploaded: File) => {
 
 // Method: submit the selected file to server
 const submitUpload = async () => {
-    if (!props.upload_spreadsheet?.route?.upload?.name) {
+    if (!selectedType.value) {
+        notify({
+            title: 'Type not selected',
+            text: 'Please select a type before uploading.',
+            type: 'error',
+        });
+        return;
+    }
+
+    if (!props.attachmentRoutes?.attachRoute?.name) {
         notify({
             title: 'Something went wrong.',
             text: 'Route is not set yet.',
             type: 'error',
-        })
-        return
+        });
+        return;
     }
-    isDraggedFile.value = false
-    errorMessage.value = null
-    isLoadingUpload.value = true
+
+    isDraggedFile.value = false;
+    errorMessage.value = null;
+    isLoadingUpload.value = true;
     try {
-        const aaa = await axios.post(
-            route(props.upload_spreadsheet?.route?.upload?.name, props.upload_spreadsheet?.route?.upload?.parameters),
+        await axios.post(
+            route(props.attachmentRoutes?.attachRoute?.name, props.attachmentRoutes?.attachRoute?.parameters.employee),
             {
                 attachment: selectedFile.value,
-                scope: selectedType.value.code
+                scope: selectedType.value.code,
             },
             {
                 headers: { "Content-Type": "multipart/form-data" },
             }
-        )
-        useEchoGrpPersonal().isShowProgress = true
-
+        );
+        useEchoGrpPersonal().isShowProgress = true;
     } catch (error: any) {
-        console.error(error)
-        errorMessage.value = error?.response?.data?.message
+        console.error(error);
+        errorMessage.value = error?.response?.data?.message;
     }
-    isLoadingUpload.value = false
-}
+    isLoadingUpload.value = false;
+};
+
 
 // Method: refresh all like new open the modal
 const clearAll = () => {
