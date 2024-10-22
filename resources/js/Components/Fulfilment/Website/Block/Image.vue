@@ -8,12 +8,6 @@ import Image from "@/Components/Image.vue"
 import { ref, defineProps, defineEmits } from "vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 
-// Define the structure of each image in the array
-interface ImageObject {
-	source: string | null // You can specify the type of the source (e.g., URL as a string)
-	link_data?: any // Keep other data intact (like link_data)
-}
-
 library.add(faCube, faStar, faImage, faPencil)
 
 const props = defineProps<{
@@ -31,14 +25,12 @@ const emits = defineEmits<{
 }>()
 
 const openGallery = ref(false)
-const activeImageIndex = ref<number | null>(null) // Track which image is being edited
+const activeImageIndex = ref<number | null>(null) 
 
 const setImage = (imageData: any) => {
     if (activeImageIndex.value !== null) {
-        // Ensure the proper data structure with fieldValue.value.images
         const images = props.web_block.layout.data.fieldValue.value?.images || [];
 
-        // Ensure the array is large enough to accommodate the index
         while (images.length <= activeImageIndex.value) {
             images.push({
                 source: null,
@@ -46,15 +38,12 @@ const setImage = (imageData: any) => {
             });
         }
 
-        // Flatten the image data if it contains nested source
         const flattenedSource = imageData.data[0].source ? imageData.data[0].source : imageData.data[0];
 
-        // Update the image source with the flattened data
         images[activeImageIndex.value].source = {
             ...flattenedSource,
         };
 
-        // Emit the updated model value, ensuring that the fieldValue contains only the "value" key
         emits("update:modelValue", {
             ...props.web_block.layout.data.fieldValue,
             value: { images },
@@ -65,17 +54,13 @@ const setImage = (imageData: any) => {
         console.error("Invalid index or modelValue structure.");
     }
 
-    // Reset activeImageIndex and close the gallery
     openGallery.value = false;
     activeImageIndex.value = null;
 };
 
 const onUpload = (uploadData: any) => {
     if (activeImageIndex.value !== null && uploadData.data && uploadData.data.length <= 1) {
-        // Ensure the proper data structure with fieldValue.value.images
         const images = props.web_block.layout.data.fieldValue.value?.images || [];
-
-        // Ensure the array is large enough
         while (images.length <= activeImageIndex.value) {
             images.push({
                 source: null,
@@ -83,14 +68,12 @@ const onUpload = (uploadData: any) => {
             });
         }
 
-        // Flatten the uploaded data if it contains nested source
         const flattenedSource = uploadData.data[0].source ? uploadData.data[0].source : uploadData.data[0];
 
-        // Update the image source with the flattened data
         images[activeImageIndex.value].source = {
             ...flattenedSource,
         };
-        // Emit the updated model value, ensuring fieldValue contains only the "value" key
+       
         emits("update:modelValue", {
             ...props.web_block.layout.data.fieldValue,
             value: { images },
@@ -101,14 +84,13 @@ const onUpload = (uploadData: any) => {
         console.error("Invalid index, no files, or multiple files detected.");
     }
 
-    // Reset activeImageIndex and close the gallery
     openGallery.value = false;
     activeImageIndex.value = null;
 };
 
 const openImageGallery = (index: number) => {
-	activeImageIndex.value = index // Track which slot is being edited
-	openGallery.value = true // Open the gallery to allow image selection
+	activeImageIndex.value = index
+	openGallery.value = true
 }
 
 const getColumnWidthClass = (layoutType: string, index: number) => {
@@ -134,9 +116,7 @@ const getColumnWidthClass = (layoutType: string, index: number) => {
 	}
 }
 
-// Create a function to generate the required number of image slots based on layout_type
 const getImageSlots = (layoutType: string) => {
-	// Adjust the number of slots based on layout type
 	switch (layoutType) {
 		case "4":
 			return 4
@@ -156,6 +136,7 @@ const getImageSlots = (layoutType: string) => {
 </script>
 
 <template>
+    <pre>{{ web_block }}</pre>
 	<div v-if="web_block?.layout?.data?.fieldValue?.value?.images" class="flex flex-wrap">
 		<div
 			v-for="index in getImageSlots(web_block?.layout?.data?.fieldValue?.value?.layout_type)"
@@ -167,7 +148,6 @@ const getImageSlots = (layoutType: string) => {
 					index - 1
 				)
 			">
-			<!-- If image exists at this slot -->
 			<div
 				v-if="web_block?.layout?.data?.fieldValue?.value?.images?.[index - 1]?.source"
 				class="transition-shadow aspect-h-1 aspect-w-1 w-full bg-gray-200">
@@ -182,7 +162,6 @@ const getImageSlots = (layoutType: string) => {
 					class="w-full object-cover object-center group-hover:opacity-75" />
 			</div>
 
-			<!-- If no image, show placeholder for image upload -->
 			<div v-else-if="isEditable" class="p-5">
 				<div
 					type="button"
