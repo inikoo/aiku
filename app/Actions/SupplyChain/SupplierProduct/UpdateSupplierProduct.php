@@ -13,6 +13,7 @@ use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSupplierProducts;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\SupplyChain\SupplierProduct\Search\SupplierProductRecordSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplierProducts;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Http\Resources\SupplyChain\SupplierProductResource;
@@ -25,6 +26,7 @@ use Illuminate\Validation\Rule;
 class UpdateSupplierProduct extends GrpAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
 
     public bool $skipHistoric = false;
@@ -107,8 +109,7 @@ class UpdateSupplierProduct extends GrpAction
 
 
         if (!$this->strict) {
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
-            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;

@@ -13,6 +13,7 @@ use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateLocations;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateLocations;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateLocations;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
@@ -24,6 +25,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StoreLocation extends OrgAction
 {
+    use WithNoStrictRules;
+
     /**
      * @throws \Throwable
      */
@@ -94,10 +97,9 @@ class StoreLocation extends OrgAction
                 'max:64',
                 'string',
             ];
-            $rules['created_at'] = ['sometimes', 'date'];
-            $rules['fetched_at'] = ['sometimes', 'date'];
-            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+
+            $rules = $this->noStrictStoreRules($rules);
+
         }
 
         return $rules;
