@@ -17,12 +17,13 @@ trait WithFetchOverviewWebBlock
     use AsAction;
     public function processOverviewData(Webpage $webpage, $auroraBlock): array
     {
+        $layout = [];
         $textsArray = [];
         foreach ($auroraBlock["texts"] as $text) {
             if (!isset($text["text"])) {
                 continue;
             }
-            $this->replaceAnchor($webpage, $text["text"]); // should use WithFetchText
+            $this->replaceAnchor($webpage, $text["text"], $layout); // should use WithFetchText
             $textsArray[] = [
                 "text" => $text["text"],
             ];

@@ -17,7 +17,6 @@ const props = defineProps<{
     }
 }>();
 const emit = defineEmits(["close", "update"]);
-
 // Reactive form data
 const form = useForm({
     url: "",
@@ -87,8 +86,8 @@ const options = [
                     fieldName="id" 
                     :object="true"
                     :urlRoute="route('grp.org.shops.show.web.webpages.index', {
-                        organisation: 'aw',
-                        shop: 'uk',
+                        organisation:  route().params['organisation'],
+                        shop: route().params['shop'],
                         website: route().params['website']
                     })" 
                     :value="form" 

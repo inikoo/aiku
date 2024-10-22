@@ -43,7 +43,14 @@ const props = defineProps<{
 const comment = ref("")
 const isLoading = ref<string | boolean>(false)
 const openDrawer = ref<string | boolean>(false)
-const iframeSrc = ref(route('grp.websites.preview', [route().params['website'], route().params['webpage'], { 'isInWorkshop': 'true' }]))
+const iframeSrc = ref(
+    route('grp.websites.preview', [route().params['website'], route().params['webpage'], 
+    { 
+        'isInWorkshop': 'true', 
+        'organisation' : route().params['organisation'], 
+        'shop' : route().params['shop'] 
+    }]
+))
 const data = ref({ ...props.webpage })
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)

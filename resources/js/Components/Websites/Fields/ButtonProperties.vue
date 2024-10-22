@@ -9,6 +9,7 @@ import ButtonsProperty from '@/Components/Websites/Fields/Properties/ButtonsProp
 import { trans } from 'laravel-vue-i18n'
 import PureInput from '@/Components/Pure/PureInput.vue'
 import ColorPicker from '@/Components/Utils/ColorPicker.vue'
+import Link from '@/Components/Websites/Fields/Link.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faText } from '@far'
@@ -62,7 +63,8 @@ watch(compModel, () => {
     <div  class="border-t border-gray-300 bg-gray-100 pb-3">
         <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Link') }}</div>
         <div class="px-3">
-            <PureInput v-model="model.link" placeholder="https://"/>
+            <Link v-model="model.link" />
+            <!-- <PureInput v-model="model.link" /> -->
         </div>
     </div>
 
