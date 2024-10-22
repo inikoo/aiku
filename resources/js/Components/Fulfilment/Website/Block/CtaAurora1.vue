@@ -39,8 +39,7 @@ console.log('cta_aurora', props.modelValue)
                 <div class="flex justify-center">
                     <div typeof="button" :style="getStyles(modelValue.button.container.properties)"
                         class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6">
-                        <Editor :editable="isEditable" v-model="modelValue.button.text"
-                            @update:modelValue="() => emits('autoSave')" />
+                        {{modelValue.button.text}}
                     </div>
                 </div>
             </div>
