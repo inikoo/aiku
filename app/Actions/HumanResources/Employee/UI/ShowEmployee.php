@@ -96,13 +96,15 @@ class ShowEmployee extends OrgAction
                         'name' => 'grp.models.employee.attachment.attach',
                         'parameters' => [
                             'employee' => $employee->id,
-                        ]
+                        ],
+                        'method' => 'post'
                     ],
                     'detachRoute' => [
                         'name' => 'grp.models.employee.attachment.detach',
                         'parameters' => [
                             'employee' => $employee->id,
-                        ]
+                        ],
+                        'method' => 'delete'
                     ]
                 ],
                 'tabs'        => [
