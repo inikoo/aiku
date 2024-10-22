@@ -9,10 +9,20 @@ namespace App\Actions\Traits\Rules;
 
 trait WithNoStrictRules
 {
-    protected function noStrictRules($rules): array
+    protected function noStrictStoreRules($rules): array
     {
         $rules['created_at'] = ['sometimes', 'date'];
         $rules['fetched_at'] = ['sometimes', 'date'];
+        $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
+        $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+        return $rules;
+
+    }
+
+    protected function noStrictUpdateRules($rules): array
+    {
+        $rules['created_at'] = ['sometimes', 'date'];
+        $rules['last_fetched_at'] = ['sometimes', 'date'];
         $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
         $rules['source_id']  = ['sometimes', 'string', 'max:255'];
         return $rules;
