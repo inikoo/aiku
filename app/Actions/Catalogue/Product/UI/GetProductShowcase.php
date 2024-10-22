@@ -26,6 +26,10 @@ class GetProductShowcase
                     'product'      => $product->slug
                 ]
             ],
+            'stockImagesRoute' => [
+                'name'  => 'grp.gallery.stock-images.index',
+                'parameters'    => []
+            ],
             'uploadImageRoute' => [
                 'name'       => 'grp.models.org.product.images.store',
                 'parameters' => [

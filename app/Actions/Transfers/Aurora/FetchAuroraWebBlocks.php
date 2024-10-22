@@ -25,6 +25,7 @@ use App\Actions\Traits\WebBlocks\WithFetchTextWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchDepartmentWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchImagesWebBlock;
 use App\Actions\Traits\WithOrganisationSource;
+use App\Actions\Web\ExternalLink\StoreExternalLink;
 use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Events\BroadcastPreviewWebpage;
@@ -166,6 +167,7 @@ class FetchAuroraWebBlocks extends OrgAction
         $models = [];
         $group = $webpage->group;
 
+
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = $group->webBlockTypes()->where("code", "images")->first();
@@ -269,7 +271,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 break;
             case "button":
                 $webBlockType = $group->webBlockTypes()->where("slug", "cta-aurora-1")->first();
-                $layout       = $this->processCTAData($webBlockType, $auroraBlock);
+                $layout       = $this->processCTAData($webpage, $webBlockType, $auroraBlock);
                 break;
             default:
                 print ">>>>> ".$webpage->slug."  ".$auroraBlock["type"]."  <<<<<<\n";
@@ -304,7 +306,7 @@ class FetchAuroraWebBlocks extends OrgAction
             strict: false
         );
 
-        $this->postProcessLayout($webBlock, $webpage, $layout);
+        $this->postProcessLayout($webBlock, $webpage, $layout, $auroraBlock);
 
         $modelHasWebBlocksData = [
             'show_logged_in'     => $visibility['loggedIn'],
@@ -334,7 +336,7 @@ class FetchAuroraWebBlocks extends OrgAction
         BroadcastPreviewWebpage::dispatch($webpage);
     }
 
-    private function postProcessLayout($webBlock, $webpage, &$layout): void
+    private function postProcessLayout($webBlock, $webpage, &$layout, $auroraBlock): void
     {
         $code = $webBlock->webBlockType->code;
         if (
@@ -375,6 +377,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 }
                 data_set($layout, "data.fieldValue.value.sections", $sections);
             } elseif ($code == "text") {
+
                 $text = $layout['data']['fieldValue']['value'];
                 $pattern = '/<img\s+[^>]*src=["\']([^"\']*)["\'][^>]*>/i';
 
@@ -394,6 +397,21 @@ class FetchAuroraWebBlocks extends OrgAction
                     return $imageElement;
                 }, $text);
                 $layout['data']['fieldValue']['value'] = $text; // result for image still not found event the imageUrl is not empty
+                $externalLinks = $layout['external_links'] ?? null;
+                if ($externalLinks) {
+                    // TODO
+                    // foreach($externalLinks as $link) {
+                    //     StoreExternalLink::make()->handle($webpage, [
+                    //         'url' => $link,
+                    //         'show' =>  Arr::get($auroraBlock, 'show'),
+                    //         'web_block_id' => $webBlock->id,
+                    //     ]);
+                    // }
+                    unset($layout['external_links']);
+                }
+                // print_r($text);
+                // print "\n";
+
             } elseif ($code == "images") {
                 $imgResources = [];
                 foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
