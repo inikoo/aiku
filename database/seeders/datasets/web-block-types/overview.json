@@ -32,7 +32,7 @@
 			]
 		},
 		{
-			"name": "text",
+			"name": "Text",
 			"key": ["text","container", "properties"],
 			"replaceForm": [
 				{
@@ -58,8 +58,8 @@
 			]
 		},
 		{
-			"name": "image",
-			"key": ["text","container", "properties"],
+			"name": "Image",
+			"key": ["image"],
 			"type": "upload_image"
 		}
 	],
