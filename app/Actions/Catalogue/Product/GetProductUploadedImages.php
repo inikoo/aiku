@@ -23,16 +23,16 @@ use App\Services\QueryBuilder;
 
 class GetProductUploadedImages extends OrgAction
 {
-    public function handle(Product $product, $prefix = null): LengthAwarePaginator
+    public function handle(Product $product): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('media.name', $value);
             });
         });
-        if ($prefix) {
-            InertiaTable::updateQueryBuilderParameters($prefix);
-        }
+        // if ($prefix) {
+        //     InertiaTable::updateQueryBuilderParameters($prefix);
+        // }
         $mediaIds = $product->images()->pluck('media.id');
 
         $queryBuilder = QueryBuilder::for(Media::class)
@@ -46,31 +46,31 @@ class GetProductUploadedImages extends OrgAction
             ->select(['media.name', 'media.id', 'size', 'mime_type', 'file_name', 'disk', 'media.slug', 'is_animated'])
             ->allowedSorts(['name', 'size'])
             ->allowedFilters([$globalSearch])
-            ->withPaginator($prefix)
+            ->withPaginator(null)
             ->withQueryString();
     }
 
-    public function tableStructure(?array $modelOperations = null, $prefix = null, ?array $exportLinks = null): Closure
-    {
-        return function (InertiaTable $table) use ($modelOperations, $prefix, $exportLinks) {
-            if ($prefix) {
-                $table
-                    ->name($prefix)
-                    ->pageName($prefix . 'Page');
-            }
+    // public function tableStructure(?array $modelOperations = null, $prefix = null, ?array $exportLinks = null): Closure
+    // {
+    //     return function (InertiaTable $table) use ($modelOperations, $prefix, $exportLinks) {
+    //         if ($prefix) {
+    //             $table
+    //                 ->name($prefix)
+    //                 ->pageName($prefix . 'Page');
+    //         }
 
 
-            $table
-                ->withModelOperations($modelOperations)
-                ->withGlobalSearch()
-                ->withExportLinks($exportLinks)
-                ->column(key: 'name', label: __('name'), sortable: true)
-                ->column(key: 'thumbnail', label: __('image'))
-                ->column(key: 'size', label: __('size'), sortable: true)
-                ->column(key: 'select', label: __('Operations'))
-                ->defaultSort('name');
-        };
-    }
+    //         $table
+    //             ->withModelOperations($modelOperations)
+    //             ->withGlobalSearch()
+    //             ->withExportLinks($exportLinks)
+    //             ->column(key: 'name', label: __('name'), sortable: true)
+    //             ->column(key: 'thumbnail', label: __('image'))
+    //             ->column(key: 'size', label: __('size'), sortable: true)
+    //             ->column(key: 'select', label: __('Operations'))
+    //             ->defaultSort('name');
+    //     };
+    // }
 
     public function asController(Organisation $organisation, Shop $shop, Product $product, ActionRequest $request): LengthAwarePaginator
     {
