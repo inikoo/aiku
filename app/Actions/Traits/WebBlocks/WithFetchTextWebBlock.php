@@ -66,13 +66,11 @@ trait WithFetchTextWebBlock
                 $originalLink = FetchAuroraWebBlockLink::run($webpage->website, $link, $this->dbSuffix);
                 $additionalAttribute = '';
                 if ($originalLink['type'] == 'internal') {
-                    $workshopRoute = $originalLink['workshop_route'];
-                    $workshopUrl = route($workshopRoute['name'], $workshopRoute['parameters']);
                     $additionalAttribute .=
                         sprintf(
                             'id="%s" workshop="%s"',
-                            $originalLink['webpage_id'],
-                            $workshopUrl,
+                            $originalLink['id'],
+                            $originalLink['workshop_url'],
                         );
                 } else {
                     $externalLinks[] = $originalLink['url'];

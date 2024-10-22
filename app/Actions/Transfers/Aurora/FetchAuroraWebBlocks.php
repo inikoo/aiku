@@ -167,9 +167,6 @@ class FetchAuroraWebBlocks extends OrgAction
         $models = [];
         $group = $webpage->group;
 
-        // if($auroraBlock["type"] != 'text'){
-        //     return;
-        // }
 
         switch ($auroraBlock["type"]) {
             case "images":
@@ -274,7 +271,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 break;
             case "button":
                 $webBlockType = $group->webBlockTypes()->where("slug", "cta-aurora-1")->first();
-                $layout       = $this->processCTAData($webBlockType, $auroraBlock);
+                $layout       = $this->processCTAData($webpage, $webBlockType, $auroraBlock);
                 break;
             default:
                 print ">>>>> ".$webpage->slug."  ".$auroraBlock["type"]."  <<<<<<\n";
@@ -412,6 +409,9 @@ class FetchAuroraWebBlocks extends OrgAction
                     // }
                     unset($layout['external_links']);
                 }
+                // print_r($text);
+                // print "\n";
+
             } elseif ($code == "images") {
                 $imgResources = [];
                 foreach ($layout['data']["fieldValue"]["value"] as $index => $imageRawData) {
