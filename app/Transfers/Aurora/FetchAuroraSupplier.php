@@ -67,6 +67,10 @@ class FetchAuroraSupplier extends FetchAurora
         $code = preg_replace('/\s|\?|\.|\'/', '', $code);
         $code = preg_replace('/-?\(.+\)/', '', $code);
 
+
+        $scopeType = 'Group';
+        $scopeId   = $this->organisation->group_id;
+
         $this->parsedData['supplier'] =
             [
                 'name'            => $name,
@@ -84,7 +88,9 @@ class FetchAuroraSupplier extends FetchAurora
                 'archived_at'     => $archivedAt,
                 'status'          => $status,
                 'fetched_at'      => now(),
-                'last_fetched_at' => now()
+                'last_fetched_at' => now(),
+                'scope_type'      => $scopeType,
+                'scope_id'        => $scopeId
             ];
 
         $this->parsePhoto();

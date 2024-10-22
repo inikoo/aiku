@@ -13,9 +13,12 @@ use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Supplier;
+use App\Models\SysAdmin\Organisation;
 use App\Transfers\Aurora\WithAuroraAttachments;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Support\Arr;
+use Throwable;
 
 trait FetchSuppliersTrait
 {
@@ -37,22 +40,46 @@ trait FetchSuppliersTrait
 
         if (Supplier::withTrashed()->where('source_slug', $supplierData['supplier']['source_slug'])->exists()) {
             if ($supplier = Supplier::withTrashed()->where('source_id', $supplierData['supplier']['source_id'])->first()) {
-                $supplier = UpdateSupplier::make()->action(
-                    $supplier,
-                    $supplierData['supplier'],
+                try {
+                    $supplier = UpdateSupplier::make()->action(
+                        $supplier,
+                        $supplierData['supplier'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordChange($organisationSource, $supplier->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $supplierData['supplier'], 'Supplier', 'update');
+
+                    return null;
+                }
+            }
+            $baseSupplier = Supplier::withTrashed()->where('source_slug', $supplierData['supplier']['source_slug'])->first();
+
+
+        } else {
+            try {
+                $supplier = StoreSupplier::make()->action(
+                    parent: $supplierData['parent'],
+                    modelData: $supplierData['supplier'],
+                    hydratorsDelay: 60,
                     strict: false,
                     audit: false
                 );
-            }
-            $baseSupplier = Supplier::withTrashed()->where('source_slug', $supplierData['supplier']['source_slug'])->first();
-        } else {
-            $supplier = StoreSupplier::make()->action(
-                parent: $supplierData['parent'],
-                modelData: $supplierData['supplier'],
-                strict: false
-            );
+                Supplier::enableAuditing();
+                $this->saveMigrationHistory(
+                    $supplier,
+                    Arr::except($supplierData['supplier'], ['fetched_at', 'last_fetched_at', 'source_id', 'source_slug'])
+                );
 
-            $supplier->refresh();
+                $this->recordNew($organisationSource);
+
+            } catch (Exception|Throwable $e) {
+                $this->recordError($organisationSource, $e, $supplierData['supplier'], 'Supplier', 'store');
+
+                return null;
+            }
 
 
             foreach (Arr::get($supplierData, 'photo', []) as $photoData) {
@@ -60,7 +87,7 @@ trait FetchSuppliersTrait
                     SaveModelImage::run(
                         $supplier,
                         [
-                            'path' => $photoData['image_path'],
+                            'path'         => $photoData['image_path'],
                             'originalName' => $photoData['filename'],
 
                         ],
@@ -72,50 +99,55 @@ trait FetchSuppliersTrait
         $organisation = $organisationSource->getOrganisation();
 
 
-        if ($supplier) {
-            $orgSupplier = OrgSupplier::where('organisation_id', $organisation->id)->where('supplier_id', $supplier->id)->first();
-            if ($orgSupplier) {
-                return $supplier;
-            }
+        $effectiveSupplier = $supplier ?? $baseSupplier;
 
-            if ($supplier->agent_id) {
-                OrgSupplier::where('supplier_id', $supplier->id)
-                    ->where('organisation_id', $organisationSource->getOrganisation()->id)
-                    ->update(
-                        [
-                            'source_id' => $supplierData['supplier']['source_id']
-                        ]
-                    );
-            } else {
-                StoreOrgSupplier::make()->action(
-                    $organisationSource->getOrganisation(),
-                    $supplier,
-                    [
-                        'source_id' => $supplierData['supplier']['source_id']
-                    ]
-                );
-            }
-        } elseif ($baseSupplier) {
-            $orgSupplier = OrgSupplier::where('organisation_id', $organisation->id)->where('supplier_id', $baseSupplier->id)->first();
-            if ($orgSupplier) {
-                return $supplier;
-            }
-
-            StoreOrgSupplier::make()->action(
-                $organisationSource->getOrganisation(),
-                $baseSupplier,
-                [
-                    'source_id' => $supplierData['supplier']['source_id']
-                ]
-            );
-        }
-
-
-        $this->processFetchAttachments($supplier, 'Supplier');
+        $this->updateSupplierSources($effectiveSupplier, $supplierData['supplier']['source_id']);
+        $this->createOrgSupplier($effectiveSupplier, $organisation, $supplierData, $organisationSource);
+        //$this->processFetchAttachments($effectiveSupplier, 'Supplier');
 
 
         return $supplier;
     }
 
+    public function createOrgSupplier(Supplier $supplier, Organisation $organisation, $supplierData, $organisationSource): OrgSupplier|null
+    {
+        $orgSupplier = OrgSupplier::where('organisation_id', $organisation->id)->where('supplier_id', $supplier->id)->first();
+        if ($orgSupplier) {
+            return $orgSupplier;
+        }
+
+
+        try {
+            StoreOrgSupplier::make()->action(
+                $organisation,
+                $supplier,
+                [
+                    'source_id' => $supplierData['supplier']['source_id']
+                ],
+                hydratorsDelay: 60,
+                strict: false,
+            );
+        } catch (Exception|Throwable $e) {
+            $this->recordError($organisationSource, $e, [], 'OrgSupplier', 'store');
+
+            return null;
+        }
+
+        return $orgSupplier;
+    }
+
+
+    public function updateSupplierSources(Supplier $supplier, string $source): void
+    {
+        $sources   = Arr::get($supplier->sources, 'suppliers', []);
+        $sources[] = $source;
+        $sources   = array_unique($sources);
+
+        $supplier->updateQuietly([
+            'sources' => [
+                'suppliers' => $sources,
+            ]
+        ]);
+    }
 
 }

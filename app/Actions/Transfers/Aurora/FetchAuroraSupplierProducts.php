@@ -16,7 +16,9 @@ use App\Models\SupplyChain\SupplierProduct;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraSupplierProducts extends FetchAuroraAction
 {
@@ -55,8 +57,7 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
     public function fetchSupplierProduct($supplierProductData, $organisationSource)
     {
         if ($supplierProductData) {
-
-            $found           = false;
+            $found = false;
             $supplierProduct = null;
             if ($baseSupplierProduct = SupplierProduct::withTrashed()
                 ->where(
@@ -70,15 +71,21 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                 if ($supplierProduct = SupplierProduct::withTrashed()
                     ->where('source_id', $supplierProductData['supplierProduct']['source_id'])
                     ->first()) {
-                    $supplierProduct = UpdateSupplierProduct::make()->action(
-                        supplierProduct: $supplierProduct,
-                        modelData: $supplierProductData['supplierProduct'],
-                        skipHistoric: true,
-                        hydratorsDelay: $this->hydratorsDelay,
-                        strict: false,
-                        audit: false
-                    );
-                    $this->recordChange($organisationSource, $supplierProduct->wasChanged());
+                    try {
+                        $supplierProduct = UpdateSupplierProduct::make()->action(
+                            supplierProduct: $supplierProduct,
+                            modelData: $supplierProductData['supplierProduct'],
+                            skipHistoric: true,
+                            hydratorsDelay: $this->hydratorsDelay,
+                            strict: false,
+                            audit: false
+                        );
+                        $this->recordChange($organisationSource, $supplierProduct->wasChanged());
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct', 'update');
+
+                        return null;
+                    }
                 }
 
 
@@ -113,10 +120,17 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                         modelData: $supplierProductData['supplierProduct'],
                         skipHistoric: true,
                         hydratorsDelay: $this->hydratorsDelay,
-                        strict: false
+                        strict: false,
+                        audit: false
                     );
                     $this->recordNew($organisationSource);
-                } catch (Exception $e) {
+
+                    SupplierProduct::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $supplierProduct,
+                        Arr::except($supplierProductData['supplierProduct'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+                } catch (Exception|Throwable $e) {
                     $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct');
 
                     return null;
@@ -124,7 +138,6 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
 
                 $historicSupplierProduct = FetchAuroraHistoricSupplierProducts::run($organisationSource, $supplierProductData['historicSupplierProductSourceID']);
                 $supplierProduct->updateQuietly(['current_historic_supplier_product_id' => $historicSupplierProduct->id]);
-
             }
 
 
@@ -137,8 +150,6 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                         'quantity' => $supplierProductData['supplierProduct']['units_per_pack']
                     ]
                 ]);
-
-
 
 
                 $sourceData = explode(':', $supplierProduct->source_id);
