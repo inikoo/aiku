@@ -136,7 +136,7 @@ const getImageSlots = (layoutType: string) => {
 </script>
 
 <template>
-    <pre>{{ web_block }}</pre>
+   
 	<div v-if="web_block?.layout?.data?.fieldValue?.value?.images" class="flex flex-wrap">
 		<div
 			v-for="index in getImageSlots(web_block?.layout?.data?.fieldValue?.value?.layout_type)"
