@@ -27,7 +27,7 @@ trait WithFetchCTAWebBlock
         data_set(
             $layout,
             "data.fieldValue.button.container.properties.background.image.original",
-            ["source" =>  Arr::get($auroraBlock, "bg_image")]
+            ["aurora_source" =>  Arr::get($auroraBlock, "bg_image")]
         );
         return $layout;
     }
