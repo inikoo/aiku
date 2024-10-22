@@ -16,6 +16,9 @@ const props = defineProps<{
     pageHead: PageHeadingTypes
     title: string
     data: {}
+    tagsList: {
+        data: {}
+    }
 }>()
 
 
@@ -25,6 +28,6 @@ const props = defineProps<{
 <template>
     <Head :title="capitalize(title)"/>
     <PageHeading :data="pageHead"></PageHeading>
-    <TableProducts :data="data" />
+    <TableProducts :data="data" :tagsList="tagsList.data" />
 </template>
 

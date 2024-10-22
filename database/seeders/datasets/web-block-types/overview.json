@@ -4,12 +4,297 @@
 	"code": "overview",
 	"name": "Overview",
 	"icon": ["fal", "text"],
-	"blueprint" : {},
+	"blueprint": [
+		{
+			"name": "Properties",
+			"key": ["container", "properties"],
+			"replaceForm": [
+				{
+					"key": ["container", "properties", "dimension"],
+					"type": "dimension",
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "padding"],
+					"type": "padding",
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "margin"],
+					"type": "margin",
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "border"],
+					"type": "border",
+					"props_data": {}
+				}
+			]
+		},
+		{
+			"name": "text",
+			"key": ["text","container", "properties"],
+			"replaceForm": [
+				{
+					"key": ["text","container", "properties", "dimension"],
+					"type": "dimension",
+					"props_data": {}
+				},
+				{
+					"key": ["text","container", "properties", "padding"],
+					"type": "padding",
+					"props_data": {}
+				},
+				{
+					"key": ["text","container", "properties", "margin"],
+					"type": "margin",
+					"props_data": {}
+				},
+				{
+					"key": ["text","container", "properties", "border"],
+					"type": "border",
+					"props_data": {}
+				}
+			]
+		},
+		{
+			"name": "image",
+			"key": ["text","container", "properties"],
+			"type": "upload_image"
+		}
+	],
 	"data": {
 		"fieldValue": {
-			"value": {
-				"images": [],
-				"texts": []
+			"text": {
+				"value": "<h1>Wholesale Power Bracelets</h1><p style=\"text-align: justify;\">Boost your store's sales by including our best selling Wholesale Power Bracelets, This is the ultimate arm candy that's been setting trends for several years. The beautiful range of 12 gemstone designs - each labeled with it's associated powers ensures that your discerning customers will discover the ideal bracelet for them. &nbsp;For instance, those seeking Love and reconciliation can opt for the tender embrace of Rose Quartz, while the resilient Tiger Eye stands ready to aid in Overcoming Fear.&nbsp; And or course your customers can wear multiple bracelets..&nbsp; Highly collectable.</p><h2 style=\"text-align: justify;\"><br></h2><h2 style=\"text-align: justify;\">Energy Bracelet Power Band for Every Style</h2><p style=\"text-align: justify;\">With a variety of beautiful gemstones, <strong>these Power Bracelets are one of the best selling items.</strong> There are 12 designs so your customers can find the perfect one - although the fashion is to wear three or four. You can save around 20% on the Bracelets Starter Pack. Check out the Power Bracelet Starter, &nbsp;you will get 4 of each design (your customers have great choice).&nbsp;</p><p style=\"text-align: justify;\">Each design is made of different stones and comes with a tag that describes the traditional \"power\" of that gemstone. Ready to hang and display. So cool, so amazing, so easy to sell. &nbsp;Check out our a quick guide here: <a href=\"https://www.ancientwisdom.biz/how-to-sell-more-power-bracelets\" rel=\"noopener noreferrer\" target=\"_blank\"><strong><span style=\"color: rgb(85, 57, 130);\">How to sell more Power Bracelets&nbsp;</span></strong></a></p><h2 style=\"text-align: justify;\"><br></h2><h2 style=\"text-align: justify;\">One Size Fits All.</h2><p style=\"text-align: justify;\">Don't worry about them fitting your customers as they stretch - one size fits all. A perfect gift for any occasion - especially if teamed with a classy velvet pouch (see below). If you need some bracelets ideas you can check this out.</p><p style=\"text-align: justify;\"><strong>Choose our Energy Bracelet Power Bands for your business and invest in the energy and well-being of your offering to your customers!</strong></p>",
+				"container": {
+					"properties": {
+						"dimension": {
+							"height": {
+								"value": "335",
+								"unit": "px"
+							},
+							"width": {
+								"value": "100",
+								"unit": "%"
+							}
+						},
+						"padding": {
+							"unit": "px",
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"margin": {
+							"unit": "px",
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"border": {
+							"color": "#000000",
+							"unit": "px",
+							"rounded": {
+								"unit": "px",
+								"topright": {
+									"value": 0
+								},
+								"topleft": {
+									"value": 0
+								},
+								"bottomright": {
+									"value": 0
+								},
+								"bottomleft": {
+									"value": 0
+								}
+							},
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						}
+					}
+				}
+			},
+			"image": {
+				"src" : null,
+				"container": {
+					"properties": {
+						"dimension": {
+							"height": {
+								"value": "335",
+								"unit": "px"
+							},
+							"width": {
+								"value": "100",
+								"unit": "%"
+							}
+						},
+						"padding": {
+							"unit": "px",
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"margin": {
+							"unit": "px",
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						},
+						"border": {
+							"color": "#000000",
+							"unit": "px",
+							"rounded": {
+								"unit": "px",
+								"topright": {
+									"value": 0
+								},
+								"topleft": {
+									"value": 0
+								},
+								"bottomright": {
+									"value": 0
+								},
+								"bottomleft": {
+									"value": 0
+								}
+							},
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
+						}
+					}
+				}
+			},
+			"container": {
+				"properties": {
+					"dimension": {
+						"height": {
+							"value": "335",
+							"unit": "px"
+						},
+						"width": {
+							"value": "100",
+							"unit": "%"
+						}
+					},
+					"padding": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"margin": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"border": {
+						"color": "#000000",
+						"unit": "px",
+						"rounded": {
+							"unit": "px",
+							"topright": {
+								"value": 0
+							},
+							"topleft": {
+								"value": 0
+							},
+							"bottomright": {
+								"value": 0
+							},
+							"bottomleft": {
+								"value": 0
+							}
+						},
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					}
+				}
 			}
 		}
 	}

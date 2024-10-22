@@ -11,29 +11,65 @@ use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\Employee\UpdateEmployee;
 use App\Models\HumanResources\Employee;
 use App\Transfers\SourceOrganisationService;
+use Arr;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
+use Throwable;
 
 class FetchAuroraDeletedEmployees extends FetchAuroraAction
 {
     public string $commandSignature = 'fetch:deleted-employees {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Employee
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Employee
     {
         if ($employeeData = $organisationSource->fetchDeletedEmployee($organisationSourceId)) {
             if ($employee = Employee::withTrashed()->where('source_id', $employeeData['employee']['source_id'])->first()) {
-                $employee = UpdateEmployee::run(
-                    employee:  $employee,
-                    modelData: $employeeData['employee']
-                );
+                try {
+                    $employee = UpdateEmployee::make()->action(
+                        employee: $employee,
+                        modelData: $employeeData['employee'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordChange($organisationSource, $employee->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $employeeData['employee'], 'DeletedEmployee', 'update');
+
+                    return null;
+                }
             } else {
                 $workplace = $organisationSource->getOrganisation()->workplaces()->first();
-                $employee  = StoreEmployee::run(
-                    parent: $workplace,
-                    modelData:    $employeeData['employee'],
-                );
+                try {
+                    $employee = StoreEmployee::make()->action(
+                        parent: $workplace,
+                        modelData: $employeeData['employee'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+
+                    Employee::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $employee,
+                        Arr::except($employeeData['employee'], ['fetched_at', 'last_fetched_at', 'source_id', 'positions', 'user_model_status'])
+                    );
+
+
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $employee->source_id);
+                    DB::connection('aurora')->table('Staff Deleted Dimension')
+                        ->where('Staff Deleted Key', $sourceData[1])
+                        ->update(['aiku_id' => $employee->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $employeeData['employee'], 'DeletedEmployee', 'store');
+
+                    return null;
+                }
             }
+
             return $employee;
         }
 

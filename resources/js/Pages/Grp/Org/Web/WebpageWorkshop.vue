@@ -49,6 +49,9 @@ const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const _WebpageSideEditor = ref(null)
 const isPreviewLoggedIn = ref(false)
+const isModalBlockList = ref(false)
+const socketConnectionWebpage = props.webpage ? socketWeblock(props.webpage.slug) : null;
+const _iframe = ref<IframeHTMLAttributes | null>(null)
 
 const isAddBlockLoading = ref<string | null>(null)
 const addNewBlock = async (block: Daum) => {
@@ -174,18 +177,14 @@ const openFullScreenPreview = () => {
     window.open(iframeSrc.value, '_blank')
 }
 
-const isModalBlockList = ref(false)
-const socketConnectionWebpage = props.webpage ? socketWeblock(props.webpage.slug) : null;
+
 onUnmounted(() => {
     if (socketConnectionWebpage) socketConnectionWebpage.actions.unsubscribe();
 });
 
-const _iframe = ref<IframeHTMLAttributes | null>(null)
 const sendToIframe = (data: any) => {
     _iframe.value?.contentWindow.postMessage(data, '*')
 }
-
-
 
 onMounted(() => {
     if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { data.value = { ...data.value, ...value } });
@@ -195,7 +194,6 @@ onMounted(() => {
         }
     });
 });
-
 
 </script>
 
