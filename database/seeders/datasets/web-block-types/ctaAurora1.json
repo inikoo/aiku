@@ -1,7 +1,7 @@
 {
-	"slug": "cta",
-	"code": "cta1",
-	"name": "Call to action 1",
+	"slug": "cta_aurora_1",
+	"code": "cta_aurora_1",
+	"name": "Aurora Call to action 1",
 	"scope": "webpage",
 	"icon": ["fal", "rectangle-wide"],
 	"blueprint": [
@@ -41,7 +41,7 @@
 	"data": {
 		"fieldValue": {
 			"text": "All currently trending Indian handcrafted gifts directly imported from Artisans",
-            "title" : "Discover Made in India",
+            "title" : "<h1>Discover Made in India</h1>",
 			"button": {
 				"link": "",
 				"text": "Explore Here",
@@ -49,7 +49,7 @@
 					"properties": {
 						"background": {
 							"type": "color",
-							"color": "#fff",
+							"color": "#ffff",
 							"image": {
 								"original": null
 							}
@@ -57,22 +57,22 @@
 						"padding": {
 							"unit": "px",
 							"top": {
-								"value": 0
+								"value": 10
 							},
 							"left": {
-								"value": 0
+								"value": 10
 							},
 							"right": {
-								"value": 0
+								"value": 10
 							},
 							"bottom": {
-								"value": 0
+								"value": 10
 							}
 						},
 						"margin": {
 							"unit": "px",
 							"top": {
-								"value": 0
+								"value": 30
 							},
 							"left": {
 								"value": 0
@@ -90,16 +90,16 @@
 							"rounded": {
 								"unit": "px",
 								"topright": {
-									"value": 0
+									"value": 20
 								},
 								"topleft": {
-									"value": 0
+									"value": 20
 								},
 								"bottomright": {
-									"value": 0
+									"value": 20
 								},
 								"bottomleft": {
-									"value": 0
+									"value": 20
 								}
 							},
 							"top": {
