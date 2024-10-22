@@ -43,7 +43,12 @@
 			"text": "All currently trending Indian handcrafted gifts directly imported from Artisans",
             "title" : "<h1>Discover Made in India</h1>",
 			"button": {
-				"link": "",
+				"link": {
+					"type" : "internal",
+					"url": "https://ancientwisdom.biz/showroom",
+					"id": 9,
+					"workshop_route" : ""
+				},
 				"text": "Explore Here",
 				"container": {
 					"properties": {
@@ -53,7 +58,7 @@
 						},
 						"background": {
 							"type": "color",
-							"color": "#ffff",
+							"color": null,
 							"image": {
 								"original": null
 							}

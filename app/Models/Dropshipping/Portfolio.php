@@ -9,6 +9,7 @@ namespace App\Models\Dropshipping;
 
 use App\Models\Catalogue\Product;
 use App\Models\CRM\Customer;
+use App\Models\ShopifyUserHasProduct;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -78,6 +79,11 @@ class Portfolio extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(PortfolioStats::class);
+    }
+
+    public function shopifyPortfolio(): HasOne
+    {
+        return $this->hasOne(ShopifyUserHasProduct::class, 'portfolio_id');
     }
 
     public function platforms(): MorphToMany

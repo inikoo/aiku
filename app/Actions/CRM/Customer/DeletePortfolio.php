@@ -29,6 +29,11 @@ class DeletePortfolio extends OrgAction
         if ($portfolio->stats()->exists()) {
             $portfolio->stats()->delete();
         }
+
+        if ($portfolio->shopifyPortfolio()->exists()) {
+            $portfolio->shopifyPortfolio()->delete();
+        }
+
         $portfolio->delete();
 
         return $portfolio;

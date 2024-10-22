@@ -10,17 +10,23 @@ namespace App\Actions\Procurement\OrgSupplier;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydrateOrgSuppliers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgSuppliers;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreOrgSupplier extends OrgAction
 {
+    use WithNoStrictRules;
+
+    /**
+     * @throws \Throwable
+     */
     public function handle(Organisation|OrgAgent $parent, Supplier $supplier, $modelData = []): OrgSupplier
     {
-
         if ($parent instanceof OrgAgent) {
             $organisation = $parent->organisation;
         } else {
@@ -30,18 +36,20 @@ class StoreOrgSupplier extends OrgAction
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $organisation->id);
         data_set($modelData, 'status', $supplier->status);
-
         data_set($modelData, 'supplier_id', $supplier->id);
         data_set($modelData, 'agent_id', $supplier->agent_id);
 
+        $orgSupplier = DB::transaction(function () use ($parent, $modelData, $organisation) {
+            /** @var OrgSupplier $orgSupplier */
+            $orgSupplier = $parent->orgSuppliers()->create($modelData);
+            $orgSupplier->stats()->create();
 
-        /** @var OrgSupplier $orgSupplier */
-        $orgSupplier = $parent->orgSuppliers()->create($modelData);
-        $orgSupplier->stats()->create();
+            return $orgSupplier;
+        });
 
-        OrganisationHydrateOrgSuppliers::dispatch($organisation);
+        OrganisationHydrateOrgSuppliers::dispatch($organisation)->delay($this->hydratorsDelay);
         if ($orgSupplier->org_agent_id) {
-            OrgAgentHydrateOrgSuppliers::dispatch($orgSupplier->orgAgent);
+            OrgAgentHydrateOrgSuppliers::dispatch($orgSupplier->orgAgent)->delay($this->hydratorsDelay);
         }
 
         return $orgSupplier;
@@ -50,12 +58,18 @@ class StoreOrgSupplier extends OrgAction
 
     public function rules(ActionRequest $request): array
     {
-        return [
-            'source_id' => 'sometimes|nullable|string|max:64',
-        ];
+        $rules = [];
+        if (!$this->strict) {
+            $rules = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
     }
 
-    public function action(Organisation|OrgAgent $parent, Supplier $supplier, $modelData = [], $hydratorsDelay = 0): OrgSupplier
+    /**
+     * @throws \Throwable
+     */
+    public function action(Organisation|OrgAgent $parent, Supplier $supplier, $modelData = [], $hydratorsDelay = 0, bool $strict = true): OrgSupplier
     {
         if ($parent instanceof OrgAgent) {
             $organisation = $parent->organisation;
@@ -64,6 +78,7 @@ class StoreOrgSupplier extends OrgAction
         }
 
         $this->asAction       = true;
+        $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($organisation, $modelData);
 

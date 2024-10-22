@@ -89,8 +89,16 @@ class WebBlock extends Model implements HasMedia
     public function externalLinks()
     {
         return $this->belongsToMany(ExternalLink::class, 'web_block_has_external_link')
-                    ->withPivot('website_id', 'webpage_id', 'show')
+                    ->withPivot('group_id', 'organisation_id', 'webpage_id', 'website_id', 'webpage_id', 'show')
                     ->withTimestamps();
+    }
+
+    public function webpages(): MorphToMany
+    {
+        return $this->morphedByMany(Webpage::class, 'model', 'model_has_web_blocks')
+            ->orderByPivot('position')
+            ->withPivot('id', 'position', 'show', 'show_logged_in', 'show_logged_out')
+            ->withTimestamps();
     }
 
 }

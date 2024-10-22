@@ -11,6 +11,7 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithOrganisationSource;
+use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\AuroraOrganisationService;
@@ -37,7 +38,6 @@ class FetchAuroraWebBlockLink extends OrgAction
 
         if (!$this->isInternalLink($website, $auroraLink)) {
             print "External link >>>$auroraLink<<<<\n";
-
             $linkData = [
                 'type' => 'external',
                 'url'  => $auroraLink
@@ -45,7 +45,7 @@ class FetchAuroraWebBlockLink extends OrgAction
         } else {
             $linkData = [
                 'type'       => 'internal',
-                'webpage_id' => null
+                'id' => null
             ];
 
             $auroraLink        = $this->cleanUrl($auroraLink);
@@ -75,17 +75,14 @@ class FetchAuroraWebBlockLink extends OrgAction
             }
 
             if ($linkedWebpage) {
-                data_set($linkData, 'webpage_id', $linkedWebpage->id);
+                data_set($linkData, 'id', $linkedWebpage->id);
                 data_set($linkData, 'url', $linkedWebpage->getFullUrl());
-                data_set($linkData, 'workshop_route', [
-                    'name' => 'grp.org.shops.show.web.webpages.workshop',
-                     'parameters' => [
-                        $linkedWebpage->organisation->slug,
-                        $linkedWebpage->shop->slug,
-                        $linkedWebpage->website->slug,
-                        $linkedWebpage->slug,
-                     ]
-                    ]);
+                data_set($linkData, 'workshop_url', route('grp.org.shops.show.web.webpages.workshop', [
+                    $linkedWebpage->organisation->slug,
+                    $linkedWebpage->shop->slug,
+                    $linkedWebpage->website->slug,
+                    $linkedWebpage->slug,
+                ]));
             } else {
                 print "Internal for link not found >>>$auroraLink<<<<\n";
                 $linkData = [

@@ -43,6 +43,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int|null $agent_id
+ * @property string $scope_type Group|Organisation  used for indicate private org suppliers
+ * @property int $scope_id
  * @property bool $status
  * @property string $slug
  * @property string $code
@@ -60,14 +62,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id
  * @property array $settings
  * @property array $data
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $archived_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
+ * @property array $sources
  * @property-read \App\Models\Helpers\Address|null $address
  * @property-read Collection<int, \App\Models\Helpers\Address> $addresses
  * @property-read \App\Models\SupplyChain\Agent|null $agent
@@ -111,6 +114,7 @@ class Supplier extends Model implements HasMedia, Auditable
         'data'               => 'array',
         'settings'           => 'array',
         'location'           => 'array',
+        'sources'           => 'array',
         'status'             => 'boolean',
         'archived_at'        => 'datetime',
         'fetched_at'         => 'datetime',
@@ -121,6 +125,7 @@ class Supplier extends Model implements HasMedia, Auditable
         'data'     => '{}',
         'settings' => '{}',
         'location' => '{}',
+        'sources' => '{}',
 
     ];
 

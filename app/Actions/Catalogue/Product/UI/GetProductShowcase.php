@@ -19,12 +19,16 @@ class GetProductShowcase
     {
         return [
             'imagesUploadedRoutes' => [
-                'name'       => 'grp.org.shops.show.catalogue.products.images',
+                'name'       => 'grp.org.shops.show.catalogue.products.all_products.images',
                 'parameters' => [
                     'organisation' => $product->organisation->slug,
                     'shop'         => $product->shop->slug,
                     'product'      => $product->slug
                 ]
+            ],
+            'stockImagesRoute' => [
+                'name'  => 'grp.gallery.stock-images.index',
+                'parameters'    => []
             ],
             'uploadImageRoute' => [
                 'name'       => 'grp.models.org.product.images.store',
