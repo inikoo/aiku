@@ -3,6 +3,7 @@ import { ref, watch, defineEmits } from 'vue'
 import { trans } from 'laravel-vue-i18n'
 import SelectButton from 'primevue/selectbutton'
 import PureInput from '@/Components/Pure/PureInput.vue';
+import SelectQuery from "@/Components/SelectQuery.vue";
 
 // Define props
 const props = defineProps({
@@ -12,34 +13,41 @@ const props = defineProps({
     }
 });
 
-// Emits to notify parent component of changes
 const emit = defineEmits(['update:modelValue']);
-// Options for the SelectButton
 const options = ref([
     { label: 'Internal', value: 'internal' },
     { label: 'External', value: 'external' },
 ]);
 
-// Local ref for visibility value
-const visible = ref('internal');
-
-// Watch for changes in the local visible value and emit updates
-watch(visible, (newValue) => {
-    emit('update:modelValue', { ...props.modelValue, visible: newValue.value });
-});
+console.log('plm', props.modelValue)
 </script>
 
 <template>
-    <div class="border-b pb-3 border-gray-300 mb-5">
-        <SelectButton v-model="visible" :options="options" optionLabel="label" optionValue="value">
+    <div class="pb-3">
+        <SelectButton v-model="modelValue.type" :options="options" optionLabel="label" optionValue="value">
             <template #option="slotProps">
                 <span class="text-xs">{{ slotProps.option.label }}</span>
             </template>
         </SelectButton>
     </div>
-    <div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Link') }}</div>
-    <PureInput v-model="visible"/>
+    <div>
+        <div class="my-2 text-gray-500 text-xs font-semibold mb-2">{{ trans('Link') }}</div>
+        <PureInput v-if ="modelValue.type == 'external'" v-model="modelValue.url" />
+        <SelectQuery 
+            v-else
+            fieldName="id" 
+            :object="true" 
+            :urlRoute="route('grp.org.shops.show.web.webpages.index', {
+                organisation: route().params['organisation'],
+                shop: route().params['shop'],
+                website: route().params['website']
+            })" 
+            :value="modelValue" 
+            :closeOnSelect="true" 
+            label="url"
+        />
+    </div>
+
 </template>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

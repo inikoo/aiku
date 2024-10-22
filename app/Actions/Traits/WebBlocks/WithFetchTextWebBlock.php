@@ -21,7 +21,7 @@ trait WithFetchTextWebBlock
         $text = $auroraBlock["text_blocks"];
         if (count($text) > 0) {
             $text = $text[0]['text'] ?? null;
-            $this->replaceAnchor($webpage, $text);
+            $this->replaceAnchor($webpage, $text, $layout);
             data_set($layout, "data.fieldValue.value", $text);
         }
         return $layout ?? null;
@@ -45,7 +45,7 @@ trait WithFetchTextWebBlock
         return $layout;
     }
 
-    private function replaceAnchor(Webpage $webpage, &$text): void
+    private function replaceAnchor(Webpage $webpage, &$text, &$layout): void
     {
         if ($text) {
             $patternAnchors = "/<a\s([^>]*?)href=['\"](.*?)['\"]([^>]*)>(.*?)<\/a>/i";
@@ -61,7 +61,7 @@ trait WithFetchTextWebBlock
                 return;
             }
 
-            // TODO: change anchor tag to be <CustomLinkExtension type="internal" workshop="https://tailwindcss.com/docs/z-index" id="1" url="https://tailwindcss.com/docs/z-index">link test </CustomLinkExtension>
+            $externalLinks = [];
             foreach ($links as $index => $link) {
                 $originalLink = FetchAuroraWebBlockLink::run($webpage->website, $link, $this->dbSuffix);
                 $additionalAttribute = '';
@@ -74,6 +74,8 @@ trait WithFetchTextWebBlock
                             $originalLink['webpage_id'],
                             $workshopUrl,
                         );
+                } else {
+                    $externalLinks[] = $originalLink['url'];
                 }
 
                 $customeExtensionElement = sprintf(
@@ -88,6 +90,7 @@ trait WithFetchTextWebBlock
 
                 $text = str_replace($originalAnchor[$index], $customeExtensionElement, $text);
             }
+            $layout['external_links'] = $externalLinks;
         }
     }
 }

@@ -12,6 +12,9 @@ use App\Models\SupplyChain\Supplier;
 
 class StoreOrgSupplierFromSupplierInAgent extends OrgAction
 {
+    /**
+     * @throws \Throwable
+     */
     public function handle(Supplier $supplier, array $modelData = []): void
     {
         if (!$supplier->agent_id) {
@@ -19,12 +22,28 @@ class StoreOrgSupplierFromSupplierInAgent extends OrgAction
         }
 
 
+
         foreach ($supplier->agent->orgAgents as $orgAgent) {
             StoreOrgSupplier::make()->action(
                 $orgAgent,
                 $supplier,
-                $modelData
+                $modelData,
+                hydratorsDelay: $this->hydratorsDelay,
+                strict: $this->strict
             );
         }
     }
+
+    /**
+     * @throws \Throwable
+     */
+    public function action(Supplier $supplier, array  $modelData = [], $hydratorsDelay = 0, bool $strict = true): void
+    {
+
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->handle($supplier, $modelData);
+    }
+
 }

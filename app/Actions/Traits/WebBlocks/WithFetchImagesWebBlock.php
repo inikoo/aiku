@@ -27,6 +27,7 @@ trait WithFetchImagesWebBlock
 
         $imagesArray = [];
 
+        $externalLinks = [];
         foreach ($auroraBlock["images"] as $image) {
             $imageLink = null;
             if (!empty($image["link"])) {
@@ -35,6 +36,11 @@ trait WithFetchImagesWebBlock
             if (!isset($image["src"])) {
                 continue;
             }
+            if ($imageLink) {
+                if ($imageLink['type'] == 'external') {
+                    $externalLinks[] = $imageLink['url'];
+                }
+            }
             $imagesArray[] = [
                 "link_data" => $imageLink,
                 "aurora_source" => $image["src"],
@@ -42,6 +48,7 @@ trait WithFetchImagesWebBlock
         }
 
         data_set($layout, "data.fieldValue.value", $imagesArray);
+        data_set($layout, "external_links", $externalLinks);
         return $layout;
     }
 

@@ -11,6 +11,7 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithOrganisationSource;
+use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\AuroraOrganisationService;
@@ -37,7 +38,6 @@ class FetchAuroraWebBlockLink extends OrgAction
 
         if (!$this->isInternalLink($website, $auroraLink)) {
             print "External link >>>$auroraLink<<<<\n";
-
             $linkData = [
                 'type' => 'external',
                 'url'  => $auroraLink

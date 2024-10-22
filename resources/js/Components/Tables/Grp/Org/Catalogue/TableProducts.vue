@@ -235,7 +235,7 @@ onUnmounted(() => {
         <template #cell(tags)="{ item }">
             <div class="min-w-[200px] relative p-0">
                 <div v-if="onEditProduct !== item.slug" class="flex gap-x-1 gap-y-1.5 mb-2">
-                    <template v-if="item.tags.length">
+                    <template v-if="item.tags?.length">
                         <Tag v-for="tag in item.tags"
                             :label="tag"
                             :stringToColor="true"
@@ -251,7 +251,7 @@ onUnmounted(() => {
                         <FontAwesomeIcon icon='fal fa-pencil' class='text-gray-400 text-lg cursor-pointer hover:text-gray-500' fixed-width aria-hidden='true' />
                     </div>
                 </div>
-                
+
                 <div v-else>
                     <Multiselect v-model="item.tags"
                         :key="item.id"
