@@ -47,7 +47,7 @@
 					"type" : "internal",
 					"url": "https://ancientwisdom.biz/showroom",
 					"id": 9,
-					"workshop_route" : "inii"
+					"workshop_route" : ""
 				},
 				"text": "Explore Here",
 				"container": {
@@ -58,7 +58,7 @@
 						},
 						"background": {
 							"type": "color",
-							"color": "#ffff",
+							"color": null,
 							"image": {
 								"original": null
 							}

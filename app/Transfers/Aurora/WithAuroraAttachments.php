@@ -18,6 +18,7 @@ use App\Models\Ordering\Order;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\StockDelivery;
 use App\Models\SupplyChain\Supplier;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Mimey\MimeTypes;
@@ -72,33 +73,64 @@ trait WithAuroraAttachments
         ];
     }
 
-    protected function processFetchAttachments(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|null $model, string $parseAttachments): void
+    protected function processFetchAttachments(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|null $model, string $parseAttachments, string $sourceID = ''): void
     {
         if (!$model) {
             return;
         }
+        $attachmentModelType = class_basename($model);
+
+        $delete = true;
+        if (in_array($attachmentModelType, ['Supplier', 'SupplierProduct', 'Agent'])) {
+            $delete = false;
+        }
+
         $attachmentsToDelete = $model->attachments()->pluck('source_id', 'model_has_attachments.id')->all();
         foreach ($this->parseAttachments($model->source_id, $parseAttachments) as $attachmentData) {
-            SaveModelAttachment::make()->action(
+            $media = SaveModelAttachment::make()->action(
                 model: $model,
                 modelData: $attachmentData['modelData'],
                 hydratorsDelay: 30,
                 strict: false
             );
+
+            $modelAttachment = $model->attachments()->where('media_id', $media->id)->first();
+
+
+            $sources      = json_decode($modelAttachment->pivot->sources, true);
+            $modelSources = Arr::get($sources, $attachmentModelType, []);
+
+            $modelSources[] = $sourceID == '' ? $model->source_id : $sourceID;
+
+            $modelSources = array_unique($modelSources);
+
+            $sources[$attachmentModelType] = $modelSources;
+            $model->attachments()->updateExistingPivot(
+                $media->id,
+                [
+                    "sources" =>
+                        json_encode($sources)
+
+                ]
+            );
+
+
             $attachmentsToDelete = array_diff($attachmentsToDelete, [$attachmentData['modelData']['source_id']]);
-
-            $attachmentData['temporaryDirectory']->delete();
+            if ($delete) {
+                $attachmentData['temporaryDirectory']->delete();
+            }
         }
-        $model->attachments()->whereIn('model_has_attachments.id', array_keys($attachmentsToDelete))->forceDelete();
-
-        foreach ($attachmentsToDelete as $attachmentID) {
-            /** @var Media $attachment */
-            $attachment = Media::find($attachmentID);
-            DetachAttachmentFromModel::make()->action($model, $attachment);
-            try {
-                DeleteAttachment::make()->action($attachment);
-            } catch (Throwable) {
-                // do nothing
+        if ($delete) {
+            $model->attachments()->whereIn('model_has_attachments.id', array_keys($attachmentsToDelete))->forceDelete();
+            foreach ($attachmentsToDelete as $attachmentID) {
+                /** @var Media $attachment */
+                $attachment = Media::find($attachmentID);
+                DetachAttachmentFromModel::make()->action($model, $attachment);
+                try {
+                    DeleteAttachment::make()->action($attachment);
+                } catch (Throwable) {
+                    // do nothing
+                }
             }
         }
     }
