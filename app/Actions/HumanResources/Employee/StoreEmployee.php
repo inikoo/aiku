@@ -155,7 +155,7 @@ class StoreEmployee extends OrgAction
             'alias'                                   => [
                 'required',
                 'string',
-                'max:24',
+                $this->strict ? 'max:24' : 'max:255',
                 new IUnique(
                     table: 'employees',
                     extraConditions: [
@@ -192,7 +192,8 @@ class StoreEmployee extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules = $this->noStrictRules($rules);
+            $rules = $this->noStrictStoreRules($rules);
+
         }
 
         return $rules;
