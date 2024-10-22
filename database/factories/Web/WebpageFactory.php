@@ -17,6 +17,7 @@ class WebpageFactory extends Factory
     {
         return [
             'code'    => fake()->lexify(),
+            'title'   => fake()->sentence(),
             'sub_type' => WebpageSubTypeEnum::CONTENT,
             'type'    => WebpageTypeEnum::CONTENT,
             'url'     => fake()->lexify(),

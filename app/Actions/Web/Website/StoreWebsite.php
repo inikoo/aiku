@@ -92,7 +92,7 @@ class StoreWebsite extends OrgAction
         OrganisationHydrateWebsites::dispatch($shop->organisation)->delay($this->hydratorsDelay);
         WebsiteRecordSearch::dispatch($website);
 
-        if ($website->state == WebsiteStateEnum::LIVE) {
+        if ($website->state != WebsiteStateEnum::CLOSED) {
             $website = SeedWebsiteFixedWebpages::run($website);
         }
 
