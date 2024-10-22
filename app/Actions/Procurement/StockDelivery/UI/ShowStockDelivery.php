@@ -71,6 +71,20 @@ class ShowStockDelivery extends InertiaAction
                         ]
                     ] : false,
                 ],
+                'attachmentRoutes' => [
+                    'attachRoute' => [
+                        'name' => 'grp.models.stock-delivery.attachment.attach',
+                        'parameters' => [
+                            'stockDelivery' => $this->stockDelivery->id,
+                        ]
+                    ],
+                    'detachRoute' => [
+                        'name' => 'grp.models.stock-delivery.attachment.detach',
+                        'parameters' => [
+                            'stockDelivery' => $this->stockDelivery->id,
+                        ]
+                    ]
+                ],
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => StockDeliveryTabsEnum::navigation()
