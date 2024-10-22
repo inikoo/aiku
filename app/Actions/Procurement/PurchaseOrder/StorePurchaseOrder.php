@@ -14,6 +14,7 @@ use App\Actions\Procurement\WithPrepareDeliveryStoreFields;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurchaseOrders;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Procurement\OrgAgent;
@@ -41,14 +42,14 @@ class StorePurchaseOrder extends OrgAction
         $purchaseOrder = $parent->purchaseOrders()->create($modelData);
 
         if (class_basename($parent) == 'OrgSupplier') {
-            OrgSupplierHydratePurchaseOrders::dispatch($parent);
-            SupplierHydratePurchaseOrders::dispatch($parent->supplier);
+            OrgSupplierHydratePurchaseOrders::dispatch($parent)->delay($this->hydratorsDelay);
+            SupplierHydratePurchaseOrders::dispatch($parent->supplier)->delay($this->hydratorsDelay);
         } elseif (class_basename($parent) == 'OrgAgent') {
-            OrgAgentHydratePurchaseOrders::dispatch($parent);
-            AgentHydratePurchaseOrders::dispatch($parent->agent);
+            OrgAgentHydratePurchaseOrders::dispatch($parent)->delay($this->hydratorsDelay);
+            AgentHydratePurchaseOrders::dispatch($parent->agent)->delay($this->hydratorsDelay);
         }
 
-        OrganisationHydratePurchaseOrders::dispatch($organisation);
+        OrganisationHydratePurchaseOrders::dispatch($purchaseOrder->organisation)->delay($this->hydratorsDelay);
 
         return $purchaseOrder;
     }
@@ -64,7 +65,7 @@ class StorePurchaseOrder extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'reference'       => [
                 'sometimes',
                 'required',
@@ -77,33 +78,39 @@ class StorePurchaseOrder extends OrgAction
                 ) : null,
             ],
             'date'            => ['required', 'date'],
-            'submitted_at'    => ['sometimes', 'nullable', 'date'],
-            'confirmed_at'    => ['sometimes', 'nullable', 'date'],
-            'manufactured_at' => ['sometimes', 'nullable', 'date'],
-            'received_at'     => ['sometimes', 'nullable', 'date'],
-            'checked_at'      => ['sometimes', 'nullable', 'date'],
-            'settled_at'      => ['sometimes', 'nullable', 'date'],
             'state'           => ['sometimes', 'required', Rule::enum(PurchaseOrderStateEnum::class)],
             'status'          => ['sometimes', 'required', Rule::enum(PurchaseOrderStatusEnum::class)],
             'cost_items'      => ['sometimes', 'required', 'numeric', 'min:0'],
             'cost_shipping'   => ['sometimes', 'required', 'numeric', 'min:0'],
             'cost_total'      => ['sometimes', 'required', 'numeric', 'min:0'],
-            'created_at'      => ['sometimes', 'required', 'date'],
-            'cancelled_at'    => ['sometimes', 'nullable', 'date'],
             'currency_id'     => ['sometimes', 'required', 'exists:currencies,id'],
             'org_exchange'    => ['sometimes', 'required', 'numeric', 'min:0'],
             'grp_exchange'    => ['sometimes', 'required', 'numeric', 'min:0'],
             'parent_code'     => ['sometimes', 'required', 'string', 'max:256'],
             'parent_name'     => ['sometimes', 'required', 'string', 'max:256'],
-            'source_id'       => ['sometimes', 'required', 'string', 'max:64'],
-            'fetched_at'      => ['sometimes', 'date'],
 
         ];
+
+        if (!$this->strict) {
+
+
+            $rules = $this->noStrictStoreRules($rules);
+            $rules['submitted_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['confirmed_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['manufactured_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['received_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['checked_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['settled_at'] = ['sometimes', 'nullable', 'date'];
+
+        }
+
+        return $rules;
+
     }
 
     public function afterValidator(Validator $validator): void
     {
-        $numberPurchaseOrdersStateCreating = $this->parent->purchaseOrders()->where('state', PurchaseOrderStateEnum::CREATING)->count();
+        $numberPurchaseOrdersStateCreating = $this->parent->purchaseOrders()->where('state', PurchaseOrderStateEnum::IN_PROCESS)->count();
 
         if ($this->strict && $numberPurchaseOrdersStateCreating >= 1) {
             $validator->errors()->add('purchase_order', 'Are you sure want to create new purchase order?');
@@ -121,6 +128,9 @@ class StorePurchaseOrder extends OrgAction
 
     public function action(OrgAgent|OrgSupplier|OrgPartner $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): PurchaseOrder
     {
+        if (!$audit) {
+            PurchaseOrder::disableAuditing();
+        }
         $this->asAction = true;
         $this->parent   = $parent;
         $this->strict   = $strict;

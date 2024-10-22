@@ -13,7 +13,7 @@ enum PurchaseOrderStateEnum: string
 {
     use EnumHelperTrait;
 
-    case CREATING     = 'creating';
+    case IN_PROCESS     = 'in_process';
     case SUBMITTED    = 'submitted';
     case CONFIRMED    = 'confirmed';
     case MANUFACTURED = 'manufactured';
@@ -24,8 +24,8 @@ enum PurchaseOrderStateEnum: string
 
     public static function labels(): array
     {
-        $labels = [
-            'creating'         => __('Creating'),
+        return [
+            'in_process'         => __('In process'),
             'submitted'        => __('Submitted'),
             'confirmed'        => __('Confirmed'),
             'manufactured'     => __('Manufactured'),
@@ -34,14 +34,12 @@ enum PurchaseOrderStateEnum: string
             'checked'          => __('Checked'),
             'settled'          => __('Settled'),
         ];
-
-        return $labels;
     }
 
     public static function stateIcon(): array
     {
         return [
-            'creating'   => [
+            'in_process'   => [
                 'tooltip' => __('Creating'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)

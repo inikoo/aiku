@@ -367,7 +367,7 @@ test('change state to submitted from confirmed purchase order', function ($purch
 
 test('change state to creating from submitted purchase order', function ($purchaseOrder) {
     $purchaseOrder = UpdateStateToCreatingPurchaseOrder::make()->action($purchaseOrder);
-    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CREATING);
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::IN_PROCESS);
 })->depends('create purchase order independent supplier');
 
 test('create supplier delivery', function (OrgSupplier $orgSupplier) {

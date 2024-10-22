@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrder;
@@ -17,16 +18,14 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdatePurchaseOrder extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
 
     private PurchaseOrder $purchaseOrder;
 
     public function handle(PurchaseOrder $purchaseOrder, array $modelData): PurchaseOrder
     {
-        $purchaseOrder = $this->update($purchaseOrder, $modelData, ['data']);
-        HydratePurchaseOrder::dispatch($purchaseOrder);
-
-        return $purchaseOrder;
+        return $this->update($purchaseOrder, $modelData, ['data']);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -40,7 +39,7 @@ class UpdatePurchaseOrder extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'number'       => [
                 'sometimes',
                 'required',
@@ -63,9 +62,11 @@ class UpdatePurchaseOrder extends OrgAction
             'date'            => ['sometimes', 'date'],
             'parent_code'     => ['sometimes', 'required', 'string', 'max:256'],
             'parent_name'     => ['sometimes', 'required', 'string', 'max:256'],
-            'last_fetched_at' => ['sometimes', 'date'],
         ];
-    }
+
+        if (!$this->strict) {
+            $rules = $this->noStrictUpdateRules($rules);
+        }
 
         return $rules;
     }
@@ -78,6 +79,8 @@ class UpdatePurchaseOrder extends OrgAction
         $this->asAction      = true;
         $this->strict        = $strict;
         $this->purchaseOrder = $purchaseOrder;
+        $this->hydratorsDelay = $hydratorsDelay;
+
         $this->initialisation($purchaseOrder->organisation, $modelData);
 
         return $this->handle($purchaseOrder, $this->validatedData);

@@ -27,7 +27,7 @@ class UpdateStateToCreatingPurchaseOrder
     public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
         $data = [
-            'state' => PurchaseOrderStateEnum::CREATING,
+            'state' => PurchaseOrderStateEnum::IN_PROCESS,
         ];
 
         if ($purchaseOrder->state == PurchaseOrderStateEnum::SUBMITTED) {
