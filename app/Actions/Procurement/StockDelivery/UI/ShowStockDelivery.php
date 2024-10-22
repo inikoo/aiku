@@ -7,9 +7,11 @@
 
 namespace App\Actions\Procurement\StockDelivery\UI;
 
+use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\InertiaAction;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\StockDeliveryTabsEnum;
+use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\Models\Procurement\StockDelivery;
 use App\Models\SysAdmin\Organisation;
@@ -73,6 +75,9 @@ class ShowStockDelivery extends InertiaAction
                     'current'    => $this->tab,
                     'navigation' => StockDeliveryTabsEnum::navigation()
                 ],
+                StockDeliveryTabsEnum::ATTACHMENTS->value => $this->tab == StockDeliveryTabsEnum::ATTACHMENTS->value ?
+                fn () => AttachmentsResource::collection(IndexAttachments::run($this->stockDelivery))
+                : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($this->stockDelivery))),
             ]
         );
     }
