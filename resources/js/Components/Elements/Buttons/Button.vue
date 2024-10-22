@@ -173,7 +173,7 @@ const getActionIcon = (icon: any) => {
             <slot name="icon" v-if="!loading">
                 <FontAwesomeIcon v-if="getActionIcon(icon)" :icon="getActionIcon(icon)" fixed-width class="" aria-hidden="true"/>
             </slot>
-            <span v-if="getActionLabel(label)" class="leading-none" :class="{'capitalize': capitalize}">{{ getActionLabel(label) }}</span>
+            <span v-if="getActionLabel(label)" class="leading-none tabular-nums" :class="{'capitalize': capitalize}">{{ getActionLabel(label) }}</span>
             <slot name="iconRight">
                 <FontAwesomeIcon v-if="iconRight" :icon="getActionIcon(iconRight)" fixed-width class="" aria-hidden="true"/>
             </slot>

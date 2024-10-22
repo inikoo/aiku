@@ -7,6 +7,7 @@
 
 namespace App\Http\Resources\HumanResources;
 
+use App\Models\HumanResources\Clocking;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -17,10 +18,12 @@ class ClockingHanResource extends JsonResource
 {
     public function toArray($request): array
     {
+        /** @var Clocking $clocking */
+        $clocking = $this;
         return [
-            'id'         => $this->id,
-            'clocked_at' => $this->clocked_at,
-            'photo'      => $this->photoImageSources()
+            'id'         => $clocking->id,
+            'clocked_at' => $clocking->clocked_at,
+            'photo'      => $clocking->imageSources()
         ];
     }
 }

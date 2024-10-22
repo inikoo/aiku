@@ -37,7 +37,7 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
 
         $purchaseOrder->purchaseOrderTransactions()->update($data);
 
-        if ($purchaseOrder->state !== PurchaseOrderStateEnum::CREATING) {
+        if ($purchaseOrder->state !== PurchaseOrderStateEnum::IN_PROCESS) {
             $data[$purchaseOrder->state->value.'_at'] = null;
         }
 
@@ -61,7 +61,7 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        if (!in_array($this->purchaseOrder->state, [PurchaseOrderStateEnum::CREATING, PurchaseOrderStateEnum::CONFIRMED])) {
+        if (!in_array($this->purchaseOrder->state, [PurchaseOrderStateEnum::IN_PROCESS, PurchaseOrderStateEnum::CONFIRMED])) {
             $validator->errors()->add('status', __('Purchase order can only be submitted if it is in creating or confirmed state'));
         }
     }

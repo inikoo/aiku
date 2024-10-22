@@ -29,15 +29,15 @@ class UpdateStateToDispatchStockDelivery
             'state' => StockDeliveryStateEnum::DISPATCHED,
         ];
 
-        if (in_array($stockDelivery->state, [StockDeliveryStateEnum::CREATING, StockDeliveryStateEnum::RECEIVED])) {
-            if ($stockDelivery->state !== StockDeliveryStateEnum::CREATING) {
+        if (in_array($stockDelivery->state, [StockDeliveryStateEnum::IN_PROCESS, StockDeliveryStateEnum::RECEIVED])) {
+            if ($stockDelivery->state !== StockDeliveryStateEnum::IN_PROCESS) {
                 $data[$stockDelivery->state->value . '_at'] = null;
             }
             $data['dispatched_at'] = now();
 
             $stockDelivery = $this->update($stockDelivery, $data);
 
-            $this->runHydrators($stockDelivery);
+            $this->runStockDeliveryHydrators($stockDelivery);
 
             return $stockDelivery;
         }

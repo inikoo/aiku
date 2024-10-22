@@ -43,7 +43,7 @@ class DetachAttachmentFromModel extends OrgAction
         $this->hydratorsDelay = $hydratorsDelay;
 
 
-        $this->initialisationForGroup($model->group, []);
+        $this->initialisationFromGroup($model->group, []);
 
         return $this->handle($model, $attachment);
     }

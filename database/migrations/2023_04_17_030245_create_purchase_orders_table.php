@@ -26,7 +26,7 @@ return new class () extends Migration {
             $table->string('parent_name')->index()->comment('Parent name on the time of consolidation');
             $table->string('reference')->index();
             $table->jsonb('data');
-            $table->string('state')->index()->default(PurchaseOrderTransactionStateEnum::CREATING->value);
+            $table->string('state')->index()->default(PurchaseOrderTransactionStateEnum::IN_PROCESS->value);
             $table->string('status')->index()->default(PurchaseOrderTransactionStatusEnum::PROCESSING->value);
             $table->dateTimeTz('date')->comment('latest relevant date');
             $table->dateTimeTz('submitted_at')->nullable();

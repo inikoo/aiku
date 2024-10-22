@@ -17,7 +17,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
-use App\Models\Traits\InShop;
+use App\Models\Traits\InWebsite;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -107,7 +107,7 @@ class Webpage extends Model implements Auditable
     use HasFactory;
     use HasUniversalSearch;
     use SoftDeletes;
-    use InShop;
+    use InWebsite;
     use HasHistory;
 
     protected $casts = [
@@ -172,12 +172,6 @@ class Webpage extends Model implements Auditable
     {
         return $this->hasOne(WebpageStats::class);
     }
-
-    public function website(): BelongsTo
-    {
-        return $this->belongsTo(Website::class);
-    }
-
 
     public function snapshots(): MorphMany
     {

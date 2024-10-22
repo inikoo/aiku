@@ -9,6 +9,7 @@ namespace App\Transfers\Aurora;
 
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Language;
+use App\Models\SupplyChain\Agent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -35,11 +36,9 @@ class FetchAuroraAgent extends FetchAurora
         $code = preg_replace('/\s/', '', $code);
         $code = preg_replace('/^aw/', '', $code);
 
-        if ($code == 'zesttex') {
-            $agent                                  = $this->parseAgent(
-                Str::kebab(strtolower($this->auroraModelData->{'Agent Code'})),
-                $this->organisation->id.':'.$this->auroraModelData->{'Agent Key'}
-            );
+        if ($code == 'zesttex' or $code == 'AWZesttex') {
+            $agent = Agent::where('code', 'india')->firstOrFail();
+
             $this->parsedData['agent']['source_id'] = $this->organisation->id.':'.$this->auroraModelData->{'Agent Key'};
             $this->parsedData['foundAgent']         = $agent;
 

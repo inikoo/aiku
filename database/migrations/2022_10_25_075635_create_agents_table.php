@@ -31,6 +31,7 @@ return new class () extends Migration {
             $table->softDeletesTz();
             $table->string('source_slug')->index()->nullable();
             $table->string('source_id')->index()->nullable();
+            $table->json('sources');
         });
     }
 

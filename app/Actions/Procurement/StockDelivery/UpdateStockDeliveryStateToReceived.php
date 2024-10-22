@@ -34,7 +34,7 @@ class UpdateStockDeliveryStateToReceived extends OrgAction
 
         $stockDelivery = $this->update($stockDelivery, $data);
 
-        $this->runHydrators($stockDelivery);
+        $this->runStockDeliveryHydrators($stockDelivery);
 
         return $stockDelivery;
     }
@@ -50,7 +50,7 @@ class UpdateStockDeliveryStateToReceived extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        if (!in_array($this->stockDelivery->state, [StockDeliveryStateEnum::CREATING, StockDeliveryStateEnum::DISPATCHED, StockDeliveryStateEnum::CHECKED])) {
+        if (!in_array($this->stockDelivery->state, [StockDeliveryStateEnum::IN_PROCESS, StockDeliveryStateEnum::DISPATCHED, StockDeliveryStateEnum::CHECKED])) {
             $validator->errors()->add('state', __('You can not change the status to received if state is'.' '.$this->stockDelivery->state->value));
         }
     }

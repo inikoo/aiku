@@ -9,12 +9,13 @@ namespace App\Actions\Procurement\StockDelivery;
 
 use App\Actions\OrgAction;
 use App\Actions\Procurement\StockDelivery\Traits\HasStockDeliveryHydrators;
+use App\Actions\Procurement\WithPrepareDeliveryStoreFields;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\StockDelivery;
-use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -22,35 +23,23 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreStockDelivery extends OrgAction
 {
     use HasStockDeliveryHydrators;
+    use WithPrepareDeliveryStoreFields;
+    use WithNoStrictRules;
 
 
     private OrgSupplier|OrgAgent|OrgPartner $parent;
-    private bool $force;
 
-    public function handle(Organisation $organisation, OrgSupplier|OrgAgent|OrgPartner $parent, array $modelData): StockDelivery
+    public function handle(OrgSupplier|OrgAgent|OrgPartner $parent, array $modelData): StockDelivery
     {
-        data_set($modelData, 'organisation_id', $organisation->id);
-        data_set($modelData, 'group_id', $organisation->group_id);
+        data_set($modelData, 'organisation_id', $this->organisation->id);
+        data_set($modelData, 'group_id', $this->organisation->group_id);
 
-        if (class_basename($parent) == 'OrgSupplier') {
-            data_set($modelData, 'supplier_id', $parent->supplier_id);
-            data_set($modelData, 'parent_code', $parent->supplier->code, false);
-            data_set($modelData, 'parent_name', $parent->supplier->name, false);
-        } elseif (class_basename($parent) == 'OrgAgent') {
-            data_set($modelData, 'agent_id', $parent->agent_id);
-            data_set($modelData, 'parent_code', $parent->agent->code, false);
-            data_set($modelData, 'parent_name', $parent->agent->name, false);
-        } elseif (class_basename($parent) == 'OrgPartner') {
-            data_set($modelData, 'partner_id', $parent->organisation_id);
-            data_set($modelData, 'parent_code', $parent->organisation->code, false);
-            data_set($modelData, 'parent_name', $parent->organisation->name, false);
-        }
-
+        $modelData = $this->prepareDeliveryStoreFields($parent, $modelData);
 
         /** @var StockDelivery $stockDelivery */
         $stockDelivery = $parent->stockDeliveries()->create($modelData);
 
-        $this->runHydrators($stockDelivery);
+        $this->runStockDeliveryHydrators($stockDelivery);
 
         return $stockDelivery;
     }
@@ -66,8 +55,8 @@ class StoreStockDelivery extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'number'      => [
+        $rules = [
+            'reference'   => [
                 'sometimes',
                 'required',
                 $this->strict ? 'alpha_dash' : 'string',
@@ -81,28 +70,49 @@ class StoreStockDelivery extends OrgAction
             'date'        => ['required', 'date'],
             'parent_code' => ['sometimes', 'required', 'string', 'max:256'],
             'parent_name' => ['sometimes', 'required', 'string', 'max:256'],
-            'source_id'   => ['sometimes', 'required', 'string', 'max:64'],
 
         ];
+
+        if (!$this->strict) {
+            $rules                  = $this->noStrictStoreRules($rules);
+            $rules['dispatched_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['received_at']   = ['sometimes', 'nullable', 'date'];
+            $rules['checked_at']    = ['sometimes', 'nullable', 'date'];
+            $rules['settled_at']    = ['sometimes', 'nullable', 'date'];
+            $rules['cancelled_at']  = ['sometimes', 'nullable', 'date'];
+        }
+
+        return $rules;
     }
 
     public function afterValidator(Validator $validator): void
     {
-        $stockDelivery = $this->parent->stockDeliveries()->where('state', StockDeliveryStateEnum::CREATING)->count();
+        $stockDelivery = $this->parent->stockDeliveries()->where('state', StockDeliveryStateEnum::IN_PROCESS)->count();
 
-        if (!$this->force && $stockDelivery >= 1) {
+        if ($this->strict && $stockDelivery >= 1) {
             $validator->errors()->add('stock_delivery', 'Are you sure want to create new supplier delivery?');
         }
     }
 
-    public function action(Organisation $organisation, OrgSupplier|OrgAgent|OrgPartner $parent, array $modelData): StockDelivery
+    public function prepareForValidation(): void
     {
-        $this->asAction = true;
-        $this->parent   = $parent;
-        $this->force    = true;
+        if ($this->has('reference')) {
+            $this->set('reference', (string)$this->get('reference'));
+        }
+    }
 
-        $this->initialisation($organisation, $modelData);
+    public function action(OrgSupplier|OrgAgent|OrgPartner $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): StockDelivery
+    {
+        if (!$audit) {
+            StockDelivery::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->parent         = $parent;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
 
-        return $this->handle($organisation, $parent, $modelData);
+        $this->initialisation($parent->organisation, $modelData);
+
+        return $this->handle($parent, $modelData);
     }
 }

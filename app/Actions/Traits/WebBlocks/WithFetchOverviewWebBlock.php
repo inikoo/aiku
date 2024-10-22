@@ -9,27 +9,27 @@
 
 namespace App\Actions\Traits\WebBlocks;
 
+use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 trait WithFetchOverviewWebBlock
 {
     use AsAction;
-    public function processOverviewData(Webpage $webpage, $auroraBlock): array
+    public function processOverviewData(WebBlockType $webBlockType, Webpage $webpage, $auroraBlock): array
     {
-        $layout = [];
+        data_set($layout, "data.fieldValue", Arr::get($webBlockType, 'data.fieldValue'));
         $textsArray = [];
         foreach ($auroraBlock["texts"] as $text) {
             if (!isset($text["text"])) {
                 continue;
             }
             $this->replaceAnchor($webpage, $text["text"], $layout); // should use WithFetchText
-            $textsArray[] = [
-                "text" => $text["text"],
-            ];
+            $textsArray[] = $text["text"];
         }
-        $textValue["value"] = $textsArray;
-        data_set($layout, "data.fieldValue.value.texts", $textValue["value"]);
+
+        data_set($layout, "data.fieldValue.texts.values", $textsArray);
 
         $imagesArray = [];
         foreach ($auroraBlock["images"] as $image) {
@@ -40,7 +40,8 @@ trait WithFetchOverviewWebBlock
                 "aurora_source" => $image["src"],
             ];
         }
-        data_set($layout, "data.fieldValue.value.images", $imagesArray);
+
+        data_set($layout, "data.fieldValue.images.sources", $imagesArray);
         return $layout;
     }
 }

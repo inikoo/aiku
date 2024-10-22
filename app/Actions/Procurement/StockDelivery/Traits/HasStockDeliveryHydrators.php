@@ -16,15 +16,15 @@ use App\Models\Procurement\StockDelivery;
 
 trait HasStockDeliveryHydrators
 {
-    public function runHydrators(StockDelivery $stockDelivery): void
+    public function runStockDeliveryHydrators(StockDelivery $stockDelivery): void
     {
         /** @var OrgSupplier|OrgAgent|OrgPartner $parent */
         $parent = $stockDelivery->parent;
 
         if (class_basename($parent) == 'OrgSupplier') {
-            SupplierHydrateStockDeliveries::dispatch($parent->supplier);
+            SupplierHydrateStockDeliveries::dispatch($parent->supplier)->delay($this->hydratorsDelay);
         } elseif (class_basename($parent) == 'OrgAgent') {
-            AgentHydrateStockDeliveries::dispatch($parent->agent);
+            AgentHydrateStockDeliveries::dispatch($parent->agent)->delay($this->hydratorsDelay);
         }
 
 

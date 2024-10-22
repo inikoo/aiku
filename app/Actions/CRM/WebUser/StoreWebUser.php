@@ -64,7 +64,7 @@ class StoreWebUser extends OrgAction
             return $webUser;
         });
 
-        CustomerHydrateWebUsers::run($webUser->customer)->delay($this->hydratorsDelay);
+        CustomerHydrateWebUsers::dispatch($webUser->customer)->delay($this->hydratorsDelay);
 
         return $webUser;
     }

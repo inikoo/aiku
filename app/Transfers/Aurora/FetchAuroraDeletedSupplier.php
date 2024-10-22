@@ -16,6 +16,7 @@ class FetchAuroraDeletedSupplier extends FetchAurora
     {
         $auroraDeletedData = json_decode(gzuncompress($this->auroraModelData->{'Supplier Deleted Metadata'}));
 
+
         $agentData = Db::connection('aurora')->table('Agent Supplier Bridge')
             ->leftJoin('Agent Dimension', 'Agent Supplier Agent Key', '=', 'Agent Key')
             ->select('Agent Code', 'Agent Key')
@@ -25,7 +26,6 @@ class FetchAuroraDeletedSupplier extends FetchAurora
 
         if ($agentData) {
             $agent = $this->parseAgent(
-                Str::kebab(strtolower($agentData->{'Agent Code'})),
                 $this->organisation->id.':'.$agentData->{'Agent Key'}
             );
             if (!$agent) {
@@ -57,6 +57,13 @@ class FetchAuroraDeletedSupplier extends FetchAurora
             $deleted_at = $this->auroraModelData->{'Supplier Deleted Date'};
         }
 
+        $createdAt = null;
+        if (isset($auroraDeletedData->{'Supplier Valid From'})) {
+            $createdAt = $this->parseDatetime($auroraDeletedData->{'Supplier Valid From'}) ?? null;
+        }
+
+        $scopeType = 'Group';
+        $scopeId   = $this->organisation->group_id;
 
         $this->parsedData['supplier'] =
             [
@@ -69,12 +76,16 @@ class FetchAuroraDeletedSupplier extends FetchAurora
                 'currency_id'  => $this->parseCurrencyID($auroraDeletedData->{'Supplier Default Currency Code'}),
                 'source_id'    => $this->organisation->id.':'.$auroraDeletedData->{'Supplier Key'},
                 'source_slug'  => Str::kebab(strtolower($auroraDeletedData->{'Supplier Code'}).'-deleted'),
-                'created_at'   => $auroraDeletedData->{'Supplier Valid From'} ?? null,
                 'deleted_at'   => $deleted_at,
                 'status'       => false,
-                'address'      => $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $auroraDeletedData)
-
+                'address'      => $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $auroraDeletedData),
+                'scope_type'   => $scopeType,
+                'scope_id'     => $scopeId
             ];
+
+        if ($createdAt) {
+            $this->parsedData['supplier']['created_at'] = $createdAt;
+        }
 
 
         $this->parsedData['address'] = $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $auroraDeletedData);

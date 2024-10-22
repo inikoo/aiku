@@ -45,7 +45,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property StockDeliveryStateEnum $state
  * @property StockDeliveryStatusEnum $status
  * @property string $date latest relevant date
- * @property string|null $creating_at
  * @property string|null $dispatched_at
  * @property string|null $received_at
  * @property string|null $checked_at
@@ -54,6 +53,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $number_of_items
  * @property float|null $gross_weight
  * @property float|null $net_weight
+ * @property int $currency_id
+ * @property string|null $grp_exchange
+ * @property string|null $org_exchange
  * @property string|null $cost_items
  * @property string|null $cost_extra
  * @property string|null $cost_shipping
@@ -66,6 +68,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $partner_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Address|null $address
@@ -103,6 +107,8 @@ class StockDelivery extends Model implements HasMedia, Auditable
         'data'  => 'array',
         'state' => StockDeliveryStateEnum::class,
         'status' => StockDeliveryStatusEnum::class,
+        'fetched_at'         => 'datetime',
+        'last_fetched_at'    => 'datetime',
     ];
 
     protected $attributes = [
