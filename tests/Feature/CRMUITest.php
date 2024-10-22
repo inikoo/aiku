@@ -245,7 +245,7 @@ test('UI Show customer client', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Shop/CRM/Customer')
+            ->component('Org/Shop/CRM/CustomerClient')
             ->has('title')
             ->has('breadcrumbs', 4)
             ->has('pageHead')
