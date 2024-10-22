@@ -7,8 +7,6 @@
   <script setup lang="ts">
 import { faCube, faLink } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { ref } from "vue"
-import Button from '@/Components/Elements/Buttons/Button.vue';
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 import { getStyles } from "@/Composables/styles";
 
@@ -25,7 +23,6 @@ const emits = defineEmits<{
     (e: 'autoSave'): void
 }>()
 
-console.log('cta_aurora', props.modelValue)
 </script>
   
   <template>

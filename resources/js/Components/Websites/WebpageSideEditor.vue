@@ -151,9 +151,13 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                                 <div class="px-2">
                                     <VisibleCheckmark v-model="element.visibility" @update:modelValue="onUpdatedBlock(element)"/>
                                 </div>
-                                <SideEditor v-model="element.web_block.layout.data.fieldValue"
+                              
+                                <SideEditor 
+                                    v-model="element.web_block.layout.data.fieldValue"
                                     :bluprint="element?.web_block?.layout?.blueprint"
-                                    @update:modelValue="onUpdatedBlock(element)" />
+                                    @update:modelValue="onUpdatedBlock(element)" 
+                                    :uploadImageRoute="{...webpage.images_upload_route, parameters : { modelHasWebBlocks: element.web_block.id }}"
+                                />
                             </div>
                         </Collapse>
                     </div>
