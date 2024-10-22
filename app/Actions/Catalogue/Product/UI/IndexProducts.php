@@ -275,7 +275,8 @@ class IndexProducts extends OrgAction
                 );
             }
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'tags', label: __('tags'), canBeHidden: false);
 
             if ($parent instanceof Collection or $parent instanceof ShopifyUser) {
                 $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
