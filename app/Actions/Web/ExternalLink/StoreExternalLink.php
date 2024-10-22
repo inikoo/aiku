@@ -12,7 +12,6 @@ namespace App\Actions\Web\ExternalLink;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Models\Web\ExternalLink;
-use App\Models\Web\WebBlock;
 use App\Models\Web\Webpage;
 use App\Models\Web\Website;
 use App\Rules\AlphaDashSlash;
@@ -29,11 +28,11 @@ class StoreExternalLink extends OrgAction
     public function handle(WebPage $webpage, array $modelData): ExternalLink
     {
         data_set($modelData, 'status', "200");
-    
+
         $externalLink = ExternalLink::create($modelData);
 
         foreach ($webpage->webBlocks as $webBlock) {
-            if($webBlock->id == Arr::get($modelData, 'web_block_id')){
+            if ($webBlock->id == Arr::get($modelData, 'web_block_id')) {
                 $webBlock->externalLinks()->attach($externalLink->id, [
                     'group_id' => $webpage->group_id,
                     'organisation_id' => $webpage->organisation_id,
@@ -43,7 +42,7 @@ class StoreExternalLink extends OrgAction
                 ]);
             }
         }
-    
+
         return $externalLink;
     }
 
