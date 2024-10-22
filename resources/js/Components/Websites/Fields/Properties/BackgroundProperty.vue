@@ -9,6 +9,7 @@ import GalleryManagement from '@/Components/Utils/GalleryManagement/GalleryManag
 import Modal from '@/Components/Utils/Modal.vue'
 import PureRadio from '@/Components/Pure/PureRadio.vue'
 import ColorPicker from '@/Components/Utils/ColorPicker.vue'
+import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faPencil } from '@fal'
@@ -22,6 +23,11 @@ interface BackgroundProperty {
         original: string
     }
 }
+
+const props = defineProps<{
+    uploadImageRoute?: routeType
+}>()
+
 
 const model = defineModel<BackgroundProperty>({
     required: true

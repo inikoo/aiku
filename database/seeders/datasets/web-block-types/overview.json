@@ -30,6 +30,37 @@
 					"props_data": {}
 				}
 			]
+		},
+		{
+			"name": "text",
+			"key": ["text","container", "properties"],
+			"replaceForm": [
+				{
+					"key": ["text","container", "properties", "dimension"],
+					"type": "dimension",
+					"props_data": {}
+				},
+				{
+					"key": ["text","container", "properties", "padding"],
+					"type": "padding",
+					"props_data": {}
+				},
+				{
+					"key": ["text","container", "properties", "margin"],
+					"type": "margin",
+					"props_data": {}
+				},
+				{
+					"key": ["text","container", "properties", "border"],
+					"type": "border",
+					"props_data": {}
+				}
+			]
+		},
+		{
+			"name": "image",
+			"key": ["text","container", "properties"],
+			"type": "upload_image"
 		}
 	],
 	"data": {

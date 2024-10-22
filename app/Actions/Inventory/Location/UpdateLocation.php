@@ -13,6 +13,7 @@ use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateLocations;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateLocations;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateLocations;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\LocationResource;
 use App\Models\Inventory\Location;
@@ -22,6 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateLocation extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
     private Location $location;
 
@@ -85,7 +87,7 @@ class UpdateLocation extends OrgAction
                 'max:64',
                 'string',
             ];
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules = $this->noStrictStoreRules($rules);
         }
 
         return $rules;

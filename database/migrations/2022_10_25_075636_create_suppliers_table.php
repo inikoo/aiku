@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasContact;
+
     public function up(): void
     {
         Schema::create('suppliers', function (Blueprint $table) {
@@ -20,6 +21,9 @@ return new class () extends Migration {
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedSmallInteger('agent_id')->nullable()->index();
             $table->foreign('agent_id')->references('id')->on('agents')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('scope_type')->index()->comment('Group|Organisation  used for indicate private org suppliers');
+            $table->unsignedSmallInteger('scope_id');
+
             $table->boolean('status')->default(true)->index();
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
@@ -34,13 +38,16 @@ return new class () extends Migration {
             $table->foreign('currency_id')->references('id')->on('currencies');
             $table->jsonb('settings');
             $table->jsonb('data');
+
+            $table->timestampsTz();
             $table->dateTimeTz('archived_at')->nullable();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_slug')->index()->nullable();
             $table->string('source_id')->index()->nullable();
+            $table->jsonb('sources');
+            $table->index(['scope_type', 'scope_id']);
         });
         DB::statement('CREATE INDEX ON suppliers USING gin (name gin_trgm_ops) ');
     }

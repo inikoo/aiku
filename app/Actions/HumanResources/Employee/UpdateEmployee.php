@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\User\UpdateUser;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithPreparePositionsForValidation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithReorganisePositions;
@@ -35,6 +36,7 @@ class UpdateEmployee extends OrgAction
     use WithActionUpdate;
     use WithPreparePositionsForValidation;
     use WithReorganisePositions;
+    use WithNoStrictRules;
 
     protected bool $asAction = false;
 
@@ -132,7 +134,7 @@ class UpdateEmployee extends OrgAction
             'alias'                                 => [
                 'sometimes',
                 'string',
-                'max:16',
+                $this->strict ? 'max:24' : 'max:255',
                 new IUnique(
                     table: 'employees',
                     extraConditions: [
@@ -163,10 +165,7 @@ class UpdateEmployee extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['deleted_at']      = ['sometimes', 'date'];
-            $rules['created_at']      = ['sometimes', 'date'];
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
-            $rules['source_id']       = ['sometimes', 'string', 'max:64'];
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         if ($user = $this->employee->getUser()) {

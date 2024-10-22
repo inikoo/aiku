@@ -13,6 +13,7 @@ use App\Actions\Procurement\OrgSupplier\StoreOrgSupplierFromSupplierInAgent;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSuppliers;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateUniversalSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSuppliers;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
@@ -22,7 +23,9 @@ use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -33,16 +36,12 @@ class StoreSupplier extends GrpAction
     use AsAction;
     use WithAttributes;
     use WithModelAddressActions;
+    use WithNoStrictRules;
 
-    public function authorize(ActionRequest $request): bool
-    {
-        if ($this->asAction) {
-            return true;
-        }
 
-        return $request->user()->hasPermissionTo("procurement.".$this->group->id.".edit");
-    }
-
+    /**
+     * @throws \Throwable
+     */
     public function handle(Group|Agent $parent, array $modelData): Supplier
     {
         $addressData = Arr::get($modelData, 'address');
@@ -55,27 +54,50 @@ class StoreSupplier extends GrpAction
             $group = $parent;
         }
 
-        /** @var Supplier $supplier */
-        $supplier = $parent->suppliers()->create($modelData);
-        $supplier->stats()->create();
-        SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
+        $supplier = DB::transaction(function () use ($group, $parent, $modelData, $addressData) {
+            /** @var Supplier $supplier */
+            $supplier = $parent->suppliers()->create($modelData);
+            $supplier->stats()->create();
+            SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
 
-        $supplier = $this->addAddressToModel($supplier, $addressData, 'contact');
+            $supplier = $this->addAddressToModel($supplier, $addressData, 'contact');
 
 
-        $supplier->refresh();
 
-        GroupHydrateSuppliers::run($group);
+            $supplier->refresh();
+            if ($supplier->agent_id) {
+                StoreOrgSupplierFromSupplierInAgent::make()->action(
+                    $supplier,
+                    [
+                        'source_id' => $supplier->source_id
+                    ],
+                    $this->hydratorsDelay,
+                    $this->strict
+                );
+            }
+
+            return $supplier;
+        });
+
+        GroupHydrateSuppliers::dispatch($group)->delay($this->hydratorsDelay);
 
 
         if ($supplier->agent_id) {
-            AgentHydrateSuppliers::dispatch($supplier->agent);
-            StoreOrgSupplierFromSupplierInAgent::run($supplier);
+            AgentHydrateSuppliers::dispatch($supplier->agent)->delay($this->hydratorsDelay);
         }
 
         SupplierHydrateUniversalSearch::dispatch($supplier);
 
         return $supplier;
+    }
+
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+
+        return $request->user()->hasPermissionTo("procurement.".$this->group->id.".edit");
     }
 
     public function rules(): array
@@ -98,18 +120,17 @@ class StoreSupplier extends GrpAction
             'phone'        => ['nullable', new Phone()],
             'address'      => ['required', new ValidAddress()],
             'currency_id'  => ['required', 'exists:currencies,id'],
-            'source_id'    => ['sometimes', 'nullable', 'string'],
-            'source_slug'  => ['sometimes', 'nullable', 'string'],
-            'deleted_at'   => ['sometimes', 'nullable', 'date'],
             'status'       => ['sometimes', 'required', 'boolean'],
-            'archived_at'  => ['sometimes', 'nullable', 'date'],
-            'created_at'   => ['sometimes', 'nullable', 'date'],
-            'fetched_at'   => ['sometimes', 'date'],
+            'scope_type'   => ['string', Rule::in(['Group', 'Organisation'])],
+            'scope_id'     => ['integer']
 
         ];
 
         if (!$this->strict) {
-            $rules['phone'] = ['sometimes', 'nullable', 'max:255'];
+            $rules['phone']       = ['sometimes', 'nullable', 'max:255'];
+            $rules['source_slug'] = ['sometimes', 'nullable', 'string'];
+            $rules['archived_at'] = ['sometimes', 'nullable', 'date'];
+            $rules                = $this->noStrictStoreRules($rules);
         }
 
         return $rules;
@@ -122,10 +143,17 @@ class StoreSupplier extends GrpAction
         }
     }
 
-    public function action(Group|Agent $parent, $modelData, $strict = true): Supplier
+    /**
+     * @throws \Throwable
+     */
+    public function action(Group|Agent $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Supplier
     {
-        $this->asAction = true;
-        $this->strict   = $strict;
+        if (!$audit) {
+            Supplier::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
 
         if (class_basename($parent) == 'Agent') {
             $group = $parent->group;
@@ -141,6 +169,9 @@ class StoreSupplier extends GrpAction
         );
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(ActionRequest $request): Supplier
     {
         $this->initialisation(app('group'), $request);
@@ -151,6 +182,9 @@ class StoreSupplier extends GrpAction
         );
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function inAgent(Agent $agent, ActionRequest $request): Supplier
     {
         $this->initialisation(app('group'), $request);
