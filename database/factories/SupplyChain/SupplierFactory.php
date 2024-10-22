@@ -24,7 +24,9 @@ class SupplierFactory extends Factory
             'contact_name' => fake()->name,
             'email'        => fake()->email,
             'currency_id'  => $currency->id,
-            'address'      => Address::factory()->definition()
+            'address'      => Address::factory()->definition(),
+            'scope_type'   => 'Group',
+            'scope_id'     => 1
         ];
     }
 }

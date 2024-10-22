@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\StockDeliveryItem\StockDeliveryItemStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

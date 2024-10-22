@@ -71,6 +71,7 @@ beforeEach(function () {
 
 
 test('create independent supplier', function () {
+
     $supplier = StoreSupplier::make()->action(
         parent: $this->group,
         modelData: Supplier::factory()->definition()
@@ -95,7 +96,7 @@ test('attach supplier to organisation', function ($supplier) {
 
 test('create purchase order while no available products', function ($orgSupplier) {
     expect(function () use ($orgSupplier) {
-        StorePurchaseOrder::make()->action($this->organisation, $orgSupplier, PurchaseOrder::factory()->definition());
+        StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
     })->toThrow(ValidationException::class);
 })->depends('attach supplier to organisation');
 
@@ -139,7 +140,7 @@ test('create purchase order independent supplier', function (OrgSupplierProduct 
 
     $orgSupplier = $orgSupplierProduct->orgSupplier;
 
-    $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $orgSupplier, $purchaseOrderData);
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, $purchaseOrderData);
     $supplier      = $orgSupplier->supplier;
 
     expect($purchaseOrder)->toBeInstanceOf(PurchaseOrder::class)
@@ -218,7 +219,8 @@ test('delete purchase order', function () {
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, $supplierProductData);
     StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
 
-    $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $orgSupplier, PurchaseOrder::factory()->definition());
+    $purchaseOrder = StorePurchaseOrder::make()->action($orgSupplier, PurchaseOrder::factory()->definition());
+
     $purchaseOrder->refresh();
 
     expect($supplier->stats->number_purchase_orders)->toBe(1)->and($purchaseOrder)->toBeInstanceOf(PurchaseOrder::class);
@@ -226,7 +228,7 @@ test('delete purchase order', function () {
     try {
         $purchaseOrderDeleted = DeletePurchaseOrder::make()->action($purchaseOrder);
     } catch (ValidationException $e) {
-        dd($e);
+        // do nothing
     }
     $supplier->refresh();
 
@@ -264,7 +266,7 @@ test('update purchase order', function ($purchaseOrder) {
 })->depends('create purchase order independent supplier');
 
 test('create purchase order by agent', function () {
-    $purchaseOrder = StorePurchaseOrder::make()->action($this->organisation, $this->agent, PurchaseOrder::factory()->definition());
+    $purchaseOrder = StorePurchaseOrder::make()->action($this->agent, PurchaseOrder::factory()->definition());
     $this->assertModelExists($purchaseOrder);
 })->todo();
 
@@ -376,7 +378,7 @@ test('create supplier delivery', function (OrgSupplier $orgSupplier) {
         'date'      => date('Y-m-d')
     ];
 
-    $stockDelivery = StoreStockDelivery::make()->action($this->organisation, $orgSupplier, $arrayData);
+    $stockDelivery = StoreStockDelivery::make()->action($orgSupplier, $arrayData);
     $stockDelivery->refresh();
     expect($stockDelivery)->toBeInstanceOf(StockDelivery::class)
         ->and($stockDelivery->organisation_id)->toBe($this->organisation->id)

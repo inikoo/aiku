@@ -19,7 +19,7 @@ class ClockingHanResource extends JsonResource
     public function toArray($request): array
     {
         /** @var Clocking $clocking */
-        $clocking= $this;
+        $clocking = $this;
         return [
             'id'         => $clocking->id,
             'clocked_at' => $clocking->clocked_at,
