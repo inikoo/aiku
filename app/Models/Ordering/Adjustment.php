@@ -37,9 +37,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop|null $shop
- * @method static \Illuminate\Database\Eloquent\Builder|Adjustment newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Adjustment newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Adjustment query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Adjustment newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Adjustment newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Adjustment query()
  * @mixin \Eloquent
  */
 class Adjustment extends Model

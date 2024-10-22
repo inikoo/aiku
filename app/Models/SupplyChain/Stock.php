@@ -78,12 +78,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\SupplyChain\StockFactory factory($count = null, $state = [])
- * @method static Builder|Stock newModelQuery()
- * @method static Builder|Stock newQuery()
- * @method static Builder|Stock onlyTrashed()
- * @method static Builder|Stock query()
- * @method static Builder|Stock withTrashed()
- * @method static Builder|Stock withoutTrashed()
+ * @method static Builder<static>|Stock newModelQuery()
+ * @method static Builder<static>|Stock newQuery()
+ * @method static Builder<static>|Stock onlyTrashed()
+ * @method static Builder<static>|Stock query()
+ * @method static Builder<static>|Stock withTrashed()
+ * @method static Builder<static>|Stock withoutTrashed()
  * @mixin Eloquent
  */
 class Stock extends Model implements HasMedia, Auditable

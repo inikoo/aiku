@@ -38,12 +38,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
- * @method static \Illuminate\Database\Eloquent\Builder|Task newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Task newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Task onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Task query()
- * @method static \Illuminate\Database\Eloquent\Builder|Task withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Task withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Task newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Task newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Task onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Task query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Task withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Task withoutTrashed()
  * @mixin \Eloquent
  */
 class Task extends Model

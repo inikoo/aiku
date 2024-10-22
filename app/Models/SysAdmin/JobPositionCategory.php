@@ -28,9 +28,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static \Illuminate\Database\Eloquent\Builder|JobPositionCategory newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|JobPositionCategory newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|JobPositionCategory query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobPositionCategory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobPositionCategory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobPositionCategory query()
  * @mixin \Eloquent
  */
 class JobPositionCategory extends Model

@@ -47,9 +47,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\Inventory\OrgStock $orgStock
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Inventory\Warehouse $warehouse
- * @method static Builder|OrgStockMovement newModelQuery()
- * @method static Builder|OrgStockMovement newQuery()
- * @method static Builder|OrgStockMovement query()
+ * @method static Builder<static>|OrgStockMovement newModelQuery()
+ * @method static Builder<static>|OrgStockMovement newQuery()
+ * @method static Builder<static>|OrgStockMovement query()
  * @mixin Eloquent
  */
 class OrgStockMovement extends Model

@@ -64,8 +64,6 @@ use Spatie\Tags\Tag;
  * @property bool $can_contact_by_phone
  * @property bool $can_contact_by_address
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $contacted_at
  * @property \Illuminate\Support\Carbon|null $last_contacted_at
  * @property \Illuminate\Support\Carbon|null $last_opened_at
@@ -75,6 +73,10 @@ use Spatie\Tags\Tag;
  * @property \Illuminate\Support\Carbon|null $registered_at
  * @property \Illuminate\Support\Carbon|null $invoiced_at
  * @property \Illuminate\Support\Carbon|null $last_soft_bounced_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
@@ -88,17 +90,17 @@ use Spatie\Tags\Tag;
  * @property-read Shop $shop
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\CRM\ProspectFactory factory($count = null, $state = [])
- * @method static Builder|Prospect newModelQuery()
- * @method static Builder|Prospect newQuery()
- * @method static Builder|Prospect onlyTrashed()
- * @method static Builder|Prospect query()
- * @method static Builder|Prospect withAllTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
- * @method static Builder|Prospect withAllTagsOfAnyType($tags)
- * @method static Builder|Prospect withAnyTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
- * @method static Builder|Prospect withAnyTagsOfAnyType($tags)
- * @method static Builder|Prospect withTrashed()
- * @method static Builder|Prospect withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
- * @method static Builder|Prospect withoutTrashed()
+ * @method static Builder<static>|Prospect newModelQuery()
+ * @method static Builder<static>|Prospect newQuery()
+ * @method static Builder<static>|Prospect onlyTrashed()
+ * @method static Builder<static>|Prospect query()
+ * @method static Builder<static>|Prospect withAllTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static Builder<static>|Prospect withAllTagsOfAnyType($tags)
+ * @method static Builder<static>|Prospect withAnyTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static Builder<static>|Prospect withAnyTagsOfAnyType($tags)
+ * @method static Builder<static>|Prospect withTrashed()
+ * @method static Builder<static>|Prospect withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static Builder<static>|Prospect withoutTrashed()
  * @mixin Eloquent
  */
 class Prospect extends Model implements Auditable
@@ -129,6 +131,8 @@ class Prospect extends Model implements Auditable
         'registered_at'        => 'datetime',
         'invoiced_at'          => 'datetime',
         'last_soft_bounced_at' => 'datetime',
+        'fetched_at'           => 'datetime',
+        'last_fetched_at'      => 'datetime',
 
     ];
 

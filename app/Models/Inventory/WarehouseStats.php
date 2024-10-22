@@ -164,9 +164,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Inventory\Warehouse $warehouse
- * @method static Builder|WarehouseStats newModelQuery()
- * @method static Builder|WarehouseStats newQuery()
- * @method static Builder|WarehouseStats query()
+ * @method static Builder<static>|WarehouseStats newModelQuery()
+ * @method static Builder<static>|WarehouseStats newQuery()
+ * @method static Builder<static>|WarehouseStats query()
  * @mixin Eloquent
  */
 class WarehouseStats extends Model

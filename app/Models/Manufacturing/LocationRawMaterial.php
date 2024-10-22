@@ -18,9 +18,9 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  * @property RawMaterialTypeEnum $type
  * @property-read Location|null $location
  * @property-read \App\Models\Manufacturing\RawMaterial|null $rawMaterial
- * @method static \Illuminate\Database\Eloquent\Builder|LocationRawMaterial newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LocationRawMaterial newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|LocationRawMaterial query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocationRawMaterial newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocationRawMaterial newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|LocationRawMaterial query()
  * @mixin \Eloquent
  */
 class LocationRawMaterial extends Pivot

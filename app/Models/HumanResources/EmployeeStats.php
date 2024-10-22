@@ -28,9 +28,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_time_trackers_status_error
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|EmployeeStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EmployeeStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EmployeeStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmployeeStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmployeeStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmployeeStats query()
  * @mixin \Eloquent
  */
 class EmployeeStats extends Model

@@ -47,12 +47,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
  * @property-read \App\Models\Manufacturing\ProductionStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|Production newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Production newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Production onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Production query()
- * @method static \Illuminate\Database\Eloquent\Builder|Production withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Production withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Production newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Production newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Production onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Production query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Production withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Production withoutTrashed()
  * @mixin \Eloquent
  */
 class Production extends Model implements Auditable

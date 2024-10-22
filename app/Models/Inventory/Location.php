@@ -71,24 +71,23 @@ use Spatie\Tags\HasTags;
  * @property-read \App\Models\Inventory\Warehouse $warehouse
  * @property-read \App\Models\Inventory\WarehouseArea|null $warehouseArea
  * @method static \Database\Factories\Inventory\LocationFactory factory($count = null, $state = [])
- * @method static Builder|Location newModelQuery()
- * @method static Builder|Location newQuery()
- * @method static Builder|Location onlyTrashed()
- * @method static Builder|Location query()
- * @method static Builder|Location withAllTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
- * @method static Builder|Location withAllTagsOfAnyType($tags)
- * @method static Builder|Location withAnyTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
- * @method static Builder|Location withAnyTagsOfAnyType($tags)
- * @method static Builder|Location withTrashed()
- * @method static Builder|Location withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
- * @method static Builder|Location withoutTrashed()
+ * @method static Builder<static>|Location newModelQuery()
+ * @method static Builder<static>|Location newQuery()
+ * @method static Builder<static>|Location onlyTrashed()
+ * @method static Builder<static>|Location query()
+ * @method static Builder<static>|Location withAllTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static Builder<static>|Location withAllTagsOfAnyType($tags)
+ * @method static Builder<static>|Location withAnyTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static Builder<static>|Location withAnyTagsOfAnyType($tags)
+ * @method static Builder<static>|Location withTrashed()
+ * @method static Builder<static>|Location withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static Builder<static>|Location withoutTrashed()
  * @mixin Eloquent
  */
 class Location extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
-
     use HasUniversalSearch;
     use HasFactory;
     use HasHistory;

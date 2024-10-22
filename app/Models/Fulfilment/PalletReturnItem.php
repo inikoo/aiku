@@ -30,9 +30,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Fulfilment\Pallet $pallet
  * @property-read \App\Models\Fulfilment\PalletReturn $palletReturn
- * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnItem newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnItem newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletReturnItem query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturnItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturnItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletReturnItem query()
  * @mixin \Eloquent
  */
 class PalletReturnItem extends Model

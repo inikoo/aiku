@@ -41,9 +41,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Models\SysAdmin\Group|null $group
  * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read \App\Models\Catalogue\Shop|null $shop
- * @method static \Illuminate\Database\Eloquent\Builder|History newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|History newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|History query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|History newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|History newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|History query()
  * @mixin \Eloquent
  */
 class History extends Model

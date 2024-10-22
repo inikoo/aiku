@@ -77,6 +77,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Webpage> $children
  * @property-read Collection<int, Deployment> $deployments
+ * @property-read Collection<int, \App\Models\Web\ExternalLink> $externalLinks
  * @property-read Group $group
  * @property-read Model|\Eloquent|null $model
  * @property-read Collection<int, ModelHasWebBlocks> $modelHasWebBlocks
@@ -92,12 +93,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Webpage> $webpages
  * @property-read \App\Models\Web\Website $website
  * @method static \Database\Factories\Web\WebpageFactory factory($count = null, $state = [])
- * @method static Builder|Webpage newModelQuery()
- * @method static Builder|Webpage newQuery()
- * @method static Builder|Webpage onlyTrashed()
- * @method static Builder|Webpage query()
- * @method static Builder|Webpage withTrashed()
- * @method static Builder|Webpage withoutTrashed()
+ * @method static Builder<static>|Webpage newModelQuery()
+ * @method static Builder<static>|Webpage newQuery()
+ * @method static Builder<static>|Webpage onlyTrashed()
+ * @method static Builder<static>|Webpage query()
+ * @method static Builder<static>|Webpage withTrashed()
+ * @method static Builder<static>|Webpage withoutTrashed()
  * @mixin Eloquent
  */
 class Webpage extends Model implements Auditable

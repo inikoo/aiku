@@ -126,9 +126,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesIntervals newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesIntervals newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopSalesIntervals query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopSalesIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopSalesIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopSalesIntervals query()
  * @mixin \Eloquent
  */
 class ShopSalesIntervals extends Model

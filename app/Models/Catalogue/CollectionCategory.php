@@ -45,12 +45,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\CollectionCategoryStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategory newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategory newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategory onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategory query()
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategory withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategory withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionCategory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionCategory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionCategory onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionCategory query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionCategory withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionCategory withoutTrashed()
  * @mixin \Eloquent
  */
 class CollectionCategory extends Model implements Auditable

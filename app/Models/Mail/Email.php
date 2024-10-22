@@ -18,9 +18,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $hard_bounce_type
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|Email newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Email newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Email query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Email newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Email newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Email query()
  * @mixin \Eloquent
  */
 class Email extends Model

@@ -24,9 +24,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Country> $countries
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Timezone query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Timezone newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Timezone newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Timezone query()
  * @mixin \Eloquent
  */
 class Timezone extends Model

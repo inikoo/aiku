@@ -21,9 +21,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property array $body
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static Builder|ActionHistory newModelQuery()
- * @method static Builder|ActionHistory newQuery()
- * @method static Builder|ActionHistory query()
+ * @method static Builder<static>|ActionHistory newModelQuery()
+ * @method static Builder<static>|ActionHistory newQuery()
+ * @method static Builder<static>|ActionHistory query()
  * @mixin Eloquent
  */
 

@@ -90,9 +90,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static \Illuminate\Database\Eloquent\Builder|GroupAccountingStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupAccountingStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupAccountingStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupAccountingStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupAccountingStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupAccountingStats query()
  * @mixin \Eloquent
  */
 class GroupAccountingStats extends Model

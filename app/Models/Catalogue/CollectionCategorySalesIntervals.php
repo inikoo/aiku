@@ -124,9 +124,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategorySalesIntervals newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategorySalesIntervals newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategorySalesIntervals query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionCategorySalesIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionCategorySalesIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionCategorySalesIntervals query()
  * @mixin \Eloquent
  */
 class CollectionCategorySalesIntervals extends Model

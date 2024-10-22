@@ -27,6 +27,7 @@ use App\Rules\IUnique;
 use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\ActionRequest;
@@ -41,6 +42,9 @@ class StoreProspect extends OrgAction
     use WithModelAddressActions;
 
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Shop $shop, array $modelData): Prospect
     {
         $tags = Arr::get($modelData, 'tags', []);
@@ -71,30 +75,33 @@ class StoreProspect extends OrgAction
             data_set($modelData, 'fail_status', ProspectFailStatusEnum::INVALID);
         }
 
+        $prospect = DB::transaction(function () use ($shop, $modelData, $addressData) {
+            /** @var Prospect $prospect */
+            $prospect = $shop->prospects()->create($modelData);
 
-        /** @var Prospect $prospect */
-        $prospect = $shop->prospects()->create($modelData);
-
-        $prospect->updateQuietly(
-            [
-                'can_contact_by_email' => $this->canContactByEmail($prospect),
-                'can_contact_by_phone' => $this->canContactByPhone($prospect)
-            ]
-        );
-
-        if ($addressData) {
-            $prospect = $this->addAddressToModel(
-                model: $prospect,
-                addressData: $addressData,
-                scope: 'contact'
+            $prospect->updateQuietly(
+                [
+                    'can_contact_by_email' => $this->canContactByEmail($prospect),
+                    'can_contact_by_phone' => $this->canContactByPhone($prospect)
+                ]
             );
-        }
 
-        ProspectRecordSearch::dispatch($prospect);
-        OrganisationHydrateProspects::dispatch($shop->organisation)->delay(now()->addSeconds(2));
-        ShopHydrateProspects::dispatch($shop);
+            if ($addressData) {
+                $prospect = $this->addAddressToModel(
+                    model: $prospect,
+                    addressData: $addressData,
+                    scope: 'contact'
+                );
+            }
 
-        HydrateModelTypeQueries::dispatch('Prospect')->delay(now()->addSeconds(2));
+            return $prospect;
+        });
+
+        ProspectRecordSearch::dispatch($prospect)->delay($this->hydratorsDelay);
+        OrganisationHydrateProspects::dispatch($shop->organisation)->delay($this->hydratorsDelay);
+        ShopHydrateProspects::dispatch($shop)->delay($this->hydratorsDelay);
+
+        HydrateModelTypeQueries::dispatch('Prospect')->delay($this->hydratorsDelay);
 
         if ($tags && count($tags)) {
             SyncTagsProspect::make()->action($prospect, ['tags' => $tags, 'type' => 'crm']);
@@ -122,16 +129,13 @@ class StoreProspect extends OrgAction
             'state'             => ['sometimes', new Enum(ProspectStateEnum::class)],
             'data'              => 'sometimes|array',
             'last_contacted_at' => 'sometimes|nullable|date',
-            'created_at'        => 'sometimes|date',
             'address'           => ['sometimes', 'nullable', new ValidAddress()],
             'contact_name'      => ['nullable', 'string', 'max:255'],
             'company_name'      => ['nullable', 'string', 'max:255'],
             'tags'              => ['sometimes', 'nullable', 'array'],
             'tags.*'            => ['string'],
-            'source_id'         => ['sometimes', 'string', 'max:255'],
             'email'             => [
-                'string',
-                'max:500',
+                $this->strict ? 'email' : 'string:500',
                 new IUnique(
                     table: 'prospects',
                     extraConditions: [
@@ -142,59 +146,49 @@ class StoreProspect extends OrgAction
 
             ],
             'phone'             => [
+                'required_without:email',
                 'nullable',
-                'string',
-                'min:5',
-                'max:24'
-
+                new Phone(),
+                new IUnique(
+                    table: 'prospects',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                    ]
+                ),
             ],
-            'contact_website'   => [
+
+            'contact_website' => [
                 'nullable',
-                'string',
-                'max:500',
+                $this->strict ? 'url:http,https' : 'string:500',
+
             ],
 
         ];
 
-        if ($this->strict) {
-            $strictRules = [
-                'email'           => [
-                    'required_without:phone',
-                    'email',
-                    'max:500',
-                    new IUnique(
-                        table: 'prospects',
-                        extraConditions: [
-                            ['column' => 'shop_id', 'value' => $this->shop->id],
-
-                        ]
-                    ),
-
-                ],
-                'phone'           => [
-                    'required_without:email',
-                    'nullable',
-                    new Phone(),
-                    new IUnique(
-                        table: 'prospects',
-                        extraConditions: [
-                            ['column' => 'shop_id', 'value' => $this->shop->id],
-                        ]
-                    ),
-                ],
-                'contact_website' => [
-                    'nullable',
-                    'url:http,https'
-                ],
+        if (!$this->strict) {
+            $rules['phone']      = [
+                'nullable',
+                'string',
+                'min:5',
+                'max:24'
             ];
-            $rules       = array_merge($rules, $strictRules);
+            $rules['created_at'] = ['sometimes', 'date'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
         }
 
         return $rules;
     }
 
-    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Prospect
+    /**
+     * @throws \Throwable
+     */
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Prospect
     {
+        if (!$audit) {
+            Prospect::disableAuditing();
+        }
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->strict         = $strict;

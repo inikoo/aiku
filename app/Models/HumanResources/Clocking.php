@@ -53,12 +53,12 @@ use Spatie\MediaLibrary\HasMedia;
  * @property-read Model|\Eloquent|null $subject
  * @property-read \App\Models\HumanResources\Timesheet|null $timesheet
  * @property-read \App\Models\HumanResources\Workplace|null $workplace
- * @method static Builder|Clocking newModelQuery()
- * @method static Builder|Clocking newQuery()
- * @method static Builder|Clocking onlyTrashed()
- * @method static Builder|Clocking query()
- * @method static Builder|Clocking withTrashed()
- * @method static Builder|Clocking withoutTrashed()
+ * @method static Builder<static>|Clocking newModelQuery()
+ * @method static Builder<static>|Clocking newQuery()
+ * @method static Builder<static>|Clocking onlyTrashed()
+ * @method static Builder<static>|Clocking query()
+ * @method static Builder<static>|Clocking withTrashed()
+ * @method static Builder<static>|Clocking withoutTrashed()
  * @mixin Eloquent
  */
 class Clocking extends Model implements HasMedia

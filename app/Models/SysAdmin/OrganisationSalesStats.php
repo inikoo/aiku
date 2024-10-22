@@ -75,9 +75,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationSalesStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationSalesStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationSalesStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationSalesStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationSalesStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationSalesStats query()
  * @mixin \Eloquent
  */
 class OrganisationSalesStats extends Model

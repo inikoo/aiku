@@ -38,12 +38,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $external_service_failed_at Last time on;ine validation fail due external service down
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\Helpers\Country|null $country
- * @method static Builder|TaxNumber newModelQuery()
- * @method static Builder|TaxNumber newQuery()
- * @method static Builder|TaxNumber onlyTrashed()
- * @method static Builder|TaxNumber query()
- * @method static Builder|TaxNumber withTrashed()
- * @method static Builder|TaxNumber withoutTrashed()
+ * @method static Builder<static>|TaxNumber newModelQuery()
+ * @method static Builder<static>|TaxNumber newQuery()
+ * @method static Builder<static>|TaxNumber onlyTrashed()
+ * @method static Builder<static>|TaxNumber query()
+ * @method static Builder<static>|TaxNumber withTrashed()
+ * @method static Builder<static>|TaxNumber withoutTrashed()
  * @mixin Eloquent
  */
 class TaxNumber extends Model

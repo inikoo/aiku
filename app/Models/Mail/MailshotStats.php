@@ -33,9 +33,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Mail\Mailshot|null $mailshot
- * @method static Builder|MailshotStats newModelQuery()
- * @method static Builder|MailshotStats newQuery()
- * @method static Builder|MailshotStats query()
+ * @method static Builder<static>|MailshotStats newModelQuery()
+ * @method static Builder<static>|MailshotStats newQuery()
+ * @method static Builder<static>|MailshotStats query()
  * @mixin Eloquent
  */
 class MailshotStats extends Model

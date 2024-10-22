@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateEmployees;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateEmployees;
 use App\Actions\SysAdmin\User\StoreUser;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithPreparePositionsForValidation;
 use App\Actions\Traits\WithReorganisePositions;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
@@ -25,6 +26,7 @@ use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -35,7 +37,11 @@ class StoreEmployee extends OrgAction
 {
     use WithPreparePositionsForValidation;
     use WithReorganisePositions;
+    use WithNoStrictRules;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Organisation|Workplace $parent, array $modelData): Employee
     {
         if (class_basename($parent) === 'Workplace') {
@@ -55,40 +61,42 @@ class StoreEmployee extends OrgAction
         data_forget($modelData, 'positions');
         $positions = $this->reorganisePositionsSlugsToIds($positions);
 
+        $employee = DB::transaction(function () use ($parent, $modelData, $positions, $credentials) {
+            /** @var Employee $employee */
+            $employee = $parent->employees()->create($modelData);
+            $employee->stats()->create();
 
-        /** @var Employee $employee */
-        $employee = $parent->employees()->create($modelData);
-        $employee->stats()->create();
-
-        if (in_array($employee->state, [EmployeeStateEnum::LEAVING, EmployeeStateEnum::WORKING])) {
-            SetEmployeePin::make()->action($employee, updateQuietly: true);
-        }
-
-
-        if (Arr::get($credentials, 'username')) {
+            if (in_array($employee->state, [EmployeeStateEnum::LEAVING, EmployeeStateEnum::WORKING])) {
+                SetEmployeePin::make()->action($employee, updateQuietly: true);
+            }
 
 
-            $status = Arr::get($credentials, 'user_model_status', true);
+            if (Arr::get($credentials, 'username')) {
+                $status = Arr::get($credentials, 'user_model_status', true);
 
-            StoreUser::make()->action(
-                $employee,
-                [
-                    'username'          => Arr::get($credentials, 'username'),
-                    'password'          => Arr::get(
-                        $credentials,
-                        'password',
-                        (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
-                    ),
-                    'contact_name'      => $employee->contact_name,
-                    'email'             => $employee->work_email,
-                    'reset_password'    => Arr::get($credentials, 'reset_password', true),
-                    'status'            => $status,
-                    'user_model_status' => $status
-                ],
-            );
-        }
+                StoreUser::make()->action(
+                    $employee,
+                    [
+                        'username'          => Arr::get($credentials, 'username'),
+                        'password'          => Arr::get(
+                            $credentials,
+                            'password',
+                            (app()->isLocal() ? 'hello' : wordwrap(Str::random(), 4, '-', true))
+                        ),
+                        'contact_name'      => $employee->contact_name,
+                        'email'             => $employee->work_email,
+                        'reset_password'    => Arr::get($credentials, 'reset_password', true),
+                        'status'            => $status,
+                        'user_model_status' => $status
+                    ],
+                );
+            }
 
-        SyncEmployeeJobPositions::run($employee, $positions);
+            SyncEmployeeJobPositions::run($employee, $positions);
+
+            return $employee;
+        });
+
 
         EmployeeHydrateWeekWorkingHours::dispatch($employee)->delay($this->hydratorsDelay);
         GroupHydrateEmployees::dispatch($employee->group)->delay($this->hydratorsDelay);
@@ -184,15 +192,15 @@ class StoreEmployee extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['created_at'] = ['sometimes', 'date'];
-            $rules['fetched_at'] = ['sometimes', 'date'];
-            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+            $rules = $this->noStrictRules($rules);
         }
 
         return $rules;
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function action(Organisation|Workplace $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Employee
     {
         if (!$audit) {
@@ -213,6 +221,9 @@ class StoreEmployee extends OrgAction
         return $this->handle($parent, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(Organisation $organisation, ActionRequest $request): Employee
     {
         $this->initialisation($organisation, $request);

@@ -9,6 +9,7 @@ namespace App\Models\Dispatching;
 
 use App\Models\Helpers\Issue;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,8 +18,10 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -42,32 +45,38 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Issue> $issues
  * @property-read Organisation $organisation
  * @property-read Collection<int, \App\Models\Dispatching\Shipment> $shipments
  * @property-read Collection<int, \App\Models\Dispatching\ShippingEvent> $shippingEvents
+ * @property-read \App\Models\Dispatching\ShipperStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static Builder|Shipper newModelQuery()
- * @method static Builder|Shipper newQuery()
- * @method static Builder|Shipper onlyTrashed()
- * @method static Builder|Shipper query()
- * @method static Builder|Shipper withTrashed()
- * @method static Builder|Shipper withoutTrashed()
+ * @method static Builder<static>|Shipper newModelQuery()
+ * @method static Builder<static>|Shipper newQuery()
+ * @method static Builder<static>|Shipper onlyTrashed()
+ * @method static Builder<static>|Shipper query()
+ * @method static Builder<static>|Shipper withTrashed()
+ * @method static Builder<static>|Shipper withoutTrashed()
  * @mixin Eloquent
  */
-class Shipper extends Model
+class Shipper extends Model implements Auditable
 {
     use HasSlug;
     use SoftDeletes;
     use HasUniversalSearch;
-
+    use HasHistory;
     use HasFactory;
 
     protected $casts = [
-        'data'   => 'array',
-        'status' => 'boolean',
+        'data'            => 'array',
+        'status'          => 'boolean',
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
     protected $attributes = [
@@ -75,6 +84,26 @@ class Shipper extends Model
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return [
+            'dispatching'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'api_shipper',
+        'status',
+        'name',
+        'contact_name',
+        'company_name',
+        'email',
+        'phone',
+        'website',
+        'tracking_url',
+    ];
 
     public function getSlugOptions(): SlugOptions
     {
@@ -88,6 +117,7 @@ class Shipper extends Model
     {
         return $this->belongsTo(Organisation::class);
     }
+
     public function shipments(): HasMany
     {
         return $this->hasMany(Shipment::class);
@@ -102,4 +132,10 @@ class Shipper extends Model
     {
         return $this->morphToMany(ShippingEvent::class, 'provider');
     }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(ShipperStats::class);
+    }
+
 }

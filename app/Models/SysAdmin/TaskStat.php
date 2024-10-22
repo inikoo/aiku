@@ -20,12 +20,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Task $task
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStat newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStat newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStat onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStat query()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStat withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskStat withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskStat newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskStat newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskStat onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskStat query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskStat withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskStat withoutTrashed()
  * @mixin \Eloquent
  */
 class TaskStat extends Model

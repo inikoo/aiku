@@ -18,9 +18,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $historic_supplier_product_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static Builder|HistoricSupplierProductStats newModelQuery()
- * @method static Builder|HistoricSupplierProductStats newQuery()
- * @method static Builder|HistoricSupplierProductStats query()
+ * @method static Builder<static>|HistoricSupplierProductStats newModelQuery()
+ * @method static Builder<static>|HistoricSupplierProductStats newQuery()
+ * @method static Builder<static>|HistoricSupplierProductStats query()
  * @mixin Eloquent
  */
 class HistoricSupplierProductStats extends Model

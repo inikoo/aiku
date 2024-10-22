@@ -28,9 +28,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|TaxCategory newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TaxCategory newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TaxCategory query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxCategory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxCategory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaxCategory query()
  * @mixin \Eloquent
  */
 class TaxCategory extends Model

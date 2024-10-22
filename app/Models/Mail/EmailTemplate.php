@@ -52,9 +52,9 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @property-read Snapshot|null $unpublishedSnapshot
  * @property-read Warehouse|null $warehouse
  * @property-read Website|null $website
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|EmailTemplate query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplate newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplate newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplate query()
  * @mixin \Eloquent
  */
 class EmailTemplate extends Model implements HasMedia

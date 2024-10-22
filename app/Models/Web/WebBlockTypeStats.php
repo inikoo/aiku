@@ -21,9 +21,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Web\WebBlockType $webBlockType
- * @method static \Illuminate\Database\Eloquent\Builder|WebBlockTypeStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WebBlockTypeStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|WebBlockTypeStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebBlockTypeStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebBlockTypeStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WebBlockTypeStats query()
  * @mixin \Eloquent
  */
 class WebBlockTypeStats extends Model

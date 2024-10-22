@@ -142,12 +142,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Collection<int, \App\Models\CRM\WebUser> $webUsers
  * @method static \Database\Factories\CRM\CustomerFactory factory($count = null, $state = [])
- * @method static Builder|Customer newModelQuery()
- * @method static Builder|Customer newQuery()
- * @method static Builder|Customer onlyTrashed()
- * @method static Builder|Customer query()
- * @method static Builder|Customer withTrashed()
- * @method static Builder|Customer withoutTrashed()
+ * @method static Builder<static>|Customer newModelQuery()
+ * @method static Builder<static>|Customer newQuery()
+ * @method static Builder<static>|Customer onlyTrashed()
+ * @method static Builder<static>|Customer query()
+ * @method static Builder<static>|Customer withTrashed()
+ * @method static Builder<static>|Customer withoutTrashed()
  * @mixin \Eloquent
  */
 class Customer extends Model implements HasMedia, Auditable
@@ -273,7 +273,6 @@ class Customer extends Model implements HasMedia, Auditable
     {
         return $this->hasMany(CustomerClient::class);
     }
-
 
     public function stats(): HasOne
     {

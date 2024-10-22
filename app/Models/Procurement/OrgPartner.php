@@ -28,9 +28,9 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\OrgPartnerStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\StockDelivery> $stockDeliveries
- * @method static \Illuminate\Database\Eloquent\Builder|OrgPartner newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgPartner newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgPartner query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPartner newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPartner newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPartner query()
  * @mixin \Eloquent
  */
 class OrgPartner extends Model

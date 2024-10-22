@@ -20,9 +20,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SupplyChain\SupplierProduct $supplierProduct
- * @method static Builder|SupplierProductStats newModelQuery()
- * @method static Builder|SupplierProductStats newQuery()
- * @method static Builder|SupplierProductStats query()
+ * @method static Builder<static>|SupplierProductStats newModelQuery()
+ * @method static Builder<static>|SupplierProductStats newQuery()
+ * @method static Builder<static>|SupplierProductStats query()
  * @mixin Eloquent
  */
 class SupplierProductStats extends Model

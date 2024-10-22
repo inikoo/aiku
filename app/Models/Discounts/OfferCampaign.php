@@ -51,12 +51,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Discounts\OfferCampaignStats|null $stats
  * @method static \Database\Factories\Discounts\OfferCampaignFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign query()
- * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|OfferCampaign withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferCampaign newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferCampaign newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferCampaign onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferCampaign query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferCampaign withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferCampaign withoutTrashed()
  * @mixin \Eloquent
  */
 class OfferCampaign extends Model implements Auditable

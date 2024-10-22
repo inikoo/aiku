@@ -86,12 +86,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $supplierProducts
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\SupplyChain\SupplierFactory factory($count = null, $state = [])
- * @method static Builder|Supplier newModelQuery()
- * @method static Builder|Supplier newQuery()
- * @method static Builder|Supplier onlyTrashed()
- * @method static Builder|Supplier query()
- * @method static Builder|Supplier withTrashed()
- * @method static Builder|Supplier withoutTrashed()
+ * @method static Builder<static>|Supplier newModelQuery()
+ * @method static Builder<static>|Supplier newQuery()
+ * @method static Builder<static>|Supplier onlyTrashed()
+ * @method static Builder<static>|Supplier query()
+ * @method static Builder<static>|Supplier withTrashed()
+ * @method static Builder<static>|Supplier withoutTrashed()
  * @mixin Eloquent
  */
 class Supplier extends Model implements HasMedia, Auditable

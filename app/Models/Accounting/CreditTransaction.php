@@ -45,9 +45,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\Accounting\Payment|null $payment
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Accounting\TopUp|null $topUp
- * @method static \Illuminate\Database\Eloquent\Builder|CreditTransaction newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CreditTransaction newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CreditTransaction query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CreditTransaction newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CreditTransaction newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CreditTransaction query()
  * @mixin \Eloquent
  */
 class CreditTransaction extends Model

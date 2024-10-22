@@ -13,7 +13,6 @@ use App\Enums\CRM\Prospect\ProspectStateEnum;
 use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class FetchAuroraProspect extends FetchAurora
 {
@@ -22,7 +21,6 @@ class FetchAuroraProspect extends FetchAurora
      */
     protected function parseModel(): void
     {
-        $state = Str::kebab($this->auroraModelData->{'Prospect Status'});
 
         $customerId = null;
         if ($this->auroraModelData->{'Prospect Customer Key'}) {
@@ -30,8 +28,6 @@ class FetchAuroraProspect extends FetchAurora
                 $this->organisation->id.':'.
                 $this->auroraModelData->{'Prospect Customer Key'}
             );
-
-
             $customerId = $customer?->id;
 
         }
@@ -97,7 +93,9 @@ class FetchAuroraProspect extends FetchAurora
                 'contact_website'   => $this->auroraModelData->{'Prospect Website'},
                 'source_id'         => $this->organisation->id.':'.$this->auroraModelData->{'Prospect Key'},
                 'customer_id'       => $customerId,
-                'address'           => $this->parseAddress(prefix: 'Prospect', auAddressData: $this->auroraModelData)
+                'address'           => $this->parseAddress(prefix: 'Prospect', auAddressData: $this->auroraModelData),
+                'fetched_at'      => now(),
+                'last_fetched_at' => now(),
             ];
         if ($this->parseDatetime($this->auroraModelData->{'Prospect Created Date'})) {
             $this->parsedData['prospect']['created_at'] = $this->auroraModelData->{'Prospect Created Date'};

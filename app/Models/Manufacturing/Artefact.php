@@ -48,12 +48,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Manufacturing\ArtefactStats|null $stats
  * @property-read Stock|null $stock
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|Artefact newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Artefact newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Artefact onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Artefact query()
- * @method static \Illuminate\Database\Eloquent\Builder|Artefact withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Artefact withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Artefact newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Artefact newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Artefact onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Artefact query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Artefact withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Artefact withoutTrashed()
  * @mixin \Eloquent
  */
 class Artefact extends Model implements Auditable

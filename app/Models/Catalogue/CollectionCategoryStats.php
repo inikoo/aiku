@@ -35,9 +35,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_subscriptions_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategoryStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategoryStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CollectionCategoryStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionCategoryStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionCategoryStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CollectionCategoryStats query()
  * @mixin \Eloquent
  */
 class CollectionCategoryStats extends Model

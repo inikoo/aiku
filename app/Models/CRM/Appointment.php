@@ -41,9 +41,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Appointment query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Appointment newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Appointment newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Appointment query()
  * @mixin \Eloquent
  */
 class Appointment extends Model

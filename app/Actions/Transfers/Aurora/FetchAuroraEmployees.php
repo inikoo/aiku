@@ -24,6 +24,7 @@ use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Throwable;
 
 class FetchAuroraEmployees extends FetchAuroraAction
 {
@@ -40,38 +41,50 @@ class FetchAuroraEmployees extends FetchAuroraAction
             $sourceId = $employeeData['employee']['source_id'];
 
             if ($employee = Employee::where('source_id', $sourceId)->first()) {
-                $employee = UpdateEmployee::make()->action(
-                    employee: $employee,
-                    modelData: $employeeData['employee'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
+                try {
+                    $employee = UpdateEmployee::make()->action(
+                        employee: $employee,
+                        modelData: $employeeData['employee'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordChange($organisationSource, $employee->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $employeeData['employee'], 'Employee', 'update');
+
+                    return null;
+                }
             } else {
                 /* @var $workplace Workplace */
                 $workplace = $organisationSource->getOrganisation()->workplaces()->first();
+                try {
+                    $employee = StoreEmployee::make()->action(
+                        parent: $workplace,
+                        modelData: $employeeData['employee'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
 
-                $employee = StoreEmployee::make()->action(
-                    parent: $workplace,
-                    modelData: $employeeData['employee'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
-
-                Employee::enableAuditing();
-                $this->saveMigrationHistory(
-                    $employee,
-                    Arr::except($employeeData['employee'], ['fetched_at', 'last_fetched_at', 'source_id', 'positions', 'user_model_status'])
-                );
+                    Employee::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $employee,
+                        Arr::except($employeeData['employee'], ['fetched_at', 'last_fetched_at', 'source_id', 'positions', 'user_model_status'])
+                    );
 
 
-                $this->recordNew($organisationSource);
+                    $this->recordNew($organisationSource);
 
-                $sourceData = explode(':', $employee->source_id);
-                DB::connection('aurora')->table('Staff Dimension')
-                    ->where('Staff Key', $sourceData[1])
-                    ->update(['aiku_id' => $employee->id]);
+                    $sourceData = explode(':', $employee->source_id);
+                    DB::connection('aurora')->table('Staff Dimension')
+                        ->where('Staff Key', $sourceData[1])
+                        ->update(['aiku_id' => $employee->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $employeeData['employee'], 'Employee', 'store');
+
+                    return null;
+                }
             }
 
             UpdateEmployeeWorkingHours::run($employee, $employeeData['working_hours']);

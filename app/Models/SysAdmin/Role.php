@@ -28,11 +28,11 @@ use Spatie\Permission\Models\Role as SpatieRole;
  * @property-read Collection<int, JobPosition> $jobPositions
  * @property-read Collection<int, \Spatie\Permission\Models\Permission> $permissions
  * @property-read Collection<int, \App\Models\SysAdmin\User> $users
- * @method static Builder|Role newModelQuery()
- * @method static Builder|Role newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Role permission($permissions, $without = false)
- * @method static Builder|Role query()
- * @method static \Illuminate\Database\Eloquent\Builder|Role withoutPermission($permissions)
+ * @method static Builder<static>|Role newModelQuery()
+ * @method static Builder<static>|Role newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Role permission($permissions, $without = false)
+ * @method static Builder<static>|Role query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Role withoutPermission($permissions)
  * @mixin Eloquent
  */
 class Role extends SpatieRole

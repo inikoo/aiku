@@ -67,12 +67,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\MasterProductSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\MasterProductStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|MasterProduct newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterProduct newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterProduct onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterProduct query()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterProduct withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|MasterProduct withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MasterProduct withoutTrashed()
  * @mixin \Eloquent
  */
 class MasterProduct extends Model implements Auditable, HasMedia

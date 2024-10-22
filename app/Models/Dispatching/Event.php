@@ -26,12 +26,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @property-read Collection<int, Issue> $issues
  * @property-read \App\Models\Dispatching\Shipment|null $shipment
- * @method static Builder|Event newModelQuery()
- * @method static Builder|Event newQuery()
- * @method static Builder|Event onlyTrashed()
- * @method static Builder|Event query()
- * @method static Builder|Event withTrashed()
- * @method static Builder|Event withoutTrashed()
+ * @method static Builder<static>|Event newModelQuery()
+ * @method static Builder<static>|Event newQuery()
+ * @method static Builder<static>|Event onlyTrashed()
+ * @method static Builder<static>|Event query()
+ * @method static Builder<static>|Event withTrashed()
+ * @method static Builder<static>|Event withoutTrashed()
  * @mixin Eloquent
  */
 class Event extends Model

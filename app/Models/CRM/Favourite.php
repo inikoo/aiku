@@ -38,9 +38,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read Product $product
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read Website|null $website
- * @method static \Illuminate\Database\Eloquent\Builder|Favourite newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Favourite newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Favourite query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Favourite newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Favourite newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Favourite query()
  * @mixin \Eloquent
  */
 class Favourite extends Model

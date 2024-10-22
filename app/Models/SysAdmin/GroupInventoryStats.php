@@ -70,9 +70,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static Builder|GroupInventoryStats newModelQuery()
- * @method static Builder|GroupInventoryStats newQuery()
- * @method static Builder|GroupInventoryStats query()
+ * @method static Builder<static>|GroupInventoryStats newModelQuery()
+ * @method static Builder<static>|GroupInventoryStats newQuery()
+ * @method static Builder<static>|GroupInventoryStats query()
  * @mixin Eloquent
  */
 class GroupInventoryStats extends Model

@@ -85,9 +85,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_delivery_notes_cancelled_at_state_settled
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|PlatformStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PlatformStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PlatformStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlatformStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlatformStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PlatformStats query()
  * @mixin \Eloquent
  */
 class PlatformStats extends Model

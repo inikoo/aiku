@@ -130,9 +130,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Inventory\OrgStock $orgStock
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStockStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStockStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStockStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockStats query()
  * @mixin \Eloquent
  */
 class OrgStockStats extends Model

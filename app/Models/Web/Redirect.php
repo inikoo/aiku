@@ -16,9 +16,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  *
  * @property-read \App\Models\Web\Webpage|null $webpage
- * @method static \Illuminate\Database\Eloquent\Builder|Redirect newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Redirect newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Redirect query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Redirect newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Redirect newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Redirect query()
  * @mixin \Eloquent
  */
 class Redirect extends Model

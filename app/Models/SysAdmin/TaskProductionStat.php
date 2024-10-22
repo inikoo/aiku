@@ -28,12 +28,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Production $production
  * @property-read \App\Models\SysAdmin\Task $task
- * @method static \Illuminate\Database\Eloquent\Builder|TaskProductionStat newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskProductionStat newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskProductionStat onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskProductionStat query()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskProductionStat withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskProductionStat withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskProductionStat newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskProductionStat newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskProductionStat onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskProductionStat query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskProductionStat withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskProductionStat withoutTrashed()
  * @mixin \Eloquent
  */
 class TaskProductionStat extends Model

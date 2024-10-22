@@ -20,9 +20,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|Language newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Language newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Language query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Language newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Language newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Language query()
  * @mixin \Eloquent
  */
 class Language extends Model

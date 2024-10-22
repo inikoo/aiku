@@ -63,12 +63,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\SysAdmin\User> $users
  * @method static \Database\Factories\SysAdmin\GuestFactory factory($count = null, $state = [])
- * @method static Builder|Guest newModelQuery()
- * @method static Builder|Guest newQuery()
- * @method static Builder|Guest onlyTrashed()
- * @method static Builder|Guest query()
- * @method static Builder|Guest withTrashed()
- * @method static Builder|Guest withoutTrashed()
+ * @method static Builder<static>|Guest newModelQuery()
+ * @method static Builder<static>|Guest newQuery()
+ * @method static Builder<static>|Guest onlyTrashed()
+ * @method static Builder<static>|Guest query()
+ * @method static Builder<static>|Guest withTrashed()
+ * @method static Builder<static>|Guest withoutTrashed()
  * @mixin Eloquent
  */
 class Guest extends Model implements HasMedia, Auditable

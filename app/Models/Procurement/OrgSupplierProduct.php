@@ -42,9 +42,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Procurement\OrgSupplierProductStats|null $stats
  * @property-read SupplierProduct $supplierProduct
- * @method static Builder|OrgSupplierProduct newModelQuery()
- * @method static Builder|OrgSupplierProduct newQuery()
- * @method static Builder|OrgSupplierProduct query()
+ * @method static Builder<static>|OrgSupplierProduct newModelQuery()
+ * @method static Builder<static>|OrgSupplierProduct newQuery()
+ * @method static Builder<static>|OrgSupplierProduct query()
  * @mixin Eloquent
  */
 class OrgSupplierProduct extends Model

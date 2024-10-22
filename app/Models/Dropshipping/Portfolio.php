@@ -41,9 +41,9 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property-read Product $product
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Dropshipping\PortfolioStats|null $stats
- * @method static \Illuminate\Database\Eloquent\Builder|Portfolio newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Portfolio newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Portfolio query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Portfolio newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Portfolio newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Portfolio query()
  * @mixin \Eloquent
  */
 class Portfolio extends Model

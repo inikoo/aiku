@@ -34,9 +34,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Mail\Outbox|null $outbox
- * @method static Builder|OutboxStats newModelQuery()
- * @method static Builder|OutboxStats newQuery()
- * @method static Builder|OutboxStats query()
+ * @method static Builder<static>|OutboxStats newModelQuery()
+ * @method static Builder<static>|OutboxStats newQuery()
+ * @method static Builder<static>|OutboxStats query()
  * @mixin Eloquent
  */
 class OutboxStats extends Model

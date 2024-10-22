@@ -77,12 +77,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\SupplyChain\SupplierProductFactory factory($count = null, $state = [])
- * @method static Builder|SupplierProduct newModelQuery()
- * @method static Builder|SupplierProduct newQuery()
- * @method static Builder|SupplierProduct onlyTrashed()
- * @method static Builder|SupplierProduct query()
- * @method static Builder|SupplierProduct withTrashed()
- * @method static Builder|SupplierProduct withoutTrashed()
+ * @method static Builder<static>|SupplierProduct newModelQuery()
+ * @method static Builder<static>|SupplierProduct newQuery()
+ * @method static Builder<static>|SupplierProduct onlyTrashed()
+ * @method static Builder<static>|SupplierProduct query()
+ * @method static Builder<static>|SupplierProduct withTrashed()
+ * @method static Builder<static>|SupplierProduct withoutTrashed()
  * @mixin Eloquent
  */
 class SupplierProduct extends Model implements Auditable

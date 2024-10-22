@@ -77,12 +77,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Shop $shop
  * @method static \Database\Factories\Ordering\TransactionFactory factory($count = null, $state = [])
- * @method static Builder|Transaction newModelQuery()
- * @method static Builder|Transaction newQuery()
- * @method static Builder|Transaction onlyTrashed()
- * @method static Builder|Transaction query()
- * @method static Builder|Transaction withTrashed()
- * @method static Builder|Transaction withoutTrashed()
+ * @method static Builder<static>|Transaction newModelQuery()
+ * @method static Builder<static>|Transaction newQuery()
+ * @method static Builder<static>|Transaction onlyTrashed()
+ * @method static Builder<static>|Transaction query()
+ * @method static Builder<static>|Transaction withTrashed()
+ * @method static Builder<static>|Transaction withoutTrashed()
  * @mixin Eloquent
  */
 class Transaction extends Model

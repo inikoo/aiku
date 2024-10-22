@@ -20,7 +20,7 @@ enum StockDeliveryTabsEnum: string
     case ITEMS               = 'items';
 
     case HISTORY             = 'history';
-
+    case ATTACHMENTS         = 'attachments';
     case DATA                = 'data';
 
 
@@ -49,6 +49,13 @@ enum StockDeliveryTabsEnum: string
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
+            ],
+            StockDeliveryTabsEnum::ATTACHMENTS => [
+                'type'  => 'icon',
+                'align' => 'right',
+                'title' => __('attachments'),
+                'icon'  => 'fal fa-paperclip',
+
             ],
         };
     }

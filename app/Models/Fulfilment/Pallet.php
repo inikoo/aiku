@@ -97,13 +97,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse $warehouse
  * @method static \Database\Factories\Fulfilment\PalletFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Pallet locationId($located)
- * @method static \Illuminate\Database\Eloquent\Builder|Pallet newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Pallet newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Pallet onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Pallet query()
- * @method static \Illuminate\Database\Eloquent\Builder|Pallet withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Pallet withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pallet locationId($located)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pallet newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pallet newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pallet onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pallet query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pallet withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Pallet withoutTrashed()
  * @mixin \Eloquent
  */
 class Pallet extends Model implements Auditable

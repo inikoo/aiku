@@ -59,12 +59,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\HumanResources\WorkplaceStats|null $stats
  * @property-read Timezone|null $timezone
  * @property-read UniversalSearch|null $universalSearch
- * @method static Builder|Workplace newModelQuery()
- * @method static Builder|Workplace newQuery()
- * @method static Builder|Workplace onlyTrashed()
- * @method static Builder|Workplace query()
- * @method static Builder|Workplace withTrashed()
- * @method static Builder|Workplace withoutTrashed()
+ * @method static Builder<static>|Workplace newModelQuery()
+ * @method static Builder<static>|Workplace newQuery()
+ * @method static Builder<static>|Workplace onlyTrashed()
+ * @method static Builder<static>|Workplace query()
+ * @method static Builder<static>|Workplace withTrashed()
+ * @method static Builder<static>|Workplace withoutTrashed()
  * @mixin Eloquent
  */
 class Workplace extends Model implements Auditable

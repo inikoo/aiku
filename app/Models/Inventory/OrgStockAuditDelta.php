@@ -34,9 +34,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\Inventory\OrgStockAudit|null $orgStockAudit
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Inventory\Warehouse $warehouse
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStockAuditDelta newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStockAuditDelta newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStockAuditDelta query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockAuditDelta newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockAuditDelta newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockAuditDelta query()
  * @mixin \Eloquent
  */
 class OrgStockAuditDelta extends Model

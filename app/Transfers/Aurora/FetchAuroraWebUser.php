@@ -39,21 +39,22 @@ class FetchAuroraWebUser extends FetchAurora
         $this->parsedData['customer'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Website User Customer Key'});
         $this->parsedData['webUser']  =
             [
-                'status'     => $this->auroraModelData->{'Website User Active'} == 'Yes',
-                'type'       => WebUserTypeEnum::WEB->value,
-                'auth_type'  => $authType,
-                'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Website User Key'},
-                'data'       => $data,
-                'username'   => $this->auroraModelData->{'Website User Handle'},
-                'email'      => $this->auroraModelData->{'Website User Handle'},
-                'created_at' => $this->parseDate($this->auroraModelData->{'Website User Created'}),
-                'is_root'    => true
+                'status'          => $this->auroraModelData->{'Website User Active'} == 'Yes',
+                'type'            => WebUserTypeEnum::WEB->value,
+                'auth_type'       => $authType,
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Website User Key'},
+                'data'            => $data,
+                'username'        => $this->auroraModelData->{'Website User Handle'},
+                'email'           => $this->auroraModelData->{'Website User Handle'},
+                'created_at'      => $this->parseDate($this->auroraModelData->{'Website User Created'}),
+                'is_root'         => true,
+                'fetched_at'      => now(),
+                'last_fetched_at' => now(),
             ];
 
         if ($password) {
             data_set($this->parsedData, 'webUser.password', $password);
         }
-
     }
 
     protected function isSha256($hash): bool

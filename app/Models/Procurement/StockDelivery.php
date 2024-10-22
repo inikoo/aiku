@@ -79,12 +79,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @method static \Database\Factories\Procurement\StockDeliveryFactory factory($count = null, $state = [])
- * @method static Builder|StockDelivery newModelQuery()
- * @method static Builder|StockDelivery newQuery()
- * @method static Builder|StockDelivery onlyTrashed()
- * @method static Builder|StockDelivery query()
- * @method static Builder|StockDelivery withTrashed()
- * @method static Builder|StockDelivery withoutTrashed()
+ * @method static Builder<static>|StockDelivery newModelQuery()
+ * @method static Builder<static>|StockDelivery newQuery()
+ * @method static Builder<static>|StockDelivery onlyTrashed()
+ * @method static Builder<static>|StockDelivery query()
+ * @method static Builder<static>|StockDelivery withTrashed()
+ * @method static Builder<static>|StockDelivery withoutTrashed()
  * @mixin Eloquent
  */
 class StockDelivery extends Model implements HasMedia, Auditable

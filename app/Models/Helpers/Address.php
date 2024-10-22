@@ -39,9 +39,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read string $formatted_address
  * @property-read Model|\Eloquent $owner
  * @method static \Database\Factories\Helpers\AddressFactory factory($count = null, $state = [])
- * @method static Builder|Address newModelQuery()
- * @method static Builder|Address newQuery()
- * @method static Builder|Address query()
+ * @method static Builder<static>|Address newModelQuery()
+ * @method static Builder<static>|Address newQuery()
+ * @method static Builder<static>|Address query()
  * @mixin Eloquent
  */
 class Address extends Model

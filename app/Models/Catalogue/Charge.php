@@ -56,12 +56,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\ChargeStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|Charge newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Charge newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Charge onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Charge query()
- * @method static \Illuminate\Database\Eloquent\Builder|Charge withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Charge withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Charge newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Charge newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Charge onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Charge query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Charge withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Charge withoutTrashed()
  * @mixin \Eloquent
  */
 class Charge extends Model implements Auditable

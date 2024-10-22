@@ -81,14 +81,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Shop|null $shop
  * @property-read Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static Builder|ShopifyUser newModelQuery()
- * @method static Builder|ShopifyUser newQuery()
- * @method static Builder|ShopifyUser onlyTrashed()
- * @method static Builder|ShopifyUser permission($permissions, $without = false)
- * @method static Builder|ShopifyUser query()
- * @method static Builder|ShopifyUser withTrashed()
- * @method static Builder|ShopifyUser withoutPermission($permissions)
- * @method static Builder|ShopifyUser withoutTrashed()
+ * @method static Builder<static>|ShopifyUser newModelQuery()
+ * @method static Builder<static>|ShopifyUser newQuery()
+ * @method static Builder<static>|ShopifyUser onlyTrashed()
+ * @method static Builder<static>|ShopifyUser permission($permissions, $without = false)
+ * @method static Builder<static>|ShopifyUser query()
+ * @method static Builder<static>|ShopifyUser withTrashed()
+ * @method static Builder<static>|ShopifyUser withoutPermission($permissions)
+ * @method static Builder<static>|ShopifyUser withoutTrashed()
  * @mixin Eloquent
  */
 class ShopifyUser extends Authenticatable implements HasMedia, Auditable, IShopModel

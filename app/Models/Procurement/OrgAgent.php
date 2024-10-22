@@ -39,9 +39,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
  * @property-read \App\Models\Procurement\OrgAgentStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\StockDelivery> $stockDeliveries
- * @method static \Illuminate\Database\Eloquent\Builder|OrgAgent newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgAgent newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgAgent query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgAgent newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgAgent newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgAgent query()
  * @mixin \Eloquent
  */
 class OrgAgent extends Model

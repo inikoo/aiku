@@ -41,9 +41,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Models\SysAdmin\Group|null $group
  * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read \App\Models\Catalogue\Shop|null $shop
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerNote newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerNote newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerNote query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerNote newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerNote newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerNote query()
  * @mixin \Eloquent
  */
 class CustomerNote extends Model

@@ -28,12 +28,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Database\Factories\Discounts\OfferComponentFactory factory($count = null, $state = [])
- * @method static Builder|OfferComponent newModelQuery()
- * @method static Builder|OfferComponent newQuery()
- * @method static Builder|OfferComponent onlyTrashed()
- * @method static Builder|OfferComponent query()
- * @method static Builder|OfferComponent withTrashed()
- * @method static Builder|OfferComponent withoutTrashed()
+ * @method static Builder<static>|OfferComponent newModelQuery()
+ * @method static Builder<static>|OfferComponent newQuery()
+ * @method static Builder<static>|OfferComponent onlyTrashed()
+ * @method static Builder<static>|OfferComponent query()
+ * @method static Builder<static>|OfferComponent withTrashed()
+ * @method static Builder<static>|OfferComponent withoutTrashed()
  * @mixin Eloquent
  */
 class OfferComponent extends Model

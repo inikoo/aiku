@@ -38,9 +38,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_master_products_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static Builder|MasterProductCategoryStats newModelQuery()
- * @method static Builder|MasterProductCategoryStats newQuery()
- * @method static Builder|MasterProductCategoryStats query()
+ * @method static Builder<static>|MasterProductCategoryStats newModelQuery()
+ * @method static Builder<static>|MasterProductCategoryStats newQuery()
+ * @method static Builder<static>|MasterProductCategoryStats query()
  * @mixin Eloquent
  */
 class MasterProductCategoryStats extends Model

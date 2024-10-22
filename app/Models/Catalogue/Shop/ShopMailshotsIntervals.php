@@ -199,9 +199,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder|ShopMailshotsIntervals newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopMailshotsIntervals newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ShopMailshotsIntervals query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopMailshotsIntervals newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopMailshotsIntervals newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopMailshotsIntervals query()
  * @mixin \Eloquent
  */
 class ShopMailshotsIntervals extends Model

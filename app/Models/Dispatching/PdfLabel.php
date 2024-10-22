@@ -23,12 +23,12 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property-read \App\Models\Dispatching\Shipper|null $shipper
  * @property-read UniversalSearch|null $universalSearch
- * @method static Builder|PdfLabel newModelQuery()
- * @method static Builder|PdfLabel newQuery()
- * @method static Builder|PdfLabel onlyTrashed()
- * @method static Builder|PdfLabel query()
- * @method static Builder|PdfLabel withTrashed()
- * @method static Builder|PdfLabel withoutTrashed()
+ * @method static Builder<static>|PdfLabel newModelQuery()
+ * @method static Builder<static>|PdfLabel newQuery()
+ * @method static Builder<static>|PdfLabel onlyTrashed()
+ * @method static Builder<static>|PdfLabel query()
+ * @method static Builder<static>|PdfLabel withTrashed()
+ * @method static Builder<static>|PdfLabel withoutTrashed()
  * @mixin Eloquent
  */
 class PdfLabel extends Model

@@ -63,12 +63,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read RentalStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|Rental newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Rental newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Rental onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Rental query()
- * @method static \Illuminate\Database\Eloquent\Builder|Rental withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Rental withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Rental newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Rental newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Rental onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Rental query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Rental withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Rental withoutTrashed()
  * @mixin \Eloquent
  */
 class Rental extends Model implements Auditable

@@ -67,9 +67,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static Builder|GroupWebStats newModelQuery()
- * @method static Builder|GroupWebStats newQuery()
- * @method static Builder|GroupWebStats query()
+ * @method static Builder<static>|GroupWebStats newModelQuery()
+ * @method static Builder<static>|GroupWebStats newQuery()
+ * @method static Builder<static>|GroupWebStats query()
  * @mixin Eloquent
  */
 class GroupWebStats extends Model

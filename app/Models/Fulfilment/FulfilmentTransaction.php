@@ -47,9 +47,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Model|\Eloquent $parent
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentTransaction newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentTransaction newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentTransaction query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentTransaction newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentTransaction newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentTransaction query()
  * @mixin \Eloquent
  */
 class FulfilmentTransaction extends Model

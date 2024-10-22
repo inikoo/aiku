@@ -91,12 +91,12 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
  * @property-read Collection<int, \App\Models\Fulfilment\FulfilmentTransaction> $transactions
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery query()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDelivery withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDelivery newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDelivery newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDelivery onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDelivery query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDelivery withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDelivery withoutTrashed()
  * @mixin \Eloquent
  */
 class PalletDelivery extends Model

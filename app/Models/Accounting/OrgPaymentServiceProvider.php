@@ -45,9 +45,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read \App\Models\Accounting\OrgPaymentServiceProviderStats|null $stats
- * @method static \Illuminate\Database\Eloquent\Builder|OrgPaymentServiceProvider newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgPaymentServiceProvider newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgPaymentServiceProvider query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPaymentServiceProvider newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPaymentServiceProvider newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPaymentServiceProvider query()
  * @mixin \Eloquent
  */
 class OrgPaymentServiceProvider extends Model implements Auditable

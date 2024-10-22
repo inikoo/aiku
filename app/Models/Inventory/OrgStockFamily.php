@@ -46,12 +46,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Inventory\OrgStockFamilyStats|null $stats
  * @property-read StockFamily|null $stockFamily
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily query()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|OrgStockFamily withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamily newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamily newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamily onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamily query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamily withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStockFamily withoutTrashed()
  * @mixin \Eloquent
  */
 class OrgStockFamily extends Model

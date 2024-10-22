@@ -25,9 +25,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Model|\Eloquent $model
  * @property-read \App\Models\Helpers\Snapshot|null $snapshot
- * @method static \Illuminate\Database\Eloquent\Builder|Deployment newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Deployment newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Deployment query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Deployment newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Deployment newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Deployment query()
  * @mixin \Eloquent
  */
 class Deployment extends Model

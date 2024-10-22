@@ -54,12 +54,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\CollectionStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Webpage|null $webpage
- * @method static \Illuminate\Database\Eloquent\Builder|Collection newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Collection newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Collection onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Collection query()
- * @method static \Illuminate\Database\Eloquent\Builder|Collection withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Collection withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Collection newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Collection newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Collection onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Collection query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Collection withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Collection withoutTrashed()
  * @mixin \Eloquent
  */
 class Collection extends Model implements Auditable

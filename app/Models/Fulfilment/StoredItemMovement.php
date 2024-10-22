@@ -20,9 +20,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $moved_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItemMovement newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItemMovement newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|StoredItemMovement query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemMovement newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemMovement newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|StoredItemMovement query()
  * @mixin \Eloquent
  */
 class StoredItemMovement extends Model

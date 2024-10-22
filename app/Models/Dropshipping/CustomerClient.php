@@ -65,12 +65,12 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read \App\Models\Dropshipping\CustomerClientStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Dropshipping\CustomerClientFactory factory($count = null, $state = [])
- * @method static Builder|CustomerClient newModelQuery()
- * @method static Builder|CustomerClient newQuery()
- * @method static Builder|CustomerClient onlyTrashed()
- * @method static Builder|CustomerClient query()
- * @method static Builder|CustomerClient withTrashed()
- * @method static Builder|CustomerClient withoutTrashed()
+ * @method static Builder<static>|CustomerClient newModelQuery()
+ * @method static Builder<static>|CustomerClient newQuery()
+ * @method static Builder<static>|CustomerClient onlyTrashed()
+ * @method static Builder<static>|CustomerClient query()
+ * @method static Builder<static>|CustomerClient withTrashed()
+ * @method static Builder<static>|CustomerClient withoutTrashed()
  * @mixin Eloquent
  */
 class CustomerClient extends Model implements Auditable

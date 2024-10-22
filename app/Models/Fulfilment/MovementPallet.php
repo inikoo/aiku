@@ -19,9 +19,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon $moved_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|MovementPallet newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MovementPallet newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|MovementPallet query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MovementPallet newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MovementPallet newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|MovementPallet query()
  * @mixin \Eloquent
  */
 class MovementPallet extends Model

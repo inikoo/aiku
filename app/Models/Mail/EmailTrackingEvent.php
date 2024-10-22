@@ -23,9 +23,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $source_id
- * @method static Builder|EmailTrackingEvent newModelQuery()
- * @method static Builder|EmailTrackingEvent newQuery()
- * @method static Builder|EmailTrackingEvent query()
+ * @method static Builder<static>|EmailTrackingEvent newModelQuery()
+ * @method static Builder<static>|EmailTrackingEvent newQuery()
+ * @method static Builder<static>|EmailTrackingEvent query()
  * @mixin Eloquent
  */
 class EmailTrackingEvent extends Model

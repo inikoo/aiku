@@ -26,9 +26,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_products_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationDropshippingStat newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationDropshippingStat newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationDropshippingStat query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationDropshippingStat newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationDropshippingStat newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationDropshippingStat query()
  * @mixin \Eloquent
  */
 class OrganisationDropshippingStat extends Model

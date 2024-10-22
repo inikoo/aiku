@@ -61,9 +61,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Accounting\PaymentServiceProvider $paymentServiceProvider
- * @method static Builder|PaymentServiceProviderStats newModelQuery()
- * @method static Builder|PaymentServiceProviderStats newQuery()
- * @method static Builder|PaymentServiceProviderStats query()
+ * @method static Builder<static>|PaymentServiceProviderStats newModelQuery()
+ * @method static Builder<static>|PaymentServiceProviderStats newQuery()
+ * @method static Builder<static>|PaymentServiceProviderStats query()
  * @mixin Eloquent
  */
 class PaymentServiceProviderStats extends Model

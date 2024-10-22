@@ -26,9 +26,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\FetchRecord> $records
- * @method static \Illuminate\Database\Eloquent\Builder|Fetch newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Fetch newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Fetch query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Fetch newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Fetch newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Fetch query()
  * @mixin \Eloquent
  */
 class Fetch extends Model

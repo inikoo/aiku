@@ -12,16 +12,26 @@ use App\Actions\OrgAction;
 use App\Models\Dispatching\Shipper;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreShipper extends OrgAction
 {
+    /**
+     * @throws \Throwable
+     */
     public function handle(Organisation $organisation, array $modelData): Shipper
     {
         data_set($modelData, 'group_id', $organisation->group_id);
-        /** @var Shipper $shipper */
-        $shipper = $organisation->shippers()->create($modelData);
+
+        $shipper = DB::transaction(function () use ($organisation, $modelData) {
+            /** @var Shipper $shipper */
+            $shipper = $organisation->shippers()->create($modelData);
+            $shipper->stats()->create();
+
+            return $shipper;
+        });
 
         ShipperHydrateUniversalSearch::dispatch($shipper);
 
@@ -40,9 +50,8 @@ class StoreShipper extends OrgAction
     public function prepareForValidation(ActionRequest $request): void
     {
         if ($this->has('website') and $this->get('website') != null) {
-
             if (!Str::startsWith($this->get('website'), 'http')) {
-                $this->fill(['website' => 'https://' . $this->get('website')]);
+                $this->fill(['website' => 'https://'.$this->get('website')]);
             }
         }
     }
@@ -50,30 +59,50 @@ class StoreShipper extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'code'         => ['required',  'between:2,16', 'alpha_dash',
-                               new IUnique(
-                                   table: 'shippers',
-                                   extraConditions: [
-                                       ['column' => 'group_id', 'value' => $this->organisation->group_id],
-                                   ]
-                               ),
-                ],
+        $rules = [
+            'code'         => [
+                'required',
+                'between:2,16',
+                'alpha_dash',
+                new IUnique(
+                    table: 'shippers',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->organisation->group_id],
+                    ]
+                ),
+            ],
             'name'         => ['required', 'max:255', 'string'],
             'api_shipper'  => ['sometimes', 'nullable', 'string', 'max:255'],
             'contact_name' => ['sometimes', 'nullable', 'string', 'max:255'],
-            'company_name' => ['sometimes','nullable',  'string', 'max:255'],
-            'email'        => ['sometimes','nullable',  'email'],
-            'phone'        => ['sometimes','nullable', 'string', 'max:255'],
+            'company_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'email'        => ['sometimes', 'nullable', 'email'],
+            'phone'        => ['sometimes', 'nullable', 'string', 'max:255'],
             'website'      => ['sometimes', 'nullable', 'url'],
-            'tracking_url' => ['sometimes','nullable',  'string', 'max:255'],
+            'tracking_url' => ['sometimes', 'nullable', 'string', 'max:255'],
             'source_id'    => ['sometimes', 'nullable', 'string', 'max:64'],
         ];
+
+        if (!$this->strict) {
+            $rules['created_at'] = ['sometimes', 'date'];
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+        }
+
+        return $rules;
     }
 
-    public function action(Organisation $organisation, $modelData): Shipper
+    /**
+     * @throws \Throwable
+     */
+    public function action(Organisation $organisation, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Shipper
     {
-        $this->asAction = true;
+        if (!$audit) {
+            Shipper::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($organisation, $this->validatedData);

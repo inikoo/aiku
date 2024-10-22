@@ -47,9 +47,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Manufacturing\Production $production
- * @method static \Illuminate\Database\Eloquent\Builder|ProductionStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductionStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ProductionStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductionStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductionStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ProductionStats query()
  * @mixin \Eloquent
  */
 class ProductionStats extends Model

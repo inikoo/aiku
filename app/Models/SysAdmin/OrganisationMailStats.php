@@ -70,9 +70,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @method static Builder|OrganisationMailStats newModelQuery()
- * @method static Builder|OrganisationMailStats newQuery()
- * @method static Builder|OrganisationMailStats query()
+ * @method static Builder<static>|OrganisationMailStats newModelQuery()
+ * @method static Builder<static>|OrganisationMailStats newQuery()
+ * @method static Builder<static>|OrganisationMailStats query()
  * @mixin Eloquent
  */
 class OrganisationMailStats extends Model

@@ -51,9 +51,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationManufactureStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationManufactureStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OrganisationManufactureStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationManufactureStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationManufactureStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrganisationManufactureStats query()
  * @mixin \Eloquent
  */
 class OrganisationManufactureStats extends Model

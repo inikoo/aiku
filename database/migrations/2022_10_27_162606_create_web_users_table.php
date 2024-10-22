@@ -44,6 +44,8 @@ return new class () extends Migration {
             $table->unsignedInteger('image_id')->nullable();
             $table->foreign('image_id')->references('id')->on('media')->onDelete('cascade');
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();
             $table->unique(['website_id', 'email']);
             $table->unique(['website_id', 'username']);

@@ -21,9 +21,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Accounting\Invoice $invoice
- * @method static Builder|InvoiceStats newModelQuery()
- * @method static Builder|InvoiceStats newQuery()
- * @method static Builder|InvoiceStats query()
+ * @method static Builder<static>|InvoiceStats newModelQuery()
+ * @method static Builder<static>|InvoiceStats newQuery()
+ * @method static Builder<static>|InvoiceStats query()
  * @mixin Eloquent
  */
 class InvoiceStats extends Model

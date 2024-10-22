@@ -36,9 +36,9 @@ namespace App\Models\Helpers;
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent $auditable
  * @property-read \Illuminate\Database\Eloquent\Model|\Eloquent|null $user
- * @method static \Illuminate\Database\Eloquent\Builder|Audit newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Audit newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Audit query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Audit newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Audit newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Audit query()
  * @mixin \Eloquent
  */
 class Audit extends \OwenIt\Auditing\Models\Audit

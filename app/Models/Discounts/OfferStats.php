@@ -25,9 +25,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Discounts\Offer|null $asset
- * @method static \Illuminate\Database\Eloquent\Builder|OfferStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OfferStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OfferStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferStats query()
  * @mixin \Eloquent
  */
 class OfferStats extends Model

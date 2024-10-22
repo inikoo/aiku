@@ -75,9 +75,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Dropshipping\CustomerClient $customerClient
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClientStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClientStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|CustomerClientStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerClientStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerClientStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerClientStats query()
  * @mixin \Eloquent
  */
 class CustomerClientStats extends Model

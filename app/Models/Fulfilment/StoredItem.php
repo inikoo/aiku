@@ -51,9 +51,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\Pallet> $pallets
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read Warehouse|null $warehouse
- * @method static Builder|StoredItem newModelQuery()
- * @method static Builder|StoredItem newQuery()
- * @method static Builder|StoredItem query()
+ * @method static Builder<static>|StoredItem newModelQuery()
+ * @method static Builder<static>|StoredItem newQuery()
+ * @method static Builder<static>|StoredItem query()
  * @mixin Eloquent
  */
 class StoredItem extends Model implements Auditable

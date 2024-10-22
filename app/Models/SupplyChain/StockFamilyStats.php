@@ -28,9 +28,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SupplyChain\StockFamily $stockFamily
- * @method static Builder|StockFamilyStats newModelQuery()
- * @method static Builder|StockFamilyStats newQuery()
- * @method static Builder|StockFamilyStats query()
+ * @method static Builder<static>|StockFamilyStats newModelQuery()
+ * @method static Builder<static>|StockFamilyStats newQuery()
+ * @method static Builder<static>|StockFamilyStats query()
  * @mixin Eloquent
  */
 class StockFamilyStats extends Model

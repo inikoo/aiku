@@ -10,17 +10,8 @@ namespace App\Actions\Web\ExternalLink\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
-use App\Actions\Web\Webpage\WithWebpageSubNavigation;
-use App\Actions\Web\Website\UI\ShowWebsite;
-use App\Enums\Web\Webpage\WebpageStateEnum;
-use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Http\Resources\Web\ExternalLinksResource;
-use App\Http\Resources\Web\WebpagesResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\SysAdmin\Organisation;
 use App\Models\Web\ExternalLink;
 use App\Models\Web\WebBlock;
 use App\Models\Web\Webpage;
@@ -29,9 +20,6 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Inertia\Inertia;
-use Inertia\Response;
-use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexExternalLinks extends OrgAction
@@ -69,15 +57,16 @@ class IndexExternalLinks extends OrgAction
             ->select(
                 [
                     'external_links.id',
-                    'external_links.url', 
-                    'external_links.number_websites_shown', 
-                    'external_links.number_webpages_shown', 
-                    'external_links.number_web_blocks_shown', 
-                    'external_links.number_websites_hidden',  
-                    'external_links.number_webpages_hidden',  
-                    'external_links.number_web_blocks_hidden',  
-                    'external_links.status',  
-                ])
+                    'external_links.url',
+                    'external_links.number_websites_shown',
+                    'external_links.number_webpages_shown',
+                    'external_links.number_web_blocks_shown',
+                    'external_links.number_websites_hidden',
+                    'external_links.number_webpages_hidden',
+                    'external_links.number_web_blocks_hidden',
+                    'external_links.status',
+                ]
+            )
             ->allowedSorts(['url', 'number_websites_shown', 'number_webpages_shown', 'number_web_blocks_shown', 'number_websites_hidden', 'number_webpages_hidden', 'number_web_blocks_hidden', 'status'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
@@ -101,8 +90,6 @@ class IndexExternalLinks extends OrgAction
                         'title'       => __("No external links found"),
                         'description' => __('Nor any website exist 🤭'),
                     ],
-
-
                 )
                 ->column(key: 'url', label: __('url'), canBeHidden: false, sortable: true, searchable: false)
                 ->column(key: 'number_websites_shown', label: __('websites shown'), canBeHidden: false, sortable: true, searchable: false)

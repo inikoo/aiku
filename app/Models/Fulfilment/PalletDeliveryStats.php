@@ -74,9 +74,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_physical_goods
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDeliveryStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDeliveryStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|PalletDeliveryStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDeliveryStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDeliveryStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PalletDeliveryStats query()
  * @mixin \Eloquent
  */
 class PalletDeliveryStats extends Model

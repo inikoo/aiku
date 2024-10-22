@@ -37,12 +37,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read Collection<int, Shop> $shop
  * @property-read Collection<int, Supplier> $supplier
  * @property-read Collection<int, Warehouse> $warehouse
- * @method static Builder|Issue newModelQuery()
- * @method static Builder|Issue newQuery()
- * @method static Builder|Issue onlyTrashed()
- * @method static Builder|Issue query()
- * @method static Builder|Issue withTrashed()
- * @method static Builder|Issue withoutTrashed()
+ * @method static Builder<static>|Issue newModelQuery()
+ * @method static Builder<static>|Issue newQuery()
+ * @method static Builder<static>|Issue onlyTrashed()
+ * @method static Builder<static>|Issue query()
+ * @method static Builder<static>|Issue withTrashed()
+ * @method static Builder<static>|Issue withoutTrashed()
  * @mixin Eloquent
  */
 class Issue extends Model

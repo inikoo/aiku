@@ -38,12 +38,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Fulfilment\RentalAgreement $rentalAgreement
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause query()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|RentalAgreementClause withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreementClause newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreementClause newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreementClause onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreementClause query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreementClause withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalAgreementClause withoutTrashed()
  * @mixin \Eloquent
  */
 class RentalAgreementClause extends Model

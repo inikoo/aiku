@@ -44,12 +44,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Manufacturing\Production $production
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|JobOrder newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|JobOrder newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|JobOrder onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|JobOrder query()
- * @method static \Illuminate\Database\Eloquent\Builder|JobOrder withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|JobOrder withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobOrder newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobOrder newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobOrder onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobOrder query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobOrder withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobOrder withoutTrashed()
  * @mixin \Eloquent
  */
 

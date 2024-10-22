@@ -22,9 +22,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $verified_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|SenderEmail newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SenderEmail newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|SenderEmail query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SenderEmail newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SenderEmail newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SenderEmail query()
  * @mixin \Eloquent
  */
 class SenderEmail extends Model

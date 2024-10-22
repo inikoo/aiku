@@ -161,9 +161,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static Builder|ProductCategoryStats newModelQuery()
- * @method static Builder|ProductCategoryStats newQuery()
- * @method static Builder|ProductCategoryStats query()
+ * @method static Builder<static>|ProductCategoryStats newModelQuery()
+ * @method static Builder<static>|ProductCategoryStats newQuery()
+ * @method static Builder<static>|ProductCategoryStats query()
  * @mixin Eloquent
  */
 class ProductCategoryStats extends Model

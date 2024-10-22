@@ -18,18 +18,23 @@ use App\Rules\IUnique;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
+use Throwable;
 
 class StoreWebUser extends OrgAction
 {
     private Customer $customer;
     private Customer|FulfilmentCustomer $parent;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Customer $customer, array $modelData): Webuser
     {
         data_set($modelData, 'language_id', $customer->shop->language_id, overwrite: false);
@@ -43,19 +48,24 @@ class StoreWebUser extends OrgAction
         if (Arr::exists($modelData, 'password')) {
             $modelData['password'] = Hash::make($modelData['password']);
         }
-        /** @var WebUser $webUser */
-        $webUser = $customer->webUsers()->create(
-            array_merge(
-                $modelData,
-                [
-                    'website_id' => $customer->shop->website->id
-                ]
-            )
-        );
-        $webUser->stats()->create();
-        $webUser->refresh();
+        $webUser = DB::transaction(function () use ($customer, $modelData) {
+            /** @var WebUser $webUser */
+            $webUser = $customer->webUsers()->create(
+                array_merge(
+                    $modelData,
+                    [
+                        'website_id' => $customer->shop->website->id
+                    ]
+                )
+            );
+            $webUser->stats()->create();
+            $webUser->refresh();
 
-        CustomerHydrateWebUsers::run($webUser->customer);
+            return $webUser;
+        });
+
+        CustomerHydrateWebUsers::run($webUser->customer)->delay($this->hydratorsDelay);
+
         return $webUser;
     }
 
@@ -68,6 +78,7 @@ class StoreWebUser extends OrgAction
         if ($this->parent instanceof FulfilmentCustomer) {
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
         }
+
         return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
     }
 
@@ -87,19 +98,9 @@ class StoreWebUser extends OrgAction
                     ]
                 ),
             ],
-
-
-            'source_id' => [
-                'sometimes',
-                'nullable',
-                'string',
-
-            ],
-            'is_root'    => ['required', 'boolean'],
-            'data'       => ['sometimes', 'array'],
-            'created_at' => ['sometimes', 'date'],
-            'deleted_at' => ['sometimes', 'nullable', 'date'],
-            'password'   =>
+            'is_root'   => ['required', 'boolean'],
+            'data'      => ['sometimes', 'array'],
+            'password'  =>
                 [
                     'sometimes',
                     'required',
@@ -125,6 +126,12 @@ class StoreWebUser extends OrgAction
             $rules['email'] = $emailRule;
         }
 
+        if (!$this->strict) {
+            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules['created_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+        }
 
         return $rules;
     }
@@ -139,28 +146,41 @@ class StoreWebUser extends OrgAction
             $this->fill(['is_root' => true]);
         } elseif ($this->get('is_root') == null) {
             $this->fill(['is_root' => false]);
-
         }
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function inFulfilmentCustomer(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): Webuser
     {
         $this->parent   = $fulfilmentCustomer;
         $this->customer = $fulfilmentCustomer->customer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $request);
+
         return $this->handle($fulfilmentCustomer->customer, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function inCustomer(Customer $customer, ActionRequest $request): Webuser
     {
         $this->parent   = $customer;
         $this->customer = $customer;
         $this->initialisationFromShop($customer->shop, $request);
+
         return $this->handle($customer, $this->validatedData);
     }
 
-    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Webuser
+    /**
+     * @throws \Throwable
+     */
+    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Webuser
     {
+        if (!$audit) {
+            Webuser::disableAuditing();
+        }
         $this->asAction       = true;
         $this->customer       = $customer;
         $this->hydratorsDelay = $hydratorsDelay;
@@ -177,6 +197,7 @@ class StoreWebUser extends OrgAction
         $this->asAction = true;
 
         try {
+            /** @var Customer $customer */
             $customer = Customer::where('slug', $command->argument('customer'))->firstOrFail();
         } catch (Exception) {
             $command->error('Customer not found');
@@ -205,8 +226,13 @@ class StoreWebUser extends OrgAction
 
 
         $this->initialisationFromShop($customer->shop, $data);
+        try {
+            $webUser = $this->handle($customer, $this->validatedData);
+        } catch (Exception|Throwable $e) {
+            $command->error($e->getMessage());
 
-        $webUser = $this->handle($customer, $this->validatedData);
+            return 1;
+        }
 
         $command->line("Web user $webUser->username created successfully 🫡");
 

@@ -29,16 +29,16 @@ use Spatie\Tags\Tag as BaseTag;
  * @property-read \App\Models\Helpers\TagCrmStats|null $crmStats
  * @property-read mixed $translations
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static Builder|Tag containing(string $name, $locale = null)
- * @method static \Illuminate\Database\Eloquent\Builder|Tag newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Tag newQuery()
- * @method static Builder|Tag ordered(string $direction = 'asc')
- * @method static \Illuminate\Database\Eloquent\Builder|Tag query()
- * @method static Builder|Tag whereJsonContainsLocale(string $column, string $locale, ?mixed $value, string $operand = '=')
- * @method static Builder|Tag whereJsonContainsLocales(string $column, array $locales, ?mixed $value, string $operand = '=')
- * @method static Builder|Tag whereLocale(string $column, string $locale)
- * @method static Builder|Tag whereLocales(string $column, array $locales)
- * @method static Builder|Tag withType(?string $type = null)
+ * @method static Builder<static>|Tag containing(string $name, $locale = null)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tag newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tag newQuery()
+ * @method static Builder<static>|Tag ordered(string $direction = 'asc')
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Tag query()
+ * @method static Builder<static>|Tag whereJsonContainsLocale(string $column, string $locale, ?mixed $value, string $operand = '=')
+ * @method static Builder<static>|Tag whereJsonContainsLocales(string $column, array $locales, ?mixed $value, string $operand = '=')
+ * @method static Builder<static>|Tag whereLocale(string $column, string $locale)
+ * @method static Builder<static>|Tag whereLocales(string $column, array $locales)
+ * @method static Builder<static>|Tag withType(?string $type = null)
  * @mixin \Eloquent
  */
 class Tag extends BaseTag

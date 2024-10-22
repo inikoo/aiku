@@ -10,7 +10,8 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import {computed, defineAsyncComponent, ref} from "vue";
 import ModelDetails from "@/Components/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
-import { capitalize } from "@/Composables/capitalize"
+import { capitalize } from "@/Composables/capitalize";
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -21,6 +22,7 @@ const props = defineProps<{
         current: string;
         navigation: object;
     },
+    attachments?: {}
 }>()
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
@@ -50,7 +52,8 @@ const component = computed(() => {
 
     const components = {
         details: ModelDetails,
-        history: ModelChangelog
+        history: ModelChangelog,
+        attachments: TableAttachments,
     };
     return components[currentTab.value];
 

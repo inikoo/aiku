@@ -89,7 +89,6 @@ class UpdateMasterProductCategory extends GrpAction
         $this->hydratorsDelay  = $hydratorsDelay;
         $this->strict          = $strict;
         $this->initialisation($masterProductCategory->group, $modelData);
-        // dd($this->masterShop);
 
         return $this->handle($masterProductCategory, $this->validatedData);
     }

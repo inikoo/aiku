@@ -52,12 +52,12 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\SubscriptionStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|Subscription newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Subscription newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Subscription onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Subscription query()
- * @method static \Illuminate\Database\Eloquent\Builder|Subscription withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|Subscription withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription withoutTrashed()
  * @mixin \Eloquent
  */
 class Subscription extends Model implements Auditable

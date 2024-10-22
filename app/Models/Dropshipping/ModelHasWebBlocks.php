@@ -39,9 +39,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read WebBlock $webBlock
  * @property-read Webpage|null $webpage
  * @property-read Website $website
- * @method static \Illuminate\Database\Eloquent\Builder|ModelHasWebBlocks newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ModelHasWebBlocks newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|ModelHasWebBlocks query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ModelHasWebBlocks newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ModelHasWebBlocks newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|ModelHasWebBlocks query()
  * @mixin \Eloquent
  */
 class ModelHasWebBlocks extends Model

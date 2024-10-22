@@ -83,21 +83,3 @@ class StoreMasterShop extends GrpAction
     }
 
 }
-
-// public function htmlResponse(ProductCategory $productCategory, ActionRequest $request): RedirectResponse
-// {
-//     if (class_basename($productCategory->parent) == 'ProductCategory') {
-//         return Redirect::route('grp.org.shops.show.catalogue.departments.show.families.show', [
-//             'organisation' => $productCategory->organisation->slug,
-//             'shop'         => $productCategory->shop->slug,
-//             'department'   => $productCategory->parent->slug,
-//             'family'       => $productCategory->slug,
-//         ]);
-//     } else {
-//         return Redirect::route('grp.org.shops.show.catalogue.departments.show', [
-//             'organisation' => $productCategory->organisation->slug,
-//             'shop'         => $productCategory->shop->slug,
-//             'department'   => $productCategory->slug,
-//         ]);
-//     }
-// }

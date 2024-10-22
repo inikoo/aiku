@@ -28,12 +28,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @method static \Database\Factories\SysAdmin\AdminFactory factory($count = null, $state = [])
- * @method static Builder|Admin newModelQuery()
- * @method static Builder|Admin newQuery()
- * @method static Builder|Admin onlyTrashed()
- * @method static Builder|Admin query()
- * @method static Builder|Admin withTrashed()
- * @method static Builder|Admin withoutTrashed()
+ * @method static Builder<static>|Admin newModelQuery()
+ * @method static Builder<static>|Admin newQuery()
+ * @method static Builder<static>|Admin onlyTrashed()
+ * @method static Builder<static>|Admin query()
+ * @method static Builder<static>|Admin withTrashed()
+ * @method static Builder<static>|Admin withoutTrashed()
  * @mixin Eloquent
  */
 class Admin extends Model

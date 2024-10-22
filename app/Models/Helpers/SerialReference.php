@@ -28,9 +28,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Organisation|null $organisation
- * @method static Builder|SerialReference newModelQuery()
- * @method static Builder|SerialReference newQuery()
- * @method static Builder|SerialReference query()
+ * @method static Builder<static>|SerialReference newModelQuery()
+ * @method static Builder<static>|SerialReference newQuery()
+ * @method static Builder<static>|SerialReference query()
  * @mixin Eloquent
  */
 class SerialReference extends Model

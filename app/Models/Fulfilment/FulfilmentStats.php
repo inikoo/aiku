@@ -111,9 +111,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Fulfilment\Fulfilment $fulfilment
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|FulfilmentStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|FulfilmentStats query()
  * @mixin \Eloquent
  */
 class FulfilmentStats extends Model

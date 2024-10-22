@@ -49,10 +49,10 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * @property-read mixed $preview_url
  * @method static \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, static> all($columns = ['*'])
  * @method static \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, static> get($columns = ['*'])
- * @method static \Illuminate\Database\Eloquent\Builder|Media newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Media newQuery()
- * @method static Builder|Media ordered()
- * @method static \Illuminate\Database\Eloquent\Builder|Media query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Media newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Media newQuery()
+ * @method static Builder<static>|Media ordered()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Media query()
  * @mixin \Eloquent
  */
 class Media extends BaseMedia

@@ -191,12 +191,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Webpage> $webpages
  * @property-read LaravelCollection<int, Website> $websites
  * @method static \Database\Factories\SysAdmin\GroupFactory factory($count = null, $state = [])
- * @method static Builder|Group newModelQuery()
- * @method static Builder|Group newQuery()
- * @method static Builder|Group onlyTrashed()
- * @method static Builder|Group query()
- * @method static Builder|Group withTrashed()
- * @method static Builder|Group withoutTrashed()
+ * @method static Builder<static>|Group newModelQuery()
+ * @method static Builder<static>|Group newQuery()
+ * @method static Builder<static>|Group onlyTrashed()
+ * @method static Builder<static>|Group query()
+ * @method static Builder<static>|Group withTrashed()
+ * @method static Builder<static>|Group withoutTrashed()
  * @mixin Eloquent
  */
 class Group extends Authenticatable implements Auditable, HasMedia

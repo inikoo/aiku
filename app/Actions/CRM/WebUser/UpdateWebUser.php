@@ -36,7 +36,7 @@ class UpdateWebUser extends OrgAction
         $webUser = $this->update($webUser, $modelData, ['data', 'settings']);
 
         if (Arr::hasAny($webUser->getChanges(), ['status'])) {
-            CustomerHydrateWebUsers::dispatch($webUser->customer);
+            CustomerHydrateWebUsers::dispatch($webUser->customer)->delay($this->hydratorsDelay);
         }
 
         return $webUser;
@@ -61,8 +61,7 @@ class UpdateWebUser extends OrgAction
             'username'   => [
                 'sometimes',
                 'required',
-                'string',
-                'max:255',
+                $this->strict ? 'email' : 'string:500',
                 new IUnique(
                     table: 'web_users',
                     extraConditions: [
@@ -87,29 +86,14 @@ class UpdateWebUser extends OrgAction
 
             ],
             'data'       => ['sometimes', 'array'],
-            'deleted_at' => ['sometimes', 'nullable', 'date'],
             'password'   => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
             'is_root'    => ['sometimes', 'boolean']
         ];
 
-        if ($this->strict) {
-            $strictRules = [
-                'email' => [
-                    'sometimes',
-                    'nullable',
-                    'email',
-                    new IUnique(
-                        table: 'web_users',
-                        extraConditions: [
-                            ['column' => 'website_id', 'value' => $this->shop->website->id],
-                            ['column' => 'deleted_at', 'operator' => 'notNull'],
-                            ['column' => 'id', 'value' => $this->webUser->id, 'operator' => '!='],
+        if (!$this->strict) {
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules['deleted_at'] = ['sometimes','nullable', 'date'];
 
-                        ]
-                    ),
-                ],
-            ];
-            $rules       = array_merge($rules, $strictRules);
         }
 
         return $rules;
@@ -123,11 +107,14 @@ class UpdateWebUser extends OrgAction
         return $this->handle($webUser, $this->validatedData);
     }
 
-    public function action(WebUser $webUser, $modelData, int $hydratorsDelay = 0, bool $strict = true): WebUser
+    public function action(WebUser $webUser, $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): WebUser
     {
+        $this->strict = $strict;
+        if (!$audit) {
+            WebUser::disableAuditing();
+        }
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->strict         = $strict;
         $this->webUser        = $webUser;
         $this->initialisationFromShop($webUser->shop, $modelData);
 

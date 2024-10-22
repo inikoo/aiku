@@ -24,24 +24,24 @@ class HandleApiProductToShopify extends OrgAction
     /**
      * @throws \Exception
      */
-    public function handle(ShopifyUser $shopifyUser, array $modelData): void
+    public function handle(ShopifyUser $shopifyUser, array $attributes): void
     {
-        $products = $shopifyUser
+        $portfolios = $shopifyUser
             ->customer
             ->shop
-            ->products()
-            ->whereIn('id', Arr::get($modelData, 'products'))
+            ->portfolios()
+            ->whereIn('id', $attributes)
             ->get();
 
-        $totalProducts = $products->count();
+        $totalProducts = $portfolios->count();
         $uploaded      = 0;
-        foreach ($products->chunk(2) as $productChunk) {
+        foreach ($portfolios->chunk(2) as $portfolioChunk) {
             $client   = $shopifyUser->api()->getRestClient();
 
             $variants = [];
             $images   = [];
-            foreach ($productChunk as $product) {
-
+            foreach ($portfolioChunk as $portfolio) {
+                $product = $portfolio->product;
                 foreach ($product->productVariants as $variant) {
                     $existingOptions = Arr::pluck($variants, 'option1');
 
@@ -83,7 +83,8 @@ class HandleApiProductToShopify extends OrgAction
                 }
 
                 $shopifyUser->products()->attach($product->id, [
-                    'shopify_product_id' => $response['body']['product']['id']
+                    'shopify_product_id' => $response['body']['product']['id'],
+                    'portfolio_id' => $portfolio->id
                 ]);
 
                 $uploaded++;

@@ -101,12 +101,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Dispatching\DeliveryNoteStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Warehouse $warehouse
- * @method static Builder|DeliveryNote newModelQuery()
- * @method static Builder|DeliveryNote newQuery()
- * @method static Builder|DeliveryNote onlyTrashed()
- * @method static Builder|DeliveryNote query()
- * @method static Builder|DeliveryNote withTrashed()
- * @method static Builder|DeliveryNote withoutTrashed()
+ * @method static Builder<static>|DeliveryNote newModelQuery()
+ * @method static Builder<static>|DeliveryNote newQuery()
+ * @method static Builder<static>|DeliveryNote onlyTrashed()
+ * @method static Builder<static>|DeliveryNote query()
+ * @method static Builder<static>|DeliveryNote withTrashed()
+ * @method static Builder<static>|DeliveryNote withoutTrashed()
  * @mixin Eloquent
  */
 class DeliveryNote extends Model implements Auditable

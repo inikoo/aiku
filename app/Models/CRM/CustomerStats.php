@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 20 Jun 2023 20:20:42 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Tue, 20 Jun 2023 20:20:42 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -86,13 +86,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_favourites
  * @property int $number_unfavourited
  * @property int $number_reminders
- * @property int $number_unreminded
+ * @property int $number_reminders_cancelled
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\CRM\Customer $customer
- * @method static Builder|CustomerStats newModelQuery()
- * @method static Builder|CustomerStats newQuery()
- * @method static Builder|CustomerStats query()
+ * @method static Builder<static>|CustomerStats newModelQuery()
+ * @method static Builder<static>|CustomerStats newQuery()
+ * @method static Builder<static>|CustomerStats query()
  * @mixin Eloquent
  */
 class CustomerStats extends Model

@@ -24,9 +24,9 @@ use Illuminate\Database\Eloquent\Model;
  * @property LostAndFoundOrgStockStateEnum $state
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Inventory\LostAndFoundStockFactory factory($count = null, $state = [])
- * @method static Builder|LostAndFoundStock newModelQuery()
- * @method static Builder|LostAndFoundStock newQuery()
- * @method static Builder|LostAndFoundStock query()
+ * @method static Builder<static>|LostAndFoundStock newModelQuery()
+ * @method static Builder<static>|LostAndFoundStock newQuery()
+ * @method static Builder<static>|LostAndFoundStock query()
  * @mixin Eloquent
  */
 

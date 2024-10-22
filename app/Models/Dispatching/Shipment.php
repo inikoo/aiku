@@ -52,12 +52,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\Dispatching\Shipper|null $shipper
  * @property-read Shop|null $shop
  * @property-read UniversalSearch|null $universalSearch
- * @method static Builder|Shipment newModelQuery()
- * @method static Builder|Shipment newQuery()
- * @method static Builder|Shipment onlyTrashed()
- * @method static Builder|Shipment query()
- * @method static Builder|Shipment withTrashed()
- * @method static Builder|Shipment withoutTrashed()
+ * @method static Builder<static>|Shipment newModelQuery()
+ * @method static Builder<static>|Shipment newQuery()
+ * @method static Builder<static>|Shipment onlyTrashed()
+ * @method static Builder<static>|Shipment query()
+ * @method static Builder<static>|Shipment withTrashed()
+ * @method static Builder<static>|Shipment withoutTrashed()
  * @mixin Eloquent
  */
 class Shipment extends Model

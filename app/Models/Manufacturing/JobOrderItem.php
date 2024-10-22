@@ -37,12 +37,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Manufacturing\JobOrder $jobOrder
  * @property-read Organisation $organisation
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
- * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem query()
- * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|JobOrderItem withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobOrderItem newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobOrderItem newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobOrderItem onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobOrderItem query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobOrderItem withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JobOrderItem withoutTrashed()
  * @mixin \Eloquent
  */
 

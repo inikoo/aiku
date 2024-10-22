@@ -111,9 +111,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static \Illuminate\Database\Eloquent\Builder|GroupFulfilmentStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupFulfilmentStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|GroupFulfilmentStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFulfilmentStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFulfilmentStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupFulfilmentStats query()
  * @mixin \Eloquent
  */
 class GroupFulfilmentStats extends Model

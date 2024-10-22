@@ -184,12 +184,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Upload> $uploads
  * @property-read Website|null $website
  * @method static \Database\Factories\Catalogue\ShopFactory factory($count = null, $state = [])
- * @method static Builder|Shop newModelQuery()
- * @method static Builder|Shop newQuery()
- * @method static Builder|Shop onlyTrashed()
- * @method static Builder|Shop query()
- * @method static Builder|Shop withTrashed()
- * @method static Builder|Shop withoutTrashed()
+ * @method static Builder<static>|Shop newModelQuery()
+ * @method static Builder<static>|Shop newQuery()
+ * @method static Builder<static>|Shop onlyTrashed()
+ * @method static Builder<static>|Shop query()
+ * @method static Builder<static>|Shop withTrashed()
+ * @method static Builder<static>|Shop withoutTrashed()
  * @mixin Eloquent
  */
 class Shop extends Model implements HasMedia, Auditable

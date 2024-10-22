@@ -22,9 +22,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Web\Banner $banner
- * @method static \Illuminate\Database\Eloquent\Builder|BannerStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BannerStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|BannerStats query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BannerStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BannerStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|BannerStats query()
  * @mixin \Eloquent
  */
 class BannerStats extends Model

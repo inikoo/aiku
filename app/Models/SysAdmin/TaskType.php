@@ -18,12 +18,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder|TaskType newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskType newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskType onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskType query()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskType withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder|TaskType withoutTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskType newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskType newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskType onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskType query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskType withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|TaskType withoutTrashed()
  * @mixin \Eloquent
  */
 class TaskType extends Model

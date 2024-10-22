@@ -38,9 +38,9 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Model|\Eloquent $subject
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\HumanResources\TimeTracker> $timeTrackers
- * @method static \Illuminate\Database\Eloquent\Builder|Timesheet newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Timesheet newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Timesheet query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Timesheet newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Timesheet newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Timesheet query()
  * @mixin \Eloquent
  */
 class Timesheet extends Model
