@@ -31,7 +31,11 @@ import { TableRow } from "@tiptap/extension-table-row"
 import { TableCell } from "@tiptap/extension-table-cell"
 import Gapcursor from "@tiptap/extension-gapcursor"
 import Image from "@tiptap/extension-image"
+import TextStyle from '@tiptap/extension-text-style'
 import customLink from '@/Components/Forms/Fields/BubleTextEditor/CustomLink/CustomLinkExtension.js'
+import { Color } from '@tiptap/extension-color'
+/* import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue' */
+import ColorPicker from 'primevue/colorpicker';
 
 import {
     faUndo,
@@ -53,7 +57,9 @@ import {
     faAlignLeft,
     faAlignCenter,
     faAlignRight,
-    faFileVideo
+    faFileVideo,
+    faPaintBrushAlt,
+    faText
 } from "@far"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
@@ -80,7 +86,10 @@ const props = withDefaults(defineProps<{
     ]
 })
 
-console.log(props.editable)
+const emits = defineEmits<{
+    (e: 'update:modelValue', value: string): void
+    (e: 'onEditClick', value: any): void
+}>()
 
 const _bubbleMenu = ref(null)
 const showDialog = ref(false)
@@ -160,9 +169,14 @@ const editorInstance = useEditor({
         TableCell,
         Gapcursor,
         Image,
+        TextStyle,
+        Color.configure({
+            types: ['textStyle'],
+        }),
     ],
     onUpdate: ({ editor }) => {
         contentResult.value = editor.getHTML()
+        emits('update:modelValue', editor.getHTML())
     },
 })
 
@@ -270,19 +284,18 @@ onBeforeUnmount(() => {
                         <FontAwesomeIcon :icon="faUndo" class="h-5 w-5" />
                     </TiptapToolbarButton>
                 </TiptapToolbarGroup>
-
                 <TiptapToolbarGroup>
-                    <TiptapToolbarButton v-if="toogle.includes('heading') && toogle.includes('h1')" label="Heading 1"
+                    <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 1"
                         :is-active="editorInstance?.isActive('heading', { level: 1 })"
                         @click="editorInstance?.chain().focus().toggleHeading({ level: 1 }).run()">
                         <FontAwesomeIcon :icon="faH1" class="h-5 w-5" />
                     </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('heading') && toogle.includes('h2')" label="Heading 2"
+                    <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 2"
                         :is-active="editorInstance?.isActive('heading', { level: 2 })"
                         @click="editorInstance?.chain().focus().toggleHeading({ level: 2 }).run()">
                         <FontAwesomeIcon :icon="faH2" class="h-5 w-5" />
                     </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('heading') && toogle.includes('h3')" label="Heading 3"
+                    <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 3"
                         :is-active="editorInstance?.isActive('heading', { level: 3 })"
                         @click="editorInstance?.chain().focus().toggleHeading({ level: 3 }).run()">
                         <FontAwesomeIcon :icon="faH3" class="h-5 w-5" />
@@ -310,6 +323,20 @@ onBeforeUnmount(() => {
                         @click="editorInstance?.chain().focus().toggleStrike().run()">
                         <FontAwesomeIcon :icon="faStrikethrough" class="h-5 w-5" />
                     </TiptapToolbarButton>
+
+                    <TiptapToolbarButton v-if="toogle.includes('color')" label="Text Color">
+                        <ColorPicker v-model="editorInstance.getAttributes('textStyle').color"
+                            @update:model-value="color => editorInstance?.chain().focus().setColor(`#${color}`).run()" />
+                    </TiptapToolbarButton>
+
+                    <!-- <ColorPicker v-if="toogle.includes('highlight')" :color="editorInstance?.getAttributes('highlight').color"
+                        @changeColor="(color) => editorInstance?.chain().setHighlight({ color: color.hex }).run()"
+                        class="flex items-center justify-center w-6 aspect-square rounded cursor-pointer p-1 border border-gray-400"
+                        :style="{ backgroundColor: editorInstance?.getAttributes('highlight').color }">
+                        <FontAwesomeIcon :icon="faPaintBrushAlt" class='text-gray-500 h-5 w-5' fixed-width
+                            aria-hidden='true' />
+                    </ColorPicker> -->
+
                 </TiptapToolbarGroup>
 
                 <TiptapToolbarGroup>
@@ -400,7 +427,7 @@ onBeforeUnmount(() => {
 }
 
 :deep(.ProseMirror) {
-    @apply focus:outline-none px-4 py-4 min-h-[150px] relative;
+    @apply focus:outline-none px-0 py-0 min-h-[10px] relative;
 }
 
 :deep(.blog) {

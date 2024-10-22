@@ -83,13 +83,13 @@ const props = defineProps<{
     timesheets?: object
     job_positions?: Table
     attachments?: {}
-
+    attachmentRoutes?:object
 }>()
 
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 const isModalUploadOpen = ref(false)
-
+const attachmentRoutes = ref(props.attachmentRoutes)
 const component = computed(() => {
 
     const components = {
@@ -131,8 +131,9 @@ const component = computed(() => {
                 <div v-else>Not Set</div>
             </div>
         </template>
+     <pre>{{ currentTab }}</pre>
         <template #other>
-            <Button @click="() => isModalUploadOpen = true" />
+            <Button v-if="currentTab === 'attachments'" @click="() => isModalUploadOpen = true" label="Attach" icon="upload"/>
         </template>
 
     </PageHeading>
@@ -174,11 +175,12 @@ const component = computed(() => {
 
         </div>
     -->
+
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 
     <UploadAttachment v-model="isModalUploadOpen" scope="attachment" :title="{
         label: 'Upload your file',
         information: 'The list of column file: customer_reference, notes, stored_items'
-    }" progressDescription="Adding Pallet Deliveries" />
+    }" progressDescription="Adding Pallet Deliveries" :attachmentRoutes="attachmentRoutes" />
 </template>
