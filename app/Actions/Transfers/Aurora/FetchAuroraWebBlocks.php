@@ -13,7 +13,7 @@ use App\Transfers\Aurora\WithAuroraParsers;
 use Illuminate\Support\Str;
 use App\Actions\Helpers\Images\GetPictureSources;
 use App\Actions\OrgAction;
-use App\Actions\Traits\WebBlocks\WithFetchCTA1WebBlock;
+use App\Actions\Traits\WebBlocks\WithFetchCTAWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchFamilyWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchIFrameWebBlock;
 use App\Actions\Traits\WebBlocks\WithFetchOverviewWebBlock;
@@ -46,7 +46,7 @@ class FetchAuroraWebBlocks extends OrgAction
     use WithFetchIFrameWebBlock;
     use WithFetchProductWebBlock;
     use WithFetchOverviewWebBlock;
-    use WithFetchCTA1WebBlock;
+    use WithFetchCTAWebBlock;
     use WithFetchSeeAlsoWebBlock;
     use WithFetchProductsWebBlock;
     use WithFetchFamilyWebBlock;
@@ -268,8 +268,8 @@ class FetchAuroraWebBlocks extends OrgAction
                 $layout       = $this->processOverviewData($webpage, $auroraBlock);
                 break;
             case "button":
-                $webBlockType = $group->webBlockTypes()->where("slug", "cta1")->first();
-                $layout       = $this->processCTA1Data($auroraBlock);
+                $webBlockType = $group->webBlockTypes()->where("slug", "cta-aurora-1")->first();
+                $layout       = $this->processCTAData($webBlockType, $auroraBlock);
                 break;
             default:
                 print ">>>>> ".$webpage->slug."  ".$auroraBlock["type"]."  <<<<<<\n";
@@ -281,6 +281,8 @@ class FetchAuroraWebBlocks extends OrgAction
             return;
         }
 
+        data_set($layout, "blueprint", Arr::get($webBlockType, "blueprint"));
+
         // fe: want to add dimension that already added in iframe.json
         if ($auroraBlock['type'] == "iframe") {
             data_set($layout, "data.fieldValue.container.properties.dimension", Arr::get($webBlockType, "data.fieldValue.container.properties.dimension"));
@@ -290,7 +292,6 @@ class FetchAuroraWebBlocks extends OrgAction
         data_set($layout, "data.fieldValue.container.properties.padding.left.value", 20);
         data_set($layout, "data.fieldValue.container.properties.padding.right.value", 20);
         data_set($layout, "data.fieldValue.container.properties.padding.bottom.value", 20);
-        data_set($layout, "data.fieldValue.container.properties.padding.top.value", 20);
         data_set($layout, "data.fieldValue.container.properties.padding.top.value", 20);
 
         $webBlock = StoreWebBlock::make()->action(
@@ -340,7 +341,7 @@ class FetchAuroraWebBlocks extends OrgAction
             $code == "images"
             || $code == "text"
             || $code == "overview"
-            || $code == "cta1"
+            || $code == "cta_aurora_1"
             || $code == "family"
             || $code == "department"
         ) {
@@ -405,6 +406,12 @@ class FetchAuroraWebBlocks extends OrgAction
                 $layout['data']['fieldValue']['value']["images"] = $imgResources;
                 $layout['data']['fieldValue']['value']["layout_type"] = Arr::get($layout, "data.fieldValue.layout_type");
                 Arr::forget($layout, "data.fieldValue.layout_type");
+            } elseif ($code == "cta_aurora_1") {
+                $imageRawData = Arr::get($layout, 'data.fieldValue.button.container.properties.background.image.original');
+                if ($imageRawData) {
+                    $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
+                    data_set($layout, 'data.fieldValue.button.container.properties.background.image', $imageSource);
+                }
             } else {
                 foreach ($layout['data']["fieldValue"]["value"] as $key => $container) {
                     if ($key == "images") {

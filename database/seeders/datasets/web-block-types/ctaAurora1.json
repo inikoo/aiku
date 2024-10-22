@@ -47,6 +47,10 @@
 				"text": "Explore Here",
 				"container": {
 					"properties": {
+						"text": {
+							"color": "#FFFFFF",
+							"fontFamily": null
+						},
 						"background": {
 							"type": "color",
 							"color": "#ffff",
