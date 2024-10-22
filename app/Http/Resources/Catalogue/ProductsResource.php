@@ -52,7 +52,8 @@ class ProductsResource extends JsonResource
             'image_thumbnail'           => $this->imageSources(720, 480),
             'current_historic_asset_id' => $this->current_historic_asset_id,
             'asset_id'                  => $this->asset_id,
-            'stock'                     => $this->available_quantity
+            'stock'                     => $this->available_quantity,
+            'tags'                      => $this->tags()->pluck('slug')->toArray(),
         ];
     }
 }
