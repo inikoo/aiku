@@ -26,8 +26,6 @@ import socialMedia from '@/Components/Websites/Fields/SocialMedia.vue'
 import FooterColumn from '@/Components/Websites/Fields/FooterColumn.vue'
 import { isArray, set as setLodash } from 'lodash'
 import { routeType } from '@/types/route'
-import BorderProperty from './Fields/Properties/BorderProperty.vue'
-import PaddingMarginProperty from './Fields/Properties/PaddingMarginProperty.vue'
 import Icon from '@/Components/Icon.vue';
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
