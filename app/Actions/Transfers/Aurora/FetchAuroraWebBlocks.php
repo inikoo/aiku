@@ -443,15 +443,14 @@ class FetchAuroraWebBlocks extends OrgAction
                     data_set($layout, 'data.fieldValue.button.container.properties.background.image', $imageSource);
                 }
             } elseif ($code == "overview") {
-                $imagesRawData = Arr::get($layout, 'data.fieldValue.images.source');
+                $imagesRawData = Arr::get($layout, 'data.fieldValue.images.sources');
                 if ($imagesRawData) {
                     $imgSources = [];
                     foreach ($imagesRawData as $imgRawData) {
                         $imgSources[] = $this->processImage($webBlock, $imgRawData, $webpage);
                     }
-                    data_set($layout, 'data.fieldValue.images.source', $imgSources);
+                    data_set($layout, 'data.fieldValue.images.sources', $imgSources);
                 }
-                dd($layout);
             } else {
                 foreach ($layout['data']["fieldValue"]["value"] as $key => $container) {
                     if ($key == "images") {

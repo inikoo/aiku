@@ -144,7 +144,7 @@
 				}
 			},
 			"images": {
-				"source" : [],
+				"sources" : [],
 				"container": {
 					"properties": {
 						"dimension": {

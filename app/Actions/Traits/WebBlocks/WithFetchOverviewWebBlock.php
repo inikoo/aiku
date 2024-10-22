@@ -29,7 +29,7 @@ trait WithFetchOverviewWebBlock
             $textsArray[] = $text["text"];
         }
 
-        data_set($layout, "data.fieldValue.text.values", $textsArray);
+        data_set($layout, "data.fieldValue.texts.values", $textsArray);
 
         $imagesArray = [];
         foreach ($auroraBlock["images"] as $image) {
@@ -41,7 +41,7 @@ trait WithFetchOverviewWebBlock
             ];
         }
 
-        data_set($layout, "data.fieldValue.images.source", $imagesArray);
+        data_set($layout, "data.fieldValue.images.sources", $imagesArray);
         return $layout;
     }
 }
