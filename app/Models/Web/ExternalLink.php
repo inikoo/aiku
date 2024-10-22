@@ -8,6 +8,7 @@
 
 namespace App\Models\Web;
 
+use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -34,6 +35,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ExternalLink extends Model
 {
+
+    use InGroup;
+
     protected $casts = [
     ];
 
