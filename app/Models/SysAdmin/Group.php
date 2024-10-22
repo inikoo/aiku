@@ -63,6 +63,7 @@ use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
+use App\Models\Web\ExternalLink;
 use App\Models\Web\Redirect;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
@@ -682,6 +683,9 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(Redirect::class);
     }
 
-
+    public function externalLinks(): HasMany
+    {
+        return $this->hasMany(ExternalLink::class);
+    }
 
 }

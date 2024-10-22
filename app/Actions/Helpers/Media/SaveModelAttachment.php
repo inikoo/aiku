@@ -99,7 +99,7 @@ class SaveModelAttachment extends OrgAction
         $this->hydratorsDelay = $hydratorsDelay;
 
 
-        $this->initialisationForGroup($model->group, $modelData);
+        $this->initialisationFromGroup($model->group, $modelData);
 
         return $this->handle($model, $this->validatedData);
     }

@@ -481,7 +481,6 @@ trait WithAuroraParsers
 
         $sourceData = explode(':', $sourceID);
 
-        dd($sourceData[1]);
         return FetchAuroraAgents::run($this->organisationSource, $sourceData[1]);
 
 

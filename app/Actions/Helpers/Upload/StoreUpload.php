@@ -110,7 +110,7 @@ class StoreUpload extends OrgAction
     {
         switch ($parent) {
             case $parent instanceof Group:
-                $this->initialisationForGroup($parent, $modelData);
+                $this->initialisationFromGroup($parent, $modelData);
                 break;
             case $parent instanceof Organisation:
                 $this->initialisation($parent, $modelData);
