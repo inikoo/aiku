@@ -11,6 +11,7 @@ const props = defineProps<{
     }
     scope?: string
     additionalDataToSend?: string[]
+    attachmentRoutes?: object
 }>()
 
 
@@ -24,7 +25,7 @@ const emits = defineEmits<{
 
 <template>
     <KeepAlive>
-        <ModalUploadAttachment v-model="model" :scope :title :additionalDataToSend />
+        <ModalUploadAttachment v-model="model" :scope :title :additionalDataToSend :attachmentRoutes />
     </KeepAlive>
 
 </template>

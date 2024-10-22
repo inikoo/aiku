@@ -281,7 +281,7 @@ class FetchAuroraWebBlocks extends OrgAction
             return;
         }
 
-        data_set($layout, "data.fieldValue.blueprint", Arr::get($webBlockType, "blueprint"));
+        data_set($layout, "blueprint", Arr::get($webBlockType, "blueprint"));
 
         // fe: want to add dimension that already added in iframe.json
         if ($auroraBlock['type'] == "iframe") {
@@ -407,9 +407,9 @@ class FetchAuroraWebBlocks extends OrgAction
                 $layout['data']['fieldValue']['value']["layout_type"] = Arr::get($layout, "data.fieldValue.layout_type");
                 Arr::forget($layout, "data.fieldValue.layout_type");
             } elseif ($code == "cta_aurora_1") {
-                $imageRawData = Arr::get($layout, 'data.fieldValue.button.container.properties.background.image.original.source');
+                $imageRawData = Arr::get($layout, 'data.fieldValue.button.container.properties.background.image.original');
                 if ($imageRawData) {
-                    $imageSource    = $this->processImage($webBlock, ["aurora_source" => $imageRawData], $webpage);
+                    $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
                     data_set($layout, 'data.fieldValue.button.container.properties.background.image', $imageSource);
                 }
             } else {
