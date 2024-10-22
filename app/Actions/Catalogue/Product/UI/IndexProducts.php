@@ -19,12 +19,14 @@ use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
+use App\Http\Resources\Tag\TagResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Dropshipping\ShopifyUser;
+use App\Models\Helpers\Tag;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
@@ -273,7 +275,8 @@ class IndexProducts extends OrgAction
                 );
             }
             $table->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+                ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'tags', label: __('tags'), canBeHidden: false);
 
             if ($parent instanceof Collection or $parent instanceof ShopifyUser) {
                 $table->column(key: 'actions', label: __('action'), canBeHidden: false, sortable: true, searchable: true);
@@ -485,6 +488,17 @@ class IndexProducts extends OrgAction
                     'subNavigation' => $subNavigation,
                 ],
                 'routes'      => $routes,
+                'tagRoute'   => [
+                    'store' => [
+                        'name'       => 'grp.models.product.tag.store',
+                        'parameters' => []
+                    ],
+                    'update' => [
+                        'name'       => 'grp.models.product.tag.attach',
+                        'parameters' => []
+                    ],
+                ],
+                'tagsList'    => TagResource::collection(Tag::where('type', 'catalogue')->get()),
                 'data'        => ProductsResource::collection($products),
 
 
