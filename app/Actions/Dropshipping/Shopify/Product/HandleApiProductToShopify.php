@@ -27,9 +27,7 @@ class HandleApiProductToShopify extends OrgAction
     public function handle(ShopifyUser $shopifyUser, array $attributes): void
     {
         $portfolios = $shopifyUser
-            ->customer
-            ->shop
-            ->portfolios()
+            ->customer->portfolios()
             ->whereIn('id', $attributes)
             ->get();
 
