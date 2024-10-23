@@ -20,7 +20,6 @@ enum OrgPartnerTabsEnum: string
     case ORG_STOCKS = 'org_stocks';
     case PURCHASE_ORDERS = 'purchase_orders';
     case DELIVERIES = 'deliveries';
-    case HISTORY = 'history';
 
 
     public function blueprint(): array
@@ -37,12 +36,6 @@ enum OrgPartnerTabsEnum: string
             OrgPartnerTabsEnum::DELIVERIES => [
                 'title' => __('deliveries'),
                 'icon'  => 'fal fa-truck',
-            ],
-            OrgPartnerTabsEnum::HISTORY => [
-                'title' => __('history'),
-                'icon'  => 'fal fa-clock',
-                'type'  => 'icon',
-                'align' => 'right',
             ],
             OrgPartnerTabsEnum::SHOWCASE => [
                 'title' => __('overview'),
