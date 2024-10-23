@@ -2,7 +2,7 @@
 /*
  * Author: Ganes <gustiganes@gmail.com>
  * Created on: 22-10-2024, Bali, Indonesia
- * Github: https://github.com/aqordeon
+ * Github: https://github.com/Ganes556
  * Copyright: 2024
  *
 */
@@ -46,7 +46,7 @@ class StoreExternalLink extends OrgAction
         //        }
 
         //todo create action to check external link status and call it here
-        // CheckExternalLinkStatus::make()->action($externalLink);
+        $status = CheckExternalLinkStatus::run($externalLink);
 
 
         return $externalLink;
