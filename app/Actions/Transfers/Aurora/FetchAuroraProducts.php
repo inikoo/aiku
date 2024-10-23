@@ -16,6 +16,7 @@ use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraProducts extends FetchAuroraAction
 {
@@ -41,7 +42,9 @@ class FetchAuroraProducts extends FetchAuroraAction
                     $product = UpdateProduct::make()->action(
                         product: $product,
                         modelData: $productData['product'],
-                        hydratorsDelay: 120
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
                     );
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'update');
@@ -73,7 +76,7 @@ class FetchAuroraProducts extends FetchAuroraAction
                         ->where('Product ID', $sourceData[1])
                         ->update(['aiku_id' => $product->id]);
 
-                } catch (Exception $e) {
+                } catch (Exception|Throwable $e) {
 
                     $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'store');
 

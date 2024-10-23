@@ -11,6 +11,7 @@ use App\Actions\Catalogue\Asset\UpdateAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Product\Search\ProductRecordSearch;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Http\Resources\Catalogue\ProductResource;
@@ -26,6 +27,7 @@ class UpdateProduct extends OrgAction
 {
     use WithActionUpdate;
     use WithProductHydrators;
+    use WithNoStrictRules;
 
     private Product $product;
 
@@ -94,7 +96,7 @@ class UpdateProduct extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;

@@ -11,6 +11,7 @@ use App\Actions\Catalogue\Asset\StoreAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateProductVariants;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
@@ -34,6 +35,7 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreProduct extends OrgAction
 {
     use WithProductHydrators;
+    use WithNoStrictRules;
 
     private AssetStateEnum|null $state = null;
 
@@ -258,9 +260,7 @@ class StoreProduct extends OrgAction
             $rules['org_stocks'] = ['required', 'array'];
         }
         if (!$this->strict) {
-            $rules['created_at']         = ['sometimes', 'date'];
-            $rules['fetched_at']         = ['sometimes', 'date'];
-            $rules['source_id']          = ['sometimes', 'required', 'string', 'max:255'];
+            $rules = $this->noStrictStoreRules($rules);
             $rules['historic_source_id'] = ['sometimes', 'required', 'string', 'max:255'];
         }
 
