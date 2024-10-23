@@ -20,6 +20,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $this->modelMediaFields($table);
+            $table->jsonb('sources')->default('{}');
 
         });
     }

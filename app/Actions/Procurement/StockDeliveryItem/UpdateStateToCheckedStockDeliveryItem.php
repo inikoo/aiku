@@ -30,7 +30,7 @@ class UpdateStateToCheckedStockDeliveryItem
 
         $stockDeliveryItem = $this->update($stockDeliveryItem, $data);
 
-        $this->runHydrators($stockDeliveryItem->stockDelivery);
+        $this->runStockDeliveryHydrators($stockDeliveryItem->stockDelivery);
 
         return $stockDeliveryItem;
     }

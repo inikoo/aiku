@@ -113,7 +113,7 @@ class OrgAction
         return $this;
     }
 
-    public function initialisationForGroup(Group $group, ActionRequest|array $request): static
+    public function initialisationFromGroup(Group $group, ActionRequest|array $request): static
     {
         $this->group = $group;
         if (is_array($request)) {

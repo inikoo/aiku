@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
+use App\Enums\Procurement\StockDeliveryItem\StockDeliveryItemStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -21,7 +21,7 @@ return new class () extends Migration {
             $table->foreign('stock_delivery_id')->references('id')->on('stock_deliveries');
             $table->unsignedInteger('supplier_product_id')->index();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
-            $table->string('state')->index()->default(StockDeliveryStateEnum::CREATING->value);
+            $table->string('state')->index()->default(StockDeliveryItemStateEnum::IN_PROCESS->value);
             $table->dateTimeTz('checked_at')->nullable();
             $table->jsonb('data');
             $table->decimal('unit_quantity');

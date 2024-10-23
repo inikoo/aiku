@@ -7,85 +7,87 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Actions\Transfers\Aurora\FetchAuroraDeletedSuppliers;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
-use App\Models\Helpers\Address;
+use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
+use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
+use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
+use App\Models\Helpers\Currency;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class FetchAuroraStockDelivery extends FetchAurora
 {
     protected function parseModel(): void
     {
 
+        if ($this->auroraModelData->{'Supplier Delivery Parent'} == 'Order') {
+            return;
+        }
+
         if ($this->auroraModelData->{'Supplier Delivery Parent'} == 'Agent') {
+
+
+
+
             $agentData = DB::connection("aurora")
                 ->table("Agent Dimension")
                 ->where("Agent Key", $this->auroraModelData->{'Supplier Delivery Parent Key'})
                 ->first();
 
-            $agentSourceSlug = Str::kebab(strtolower($agentData->{'Agent Code'}));
             $parent          = $this->parseAgent(
-                $agentSourceSlug,
                 $this->organisation->id.':'.$this->auroraModelData->{'Supplier Delivery Parent Key'}
             );
+
+            if (!$parent) {
+                dd($this->auroraModelData);
+                return;
+            }
 
             $orgParent = OrgAgent::where('organisation_id', $this->organisation->id)
                 ->where('agent_id', $parent->id)->first();
 
+            if (!$orgParent) {
+                print "Warning agent ".$parent->id." not found\n";
+                return;
+            }
         } else {
-            $supplierData = DB::connection("aurora")
-                ->table("Supplier Dimension")
-                ->where("Supplier Key", $this->auroraModelData->{'Supplier Delivery Parent Key'})
-                ->first();
 
-            if ($supplierData) {
 
-                if ($supplierData->aiku_ignore == 'Yes') {
-                    return;
-                }
+            $parent = $this->parseSupplier($this->organisation->id.':'.$this->auroraModelData->{'Supplier Delivery Parent Key'});
 
-                $supplierSourceSlug = Str::kebab(strtolower($supplierData->{'Supplier Code'}));
-                $parent             = $this->parseSupplier(
-                    $supplierSourceSlug,
-                    $this->organisation->id.':'.$this->auroraModelData->{'Supplier Delivery Parent Key'}
-                );
-            } else {
-                $parent = FetchAuroraDeletedSuppliers::run($this->organisationSource, $this->auroraModelData->{'Supplier Delivery Parent Key'});
+
+            if (!$parent) {
+                print "Warning supplier ".$this->auroraModelData->{'Supplier Delivery Parent Key'}." not found\n";
+                return;
             }
 
-            $orgParent = OrgSupplier::where('organisation_id', $this->organisation->id)
-                ->where('supplier_id', $parent->id)->first();
+            $orgParent = OrgSupplier::where('organisation_id', $this->organisation->id)->where('supplier_id', $parent->id)->first();
 
+            if (!$orgParent) {
+                dd($this->auroraModelData);
+                return;
+            }
         }
 
 
         $this->parsedData["org_parent"] = $orgParent;
 
 
-
-
         //print ">>".$this->auroraModelData->{'Supplier Delivery State'}."\n";
         $state = match ($this->auroraModelData->{'Supplier Delivery State'}) {
-            "Cancelled", "NoReceived", "Placed", "Costing", "InvoiceChecked" => PurchaseOrderStateEnum::SETTLED,
-            "InProcess" => PurchaseOrderStateEnum::CREATING,
-            "Confirmed" => PurchaseOrderStateEnum::CONFIRMED,
-            "Manufactured", "QC_Pass" => PurchaseOrderStateEnum::MANUFACTURED,
+            "Cancelled", "NoReceived", "Placed", "Costing", "InvoiceChecked" => StockDeliveryStateEnum::SETTLED,
+            "InProcess", "Confirmed", "Manufactured", "QC_Pass"."Submitted" => StockDeliveryStateEnum::IN_PROCESS,
 
-            "Inputted", "Dispatched" => PurchaseOrderStateEnum::DISPATCHED,
-            "Received"  => PurchaseOrderStateEnum::RECEIVED,
-            "Checked"   => PurchaseOrderStateEnum::CHECKED,
-            "Submitted" => PurchaseOrderStateEnum::SUBMITTED,
+            "Inputted", "Dispatched" => StockDeliveryStateEnum::DISPATCHED,
+            "Received" => StockDeliveryStateEnum::RECEIVED,
+            "Checked" => StockDeliveryStateEnum::CHECKED,
         };
 
         $status = match ($this->auroraModelData->{'Supplier Delivery State'}) {
-            "Placed", "Costing", "InvoiceChecked" => PurchaseOrderStatusEnum::PLACED,
-            "NoReceived" => PurchaseOrderStatusEnum::FAIL,
-            "Cancelled"  => PurchaseOrderStatusEnum::CANCELLED,
-            default      => PurchaseOrderStatusEnum::PROCESSING,
+            "Placed", "Costing", "InvoiceChecked" => StockDeliveryStatusEnum::PLACED,
+            "NoReceived" => StockDeliveryStatusEnum::NOT_RECEIVED,
+            "Cancelled" => StockDeliveryStatusEnum::CANCELLED,
+            default => StockDeliveryStatusEnum::PROCESSING,
         };
 
 
@@ -95,49 +97,51 @@ class FetchAuroraStockDelivery extends FetchAurora
         }
 
 
+
+
         $data = [];
 
-        $this->parsedData["purchase_order"] = [
-            'date'            => $this->auroraModelData->{'Supplier Delivery Date'},
 
-            'dispatched_at'      => $this->parseDate($this->auroraModelData->{'Supplier Delivery Submitted Date'}),
-            'confirmed_at'       => $this->parseDate($this->auroraModelData->{'Supplier Delivery Confirmed Date'}),
-            'placed_at'          => $this->parseDate($this->auroraModelData->{'Supplier Delivery Manufactured Date'}),
-            'received_at'        => $this->parseDate($this->auroraModelData->{'Supplier Delivery Received Date'}),
-            'cancelled_at'       => $this->parseDate($this->auroraModelData->{'Supplier Delivery Checked Date'}),
+        $date = $this->parseDatetime($this->auroraModelData->{'Supplier Delivery Last Updated Date'});
+
+        $currencyID  = $this->parseCurrencyID($this->auroraModelData->{'Supplier Delivery Currency Code'});
+        $currency    = Currency::find($currencyID);
+        $orgExchange = GetHistoricCurrencyExchange::run($currency, $orgParent->organisation->currency, $date);
+        $grpExchange = GetHistoricCurrencyExchange::run($currency, $orgParent->group->currency, $date);
+
+
+        $this->parsedData["stockDelivery"] = [
+            'date' => $date,
+
+            'dispatched_at' => $this->parseDate($this->auroraModelData->{'Supplier Delivery Dispatched Date'}),
+            'received_at'   => $this->parseDate($this->auroraModelData->{'Supplier Delivery Received Date'}),
+            'checked_at'    => $this->parseDate($this->auroraModelData->{'Supplier Delivery Checked Date'}),
+            'settled_at'    => $this->parseDate($this->auroraModelData->{'Supplier Delivery Placed Date'}),
+            'cancelled_at'  => $cancelled_at,
 
             'parent_code' => $this->auroraModelData->{'Supplier Delivery Parent Code'},
             'parent_name' => $this->auroraModelData->{'Supplier Delivery Parent Name'},
 
-            "number" => $this->auroraModelData->{'Supplier Delivery Public ID'} ?? $this->auroraModelData->{'Supplier Delivery Key'},
-            "state"  => $state,
-            "status" => $status,
+            "reference" => $this->auroraModelData->{'Supplier Delivery Public ID'} ?? $this->auroraModelData->{'Supplier Delivery Key'},
+            "state"     => $state,
+            "status"    => $status,
 
-            "cost_items"    => $this->auroraModelData->{'Supplier Delivery Items Net Amount'},
-            "cost_shipping" => $this->auroraModelData->{'Supplier Delivery Shipping Net Amount'},
+            "cost_items" => $this->auroraModelData->{'Supplier Delivery Items Amount'},
+            // "cost_shipping" => $this->auroraModelData->{'Supplier Delivery Shipping Net Amount'},
 
-            "cost_total" => $this->auroraModelData->{'Supplier Delivery Total Amount'},
+            //  "cost_total" => $this->auroraModelData->{'Supplier Delivery Total Amount'},
 
-            "source_id"    => $this->auroraModelData->{'Supplier Delivery Key'},
-            "exchange"     => $this->auroraModelData->{'Supplier Delivery Currency Exchange'},
-            "currency_id"  => $this->parseCurrencyID($this->auroraModelData->{'Supplier Delivery Currency Code'}),
-            "created_at"   => $this->auroraModelData->{'Supplier Delivery Creation Date'},
-            "data"         => $data
+            "source_id" => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Delivery Key'},
+
+            "currency_id"  => $currencyID,
+            'org_exchange' => $orgExchange,
+            'grp_exchange' => $grpExchange,
+
+            "created_at"      => $this->auroraModelData->{'Supplier Delivery Creation Date'},
+            "data"            => $data,
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
         ];
-
-        $deliveryAddressData                  = $this->parseAddress(
-            prefix: "Order Delivery",
-            auAddressData: $this->auroraModelData,
-        );
-        $this->parsedData["delivery_address"] = new Address(
-            $deliveryAddressData,
-        );
-
-        $billingAddressData                  = $this->parseAddress(
-            prefix: "Order Invoice",
-            auAddressData: $this->auroraModelData,
-        );
-        $this->parsedData["billing_address"] = new Address($billingAddressData);
     }
 
     protected function fetchData($id): object|null

@@ -16,6 +16,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraDeletedCustomers;
 use App\Actions\Transfers\Aurora\FetchAuroraDeletedEmployees;
 use App\Actions\Transfers\Aurora\FetchAuroraDeletedLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraDeletedStocks;
+use App\Actions\Transfers\Aurora\FetchAuroraDeletedSuppliers;
 use App\Actions\Transfers\Aurora\FetchAuroraDepartments;
 use App\Actions\Transfers\Aurora\FetchAuroraDispatchedEmails;
 use App\Actions\Transfers\Aurora\FetchAuroraEmployees;
@@ -435,30 +436,54 @@ trait WithAuroraParsers
     }
 
 
-    public function parseSupplier($sourceSlug, $sourceID): ?Supplier
+    public function parseSupplier($sourceID): ?Supplier
     {
-        $supplier = Supplier::withTrashed()->where('source_slug', $sourceSlug)->first();
-        if (!$supplier) {
-            $sourceData = explode(':', $sourceID);
-            $supplier   = FetchAuroraSuppliers::run($this->organisationSource, $sourceData[1]);
+        $supplier = Supplier::withTrashed()->where('source_id', $sourceID)->first();
+        if ($supplier) {
+            return $supplier;
         }
 
+        $supplier = Supplier::withTrashed()
+            ->whereJsonContains('sources->suppliers', $sourceID)
+            ->first();
+        if ($supplier) {
+            return $supplier;
+        }
+
+
+        $sourceData = explode(':', $sourceID);
+        $supplier   = FetchAuroraSuppliers::run($this->organisationSource, $sourceData[1]);
+
+
+
+        if (!$supplier) {
+
+            $supplier   = FetchAuroraDeletedSuppliers::run($this->organisationSource, $sourceData[1]);
+        }
         return $supplier;
     }
 
-    public function parseAgent($sourceSlug, $sourceID): ?Agent
+    public function parseAgent($sourceID): ?Agent
     {
-        if ($sourceSlug == 'awzesttex') {
-            $sourceSlug = 'awindia';
+
+        $agent = Agent::withTrashed()->where('source_id', $sourceID)->first();
+        if ($agent) {
+            return $agent;
         }
 
-        $agent = Agent::withTrashed()->where('source_slug', $sourceSlug)->first();
-        if (!$agent) {
-            $sourceData = explode(':', $sourceID);
-            $agent      = FetchAuroraAgents::run($this->organisationSource, $sourceData[1]);
+        $agent = Agent::withTrashed()
+            ->whereJsonContains('sources->agents', $sourceID)
+            ->first();
+        if ($agent) {
+            return $agent;
         }
 
-        return $agent;
+
+        $sourceData = explode(':', $sourceID);
+
+        return FetchAuroraAgents::run($this->organisationSource, $sourceData[1]);
+
+
     }
 
     public function parseOrgStock($sourceId): ?OrgStock

@@ -63,6 +63,7 @@ use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
+use App\Models\Web\ExternalLink;
 use App\Models\Web\Redirect;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
@@ -124,6 +125,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupDiscountsStats|null $discountsStats
  * @property-read \App\Models\SysAdmin\GroupDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, Employee> $employees
+ * @property-read LaravelCollection<int, ExternalLink> $externalLinks
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
@@ -682,6 +684,9 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(Redirect::class);
     }
 
-
+    public function externalLinks(): HasMany
+    {
+        return $this->hasMany(ExternalLink::class);
+    }
 
 }

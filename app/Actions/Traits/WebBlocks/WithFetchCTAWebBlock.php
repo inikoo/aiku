@@ -20,7 +20,7 @@ trait WithFetchCTAWebBlock
     public function processCTAData(Webpage $webpage, WebBlockType $webBlockType, $auroraBlock): array
     {
         data_set($layout, "data.fieldValue", Arr::get($webBlockType, "data.fieldValue"));
-        data_set($layout, "data.fieldValue.title", Arr::get($auroraBlock, "title"));
+        data_set($layout, "data.fieldValue.title", "<h1>" . Arr::get($auroraBlock, "title") . "</h1>");
         data_set($layout, "data.fieldValue.text", Arr::get($auroraBlock, "text"));
         data_set($layout, "data.fieldValue.button.text", Arr::get($auroraBlock, "button_label"));
         data_set($layout, "data.fieldValue.button.container.properties.background.color", Arr::get($auroraBlock, "bg_color"));

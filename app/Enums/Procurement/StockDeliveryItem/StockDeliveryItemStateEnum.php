@@ -13,8 +13,7 @@ enum StockDeliveryItemStateEnum: string
 {
     use EnumHelperTrait;
 
-    case CREATING     = 'creating';
-
+    case IN_PROCESS     = 'in_process';
     case DISPATCHED   = 'dispatched';
     case RECEIVED     = 'received';
     case CHECKED      = 'checked';

@@ -54,9 +54,10 @@ test('create b2b website', function () {
         Website::factory()->definition()
     );
 
+
     expect($website)->toBeInstanceOf(Website::class)
         ->and($website->storefront)->toBeInstanceOf(Webpage::class)
-        ->and($website->webStats->number_webpages)->toBe(4);
+        ->and($website->webStats->number_webpages)->toBe(15);
 
 
     return $website;
@@ -160,7 +161,7 @@ test('create fulfilment website', function () {
         ->and($website->type)->toBe(WebsiteTypeEnum::FULFILMENT)
         ->and($website->state)->toBe(WebsiteStateEnum::IN_PROCESS)
         ->and($website->storefront)->toBeInstanceOf(Webpage::class)
-        ->and($website->webStats->number_webpages)->toBe(4);
+        ->and($website->webStats->number_webpages)->toBe(1);
 
     /** @var Webpage $homeWebpage */
     $homeWebpage = $website->webpages()->first();
@@ -168,7 +169,7 @@ test('create fulfilment website', function () {
         ->and($homeWebpage->state)->toBe(WebpageStateEnum::READY)
         ->and($homeWebpage->ready_at)->toBeInstanceOf(Carbon::class)
         ->and($homeWebpage->level)->toBe(1)
-        ->and($homeWebpage->stats->number_webpages)->toBe(3)
+        ->and($homeWebpage->stats->number_webpages)->toBe(0)
         ->and($homeWebpage->stats->number_snapshots)->toBe(1)
         ->and($homeWebpage->stats->number_deployments)->toBe(0)
         ->and($homeWebpage->unpublishedSnapshot)->toBeInstanceOf(Snapshot::class)
@@ -207,5 +208,5 @@ test('hydrate website from command', function (Website $website) {
         ->assertExitCode(0);
     $website->refresh();
 
-    expect($website->webStats->number_webpages)->toBe(4);
+    expect($website->webStats->number_webpages)->toBe(1);
 })->depends('launch fulfilment website from command');

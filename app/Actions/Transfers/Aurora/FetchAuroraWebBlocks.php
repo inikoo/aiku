@@ -267,7 +267,7 @@ class FetchAuroraWebBlocks extends OrgAction
 
             case "blackboard":
                 $webBlockType = $group->webBlockTypes()->where("slug", "overview")->first();
-                $layout       = $this->processOverviewData($webpage, $auroraBlock);
+                $layout       = $this->processOverviewData($webBlockType, $webpage, $auroraBlock);
                 break;
             case "button":
                 $webBlockType = $group->webBlockTypes()->where("slug", "cta-aurora-1")->first();
@@ -306,7 +306,8 @@ class FetchAuroraWebBlocks extends OrgAction
             strict: false
         );
 
-        $this->postProcessLayout($webBlock, $webpage, $layout, $auroraBlock);
+        $this->postExternalLinks($webBlock, $webpage, $layout, $auroraBlock);
+        $this->postProcessLayout($webBlock, $webpage, $layout);
 
         $modelHasWebBlocksData = [
             'show_logged_in'     => $visibility['loggedIn'],
@@ -336,7 +337,32 @@ class FetchAuroraWebBlocks extends OrgAction
         BroadcastPreviewWebpage::dispatch($webpage);
     }
 
-    private function postProcessLayout($webBlock, $webpage, &$layout, $auroraBlock): void
+    private function postExternalLinks($webBlock, $webpage, &$layout, $auroraBlock)
+    {
+        $code = $webBlock->webBlockType->code;
+        if (!in_array($code, ['text', 'overview', 'images'])) {
+            return;
+        }
+
+        $externalLinks = $layout['external_links'] ?? null;
+        if ($externalLinks) {
+            // $website->$webpage->$webblocks
+            // TODO
+            // foreach($externalLinks as $link) {
+            //     StoreExternalLink::make()->handle($webpage, [
+            //         'url' => $link,
+            //         'show' =>  Arr::get($auroraBlock, 'show'),
+            //         'web_block_id' => $webBlock->id,
+            //     ]);
+            // }
+        }
+        data_forget($layout, 'external_links');
+        // unset($layout['external_links']);
+        // print_r($text);
+        // print "\n";
+    }
+
+    private function postProcessLayout($webBlock, $webpage, &$layout): void
     {
         $code = $webBlock->webBlockType->code;
         if (
@@ -397,20 +423,6 @@ class FetchAuroraWebBlocks extends OrgAction
                     return $imageElement;
                 }, $text);
                 $layout['data']['fieldValue']['value'] = $text; // result for image still not found event the imageUrl is not empty
-                $externalLinks = $layout['external_links'] ?? null;
-                if ($externalLinks) {
-                    // TODO
-                    // foreach($externalLinks as $link) {
-                    //     StoreExternalLink::make()->handle($webpage, [
-                    //         'url' => $link,
-                    //         'show' =>  Arr::get($auroraBlock, 'show'),
-                    //         'web_block_id' => $webBlock->id,
-                    //     ]);
-                    // }
-                    unset($layout['external_links']);
-                }
-                // print_r($text);
-                // print "\n";
 
             } elseif ($code == "images") {
                 $imgResources = [];
@@ -429,6 +441,15 @@ class FetchAuroraWebBlocks extends OrgAction
                 if ($imageRawData) {
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
                     data_set($layout, 'data.fieldValue.button.container.properties.background.image', $imageSource);
+                }
+            } elseif ($code == "overview") {
+                $imagesRawData = Arr::get($layout, 'data.fieldValue.images.sources');
+                if ($imagesRawData) {
+                    $imgSources = [];
+                    foreach ($imagesRawData as $imgRawData) {
+                        $imgSources[] = $this->processImage($webBlock, $imgRawData, $webpage);
+                    }
+                    data_set($layout, 'data.fieldValue.images.sources', $imgSources);
                 }
             } else {
                 foreach ($layout['data']["fieldValue"]["value"] as $key => $container) {

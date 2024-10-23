@@ -34,7 +34,7 @@ class FetchAuroraPurchaseOrderTransaction extends FetchAurora
         $state = match ($this->auroraModelData->{'Purchase Order Transaction State'}) {
             'Cancelled'  => PurchaseOrderTransactionStateEnum::CANCELLED,
             'NoReceived' => PurchaseOrderTransactionStateEnum::NO_RECEIVED,
-            'InProcess'  => PurchaseOrderTransactionStateEnum::CREATING,
+            'InProcess'  => PurchaseOrderTransactionStateEnum::IN_PROCESS,
             'Submitted'  => PurchaseOrderTransactionStateEnum::SUBMITTED,
             'ProblemSupplier', 'Confirmed' => PurchaseOrderTransactionStateEnum::CONFIRMED,
             'Manufactured' => PurchaseOrderTransactionStateEnum::MANUFACTURED,
@@ -45,7 +45,7 @@ class FetchAuroraPurchaseOrderTransaction extends FetchAurora
         };
 
 
-        if ($state == PurchaseOrderTransactionStateEnum::CREATING) {
+        if ($state == PurchaseOrderTransactionStateEnum::IN_PROCESS) {
             $quantityOrdered = $this->auroraModelData->{'Purchase Order Ordering Units'};
 
         } else {

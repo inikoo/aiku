@@ -51,6 +51,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
+ * @property array $sources
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Currency|null $currency
  * @property-read Group $group
@@ -86,11 +87,15 @@ class Agent extends Model implements HasMedia, Auditable
     use InGroup;
 
     protected $casts = [
-        'status'             => 'boolean',
-        'fetched_at'         => 'datetime',
-        'last_fetched_at'    => 'datetime',
+        'status'          => 'boolean',
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
+        'sources'         => 'array',
     ];
 
+    protected $attributes = [
+        'sources' => '{}',
+    ];
 
     protected $guarded = [];
 
@@ -106,7 +111,6 @@ class Agent extends Model implements HasMedia, Auditable
         'name',
         'status',
     ];
-
 
 
     public function getSlugOptions(): SlugOptions
@@ -163,13 +167,11 @@ class Agent extends Model implements HasMedia, Auditable
     public function orgAgents(): HasMany
     {
         return $this->hasMany(OrgAgent::class);
-
     }
 
     public function orgSuppliers(): HasMany
     {
         return $this->hasMany(OrgSupplier::class);
-
     }
 
 }

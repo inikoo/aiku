@@ -25,72 +25,91 @@ const emits = defineEmits<{
 }>()
 
 const openGallery = ref(false)
-const activeImageIndex = ref<number | null>(null) 
+const activeImageIndex = ref<number | null>(null)
 
 const setImage = (imageData: any) => {
-    if (activeImageIndex.value !== null) {
-        const images = props.web_block.layout.data.fieldValue.value?.images || [];
+	if (activeImageIndex.value !== null) {
+		const images = props.modelValue?.value?.images || []
 
-        while (images.length <= activeImageIndex.value) {
-            images.push({
-                source: null,
-                link_data: null,
-            });
-        }
+		while (images.length <= activeImageIndex.value) {
+			images.push({
+				source: null,
+				link_data: null,
+			})
+		}
 
-        const flattenedSource = imageData.data[0].source ? imageData.data[0].source : imageData.data[0];
+		const flattenedSource = imageData.data[0].source
+			? imageData.data[0].source
+			: imageData.data[0]
 
-        images[activeImageIndex.value].source = {
-            ...flattenedSource,
-        };
+		images[activeImageIndex.value].source = {
+			...flattenedSource,
+		}
 
-        emits("update:modelValue", {
-            ...props.web_block.layout.data.fieldValue,
-            value: { images },
-        });
+		emits("update:modelValue", {
+			...props.modelValue,
+			value: { images },
+		})
 
-        emits("autoSave");
-    } else {
-        console.error("Invalid index or modelValue structure.");
-    }
+		emits("autoSave")
+	} else {
+		console.error("Invalid index or modelValue structure.")
+	}
 
-    openGallery.value = false;
-    activeImageIndex.value = null;
-};
+	openGallery.value = false
+	activeImageIndex.value = null
+}
 
 const onUpload = (uploadData: any) => {
-    if (activeImageIndex.value !== null && uploadData.data && uploadData.data.length <= 1) {
-        const images = props.web_block.layout.data.fieldValue.value?.images || [];
-        while (images.length <= activeImageIndex.value) {
-            images.push({
-                source: null,
-                link_data: null,
-            });
-        }
+	if (activeImageIndex.value !== null && uploadData.data && uploadData.data.length <= 1) {
+		const images = props.modelValue?.value?.images || []
+		while (images.length <= activeImageIndex.value) {
+			images.push({
+				source: null,
+				link_data: null,
+			})
+		}
 
-        const flattenedSource = uploadData.data[0].source ? uploadData.data[0].source : uploadData.data[0];
+		const flattenedSource = uploadData.data[0].source
+			? uploadData.data[0].source
+			: uploadData.data[0]
 
-        images[activeImageIndex.value].source = {
-            ...flattenedSource,
-        };
-       
-        emits("update:modelValue", {
-            ...props.web_block.layout.data.fieldValue,
-            value: { images },
-        });
+		images[activeImageIndex.value].source = {
+			...flattenedSource,
+		}
 
-        emits("autoSave");
-    } else {
-        console.error("Invalid index, no files, or multiple files detected.");
-    }
+		emits("update:modelValue", {
+			...props.modelValue,
+			value: { images },
+		})
 
-    openGallery.value = false;
-    activeImageIndex.value = null;
-};
+		emits("autoSave")
+	} else {
+		console.error("Invalid index, no files, or multiple files detected.")
+	}
+
+	openGallery.value = false
+	activeImageIndex.value = null
+}
 
 const openImageGallery = (index: number) => {
 	activeImageIndex.value = index
 	openGallery.value = true
+}
+
+const getHref = (index: number, isEditable: any) => {
+  const image = props.modelValue?.value?.images?.[index];
+  
+  console.log(image,'this url', index);
+  if (isEditable) {
+    return image?.link_data?.workshop_url;
+  }
+  
+  if (image?.link_data?.url) {
+    return image.link_data.url;
+  }
+
+  return null;
 }
 
 const getColumnWidthClass = (layoutType: string, index: number) => {
@@ -137,20 +156,23 @@ const getImageSlots = (layoutType: string) => {
 
 <template>
    
-	<div v-if="web_block?.layout?.data?.fieldValue?.value?.images" class="flex flex-wrap">
+	<div v-if="modelValue?.value?.images" class="flex flex-wrap">
 		<div
-			v-for="index in getImageSlots(web_block?.layout?.data?.fieldValue?.value?.layout_type)"
+			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
 			:key="index"
 			class="p-2"
 			:class="
 				getColumnWidthClass(
-					web_block?.layout?.data?.fieldValue?.value?.layout_type,
+					modelValue?.value?.layout_type,
 					index - 1
 				)
 			">
-			<div
-				v-if="web_block?.layout?.data?.fieldValue?.value?.images?.[index - 1]?.source"
-				class="transition-shadow aspect-h-1 aspect-w-1 w-full bg-gray-200">
+			<a
+				v-if="modelValue?.value?.images?.[index - 1]?.source"
+				:href="getHref(index - 1, isEditable)"
+                target="_blank"
+                rel="noopener noreferrer" 
+				class="transition-shadow aspect-h-1 aspect-w-1 w-full ">
 				<div v-if="isEditable" class="absolute top-2 right-2 flex space-x-2">
 					<Button
 						:icon="['far', 'fa-pencil']"
@@ -158,9 +180,9 @@ const getImageSlots = (layoutType: string) => {
 						@click="openImageGallery(index - 1)" />
 				</div>
 				<Image
-					:src="web_block?.layout?.data?.fieldValue?.value?.images?.[index - 1]?.source"
+					:src="modelValue?.value?.images?.[index - 1]?.source"
 					class="w-full object-cover object-center group-hover:opacity-75" />
-			</div>
+			</a>
 
 			<div v-else-if="isEditable" class="p-5">
 				<div

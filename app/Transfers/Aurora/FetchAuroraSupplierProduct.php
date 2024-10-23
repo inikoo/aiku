@@ -40,18 +40,8 @@ class FetchAuroraSupplierProduct extends FetchAurora
             return;
         }
 
-        $supplierDeletedAt = $this->parseDate($auroraSupplierData->{'Supplier Valid To'});
-        if ($auroraSupplierData->{'Supplier Type'} != 'Archived') {
-            $supplierDeletedAt = null;
-        }
 
-        $supplierSourceSlug = Str::kebab(strtolower($auroraSupplierData->{'Supplier Code'}));
-        if ($supplierDeletedAt) {
-            $supplierSourceSlug .= '-deleted';
-        }
-
-
-        $supplier = $this->parseSupplier($supplierSourceSlug, $this->organisation->id.":".$this->auroraModelData->{'Supplier Part Supplier Key'});
+        $supplier = $this->parseSupplier($this->organisation->id.":".$this->auroraModelData->{'Supplier Part Supplier Key'});
 
 
         if (!$supplier) {
