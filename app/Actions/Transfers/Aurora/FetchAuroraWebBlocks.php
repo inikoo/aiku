@@ -74,7 +74,6 @@ class FetchAuroraWebBlocks extends OrgAction
 
         if ($reset) {
             $this->reset($webpage);
-            // dd($webpage);
         }
 
 
@@ -168,10 +167,6 @@ class FetchAuroraWebBlocks extends OrgAction
     ): void {
         $models = [];
         $group = $webpage->group;
-
-        if ($auroraBlock["type"] != 'text') {
-            return;
-        }
 
         switch ($auroraBlock["type"]) {
             case "images":
