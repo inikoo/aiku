@@ -7,6 +7,9 @@ import { getStyles } from "@/Composables/styles"
 import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { faImage, faEdit } from "@far"
+
 // Sample data passed as props (modelValue)
 const props = withDefaults(
 	defineProps<{
@@ -26,7 +29,7 @@ const emits = defineEmits<{
 
 console.log(props)
 
-const activeTextIndex = ref(-1) 
+const activeTextIndex = ref(-1)
 const activeImageIndex = ref(-1)
 const activeImageIndexModal = ref(-1)
 const isModalGallery = ref(false)
@@ -98,7 +101,7 @@ function handleClickOutside() {
 }
 
 const onChangeImage = (image) => {
-	props.modelValue.images[activeImageIndexModal.value].sources = image[0].source
+	props.modelValue.images[activeImageIndexModal.value].sources = {...image[0].source}
 	isModalGallery.value = false
 	activeImageIndexModal.value = -1
 	onsave()
@@ -177,8 +180,21 @@ onBeforeUnmount(() => {
 							? `${image?.properties?.position?.left}`
 							: 'auto',
 					}">
-					<Image :src="image.sources" @click="()=>{isModalGallery = true, activeImageIndexModal = index}" />
+					<!-- Tombol di pojok kiri atas -->
+					<button
+						@click="
+							() => {
+								isModalGallery = true
+								activeImageIndexModal = index
+							}
+						"
+						style="position: absolute; top: 0; left: 0; font-size: 20px; z-index: 10">
+						<FontAwesomeIcon :icon="faImage" class="text-lg text-indigo-500" />
+					</button>
+
+					<Image :src="image.sources" />
 				</div>
+
 				<Moveable
 					v-if="activeImageIndex === index"
 					class="moveable"
