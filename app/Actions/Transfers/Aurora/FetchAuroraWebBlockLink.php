@@ -37,7 +37,6 @@ class FetchAuroraWebBlockLink extends OrgAction
         $this->organisationSource->initialisation($website->organisation, $dbSuffix);
 
         if (!$this->isInternalLink($website, $auroraLink)) {
-            print "External link >>>$auroraLink<<<<\n";
             $linkData = [
                 'type' => 'external',
                 'url'  => $auroraLink
@@ -84,7 +83,6 @@ class FetchAuroraWebBlockLink extends OrgAction
                     $linkedWebpage->slug,
                 ]));
             } else {
-                print "Internal for link not found >>>$auroraLink<<<<\n";
                 $linkData = [
                     'type'      => 'external',
                     'url'       => $auroraLink,

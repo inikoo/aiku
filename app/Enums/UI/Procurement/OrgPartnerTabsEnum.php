@@ -16,33 +16,18 @@ enum OrgPartnerTabsEnum: string
     use HasTabs;
 
 
-    case SHOWCASE              = 'showcase';
-    case ORG_SUPPLIERS         = 'org_suppliers';
-    case ORG_SUPPLIER_PRODUCTS = 'org_supplier_products';
-    case PURCHASE_ORDERS       = 'purchase_orders';
-    case DELIVERIES            = 'deliveries';
-    case SYSTEM_USERS          = 'system_users';
-    case HISTORY               = 'history';
-    case DATA                  = 'data';
-    case IMAGES                = 'images';
+    case SHOWCASE = 'showcase';
+    case ORG_STOCKS = 'org_stocks';
+    case PURCHASE_ORDERS = 'purchase_orders';
+    case DELIVERIES = 'deliveries';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            OrgPartnerTabsEnum::DATA => [
-                'title' => __('data'),
-                'icon'  => 'fal fa-database',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
-            OrgPartnerTabsEnum::ORG_SUPPLIERS => [
-                'title' => __('suppliers'),
-                'icon'  => 'fal fa-person-dolly',
-            ],
-            OrgPartnerTabsEnum::ORG_SUPPLIER_PRODUCTS => [
-                'title' => __('products'),
-                'icon'  => 'fal fa-box-usd',
+            OrgPartnerTabsEnum::ORG_STOCKS => [
+                'title' => __('stocks'),
+                'icon'  => 'fal fa-box',
             ],
             OrgPartnerTabsEnum::PURCHASE_ORDERS => [
                 'title' => __('purchase orders'),
@@ -52,25 +37,9 @@ enum OrgPartnerTabsEnum: string
                 'title' => __('deliveries'),
                 'icon'  => 'fal fa-truck',
             ],
-            OrgPartnerTabsEnum::IMAGES => [
-                'title' => __('images'),
-                'icon'  => 'fal fa-camera-retro',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
-            OrgPartnerTabsEnum::SYSTEM_USERS => [
-                'title' => __('system user'),
-                'icon'  => 'fal fa-terminal',
-            ],
-            OrgPartnerTabsEnum::HISTORY => [
-                'title' => __('history'),
-                'icon'  => 'fal fa-clock',
-                'type'  => 'icon',
-                'align' => 'right',
-            ],
             OrgPartnerTabsEnum::SHOWCASE => [
-                'title' => __('agent'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('overview'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
         };
     }

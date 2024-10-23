@@ -27,17 +27,14 @@ class StoreProductShopify extends OrgAction
     public function handle(ShopifyUser $shopifyUser, array $modelData)
     {
         DB::transaction(function () use ($shopifyUser, $modelData) {
-            $portfolios = [];
             foreach (Arr::get($modelData, 'products') as $product) {
                 $portfolio = StorePortfolio::run($shopifyUser->customer, [
                     'product_id' => $product,
                     'type' => PortfolioTypeEnum::SHOPIFY->value,
                 ]);
 
-                $portfolios[] = $portfolio->id;
+                HandleApiProductToShopify::dispatch($shopifyUser, [$portfolio->id]);
             }
-
-            HandleApiProductToShopify::run($shopifyUser, $portfolios);
         });
     }
 

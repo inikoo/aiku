@@ -21,35 +21,44 @@ import { routeType } from '@/types/route'
 import { router } from '@inertiajs/vue3'
 import { notify } from '@kyvg/vue3-notification'
 import { trans } from 'laravel-vue-i18n'
+import { ImageData } from '@/types/Image'
 library.add(faCube, faStar, faImage)
 
+const layout = inject('layout', layoutStructure)
 const props = withDefaults(defineProps<{
     width?: string
     uploadRoute: routeType
-    stockImageRoutes?: routeType
+    stockImagesRoute?: routeType
     imagesUploadedRoutes?: routeType
     attachImageRoute: routeType
     tabs?: string[]
     useCrop?: boolean
     cropProps?: {}
     closePopup: Function
+    maxSelected?: number
 }>(), {
     tabs: () =>  ['upload', 'images_uploaded', 'stock_images'],
     useCrop: false,
-    cropProps: {
+    stockImagesRoute: () => ({
+        name: 'grp.gallery.stock-images.index'
+    }),
+    imagesUploadedRoutes: () => ({
+        name: 'grp.gallery.uploaded-images.index'
+    }),
+    cropProps: () => ({
         ratio: { w: 1, h: 1 }
-    }
+    })
 })
 
-const layout = inject('layout', layoutStructure)
 const selectedTab = ref(0)
 
 
 
 const emits = defineEmits<{
-    (e: 'onClose'): void
-    (e: 'onSuccessUpload', data: []): void
-    (e: 'onUpload', value: {}): void
+    // (e: 'onClose'): void
+    // (e: 'onSuccessUpload', data: []): void
+    // (e: 'onUpload', value: {}): void
+    (e: 'submitSelectedImages', value: ImageData[]): void
     (e: 'selectImage', value: {}): void
 }>()
 
@@ -69,19 +78,19 @@ const tabsData = [
 ].filter((item) => props.tabs.includes(item.key))
 
 
-const getComponent = (componentName: string) => {
-    const components: any = {
-        'upload': GalleryUpload,
-        'images_uploaded': GalleryUploadedImages,
-        // 'stock_images': StockImages
-    }
-    return components[componentName] ?? null
-}
+// const getComponent = (componentName: string) => {
+//     const components: any = {
+//         'upload': GalleryUpload,
+//         'images_uploaded': GalleryUploadedImages,
+//         // 'stock_images': StockImages
+//     }
+//     return components[componentName] ?? null
+// }
 
-const onUpload = (e) => {
-    emits('onUpload', e)
-    selectedTab.value = 1
-}
+// const onUpload = (e) => {
+//     emits('onUpload', e)
+//     selectedTab.value = 1
+// }
 
 const isLoading = ref(false)
 const selectedUploadFiles = ref([])
@@ -127,6 +136,7 @@ const onSubmitUpload = async (clear: Function) => {
 
 <template>
     <div class="">
+        <!-- {{ stockImageRoutes }} -->
         <TabGroup :selectedIndex="selectedTab" @change="(index) => selectedTab = index">
             <TabList class="flex space-x-8 border-b-2">
                 <Tab v-for="tab in tabsData" as="template" :key="tab.key" v-slot="{ selected }">
@@ -146,19 +156,32 @@ const onSubmitUpload = async (clear: Function) => {
             <TabPanels class="mt-2 h-[700px]">
                 <TabPanel v-for="(tab, idx) in tabsData" :key="idx"
                     class="h-full rounded-xl bg-white p-3 ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none">
-                    <component
-                        v-model:files="selectedUploadFiles"
-                        :is="getComponent(tab['key'])"
+                    <GalleryUpload
+                        v-if="tab.key === 'upload'"
                         :uploadRoute
+                        :useCrop
+                        :isLoading
+                        @onSubmitUpload="onSubmitUpload"
+                    />
+
+                    <GalleryUploadedImages
+                        v-if="tab.key === 'images_uploaded'"
                         :imagesUploadedRoutes
                         :attachImageRoute
-                        :useCrop="useCrop"
-                        :cropProps="cropProps"
-                        :isLoading
-                        :stockImageRoutes="stockImageRoutes"
                         :closePopup
-                        @onSubmitUpload="onSubmitUpload"
+                        :maxSelected
                         @selectImage="(image: {}) => emits('selectImage', image)"
+                        @submitSelectedImages="(images: ImageData[]) => emits('submitSelectedImages', images)"
+                    />
+
+                    <GalleryUploadedImages
+                        v-if="tab.key === 'stock_images'"
+                        :imagesUploadedRoutes="stockImagesRoute"
+                        :attachImageRoute
+                        :closePopup
+                        :maxSelected
+                        @selectImage="(image: {}) => emits('selectImage', image)"
+                        @submitSelectedImages="(images: ImageData[]) => emits('submitSelectedImages', images)"
                     />
 
                 </TabPanel>

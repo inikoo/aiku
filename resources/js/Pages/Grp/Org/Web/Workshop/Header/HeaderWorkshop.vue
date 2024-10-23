@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed, toRaw, onMounted, Component, IframeHTMLAttributes  } from 'vue'
+import { ref, watch, computed, toRaw, onMounted, Component, IframeHTMLAttributes, provide  } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -43,9 +43,15 @@ const props = defineProps<{
     }
     autosaveRoute: routeType
     web_block_types: {}
-
+    route_list: {
+        upload_image: routeType
+        uploaded_images_list: routeType
+        stock_images_list: routeType
+    }
 }>()
 
+// console.log('autttto', props.route_list)
+provide('route_list', props.route_list)
 const usedTemplates = ref({ 
     header : props.data.data.header,
     topBar : props.data.data.topBar

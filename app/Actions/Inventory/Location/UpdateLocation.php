@@ -87,7 +87,7 @@ class UpdateLocation extends OrgAction
                 'max:64',
                 'string',
             ];
-            $rules = $this->noStrictStoreRules($rules);
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;

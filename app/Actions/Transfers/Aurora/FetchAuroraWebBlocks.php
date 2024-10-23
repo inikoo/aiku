@@ -30,6 +30,7 @@ use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Events\BroadcastPreviewWebpage;
 use App\Models\Catalogue\ProductCategory;
+use App\Models\Web\WebBlock;
 use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
@@ -166,7 +167,6 @@ class FetchAuroraWebBlocks extends OrgAction
     ): void {
         $models = [];
         $group = $webpage->group;
-
 
         switch ($auroraBlock["type"]) {
             case "images":
@@ -306,8 +306,7 @@ class FetchAuroraWebBlocks extends OrgAction
             strict: false
         );
 
-        $this->postExternalLinks($webBlock, $webpage, $layout, $auroraBlock);
-        $this->postProcessLayout($webBlock, $webpage, $layout);
+
 
         $modelHasWebBlocksData = [
             'show_logged_in'     => $visibility['loggedIn'],
@@ -331,13 +330,15 @@ class FetchAuroraWebBlocks extends OrgAction
 
         $webpage->modelHasWebBlocks()->create($modelHasWebBlocksData);
 
+        $this->postExternalLinks($webBlock, $webpage, $layout);
+        $this->postProcessLayout($webBlock, $webpage, $layout);
 
         UpdateWebpageContent::run($webpage->refresh());
 
         BroadcastPreviewWebpage::dispatch($webpage);
     }
 
-    private function postExternalLinks($webBlock, $webpage, &$layout, $auroraBlock)
+    private function postExternalLinks(WebBlock $webBlock, Webpage $webpage, &$layout)
     {
         $code = $webBlock->webBlockType->code;
         if (!in_array($code, ['text', 'overview', 'images'])) {
@@ -346,20 +347,15 @@ class FetchAuroraWebBlocks extends OrgAction
 
         $externalLinks = $layout['external_links'] ?? null;
         if ($externalLinks) {
-            // $website->$webpage->$webblocks
-            // TODO
-            // foreach($externalLinks as $link) {
-            //     StoreExternalLink::make()->handle($webpage, [
-            //         'url' => $link,
-            //         'show' =>  Arr::get($auroraBlock, 'show'),
-            //         'web_block_id' => $webBlock->id,
-            //     ]);
-            // }
+            foreach ($externalLinks as $link) {
+                StoreExternalLink::make()->handle($webpage->group, [
+                    'url' => $link,
+                    'webpage_id' => $webpage->id,
+                    'web_block_id' => $webBlock->id,
+                ]);
+            }
         }
         data_forget($layout, 'external_links');
-        // unset($layout['external_links']);
-        // print_r($text);
-        // print "\n";
     }
 
     private function postProcessLayout($webBlock, $webpage, &$layout): void
@@ -490,7 +486,7 @@ class FetchAuroraWebBlocks extends OrgAction
 
     private function reset(Webpage $webpage): void
     {
-        foreach ($webpage->webBlocks()->get() as $webBlock) {
+        foreach ($webpage->webBlocks as $webBlock) {
             DeleteWebBlock::run($webBlock);
         }
     }

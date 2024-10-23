@@ -10,6 +10,7 @@ namespace App\Actions\Web\Webpage;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebpages;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateUniversalSearch;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateWebpages;
@@ -28,6 +29,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateWebpage extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
     private Webpage $webpage;
 
@@ -123,7 +125,7 @@ class UpdateWebpage extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules = $this->noStrictUpdateRules($rules);
             $rules['migration_data'] = ['sometimes', 'array'];
 
         }
