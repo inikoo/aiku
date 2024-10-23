@@ -41,6 +41,18 @@ trait WithOrgPartnerSubNavigation
                     "tooltip" => __("Purchase Orders"),
                 ],
             ],
+            [
+                "number"   => $parent->partner->inventoryStats->number_current_org_stocks,
+                "label"    => __("Org Stocks"),
+                "href"     => [
+                    "name"       => "grp.org.procurement.org_partners.show.org-stocks.index",
+                    "parameters" => [$parent->organisation->slug, $parent->id],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-clipboard"],
+                    "tooltip" => __("Org Stocks"),
+                ],
+            ],
             
         ];
     }

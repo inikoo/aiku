@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
+use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\OrgAgent\ExportOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\EditOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
@@ -65,6 +65,9 @@ Route::prefix('partners')->as('org_partners.')->group(function () {
         Route::get('', ShowOrgPartner::class);
         Route::prefix('purchase-orders')->as('.purchase-orders.')->group(function () {
             Route::get('index', [IndexPurchaseOrders::class, 'inOrgPartner'])->name('index');
+        });
+        Route::prefix('org-stocks')->as('.org-stocks.')->group(function () {
+            Route::get('index', [IndexOrgStocks::class, 'inOrgPartner'])->name('index');
         });
     });
 
