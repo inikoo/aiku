@@ -61,7 +61,12 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
 
 Route::prefix('partners')->as('org_partners.')->group(function () {
     Route::get('', IndexOrgPartners::class)->name('index');
-    Route::get('{orgPartner}', ShowOrgPartner::class)->name('show');
+    Route::prefix('{orgPartner}')->as('show')->group(function () {
+        Route::get('', ShowOrgPartner::class);
+        Route::prefix('purchase-orders')->as('.purchase-orders.')->group(function () {
+            Route::get('index', [IndexPurchaseOrders::class, 'inOrgPartner'])->name('index');
+        });
+    });
 
 });
 
