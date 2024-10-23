@@ -26,11 +26,10 @@ return new class () extends Migration {
             $table->string('parent_code')->index()->collation('und_ns')->comment('Parent code on the time of consolidation');
             $table->string('parent_name')->index()->comment('Parent name on the time of consolidation');
             $table->string('reference')->index();
-            $table->string('state')->index()->default(StockDeliveryStateEnum::CREATING->value);
+            $table->string('state')->index()->default(StockDeliveryStateEnum::IN_PROCESS->value);
             $table->string('status')->index()->default(StockDeliveryStatusEnum::PROCESSING->value);
             $table->dateTimeTz('date')->comment('latest relevant date');
 
-            $table->dateTimeTz('creating_at')->nullable();
             $table->dateTimeTz('dispatched_at')->nullable();
 
             $table->dateTimeTz('received_at')->nullable();
@@ -42,6 +41,14 @@ return new class () extends Migration {
             $table->smallInteger('number_of_items')->default(0);
             $table->float('gross_weight', 16)->default(null)->nullable();
             $table->float('net_weight', 16)->default(null)->nullable();
+
+
+
+            $table->unsignedSmallInteger('currency_id');
+            $table->foreign('currency_id')->references('id')->on('currencies');
+            $table->decimal('grp_exchange', 16, 4)->nullable();
+            $table->decimal('org_exchange', 16, 4)->nullable();
+
             $table->decimal('cost_items', 16)->default(null)->nullable();
             $table->decimal('cost_extra', 16)->default(null)->nullable();
             $table->decimal('cost_shipping', 16)->default(null)->nullable();
@@ -59,6 +66,8 @@ return new class () extends Migration {
             $table->foreign('partner_id')->references('id')->on('organisations');
 
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
             $table->index(['parent_id', 'parent_type']);

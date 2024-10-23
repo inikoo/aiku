@@ -35,7 +35,7 @@ class UpdateStateToSettledStockDelivery
 
             $stockDelivery = $this->update($stockDelivery, $data);
 
-            $this->runHydrators($stockDelivery);
+            $this->runStockDeliveryHydrators($stockDelivery);
 
             return $stockDelivery;
         }

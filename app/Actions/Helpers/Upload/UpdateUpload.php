@@ -46,7 +46,7 @@ class UpdateUpload extends OrgAction
         }
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisationForGroup($upload->group, $modelData);
+        $this->initialisationFromGroup($upload->group, $modelData);
 
         return $this->handle($upload, $this->validatedData);
     }

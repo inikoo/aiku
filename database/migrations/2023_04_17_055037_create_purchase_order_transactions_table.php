@@ -34,7 +34,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('org_stock_id')->index();
 
-            $table->string('state')->index()->default(PurchaseOrderTransactionStateEnum::CREATING->value);
+            $table->string('state')->index()->default(PurchaseOrderTransactionStateEnum::IN_PROCESS->value);
             $table->string('status')->index()->default(PurchaseOrderTransactionStatusEnum::PROCESSING->value);
 
             $table->decimal('quantity_ordered', 16, 3)->nullable();

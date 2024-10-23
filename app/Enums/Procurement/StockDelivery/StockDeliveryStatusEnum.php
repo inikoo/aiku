@@ -14,6 +14,7 @@ enum StockDeliveryStatusEnum: string
     use EnumHelperTrait;
 
     case PROCESSING = 'processing';
+    case NOT_RECEIVED     = 'not-received';
     case PLACED     = 'settled-placed';
     case CANCELLED  = 'settled-cancelled';
 }

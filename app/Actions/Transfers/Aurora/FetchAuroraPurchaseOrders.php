@@ -14,6 +14,7 @@ use App\Transfers\Aurora\WithAuroraAttachments;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraPurchaseOrders extends FetchAuroraAction
@@ -25,43 +26,61 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?PurchaseOrder
     {
         if ($purchaseOrderData = $organisationSource->fetchPurchaseOrder($organisationSourceId)) {
-            if (!empty($purchaseOrderData['purchase_order']['source_id']) and $purchaseOrder = PurchaseOrder::withTrashed()->where('source_id', $purchaseOrderData['purchase_order']['source_id'])->first()) {
-                $purchaseOrder = UpdatePurchaseOrder::make()->action(
-                    purchaseOrder: $purchaseOrder,
-                    modelData: $purchaseOrderData['purchase_order'],
-                    strict: false,
-                    audit: false
-                );
+            if (empty($purchaseOrderData['org_parent'])) {
+                print "No parent found for purchase order with source id: ".$purchaseOrderData['purchase_order']['source_id']."\n";
 
+                return null;
+            }
 
-                $this->fetchTransactions($organisationSource, $purchaseOrder);
-                $this->updateAurora($purchaseOrder);
-                $this->setAttachments($purchaseOrder);
-            } elseif ($purchaseOrderData['org_parent']) {
+            if ($purchaseOrder = PurchaseOrder::withTrashed()->where('source_id', $purchaseOrderData['purchase_order']['source_id'])->first()) {
+                try {
+                    $purchaseOrder = UpdatePurchaseOrder::make()->action(
+                        purchaseOrder: $purchaseOrder,
+                        modelData: $purchaseOrderData['purchase_order'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordChange($organisationSource, $purchaseOrder->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $purchaseOrderData['purchase_order'], 'PurchaseOrder', 'update');
+
+                    return null;
+                }
+            } else {
                 try {
                     $purchaseOrder = StorePurchaseOrder::make()->action(
-                        organisation: $organisationSource->organisation,
                         parent: $purchaseOrderData['org_parent'],
                         modelData: $purchaseOrderData['purchase_order'],
-                        strict: false
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
                     );
+
+                    PurchaseOrder::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $purchaseOrder,
+                        Arr::except($purchaseOrderData['purchase_order'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $purchaseOrder->source_id);
+
+                    DB::connection('aurora')->table('Purchase Order Dimension')
+                        ->where('Purchase Order Key', $sourceData[1])
+                        ->update(['aiku_id' => $purchaseOrder->id]);
                 } catch (Exception $e) {
                     $this->recordError($organisationSource, $e, $purchaseOrderData['purchase_order'], 'PurchaseOrder', 'store');
 
                     return null;
                 }
 
-                $this->fetchTransactions($organisationSource, $purchaseOrder);
-
-                $this->updateAurora($purchaseOrder);
-
-                $this->setAttachments($purchaseOrder);
 
                 return $purchaseOrder;
-            } else {
-                print "Warning purchase order ".$purchaseOrderData['purchase_order']['reference']."  Id:$organisationSourceId do not have parent\n";
-                dd($purchaseOrderData);
             }
+
+            $this->fetchTransactions($organisationSource, $purchaseOrder);
+            $this->setAttachments($purchaseOrder);
         }
 
 
@@ -99,15 +118,6 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
         $purchaseOrder->purchaseOrderTransactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }
 
-
-    public function updateAurora(PurchaseOrder $purchaseOrder): void
-    {
-        $sourceData = explode(':', $purchaseOrder->source_id);
-
-        DB::connection('aurora')->table('Purchase Order Dimension')
-            ->where('Purchase Order Key', $sourceData[1])
-            ->update(['aiku_id' => $purchaseOrder->id]);
-    }
 
     public function getModelsQuery(): Builder
     {

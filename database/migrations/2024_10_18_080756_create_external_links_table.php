@@ -9,6 +9,8 @@ return new class () extends Migration {
     {
         Schema::create('external_links', function (Blueprint $table) {
             $table->id();
+            $table->unsignedSmallInteger('group_id')->index();
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->string('url');
             $table->integer('number_websites_shown')->default(0);
             $table->integer('number_webpages_shown')->default(0);
@@ -16,7 +18,7 @@ return new class () extends Migration {
             $table->integer('number_websites_hidden')->default(0);
             $table->integer('number_webpages_hidden')->default(0);
             $table->integer('number_web_blocks_hidden')->default(0);
-            $table->string('status');
+            $table->string('status')->nullable();
             $table->timestampsTz();
         });
     }

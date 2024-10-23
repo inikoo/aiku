@@ -7,8 +7,8 @@
 
 namespace App\Actions\SupplyChain\Agent\Hydrators;
 
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
+use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
+use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
 use App\Models\SupplyChain\Agent;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Illuminate\Support\Arr;
@@ -35,22 +35,22 @@ class AgentHydrateStockDeliveries
             'number_stock_deliveries' => $agent->purchaseOrders->count(),
         ];
 
-        $purchaseOrderStateCounts = $agent->purchaseOrders()
+        $stockDeliveryStateCounts = $agent->purchaseOrders()
             ->selectRaw('state, count(*) as total')
             ->groupBy('state')
             ->pluck('total', 'state')->all();
 
-        foreach (PurchaseOrderStateEnum::cases() as $productState) {
-            $stats['number_stock_deliveries_state_'.$productState->snake()] = Arr::get($purchaseOrderStateCounts, $productState->value, 0);
+        foreach (StockDeliveryStateEnum::cases() as $productState) {
+            $stats['number_stock_deliveries_state_'.$productState->snake()] = Arr::get($stockDeliveryStateCounts, $productState->value, 0);
         }
 
-        $purchaseOrderStatusCounts =  $agent->purchaseOrders()
+        $stockDeliveryStatusCounts =  $agent->purchaseOrders()
             ->selectRaw('status, count(*) as total')
             ->groupBy('status')
             ->pluck('total', 'status')->all();
 
-        foreach (PurchaseOrderStatusEnum::cases() as $purchaseOrderStatusEnum) {
-            $stats['number_stock_deliveries_status_'.$purchaseOrderStatusEnum->snake()] = Arr::get($purchaseOrderStatusCounts, $purchaseOrderStatusEnum->value, 0);
+        foreach (StockDeliveryStatusEnum::cases() as $stockDeliveryStatusEnum) {
+            $stats['number_stock_deliveries_status_'.$stockDeliveryStatusEnum->snake()] = Arr::get($stockDeliveryStatusCounts, $stockDeliveryStatusEnum->value, 0);
         }
 
         $agent->stats()->update($stats);

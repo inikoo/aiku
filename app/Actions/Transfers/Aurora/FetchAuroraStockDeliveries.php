@@ -12,42 +12,78 @@ use App\Actions\Procurement\StockDelivery\UpdateStockDelivery;
 use App\Models\Procurement\StockDelivery;
 use App\Transfers\Aurora\WithAuroraAttachments;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraStockDeliveries extends FetchAuroraAction
 {
     use WithAuroraAttachments;
 
-    public string $commandSignature = 'fetch:stock-deliveries {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:stock-deliveries {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?StockDelivery
     {
         if ($stockDeliveryData = $organisationSource->fetchStockDelivery($organisationSourceId)) {
-            if (!empty($stockDeliveryData['stockDelivery']['source_id']) and $stockDelivery = StockDelivery::withTrashed()->where('source_id', $stockDeliveryData['stockDelivery']['source_id'])
-                    ->first()) {
-                $stockDelivery = UpdateStockDelivery::run($stockDelivery, $stockDeliveryData['stockDelivery']);
 
+            if (empty($stockDeliveryData['org_parent'])) {
+                print "Warning Supplier Delivery $organisationSourceId do not have parent, skipping\n";
 
-
-                //  $this->fetchTransactions($organisationSource, $stockDelivery);
-                $this->updateAurora($stockDelivery);
-
-                $this->setAttachments($stockDelivery);
-                return $stockDelivery;
-            } else {
-                if ($stockDeliveryData['parent']) {
-                    $stockDelivery = StoreStockDelivery::run($stockDeliveryData['parent'], $stockDeliveryData['stockDelivery'], $stockDeliveryData['delivery_address']);
-                    //  $this->fetchTransactions($organisationSource, $stockDelivery);
-                    $this->updateAurora($stockDelivery);
-
-                    $this->setAttachments($stockDelivery);
-                    return $stockDelivery;
-                }
-                print "Warning Supplier Delivery $organisationSourceId do not have parent\n";
+                return null;
             }
-        } else {
-            print "Warning error fetching order $organisationSourceId\n";
+
+            if ($stockDelivery = StockDelivery::withTrashed()->where('source_id', $stockDeliveryData['stockDelivery']['source_id'])->first()) {
+                try {
+                    $stockDelivery = UpdateStockDelivery::make()->action(
+                        $stockDelivery,
+                        $stockDeliveryData['stockDelivery'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordChange($organisationSource, $stockDelivery->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $stockDeliveryData['stockDelivery'], 'StockDelivery', 'update');
+
+                    return null;
+                }
+            } else {
+                try {
+                    $stockDelivery = StoreStockDelivery::make()->action(
+                        $stockDeliveryData['org_parent'],
+                        $stockDeliveryData['stockDelivery'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+
+                    StockDelivery::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $stockDelivery,
+                        Arr::except($stockDeliveryData['stockDelivery'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $stockDelivery->source_id);
+                    DB::connection('aurora')->table('Supplier Delivery Dimension')
+                        ->where('Supplier Delivery Key', $sourceData[1])
+                        ->update(['aiku_id' => $stockDelivery->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $stockDeliveryData['stockDelivery'], 'StockDelivery', 'store');
+
+                    return null;
+                }
+            }
+
+
+            $this->setAttachments($stockDelivery);
+
+            //  $this->fetchTransactions($organisationSource, $stockDelivery);
+
+            return $stockDelivery;
         }
 
         return null;
@@ -56,7 +92,6 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
     private function setAttachments($stockDelivery): void
     {
         $this->processFetchAttachments($stockDelivery, 'Supplier Delivery');
-
     }
 
     /*
@@ -78,12 +113,6 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
     }
     */
 
-    public function updateAurora(StockDelivery $StockDelivery): void
-    {
-        DB::connection('aurora')->table('Supplier Delivery Dimension')
-            ->where('Supplier Delivery Key', $StockDelivery->source_id)
-            ->update(['aiku_id' => $StockDelivery->id]);
-    }
 
     public function getModelsQuery(): Builder
     {
@@ -91,6 +120,10 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
             ->table('Supplier Delivery Dimension')
             ->select('Supplier Delivery Key as source_id');
         $query->orderBy('Supplier Delivery Date');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
 
         return $query;
     }

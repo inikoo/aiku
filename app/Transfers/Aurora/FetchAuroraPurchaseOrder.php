@@ -17,7 +17,6 @@ use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class FetchAuroraPurchaseOrder extends FetchAurora
 {
@@ -34,14 +33,9 @@ class FetchAuroraPurchaseOrder extends FetchAurora
         }
 
         if ($this->auroraModelData->{'Purchase Order Parent'} == 'Agent') {
-            $agentData = DB::connection("aurora")
-                ->table("Agent Dimension")
-                ->where("Agent Key", $this->auroraModelData->{'Purchase Order Parent Key'})
-                ->first();
 
-            $agentSourceSlug = Str::kebab(strtolower($agentData->{'Agent Code'}));
+
             $parent          = $this->parseAgent(
-                $agentSourceSlug,
                 $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
             );
 
@@ -61,7 +55,7 @@ class FetchAuroraPurchaseOrder extends FetchAurora
         //print ">>".$this->auroraModelData->{'Purchase Order State'}."\n";
         $state = match ($this->auroraModelData->{'Purchase Order State'}) {
             "Cancelled", "NoReceived", "Placed", "Costing", "InvoiceChecked" => PurchaseOrderStateEnum::SETTLED,
-            "InProcess" => PurchaseOrderStateEnum::CREATING,
+            "InProcess" => PurchaseOrderStateEnum::IN_PROCESS,
             "Confirmed" => PurchaseOrderStateEnum::CONFIRMED,
             "Manufactured", "QC_Pass" => PurchaseOrderStateEnum::MANUFACTURED,
 
@@ -160,11 +154,9 @@ class FetchAuroraPurchaseOrder extends FetchAurora
                 return null;
             }
 
-            $supplierSourceSlug = Str::kebab(strtolower($supplierData->{'Supplier Code'}));
 
 
             $parent = $this->parseSupplier(
-                $supplierSourceSlug,
                 $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
             );
         } else {

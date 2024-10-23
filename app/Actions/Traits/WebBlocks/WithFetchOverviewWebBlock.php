@@ -2,7 +2,7 @@
 /*
  * Author: Ganes <gustiganes@gmail.com>
  * Created on: 09-10-2024, Bali, Indonesia
- * Github: https://github.com/aqordeon
+ * Github: https://github.com/Ganes556
  * Copyright: 2024
  *
  */
