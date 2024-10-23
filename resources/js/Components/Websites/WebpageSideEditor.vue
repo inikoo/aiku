@@ -50,6 +50,7 @@ const sendNewBlock = async (block: Daum) => {
 }
 
 const sendBlockUpdate = async (block: Daum) => {
+    console.log(block)
     emits('update', block)
 }
 
@@ -156,7 +157,7 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                                     v-model="element.web_block.layout.data.fieldValue"
                                     :bluprint="element?.web_block?.layout?.blueprint"
                                     @update:modelValue="onUpdatedBlock(element)" 
-                                    :uploadImageRoute="{...webpage.images_upload_route, parameters : { modelHasWebBlocks: element.web_block.id }}"
+                                    :uploadImageRoute="{...webpage.images_upload_route, parameters : { modelHasWebBlocks: element.id }}"
                                 />
                             </div>
                         </Collapse>
