@@ -26,7 +26,11 @@ trait WithFetchOverviewWebBlock
                 continue;
             }
             $this->replaceAnchor($webpage, $text["text"], $layout); // should use WithFetchText
-            $textsArray[] = $text["text"];
+            $this->setProperties($property, $text);
+            $textsArray[] = [
+                'properties' => $property,
+                'text' => $text["text"]
+            ];
         }
 
         data_set($layout, "data.fieldValue.texts.values", $textsArray);
@@ -36,12 +40,24 @@ trait WithFetchOverviewWebBlock
             if (!isset($image["src"])) {
                 continue;
             }
+            $this->setProperties($property, $image);
             $imagesArray[] = [
+                "properties" => $property,
                 "aurora_source" => $image["src"],
             ];
         }
 
-        data_set($layout, "data.fieldValue.images.sources", $imagesArray);
+        data_set($layout, "data.fieldValue.images", $imagesArray);
         return $layout;
+    }
+
+    private function setProperties(&$properties, $propertiesAurora)
+    {
+        data_set($properties, 'position.top', Arr::get($propertiesAurora, 'top'));
+        data_set($properties, 'position.left', Arr::get($propertiesAurora, 'left'));
+        data_set($properties, 'position.bottom', Arr::get($propertiesAurora, 'bottom'));
+        data_set($properties, 'position.right', Arr::get($propertiesAurora, 'right'));
+        data_set($properties, 'width', Arr::get($propertiesAurora, 'width'));
+        data_set($properties, 'height', Arr::get($propertiesAurora, 'height'));
     }
 }

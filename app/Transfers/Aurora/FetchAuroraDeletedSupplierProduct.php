@@ -17,15 +17,16 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
         $deleted_at        = $this->parseDate($this->auroraModelData->{'Supplier Part Deleted Date'});
         $auroraDeletedData = json_decode(gzuncompress($this->auroraModelData->{'Supplier Part Deleted Metadata'}));
 
-
-
-
-        $this->parsedData['supplier'] = $this->parseSupplier(
+        $supplier = $this->parseSupplier(
             $this->organisation->id.':'.$auroraDeletedData->{'Supplier Part Supplier Key'}
         );
-        if (!$this->parsedData['supplier']) {
+
+        if (!$supplier) {
             return;
         }
+
+        $this->parsedData['supplier'] = $supplier;
+
         if (!$auroraDeletedData->{'Supplier Part Part SKU'}) {
             return;
         }
@@ -34,24 +35,14 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
             return;
         }
 
-        $data       = [];
-        $settings   = [];
-
-        $status = true;
-        if ($auroraDeletedData->{'Supplier Part Status'} == 'NoAvailable') {
-            $status = false;
-        }
-
+        $data     = [];
+        $settings = [];
 
 
         $state = match ($auroraDeletedData->{'Supplier Part Status'}) {
             'Discontinued', 'NoAvailable' => SupplierProductStateEnum::DISCONTINUED,
-            default        => SupplierProductStateEnum::ACTIVE,
+            default => SupplierProductStateEnum::ACTIVE,
         };
-
-        if ($state == SupplierProductStateEnum::DISCONTINUED) {
-            $status = false;
-        }
 
 
         if ($auroraDeletedData->{'Supplier Part From'} == '0000-00-00 00:00:00') {
@@ -60,34 +51,55 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
             $created_at = $auroraDeletedData->{'Supplier Part From'};
         }
 
-        $data['original_uniy_cost'] = $auroraDeletedData->{'Supplier Part Unit Cost'} ?? 0;
+        $data['original_unit_cost'] = $auroraDeletedData->{'Supplier Part Unit Cost'} ?? 0;
 
+        $code = strtolower($auroraDeletedData->{'Supplier Part Reference'}).'-'.$this->organisation->slug;
+        if (str_starts_with($code, 'gbot-')) {
+            $code .= '-'.$auroraDeletedData->{'Supplier Part Key'};
+        }
+        if (str_starts_with($code, 'tbm-')) {
+            $code .= '-'.$auroraDeletedData->{'Supplier Part Key'};
+        }
+        if (str_starts_with($code, 'lbn-')) {
+            $code .= '-'.$auroraDeletedData->{'Supplier Part Key'};
+        }
 
+        if (str_starts_with($code, 'hapi-')) {
+            $code .= '-'.$auroraDeletedData->{'Supplier Part Key'};
+        }
 
+        $code = $code.'-deleted';
+
+        $name = $auroraDeletedData->{'Supplier Part Description'};
+        if ($name == '') {
+            $name = $auroraDeletedData->{'Supplier Part Reference'};
+        }
 
         $this->parsedData['supplierProduct'] =
             [
-                'code' => $auroraDeletedData->{'Supplier Part Reference'},
-                'name' => $auroraDeletedData->{'Supplier Part Description'},
+                'code' => $code,
+                'name' => $name,
 
                 'cost'             => round($auroraDeletedData->{'Supplier Part Unit Cost'} ?? 0, 2),
                 'units_per_pack'   => $stock->units_per_pack,
                 'units_per_carton' => $auroraDeletedData->{'Supplier Part Packages Per Carton'} * $stock->units_per_pack,
 
-
-                'status'                => $status,
+                'is_available'          => false,
                 'state'                 => $state,
                 'stock_quantity_status' => 'no-applicable',
-                'deleted_at'            => $deleted_at,
+                'stock_id'              => $stock->id,
 
-                'data'        => $data,
-                'settings'    => $settings,
-                'created_at'  => $created_at,
-                'source_id'   => $this->organisation->id.':'.$auroraDeletedData->{'Supplier Part Key'}
+                'deleted_at'      => $deleted_at,
+                'data'            => $data,
+                'settings'        => $settings,
+                'created_at'      => $created_at,
+                'source_id'       => $this->organisation->id.':'.$auroraDeletedData->{'Supplier Part Key'},
+                'fetched_at'      => now(),
+                'last_fetched_at' => now()
             ];
 
-        $this->parsedData['historicSupplierProductSourceID'] = $this->$auroraDeletedData->{'Supplier Part Historic Key'};
 
+        $this->parsedData['historicSupplierProductSourceID'] = $auroraDeletedData->{'Supplier Part Historic Key'};
     }
 
 

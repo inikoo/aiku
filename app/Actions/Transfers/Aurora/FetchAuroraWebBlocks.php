@@ -266,7 +266,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 break;
 
             case "blackboard":
-                $webBlockType = $group->webBlockTypes()->where("slug", "overview")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "overview-aurora")->first();
                 $layout       = $this->processOverviewData($webBlockType, $webpage, $auroraBlock);
                 break;
             case "button":
@@ -364,7 +364,7 @@ class FetchAuroraWebBlocks extends OrgAction
         if (
             $code == "images"
             || $code == "text"
-            || $code == "overview"
+            || $code == "overview_aurora"
             || $code == "cta_aurora_1"
             || $code == "family"
             || $code == "department"
@@ -438,14 +438,17 @@ class FetchAuroraWebBlocks extends OrgAction
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
                     data_set($layout, 'data.fieldValue.button.container.properties.background.image', $imageSource);
                 }
-            } elseif ($code == "overview") {
-                $imagesRawData = Arr::get($layout, 'data.fieldValue.images.sources');
-                if ($imagesRawData) {
+            } elseif ($code == "overview_aurora") {
+                $imagesAurora = Arr::get($layout, 'data.fieldValue.images');
+                if ($imagesAurora) {
                     $imgSources = [];
-                    foreach ($imagesRawData as $imgRawData) {
-                        $imgSources[] = $this->processImage($webBlock, $imgRawData, $webpage);
+                    foreach ($imagesAurora as $imgAurora) {
+                        $imgSources[] = [
+                            'properties' => $imgAurora['properties'],
+                            'source' => $this->processImage($webBlock, $imgAurora, $webpage)
+                        ];
                     }
-                    data_set($layout, 'data.fieldValue.images.sources', $imgSources);
+                    data_set($layout, 'data.fieldValue.images', $imgSources);
                 }
             } else {
                 foreach ($layout['data']["fieldValue"]["value"] as $key => $container) {

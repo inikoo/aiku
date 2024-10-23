@@ -35,8 +35,11 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property int $group_id
- * @property SupplierProductTradeUnitCompositionEnum|null $trade_unit_composition
  * @property string $slug
+ * @property string $code
+ * @property string|null $name
+ * @property string|null $description
+ * @property SupplierProductTradeUnitCompositionEnum|null $trade_unit_composition
  * @property int|null $current_historic_supplier_product_id
  * @property int|null $image_id
  * @property int|null $supplier_id
@@ -44,9 +47,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $stock_id
  * @property SupplierProductStateEnum $state
  * @property bool $is_available
- * @property string $code
- * @property string|null $name
- * @property string|null $description
  * @property string $cost unit cost
  * @property int $currency_id
  * @property int|null $units_per_pack units per pack

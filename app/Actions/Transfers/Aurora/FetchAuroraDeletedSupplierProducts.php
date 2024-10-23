@@ -11,8 +11,11 @@ use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraDeletedSupplierProducts extends FetchAuroraAction
 {
@@ -23,30 +26,59 @@ class FetchAuroraDeletedSupplierProducts extends FetchAuroraAction
     {
         if ($supplierDeletedProductData = $organisationSource->fetchDeletedSupplierProduct($organisationSourceId)) {
             if (!empty($supplierDeletedProductData['supplierProduct'])) {
-                if ($supplierProduct = SupplierProduct::withTrashed()->where('source_id', $supplierDeletedProductData['supplierProduct']['source_id'])
-                    ->first()) {
-                    $supplierProduct = UpdateSupplierProduct::run(
-                        supplierProduct: $supplierProduct,
-                        modelData:       $supplierDeletedProductData['supplierProduct'],
-                        skipHistoric:    true,
-                        strict: false
-                    );
-                } else {
-                    $supplierProduct = StoreSupplierProduct::make()->action(
-                        supplier: $supplierDeletedProductData['supplier'],
-                        modelData: $supplierDeletedProductData['supplierProduct'],
-                        skipHistoric: true,
-                        hydratorsDelay: $this->hydratorsDelay,
-                        strict: false
-                    );
-                    $historicSupplierProduct = FetchAuroraHistoricSupplierProducts::run($organisationSource->getOrganisation()->id, $supplierDeletedProductData['historicSupplierProductSourceID']);
-                    $supplierProduct->updateQuietly(['current_historic_supplier_product_id' => $historicSupplierProduct->id]);
+                if ($supplierProduct = SupplierProduct::withTrashed()->where('source_id', $supplierDeletedProductData['supplierProduct']['source_id'])->first()) {
+                    try {
+                        $supplierProduct = UpdateSupplierProduct::make()->action(
+                            supplierProduct: $supplierProduct,
+                            modelData: $supplierDeletedProductData['supplierProduct'],
+                            skipHistoric: true,
+                            strict: false,
+                            audit: false
+                        );
+                        $this->recordChange($organisationSource, $supplierProduct->wasChanged());
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $supplierDeletedProductData['supplierProduct'], 'DeletedSupplierProduct', 'update');
 
+                        return null;
+                    }
+                } else {
+                    try {
+                        $supplierProduct = StoreSupplierProduct::make()->action(
+                            supplier: $supplierDeletedProductData['supplier'],
+                            modelData: $supplierDeletedProductData['supplierProduct'],
+                            skipHistoric: true,
+                            hydratorsDelay: $this->hydratorsDelay,
+                            strict: false,
+                            audit: false
+                        );
+                        $this->recordNew($organisationSource);
+
+                        SupplierProduct::enableAuditing();
+                        $this->saveMigrationHistory(
+                            $supplierProduct,
+                            Arr::except($supplierDeletedProductData['supplierProduct'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                        );
+
+                        $sourceData = explode(':', $supplierProduct->source_id);
+                        DB::connection('aurora')->table('Supplier Part Deleted Dimension')
+                            ->where('Supplier Part Deleted Key', $sourceData[1])
+                            ->update(['aiku_id' => $supplierProduct->id]);
+                    } catch (Exception|Throwable $e) {
+                        dd($e->getMessage());
+                        $this->recordError($organisationSource, $e, $supplierDeletedProductData['supplierProduct'], 'DeletedSupplierProduct');
+
+                        return null;
+                    }
+                    $historicSupplierProduct = FetchAuroraHistoricSupplierProducts::run($organisationSource, $supplierDeletedProductData['historicSupplierProductSourceID']);
+                    if ($historicSupplierProduct) {
+                        $supplierProduct->updateQuietly(['current_historic_supplier_product_id' => $historicSupplierProduct->id]);
+                    }
                 }
 
                 return $supplierProduct;
             }
         }
+
         return null;
     }
 

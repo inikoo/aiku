@@ -6,7 +6,6 @@
  * copyright 2024
 */
 
-
 namespace App\Actions\Procurement\OrgPartner;
 
 use App\Models\Procurement\OrgPartner;

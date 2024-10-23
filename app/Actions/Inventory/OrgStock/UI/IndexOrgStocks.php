@@ -39,7 +39,7 @@ class IndexOrgStocks extends OrgAction
     use HasInventoryAuthorisation;
     use WithOrgPartnerSubNavigation;
     use WithOrgAgentSubNavigation;
-    
+
     private OrgStockFamily|Organisation|OrgPartner|OrgAgent $parent;
     private string $bucket;
 
@@ -321,7 +321,7 @@ class IndexOrgStocks extends OrgAction
     {
         $subNavigation = null;
 
-        if($this->parent instanceof OrgPartner) {
+        if ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
         } elseif ($this->parent instanceof OrgAgent) {
             $subNavigation = $this->getOrgAgentNavigation($this->parent);

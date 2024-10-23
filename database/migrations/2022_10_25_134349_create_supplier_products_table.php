@@ -21,8 +21,9 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table->string('trade_unit_composition')->default(SupplierProductTradeUnitCompositionEnum::MATCH->value)->nullable();
             $table->string('slug')->unique()->collation('und_ns');
+            $table = $this->assertCodeDescription($table);
+            $table->string('trade_unit_composition')->default(SupplierProductTradeUnitCompositionEnum::MATCH->value)->nullable();
             $table->unsignedInteger('current_historic_supplier_product_id')->index()->nullable();
             $table->unsignedInteger('image_id')->nullable();
             $table->foreign('image_id')->references('id')->on('media');
@@ -33,10 +34,8 @@ return new class () extends Migration {
 
             $table->unsignedSmallInteger('stock_id')->nullable()->nullable();
             $table->foreign('stock_id')->references('id')->on('stocks');
-
             $table->string('state')->index()->default(SupplierProductStateEnum::IN_PROCESS->value);
             $table->boolean('is_available')->index()->default(true);
-            $table = $this->assertCodeDescription($table);
             $table->decimal('cost', 18, 4)->comment('unit cost');
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
