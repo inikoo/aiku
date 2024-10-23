@@ -11,6 +11,7 @@ use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOfferCampaigns;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOfferCampaigns;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOfferCampaigns;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Discounts\OfferCampaign\OfferCampaignStateEnum;
 use App\Models\Discounts\OfferCampaign;
@@ -20,20 +21,19 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateOfferCampaign extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
     public function handle(OfferCampaign $offerCampaign, array $modelData): OfferCampaign
     {
         $offerCampaign = $this->update($offerCampaign, $modelData);
 
-        if ($offerCampaign->wasChanged(['state','status'])) {
+        if ($offerCampaign->wasChanged(['state', 'status'])) {
             GroupHydrateOfferCampaigns::dispatch($offerCampaign->group)->delay($this->hydratorsDelay);
             OrganisationHydrateOfferCampaigns::dispatch($offerCampaign->organisation)->delay($this->hydratorsDelay);
             ShopHydrateOfferCampaigns::dispatch($offerCampaign->shop)->delay($this->hydratorsDelay);
         }
 
         return $offerCampaign;
-
-
     }
 
     public function authorize(ActionRequest $request): bool
@@ -48,28 +48,26 @@ class UpdateOfferCampaign extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'name'   => ['sometimes','required', 'max:250', 'string'],
-            'status' => ['sometimes','required', 'boolean'],
-            'state'  => ['sometimes','required', Rule::enum(OfferCampaignStateEnum::class)],
+            'name'   => ['sometimes', 'required', 'max:250', 'string'],
+            'status' => ['sometimes', 'required', 'boolean'],
+            'state'  => ['sometimes', 'required', Rule::enum(OfferCampaignStateEnum::class)],
         ];
 
         if (!$this->strict) {
-            $rules['fetched_at']      = ['sometimes', 'date'];
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
-            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
-            $rules['created_at']      = ['sometimes', 'date'];
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;
     }
 
-    public function action(OfferCampaign $offerCampaign, array $modelData, bool $strict = true, bool $audit = true): OfferCampaign
+    public function action(OfferCampaign $offerCampaign, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): OfferCampaign
     {
         if (!$audit) {
             OfferCampaign::disableAuditing();
         }
-        $this->asAction = true;
-        $this->strict   = $strict;
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($offerCampaign->shop, $modelData);
 
         return $this->handle($offerCampaign, $this->validatedData);

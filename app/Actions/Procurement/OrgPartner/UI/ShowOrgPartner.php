@@ -50,7 +50,7 @@ class ShowOrgPartner extends OrgAction
                 'pageHead'                                           => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'box-usd'],
+                            'icon'  => ['fal', 'fa-users-class'],
                             'title' => __('partner')
                         ],
                     'title' => $orgPartner->partner->name,
