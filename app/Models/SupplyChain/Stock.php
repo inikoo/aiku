@@ -59,13 +59,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $activated_at
  * @property \Illuminate\Support\Carbon|null $discontinuing_at
  * @property \Illuminate\Support\Carbon|null $discontinued_at
- * @property \Illuminate\Support\Carbon|null $fetched_at
- * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
+ * @property array $sources
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, Barcode> $barcode
  * @property-read Group $group
@@ -98,6 +99,7 @@ class Stock extends Model implements HasMedia, Auditable
     protected $casts = [
         'data'                   => 'array',
         'settings'               => 'array',
+        'sources'                => 'array',
         'activated_at'           => 'datetime',
         'discontinuing_at'       => 'datetime',
         'discontinued_at'        => 'datetime',
@@ -110,6 +112,7 @@ class Stock extends Model implements HasMedia, Auditable
     protected $attributes = [
         'data'     => '{}',
         'settings' => '{}',
+        'sources'  => '{}',
     ];
 
     protected $guarded = [];
@@ -162,7 +165,7 @@ class Stock extends Model implements HasMedia, Auditable
             null,
             'trade_units',
         )
-            ->withPivot(['quantity','notes'])
+            ->withPivot(['quantity', 'notes'])
             ->withTimestamps();
     }
 

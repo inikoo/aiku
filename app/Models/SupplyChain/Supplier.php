@@ -126,7 +126,6 @@ class Supplier extends Model implements HasMedia, Auditable
         'settings' => '{}',
         'location' => '{}',
         'sources' => '{}',
-
     ];
 
     protected $guarded = [];
