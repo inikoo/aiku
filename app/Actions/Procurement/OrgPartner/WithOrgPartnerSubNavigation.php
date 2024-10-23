@@ -6,7 +6,6 @@
  * copyright 2024
 */
 
-
 namespace App\Actions\Procurement\OrgPartner;
 
 use App\Models\Procurement\OrgPartner;
@@ -49,8 +48,20 @@ trait WithOrgPartnerSubNavigation
                     "parameters" => [$parent->organisation->slug, $parent->id],
                 ],
                 "leftIcon" => [
-                    "icon"    => ["fal", "fa-clipboard"],
+                    "icon"    => ["fal", "fa-box"],
                     "tooltip" => __("Org Stocks"),
+                ],
+            ],
+            [
+                "number"   => $parent->partner->inventoryStats->number_deliveries,
+                "label"    => __("Stock Deliveries"),
+                "href"     => [
+                    "name"       => "grp.org.procurement.org_partners.show.stock-deliveries.index",
+                    "parameters" => [$parent->organisation->slug, $parent->id],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-truck-container"],
+                    "tooltip" => __("Stock Deliveries"),
                 ],
             ],
             

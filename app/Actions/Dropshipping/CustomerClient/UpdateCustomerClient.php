@@ -10,6 +10,7 @@ namespace App\Actions\Dropshipping\CustomerClient;
 use App\Actions\Dropshipping\CustomerClient\Search\CustomerClientRecordSearch;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\CRM\CustomerClientResource;
 use App\Models\Dropshipping\CustomerClient;
@@ -22,6 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateCustomerClient extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
 
     private CustomerClient $customerClient;
@@ -88,10 +90,7 @@ class UpdateCustomerClient extends OrgAction
         if (!$this->strict) {
             $rules['phone']           = ['sometimes', 'nullable', 'string', 'max:255'];
             $rules['email']           = ['sometimes', 'nullable', 'string', 'max:255'];
-            $rules['source_id']       = ['sometimes', 'nullable', 'string', 'max:255'];
-            $rules['created_at']      = ['sometimes', 'date'];
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
-            $rules['deleted_at']      = ['sometimes', 'nullable', 'date'];
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;

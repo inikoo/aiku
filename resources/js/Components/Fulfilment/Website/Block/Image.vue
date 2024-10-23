@@ -155,7 +155,7 @@ const getImageSlots = (layoutType: string) => {
 </script>
 
 <template>
-   
+
 	<div v-if="modelValue?.value?.images" class="flex flex-wrap">
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
@@ -184,7 +184,7 @@ const getImageSlots = (layoutType: string) => {
 					class="w-full object-cover object-center group-hover:opacity-75" />
 			</a>
 
-			<div v-else-if="isEditable" class="p-5">
+			<div v-else-if="isEditable" class="py-3">
 				<div
 					type="button"
 					@click="openImageGallery(index - 1)"

@@ -4,11 +4,19 @@
 	"name": "Images",
 	"code": "images",
 	"icon": ["fal", "image"],
-	"blueprint": [],
+	"blueprint": [
+		{
+			"name": "Layout",
+			"key":  "value",
+			"type": "layout_type",
+			"props_data": {}
+		}
+	],
 	"data": {
 		"fieldValue": {
 			"value": {
-				"images":[]
+				"images":[],
+				"layout_type": null
 			},
 			"container": {
 				"properties": {

@@ -8,9 +8,7 @@
 
 namespace App\Actions\Procurement\OrgAgent;
 
-use App\Models\Catalogue\Shop;
 use App\Models\Procurement\OrgAgent;
-use App\Models\Web\Website;
 
 trait WithOrgAgentSubNavigation
 {
@@ -52,6 +50,30 @@ trait WithOrgAgentSubNavigation
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-clipboard"],
                     "tooltip" => __("Purchase Orders"),
+                ],
+            ],
+            [
+                "number"   => $parent->agent->organisation->inventoryStats->number_org_stocks,
+                "label"    => __("Org Stocks"),
+                "href"     => [
+                    "name"       => "grp.org.procurement.org_agents.show.org-stocks.index",
+                    "parameters" => [$parent->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-box"],
+                    "tooltip" => __("Org Stocks"),
+                ],
+            ],
+            [
+                "number"   => $parent->agent->organisation->inventoryStats->number_deliveries,
+                "label"    => __("Stock Deliveries"),
+                "href"     => [
+                    "name"       => "grp.org.procurement.org_agents.show.stock-deliveries.index",
+                    "parameters" => [$parent->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-truck-container"],
+                    "tooltip" => __("Stock Deliveries"),
                 ],
             ],
             

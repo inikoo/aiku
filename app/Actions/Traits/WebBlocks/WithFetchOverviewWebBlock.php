@@ -26,7 +26,11 @@ trait WithFetchOverviewWebBlock
                 continue;
             }
             $this->replaceAnchor($webpage, $text["text"], $layout); // should use WithFetchText
-            $textsArray[] = $text["text"];
+            $this->setProperties($property, $text);
+            $textsArray[] = [
+                'properties' => $property,
+                'text' => $text["text"]
+            ];
         }
 
         data_set($layout, "data.fieldValue.texts.values", $textsArray);
@@ -36,12 +40,30 @@ trait WithFetchOverviewWebBlock
             if (!isset($image["src"])) {
                 continue;
             }
+            $this->setProperties($property, $image);
             $imagesArray[] = [
+                "properties" => $property,
                 "aurora_source" => $image["src"],
             ];
         }
 
-        data_set($layout, "data.fieldValue.images.sources", $imagesArray);
+        data_set($layout, "data.fieldValue.images", $imagesArray);
         return $layout;
+    }
+
+    private function setProperties(&$properties, $propertiesAurora)
+    {
+        $top = Arr::get($propertiesAurora, 'top');
+        $left = Arr::get($propertiesAurora, 'left');
+        $bottom = Arr::get($propertiesAurora, 'bottom');
+        $right = Arr::get($propertiesAurora, 'right');
+        $width = Arr::get($propertiesAurora, 'width');
+        $height = Arr::get($propertiesAurora, 'height');
+        data_set($properties, 'position.top', $top ? $top . 'px' : null);
+        data_set($properties, 'position.left', $left ? $left . 'px' : null);
+        data_set($properties, 'position.bottom', $bottom ? $bottom . 'px' : null);
+        data_set($properties, 'position.right', $right ? $right . 'px' : null);
+        data_set($properties, 'width', $width ? $width . 'px' : null);
+        data_set($properties, 'height', $height ? $height . 'px' : null);
     }
 }

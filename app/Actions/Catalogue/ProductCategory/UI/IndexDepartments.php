@@ -69,6 +69,7 @@ class IndexDepartments extends OrgAction
 
     public function handle(Shop|ProductCategory|Organisation|Collection $parent, $prefix = null): LengthAwarePaginator
     {
+        // dd($parent);
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('product_categories.name', $value)
@@ -101,17 +102,12 @@ class IndexDepartments extends OrgAction
         }
         */
 
+        $queryBuilder->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
 
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('product_categories.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('product_categories.organisation_id', $parent->id);
-            $queryBuilder->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
-            $queryBuilder->addSelect(
-                'shops.slug as shop_slug',
-                'shops.code as shop_code',
-                'shops.name as shop_name',
-            );
         } elseif (class_basename($parent) == 'Collection') {
             $queryBuilder->join('model_has_collections', function ($join) use ($parent) {
                 $join->on('product_categories.id', '=', 'model_has_collections.model_id')
@@ -133,6 +129,9 @@ class IndexDepartments extends OrgAction
                 'product_categories.updated_at',
                 'product_category_stats.number_current_families',
                 'product_category_stats.number_current_products',
+                'shops.slug as shop_slug',
+                'shops.code as shop_code',
+                'shops.name as shop_name',
             ])
             ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
             ->where('product_categories.type', ProductCategoryTypeEnum::DEPARTMENT)

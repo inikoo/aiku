@@ -104,17 +104,13 @@ class IndexFamilies extends OrgAction
             );
         }
 
-
+        
+        $queryBuilder->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
+        
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('product_categories.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('product_categories.organisation_id', $parent->id);
-            $queryBuilder->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
-            $queryBuilder->addSelect(
-                'shops.slug as shop_slug',
-                'shops.code as shop_code',
-                'shops.name as shop_name',
-            );
         } elseif (class_basename($parent) == 'ProductCategory') {
             if ($parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 $queryBuilder->where('product_categories.department_id', $parent->id);
@@ -147,7 +143,10 @@ class IndexFamilies extends OrgAction
                 'departments.slug as department_slug',
                 'departments.code as department_code',
                 'departments.name as department_name',
-                'product_category_stats.number_current_products'
+                'product_category_stats.number_current_products',
+                'shops.slug as shop_slug',
+                'shops.code as shop_code',
+                'shops.name as shop_name',
 
             ])
             ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
