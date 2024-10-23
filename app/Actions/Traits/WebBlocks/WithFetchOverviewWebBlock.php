@@ -48,7 +48,6 @@ trait WithFetchOverviewWebBlock
         }
 
         data_set($layout, "data.fieldValue.images", $imagesArray);
-        dd($layout);
         return $layout;
     }
 
