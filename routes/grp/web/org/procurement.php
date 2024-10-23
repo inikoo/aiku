@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
+use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Actions\Procurement\OrgAgent\ExportOrgAgents;
 use App\Actions\Procurement\OrgAgent\UI\EditOrgAgent;
 use App\Actions\Procurement\OrgAgent\UI\IndexOrgAgents;
@@ -41,6 +41,7 @@ Route::prefix('agents')->as('org_agents.')->group(function () {
     Route::prefix('{orgAgent}')->as('show')->group(function () {
         Route::get('', ShowOrgAgent::class);
         Route::get('suppliers', [IndexOrgSuppliers::class, 'inOrgAgent'])->name('.suppliers.index');
+        Route::get('purchase-orders', [IndexPurchaseOrders::class, 'inOrgAgent'])->name('.purchase-orders.index');
         Route::get('suppliers/{orgSupplier}', [ShowOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.show');
         Route::get('suppliers/{orgSupplier}/edit', [EditOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.edit');
         Route::get('supplier-products', [IndexOrgSupplierProducts::class, 'inOrgAgent'])->name('.supplier_products.index');
@@ -60,7 +61,15 @@ Route::prefix('suppliers')->as('org_suppliers.')->group(function () {
 
 Route::prefix('partners')->as('org_partners.')->group(function () {
     Route::get('', IndexOrgPartners::class)->name('index');
-    Route::get('{orgPartner}', ShowOrgPartner::class)->name('show');
+    Route::prefix('{orgPartner}')->as('show')->group(function () {
+        Route::get('', ShowOrgPartner::class);
+        Route::prefix('purchase-orders')->as('.purchase-orders.')->group(function () {
+            Route::get('index', [IndexPurchaseOrders::class, 'inOrgPartner'])->name('index');
+        });
+        Route::prefix('org-stocks')->as('.org-stocks.')->group(function () {
+            Route::get('index', [IndexOrgStocks::class, 'inOrgPartner'])->name('index');
+        });
+    });
 
 });
 

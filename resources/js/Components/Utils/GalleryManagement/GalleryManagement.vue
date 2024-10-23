@@ -21,6 +21,7 @@ import { routeType } from '@/types/route'
 import { router } from '@inertiajs/vue3'
 import { notify } from '@kyvg/vue3-notification'
 import { trans } from 'laravel-vue-i18n'
+import { ImageData } from '@/types/Image'
 library.add(faCube, faStar, faImage)
 
 const layout = inject('layout', layoutStructure)
@@ -34,6 +35,7 @@ const props = withDefaults(defineProps<{
     useCrop?: boolean
     cropProps?: {}
     closePopup: Function
+    maxSelected?: number
 }>(), {
     tabs: () =>  ['upload', 'images_uploaded', 'stock_images'],
     useCrop: false,
@@ -56,6 +58,7 @@ const emits = defineEmits<{
     // (e: 'onClose'): void
     // (e: 'onSuccessUpload', data: []): void
     // (e: 'onUpload', value: {}): void
+    (e: 'submitSelectedImages', value: ImageData[]): void
     (e: 'selectImage', value: {}): void
 }>()
 
@@ -166,7 +169,9 @@ const onSubmitUpload = async (clear: Function) => {
                         :imagesUploadedRoutes
                         :attachImageRoute
                         :closePopup
+                        :maxSelected
                         @selectImage="(image: {}) => emits('selectImage', image)"
+                        @submitSelectedImages="(images: ImageData[]) => emits('submitSelectedImages', images)"
                     />
 
                     <GalleryUploadedImages
@@ -174,25 +179,10 @@ const onSubmitUpload = async (clear: Function) => {
                         :imagesUploadedRoutes="stockImagesRoute"
                         :attachImageRoute
                         :closePopup
+                        :maxSelected
                         @selectImage="(image: {}) => emits('selectImage', image)"
+                        @submitSelectedImages="(images: ImageData[]) => emits('submitSelectedImages', images)"
                     />
-
-                    
-
-                    <!-- <component
-                        v-model:files="selectedUploadFiles"
-                        :is="getComponent(tab['key'])"
-                        :uploadRoute
-                        :imagesUploadedRoutes
-                        :attachImageRoute
-                        :useCrop="useCrop"
-                        :cropProps="cropProps"
-                        :isLoading
-                        :stockImageRoutes
-                        :closePopup
-                        @onSubmitUpload="onSubmitUpload"
-                        @selectImage="(image: {}) => emits('selectImage', image)"
-                    /> -->
 
                 </TabPanel>
             </TabPanels>
