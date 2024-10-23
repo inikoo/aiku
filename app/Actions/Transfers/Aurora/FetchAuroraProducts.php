@@ -28,7 +28,7 @@ class FetchAuroraProducts extends FetchAuroraAction
             $sourceData = explode(':', $productData['product']['source_id']);
 
 
-            $orgStocks  = $organisationSource->fetchProductStocks($sourceData[1])['org_stocks'];
+            $orgStocks  = $organisationSource->fetchProductHasOrgStock($sourceData[1])['org_stocks'];
 
             data_set(
                 $productData,

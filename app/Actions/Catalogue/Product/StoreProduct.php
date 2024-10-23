@@ -51,8 +51,8 @@ class StoreProduct extends OrgAction
         data_set($modelData, 'status', $status);
 
 
-        $orgStocks = $modelData['org_stocks'];
-        data_forget($modelData, 'org_stocks');
+        $orgStocks = Arr::pull($modelData, 'org_stocks', []);
+
 
 
         if (count($orgStocks) == 1) {
@@ -123,17 +123,21 @@ class StoreProduct extends OrgAction
                 ]
             );
 
+            $product->orgStocks()->sync($orgStocks);
 
-            foreach ($orgStocks as $orgStocksId => $orgStockData) {
-                $tradeUnit = OrgStock::find($orgStocksId);
-                $product->orgStocks()->attach(
-                    $tradeUnit,
-                    [
-                        'quantity' => $orgStockData['quantity'],
-                        'notes'    => Arr::get($orgStockData, 'notes'),
-                    ]
-                );
-            }
+            //            foreach ($orgStocks as $orgStocksId => $orgStockData) {
+            //                $orgStock = OrgStock::find($orgStocksId);
+            //                $product->orgStocks()->attach(
+            //                    $orgStock,
+            //                    [
+            //                        'quantity'        => $orgStockData['quantity'],
+            //                        'notes'           => Arr::get($orgStockData, 'notes'),
+            //                        'source_id'       => Arr::get($orgStockData, 'source_id'),
+            //                        'fetched_at'      => Arr::get($orgStockData, 'fetched_at'),
+            //                        'last_fetched_at' => Arr::get($orgStockData, 'last_fetched_at'),
+            //                    ]
+            //                );
+            //            }
             $tradeUnits = [];
             foreach ($product->orgStocks as $orgStock) {
                 foreach ($orgStock->stock->tradeUnits as $tradeUnit) {
@@ -254,13 +258,11 @@ class StoreProduct extends OrgAction
             ];
         }
 
-        if ($this->state == ProductStateEnum::DISCONTINUED or !$this->strict) {
-            $rules['org_stocks'] = ['sometimes', 'nullable', 'array'];
-        } else {
-            $rules['org_stocks'] = ['required', 'array'];
-        }
+
+        $rules['org_stocks'] = ['present','array'];
+
         if (!$this->strict) {
-            $rules = $this->noStrictStoreRules($rules);
+            $rules                       = $this->noStrictStoreRules($rules);
             $rules['historic_source_id'] = ['sometimes', 'required', 'string', 'max:255'];
         }
 

@@ -33,6 +33,12 @@ class UpdateProduct extends OrgAction
 
     public function handle(Product $product, array $modelData): Product
     {
+        if (Arr::has($modelData, 'org_stocks')) {
+            $orgStocks = Arr::pull($modelData, 'org_stocks', []);
+            $product->orgStocks()->sync($orgStocks);
+        }
+
+
         $product = $this->update($product, $modelData);
         $changed = $product->getChanges();
 
@@ -93,10 +99,13 @@ class UpdateProduct extends OrgAction
             'settings'    => ['sometimes', 'array'],
             'status'      => ['sometimes', 'required', 'boolean'],
             'state'       => ['sometimes', 'required', Rule::enum(ProductStateEnum::class)],
+            'org_stocks'  => ['sometimes', 'present', 'array']
         ];
 
+
         if (!$this->strict) {
-            $rules = $this->noStrictUpdateRules($rules);
+            $rules['org_stocks'] = ['sometimes', 'nullable', 'array'];
+            $rules               = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;
