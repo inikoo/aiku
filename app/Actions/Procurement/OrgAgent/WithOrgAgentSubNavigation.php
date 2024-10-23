@@ -54,6 +54,18 @@ trait WithOrgAgentSubNavigation
                     "tooltip" => __("Purchase Orders"),
                 ],
             ],
+            [
+                "number"   => $parent->agent->organisation->inventoryStats->number_org_stocks,
+                "label"    => __("Org Stocks"),
+                "href"     => [
+                    "name"       => "grp.org.procurement.org_agents.show.org-stocks.index",
+                    "parameters" => [$parent->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-box"],
+                    "tooltip" => __("Org Stocks"),
+                ],
+            ],
             
         ];
     }
