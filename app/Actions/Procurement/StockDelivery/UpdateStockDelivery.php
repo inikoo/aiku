@@ -44,7 +44,7 @@ class UpdateStockDelivery extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules                 = $this->noStrictStoreRules($rules);
+            $rules                 = $this->noStrictUpdateRules($rules);
             $rules['date']         = ['sometimes', 'date'];
             $rules['received_at']  = ['sometimes', 'nullable', 'date'];
             $rules['checked_at']   = ['sometimes', 'nullable', 'date'];

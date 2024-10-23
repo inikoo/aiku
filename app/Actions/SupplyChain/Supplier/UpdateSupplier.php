@@ -99,7 +99,7 @@ class UpdateSupplier extends GrpAction
         if (!$this->strict) {
             $rules['phone']       = ['sometimes', 'nullable', 'max:255'];
             $rules['archived_at'] = ['sometimes', 'nullable', 'date'];
-            $rules                = $this->noStrictStoreRules($rules);
+            $rules                = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;
