@@ -34,6 +34,30 @@ class DeleteWebBlock extends GrpAction
             ->where("model_id", $webBlock->id)
             ->delete();
 
+        $externalLinks = $webBlock->externalLinks;
+        foreach ($externalLinks as $externalLink) {
+            $pivotData = $externalLink->pivot;
+            $show = $pivotData->show;
+            $prepareQuery = [];
+            if ($show) {
+                $prepareQuery += [
+                    'number_websites_shown' => $externalLink->number_websites_shown - 1,
+                    'number_webpages_shown' => $externalLink->number_webpages_shown - 1,
+                    'number_web_blocks_shown' => $externalLink->number_web_blocks_shown - 1
+                ];
+            } else {
+                $prepareQuery += [
+                    'number_websites_hidden' => $externalLink->number_websites_hidden - 1,
+                    'number_webpages_hidden' => $externalLink->number_webpages_hidden - 1,
+                    'number_web_blocks_hidden' => $externalLink->number_web_blocks_hidden - 1
+                ];
+            }
+            $externalLink->update($prepareQuery);
+        }
+
+        $webBlock->externalLinks()->detach();
+
+
         /** @var Media $media */
         foreach ($mediaIds as $mediaId) {
             $usage = DB::table('model_has_media')->where('media_id', $mediaId)->count();
