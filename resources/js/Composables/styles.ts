@@ -17,7 +17,7 @@ export const getStyles = (properties: any) => {
             marginRight: (properties?.margin?.right?.value || 0) + properties?.margin?.unit,
             marginLeft: (properties?.margin?.left?.value || 0) + properties?.margin?.unit,
 
-            background: properties?.background?.type === 'color' ? properties?.background?.color : `url('${properties?.background?.image.source.original}')`,
+            background: properties?.background?.type === 'color' ? properties?.background?.color : `url('${properties?.background?.image?.source?.original}')`,
             backgroundPosition: properties?.background?.type === 'image' ? 'center' : '',
             backgroundSize: properties?.background?.type === 'image' ? 'cover' : '',
 
