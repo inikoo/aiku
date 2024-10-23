@@ -29,7 +29,7 @@ library.add(faCircle, faTrash, falTrash, faEdit)
 
 const props = defineProps<{
     data: {
-        stockImageRoutes: routeType
+        stockImagesRoute: routeType
         uploadImageRoute: routeType
         attachImageRoute: routeType
         deleteImageRoute: routeType
@@ -280,7 +280,7 @@ const isModalGallery = ref(false)
             :uploadRoute="data.uploadImageRoute"
             :imagesUploadedRoutes="data.imagesUploadedRoutes"
             :attachImageRoute="data.attachImageRoute"
-            :stockImageRoutes="data.stockImageRoutes"
+            :stockImagesRoute="data.stockImagesRoute"
             :closePopup="() => isModalGallery = false"
             @selectImage="(image: {}) => console.log('image', image)"
         >
