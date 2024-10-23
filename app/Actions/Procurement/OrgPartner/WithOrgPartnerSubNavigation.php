@@ -53,6 +53,18 @@ trait WithOrgPartnerSubNavigation
                     "tooltip" => __("Org Stocks"),
                 ],
             ],
+            [
+                "number"   => $parent->partner->inventoryStats->number_deliveries,
+                "label"    => __("Stock Deliveries"),
+                "href"     => [
+                    "name"       => "grp.org.procurement.org_partners.show.stock-deliveries.index",
+                    "parameters" => [$parent->organisation->slug, $parent->id],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-truck-container"],
+                    "tooltip" => __("Stock Deliveries"),
+                ],
+            ],
             
         ];
     }

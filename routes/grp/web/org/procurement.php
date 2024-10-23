@@ -43,6 +43,7 @@ Route::prefix('agents')->as('org_agents.')->group(function () {
         Route::get('suppliers', [IndexOrgSuppliers::class, 'inOrgAgent'])->name('.suppliers.index');
         Route::get('purchase-orders', [IndexPurchaseOrders::class, 'inOrgAgent'])->name('.purchase-orders.index');
         Route::get('org-stocks', [IndexOrgStocks::class, 'inOrgAgent'])->name('.org-stocks.index');
+        Route::get('stock-deliveries', [IndexStockDeliveries::class, 'inOrgAgent'])->name('.stock-deliveries.index');
         Route::get('suppliers/{orgSupplier}', [ShowOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.show');
         Route::get('suppliers/{orgSupplier}/edit', [EditOrgSupplier::class, 'inOrgAgent'])->name('.suppliers.edit');
         Route::get('supplier-products', [IndexOrgSupplierProducts::class, 'inOrgAgent'])->name('.supplier_products.index');
@@ -69,6 +70,9 @@ Route::prefix('partners')->as('org_partners.')->group(function () {
         });
         Route::prefix('org-stocks')->as('.org-stocks.')->group(function () {
             Route::get('index', [IndexOrgStocks::class, 'inOrgPartner'])->name('index');
+        });
+        Route::prefix('stock-deliveries')->as('.stock-deliveries.')->group(function () {
+            Route::get('index', [IndexStockDeliveries::class, 'inOrgPartner'])->name('index');
         });
     });
 
