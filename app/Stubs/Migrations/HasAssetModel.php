@@ -89,9 +89,11 @@ trait HasAssetModel
         if ($table->getTable() != 'adjustments') {
             $table->softDeletes();
         }
+        if (!in_array($table->getTable(), ['subscriptions', 'charges'])) {
+            $table->string('historic_source_id')->nullable()->unique();
+        }
         if ($table->getTable() != 'subscriptions') {
             $table->string('source_id')->nullable()->unique();
-            $table->string('historic_source_id')->nullable()->unique();
         }
 
         return $table;

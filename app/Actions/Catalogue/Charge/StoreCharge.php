@@ -14,6 +14,7 @@ use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCharges;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCharges;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCharges;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
@@ -24,12 +25,18 @@ use App\Models\Catalogue\Shop;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreCharge extends OrgAction
 {
+    use WithNoStrictRules;
+
+    /**
+     * @throws \Throwable
+     */
     public function handle(Shop $shop, array $modelData): Charge
     {
         $status = false;
@@ -42,51 +49,52 @@ class StoreCharge extends OrgAction
         data_set($modelData, 'shop_id', $shop->id);
         data_set($modelData, 'currency_id', $shop->currency_id);
 
+        $charge = DB::transaction(function () use ($shop, $modelData) {
+            /** @var Charge $charge */
+            $charge = $shop->charges()->create($modelData);
+            $charge->stats()->create();
+            $charge->refresh();
 
-        /** @var Charge $charge */
-        $charge = $shop->charges()->create($modelData);
-        $charge->stats()->create();
-        $charge->refresh();
+            $asset = StoreAsset::run(
+                $charge,
+                [
+                    'units' => 1,
+                    'unit'  => 'charge',
+                    'price' => null,
+                    'type'  => AssetTypeEnum::CHARGE,
+                    'state' => match ($charge->state) {
+                        ChargeStateEnum::IN_PROCESS => AssetStateEnum::IN_PROCESS,
+                        ChargeStateEnum::ACTIVE => AssetStateEnum::ACTIVE,
+                        ChargeStateEnum::DISCONTINUED => AssetStateEnum::DISCONTINUED,
+                    }
+                ],
+                $this->hydratorsDelay
+            );
 
-        $asset = StoreAsset::run(
-            $charge,
-            [
-                'units' => 1,
-                'unit'  => 'charge',
-                'price' => null,
-                'type'  => AssetTypeEnum::CHARGE,
-                'state' => match ($charge->state) {
-                    ChargeStateEnum::IN_PROCESS   => AssetStateEnum::IN_PROCESS,
-                    ChargeStateEnum::ACTIVE       => AssetStateEnum::ACTIVE,
-                    ChargeStateEnum::DISCONTINUED => AssetStateEnum::DISCONTINUED,
-                }
-            ],
-            $this->hydratorsDelay
-        );
+            $charge->updateQuietly(
+                [
+                    'asset_id' => $asset->id
+                ]
+            );
 
-        $charge->updateQuietly(
-            [
-                'asset_id' => $asset->id
-            ]
-        );
+            $historicAsset = StoreHistoricAsset::run(
+                $charge,
+                [],
+                $this->hydratorsDelay
+            );
+            $asset->update(
+                [
+                    'current_historic_asset_id' => $historicAsset->id,
+                ]
+            );
+            $charge->updateQuietly(
+                [
+                    'current_historic_asset_id' => $historicAsset->id,
+                ]
+            );
 
-        $historicAsset = StoreHistoricAsset::run(
-            $charge,
-            [
-                'source_id' => $charge->historic_source_id
-            ],
-            $this->hydratorsDelay
-        );
-        $asset->update(
-            [
-                'current_historic_asset_id' => $historicAsset->id,
-            ]
-        );
-        $charge->updateQuietly(
-            [
-                'current_historic_asset_id' => $historicAsset->id,
-            ]
-        );
+            return $charge;
+        });
 
         ShopHydrateCharges::dispatch($shop)->delay($this->hydratorsDelay);
         OrganisationHydrateCharges::dispatch($shop->organisation)->delay($this->hydratorsDelay);
@@ -123,16 +131,20 @@ class StoreCharge extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
-            $rules['created_at'] = ['sometimes', 'date'];
-            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules = $this->noStrictStoreRules($rules);
         }
 
         return $rules;
     }
 
-    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Charge
+    /**
+     * @throws \Throwable
+     */
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Charge
     {
+        if (!$audit) {
+            Charge::disableAuditing();
+        }
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
         $this->strict         = $strict;
@@ -143,6 +155,9 @@ class StoreCharge extends OrgAction
         return $this->handle($shop, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(Shop $shop, ActionRequest $request): Charge
     {
         $this->initialisationFromShop($shop, $request);
@@ -153,9 +168,9 @@ class StoreCharge extends OrgAction
     public function htmlResponse(Charge $charge): RedirectResponse
     {
         return Redirect::route('grp.org.shops.show.assets.charges.show', [
-            'organisation'      => $charge->organisation->slug,
-            'shop'              => $charge->shop->slug,
-            'charge'            => $charge->slug
+            'organisation' => $charge->organisation->slug,
+            'shop'         => $charge->shop->slug,
+            'charge'       => $charge->slug
         ]);
     }
 
