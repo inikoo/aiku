@@ -88,6 +88,7 @@ class IndexProducts extends OrgAction
         }
 
         $queryBuilder = QueryBuilder::for(Product::class);
+        $queryBuilder->leftJoin('shops', 'products.shop_id', 'shops.id');
         $queryBuilder->where('products.is_main', true);
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('products.shop_id', $parent->id);
@@ -117,12 +118,6 @@ class IndexProducts extends OrgAction
             }
         } elseif (class_basename($parent) == 'Organisation') {
             $queryBuilder->where('products.organisation_id', $parent->id);
-            $queryBuilder->leftJoin('shops', 'products.shop_id', 'shops.id');
-            $queryBuilder->addSelect(
-                'shops.slug as shop_slug',
-                'shops.code as shop_code',
-                'shops.name as shop_name',
-            );
         } elseif (class_basename($parent) == 'ProductCategory') {
             if ($parent->type == ProductCategoryTypeEnum::DEPARTMENT) {
                 $queryBuilder->where('products.department_id', $parent->id);
@@ -180,6 +175,9 @@ class IndexProducts extends OrgAction
                 'products.created_at',
                 'products.updated_at',
                 'products.slug',
+                'shops.slug as shop_slug',
+                'shops.code as shop_code',
+                'shops.name as shop_name',
                 ...$addSelects
             ])
             ->leftJoin('product_stats', 'products.id', 'product_stats.product_id');
