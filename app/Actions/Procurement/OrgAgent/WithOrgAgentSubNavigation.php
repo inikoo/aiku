@@ -64,7 +64,19 @@ trait WithOrgAgentSubNavigation
                     "tooltip" => __("Org Stocks"),
                 ],
             ],
-
+            [
+                "number"   => $parent->agent->organisation->inventoryStats->number_deliveries,
+                "label"    => __("Stock Deliveries"),
+                "href"     => [
+                    "name"       => "grp.org.procurement.org_agents.show.stock-deliveries.index",
+                    "parameters" => [$parent->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-truck-container"],
+                    "tooltip" => __("Stock Deliveries"),
+                ],
+            ],
+            
         ];
     }
 }
