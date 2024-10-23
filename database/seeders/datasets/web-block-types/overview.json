@@ -1,7 +1,7 @@
 {
 	"scope": "webpage",
-	"slug": "overview",
-	"code": "overview",
+	"slug": "overview_aurora",
+	"code": "overview_aurora",
 	"name": "Overview Aurora",
 	"icon": ["fal", "text"],
 	"blueprint": [
