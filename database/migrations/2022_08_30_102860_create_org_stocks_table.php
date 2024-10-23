@@ -51,6 +51,8 @@ return new class () extends Migration {
             $table->dateTimeTz('activated_in_organisation_at')->nullable();
             $table->dateTimeTz('discontinuing_in_organisation_at')->nullable();
             $table->dateTimeTz('discontinued_in_organisation_at')->nullable();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
         });

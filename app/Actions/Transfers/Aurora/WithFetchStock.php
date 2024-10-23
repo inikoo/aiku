@@ -8,25 +8,34 @@
 namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
-use App\Actions\Inventory\OrgStock\SyncOrgStockLocations;
 use App\Actions\Inventory\OrgStock\UpdateOrgStock;
 use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Stock;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Support\Arr;
+use Throwable;
 
 trait WithFetchStock
 {
-    protected function processOrgStock(SourceOrganisationService $organisationSource, Stock $effectiveStock, array $stockData): void
+    protected function processOrgStock(SourceOrganisationService $organisationSource, Stock $effectiveStock, array $stockData): OrgStock|null
     {
         $organisation = $organisationSource->getOrganisation();
         /** @var OrgStock $orgStock */
         if ($orgStock = $organisation->orgStocks()->where('source_id', $stockData['stock']['source_id'])->first()) {
-            $orgStock = UpdateOrgStock::make()->action(
-                orgStock: $orgStock,
-                modelData: $stockData['org_stock'],
-                hydratorsDelay: 30
-            );
+            try {
+                return UpdateOrgStock::make()->action(
+                    orgStock: $orgStock,
+                    modelData: $stockData['org_stock'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
+            } catch (Exception $e) {
+                $this->recordError($organisationSource, $e, $stockData['org_stock'], 'OrgStock', 'update');
+
+                return null;
+            }
         } else {
             $orgParent = null;
 
@@ -37,19 +46,28 @@ trait WithFetchStock
             if (!$orgParent) {
                 $orgParent = $organisationSource->getOrganisation();
             }
+            try {
+                $orgStock = StoreOrgStock::make()->action(
+                    parent: $orgParent,
+                    stock: $effectiveStock,
+                    modelData: $stockData['org_stock'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
+                OrgStock::enableAuditing();
+                $this->saveMigrationHistory(
+                    $orgStock,
+                    Arr::except($stockData['org_stock'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
 
-            $orgStock = StoreOrgStock::make()->action(
-                parent: $orgParent,
-                stock: $effectiveStock,
-                modelData: $stockData['org_stock'],
-                hydratorsDelay: 30
-            );
+                return $orgStock;
+            } catch (Exception|Throwable $e) {
+                $this->recordError($organisationSource, $e, $stockData['org_stock'], 'OrgStock', 'store');
+
+                return null;
+            }
         }
-
-        $locationsData = $this->getStockLocationData($organisationSource, $stockData['stock']['source_id']);
-        SyncOrgStockLocations::make()->action($orgStock, [
-            'locationsData' => $locationsData
-        ], 60, false);
     }
 
     public function updateStockSources(Stock $stock, string $source): void

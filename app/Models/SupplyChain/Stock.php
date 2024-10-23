@@ -117,7 +117,6 @@ class Stock extends Model implements HasMedia, Auditable
 
     protected $guarded = [];
 
-
     public function generateTags(): array
     {
         return [

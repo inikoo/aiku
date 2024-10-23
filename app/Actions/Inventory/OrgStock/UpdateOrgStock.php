@@ -11,6 +11,7 @@ use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
 use App\Actions\Inventory\OrgStockFamily\Hydrators\OrgStockFamilyHydrateOrgStocks;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStocks;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Inventory\OrgStock;
 use Illuminate\Support\Arr;
@@ -19,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateOrgStock extends OrgAction
 {
     use WithActionUpdate;
-
+    use WithNoStrictRules;
 
     private OrgStock $orgStock;
 
@@ -52,17 +53,25 @@ class UpdateOrgStock extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [];
+        if (!$this->strict) {
+            $rules = $this->noStrictUpdateRules($rules);
+        }
 
-        ];
+        return $rules;
     }
 
 
-    public function action(OrgStock $orgStock, array $modelData, int $hydratorsDelay = 0): OrgStock
+    public function action(OrgStock $orgStock, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): OrgStock
     {
+        if (!$audit) {
+            OrgStock::disableAuditing();
+        }
+
         $this->hydratorsDelay = $hydratorsDelay;
         $this->asAction       = true;
         $this->orgStock       = $orgStock;
+        $this->strict         = $strict;
         $this->initialisation($orgStock->organisation, $modelData);
 
         return $this->handle($orgStock, $this->validatedData);

@@ -10,6 +10,7 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\SyncStockTradeUnits;
 use App\Actions\Goods\Stock\UpdateStock;
+use App\Actions\Inventory\OrgStock\SyncOrgStockLocations;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Models\Goods\TradeUnit;
 use App\Models\SupplyChain\Stock;
@@ -118,7 +119,15 @@ class FetchAuroraStocks extends FetchAuroraAction
             }
 
             if ($effectiveStock and $effectiveStock->state != StockStateEnum::IN_PROCESS) {
-                $this->processOrgStock($organisationSource, $effectiveStock, $stockData);
+                $orgStock = $this->processOrgStock($organisationSource, $effectiveStock, $stockData);
+
+                if ($orgStock) {
+                    $locationsData = $this->getStockLocationData($organisationSource, $stockData['stock']['source_id']);
+                    SyncOrgStockLocations::make()->action($orgStock, [
+                        'locationsData' => $locationsData
+                    ], 60, false);
+                }
+
             }
         }
 

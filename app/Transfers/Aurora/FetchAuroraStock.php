@@ -48,6 +48,8 @@ class FetchAuroraStock extends FetchAurora
             $name = 'Not set';
         }
 
+        $name = preg_replace('/\s+/', ' ', $name);
+
 
         $state = match ($this->auroraModelData->{'Part Status'}) {
             'In Use' => StockStateEnum::ACTIVE,
@@ -115,7 +117,9 @@ class FetchAuroraStock extends FetchAurora
             },
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
             'source_slug'     => $sourceSlug,
-            'images'          => $this->parseImages()
+            'images'          => $this->parseImages(),
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
         ];
     }
 
