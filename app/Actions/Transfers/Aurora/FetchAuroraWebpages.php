@@ -88,8 +88,8 @@ class FetchAuroraWebpages extends FetchAuroraAction
                             );
                         }
                     }
+                    $this->recordChange($organisationSource, $webpage->wasChanged());
                 } catch (Exception $e) {
-
                     $this->recordError($organisationSource, $e, $webpageData['webpage'], 'Webpage', 'update');
 
                     return null;
@@ -124,18 +124,16 @@ class FetchAuroraWebpages extends FetchAuroraAction
                         Arr::except($webpageData['webpage'], ['migration_data', 'parent_id', 'fetched_at', 'last_fetched_at'])
                     );
                     $this->recordNew($organisationSource);
+                    $sourceData = explode(':', $webpage->source_id);
+                    DB::connection('aurora')->table('Page Store Dimension')
+                        ->where('Page Key', $sourceData[1])
+                        ->update(['aiku_id' => $webpage->id]);
                 } catch (Exception|Throwable $e) {
                     $this->recordError($organisationSource, $e, $webpageData['webpage'], 'Webpage', 'store');
 
                     return null;
                 }
             }
-
-
-            $sourceData = explode(':', $webpage->source_id);
-            DB::connection('aurora')->table('Page Store Dimension')
-                ->where('Page Key', $sourceData[1])
-                ->update(['aiku_id' => $webpage->id]);
 
             return $webpage;
         }

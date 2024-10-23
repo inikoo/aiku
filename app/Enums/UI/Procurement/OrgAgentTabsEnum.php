@@ -16,9 +16,7 @@ enum OrgAgentTabsEnum: string
     use HasTabs;
 
     case SHOWCASE              = 'showcase';
-    case ORG_SUPPLIERS         = 'org_suppliers';
     case ORG_SUPPLIER_PRODUCTS = 'org_supplier_products';
-    case PURCHASE_ORDERS       = 'purchase_orders';
     case DELIVERIES            = 'deliveries';
     case SYSTEM_USERS          = 'system_users';
     case HISTORY               = 'history';
@@ -35,17 +33,9 @@ enum OrgAgentTabsEnum: string
                 'type'  => 'icon',
                 'align' => 'right',
             ],
-            OrgAgentTabsEnum::ORG_SUPPLIERS => [
-                'title' => __('suppliers'),
-                'icon'  => 'fal fa-person-dolly',
-            ],
             OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS => [
                 'title' => __('products'),
                 'icon'  => 'fal fa-box-usd',
-            ],
-            OrgAgentTabsEnum::PURCHASE_ORDERS => [
-                'title' => __('purchase orders'),
-                'icon'  => 'fal fa-clipboard',
             ],
             OrgAgentTabsEnum::DELIVERIES => [
                 'title' => __('deliveries'),

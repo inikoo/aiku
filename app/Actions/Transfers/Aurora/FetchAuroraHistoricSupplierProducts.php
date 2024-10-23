@@ -21,6 +21,7 @@ class FetchAuroraHistoricSupplierProducts
 
     public function handle(SourceOrganisationService $organisationSource, int $source_id): ?HistoricSupplierProduct
     {
+
         if ($historicProductData = $organisationSource->fetchHistoricSupplierProduct($source_id)) {
             if ($historicProduct = HistoricSupplierProduct::withTrashed()->where('source_id', $historicProductData['historic_supplier_product']['source_id'])
                 ->first()) {

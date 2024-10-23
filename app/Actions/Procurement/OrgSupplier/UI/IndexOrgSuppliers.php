@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\OrgSupplier\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
+use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\OrgSuppliersResource;
 use App\InertiaTable\InertiaTable;
@@ -26,6 +27,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexOrgSuppliers extends OrgAction
 {
+    use WithOrgAgentSubNavigation;
     private Organisation|OrgAgent $parent;
 
     protected function getSupplierElementGroups(Organisation|OrgAgent $parent): array
@@ -181,6 +183,11 @@ class IndexOrgSuppliers extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
     {
+        $subNavigation = null;
+
+        if ($this->parent instanceof OrgAgent) {
+            $subNavigation = $this->getOrgAgentNavigation($this->parent);
+        }
         return Inertia::render(
             'Procurement/OrgSuppliers',
             [
@@ -193,6 +200,7 @@ class IndexOrgSuppliers extends OrgAction
                     'model'   => __('Procurement'),
                     'icon'    => ['fal', 'fa-person-dolly'],
                     'title'   => __('suppliers'),
+                    'subNavigation' => $subNavigation,
                 ],
                 'data'        => OrgSuppliersResource::collection($suppliers),
 
@@ -220,14 +228,14 @@ class IndexOrgSuppliers extends OrgAction
                     ]
                 ]
             ),
-            'grp.org.procurement.org_agents.show.org_suppliers.index' => array_merge(
+            'grp.org.procurement.org_agents.show.suppliers.index' => array_merge(
                 ShowOrgAgent::make()->getBreadcrumbs($routeParameters),
                 [
                     [
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.procurement.org_agents.show.org_suppliers.index',
+                                'name'       => 'grp.org.procurement.org_agents.show.suppliers.index',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Suppliers'),

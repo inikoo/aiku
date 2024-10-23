@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { ref, onBeforeMount, onMounted, onUnmounted } from "vue"
+import { ref, onBeforeMount, onMounted, onUnmounted, toRaw } from "vue"
 import axios from 'axios'
 import Image from '@/Components/Image.vue'
 import { notify } from '@kyvg/vue3-notification'
@@ -13,6 +13,7 @@ import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { routeType } from "@/types/route"
 import { trans } from "laravel-vue-i18n"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import { ImageData } from '@/types/Image'
 import { Images } from "@/types/Images"
 import { router } from '@inertiajs/vue3'
 import { Links, Meta } from "@/types/Table"
@@ -29,55 +30,69 @@ const props = defineProps<{
     imagesUploadedRoutes?: routeType
     attachImageRoute: routeType
     closePopup: Function
+    maxSelected?: number
 }>()
 
-const selectedImages = ref<number[]>([])
+const selectedIdImages = ref<number[]>([])
 
 const emits = defineEmits<{
     (e: 'selectImage', value: {}): void
     (e: 'optionsList', value: {}[]): void
+    (e: 'submitSelectedImages', value: ImageData[]): void
 }>()
 
 
 // Method: select and unselect image
 const toggleImageSelection = (imageId: number) => {
-    const index = selectedImages.value.indexOf(imageId);
+    const index = selectedIdImages.value.indexOf(imageId);
 
-    if (index > -1) {
+    if (index > -1) { 
         // If it exists, remove it
-        selectedImages.value.splice(index, 1);
-    } else {
-        // If it doesn't exist, add it
-        selectedImages.value.push(imageId);
+        selectedIdImages.value.splice(index, 1);
+    } else { // If it doesn't exist
+        if(props.maxSelected) { 
+            if(selectedIdImages.value.length < props.maxSelected) {
+                // If it doesn't exist, add it
+                selectedIdImages.value.push(imageId);
+            }
+        } else {
+            selectedIdImages.value.push(imageId);
+        }
     }
 }
 
 // Method: submit selected stock images
 const isLoadingSubmit = ref<boolean>(false)
 const submitSelectedImages = () => {
-    router.post(
-        route(props.attachImageRoute.name, props.attachImageRoute.parameters),
-        {
-            images: selectedImages.value
-        },
-        {
-            onStart: () => isLoadingSubmit.value = true,
-            onFinish: (aaa) => {
-                isLoading.value = false
+    if (props.attachImageRoute?.name) {
+        router.post(
+            route(props.attachImageRoute.name, props.attachImageRoute.parameters),
+            {
+                images: selectedIdImages.value
             },
-            onSuccess: (zzz) => {
-                selectedImages.value = [],
-                props.closePopup()
-            },
-            onError: (err) => {
-                notify({
-                    title: trans('Something went wrong.'),
-                    text: err?.message || '',
-                    type: 'error',
-                })
+            {
+                onStart: () => isLoadingSubmit.value = true,
+                onFinish: (aaa) => {
+                    isLoading.value = false
+                },
+                onSuccess: (zzz) => {
+                    selectedIdImages.value = [],
+                    props.closePopup()
+                },
+                onError: (err) => {
+                    notify({
+                        title: trans('Something went wrong.'),
+                        text: err?.message || '',
+                        type: 'error',
+                    })
+                }
             }
-        }
-    )
+        )
+    }
+    
+    const selectedImages = toRaw(optionsList.value.filter((option) => selectedIdImages.value.includes(option.id)))
+    // console.log('oplistzzz', selectedImages)
+    emits('submitSelectedImages',  selectedImages)
 }
 
 
@@ -171,17 +186,17 @@ onUnmounted(() => {
                     </div>
 
                     <div class="flex items-end gap-x-2">
-                        <div @click="() => selectedImages.length ? selectedImages = [] : false"
+                        <div @click="() => selectedIdImages.length ? selectedIdImages = [] : false"
                             class=""
-                            :class="selectedImages.length ? 'underline cursor-pointer' : 'text-gray-400'"
+                            :class="selectedIdImages.length ? 'underline cursor-pointer' : 'text-gray-400'"
                         >
                             {{ trans('Unselect all') }}
                         </div>
                         <Button
-                            :label="`Select image ${selectedImages.length}/${optionsList.length}`"
+                            :label="`Select image ${selectedIdImages.length}/${maxSelected || optionsList.length}`"
                             @click="() => submitSelectedImages()"
                             :loading="isLoadingSubmit"
-                            :disabled="!selectedImages.length"
+                            :disabled="!selectedIdImages.length"
                         />
                     </div>
                 </div>
@@ -194,12 +209,12 @@ onUnmounted(() => {
                             v-for="option in optionsList"
                             class="relative min-h-10 h-20 max-h-24 min-w-20 w-auto border rounded cursor-pointer transition-all"
                             @click="() => toggleImageSelection(option.id)"
-                            :class="selectedImages.includes(option.id) ? 'border-blue-400 scale-[97%]' : 'border-gray-300'"
+                            :class="selectedIdImages.includes(option.id) ? 'border-blue-400 scale-[97%]' : 'border-gray-300'"
                         >
                             <Image :src="option.thumbnail" />
-                            <div v-if="selectedImages.includes(option.id)" class="absolute inset-0 bg-blue-500/40"
+                            <div v-if="selectedIdImages.includes(option.id)" class="absolute inset-0 bg-blue-500/40"
                             />
-                            <FontAwesomeIcon v-if="selectedImages.includes(option.id)" icon='fas fa-check-circle' class='absolute top-1 right-1 text-green-500' fixed-width aria-hidden='true' />
+                            <FontAwesomeIcon v-if="selectedIdImages.includes(option.id)" icon='fas fa-check-circle' class='absolute top-1 right-1 text-green-500' fixed-width aria-hidden='true' />
 
                             <div class="flex items-end absolute h-1/2 bottom-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent w-full truncate text-xs pl-1 pb-1 text-white">
                                 {{ option.name }}

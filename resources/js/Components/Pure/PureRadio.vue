@@ -7,7 +7,7 @@ import { inject } from 'vue'
 // import { library } from '@fortawesome/fontawesome-svg-core'
 // library.add(faCheck)
 const props = defineProps<{
-    modelValue: any
+    // modelValue: any
     mode?: string
     options: any
     by?: string
@@ -86,17 +86,15 @@ const layout = inject('layout', layoutStructure)
                     :key="`${option.label}${index}`" class="inline-flex gap-x-2.5 items-center">
                     <input
                         v-model="model"
-                        :value="option[by] || option"
-                        :id="option.label + index"
-                        name="radioDefault"
+                        :value="by ? option[by] : option"
+                        :id="`${option.label}${index}`"
                         type="radio"
-                        :checked="(option[by] || option) == model"
                         class="h-4 w-4 border-gray-300 focus:ring-0 focus:outline-none focus:ring-transparent cursor-pointer"
                         :style="{
                             color: layout?.app?.theme?.[0] || '#4F46E5'
                         }"
                     />
-                    <label v-if="option.value || option.label" :for="option.label + index" class="flex items-center gap-x-1.5 cursor-pointer">
+                    <label v-if="option.value || option.label" :for="`${option.label}${index}`" class="flex items-center gap-x-1.5 cursor-pointer">
                         <p class="text-sm font-medium leading-6 text-gray-700 capitalize">
                             {{ option.value }}
                         </p>

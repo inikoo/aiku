@@ -11,6 +11,7 @@ use App\Actions\Helpers\Snapshot\StoreWebpageSnapshot;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebpages;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateUniversalSearch;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateWebpages;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
@@ -29,7 +30,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class StoreWebpage extends OrgAction
 {
     use AsAction;
-
+    use WithNoStrictRules;
 
     private Website $website;
 
@@ -166,8 +167,7 @@ class StoreWebpage extends OrgAction
         }
 
         if (!$this->strict) {
-            $rules['source_id']  = ['sometimes', 'string'];
-            $rules['fetched_at'] = ['sometimes', 'date'];
+            $rules = $this->noStrictStoreRules($rules);
             $rules['migration_data'] = ['sometimes', 'array'];
         }
 

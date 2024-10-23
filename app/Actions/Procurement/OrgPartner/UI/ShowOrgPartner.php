@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\OrgPartner\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgPartner\WithOrgPartnerSubNavigation;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\OrgPartnerTabsEnum;
 use App\Http\Resources\SupplyChain\SupplierResource;
@@ -21,6 +22,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowOrgPartner extends OrgAction
 {
+    use WithOrgPartnerSubNavigation;
+
     public function handle(OrgPartner $orgPartner): OrgPartner
     {
         return $orgPartner;
@@ -50,10 +53,11 @@ class ShowOrgPartner extends OrgAction
                 'pageHead'                                           => [
                     'icon'  =>
                         [
-                            'icon'  => ['fal', 'box-usd'],
+                            'icon'  => ['fal', 'fa-users-class'],
                             'title' => __('partner')
                         ],
                     'title' => $orgPartner->partner->name,
+                    'subNavigation' => $this->getOrgPartnerNavigation($orgPartner),
                 ],
                 'tabs'                                               => [
                     'current'    => $this->tab,

@@ -30,19 +30,19 @@ const emits = defineEmits<{
             <BackgroundProperty v-model="modelValue.properties.background" />
         </div>
 
-        <div v-if="modelValue.properties.border" class="border-t border-gray-300">
+        <div v-if="modelValue?.properties?.border" class="border-t border-gray-300">
             <div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Border') }}</div>
 
             <BorderProperty v-model="modelValue.properties.border" />
         </div>
 
-        <div v-if="modelValue.properties.padding" class="border-t border-gray-300">
+        <div v-if="modelValue?.properties?.padding" class="border-t border-gray-300">
             <div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Padding') }}</div>
 
             <PaddingMarginProperty v-model="modelValue.properties.padding" />
         </div>
 
-        <div v-if="modelValue.properties.margin" class="border-t border-gray-300">
+        <div v-if="modelValue?.properties?.margin" class="border-t border-gray-300">
             <div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Margin') }}</div>
 
             <PaddingMarginProperty v-model="modelValue.properties.margin" />

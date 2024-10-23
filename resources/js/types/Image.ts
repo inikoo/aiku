@@ -6,3 +6,10 @@ export interface Image {
     webp?: string
     webp_2x?: string
 }
+
+export interface ImageData {
+    source: Image
+    thumbnail: Image
+    id: number
+    name: string
+}

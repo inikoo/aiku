@@ -145,6 +145,9 @@ class FetchResetBase
                 DB::connection('aurora')->table('Page Store Dimension')
                     ->update([$aikuIdField => null]);
 
+                DB::connection('aurora')->table('Deal Campaign Dimension')
+                    ->update([$aikuIdField => null]);
+
 
                 $command->line('✅ warehouses');
 
@@ -169,6 +172,22 @@ class FetchResetBase
                             $aikuIdField => null,
                         ]
                     );
+
+                DB::connection('aurora')->table('Supplier Part Dimension')
+                    ->whereNotNull($aikuIdField)
+                    ->update(
+                        [
+                            $aikuIdField => null,
+                        ]
+                    );
+                DB::connection('aurora')->table('Supplier Part Deleted Dimension')
+                    ->whereNotNull($aikuIdField)
+                    ->update(
+                        [
+                            $aikuIdField => null,
+                        ]
+                    );
+
 
                 $command->line('✅ agents/suppliers');
 

@@ -9,6 +9,8 @@ namespace App\Enums\Inventory\OrgStock;
 
 use App\Enums\EnumHelperTrait;
 use App\Models\Inventory\OrgStockFamily;
+use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgPartner;
 use App\Models\SysAdmin\Organisation;
 
 enum OrgStockStateEnum: string
@@ -57,11 +59,15 @@ enum OrgStockStateEnum: string
         ];
     }
 
-    public static function count(Organisation|OrgStockFamily $parent): array
+    public static function count(Organisation|OrgStockFamily|OrgAgent|OrgPartner $parent): array
     {
 
         if ($parent instanceof OrgStockFamily) {
             $stats = $parent->stats;
+        } elseif ($parent instanceof OrgPartner) {
+            $stats = $parent->partner->inventoryStats;
+        } elseif ($parent instanceof OrgAgent) {
+            $stats = $parent->agent->organisation->inventoryStats;
         } else {
             $stats = $parent->inventoryStats;
         }
