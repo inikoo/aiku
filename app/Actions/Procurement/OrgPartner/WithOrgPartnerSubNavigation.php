@@ -64,7 +64,7 @@ trait WithOrgPartnerSubNavigation
                     "tooltip" => __("Stock Deliveries"),
                 ],
             ],
-            
+
         ];
     }
 }
