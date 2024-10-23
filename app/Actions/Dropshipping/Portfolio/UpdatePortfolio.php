@@ -8,6 +8,7 @@
 namespace App\Actions\Dropshipping\Portfolio;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dropshipping\Portfolio;
 use App\Rules\IUnique;
@@ -16,20 +17,21 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdatePortfolio extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
 
-    private Portfolio $dropshippingCustomerPortfolio;
+    private Portfolio $portfolio;
 
-    public function handle(Portfolio $dropshippingCustomerPortfolio, array $modelData): Portfolio
+    public function handle(Portfolio $portfolio, array $modelData): Portfolio
     {
-        $dropshippingCustomerPortfolio = $this->update($dropshippingCustomerPortfolio, $modelData, ['data']);
+        $portfolio = $this->update($portfolio, $modelData, ['data']);
 
-        if ($dropshippingCustomerPortfolio->wasChanged(['status'])) {
-            // put here the hydrators
+        if ($portfolio->wasChanged(['status'])) {
+            // todo #1115 put here the hydrators
         }
 
 
-        return $dropshippingCustomerPortfolio;
+        return $portfolio;
     }
 
 
@@ -44,34 +46,43 @@ class UpdatePortfolio extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'reference' => ['sometimes', 'nullable','string', 'max:255',
                             new IUnique(
                                 table: 'portfolios',
                                 extraConditions: [
                                     ['column' => 'customer_id', 'value' => $this->shop->id],
                                     ['column' => 'status', 'value' => true],
-                                    ['column' => 'id', 'value' => $this->dropshippingCustomerPortfolio->id, 'operator' => '!='],
+                                    ['column' => 'id', 'value' => $this->portfolio->id, 'operator' => '!='],
                                 ]
                             ),
                 ],
             'status'          => 'sometimes|boolean',
-            'created_at'      => 'sometimes|date',
             'last_added_at'   => 'sometimes|date',
             'last_removed_at' => 'sometimes|date',
-            'source_id'       => 'sometimes|string|max:255',
         ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictUpdateRules($rules);
+        }
+
+        return $rules;
     }
 
 
 
-    public function action(Portfolio $dropshippingCustomerPortfolio, array $modelData): Portfolio
+    public function action(Portfolio $portfolio, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Portfolio
     {
+        $this->strict = $strict;
+        if (!$audit) {
+            Portfolio::disableAuditing();
+        }
         $this->asAction                      = true;
-        $this->dropshippingCustomerPortfolio = $dropshippingCustomerPortfolio;
-        $this->initialisationFromShop($dropshippingCustomerPortfolio->shop, $modelData);
+        $this->portfolio = $portfolio;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFromShop($portfolio->shop, $modelData);
 
-        return $this->handle($dropshippingCustomerPortfolio, $this->validatedData);
+        return $this->handle($portfolio, $this->validatedData);
     }
 
 

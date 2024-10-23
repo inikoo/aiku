@@ -10,11 +10,13 @@ namespace App\Models\Dropshipping;
 use App\Models\Catalogue\Product;
 use App\Models\CRM\Customer;
 use App\Models\ShopifyUserHasProduct;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use OwenIt\Auditing\Contracts\Auditable;
 
 /**
  *
@@ -34,7 +36,10 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @property array $settings
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property string|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Customer $customer
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
@@ -48,9 +53,10 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Portfolio query()
  * @mixin \Eloquent
  */
-class Portfolio extends Model
+class Portfolio extends Model implements Auditable
 {
     use InCustomer;
+    use HasHistory;
 
     protected $casts = [
         'data'                        => 'array',
@@ -66,6 +72,19 @@ class Portfolio extends Model
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return ['crm'];
+    }
+
+    protected array $auditInclude = [
+        'reference',
+        'type',
+        'status',
+        'last_added_at',
+        'removed_at',
+    ];
 
     public function product(): BelongsTo
     {
