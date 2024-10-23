@@ -48,7 +48,7 @@ trait WithOrgPartnerSubNavigation
                     "parameters" => [$parent->organisation->slug, $parent->id],
                 ],
                 "leftIcon" => [
-                    "icon"    => ["fal", "fa-clipboard"],
+                    "icon"    => ["fal", "fa-box"],
                     "tooltip" => __("Org Stocks"),
                 ],
             ],

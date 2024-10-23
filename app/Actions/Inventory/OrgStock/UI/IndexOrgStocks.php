@@ -11,6 +11,8 @@ use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\Inventory\HasInventoryAuthorisation;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
+use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
 use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
 use App\Actions\Procurement\OrgPartner\WithOrgPartnerSubNavigation;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
@@ -36,6 +38,7 @@ class IndexOrgStocks extends OrgAction
 {
     use HasInventoryAuthorisation;
     use WithOrgPartnerSubNavigation;
+    use WithOrgAgentSubNavigation;
 
     private OrgStockFamily|Organisation|OrgPartner|OrgAgent $parent;
     private string $bucket;
@@ -318,8 +321,10 @@ class IndexOrgStocks extends OrgAction
     {
         $subNavigation = null;
 
-        if ($this->parent instanceof OrgPartner) {
+        if($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
+        } elseif ($this->parent instanceof OrgAgent) {
+            $subNavigation = $this->getOrgAgentNavigation($this->parent);
         } else {
             $subNavigation = $this->getOrgStocksSubNavigation();
         }
@@ -439,6 +444,17 @@ class IndexOrgStocks extends OrgAction
             'grp.org.procurement.org_partners.show.org-stocks.index' =>
             array_merge(
                 ShowOrgPartner::make()->getBreadcrumbs($this->parent, $routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => $routeName,
+                        'parameters' => $routeParameters
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.procurement.org_agents.show.org-stocks.index' =>
+            array_merge(
+                ShowOrgAgent::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
                         'name'       => $routeName,
