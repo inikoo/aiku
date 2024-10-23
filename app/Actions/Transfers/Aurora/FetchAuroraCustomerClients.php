@@ -13,6 +13,7 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 
@@ -42,15 +43,23 @@ class FetchAuroraCustomerClients extends FetchAuroraAction
                     return null;
                 }
             } else {
-
-
                 try {
                     $customerClient = StoreCustomerClient::make()->action(
                         customer: $customerClientData['customer'],
                         modelData: $customerClientData['customer_client'],
                         hydratorsDelay: 60,
                         strict: false,
+                        audit: false
                     );
+
+                    CustomerClient::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $customerClient,
+                        Arr::except($customerClientData['customer_client'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+
+                    $this->recordNew($organisationSource);
+
                     $sourceData     = explode(':', $customerClient->source_id);
                     DB::connection('aurora')->table('Customer Client Dimension')
                         ->where('Customer Client Key', $sourceData[1])

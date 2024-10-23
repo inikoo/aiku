@@ -53,11 +53,17 @@ trait WithFetchOverviewWebBlock
 
     private function setProperties(&$properties, $propertiesAurora)
     {
-        data_set($properties, 'position.top', Arr::get($propertiesAurora, 'top'));
-        data_set($properties, 'position.left', Arr::get($propertiesAurora, 'left'));
-        data_set($properties, 'position.bottom', Arr::get($propertiesAurora, 'bottom'));
-        data_set($properties, 'position.right', Arr::get($propertiesAurora, 'right'));
-        data_set($properties, 'width', Arr::get($propertiesAurora, 'width'));
-        data_set($properties, 'height', Arr::get($propertiesAurora, 'height'));
+        $top = Arr::get($propertiesAurora, 'top');
+        $left = Arr::get($propertiesAurora, 'left');
+        $bottom = Arr::get($propertiesAurora, 'bottom');
+        $right = Arr::get($propertiesAurora, 'right');
+        $width = Arr::get($propertiesAurora, 'width');
+        $height = Arr::get($propertiesAurora, 'height');
+        data_set($properties, 'position.top', $top ? $top . 'px' : null);
+        data_set($properties, 'position.left', $left ? $left . 'px' : null);
+        data_set($properties, 'position.bottom', $bottom ? $bottom . 'px' : null);
+        data_set($properties, 'position.right', $right ? $right . 'px' : null);
+        data_set($properties, 'width', $width ? $width . 'px' : null);
+        data_set($properties, 'height', $height ? $height . 'px' : null);
     }
 }
