@@ -321,7 +321,7 @@ class IndexOrgStocks extends OrgAction
     {
         $subNavigation = null;
 
-        if($this->parent instanceof OrgPartner) {
+        if ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
         } elseif ($this->parent instanceof OrgAgent) {
             $subNavigation = $this->getOrgAgentNavigation($this->parent);
