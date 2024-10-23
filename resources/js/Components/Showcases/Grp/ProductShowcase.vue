@@ -283,7 +283,6 @@ const isModalGallery = ref(false)
             :stockImagesRoute="data.stockImagesRoute"
             :closePopup="() => isModalGallery = false"
             @selectImage="(image: {}) => console.log('image', image)"
-        >
-        </GalleryManagement>
+        />
     </Modal>
 </template>
