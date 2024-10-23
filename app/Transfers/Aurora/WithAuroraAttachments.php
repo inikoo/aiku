@@ -81,7 +81,7 @@ trait WithAuroraAttachments
         $attachmentModelType = class_basename($model);
 
         $delete = true;
-        if (in_array($attachmentModelType, ['Supplier', 'SupplierProduct', 'Agent'])) {
+        if (in_array($attachmentModelType, ['Supplier', 'SupplierProduct', 'Agent', 'Stock'])) {
             $delete = false;
         }
 
