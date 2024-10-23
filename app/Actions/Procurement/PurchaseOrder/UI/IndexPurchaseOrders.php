@@ -24,7 +24,6 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -32,10 +31,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPurchaseOrders extends OrgAction
 {
-    private Organisation|OrgAgent|OrgSupplier|OrgPartner $parent;
-
     use WithOrgAgentSubNavigation;
     use WithOrgPartnerSubNavigation;
+    private Organisation|OrgAgent|OrgSupplier|OrgPartner $parent;
 
     public function handle(Organisation|OrgAgent|OrgSupplier|OrgPartner $parent, $prefix = null): LengthAwarePaginator
     {
@@ -153,11 +151,9 @@ class IndexPurchaseOrders extends OrgAction
     {
         $subNavigation = null;
 
-        if($this->parent instanceof OrgAgent)
-        {
+        if ($this->parent instanceof OrgAgent) {
             $subNavigation = $this->getOrgAgentNavigation($this->parent);
-        } elseif ($this->parent instanceof OrgPartner)
-        {
+        } elseif ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
         }
 

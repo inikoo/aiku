@@ -27,9 +27,8 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexOrgSuppliers extends OrgAction
 {
-    private Organisation|OrgAgent $parent;
-
     use WithOrgAgentSubNavigation;
+    private Organisation|OrgAgent $parent;
 
     protected function getSupplierElementGroups(Organisation|OrgAgent $parent): array
     {
@@ -186,8 +185,7 @@ class IndexOrgSuppliers extends OrgAction
     {
         $subNavigation = null;
 
-        if($this->parent instanceof OrgAgent)
-        {
+        if ($this->parent instanceof OrgAgent) {
             $subNavigation = $this->getOrgAgentNavigation($this->parent);
         }
         return Inertia::render(

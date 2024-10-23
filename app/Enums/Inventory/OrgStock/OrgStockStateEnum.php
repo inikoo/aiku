@@ -66,6 +66,8 @@ enum OrgStockStateEnum: string
             $stats = $parent->stats;
         } elseif ($parent instanceof OrgPartner) {
             $stats = $parent->partner->inventoryStats;
+        } elseif ($parent instanceof OrgAgent) {
+            $stats = $parent->agent->organisation->inventoryStats;
         } else {
             $stats = $parent->inventoryStats;
         }
