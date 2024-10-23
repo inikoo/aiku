@@ -151,7 +151,7 @@ class IndexProducts extends OrgAction
                 ];
             } else {
                 $queryBuilder->where('shop_id', $parent->customer->shop_id)
-                ->whereNotIn('products.id', $parent->products->pluck('id'))
+                ->whereNotIn('products.id', $parent->customer->portfolios->pluck('product_id'))
                 ->where('products.state', ProductStateEnum::ACTIVE);
             }
         } else {
@@ -176,6 +176,7 @@ class IndexProducts extends OrgAction
                 'products.code',
                 'products.name',
                 'products.state',
+                'products.price',
                 'products.created_at',
                 'products.updated_at',
                 'products.slug',
