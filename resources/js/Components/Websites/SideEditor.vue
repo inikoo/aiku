@@ -27,6 +27,7 @@ import FooterColumn from '@/Components/Websites/Fields/FooterColumn.vue'
 import { isArray, set as setLodash } from 'lodash'
 import { routeType } from '@/types/route'
 import Icon from '@/Components/Icon.vue';
+import OverviewForm from '@/Components/Websites/Fields/OverviewForm.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faRectangleWide } from '@fal'
@@ -67,7 +68,8 @@ const getComponent = (componentName: string) => {
         "margin" : Margin,
         "dimension" : Dimension,
         "button" : ButtonProperties,
-        "link" : Link
+        "link" : Link,
+        "overview_form" : OverviewForm
     }
 
     return components[componentName]
@@ -125,7 +127,7 @@ const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
                                     :modelValue="getFormValue(modelValue, form.key)"
                                     @update:modelValue="newValue => setFormValue(modelValue, form.key, newValue)"
                                     :uploadRoutes="uploadImageRoute"
-                                    v-bind="field?.props_data"
+                                    v-bind="form?.props_data"
                                 />
                             </template>
 
@@ -137,7 +139,7 @@ const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
                                     :modelValue="getFormValue(modelValue, form.key)"
                                     @update:modelValue="newValue => setFormValue(modelValue, form.key, newValue)"
                                     :uploadRoutes="uploadImageRoute"
-                                    v-bind="field?.props_data"
+                                    v-bind="form?.props_data"
                                 />
                             </template>
                         </template>
