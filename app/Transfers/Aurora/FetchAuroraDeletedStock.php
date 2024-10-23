@@ -16,7 +16,7 @@ class FetchAuroraDeletedStock extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $deleted_at = $this->auroraModelData->{'Part Deleted Date'};
+        $deleted_at = $this->parseDatetime($this->auroraModelData->{'Part Deleted Date'});
 
         if (!$deleted_at) {
             print "Deleted stock no date\n";
@@ -33,20 +33,24 @@ class FetchAuroraDeletedStock extends FetchAurora
             $code = strtolower($this->auroraModelData->{'Part Deleted Reference'});
         }
 
-        $code = $this->cleanTradeUnitReference($code);
-        $code .= '-deleted';
+        $code       = $this->cleanTradeUnitReference($code);
+        $code       .= '-deleted';
         $sourceSlug = Str::kebab(strtolower($code));
 
+        $name = $auroraDeletedData->{'Part Recommended Product Unit Name'} ?? $code;
+        $name = preg_replace('/\s+/', ' ', $name);
 
         $this->parsedData['stock'] =
             [
-                'name'        => $auroraDeletedData->{'Part Recommended Product Unit Name'} ?? $code,
-                'code'        => $code,
-                'deleted_at'  => $deleted_at,
-                'created_at'  => $auroraDeletedData->{'Part Valid From'} ?? null,
-                'source_id'   => $this->organisation->id.':'.$this->auroraModelData->{'Part Deleted Key'},
-                'source_slug' => $sourceSlug,
-                'state'       => StockStateEnum::DISCONTINUED,
+                'name'            => $name,
+                'code'            => $code,
+                'deleted_at'      => $deleted_at,
+                'created_at'      => $auroraDeletedData->{'Part Valid From'} ?? null,
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part Deleted Key'},
+                'source_slug'     => $sourceSlug,
+                'state'           => StockStateEnum::DISCONTINUED,
+                'fetched_at'      => now(),
+                'last_fetched_at' => now(),
             ];
 
 
@@ -54,7 +58,10 @@ class FetchAuroraDeletedStock extends FetchAurora
             'state'           => OrgStockStateEnum::DISCONTINUED,
             'quantity_status' => 'out-of-stock',
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part Deleted Key'},
-            'source_slug'     => $sourceSlug
+            'source_slug'     => $sourceSlug,
+            'deleted_at'      => $deleted_at,
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
         ];
     }
 
