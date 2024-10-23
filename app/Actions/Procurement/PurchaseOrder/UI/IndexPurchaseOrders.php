@@ -8,6 +8,10 @@
 namespace App\Actions\Procurement\PurchaseOrder\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
+use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
+use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
+use App\Actions\Procurement\OrgPartner\WithOrgPartnerSubNavigation;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\InertiaTable\InertiaTable;
@@ -20,7 +24,6 @@ use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -28,6 +31,10 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPurchaseOrders extends OrgAction
 {
+    use WithOrgAgentSubNavigation;
+    use WithOrgPartnerSubNavigation;
+    private Organisation|OrgAgent|OrgSupplier|OrgPartner $parent;
+
     public function handle(Organisation|OrgAgent|OrgSupplier|OrgPartner $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -51,7 +58,7 @@ class IndexPurchaseOrders extends OrgAction
             $query->where('purchase_orders.parent_type', 'OrgSupplier')->where('purchase_orders.parent_id', $parent->id);
             $query->addSelect('agents.slug as agent_slug');
         } elseif (class_basename($parent) == 'OrgPartner') {
-            $query->where('purchase_orders.organisation_id', $parent->id);
+            $query->where('purchase_orders.organisation_id', $parent->partner->id);
             $query->addSelect(['parent_id', 'parent_type']);
         } else {
             $query->where('purchase_orders.organisation_id', $parent->id);
@@ -95,6 +102,7 @@ class IndexPurchaseOrders extends OrgAction
 
     public function asController(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request);
 
         return $this->handle($organisation);
@@ -110,13 +118,23 @@ class IndexPurchaseOrders extends OrgAction
 
     public function inOrgAgent(Organisation $organisation, OrgAgent  $orgAgent, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $orgAgent;
         $this->initialisation($organisation, $request);
 
         return $this->handle($orgAgent);
     }
 
-    public function inOrSupplier(Organisation $organisation, OrgSupplier  $orgSupplier, ActionRequest $request): LengthAwarePaginator
+    public function inOrgPartner(Organisation $organisation, OrgPartner $orgPartner, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $orgPartner;
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($orgPartner);
+    }
+
+    public function inOrgSupplier(Organisation $organisation, OrgSupplier  $orgSupplier, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $orgSupplier;
         $this->initialisation($organisation, $request);
 
         return $this->handle($orgSupplier);
@@ -131,40 +149,81 @@ class IndexPurchaseOrders extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $purchaseOrders, ActionRequest $request): Response
     {
+        $subNavigation = null;
+
+        if ($this->parent instanceof OrgAgent) {
+            $subNavigation = $this->getOrgAgentNavigation($this->parent);
+        } elseif ($this->parent instanceof OrgPartner) {
+            $subNavigation = $this->getOrgPartnerNavigation($this->parent);
+        }
+
         return Inertia::render(
             'Procurement/PurchaseOrders',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => __('purchase orders'),
                 'pageHead'    => [
                     'model'   => __('Procurement'),
                     'icon'    => ['fal', 'fa-clipboard-list'],
                     'title'   => __('purchase orders'),
+                    'subNavigation' => $subNavigation,
                 ],
                 'data'        => PurchaseOrdersResource::collection($purchaseOrders),
             ]
         )->table($this->tableStructure());
     }
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return
-            array_merge(
-                ShowProcurementDashboard::make()->getBreadcrumbs(Arr::only($routeParameters, 'organisation')),
+        return match ($routeName) {
+            'grp.org.procurement.purchase_orders.index' => array_merge(
+                ShowProcurementDashboard::make()->getBreadcrumbs($routeParameters),
                 [
                     [
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
                                 'name'       => 'grp.org.procurement.purchase_orders.index',
-                                'parameters' => ['organisation' => $routeParameters['organisation']]
-
+                                'parameters' => $routeParameters
                             ],
-                            'label' => __('Purchase orders'),
+                            'label' => __('Purchase Orders'),
                             'icon'  => 'fal fa-bars'
                         ]
                     ]
                 ]
-            );
+            ),
+            'grp.org.procurement.org_agents.show.purchase-orders.index' => array_merge(
+                ShowOrgAgent::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.procurement.org_agents.show.purchase-orders.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Purchase Orders'),
+                            'icon'  => 'fal fa-bars'
+                        ]
+                    ]
+                ]
+            ),
+            'grp.org.procurement.org_partners.show.purchase-orders.index' => array_merge(
+                ShowOrgPartner::make()->getBreadcrumbs($this->parent, $routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.procurement.org_partners.show.purchase-orders.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Purchase Orders'),
+                            'icon'  => 'fal fa-bars'
+                        ]
+                    ]
+                ]
+            )
+        };
     }
 }

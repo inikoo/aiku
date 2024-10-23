@@ -282,20 +282,9 @@ const onClickGetStarted = () => {
 
                 <Column selectionMode="multiple" style="width: 3rem" :exportable="false" frozen ></Column>
 
-                <Column field="name" header="Name" sortable style="min-width: 16rem" frozen ></Column>
-
                 <Column field="code" header="Code" sortable style="min-width: 12rem"></Column>
 
-                <Column header="Image">
-                    <template #body="slotProps">
-                        <!-- <pre>{{ slotProps.data.image_thumbnail }}</pre> -->
-                        <div class="rounded overflow-hidden w-16 h-16">
-                            <Image :src="slotProps.data.image_thumbnail" />
-                        </div>
-                        <!-- <img :src="`http://10.0.0.100:8080/YQRETa_oz-CyT7iEpGMHeDV0hOf4LzZo1db_2zcuhDo/rs::720:480::/bG9jYWw6Ly8vYWlrdS9hcHAvbWVkaWEvODM5LzQ4NGMxZWRjNTUzN2NkZDcxYjI0NjdmNWJhMGEzOWM1LmpwZWc`"
-                            :alt="slotProps.data.image" class="rounded" style="width: 64px" /> -->
-                    </template>
-                </Column>
+                <Column field="name" header="Name" sortable style="min-width: 16rem" frozen ></Column>
 
                 <Column field="price" header="Price" sortable style="min-width: 8rem">
                     <template #body="{ data }">
@@ -303,18 +292,9 @@ const onClickGetStarted = () => {
                     </template>
                 </Column>
 
-                <Column field="rating" header="Reviews" sortable style="min-width: 12rem">
+                <Column field="state" header="State" style="min-width: 8rem">
                     <template #body="slotProps">
-                        <div class="isolate relative">
-                            <Rating :modelValue="slotProps.data.rating" :readonly="true" />
-                        </div>
-                    </template>
-                </Column>
-
-                <Column field="`sta`te" header="State" style="min-width: 8rem">
-                    <template #body="slotProps">
-                        <Tag :value="slotProps.data.state"
-                             :severity="getStatusLabel(slotProps.data.inventoryStatus)" />
+                        <Tag :value="slotProps.data.state.tooltip" />
                     </template>
                 </Column>
 

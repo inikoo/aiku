@@ -30,6 +30,7 @@ use App\Actions\Web\WebBlock\StoreWebBlock;
 use App\Actions\Web\Webpage\UpdateWebpageContent;
 use App\Events\BroadcastPreviewWebpage;
 use App\Models\Catalogue\ProductCategory;
+use App\Models\Web\WebBlock;
 use App\Models\Web\Webpage;
 use App\Transfers\AuroraOrganisationService;
 use App\Transfers\WowsbarOrganisationService;
@@ -167,7 +168,6 @@ class FetchAuroraWebBlocks extends OrgAction
         $models = [];
         $group = $webpage->group;
 
-
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = $group->webBlockTypes()->where("code", "images")->first();
@@ -266,7 +266,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 break;
 
             case "blackboard":
-                $webBlockType = $group->webBlockTypes()->where("slug", "overview")->first();
+                $webBlockType = $group->webBlockTypes()->where("slug", "overview-aurora")->first();
                 $layout       = $this->processOverviewData($webBlockType, $webpage, $auroraBlock);
                 break;
             case "button":
@@ -306,8 +306,7 @@ class FetchAuroraWebBlocks extends OrgAction
             strict: false
         );
 
-        $this->postExternalLinks($webBlock, $webpage, $layout, $auroraBlock);
-        $this->postProcessLayout($webBlock, $webpage, $layout);
+
 
         $modelHasWebBlocksData = [
             'show_logged_in'     => $visibility['loggedIn'],
@@ -331,13 +330,15 @@ class FetchAuroraWebBlocks extends OrgAction
 
         $webpage->modelHasWebBlocks()->create($modelHasWebBlocksData);
 
+        $this->postExternalLinks($webBlock, $webpage, $layout);
+        $this->postProcessLayout($webBlock, $webpage, $layout);
 
         UpdateWebpageContent::run($webpage->refresh());
 
         BroadcastPreviewWebpage::dispatch($webpage);
     }
 
-    private function postExternalLinks($webBlock, $webpage, &$layout, $auroraBlock)
+    private function postExternalLinks(WebBlock $webBlock, Webpage $webpage, &$layout)
     {
         $code = $webBlock->webBlockType->code;
         if (!in_array($code, ['text', 'overview', 'images'])) {
@@ -346,20 +347,15 @@ class FetchAuroraWebBlocks extends OrgAction
 
         $externalLinks = $layout['external_links'] ?? null;
         if ($externalLinks) {
-            // $website->$webpage->$webblocks
-            // TODO
-            // foreach($externalLinks as $link) {
-            //     StoreExternalLink::make()->handle($webpage, [
-            //         'url' => $link,
-            //         'show' =>  Arr::get($auroraBlock, 'show'),
-            //         'web_block_id' => $webBlock->id,
-            //     ]);
-            // }
+            foreach ($externalLinks as $link) {
+                StoreExternalLink::make()->handle($webpage->group, [
+                    'url' => $link,
+                    'webpage_id' => $webpage->id,
+                    'web_block_id' => $webBlock->id,
+                ]);
+            }
         }
         data_forget($layout, 'external_links');
-        // unset($layout['external_links']);
-        // print_r($text);
-        // print "\n";
     }
 
     private function postProcessLayout($webBlock, $webpage, &$layout): void
@@ -368,7 +364,7 @@ class FetchAuroraWebBlocks extends OrgAction
         if (
             $code == "images"
             || $code == "text"
-            || $code == "overview"
+            || $code == "overview_aurora"
             || $code == "cta_aurora_1"
             || $code == "family"
             || $code == "department"
@@ -442,14 +438,17 @@ class FetchAuroraWebBlocks extends OrgAction
                     $imageSource    = $this->processImage($webBlock, $imageRawData, $webpage);
                     data_set($layout, 'data.fieldValue.button.container.properties.background.image', $imageSource);
                 }
-            } elseif ($code == "overview") {
-                $imagesRawData = Arr::get($layout, 'data.fieldValue.images.sources');
-                if ($imagesRawData) {
+            } elseif ($code == "overview_aurora") {
+                $imagesAurora = Arr::get($layout, 'data.fieldValue.images');
+                if ($imagesAurora) {
                     $imgSources = [];
-                    foreach ($imagesRawData as $imgRawData) {
-                        $imgSources[] = $this->processImage($webBlock, $imgRawData, $webpage);
+                    foreach ($imagesAurora as $imgAurora) {
+                        $imgSources[] = [
+                            'properties' => $imgAurora['properties'],
+                            'source' => $this->processImage($webBlock, $imgAurora, $webpage)
+                        ];
                     }
-                    data_set($layout, 'data.fieldValue.images.sources', $imgSources);
+                    data_set($layout, 'data.fieldValue.images', $imgSources);
                 }
             } else {
                 foreach ($layout['data']["fieldValue"]["value"] as $key => $container) {
@@ -490,7 +489,7 @@ class FetchAuroraWebBlocks extends OrgAction
 
     private function reset(Webpage $webpage): void
     {
-        foreach ($webpage->webBlocks()->get() as $webBlock) {
+        foreach ($webpage->webBlocks as $webBlock) {
             DeleteWebBlock::run($webBlock);
         }
     }

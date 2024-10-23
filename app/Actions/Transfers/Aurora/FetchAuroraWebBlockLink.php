@@ -2,7 +2,7 @@
 /*
  * Author: Ganes <gustiganes@gmail.com>
  * Created on: 17-10-2024, Bali, Indonesia
- * Github: https://github.com/aqordeon
+ * Github: https://github.com/Ganes556
  * Copyright: 2024
  *
 */
@@ -37,7 +37,6 @@ class FetchAuroraWebBlockLink extends OrgAction
         $this->organisationSource->initialisation($website->organisation, $dbSuffix);
 
         if (!$this->isInternalLink($website, $auroraLink)) {
-            print "External link >>>$auroraLink<<<<\n";
             $linkData = [
                 'type' => 'external',
                 'url'  => $auroraLink
@@ -84,7 +83,6 @@ class FetchAuroraWebBlockLink extends OrgAction
                     $linkedWebpage->slug,
                 ]));
             } else {
-                print "Internal for link not found >>>$auroraLink<<<<\n";
                 $linkData = [
                     'type'      => 'external',
                     'url'       => $auroraLink,

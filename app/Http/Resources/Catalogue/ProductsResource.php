@@ -49,7 +49,7 @@ class ProductsResource extends JsonResource
             'family_code'               => $this->family_code,
             'family_name'               => $this->family_name,
             'price'                     => $this->price,
-            'image_thumbnail'           => $this->imageSources(720, 480),
+            'image_thumbnail'           => $this->image_thumbnail,
             'current_historic_asset_id' => $this->current_historic_asset_id,
             'asset_id'                  => $this->asset_id,
             'stock'                     => $this->available_quantity,

@@ -23,8 +23,6 @@ const props = defineProps<{
     }
 }>()
 
-console.log('iris',data.layout.web_blocks)
-
 </script>
 
 <template>

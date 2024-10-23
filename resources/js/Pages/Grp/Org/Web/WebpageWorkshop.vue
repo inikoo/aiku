@@ -202,6 +202,7 @@ onMounted(() => {
     });
 });
 
+console.log(props.webpage)
 </script>
 
 <template>

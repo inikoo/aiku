@@ -10,6 +10,7 @@ namespace App\Actions\Dropshipping\CustomerClient;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateClients;
 use App\Actions\Dropshipping\CustomerClient\Search\CustomerClientRecordSearch;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
@@ -27,6 +28,7 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreCustomerClient extends OrgAction
 {
     use WithModelAddressActions;
+    use WithNoStrictRules;
 
     private Customer $customer;
 
@@ -59,8 +61,8 @@ class StoreCustomerClient extends OrgAction
         });
 
 
-        CustomerClientRecordSearch::dispatch($customerClient);
-        CustomerHydrateClients::dispatch($customer);
+        CustomerClientRecordSearch::dispatch($customerClient)->delay($this->hydratorsDelay);
+        CustomerHydrateClients::dispatch($customer)->delay($this->hydratorsDelay);
 
         return $customerClient;
     }
@@ -83,14 +85,18 @@ class StoreCustomerClient extends OrgAction
     {
         $rules = [
 
-            'reference'      => ['sometimes','nullable', 'string', 'max:255',
-                                 new IUnique(
-                                     table: 'customer_clients',
-                                     extraConditions: [
-                                         ['column' => 'customer_id', 'value' => $this->customer->id],
-                                     ]
-                                 ),
-                ],
+            'reference'      => [
+                'sometimes',
+                'nullable',
+                'string',
+                'max:255',
+                new IUnique(
+                    table: 'customer_clients',
+                    extraConditions: [
+                        ['column' => 'customer_id', 'value' => $this->customer->id],
+                    ]
+                ),
+            ],
             'contact_name'   => ['nullable', 'string', 'max:255'],
             'company_name'   => ['nullable', 'string', 'max:255'],
             'email'          => ['nullable', 'email'],
@@ -102,12 +108,9 @@ class StoreCustomerClient extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['created_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['fetched_at'] = ['sometimes', 'date'];
-            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
-            $rules['email']      = ['sometimes', 'nullable', 'string', 'max:255'];
-            $rules['phone']      = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules          = $this->noStrictStoreRules($rules);
+            $rules['email'] = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['phone'] = ['sometimes', 'nullable', 'string', 'max:255'];
         }
 
         return $rules;
@@ -125,9 +128,12 @@ class StoreCustomerClient extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true): CustomerClient
+    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): CustomerClient
     {
-        $this->customer         = $customer;
+        if (!$audit) {
+            CustomerClient::disableAuditing();
+        }
+        $this->customer       = $customer;
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
@@ -141,17 +147,20 @@ class StoreCustomerClient extends OrgAction
      */
     public function asController(Customer $customer, ActionRequest $request): CustomerClient
     {
-        $this->customer         = $customer;
+        $this->customer = $customer;
         $this->asAction = true;
         $this->initialisationFromShop($customer->shop, $request);
 
         return $this->handle($customer, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function fromRetina(ActionRequest $request): CustomerClient
     {
-        $customer = $request->user()->customer;
-        $this->customer         = $customer;
+        $customer       = $request->user()->customer;
+        $this->customer = $customer;
         $this->initialisation($request->get('website')->organisation, $request);
 
         return $this->handle($customer, $this->validatedData);

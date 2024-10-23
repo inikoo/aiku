@@ -2,7 +2,7 @@
 /*
  * Author: Ganes <gustiganes@gmail.com>
  * Created on: 14-10-2024, Bali, Indonesia
- * Github: https://github.com/aqordeon
+ * Github: https://github.com/Ganes556
  * Copyright: 2024
  *
 */
@@ -27,7 +27,12 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property string $redirection full url including https
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Web\Webpage|null $webpage
+ * @property-read \App\Models\Web\Website $website
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Redirect newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Redirect newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Redirect query()

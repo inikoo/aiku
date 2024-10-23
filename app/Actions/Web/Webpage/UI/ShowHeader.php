@@ -104,6 +104,23 @@ class ShowHeader extends OrgAction
                     ]
                 ],
 
+                'route_list'    => [
+                    'upload_image'  => [
+                        'name'       => 'grp.models.website.header.images.store',
+                        'parameters' => [
+                            'website' => $website->id
+                        ]
+                    ],
+                    'uploaded_images_list' => [
+                        'name'       => 'grp.gallery.uploaded-images.index',
+                        'parameters' => []
+                    ],
+                    'stock_images_list' => [
+                        'name'  => 'grp.gallery.stock-images.index',
+                        'parameters'    => []
+                    ],
+                ],
+
                 'data' => GetWebsiteWorkshopHeader::run($website),
                 'web_block_types' => WebBlockTypesResource::collection(
                     $this->organisation->group->webBlockTypes()->where('fixed', false)->where('scope', 'website')->get()
