@@ -52,9 +52,12 @@ class FetchAuroraDeletedSupplier extends FetchAurora
             ->where('Purchase Order State', '!=', 'Cancelled')->where('Purchase Order Parent', 'Supplier')
             ->where('Purchase Order Parent Key', $auroraDeletedData->{'Supplier Key'})->count();
 
-        $deleted_at = null;
+        $deletedAt  = null;
+        $archivedAt = null;
         if ($numberPurchaseOrders == 0) {
-            $deleted_at = $this->auroraModelData->{'Supplier Deleted Date'};
+            $deletedAt = $this->auroraModelData->{'Supplier Deleted Date'};
+        } else {
+            $archivedAt = $this->auroraModelData->{'Supplier Deleted Date'};
         }
 
         $createdAt = null;
@@ -67,20 +70,24 @@ class FetchAuroraDeletedSupplier extends FetchAurora
 
         $this->parsedData['supplier'] =
             [
-                'name'         => $auroraDeletedData->{'Supplier Nickname'} ?? $auroraDeletedData->{'Supplier Name'},
-                'code'         => preg_replace('/\s/', '-', $auroraDeletedData->{'Supplier Code'}),
-                'company_name' => $auroraDeletedData->{'Supplier Company Name'},
-                'contact_name' => $auroraDeletedData->{'Supplier Main Contact Name'},
-                'email'        => $auroraDeletedData->{'Supplier Main Plain Email'},
-                'phone'        => $phone,
-                'currency_id'  => $this->parseCurrencyID($auroraDeletedData->{'Supplier Default Currency Code'}),
-                'source_id'    => $this->organisation->id.':'.$auroraDeletedData->{'Supplier Key'},
-                'source_slug'  => Str::kebab(strtolower($auroraDeletedData->{'Supplier Code'}).'-deleted'),
-                'deleted_at'   => $deleted_at,
-                'status'       => false,
-                'address'      => $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $auroraDeletedData),
-                'scope_type'   => $scopeType,
-                'scope_id'     => $scopeId
+                'name'            => $auroraDeletedData->{'Supplier Nickname'} ?? $auroraDeletedData->{'Supplier Name'},
+                'code'            => preg_replace('/\s/', '-', $auroraDeletedData->{'Supplier Code'}),
+                'company_name'    => $auroraDeletedData->{'Supplier Company Name'},
+                'contact_name'    => $auroraDeletedData->{'Supplier Main Contact Name'},
+                'email'           => $auroraDeletedData->{'Supplier Main Plain Email'},
+                'phone'           => $phone,
+                'currency_id'     => $this->parseCurrencyID($auroraDeletedData->{'Supplier Default Currency Code'}),
+                'source_id'       => $this->organisation->id.':'.$auroraDeletedData->{'Supplier Key'},
+                'source_slug'     => Str::kebab(strtolower($auroraDeletedData->{'Supplier Code'}).'-deleted'),
+                'deleted_at'      => $deletedAt,
+                'archived_at'     => $archivedAt,
+                'status'          => false,
+                'address'         => $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $auroraDeletedData),
+                'scope_type'      => $scopeType,
+                'scope_id'        => $scopeId,
+                'fetched_at'      => now(),
+                'last_fetched_at' => now(),
+
             ];
 
         if ($createdAt) {
