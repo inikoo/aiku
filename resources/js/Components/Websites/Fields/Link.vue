@@ -24,7 +24,7 @@ const options = ref([
 
 <template>
     <div class="pb-3">
-        <SelectButton v-model="modelValue.type" :options="options" optionLabel="label" optionValue="value">
+        <SelectButton v-if="modelValue?.type" v-model="modelValue.type" :options="options" optionLabel="label" optionValue="value">
             <template #option="slotProps">
                 <span class="text-xs">{{ slotProps.option.label }}</span>
             </template>
@@ -32,9 +32,9 @@ const options = ref([
     </div>
     <div>
         <div class="my-2 text-gray-500 text-xs font-semibold mb-2">{{ trans('Link') }}</div>
-        <PureInput v-if ="modelValue.type == 'external'" v-model="modelValue.url" />
+        <PureInput v-if ="modelValue?.type == 'external'" v-model="modelValue.url" />
         <SelectQuery 
-            v-else
+            v-else-if="modelValue"
             fieldName="id" 
             :object="true" 
             :urlRoute="route('grp.org.shops.show.web.webpages.index', {
