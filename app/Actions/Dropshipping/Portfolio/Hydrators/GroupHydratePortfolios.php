@@ -13,7 +13,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Catalogue\Portfolio\PortfolioTypeEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Models\Dropshipping\Portfolio;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -24,7 +23,7 @@ class GroupHydratePortfolios extends OrgAction
     use WithEnumStats;
 
 
-    private Portfolio $dropshippingCustomerPortfolio;
+    private Group $group;
 
     public function __construct(Group $group)
     {
