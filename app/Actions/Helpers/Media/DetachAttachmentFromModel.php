@@ -56,43 +56,43 @@ class DetachAttachmentFromModel extends OrgAction
     public function inEmployee(Employee $employee, Media $attachment)
     {
         $this->initialisation($employee->organisation, []);
-        return $this->handle($employee, $attachment);
+        $this->handle($employee, $attachment);
     }
 
     public function inTradeUnit(TradeUnit $tradeUnit, Media $attachment)
     {
         $this->initialisation($tradeUnit->organisation, []);
-        return $this->handle($tradeUnit, $attachment);
+        $this->handle($tradeUnit, $attachment);
     }
 
     public function inSupplier(Supplier $supplier, Media $attachment)
     {
         $this->initialisation($supplier->organisation, []);
-        return $this->handle($supplier, $attachment);
+        $this->handle($supplier, $attachment);
     }
 
     public function inCustomer(Customer $customer, Media $attachment)
     {
         $this->initialisation($customer->organisation, []);
-        return $this->handle($customer, $attachment);
+        $this->handle($customer, $attachment);
     }
 
     public function inPurchaseOrder(PurchaseOrder $purchaseOrder, Media $attachment)
     {
         $this->initialisation($purchaseOrder->organisation, []);
-        return $this->handle($purchaseOrder, $attachment);
+        $this->handle($purchaseOrder, $attachment);
     }
 
     public function inStockDelivery(StockDelivery $stockDelivery, Media $attachment)
     {
         $this->initialisation($stockDelivery->organisation, []);
-        return $this->handle($stockDelivery, $attachment);
+        $this->handle($stockDelivery, $attachment);
     }
 
     public function inOrder(Order $order, Media $attachment)
     {
         $this->initialisation($order->organisation, []);
-        return $this->handle($order, $attachment);
+        $this->handle($order, $attachment);
     }
 
 }

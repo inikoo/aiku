@@ -7,7 +7,6 @@
 
 namespace App\Models\SysAdmin;
 
-use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -34,6 +33,5 @@ use Illuminate\Database\Eloquent\Model;
  */
 class GroupDropshippingStat extends Model
 {
-    use InGroup;
     protected $guarded = [];
 }

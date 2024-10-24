@@ -15,12 +15,14 @@ enum PlatformTypeEnum: string
 
     case SHOPIFY = 'shopify';
     case TIKTOK  = 'tiktok';
+    case WOOCOMMERCE  = 'woocommerce';
 
     public function labels(): array
     {
         return [
             'shopify' => 'Shopify',
-            'tiktok'  => 'Tiktok'
+            'tiktok'  => 'Tiktok',
+            'woocommerce'  => 'Woo Commerce',
         ];
     }
 }
