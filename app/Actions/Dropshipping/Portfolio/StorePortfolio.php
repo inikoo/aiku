@@ -46,7 +46,7 @@ class StorePortfolio extends OrgAction
         });
 
         // todo #1115 put here the hydrators
-        GroupHydratePortfolios::run($portfolio);
+        GroupHydratePortfolios::run($customer->group);
 
         return $portfolio;
     }
