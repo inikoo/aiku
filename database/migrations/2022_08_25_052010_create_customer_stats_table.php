@@ -31,7 +31,7 @@ return new class () extends Migration {
             $table->unsignedInteger('number_clients')->default(0);
             $table->unsignedInteger('number_current_clients')->default(0);
             $table->unsignedSmallInteger('number_portfolios')->default(0);
-            $table->unsignedSmallInteger('number_active_portfolios')->default(0);
+            $table->unsignedSmallInteger('number_current_portfolios')->default(0);
             $table->unsignedSmallInteger('number_portfolios_platform_shopify')->default(0);
             $table->unsignedSmallInteger('number_portfolios_platform_woocommerce')->default(0);
             $table = $this->getCreditTransactionsStats($table);
