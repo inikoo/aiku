@@ -33,4 +33,5 @@ use Illuminate\Database\Eloquent\Model;
  */
 class CustomerDropshippingStat extends Model
 {
+    protected $guarded = [];
 }

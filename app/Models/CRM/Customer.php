@@ -293,7 +293,7 @@ class Customer extends Model implements HasMedia, Auditable
 
     public function products(): MorphMany
     {
-        return $this->morphMany(Asset::class, 'owner', 'owner_type', 'owner_id', 'id');
+        return $this->morphMany(Asset::class, 'model', 'model_type', 'model_id', 'id');
     }
 
     public function stocks(): MorphMany

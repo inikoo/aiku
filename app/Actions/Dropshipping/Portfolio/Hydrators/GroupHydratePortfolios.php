@@ -43,7 +43,6 @@ class GroupHydratePortfolios extends OrgAction
             'number_portfolios'                        => $group->portfolios()->count(),
             'number_products'                          => $group->products()->count(),
             'number_current_portfolios'                => $group->portfolios()->where('status', true)->count(),
-            'number_products'                          => $group->products()->count(),
             'number_current_products'                  => $group->products()->where('status', true)->count(),
             'number_portfolios_platform_shopify'          => $group->portfolios()->where('type', PortfolioTypeEnum::SHOPIFY->value)->count(),
             'number_portfolios_platform_woocommerce'      => $group->portfolios()->where('type', PortfolioTypeEnum::WOOCOMMERCE->value)->count(),
