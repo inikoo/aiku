@@ -32,7 +32,7 @@ export const getComponent = (componentName: string) => {
         //categories
         'cta1': CTA,
         'cta2': CTA2,
-        'cta3': SeeAlso,
+        'cta3': CTA3,
         "department": Department,
         'family': FamilyPageOffer,
         "iframe": Iframe,
