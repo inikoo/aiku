@@ -21,6 +21,9 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('shop_id');
             $table->foreign('shop_id')->references('id')->on('shops')->onUpdate('cascade')->onDelete('cascade');
             $this->dropshippingStats($table);
+            $table->unsignedSmallInteger('number_active_portfolios')->default(0);
+            $table->unsignedSmallInteger('number_portfolios_platform_shopify')->default(0);
+            $table->unsignedSmallInteger('number_portfolios_platform_woocommerce')->default(0);
             $table->timestampsTz();
         });
     }
