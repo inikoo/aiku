@@ -36,6 +36,9 @@ const props = withDefaults(defineProps<{
     cropProps?: {}
     closePopup: Function
     maxSelected?: number
+    uploadFileLimit?: number
+    submitUpload?: Function
+    isLoadingSubmit?: boolean
 }>(), {
     tabs: () =>  ['upload', 'images_uploaded', 'stock_images'],
     useCrop: false,
@@ -95,11 +98,13 @@ const tabsData = [
 const isLoading = ref(false)
 const selectedUploadFiles = ref([])
 
-const onSubmitUpload = async (clear: Function) => {
+const onSubmitUpload = async (files: File[], clear: Function) => {
     const formData = new FormData()
-    Array.from(selectedUploadFiles.value).forEach((file, index) => {
+    Array.from(files).forEach((file, index) => {
         formData.append(`images[${index}]`, file)
     })
+
+    console.log('form', files, formData)
 
     router.post(route(props.uploadRoute.name, props.uploadRoute.parameters),
         formData,
@@ -108,14 +113,17 @@ const onSubmitUpload = async (clear: Function) => {
                 'Content-Type': 'multipart/form-data',
             },
             onStart: () => isLoading.value = true,
-            onSuccess: () => {
+            onSuccess: (xxx) => {
+                console.log('xxx', xxx)
                 notify({
                     title: trans('Success'),
                     text: trans('New image added'),
                     type: 'success',
-                })
+                }),
+                clear()
             },
             onError: (ee) => {
+                console.log('ee', ee)
                 notify({
                     title: trans('Something went wrong'),
                     text: trans('Failed to add new image'),
@@ -123,8 +131,7 @@ const onSubmitUpload = async (clear: Function) => {
                 })
             },
             onFinish: () => {
-                isLoading.value = false,
-                clear()
+                isLoading.value = false
             }
         }
     )
@@ -160,8 +167,9 @@ const onSubmitUpload = async (clear: Function) => {
                         v-if="tab.key === 'upload'"
                         :uploadRoute
                         :useCrop
-                        :isLoading
-                        @onSubmitUpload="onSubmitUpload"
+                        :fileLimit="uploadFileLimit"
+                        :isLoading="props.isLoadingSubmit || isLoading"
+                        @onSubmitUpload="(files, clear) => submitUpload ? submitUpload(files, clear) : onSubmitUpload(files, clear)"
                     />
 
                     <GalleryUploadedImages
