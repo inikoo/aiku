@@ -30,6 +30,28 @@
 					"props_data": {}
 				}
 			]
+		},
+		{
+			"name": "Setting",
+			"key": ["texts"],
+			"replaceForm": [
+				{
+					"key": ["texts"],
+					"type": "overview_form",
+					"name": "Text",
+					"props_data": {
+						"type" : "text"
+					}
+				},
+				{
+					"key": ["images"],
+					"type": "overview_form",
+					"name": "Images",
+					"props_data": {
+						"type" : "images"
+					}
+				}
+			]
 		}
 	],
 	"data": {
@@ -76,7 +98,7 @@
 				"properties": {
 					"dimension": {
 						"height": {
-							"value": "335",
+							"value": "700",
 							"unit": "px"
 						},
 						"width": {

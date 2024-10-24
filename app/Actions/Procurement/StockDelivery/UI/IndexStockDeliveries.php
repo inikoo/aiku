@@ -31,10 +31,9 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexStockDeliveries extends OrgAction
 {
-    private Warehouse|Organisation|OrgAgent|OrgPartner $parent;
-
     use WithOrgAgentSubNavigation;
     use WithOrgPartnerSubNavigation;
+    private Warehouse|Organisation|OrgAgent|OrgPartner $parent;
 
     public function handle($prefix = null): LengthAwarePaginator
     {
@@ -139,12 +138,9 @@ class IndexStockDeliveries extends OrgAction
     {
         $subNavigation = null;
 
-        if($this->parent instanceof OrgAgent)
-        {
+        if ($this->parent instanceof OrgAgent) {
             $subNavigation = $this->getOrgAgentNavigation($this->parent);
-        } 
-        elseif ($this->parent instanceof OrgPartner)
-        {
+        } elseif ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
         }
         return Inertia::render(

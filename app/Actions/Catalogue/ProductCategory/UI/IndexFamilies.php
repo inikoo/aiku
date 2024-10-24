@@ -104,9 +104,9 @@ class IndexFamilies extends OrgAction
             );
         }
 
-        
+
         $queryBuilder->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
-        
+
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('product_categories.shop_id', $parent->id);
         } elseif (class_basename($parent) == 'Organisation') {

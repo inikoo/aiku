@@ -11,6 +11,7 @@ use App\Actions\Goods\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateStocks;
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStocks;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
@@ -18,19 +19,29 @@ use App\Models\SysAdmin\Group;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreStock extends GrpAction
 {
+    use WithNoStrictRules;
+
+    /**
+     * @throws \Throwable
+     */
     public function handle(Group|StockFamily $parent, $modelData): Stock
     {
         data_set($modelData, 'group_id', $this->group->id);
 
-        /** @var Stock $stock */
-        $stock = $parent->stocks()->create($modelData);
-        $stock->stats()->create();
+        $stock = DB::transaction(function () use ($parent, $modelData) {
+            /** @var Stock $stock */
+            $stock = $parent->stocks()->create($modelData);
+            $stock->stats()->create();
+
+            return $stock;
+        });
         GroupHydrateStocks::dispatch($this->group)->delay($this->hydratorsDelay);
         if ($parent instanceof StockFamily) {
             StockFamilyHydrateStocks::dispatch($parent)->delay($this->hydratorsDelay);
@@ -43,8 +54,8 @@ class StoreStock extends GrpAction
 
     public function rules(): array
     {
-        return [
-            'code'        => [
+        $rules = [
+            'code'  => [
                 'required',
                 'max:64',
                 new AlphaDashDot(),
@@ -56,16 +67,27 @@ class StoreStock extends GrpAction
                     ]
                 ),
             ],
-            'name'        => ['required', 'string', 'max:255'],
-            'source_id'   => ['sometimes', 'nullable', 'string'],
-            'source_slug' => ['sometimes', 'nullable', 'string'],
-            'state'       => ['sometimes', 'nullable', Rule::enum(StockStateEnum::class)],
-            'fetched_at'  => ['sometimes', 'date'],
+            'name'  => ['required', 'string', 'max:255'],
+            'state' => ['sometimes', 'nullable', Rule::enum(StockStateEnum::class)],
         ];
+
+        if (!$this->strict) {
+            $rules['source_slug'] = ['sometimes', 'nullable', 'string'];
+            $rules                = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
     }
 
-    public function action(Group|StockFamily $parent, array $modelData, int $hydratorsDelay = 0): Stock
+    /**
+     * @throws \Throwable
+     */
+    public function action(Group|StockFamily $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Stock
     {
+        if (!$audit) {
+            Stock::disableAuditing();
+        }
+
         if ($parent instanceof Group) {
             $group = $parent;
         } else {
@@ -73,12 +95,18 @@ class StoreStock extends GrpAction
         }
 
 
+        $this->asAction       = true;
+        $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
+
         $this->initialisation($group, $modelData);
 
         return $this->handle($parent, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): Stock
     {
         $this->initialisation(group(), $request);

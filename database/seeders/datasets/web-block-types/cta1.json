@@ -40,15 +40,24 @@
 	],
 	"data": {
 		"fieldValue": {
-			"text": "<h2><strong><span style='color: #FFFFFF'>What ingredients should be considered when selecting body and hand soaps?</span></strong></h2>",
+			"text": "<h2><span style='font-size: 14px; color: rgb(196, 0, 255)'><strong>Award winning support </strong></span></h2><h2><span style='color: rgb(255, 255, 255)'><strong>We’re here to help</strong></span></h2><p><span style='color: rgb(209, 213, 219)'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Et, egestas tempus tellus etiam sed. Quam a scelerisque amet ullamcorper eu enim et fermentum, augue. Aliquet amet volutpat quisque ut interdum tincidunt duis.</span></p>",
 			"button": {
-				"link": "",
-				"text": "Read More",
+				"link": {
+					"type" : "internal",
+					"url": "https://ancientwisdom.biz/showroom",
+					"id": 9,
+					"workshop_route" : ""
+				},
+				"text": "Explore Here",
 				"container": {
 					"properties": {
+						"text": {
+							"color": "rgba(0, 0, 0, 1)",
+							"fontFamily": null
+						},
 						"background": {
 							"type": "color",
-							"color": "#fff",
+							"color": "#ffffff",
 							"image": {
 								"original": null
 							}
@@ -56,22 +65,22 @@
 						"padding": {
 							"unit": "px",
 							"top": {
-								"value": 0
+								"value": 10
 							},
 							"left": {
-								"value": 0
+								"value": 10
 							},
 							"right": {
-								"value": 0
+								"value": 10
 							},
 							"bottom": {
-								"value": 0
+								"value": 10
 							}
 						},
 						"margin": {
 							"unit": "px",
 							"top": {
-								"value": 0
+								"value": 30
 							},
 							"left": {
 								"value": 0
@@ -89,16 +98,16 @@
 							"rounded": {
 								"unit": "px",
 								"topright": {
-									"value": 0
+									"value": 10
 								},
 								"topleft": {
-									"value": 0
+									"value": 10
 								},
 								"bottomright": {
-									"value": 0
+									"value": 10
 								},
 								"bottomleft": {
-									"value": 0
+									"value": 10
 								}
 							},
 							"top": {
@@ -122,7 +131,7 @@
 				"properties": {
 					"background": {
 						"type": "color",
-						"color": "#fff",
+						"color": "#111827",
 						"image": {
 							"original": null
 						}

@@ -131,7 +131,6 @@ const component = computed(() => {
                 <div v-else>Not Set</div>
             </div>
         </template>
-     <pre>{{ currentTab }}</pre>
         <template #other>
             <Button v-if="currentTab === 'attachments'" @click="() => isModalUploadOpen = true" label="Attach" icon="upload"/>
         </template>

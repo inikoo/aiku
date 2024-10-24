@@ -48,6 +48,8 @@ class FetchAuroraStock extends FetchAurora
             $name = 'Not set';
         }
 
+        $name = preg_replace('/\s+/', ' ', $name);
+
 
         $state = match ($this->auroraModelData->{'Part Status'}) {
             'In Use' => StockStateEnum::ACTIVE,
@@ -69,10 +71,12 @@ class FetchAuroraStock extends FetchAurora
 
         $this->parsedData['stock_family'] = $this->parseStockFamily($this->auroraModelData->{'Part SKU'});
 
+
+        $createdAt = $this->parseDateTime($this->auroraModelData->{'Part Valid From'});
+
         $this->parsedData['stock'] = [
             'name'            => $name,
             'code'            => $code,
-            'created_at'      => $this->parseDate($this->auroraModelData->{'Part Valid From'}),
             'activated_at'    => $this->parseDate($this->auroraModelData->{'Part Active From'}),
             'units_per_pack'  => $this->auroraModelData->{'Part Units Per Package'},
             'unit_value'      => $this->auroraModelData->{'Part Cost in Warehouse'},
@@ -89,6 +93,10 @@ class FetchAuroraStock extends FetchAurora
             'fetched_at'      => now(),
             'last_fetched_at' => now(),
         ];
+
+        if ($createdAt) {
+            $this->parsedData['stock']['created_at'] = $createdAt;
+        }
 
         $this->parsedData['org_stock'] = [
 
@@ -109,7 +117,9 @@ class FetchAuroraStock extends FetchAurora
             },
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
             'source_slug'     => $sourceSlug,
-            'images'          => $this->parseImages()
+            'images'          => $this->parseImages(),
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
         ];
     }
 

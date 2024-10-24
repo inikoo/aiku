@@ -33,6 +33,8 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->string('source_id')->nullable()->unique();
             $table->unique(['customer_id','product_id']);
 
