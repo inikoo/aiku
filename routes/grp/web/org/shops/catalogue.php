@@ -38,7 +38,7 @@ Route::prefix('products')->as('products.')->group(function () {
         Route::prefix('{product}')->group(function () {
             Route::get('', ShowProduct::class)->name('show');
             Route::get('images', GetProductUploadedImages::class)->name('images');
-            Route::get('edit', EditProduct::class)->name('edit');
+            Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
         });
     });
 
@@ -48,7 +48,7 @@ Route::prefix('products')->as('products.')->group(function () {
         Route::prefix('{product}')->group(function () {
             Route::get('', ShowProduct::class)->name('show');
             Route::get('images', GetProductUploadedImages::class)->name('images');
-            Route::get('edit', [EditProduct::class, 'current'])->name('edit');
+            Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
         });
     });
 
@@ -58,7 +58,7 @@ Route::prefix('products')->as('products.')->group(function () {
         Route::prefix('{product}')->group(function () {
             Route::get('', ShowProduct::class)->name('show');
             Route::get('images', GetProductUploadedImages::class)->name('images');
-            Route::get('edit', [EditProduct::class, 'inProcess'])->name('edit');
+            Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
         });
     });
 
@@ -68,7 +68,7 @@ Route::prefix('products')->as('products.')->group(function () {
         Route::prefix('{product}')->group(function () {
             Route::get('', ShowProduct::class)->name('show');
             Route::get('images', GetProductUploadedImages::class)->name('images');
-            Route::get('edit', [EditProduct::class, 'discontinued'])->name('edit');
+            Route::get('edit', [EditProduct::class, 'inShop'])->name('edit');
         });
     });
 });
