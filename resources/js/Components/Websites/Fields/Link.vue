@@ -19,7 +19,7 @@ const options = ref([
     { label: 'External', value: 'external' },
 ]);
 
-console.log('plm', props.modelValue)
+
 </script>
 
 <template>
