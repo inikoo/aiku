@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dropshipping\Portfolio;
 
+use App\Actions\Dropshipping\Portfolio\Hydrators\GroupHydratePortfolios;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\Portfolio\PortfolioTypeEnum;
@@ -45,6 +46,7 @@ class StorePortfolio extends OrgAction
         });
 
         // todo #1115 put here the hydrators
+        GroupHydratePortfolios::run($customer->group);
 
         return $portfolio;
     }
