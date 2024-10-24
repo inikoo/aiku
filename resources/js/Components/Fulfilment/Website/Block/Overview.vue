@@ -27,7 +27,6 @@ const emits = defineEmits<{
 	(e: "autoSave"): void
 }>()
 
-console.log(props)
 
 const activeTextIndex = ref(-1)
 const activeImageIndex = ref(-1)
@@ -39,7 +38,7 @@ function onDragImage({ top = 0, bottom = 0, left = 0, right = 0 }) {
 	props.modelValue.images[activeImageIndex.value].properties.position.bottom = `${bottom}px`
 	props.modelValue.images[activeImageIndex.value].properties.position.left = `${left}px`
 	props.modelValue.images[activeImageIndex.value].properties.position.right = `${right}px`
-	onsave()
+	onSave()
 }
 
 function onDragText({ top = 0, bottom = 0, left = 0, right = 0 }) {
@@ -47,7 +46,7 @@ function onDragText({ top = 0, bottom = 0, left = 0, right = 0 }) {
 	props.modelValue.texts.values[activeTextIndex.value].properties.position.bottom = `${bottom}px`
 	props.modelValue.texts.values[activeTextIndex.value].properties.position.left = `${left}px`
 	props.modelValue.texts.values[activeTextIndex.value].properties.position.right = `${right}px`
-	onsave()
+	onSave()
 }
 
 function onImageScale({ offsetHeight = 100, offsetWidth = 100, transform }) {
@@ -62,7 +61,7 @@ function onImageScale({ offsetHeight = 100, offsetWidth = 100, transform }) {
 	props.modelValue.images[activeImageIndex.value].properties.height = `${
 		offsetHeight * transformVal[1]
 	}px`
-	onsave()
+	onSave()
 }
 
 function onTextScale({ offsetHeight = 100, offsetWidth = 100, transform }) {
@@ -77,11 +76,11 @@ function onTextScale({ offsetHeight = 100, offsetWidth = 100, transform }) {
 	props.modelValue.texts.values[activeTextIndex.value].properties.height = `${
 		offsetHeight * transformVal[1]
 	}px`
-	onsave()
+	onSave()
 }
 
 // Save position and size for text
-function onsave() {
+function onSave() {
 	emits("autoSave")
 }
 
@@ -101,10 +100,12 @@ function handleClickOutside() {
 }
 
 const onChangeImage = (image) => {
-	props.modelValue.images[activeImageIndexModal.value].sources = {...image[0].source}
+	const data = {...props.modelValue}
+	data.images[activeImageIndexModal.value].sources = {...image[0].source}
 	isModalGallery.value = false
 	activeImageIndexModal.value = -1
-	onsave()
+	props.modelValue = data
+	onSave()
 }
 
 onMounted(() => {
@@ -150,7 +151,7 @@ onBeforeUnmount(() => {
 				:draggable="true"
 				:scalable="true"
 				@drag="onDragText"
-				@scale="onTextScale"
+				@resiz="onTextScale"
 				:snapDirections="{ top: true, left: true, bottom: true, right: true }"
 				:elementSnapDirections="{
 					top: true,
@@ -188,8 +189,8 @@ onBeforeUnmount(() => {
 								activeImageIndexModal = index
 							}
 						"
-						style="position: absolute; top: 0; left: 0; font-size: 20px; z-index: 10">
-						<FontAwesomeIcon :icon="faImage" class="text-lg text-indigo-500" />
+						style="position: absolute; top: 0; left: 10px; z-index: 10">
+						<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
 					</button>
 
 					<Image :src="image.sources" />

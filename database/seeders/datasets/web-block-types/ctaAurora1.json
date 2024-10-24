@@ -40,8 +40,8 @@
 	],
 	"data": {
 		"fieldValue": {
-			"text": "All currently trending Indian handcrafted gifts directly imported from Artisans",
-            "title" : "<h1>Discover Made in India</h1>",
+			"text": "<p><span style='color: #ffffff'>All currently trending Indian handcrafted gifts directly imported from Artisans</span></p>",
+            "title" : "<h1><span style='color: #ffffff'>Discover Made in India</span></h1>",
 			"button": {
 				"link": {
 					"type" : "internal",
@@ -53,12 +53,12 @@
 				"container": {
 					"properties": {
 						"text": {
-							"color": "#FFFFFF",
+							"color": "rgba(0, 0, 0, 1)",
 							"fontFamily": null
 						},
 						"background": {
 							"type": "color",
-							"color": null,
+							"color": "#ffffff",
 							"image": {
 								"original": null
 							}
@@ -99,16 +99,16 @@
 							"rounded": {
 								"unit": "px",
 								"topright": {
-									"value": 20
+									"value": 10
 								},
 								"topleft": {
-									"value": 20
+									"value": 10
 								},
 								"bottomright": {
-									"value": 20
+									"value": 10
 								},
 								"bottomleft": {
-									"value": 20
+									"value": 10
 								}
 							},
 							"top": {
@@ -131,7 +131,7 @@
 				"properties": {
 					"background": {
 						"type": "color",
-						"color": "#fff",
+						"color": "#111827",
 						"image": {
 							"original": null
 						}
