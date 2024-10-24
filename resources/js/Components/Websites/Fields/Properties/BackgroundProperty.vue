@@ -12,6 +12,8 @@ import { faImage, faPalette } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { routeType } from '@/types/route'
 import { ImageData } from '@/types/Image'
+import axios from 'axios'
+import { notify } from '@kyvg/vue3-notification'
 library.add(faImage, faPalette)
 
 interface BackgroundProperty {
@@ -39,6 +41,57 @@ const onSubmitSelectedImage = (images: ImageData[]) => {
     model.value.type = 'image'
 }
 
+
+const isLoadingSubmit = ref(false)
+const onSubmitUpload = async (files: File[], clear: Function) => {
+    const formData = new FormData()
+    Array.from(files).forEach((file, index) => {
+        formData.append(`images[${index}]`, file)
+    })
+
+    // console.log('form', files, formData)
+    isLoadingSubmit.value = true
+    try {
+        if(!route_list?.upload_image?.name) {
+            throw "Something wrong in the route."
+        }
+
+        const aaa = await axios.post(route(route_list?.upload_image.name, route_list?.upload_image.parameters),
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        )
+        
+        console.log('aaa', aaa.data.data)
+        model.value.image = aaa.data.data[0]
+
+        // Assuming you want to notify on success
+        notify({
+            title: trans('Success'),
+            text: trans('New image added'),
+            type: 'success',
+        });
+
+        // Clear the input or perform any other success actions
+        clear();
+
+    } catch (error) {
+        console.error('Upload error:', error);
+
+        // Notify on error
+        notify({
+            title: trans('Something went wrong'),
+            text: trans('Failed to add new image'),
+            type: 'error',
+        });
+    } finally {
+        // This block will always execute, regardless of success or error
+        isLoadingSubmit.value = false;
+    }
+}
 </script>
 
 <template>
@@ -102,6 +155,9 @@ const onSubmitSelectedImage = (images: ImageData[]) => {
             :attachImageRoute="route_list?.attachImageRoute"
             :closePopup="() => isOpenGallery = false"
             :maxSelected="1"
+            :uploadFileLimit="1"
+            :isLoadingSubmit="isLoadingSubmit"
+            :submitUpload="onSubmitUpload"
             @selectImage="(image: {}) => false"
             @submitSelectedImages="(images: ImageData[]) => onSubmitSelectedImage(images)"
         />

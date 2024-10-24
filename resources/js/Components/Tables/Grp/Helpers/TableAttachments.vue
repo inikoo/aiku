@@ -14,10 +14,12 @@ import AddressLocation from "@/Components/Elements/Info/AddressLocation.vue";
 import { useFormatTime } from "@/Composables/useFormatTime";
 import { useLocaleStore } from "@/Stores/locale";
 import { ref } from "vue";
+import { routeType } from "@/types/route";
 
 const props = defineProps<{
     data: object,
-    tab?: string
+    tab?: string,
+    detachRoute?: routeType
 }>();
 
 const locale = useLocaleStore();
@@ -74,9 +76,12 @@ function mediaRoute(attachment: {}) {
         <template #cell(caption)="{ item: attachment }">
             {{ attachment["caption"] }}
         </template>
-        <template #cell(download)="{ item: attachment }">
+        <template #cell(action)="{ item: attachment }">
             <Link :href="mediaRoute(attachment)">
             <Button type="tertiary" icon="fal fa-download" />
+            </Link>
+            <Link v-if="detachRoute?.name" :href="route(detachRoute?.name, {...detachRoute?.parameters, attachment: attachment.media_id})" :method="detachRoute?.method">
+                <Button type="delete" />
             </Link>
         </template>
     </Table>

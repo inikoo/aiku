@@ -9,10 +9,17 @@
 		"out": true
 	},
 	"icon": ["fal", "code"],
-	"blueprint": {},
+	"blueprint": [
+		{
+			"name": "Script",
+			"key": "value",
+			"type": ["script"],
+			"props_data": {}
+		}
+	],
 	"data": {
 		"fieldValue": {
-			"value": "",
+			"value": "hello world",
 			"container": {
 				"properties": {
 					"background": {

@@ -29,6 +29,7 @@ class UpdateWebpageContent extends OrgAction
             $layout['web_blocks'][] =
                 [
                     'id'       => $webBlock->pivot->id,
+                    'name'     => $webBlock->webBlockType->name,
                     'type'     => $webBlock->webBlockType->code,
                     'web_block' => WebBlockResource::make($webBlock)->getArray(),
                     'visibility' => ['in' => $webBlock->pivot->show_logged_in, 'out' => $webBlock->pivot->show_logged_out],
