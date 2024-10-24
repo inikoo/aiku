@@ -63,6 +63,11 @@ class ShowOrgPartner extends OrgAction
                     'current'    => $this->tab,
                     'navigation' => OrgPartnerTabsEnum::navigation()
                 ],
+
+                OrgPartnerTabsEnum::SHOWCASE->value => $this->tab == OrgPartnerTabsEnum::SHOWCASE->value ?
+                fn () => GetOrgPartnerShowcase::run($orgPartner)
+                : Inertia::lazy(fn () => GetOrgPartnerShowcase::run($orgPartner)),
+
             ]
         );
     }
