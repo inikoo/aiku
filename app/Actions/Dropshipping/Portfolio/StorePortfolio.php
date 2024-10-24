@@ -8,6 +8,7 @@
 namespace App\Actions\Dropshipping\Portfolio;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\Portfolio\PortfolioTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -15,37 +16,39 @@ use App\Models\Dropshipping\Portfolio;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StorePortfolio extends OrgAction
 {
+    use WithNoStrictRules;
+
     private Customer $customer;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Customer $customer, array $modelData): Portfolio
     {
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
         data_set($modelData, 'shop_id', $customer->organisation_id);
 
+        $portfolio = DB::transaction(function () use ($customer, $modelData) {
+            /** @var Portfolio $portfolio */
+            $portfolio = $customer->portfolios()->create($modelData);
+            $portfolio->stats()->create();
 
-        /** @var Portfolio $dropshippingCustomerPortfolio */
-        $dropshippingCustomerPortfolio = $customer->portfolios()->create($modelData);
-        $dropshippingCustomerPortfolio->stats()->create();
+            return $portfolio;
+        });
 
+        // todo #1115 put here the hydrators
 
-        return $dropshippingCustomerPortfolio;
+        return $portfolio;
     }
 
-    public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request)
-    {
-        $this->customer = $customer;
-
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle($customer, $this->validatedData);
-    }
 
     public function authorize(ActionRequest $request): bool
     {
@@ -59,9 +62,9 @@ class StorePortfolio extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'product_id'      => ['required', Rule::Exists('products', 'id')->where('shop_id', $this->shop->id)],
-            'reference'       => [
+        $rules = [
+            'product_id'    => ['required', Rule::Exists('products', 'id')->where('shop_id', $this->shop->id)],
+            'reference'     => [
                 'sometimes',
                 'nullable',
                 'string',
@@ -74,21 +77,45 @@ class StorePortfolio extends OrgAction
                     ]
                 ),
             ],
-            'type'            => ['sometimes', Rule::enum(PortfolioTypeEnum::class)],
-            'status'          => 'sometimes|boolean',
-            'created_at'      => 'sometimes|date',
-            'last_added_at'   => 'sometimes|date',
-            'last_removed_at' => 'sometimes|date',
-            'source_id'       => 'sometimes|string|max:255',
+            'type'          => ['sometimes', Rule::enum(PortfolioTypeEnum::class)],
+            'status'        => 'sometimes|boolean',
+            'last_added_at' => 'sometimes|date',
         ];
+
+        if (!$this->strict) {
+            $rules['last_removed_at'] = ['sometimes', 'date'];
+            $rules                    = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
     }
 
 
-    public function action(Customer $customer, array $modelData): Portfolio
+    /**
+     * @throws \Throwable
+     */
+    public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Portfolio
     {
-        $this->asAction = true;
-        $this->customer = $customer;
+        if (!$audit) {
+            Portfolio::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->customer       = $customer;
         $this->initialisationFromShop($customer->shop, $modelData);
+
+        return $this->handle($customer, $this->validatedData);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function asController(Organisation $organisation, Shop $shop, Customer $customer, ActionRequest $request): Portfolio
+    {
+        $this->customer = $customer;
+
+        $this->initialisationFromShop($shop, $request);
 
         return $this->handle($customer, $this->validatedData);
     }

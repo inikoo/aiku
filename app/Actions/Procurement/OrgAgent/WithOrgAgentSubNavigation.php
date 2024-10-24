@@ -76,7 +76,7 @@ trait WithOrgAgentSubNavigation
                     "tooltip" => __("Stock Deliveries"),
                 ],
             ],
-            
+
         ];
     }
 }

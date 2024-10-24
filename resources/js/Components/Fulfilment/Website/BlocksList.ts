@@ -37,7 +37,7 @@ export const getComponent = (componentName: string) => {
         'family': FamilyPageOffer,
         "iframe": Iframe,
         'images': Image,
-        "overview": Overview,
+        "overview_aurora": Overview,
         'product': ProductPage,
         'products': ProductList,
         "script": Script,

@@ -27,7 +27,7 @@ class UpdateModelHasWebBlocks extends OrgAction
     public function handle(ModelHasWebBlocks $modelHasWebBlocks, array $modelData): ModelHasWebBlocks
     {
         $this->update($modelHasWebBlocks, Arr::only($modelData, ['show', 'show_logged_in', 'show_logged_out']));
-        $this->update($modelHasWebBlocks->webBlock, Arr::only($modelData, ['layout']), ['data', 'layout']);
+        $this->update($modelHasWebBlocks->webBlock, Arr::only($modelData, ['layout']));
         $modelHasWebBlocks->refresh();
         UpdateWebpageContent::run($modelHasWebBlocks->webpage);
 

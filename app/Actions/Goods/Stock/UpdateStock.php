@@ -11,6 +11,7 @@ use App\Actions\Goods\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateStocks;
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStocks;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
@@ -27,6 +28,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateStock extends GrpAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
     private StockFamily $stockFamily;
 
@@ -78,11 +80,11 @@ class UpdateStock extends GrpAction
         StockHydrateUniversalSearch::dispatch($stock);
 
         if (Arr::has($changes, 'state')) {
-            GroupHydrateStocks::dispatch($stock->group);
+            GroupHydrateStocks::dispatch($stock->group)->delay($this->hydratorsDelay);
 
 
             if ($stock->stockFamily) {
-                StockFamilyHydrateStocks::dispatch($stock->stockFamily);
+                StockFamilyHydrateStocks::dispatch($stock->stockFamily)->delay($this->hydratorsDelay);
             }
         }
 
@@ -97,12 +99,12 @@ class UpdateStock extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.stocks.edit");
+        return $$request->user()->hasPermissionTo("goods.{$this->group->id}.view");
     }
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'code'            => [
                 'sometimes',
                 'required',
@@ -125,18 +127,25 @@ class UpdateStock extends GrpAction
             'name'            => ['sometimes', 'required', 'string', 'max:255'],
             'stock_family_id' => ['sometimes', 'nullable', 'exists:stock_families,id'],
             'state'           => ['sometimes', 'required', Rule::enum(StockStateEnum::class)],
-            'last_fetched_at' => ['sometimes', 'date'],
         ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictUpdateRules($rules);
+        }
+
+        return $rules;
     }
 
 
-    public function action(Stock $stock, array $modelData, bool $audit = true): Stock
+    public function action(Stock $stock, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Stock
     {
+        $this->strict = $strict;
         if (!$audit) {
             Stock::disableAuditing();
         }
         $this->asAction = true;
         $this->stock    = $stock;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($stock->group, $modelData);
 
         return $this->handle($stock, $this->validatedData);

@@ -11,6 +11,7 @@ use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
 use App\Actions\Inventory\OrgStockFamily\Hydrators\OrgStockFamilyHydrateOrgStocks;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStocks;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
@@ -19,17 +20,22 @@ use App\Models\Inventory\OrgStockFamily;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreOrgStock extends OrgAction
 {
+    use WithNoStrictRules;
+
     private Stock $stock;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Organisation|OrgStockFamily $parent, Stock $stock, $modelData): OrgStock
     {
-
         if ($parent instanceof Organisation) {
             $organisation = $parent;
         } else {
@@ -37,39 +43,41 @@ class StoreOrgStock extends OrgAction
             data_set($modelData, 'org_stock_family_id', $parent->id);
         }
 
-
         data_set($modelData, 'group_id', $organisation->group_id);
         data_set($modelData, 'organisation_id', $organisation->id);
-
-
         data_set($modelData, 'code', $stock->code);
         data_set($modelData, 'name', $stock->name);
         data_set($modelData, 'unit_value', $stock->unit_value);
 
-
-        /** @var OrgStock $orgStock */
-        $orgStock = $stock->orgStocks()->create($modelData);
-        $orgStock->stats()->create(
-            [
-                'group_id'        => $organisation->group_id,
-                'organisation_id' => $organisation->id,
-            ]
-        );
-
-
-        if ($parent instanceof OrgStockFamily) {
-            $orgStock->orgStockFamily()->associate($parent);
-            $orgStock->save();
-        }
+        $orgStock = DB::transaction(function () use ($stock, $modelData, $organisation, $parent) {
+            /** @var OrgStock $orgStock */
+            $orgStock = $stock->orgStocks()->create($modelData);
+            $orgStock->stats()->create(
+                [
+                    'group_id'        => $organisation->group_id,
+                    'organisation_id' => $organisation->id,
+                ]
+            );
 
 
-        OrgStockHydrateUniversalSearch::dispatch($orgStock);
+            if ($parent instanceof OrgStockFamily) {
+                $orgStock->orgStockFamily()->associate($parent);
+                $orgStock->save();
+            }
+
+            $orgStock->refresh();
+
+            return $orgStock;
+        });
+
+
         OrganisationHydrateOrgStocks::dispatch($organisation)->delay($this->hydratorsDelay);
         if ($orgStock->orgStockFamily) {
             OrgStockFamilyHydrateOrgStocks::dispatch($orgStock->orgStockFamily)->delay($this->hydratorsDelay);
         }
 
-        $orgStock->refresh();
+        OrgStockHydrateUniversalSearch::dispatch($orgStock);
+
 
         return $orgStock;
     }
@@ -77,30 +85,41 @@ class StoreOrgStock extends OrgAction
 
     public function rules(ActionRequest $request): array
     {
-        return [
+        $rules = [
             'state'           => ['required', Rule::enum(OrgStockStateEnum::class)],
             'quantity_status' => ['sometimes', 'nullable', Rule::enum(OrgStockQuantityStatusEnum::class)],
-            'source_id'       => ['sometimes', 'nullable', 'string'],
         ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
     }
 
 
     public function prepareForValidation(): void
     {
         $state = match ($this->stock->state) {
-            StockStateEnum::ACTIVE        => OrgStockStateEnum::ACTIVE,
+            StockStateEnum::ACTIVE => OrgStockStateEnum::ACTIVE,
             StockStateEnum::DISCONTINUING => OrgStockStateEnum::DISCONTINUING,
-            StockStateEnum::DISCONTINUED  => OrgStockStateEnum::DISCONTINUED,
-            StockStateEnum::SUSPENDED     => OrgStockStateEnum::SUSPENDED,
-            default                       => null
+            StockStateEnum::DISCONTINUED => OrgStockStateEnum::DISCONTINUED,
+            StockStateEnum::SUSPENDED => OrgStockStateEnum::SUSPENDED,
+            default => null
         };
 
 
         $this->set('state', $state);
     }
 
-    public function action(Organisation|OrgStockFamily $parent, Stock $stock, $modelData = [], $hydratorsDelay = 0): OrgStock
+    /**
+     * @throws \Throwable
+     */
+    public function action(Organisation|OrgStockFamily $parent, Stock $stock, $modelData = [], int $hydratorsDelay = 0, bool $strict = true, $audit = true): OrgStock
     {
+        if (!$audit) {
+            OrgStock::disableAuditing();
+        }
 
         if ($parent instanceof Organisation) {
             $organisation = $parent;
@@ -110,6 +129,7 @@ class StoreOrgStock extends OrgAction
 
         $this->asAction       = true;
         $this->stock          = $stock;
+        $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($organisation, $modelData);
 

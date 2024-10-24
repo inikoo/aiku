@@ -455,17 +455,15 @@ trait WithAuroraParsers
         $supplier   = FetchAuroraSuppliers::run($this->organisationSource, $sourceData[1]);
 
 
-
         if (!$supplier) {
-
-            $supplier   = FetchAuroraDeletedSuppliers::run($this->organisationSource, $sourceData[1]);
+            $supplier = FetchAuroraDeletedSuppliers::run($this->organisationSource, $sourceData[1]);
         }
+
         return $supplier;
     }
 
     public function parseAgent($sourceID): ?Agent
     {
-
         $agent = Agent::withTrashed()->where('source_id', $sourceID)->first();
         if ($agent) {
             return $agent;
@@ -482,8 +480,6 @@ trait WithAuroraParsers
         $sourceData = explode(':', $sourceID);
 
         return FetchAuroraAgents::run($this->organisationSource, $sourceData[1]);
-
-
     }
 
     public function parseOrgStock($sourceId): ?OrgStock
@@ -508,12 +504,25 @@ trait WithAuroraParsers
 
     public function parseStock($sourceId): ?Stock
     {
-        $stock      = Stock::withTrashed()->where('source_id', $sourceId)->first();
-        $sourceData = explode(':', $sourceId);
-        if (!$stock) {
-            $res   = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
-            $stock = $res['stock'];
+        $stock = Stock::withTrashed()->where('source_id', $sourceId)->first();
+        if ($stock) {
+            return $stock;
         }
+
+
+        $stock = Stock::withTrashed()
+            ->whereJsonContains('sources->stocks', $sourceId)
+            ->first();
+        if ($stock) {
+            return $stock;
+        }
+
+
+        $sourceData = explode(':', $sourceId);
+
+        $res   = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
+        $stock = $res['stock'];
+
         if (!$stock) {
             $res   = FetchAuroraDeletedStocks::run($this->organisationSource, $sourceData[1]);
             $stock = $res['stock'];
