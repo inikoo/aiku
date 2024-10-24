@@ -9,16 +9,13 @@ namespace App\Actions\Procurement\OrgAgent\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\Procurement\OrgSupplier\UI\IndexOrgSuppliers;
+use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
 use App\Actions\Procurement\OrgSupplierProducts\UI\IndexOrgSupplierProducts;
-use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\OrgAgentTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\OrgAgentResource;
 use App\Http\Resources\Procurement\OrgSupplierProductsResource;
-use App\Http\Resources\Procurement\OrgSuppliersResource;
-use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\OrgAgent;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\RedirectResponse;
@@ -28,6 +25,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowOrgAgent extends OrgAction
 {
+    use WithOrgAgentSubNavigation;
     public function handle(OrgAgent $orgAgent): OrgAgent
     {
         return $orgAgent;
@@ -75,6 +73,7 @@ class ShowOrgAgent extends OrgAction
                             'icon'  => ['fal', 'people-arrows'],
                             'title' => __('agent')
                         ],
+                    'subNavigation' => $this->getOrgAgentNavigation($orgAgent),
                     'title'         => $orgAgent->agent->organisation->name,
                     'create_direct' => $this->canEdit ? [
                         'route' => [
@@ -139,21 +138,6 @@ class ShowOrgAgent extends OrgAction
                     fn () => GetOrgAgentShowcase::run($orgAgent)
                     : Inertia::lazy(fn () => GetOrgAgentShowcase::run($orgAgent)),
 
-
-                OrgAgentTabsEnum::PURCHASE_ORDERS->value   => $this->tab == OrgAgentTabsEnum::PURCHASE_ORDERS->value
-                    ?
-                    fn () => PurchaseOrderResource::collection(
-                        IndexPurchaseOrders::run(
-                            parent: $orgAgent,
-                            prefix: 'purchase_orders'
-                        )
-                    )
-                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(
-                        IndexPurchaseOrders::run(
-                            parent: $orgAgent,
-                            prefix: 'purchase_orders'
-                        )
-                    )),
                 OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value => $this->tab == OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value
                     ?
                     fn () => OrgSupplierProductsResource::collection(
@@ -168,47 +152,15 @@ class ShowOrgAgent extends OrgAction
                             prefix: OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value
                         )
                     )),
-                OrgAgentTabsEnum::ORG_SUPPLIERS->value         => $this->tab == OrgAgentTabsEnum::ORG_SUPPLIERS->value
-                    ?
-                    fn () => OrgSuppliersResource::collection(
-                        IndexOrgSuppliers::run(
-                            parent: $orgAgent,
-                            prefix: OrgAgentTabsEnum::ORG_SUPPLIERS->value
-                        )
-                    )
-                    : Inertia::lazy(fn () => OrgSuppliersResource::collection(
-                        IndexOrgSuppliers::run(
-                            parent: $orgAgent,
-                            prefix: OrgAgentTabsEnum::ORG_SUPPLIERS->value
-                        )
-                    )),
 
                 OrgAgentTabsEnum::HISTORY->value => $this->tab == OrgAgentTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($orgAgent))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($orgAgent)))
             ]
         )->table(
-            IndexPurchaseOrders::make()->tableStructure(
-                modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'grp.org.procurement.org_agents.show.purchase_orders.create',
-                            'parameters' => array_values([$this->organisation->slug, $orgAgent->slug])
-                        ],
-                        'label' => __('purchase orders')
-                    ] : false
-                ],
-                prefix: OrgAgentTabsEnum::PURCHASE_ORDERS->value
-            )
-        )->table(
             IndexOrgSupplierProducts::make()->tableStructure(
                 parent: $orgAgent,
                 prefix: OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value
-            )
-        )->table(
-            IndexOrgSuppliers::make()->tableStructure(
-                parent: $orgAgent,
-                prefix: OrgAgentTabsEnum::ORG_SUPPLIERS->value
             )
         )->table(IndexHistory::make()->tableStructure(prefix: OrgAgentTabsEnum::HISTORY->value));
     }

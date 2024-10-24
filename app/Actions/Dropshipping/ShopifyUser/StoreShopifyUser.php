@@ -25,14 +25,14 @@ class StoreShopifyUser extends OrgAction
     use WithAttributes;
     use WithActionUpdate;
 
-    public function handle(Customer $customer, $modelData)
+    public function handle(Customer $customer, $modelData): void
     {
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
         data_set($modelData, 'username', Str::random(4));
         data_set($modelData, 'password', Str::random(8));
 
-        $shopifyUser = $customer->shopifyUser()->create($modelData);
+        $customer->shopifyUser()->create($modelData);
 
         $customer->platforms()->attach(Platform::where('type', PlatformTypeEnum::SHOPIFY->value)->first(), [
             'group_id'        => $customer->group_id,
@@ -62,7 +62,7 @@ class StoreShopifyUser extends OrgAction
         $this->set('name', $request->input('name').'.'.config('shopify-app.myshopify_domain'));
     }
 
-    public function asController(ActionRequest $request)
+    public function asController(ActionRequest $request): void
     {
         $customer = $request->user()->customer;
         $this->initialisationFromShop($customer->shop, $request);

@@ -9,88 +9,87 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
-use App\Actions\Inventory\OrgStock\StoreOrgStock;
-use App\Actions\Inventory\OrgStock\UpdateOrgStock;
-use App\Models\Inventory\OrgStock;
 use App\Models\SupplyChain\Stock;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraDeletedStocks extends FetchAuroraAction
 {
+    use WithFetchStock;
+
     public string $commandSignature = 'fetch:deleted-stocks {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): array
     {
-
-        $stock   = null;
+        $stock    = null;
         $orgStock = null;
 
         if ($stockData = $organisationSource->fetchDeletedStock($organisationSourceId)) {
-
-
             if ($baseStock = Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->first()) {
                 if ($stock = Stock::withTrashed()->where('source_id', $stockData['stock']['source_id'])->first()) {
-                    $stock = UpdateStock::make()->action(
-                        stock: $stock,
-                        modelData: $stockData['stock'],
-                    );
+                    try {
+                        $stock = UpdateStock::make()->action(
+                            stock: $stock,
+                            modelData: $stockData['stock'],
+                            hydratorsDelay: 60,
+                            strict: false,
+                            audit: false
+                        );
+                        $this->recordChange($organisationSource, $stock->wasChanged());
+                    } catch (Exception $e) {
+                        $this->recordError($organisationSource, $e, $stockData['stock'], 'DeletedStock', 'update');
+
+                        return [
+                            'stock'    => null,
+                            'orgStock' => null
+                        ];
+                    }
                 }
             } else {
+                try {
+                    $stock = StoreStock::make()->action(
+                        parent: $organisationSource->getOrganisation()->group,
+                        modelData: $stockData['stock'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    Stock::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $stock,
+                        Arr::except($stockData['stock'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
 
-                $stock = StoreStock::make()->action(
-                    parent: $organisationSource->getOrganisation()->group,
-                    modelData: $stockData['stock'],
-                    hydratorsDelay: 30
-                );
+                    $this->updateStockSources($stock, $stockData['stock']['source_id']);
+
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $stock->source_id);
+                    DB::connection('aurora')->table('Part Deleted Dimension')
+                        ->where('Part Deleted Key', $sourceData[1])
+                        ->update(['aiku_id' => $stock->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $stockData['stock'], 'DeletedStock', 'store');
+
+                    return [
+                        'stock'    => null,
+                        'orgStock' => null
+                    ];
+                }
             }
 
-            if ($stock) {
 
-
-                $sourceData = explode(':', $stock->source_id);
-
-                DB::connection('aurora')
-                    ->table('Part Deleted Dimension')
-                    ->where('Part Deleted KEY', $sourceData[1])
-                    ->update(['aiku_id' => $stock->id]);
-            }
 
             $effectiveStock = $stock ?? $baseStock;
 
-            $organisation = $organisationSource->getOrganisation();
 
             if ($effectiveStock) {
-
-                /** @var OrgStock $orgStock */
-                if ($orgStock = $organisation->orgStocks()->where('source_id', $stockData['stock']['source_id'])->first()) {
-                    $orgStock = UpdateOrgStock::make()->action(
-                        orgStock: $orgStock,
-                        modelData: $stockData['org_stock'],
-                        hydratorsDelay: 30
-                    );
-                } else {
-
-                    $orgParent = null;
-
-                    if ($effectiveStock->stockFamily) {
-                        $orgParent = $effectiveStock->stockFamily->orgStockFamilies()->where('organisation_id', $organisation->id)->first();
-                    }
-
-                    if (!$orgParent) {
-                        $orgParent = $organisationSource->getOrganisation();
-                    }
-
-                    $orgStock = StoreOrgStock::make()->action(
-                        parent: $orgParent,
-                        stock: $effectiveStock,
-                        modelData: $stockData['org_stock'],
-                        hydratorsDelay: 30
-                    );
-                }
-
+                $this->processOrgStock($organisationSource, $effectiveStock, $stockData);
             }
         }
 
@@ -99,7 +98,6 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
             'orgStock' => $orgStock
         ];
     }
-
 
 
     public function getModelsQuery(): Builder

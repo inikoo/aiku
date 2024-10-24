@@ -22,6 +22,8 @@ return new class () extends Migration {
             $table->string('notes')->nullable();
 
             $table->timestampsTz();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->string('source_id')->nullable()->unique();
         });
     }
 

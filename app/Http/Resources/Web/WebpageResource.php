@@ -37,7 +37,7 @@ class WebpageResource extends JsonResource
             'is_dirty'                   => $webpage->is_dirty,
             'web_blocks_parameters'      => WebBlockParametersResource::collection($webpage->webBlocks),
             'layout'                     => $webpage->unpublishedSnapshot?->layout ?: ['web_blocks' => []],
-            'sub_type'                    => $webpage->sub_type,
+            'sub_type'                   => $webpage->sub_type,
             'created_at'                 => $webpage->created_at,
             'updated_at'                 => $webpage->updated_at,
             'state'                      => $webpage->state,

@@ -10,6 +10,7 @@ namespace App\Actions\Catalogue\Charge;
 use App\Actions\Catalogue\Asset\UpdateAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
 use App\Enums\Catalogue\Charge\ChargeTriggerEnum;
@@ -23,7 +24,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateCharge extends OrgAction
 {
     use WithActionUpdate;
-
+    use WithNoStrictRules;
 
     private Charge $charge;
 
@@ -93,9 +94,7 @@ class UpdateCharge extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
-            $rules['created_at']      = ['sometimes', 'date'];
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;

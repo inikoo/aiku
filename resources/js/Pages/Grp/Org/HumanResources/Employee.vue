@@ -131,7 +131,6 @@ const component = computed(() => {
                 <div v-else>Not Set</div>
             </div>
         </template>
-     <pre>{{ currentTab }}</pre>
         <template #other>
             <Button v-if="currentTab === 'attachments'" @click="() => isModalUploadOpen = true" label="Attach" icon="upload"/>
         </template>
@@ -177,7 +176,7 @@ const component = computed(() => {
     -->
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute"></component>
 
     <UploadAttachment v-model="isModalUploadOpen" scope="attachment" :title="{
         label: 'Upload your file',

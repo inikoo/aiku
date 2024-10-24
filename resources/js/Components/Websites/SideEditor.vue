@@ -23,10 +23,13 @@ import UploadImage from '@/Components/Pure/UploadImage.vue'
 import Payments from '@/Components/Websites/Fields/Payment.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorForm.vue"
 import socialMedia from '@/Components/Websites/Fields/SocialMedia.vue'
+import Script from '@/Components/Websites/Fields/Script.vue'
 import FooterColumn from '@/Components/Websites/Fields/FooterColumn.vue'
+import SelectLayout from '@/Components/Websites/Fields/SelectLayout.vue'
 import { isArray, set as setLodash } from 'lodash'
 import { routeType } from '@/types/route'
 import Icon from '@/Components/Icon.vue';
+import OverviewForm from '@/Components/Websites/Fields/OverviewForm.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faRectangleWide } from '@fal'
@@ -67,7 +70,10 @@ const getComponent = (componentName: string) => {
         "margin" : Margin,
         "dimension" : Dimension,
         "button" : ButtonProperties,
-        "link" : Link
+        "link" : Link,
+        "overview_form" : OverviewForm,
+        "layout_type" : SelectLayout,
+        "script" : Script
     }
 
     return components[componentName]
@@ -125,7 +131,7 @@ const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
                                     :modelValue="getFormValue(modelValue, form.key)"
                                     @update:modelValue="newValue => setFormValue(modelValue, form.key, newValue)"
                                     :uploadRoutes="uploadImageRoute"
-                                    v-bind="field?.props_data"
+                                    v-bind="form?.props_data"
                                 />
                             </template>
 
@@ -137,7 +143,7 @@ const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
                                     :modelValue="getFormValue(modelValue, form.key)"
                                     @update:modelValue="newValue => setFormValue(modelValue, form.key, newValue)"
                                     :uploadRoutes="uploadImageRoute"
-                                    v-bind="field?.props_data"
+                                    v-bind="form?.props_data"
                                 />
                             </template>
                         </template>

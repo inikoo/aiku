@@ -9,24 +9,25 @@ namespace App\Transfers\Aurora;
 
 use Illuminate\Support\Facades\DB;
 
-class FetchAuroraProductStocks extends FetchAurora
+class FetchAuroraProductHasOrgStock extends FetchAurora
 {
     protected function parseModel(): void
     {
         $productStocks = [];
         foreach ($this->auroraModelData as $modelData) {
+
             $orgStock = $this->parseOrgStock($this->organisation->id.':'.$modelData->{'Product Part Part SKU'});
 
             if ($orgStock) {
                 $productStocks[$orgStock->id] = [
-                    'quantity' => $modelData->{'Product Part Ratio'},
-                    'notes'    => $modelData->{'Product Part Note'} ?? null
+                    'quantity'        => $modelData->{'Product Part Ratio'},
+                    'notes'           => $modelData->{'Product Part Note'} ?? null,
+                    'source_id'       => $this->organisation->id.':'.$modelData->{'Product Part Key'},
+                    'last_fetched_at' => now(),
                 ];
             }
-
         }
         $this->parsedData['org_stocks'] = $productStocks;
-
     }
 
 

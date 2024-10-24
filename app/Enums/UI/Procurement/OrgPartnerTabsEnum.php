@@ -17,26 +17,11 @@ enum OrgPartnerTabsEnum: string
 
 
     case SHOWCASE = 'showcase';
-    case ORG_STOCKS = 'org_stocks';
-    case PURCHASE_ORDERS = 'purchase_orders';
-    case DELIVERIES = 'deliveries';
 
 
     public function blueprint(): array
     {
         return match ($this) {
-            OrgPartnerTabsEnum::ORG_STOCKS => [
-                'title' => __('stocks'),
-                'icon'  => 'fal fa-box',
-            ],
-            OrgPartnerTabsEnum::PURCHASE_ORDERS => [
-                'title' => __('purchase orders'),
-                'icon'  => 'fal fa-clipboard',
-            ],
-            OrgPartnerTabsEnum::DELIVERIES => [
-                'title' => __('deliveries'),
-                'icon'  => 'fal fa-truck',
-            ],
             OrgPartnerTabsEnum::SHOWCASE => [
                 'title' => __('overview'),
                 'icon'  => 'fal fa-tachometer-alt-fast',

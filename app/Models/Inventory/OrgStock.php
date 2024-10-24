@@ -11,6 +11,7 @@ use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -46,11 +48,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $activated_in_organisation_at
- * @property string|null $discontinuing_in_organisation_at
- * @property string|null $discontinued_in_organisation_at
+ * @property \Illuminate\Support\Carbon|null $activated_in_organisation_at
+ * @property \Illuminate\Support\Carbon|null $discontinuing_in_organisation_at
+ * @property \Illuminate\Support\Carbon|null $discontinued_in_organisation_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\LocationOrgStock> $locationOrgStocks
  * @property-read \App\Models\Inventory\OrgStockFamily|null $orgStockFamily
@@ -68,21 +73,24 @@ use Spatie\Sluggable\SlugOptions;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStock withoutTrashed()
  * @mixin \Eloquent
  */
-class OrgStock extends Model
+class OrgStock extends Model implements Auditable
 {
     use SoftDeletes;
     use HasSlug;
     use HasUniversalSearch;
     use HasFactory;
     use InOrganisation;
+    use HasHistory;
 
     protected $casts = [
         'data'             => 'array',
-        'activated_at'     => 'datetime',
-        'discontinuing_at' => 'datetime',
-        'discontinued_at'  => 'datetime',
+        'activated_in_organisation_at'  => 'datetime',
+        'discontinuing_in_organisation_at'  => 'datetime',
+        'discontinued_in_organisation_at'  => 'datetime',
         'state'            => OrgStockStateEnum::class,
         'quantity_status'  => OrgStockQuantityStatusEnum::class,
+        'fetched_at'       => 'datetime',
+        'last_fetched_at'  => 'datetime',
     ];
 
     protected $attributes = [
@@ -95,6 +103,20 @@ class OrgStock extends Model
     {
         return 'slug';
     }
+
+    public function generateTags(): array
+    {
+        return [
+            'goods'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'state',
+    ];
+
 
     public function getSlugOptions(): SlugOptions
     {

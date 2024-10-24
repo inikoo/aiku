@@ -1,8 +1,8 @@
 {
 	"scope": "webpage",
-	"slug": "overview",
-	"code": "overview",
-	"name": "Overview",
+	"slug": "overview_aurora",
+	"code": "overview_aurora",
+	"name": "Overview Aurora",
 	"icon": ["fal", "text"],
 	"blueprint": [
 		{
@@ -32,270 +32,143 @@
 			]
 		},
 		{
-			"name": "Text",
-			"key": ["text","container", "properties"],
+			"name": "Setting",
+			"key": ["texts"],
 			"replaceForm": [
 				{
-					"key": ["text","container", "properties", "dimension"],
-					"type": "dimension",
-					"props_data": {}
+					"key": ["texts"],
+					"type": "overview_form",
+					"name": "Text",
+					"props_data": {
+						"type" : "text"
+					}
 				},
 				{
-					"key": ["text","container", "properties", "padding"],
-					"type": "padding",
-					"props_data": {}
-				},
-				{
-					"key": ["text","container", "properties", "margin"],
-					"type": "margin",
-					"props_data": {}
-				},
-				{
-					"key": ["text","container", "properties", "border"],
-					"type": "border",
-					"props_data": {}
+					"key": ["images"],
+					"type": "overview_form",
+					"name": "Images",
+					"props_data": {
+						"type" : "images"
+					}
 				}
 			]
-		},
-		{
-			"name": "Image",
-			"key": ["image"],
-			"type": "upload_image"
 		}
 	],
 	"data": {
 		"fieldValue": {
-			"texts": {
-				"values": [],
-				"container": {
-					"properties": {
-						"dimension": {
-							"height": {
-								"value": "335",
-								"unit": "px"
-							},
-							"width": {
-								"value": "100",
-								"unit": "%"
-							}
-						},
-						"padding": {
-							"unit": "px",
-							"top": {
-								"value": 0
-							},
-							"left": {
-								"value": 0
-							},
-							"right": {
-								"value": 0
-							},
-							"bottom": {
-								"value": 0
-							}
-						},
-						"margin": {
-							"unit": "px",
-							"top": {
-								"value": 0
-							},
-							"left": {
-								"value": 0
-							},
-							"right": {
-								"value": 0
-							},
-							"bottom": {
-								"value": 0
-							}
-						},
-						"border": {
-							"color": "#000000",
-							"unit": "px",
-							"rounded": {
-								"unit": "px",
-								"topright": {
-									"value": 0
-								},
-								"topleft": {
-									"value": 0
-								},
-								"bottomright": {
-									"value": 0
-								},
-								"bottomleft": {
-									"value": 0
-								}
-							},
-							"top": {
-								"value": 0
-							},
-							"left": {
-								"value": 0
-							},
-							"right": {
-								"value": 0
-							},
-							"bottom": {
-								"value": 0
-							}
+			
+				"texts": {
+				  "values": [
+					{
+					  "text": "<h1>Welcome to Our Made in UK Wholesale Gifts and Cosmetics</h1><p>Discover the essence of British craftsmanship with our exclusive range of <strong>Made in UK Wholesale Gifts and Cosmetics</strong>. Our department is <strong>dedicated</strong> to showcasing the best British design, quality, and innovation, offering a curated selection of products that celebrate the UK's rich heritage and contemporary creativity. <strong>From</strong> <strong>luxurious skincare</strong> and fragrant beauty products <strong>to idyllic gifts</strong> and artisanal treasures, each item in our collection is chosen for its quality and unique British character.</p><h2><br><strong>Quality and Artisans</strong></h2><p><strong>Our own manufacturing</strong> unit at AW Aromatics and Artisans ensures that every product not only meets high standards of excellence but also <strong>tells a story of tradition and skill.&nbsp;</strong>Whether it's<strong>&nbsp;hand-poured soaps,</strong> meticulously formulated <strong>cosmetics</strong>, or beautifully <strong>crafted bath bombs and aromatherapy sets</strong>, the <strong>Made in UK</strong> label guarantees a product that stands out for its <strong>quality</strong>.<br><br></p><h2><strong>A Wide Range of Products for Every Occasion&nbsp;</strong></h2><p>Our extensive selection of <strong>handmade</strong> <strong>gifts</strong>, <strong>aromatherapy</strong> and <strong>home fragrances</strong> ensures there is something for everyone and every occasion. Whether your customers are looking for the perfect home decorations or luxurious treat for themselves, or unique items to <strong>add to your retail or online store</strong>, our department offers an unparalleled variety of options, from the latest beauty trends and timeless <strong>skincare gifts</strong> to handcrafted soaps, <strong>candles</strong> and aromatherapy.<br><br></p><h2>Join Us in Celebrating British Excellence</h2><p>We invite <strong>all wholesalers, retailers</strong>, and consumers alike to explore our exquisite range of Made in UK gifts and cosmetics. Experience the quality, creativity, and charm of <strong>British products</strong> with us.<br><br><strong>Welcome to a world of beauty, innovation, and tradition. Welcome to our Made in UK Wholesale Gifts and Cosmetics Department.</strong></p>",
+					  "properties": {
+						"width": "717px",
+						"height": "1022.21px",
+						"position": {
+						  "top": "-5px",
+						  "left": "532px",
+						  "right": "8.33299999999997px",
+						  "bottom": "152.812px"
 						}
+					  }
 					}
-				}
-			},
-			"images": {
-				"sources" : [],
-				"container": {
-					"properties": {
-						"dimension": {
-							"height": {
-								"value": "335",
-								"unit": "px"
-							},
-							"width": {
-								"value": "100",
-								"unit": "%"
-							}
-						},
-						"padding": {
-							"unit": "px",
-							"top": {
-								"value": 0
-							},
-							"left": {
-								"value": 0
-							},
-							"right": {
-								"value": 0
-							},
-							"bottom": {
-								"value": 0
-							}
-						},
-						"margin": {
-							"unit": "px",
-							"top": {
-								"value": 0
-							},
-							"left": {
-								"value": 0
-							},
-							"right": {
-								"value": 0
-							},
-							"bottom": {
-								"value": 0
-							}
-						},
-						"border": {
-							"color": "#000000",
-							"unit": "px",
-							"rounded": {
-								"unit": "px",
-								"topright": {
-									"value": 0
-								},
-								"topleft": {
-									"value": 0
-								},
-								"bottomright": {
-									"value": 0
-								},
-								"bottomleft": {
-									"value": 0
-								}
-							},
-							"top": {
-								"value": 0
-							},
-							"left": {
-								"value": 0
-							},
-							"right": {
-								"value": 0
-							},
-							"bottom": {
-								"value": 0
-							}
-						}
-					}
-				}
-			},
-			"container": {
-				"properties": {
-					"dimension": {
-						"height": {
-							"value": "335",
-							"unit": "px"
-						},
-						"width": {
-							"value": "100",
-							"unit": "%"
-						}
+				  ]
+				},
+				"images": [
+				  {
+					"sources": {
+					  "avif": "http://10.0.0.100:8080/2bm_AyX-KHViYhTBhS2z9_W6Ep0Pzz_eXjP26ClWQ-8/bG9jYWw6Ly8vYWlrdS9hcHAvbWVkaWEvbWVkaWEvMjc2MTUvYmU0MTQ3Nzk5NGI2MDEwM2NkZDI5NzUyNmQxYmM4MDguanBn.avif",
+					  "webp": "http://10.0.0.100:8080/_r_0qxma2l01eS-xcmJB7WNqKNYEnTEWJ3GrnAVSX0s/bG9jYWw6Ly8vYWlrdS9hcHAvbWVkaWEvbWVkaWEvMjc2MTUvYmU0MTQ3Nzk5NGI2MDEwM2NkZDI5NzUyNmQxYmM4MDguanBn.webp",
+					  "original": "http://10.0.0.100:8080/5GYU0tMJNtINwmg559U7ADtCTmKeA-AAa5UDwYG_GGA/bG9jYWw6Ly8vYWlrdS9hcHAvbWVkaWEvbWVkaWEvMjc2MTUvYmU0MTQ3Nzk5NGI2MDEwM2NkZDI5NzUyNmQxYmM4MDguanBn"
 					},
-					"padding": {
+					"properties": {
+					  "width": "491px",
+					  "height": "819px",
+					  "position": {
+						"top": "28px",
+						"left": "9px",
+						"right": "776.333px",
+						"bottom": "65px"
+					  }
+					}
+				  }
+				],
+				"container": {
+				  "properties": {
+					"border": {
+					  "top": {
+						"value": 0
+					  },
+					  "left": {
+						"value": 0
+					  },
+					  "unit": "px",
+					  "color": "#000000",
+					  "right": {
+						"value": 0
+					  },
+					  "bottom": {
+						"value": 0
+					  },
+					  "rounded": {
 						"unit": "px",
-						"top": {
-							"value": 0
+						"topleft": {
+						  "value": 0
 						},
-						"left": {
-							"value": 0
+						"topright": {
+						  "value": 0
 						},
-						"right": {
-							"value": 0
+						"bottomleft": {
+						  "value": 0
 						},
-						"bottom": {
-							"value": 0
+						"bottomright": {
+						  "value": 0
 						}
+					  }
 					},
 					"margin": {
-						"unit": "px",
-						"top": {
-							"value": 0
-						},
-						"left": {
-							"value": 0
-						},
-						"right": {
-							"value": 0
-						},
-						"bottom": {
-							"value": 0
-						}
+					  "top": {
+						"value": 0
+					  },
+					  "left": {
+						"value": 0
+					  },
+					  "unit": "px",
+					  "right": {
+						"value": 0
+					  },
+					  "bottom": {
+						"value": 0
+					  }
 					},
-					"border": {
-						"color": "#000000",
+					"padding": {
+					  "top": {
+						"value": 0
+					  },
+					  "left": {
+						"value": 0
+					  },
+					  "unit": "px",
+					  "right": {
+						"value": 0
+					  },
+					  "bottom": {
+						"value": 0
+					  }
+					},
+					"dimension": {
+					  "width": {
+						"unit": "%",
+						"value": "100"
+					  },
+					  "height": {
 						"unit": "px",
-						"rounded": {
-							"unit": "px",
-							"topright": {
-								"value": 0
-							},
-							"topleft": {
-								"value": 0
-							},
-							"bottomright": {
-								"value": 0
-							},
-							"bottomleft": {
-								"value": 0
-							}
-						},
-						"top": {
-							"value": 0
-						},
-						"left": {
-							"value": 0
-						},
-						"right": {
-							"value": 0
-						},
-						"bottom": {
-							"value": 0
-						}
+						"value": 1000
+					  }
 					}
+				  }
 				}
-			}
+			  
 		}
 	}
 }

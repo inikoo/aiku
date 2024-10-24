@@ -11,8 +11,11 @@ use App\Actions\Catalogue\Charge\StoreCharge;
 use App\Actions\Catalogue\Charge\UpdateCharge;
 use App\Models\Catalogue\Charge;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraCharges extends FetchAuroraAction
 {
@@ -22,20 +25,46 @@ class FetchAuroraCharges extends FetchAuroraAction
     {
         if ($chargeData = $organisationSource->fetchCharge($organisationSourceId)) {
             if ($charge = Charge::where('source_id', $chargeData['charge']['source_id'])->first()) {
-                $charge = UpdateCharge::make()->action(
-                    charge: $charge,
-                    modelData: $chargeData['charge'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
+                try {
+                    $charge = UpdateCharge::make()->action(
+                        charge: $charge,
+                        modelData: $chargeData['charge'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordChange($organisationSource, $charge->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $chargeData['charge'], 'Charge', 'update');
+
+                    return null;
+                }
             } else {
-                $charge = StoreCharge::make()->action(
-                    shop: $chargeData['shop'],
-                    modelData: $chargeData['charge'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
+                try {
+                    $charge = StoreCharge::make()->action(
+                        shop: $chargeData['shop'],
+                        modelData: $chargeData['charge'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    Charge::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $charge,
+                        Arr::except($chargeData['charge'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $charge->source_id);
+                    DB::connection('aurora')->table('Charge Dimension')
+                        ->where('Charge Key', $sourceData[1])
+                        ->update(['aiku_id' => $charge->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $chargeData['charge'], 'Charge', 'store');
+
+                    return null;
+                }
             }
 
             return $charge;

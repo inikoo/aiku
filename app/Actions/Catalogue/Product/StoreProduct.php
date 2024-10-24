@@ -11,6 +11,7 @@ use App\Actions\Catalogue\Asset\StoreAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateProductVariants;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
@@ -34,6 +35,7 @@ use Lorisleiva\Actions\ActionRequest;
 class StoreProduct extends OrgAction
 {
     use WithProductHydrators;
+    use WithNoStrictRules;
 
     private AssetStateEnum|null $state = null;
 
@@ -49,8 +51,8 @@ class StoreProduct extends OrgAction
         data_set($modelData, 'status', $status);
 
 
-        $orgStocks = $modelData['org_stocks'];
-        data_forget($modelData, 'org_stocks');
+        $orgStocks = Arr::pull($modelData, 'org_stocks', []);
+
 
 
         if (count($orgStocks) == 1) {
@@ -121,17 +123,21 @@ class StoreProduct extends OrgAction
                 ]
             );
 
+            $product->orgStocks()->sync($orgStocks);
 
-            foreach ($orgStocks as $orgStocksId => $orgStockData) {
-                $tradeUnit = OrgStock::find($orgStocksId);
-                $product->orgStocks()->attach(
-                    $tradeUnit,
-                    [
-                        'quantity' => $orgStockData['quantity'],
-                        'notes'    => Arr::get($orgStockData, 'notes'),
-                    ]
-                );
-            }
+            //            foreach ($orgStocks as $orgStocksId => $orgStockData) {
+            //                $orgStock = OrgStock::find($orgStocksId);
+            //                $product->orgStocks()->attach(
+            //                    $orgStock,
+            //                    [
+            //                        'quantity'        => $orgStockData['quantity'],
+            //                        'notes'           => Arr::get($orgStockData, 'notes'),
+            //                        'source_id'       => Arr::get($orgStockData, 'source_id'),
+            //                        'fetched_at'      => Arr::get($orgStockData, 'fetched_at'),
+            //                        'last_fetched_at' => Arr::get($orgStockData, 'last_fetched_at'),
+            //                    ]
+            //                );
+            //            }
             $tradeUnits = [];
             foreach ($product->orgStocks as $orgStock) {
                 foreach ($orgStock->stock->tradeUnits as $tradeUnit) {
@@ -252,15 +258,11 @@ class StoreProduct extends OrgAction
             ];
         }
 
-        if ($this->state == ProductStateEnum::DISCONTINUED or !$this->strict) {
-            $rules['org_stocks'] = ['sometimes', 'nullable', 'array'];
-        } else {
-            $rules['org_stocks'] = ['required', 'array'];
-        }
+
+        $rules['org_stocks'] = ['present','array'];
+
         if (!$this->strict) {
-            $rules['created_at']         = ['sometimes', 'date'];
-            $rules['fetched_at']         = ['sometimes', 'date'];
-            $rules['source_id']          = ['sometimes', 'required', 'string', 'max:255'];
+            $rules                       = $this->noStrictStoreRules($rules);
             $rules['historic_source_id'] = ['sometimes', 'required', 'string', 'max:255'];
         }
 

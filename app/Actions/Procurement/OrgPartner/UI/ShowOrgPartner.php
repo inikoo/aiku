@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\OrgPartner\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgPartner\WithOrgPartnerSubNavigation;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\OrgPartnerTabsEnum;
 use App\Http\Resources\SupplyChain\SupplierResource;
@@ -21,6 +22,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowOrgPartner extends OrgAction
 {
+    use WithOrgPartnerSubNavigation;
+
     public function handle(OrgPartner $orgPartner): OrgPartner
     {
         return $orgPartner;
@@ -54,11 +57,17 @@ class ShowOrgPartner extends OrgAction
                             'title' => __('partner')
                         ],
                     'title' => $orgPartner->partner->name,
+                    'subNavigation' => $this->getOrgPartnerNavigation($orgPartner),
                 ],
                 'tabs'                                               => [
                     'current'    => $this->tab,
                     'navigation' => OrgPartnerTabsEnum::navigation()
                 ],
+
+                OrgPartnerTabsEnum::SHOWCASE->value => $this->tab == OrgPartnerTabsEnum::SHOWCASE->value ?
+                fn () => GetOrgPartnerShowcase::run($orgPartner)
+                : Inertia::lazy(fn () => GetOrgPartnerShowcase::run($orgPartner)),
+
             ]
         );
     }

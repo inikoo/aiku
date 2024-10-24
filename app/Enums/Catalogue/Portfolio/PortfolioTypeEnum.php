@@ -15,4 +15,5 @@ enum PortfolioTypeEnum: string
 
     case MANUAL  = 'manual';
     case SHOPIFY = 'shopify';
+    case WOOCOMMERCE = 'woocommerce';
 }
