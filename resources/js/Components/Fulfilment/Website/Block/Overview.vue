@@ -151,7 +151,7 @@ onBeforeUnmount(() => {
 				:draggable="true"
 				:scalable="true"
 				@drag="onDragText"
-				@resiz="onTextScale"
+				@scale="onTextScale"
 				:snapDirections="{ top: true, left: true, bottom: true, right: true }"
 				:elementSnapDirections="{
 					top: true,

@@ -15,11 +15,12 @@ const props = defineProps<{
     uploadRoute: routeType
     useCrop?: boolean
     isLoading?: boolean
+    fileLimit?: number
 }>()
 
 const emits = defineEmits<{
     (e: 'onFinishUpload'): void
-    (e: 'onSubmitUpload', clearCallback: Function): void
+    (e: 'onSubmitUpload', files: File[], clearCallback: Function): void
 }>()
 
 
@@ -49,6 +50,7 @@ const formatSize = (bytes: number) => {
             name="image"
             :url="uploadRoute"
             :multiple="true"
+            :fileLimit
             accept="image/*"
             :maxFileSize="10000000"
             @upload=""
@@ -58,7 +60,7 @@ const formatSize = (bytes: number) => {
             <template #header="{ chooseCallback, uploadCallback, clearCallback, files }">
                 <div class="flex flex-wrap justify-center items-center flex-1 gap-4">
                     <Button @click="chooseCallback()" label="Choose" icon="fal fa-images" type="tertiary" />
-                    <Button @click="emits('onSubmitUpload', clearCallback)" label="Upload" icon="fal fa-upload" :loading="isLoading" :disabled="!files || files.length === 0" />
+                    <Button @click="emits('onSubmitUpload', files, clearCallback)" label="Upload" icon="fal fa-upload" :loading="isLoading" :disabled="!files || files.length === 0" />
                     <Button @click="clearCallback()" label="Clear" type="negative" :disabled="!files || files.length === 0" />
                 </div>
             </template>
