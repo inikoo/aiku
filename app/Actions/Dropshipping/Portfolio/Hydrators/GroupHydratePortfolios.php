@@ -23,7 +23,7 @@ class GroupHydratePortfolios extends OrgAction
     use WithEnumStats;
 
 
-    private Group $group;
+    protected Group $group;
 
     public function __construct(Group $group)
     {
