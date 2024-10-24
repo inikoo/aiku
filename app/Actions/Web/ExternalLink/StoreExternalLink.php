@@ -76,7 +76,7 @@ class StoreExternalLink extends OrgAction
                 'required',
                 'ascii',
                 'lowercase',
-                'max:255',
+                'max:10000',
                 new AlphaDashSlash(),
             ],
             'webpage_id' => [

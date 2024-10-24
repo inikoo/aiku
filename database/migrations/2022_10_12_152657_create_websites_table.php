@@ -56,6 +56,10 @@ return new class () extends Migration {
             $table->unsignedInteger('register_id')->index()->nullable();
             $table->unsignedInteger('basket_id')->index()->nullable();
             $table->unsignedInteger('checkout_id')->index()->nullable();
+            $table->unsignedInteger('call_back_id')->index()->nullable();
+            $table->unsignedInteger('appointment_id')->index()->nullable();
+            $table->unsignedInteger('pricing_id')->index()->nullable();
+
 
             $table->string('cloudflare_id')->index()->nullable();
             $table->string('cloudflare_status')->nullable()->default(WebsiteCloudflareStatusEnum::NOT_SET->value);

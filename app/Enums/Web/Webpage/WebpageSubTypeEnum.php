@@ -19,7 +19,7 @@ enum WebpageSubTypeEnum: string
     case PRODUCTS = 'products';
 
     case PRODUCT = 'product';
-    case FAMILY     = 'family';
+    case FAMILY = 'family';
     case DEPARTMENT = 'department';
     case COLLECTION = 'collection';
 
@@ -32,22 +32,20 @@ enum WebpageSubTypeEnum: string
     case SHIPPING = 'shipping';
     case SHOWROOM = 'showroom';
     case TERMS_AND_CONDITIONS = 'terms-and-conditions';
-    case PRIVACY        = 'privacy';
+    case PRIVACY = 'privacy';
     case COOKIES_POLICY = 'cookies-policy';
 
     case BASKET = 'basket';
     case CHECKOUT = 'checkout';
-    case LOGIN    = 'login';
+    case LOGIN = 'login';
     case REGISTER = 'register';
+    case CALL_BACK = 'call-back';
     case APPOINTMENT = 'appointment';
+    case PRICING = 'pricing';
 
 
-    case BLOG    = 'blog';
+    case BLOG = 'blog';
     case ARTICLE = 'article';
-
-
-
-
 
 
     public static function labels(): array

@@ -96,8 +96,14 @@ class FetchAuroraWebsites extends FetchAuroraAction
 
                 $result = $this->saveFixedWebpageMigrationData($organisationSource, $website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::COOKIES_POLICY)->first(), 'cookie_policy');
                 if (!$result) {
+                    $result = $this->saveFixedWebpageMigrationData($organisationSource, $website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::COOKIES_POLICY)->first(), 'cookies_policy');
+                }
+                if (!$result) {
                     $result = $this->saveFixedWebpageMigrationData($organisationSource, $website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::COOKIES_POLICY)->first(), 'cookiespolicy');
                 }
+
+
+
                 if (!$result) {
                     $result = $this->saveFixedWebpageMigrationData($organisationSource, $website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::COOKIES_POLICY)->first(), 'cookies');
                 }
@@ -116,6 +122,10 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 if (!$result) {
                     $this->saveFixedWebpageMigrationData($organisationSource, $website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::PRIVACY)->first(), 'integritet');
                 }
+
+                $this->saveFixedWebpageMigrationData($organisationSource, $website, $website->webpages()->where('sub_type', WebpageSubTypeEnum::PRICING)->first(), 'pricing');
+
+
             }
 
 

@@ -20,6 +20,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $number_current_portfolios
  * @property int $number_products
  * @property int $number_current_products
+ * @property int $number_portfolios_platform_shopify
+ * @property int $number_portfolios_platform_woocommerce
  * @property int $number_products_state_in_process
  * @property int $number_products_state_active
  * @property int $number_products_state_discontinuing
