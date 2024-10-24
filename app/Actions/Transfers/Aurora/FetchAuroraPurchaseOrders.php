@@ -21,7 +21,7 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
 {
     use WithAuroraAttachments;
 
-    public string $commandSignature = 'fetch:purchase-orders {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--r|reset} {--w|with=* : Accepted values: attachments}';
+    public string $commandSignature = 'fetch:purchase-orders {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--r|reset} {--w|with=* : Accepted values: transactions}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?PurchaseOrder
     {
@@ -79,7 +79,11 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                 return $purchaseOrder;
             }
 
-            $this->fetchTransactions($organisationSource, $purchaseOrder);
+            if (in_array('transactions', $this->with)) {
+                $this->fetchTransactions($organisationSource, $purchaseOrder);
+            }
+
+
             $this->setAttachments($purchaseOrder);
         }
 

@@ -13,18 +13,13 @@ import Modal from "@/Components/Utils/Modal.vue"
 import { trans } from "laravel-vue-i18n"
 import SliderLandscape from "@/Components/Banners/Slider/SliderLandscape.vue"
 import SliderSquare from "@/Components/Banners/Slider/SliderSquare.vue"
-import Popover from '@/Components/Popover.vue'
-import PureInput from "@/Components/Pure/PureInput.vue"
-import InputUseOption from "@/Components/Pure/InputUseOption.vue"
 
 import { faPresentation, faLink, faExternalLink } from "@fal"
 import { faSpinnerThird } from '@fad'
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { layoutStructure } from '@/Composables/useLayoutStructure'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import { useFormatTime } from '@/Composables/useFormatTime'
-import { Link } from "@inertiajs/vue3"
 import { getStyles } from "@/Composables/styles"
 
 library.add(faPresentation, faLink, faExternalLink, faSpinnerThird)
@@ -61,15 +56,15 @@ const getRouteIndex = () => {
     const currentRoute = route().current()
     if (currentRoute.includes('fulfilments')) {
         return route('grp.org.fulfilments.show.web.banners.index', {
-            organisation: layout.currentParams.organisation,
-            fulfilment: layout.currentParams.fulfilment,
-            website: layout.currentParams.website
+            organisation: route().params['organisation'],
+            fulfilment: route().params['fulfilment'],
+            website: route().params['website'],
         });
     } else {
         return route('grp.org.shops.show.web.banners.index', {
-            organisation: layout.currentParams.organisation,
-            shop: layout.currentParams.shop,
-            website: layout.currentParams.website
+            organisation: route().params['organisation'],
+            shop: route().params['shop'],
+            website: route().params['website'],
         });
     }
 }
@@ -78,16 +73,16 @@ const getRouteShow = () => {
     const currentRoute = route().current()
     if (currentRoute.includes('fulfilments')) {
         return route('grp.org.fulfilments.show.web.banners.show', {
-            organisation: layout.currentParams.organisation,
-            fulfilment: layout.currentParams.fulfilment,
-            website: layout.currentParams.website,
+            organisation: route().params['organisation'],
+            fulfilment: route().params['fulfilment'],
+            website: route().params['website'],
             banner: props.modelValue.banner_slug
         });
     } else {
         return route('grp.org.shops.show.web.banners.show', {
-            organisation: layout.currentParams.organisation,
-            shop: layout.currentParams.shop,
-            website: layout.currentParams.website,
+            organisation: route().params['organisation'],
+            shop: route().params['shop'],
+            website: route().params['website'],
             banner: props.modelValue.banner_slug
         });
     }
@@ -97,6 +92,7 @@ const getBannersList = async (): Promise<void> => {
     try {
         isLoadingFetching.value = true
         const url = getRouteIndex()
+        console.log(getRouteIndex())
         const response = await axios.get(url, {
             params: {
                 'filter[state]': 'live'
@@ -147,6 +143,8 @@ onMounted(() => {
     if (props.modelValue.banner_slug && props.modelValue.banner_id) getDataBanner()
     else getBannersList()
 })
+
+console.log(route().params)
 </script>
 
 <template>
@@ -210,13 +208,13 @@ onMounted(() => {
                     </li>
                 </ul>
 
-                <div v-else class="mt-24 text-center text-gray-500 text-lg italic">
+                <!-- <div v-else class="mt-24 text-center text-gray-500 text-lg italic">
                     <div class="mb-2">{{ trans('You have no banner yet.') }}</div>
                     <a target="_blank"
                         :href="route('grp.org.shops.show.web.banners.index', [layout.currentParams.organisation, layout.currentParams.shop, layout.currentParams.website])">
                         <Button label="Create banner" iconRight="fal fa-external-link" />
                     </a>
-                </div>
+                </div> -->
             </div>
 
             <div v-else class="flex justify-center pt-32 items-center">

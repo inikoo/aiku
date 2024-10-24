@@ -8,6 +8,8 @@
 
 namespace App\Providers;
 
+use Gnikyt\BasicShopifyAPI\BasicShopifyAPI;
+use Gnikyt\BasicShopifyAPI\Options;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 use Lorisleiva\Actions\Facades\Actions;
@@ -28,6 +30,20 @@ class AppServiceProvider extends ServiceProvider
             $this->app->register(\Laravel\Telescope\TelescopeServiceProvider::class);
             $this->app->register(TelescopeServiceProvider::class);
         }
+
+        $this->app->singleton(BasicShopifyAPI::class, function ($app) {
+            $opts = app(Options::class); // Or retrieve as needed
+            $tsClass = config('shopify-app.api_time_store');
+            $lsClass = config('shopify-app.api_limit_store');
+            $sdClass = config('shopify-app.api_deferrer');
+
+            return new BasicShopifyAPI(
+                $opts,
+                new $tsClass(),
+                new $lsClass(),
+                new $sdClass()
+            );
+        });
     }
 
 

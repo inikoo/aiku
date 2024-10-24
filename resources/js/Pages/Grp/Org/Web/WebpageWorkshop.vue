@@ -90,8 +90,14 @@ const sendBlockUpdate = async (block: Daum) => {
             show: block.show
         },
         {
-            onStart: () => isSavingBlock.value = true,
-            onFinish: () => isSavingBlock.value = false,
+            onStart: () => {
+                isLoadingblock.value = 'deleteBlock' + block.id,
+                isSavingBlock.value = true
+            },
+            onFinish: () => {
+                isLoadingblock.value = null,
+                isSavingBlock.value = false
+            },
             onError: (error) => {
                 notify({
                     title: trans('Something went wrong'),
@@ -117,13 +123,13 @@ const sendOrderBlock = async (block: Object) => {
     }
 }
 
-const isLoadingDelete = ref<string | null>(null)
+const isLoadingblock = ref<string | null>(null)
 const sendDeleteBlock = async (block: Daum) => {
     router.delete(
         route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
         {
-            onStart: () => isLoadingDelete.value = 'deleteBlock' + block.id,
-            onFinish: () => isLoadingDelete.value = null,
+            onStart: () => isLoadingblock.value = 'deleteBlock' + block.id,
+            onFinish: () => isLoadingblock.value = null,
             onError: (error) => {
                 notify({
                     title: trans('Something went wrong'),
@@ -202,7 +208,7 @@ onMounted(() => {
     });
 });
 
-console.log(props.webpage)
+console.log('props',props)
 </script>
 
 <template>
@@ -222,7 +228,7 @@ console.log(props.webpage)
     <div class="grid grid-cols-5 h-[85vh]">
         <!-- Section: Side editor -->
         <div class="col-span-1 lg:block hidden h-full border-2 bg-gray-200 px-3 py-1 overflow-auto">
-            <WebpageSideEditor v-model="isModalBlockList" :isLoadingDelete :isAddBlockLoading :webpage="data"
+            <WebpageSideEditor v-model="isModalBlockList" :isLoadingblock :isAddBlockLoading :webpage="data"
                 :webBlockTypes="webBlockTypes" @update="sendBlockUpdate" @delete="sendDeleteBlock" @add="addNewBlock"
                 @order="sendOrderBlock" />
         </div>
@@ -233,7 +239,7 @@ console.log(props.webpage)
                 <div class="py-1 px-2 cursor-pointer lg:hidden block" title="Desktop view" v-tooltip="'Navigation'">
                     <FontAwesomeIcon :icon='faBars' aria-hidden='true' @click="() => openDrawer = true" />
                     <Drawer v-model:visible="openDrawer" :header="''" :dismissable="true">
-                        <WebpageSideEditor v-model="isModalBlockList" ref="_WebpageSideEditor" :webpage="data"
+                        <WebpageSideEditor v-model="isModalBlockList" :isAddBlockLoading  :isLoadingblock ref="_WebpageSideEditor" :webpage="data"
                             :webBlockTypes="webBlockTypes" @update="sendBlockUpdate" @delete="sendDeleteBlock"
                             @add="addNewBlock" @order="sendOrderBlock"
                             @openBlockList="() => { openDrawer = false, isModalBlockList = true }" />

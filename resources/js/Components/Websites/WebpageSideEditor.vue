@@ -32,7 +32,7 @@ const modelModalBlocklist = defineModel()
 const props = defineProps<{
     webpage: RootWebpage
     webBlockTypes: Root
-    isLoadingDelete: string | null
+    isLoadingblock: string | null
     isAddBlockLoading: string | null
 }>()
 
@@ -124,25 +124,49 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                                 </h3>
                             </div>
 
-                            <div class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer">
-                                <div class="flex gap-4">
-                                    <div>
-                                        <FontAwesomeIcon v-tooltip="'show this block'" v-if="!element.show" icon='fal fa-eye-slash'
-                                            class="text-base sm:text-lg md:text-xl lg:text-2xl" fixed-width
-                                            aria-hidden='true'  @click="(e)=>setShowBlock(e,element)"/>
-                                        <FontAwesomeIcon v-tooltip="'hide this block'" v-else icon='fal fa-eye'
-                                            class="text-base sm:text-lg md:text-xl lg:text-2xl" fixed-width
-                                            aria-hidden='true' @click="(e)=>setShowBlock(e,element)" />
-                                    </div>
-                                    <div v-if="!element.show">
-                                        <LoadingIcon v-if="isLoadingDelete === ('deleteBlock' + element.id)"
-                                            class="text-gray-400" />
-                                        <FontAwesomeIcon v-else icon='fal fa-times' v-tooltip="'Delete this block'"
-                                            class="text-base sm:text-lg md:text-xl lg:text-2xl" fixed-width
-                                            aria-hidden='true'   @click="(e) => { e.stopPropagation(), sendDeleteBlock(element) }"/>
-                                    </div>
-                                </div>
-                            </div>
+                            <div
+								class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer">
+								<div>
+									<LoadingIcon
+										v-if="isLoadingblock === 'deleteBlock' + element.id"
+										class="text-gray-400" />
+
+									<div v-else class="flex gap-4">
+                                        <div>
+                                            <FontAwesomeIcon
+                                                v-tooltip="'show this block'"
+                                                v-if="!element.show"
+                                                icon="fal fa-eye-slash"
+                                                class="text-base sm:text-lg md:text-xl lg:text-2xl"
+                                                fixed-width
+                                                aria-hidden="true"
+                                                @click="(e) => setShowBlock(e, element)" />
+                                            <FontAwesomeIcon
+                                                v-tooltip="'hide this block'"
+                                                v-else
+                                                icon="fal fa-eye"
+                                                class="text-base sm:text-lg md:text-xl lg:text-2xl"
+                                                fixed-width
+                                                aria-hidden="true"
+                                                @click="(e) => setShowBlock(e, element)" />
+                                        </div>
+
+										<FontAwesomeIcon
+											v-if="!element.show"
+											icon="fal fa-times"
+											v-tooltip="'Delete this block'"
+											class="text-base sm:text-lg md:text-xl lg:text-2xl"
+											fixed-width
+											aria-hidden="true"
+											@click="
+												(e) => {
+													e.stopPropagation(), 
+                                                    sendDeleteBlock(element)
+												}
+											" />
+									</div>
+								</div>
+							</div>
                         </div>
 
                         <!-- Section: Properties panel -->
