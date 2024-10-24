@@ -20,6 +20,8 @@ trait HasDropshippingStats
         $table->unsignedSmallInteger('number_current_portfolios')->default(0);
         $table->unsignedSmallInteger('number_products')->default(0);
         $table->unsignedSmallInteger('number_current_products')->default(0);
+        $table->unsignedSmallInteger('number_portfolios_platform_shopify')->default(0);
+        $table->unsignedSmallInteger('number_portfolios_platform_woocommerce')->default(0);
 
         foreach (ProductStateEnum::cases() as $case) {
             $table->unsignedInteger('number_products_state_'.$case->snake())->default(0);
