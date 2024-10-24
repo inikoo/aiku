@@ -43,6 +43,7 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
+use App\Models\WooCommerceUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -389,6 +390,11 @@ class Customer extends Model implements HasMedia, Auditable
     public function shopifyUser(): HasOne
     {
         return $this->hasOne(ShopifyUser::class);
+    }
+
+    public function wooCommerceUser(): HasOne
+    {
+        return $this->hasOne(WooCommerceUser::class);
     }
 
     public function deliveryNotes(): HasMany

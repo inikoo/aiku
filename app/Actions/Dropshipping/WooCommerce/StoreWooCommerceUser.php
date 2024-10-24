@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Dropshipping\ShopifyUser;
+namespace App\Actions\Dropshipping\WooCommerce;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -13,13 +13,12 @@ use App\Enums\Ordering\Platform\PlatformTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Dropshipping\Platform;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreShopifyUser extends OrgAction
+class StoreWooCommerceUser extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -29,12 +28,10 @@ class StoreShopifyUser extends OrgAction
     {
         data_set($modelData, 'group_id', $customer->group_id);
         data_set($modelData, 'organisation_id', $customer->organisation_id);
-        data_set($modelData, 'username', Str::random(4));
-        data_set($modelData, 'password', Str::random(8));
 
-        $customer->shopifyUser()->create($modelData);
+        $customer->wooCommerceUser()->create($modelData);
 
-        $customer->platforms()->attach(Platform::where('type', PlatformTypeEnum::SHOPIFY->value)->first(), [
+        $customer->platforms()->attach(Platform::where('type', PlatformTypeEnum::WOOCOMMERCE->value)->first(), [
             'group_id'        => $customer->group_id,
             'organisation_id' => $customer->organisation_id,
             'shop_id'         => $customer->shop_id
@@ -53,13 +50,13 @@ class StoreShopifyUser extends OrgAction
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255', 'ends_with:.' . config('shopify-app.myshopify_domain'), Rule::unique('shopify_users', 'name')]
+            'name' => ['required', 'string', 'max:255', Rule::unique('woo_commerce_users', 'name')]
         ];
     }
 
     public function prepareForValidation(ActionRequest $request): void
     {
-        $this->set('name', $request->input('name').'.'.config('shopify-app.myshopify_domain'));
+        $this->set('name', $request->input('name'));
     }
 
     public function asController(ActionRequest $request): void
