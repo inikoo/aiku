@@ -1,12 +1,36 @@
 <script setup lang='ts'>
+import ShowcaseStats from '@/Components/ShowcaseStats.vue'
+import ShowcaseContactCard from "@/Components/ShowcaseContactCard.vue"
+import BoxDisplay from "@/Components/DataDisplay/BoxDisplay.vue"
+import { Agent } from '@/types/Grp/Agent'
+
 const props = defineProps<{
-    data: {}
+    data: {
+        contactCard: Agent
+        stats: {
+            label: string
+            count: number
+            description?: string
+            full?: boolean
+        }[]
+    }
+
 }>()
 </script>
 
 <template>
-    <div>
-        Partner Showcase
-        {{ data }}
+   <div class="grid text-gray-600 gap-y-3 md:gap-y-0 md:grid-cols-2 px-4 pt-4 gap-x-6">
+        <!-- Section 1 -->
+        <div class="">
+            <ShowcaseContactCard :data="data.contactCard" />
+        </div>
+
+        <!-- Section 2: Statistic -->
+        <div class="">
+            <BoxDisplay :data="data.stats" />
+            <!-- <ShowcaseStats :data="data.stats" /> -->
+        </div>
+
+
     </div>
 </template>
