@@ -22,7 +22,7 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
 {
     use WithAuroraAttachments;
 
-    public string $commandSignature = 'fetch:stock-deliveries {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
+    public string $commandSignature = 'fetch:stock-deliveries {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?StockDelivery
     {
@@ -81,7 +81,11 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
 
             $this->setAttachments($stockDelivery);
 
-            //  $this->fetchTransactions($organisationSource, $stockDelivery);
+            if (in_array('transactions', $this->with)) {
+                $this->fetchTransactions($organisationSource, $stockDelivery);
+            }
+
+
 
             return $stockDelivery;
         }
@@ -94,24 +98,24 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
         $this->processFetchAttachments($stockDelivery, 'Supplier Delivery');
     }
 
-    /*
 
-    private function fetchTransactions($organisationSource, $order): void
+
+    private function fetchTransactions($organisationSource, StockDelivery $stockDelivery): void
     {
-        $transactionsToDelete = $order->transactions()->where('type', TransactionTypeEnum::ORDER)->pluck('source_id', 'id')->all();
-        foreach (
-            DB::connection('aurora')
-                ->table('Order Transaction Fact')
-                ->select('Order Transaction Fact Key')
-                ->where('Order Key', $order->source_id)
-                ->get() as $auroraData
-        ) {
-            $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
-            FetchAuroraTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $order);
-        }
-        $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
+        //        $transactionsToDelete = $stockDelivery->transactions()->where('type', TransactionTypeEnum::ORDER)->pluck('source_id', 'id')->all();
+        //        foreach (
+        //            DB::connection('aurora')
+        //                ->table('Order Transaction Fact')
+        //                ->select('Order Transaction Fact Key')
+        //                ->where('Order Key', $order->source_id)
+        //                ->get() as $auroraData
+        //        ) {
+        //            $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Order Transaction Fact Key'}]);
+        //            FetchAuroraTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $order);
+        //        }
+        //        $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }
-    */
+
 
 
     public function getModelsQuery(): Builder
