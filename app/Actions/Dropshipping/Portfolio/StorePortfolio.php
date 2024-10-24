@@ -9,6 +9,7 @@ namespace App\Actions\Dropshipping\Portfolio;
 
 use App\Actions\Dropshipping\Portfolio\Hydrators\CustomerHydratePortfolios;
 use App\Actions\Dropshipping\Portfolio\Hydrators\GroupHydratePortfolios;
+use App\Actions\Dropshipping\Portfolio\Hydrators\HydratePortfolio;
 use App\Actions\Dropshipping\Portfolio\Hydrators\OrganisationHydratePortfolios;
 use App\Actions\Dropshipping\Portfolio\Hydrators\ShopHydratePortfolios;
 use App\Actions\OrgAction;
@@ -48,10 +49,12 @@ class StorePortfolio extends OrgAction
         });
 
         // todo #1115 put here the hydrators
+        HydratePortfolio::run($portfolio);
         GroupHydratePortfolios::run($customer->group);
         OrganisationHydratePortfolios::run($customer->organisation);
         ShopHydratePortfolios::run($customer->shop);
         CustomerHydratePortfolios::run($customer);
+
 
         return $portfolio;
     }

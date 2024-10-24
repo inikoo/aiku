@@ -36,7 +36,7 @@ class HydratePortfolio extends OrgAction
     public function handle(Portfolio $dropshippingCustomerPortfolio): void
     {
         $stats = [
-            'amount'                  => $dropshippingCustomerPortfolio->customer->orders()->sum('net'),
+            'amount'                  => $dropshippingCustomerPortfolio->customer->orders()->sum('net_amount'),
             'number_orders'           => $dropshippingCustomerPortfolio->customer->orders()->count(),
             'number_ordered_quantity' => $dropshippingCustomerPortfolio->customer->orders()->where('state', OrderStateEnum::DISPATCHED->value)->count(),
             'number_clients'          => $dropshippingCustomerPortfolio->customer->clients()->count(),
