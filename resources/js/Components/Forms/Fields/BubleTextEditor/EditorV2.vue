@@ -333,7 +333,7 @@ onBeforeUnmount(() => {
                         </div>
 
                         <div
-                            class="absolute left-0 right-0 mt-1 z-10 hidden group-hover:block max-h-48 overflow-y-auto bg-white shadow-lg border border-gray-300 rounded-md">
+                            class="w-min h-48 overflow-y-auto cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
                             <div
                                 v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
                                 :key="fontsize"

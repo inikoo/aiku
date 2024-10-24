@@ -87,7 +87,7 @@
 					},
 					"dimension": {
 						"width": { "unit": "%", "value": "100" },
-						"height": { "unit": "px", "value": 1000 }
+						"height": { "unit": "%", "value": "100" }
 					}
 				}
 			}
