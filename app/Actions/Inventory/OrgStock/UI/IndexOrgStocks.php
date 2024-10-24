@@ -9,6 +9,7 @@ namespace App\Actions\Inventory\OrgStock\UI;
 
 use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\Inventory\HasInventoryAuthorisation;
+use App\Actions\Inventory\OrgStockFamily\UI\IndexOrgStockFamilies;
 use App\Actions\Inventory\UI\ShowInventoryDashboard;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
@@ -17,6 +18,8 @@ use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
 use App\Actions\Procurement\OrgPartner\WithOrgPartnerSubNavigation;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
+use App\Enums\UI\SupplyChain\OrgStocksTabsEnum;
+use App\Http\Resources\Inventory\OrgStockFamiliesResource;
 use App\Http\Resources\Inventory\OrgStocksResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\OrgStock;
@@ -46,7 +49,7 @@ class IndexOrgStocks extends OrgAction
     public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(OrgStocksTabsEnum::values());
         $this->parent = $organisation;
 
         return $this->handle(parent: $organisation);
@@ -56,7 +59,7 @@ class IndexOrgStocks extends OrgAction
     {
         $this->bucket = 'all';
         $this->maya   = true;
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(OrgStocksTabsEnum::values());
         $this->parent = $organisation;
 
         return $this->handle(parent: $organisation);
@@ -67,7 +70,7 @@ class IndexOrgStocks extends OrgAction
     {
         $this->bucket = 'current';
         $this->parent = $organisation;
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(OrgStocksTabsEnum::values());
 
         return $this->handle($this->parent);
     }
@@ -76,7 +79,7 @@ class IndexOrgStocks extends OrgAction
     {
         $this->bucket = 'active';
         $this->parent = $organisation;
-        $this->initialisation($this->parent, $request);
+        $this->initialisation($this->parent, $request)->withTab(OrgStocksTabsEnum::values());
 
         return $this->handle($this->parent);
     }
@@ -85,7 +88,7 @@ class IndexOrgStocks extends OrgAction
     {
         $this->bucket = 'in_process';
         $this->parent = $organisation;
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(OrgStocksTabsEnum::values());
 
         return $this->handle($this->parent);
     }
@@ -95,7 +98,7 @@ class IndexOrgStocks extends OrgAction
         $this->bucket = 'discontinuing';
         $this->parent = $organisation;
 
-        $this->initialisation($this->parent, $request);
+        $this->initialisation($this->parent, $request)->withTab(OrgStocksTabsEnum::values());
 
         return $this->handle($this->parent);
     }
@@ -105,7 +108,7 @@ class IndexOrgStocks extends OrgAction
         $this->bucket = 'discontinued';
         $this->parent = $organisation;
 
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(OrgStocksTabsEnum::values());
 
         return $this->handle($this->parent);
     }
@@ -113,7 +116,7 @@ class IndexOrgStocks extends OrgAction
     public function inStockFamily(Organisation $organisation, Warehouse $warehouse, OrgStockFamily $orgStockFamily, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(OrgStocksTabsEnum::values());
         $this->parent = $orgStockFamily;
 
         return $this->handle(parent: $orgStockFamily);
@@ -122,7 +125,7 @@ class IndexOrgStocks extends OrgAction
     public function inOrgAgent(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
-        $this->initialisation($organisation, $request);
+        $this->initialisation($organisation, $request)->withTab(OrgStocksTabsEnum::values());
         $this->parent = $orgAgent;
 
         return $this->handle(parent: $orgAgent);
@@ -131,7 +134,7 @@ class IndexOrgStocks extends OrgAction
     public function inOrgPartner(Organisation $organisation, OrgPartner $orgPartner, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
-        $this->initialisation($organisation, $request);
+        $this->initialisation($organisation, $request)->withTab(OrgStocksTabsEnum::values());
         $this->parent = $orgPartner;
 
         return $this->handle(parent: $orgPartner);
@@ -161,6 +164,7 @@ class IndexOrgStocks extends OrgAction
         if ($bucket) {
             $this->bucket = $bucket;
         }
+        // dd($this->bucket);
 
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -240,6 +244,15 @@ class IndexOrgStocks extends OrgAction
                     ->name($prefix)
                     ->pageName($prefix.'Page');
             }
+
+            foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
+                $table->elementGroup(
+                    key: $key,
+                    label: $elementGroup['label'],
+                    elements: $elementGroup['elements']
+                );
+            }
+
             $table
                 ->defaultSort('code')
                 ->withGlobalSearch()
@@ -323,10 +336,13 @@ class IndexOrgStocks extends OrgAction
 
         if ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
+            $organisation = $this->parent->partner;
         } elseif ($this->parent instanceof OrgAgent) {
             $subNavigation = $this->getOrgAgentNavigation($this->parent);
+            $organisation = $this->parent->agent->organisation;
         } else {
             $subNavigation = $this->getOrgStocksSubNavigation();
+            $organisation = $this->parent;
         }
 
 
@@ -371,10 +387,25 @@ class IndexOrgStocks extends OrgAction
                     ],
                     'subNavigation' => $subNavigation
                 ],
+                'tabs'        => [
+                    'current'    => $this->tab,
+                    'navigation' => OrgStocksTabsEnum::navigation()
+                ],
                 'data'        => OrgStocksResource::collection($stocks),
 
+                OrgStocksTabsEnum::ORG_STOCKS->value => $this->tab == OrgStocksTabsEnum::ORG_STOCKS->value ?
+                fn () => OrgStocksResource::collection($stocks)
+                : Inertia::lazy(fn () => OrgStocksResource::collection($stocks)),
+
+                OrgStocksTabsEnum::ORG_STOCK_FAMILIES->value => $this->tab == OrgStocksTabsEnum::ORG_STOCK_FAMILIES->value ?
+                fn () => OrgStockFamiliesResource::collection(IndexOrgStockFamilies::run($organisation))
+                : Inertia::lazy(fn () => OrgStockFamiliesResource::collection(IndexOrgStockFamilies::run($organisation))),
+
+
+
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure(parent: $this->parent, prefix: OrgStocksTabsEnum::ORG_STOCKS->value))
+        ->table(IndexOrgStockFamilies::make()->tableStructure(organisation: $organisation, prefix: OrgStocksTabsEnum::ORG_STOCK_FAMILIES->value));
     }
 
 
