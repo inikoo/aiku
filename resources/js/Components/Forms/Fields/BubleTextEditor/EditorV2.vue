@@ -34,6 +34,7 @@ import Image from "@tiptap/extension-image"
 import TextStyle from '@tiptap/extension-text-style'
 import customLink from '@/Components/Forms/Fields/BubleTextEditor/CustomLink/CustomLinkExtension.js'
 import { Color } from '@tiptap/extension-color'
+import FontSize from 'tiptap-extension-font-size'
 /* import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue' */
 import ColorPicker from 'primevue/colorpicker';
 
@@ -170,6 +171,9 @@ const editorInstance = useEditor({
         Gapcursor,
         Image,
         TextStyle,
+        FontSize.configure({
+            types: ['textStyle'],
+        }),
         Color.configure({
             types: ['textStyle'],
         }),
@@ -285,22 +289,63 @@ onBeforeUnmount(() => {
                     </TiptapToolbarButton>
                 </TiptapToolbarGroup>
                 <TiptapToolbarGroup>
-                    <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 1"
+                    <TiptapToolbarButton
+                        v-if="toogle.includes('heading')" 
+                        label="Heading 1"
                         :is-active="editorInstance?.isActive('heading', { level: 1 })"
-                        @click="editorInstance?.chain().focus().toggleHeading({ level: 1 }).run()">
+                        @click="editorInstance?.chain().focus().toggleHeading({ level: 1 }).run()"
+                        class="toolbar-button">
                         <FontAwesomeIcon :icon="faH1" class="h-5 w-5" />
                     </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 2"
+
+                    <TiptapToolbarButton
+                        v-if="toogle.includes('heading')" 
+                        label="Heading 2"
                         :is-active="editorInstance?.isActive('heading', { level: 2 })"
-                        @click="editorInstance?.chain().focus().toggleHeading({ level: 2 }).run()">
+                        @click="editorInstance?.chain().focus().toggleHeading({ level: 2 }).run()"
+                        class="toolbar-button">
                         <FontAwesomeIcon :icon="faH2" class="h-5 w-5" />
                     </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 3"
+
+                    <TiptapToolbarButton
+                        v-if="toogle.includes('heading')" 
+                        label="Heading 3"
                         :is-active="editorInstance?.isActive('heading', { level: 3 })"
-                        @click="editorInstance?.chain().focus().toggleHeading({ level: 3 }).run()">
+                        @click="editorInstance?.chain().focus().toggleHeading({ level: 3 }).run()"
+                        class="toolbar-button">
                         <FontAwesomeIcon :icon="faH3" class="h-5 w-5" />
                     </TiptapToolbarButton>
                 </TiptapToolbarGroup>
+
+                <TiptapToolbarGroup>
+                    <div class="group relative inline-block w-20">
+                        <div
+                            class="text-sm py-1 px-2 border rounded-md cursor-pointer bg-white border-gray-300 hover:border-gray-400 flex items-center justify-between transition">
+                            <span id="tiptapfontsize">
+                                {{ editorInstance?.getAttributes('textStyle').fontSize || 'Text size' }}
+                            </span>
+                            <FontAwesomeIcon 
+                                v-if="editorInstance?.getAttributes('textStyle').fontSize"
+                                @click="editorInstance?.chain().focus().unsetFontSize().run()"
+                                icon="fal fa-times" 
+                                class="text-red-500 ml-2 cursor-pointer" 
+                                aria-hidden="true" />
+                        </div>
+
+                        <div
+                            class="absolute left-0 right-0 mt-1 z-10 hidden group-hover:block max-h-48 overflow-y-auto bg-white shadow-lg border border-gray-300 rounded-md">
+                            <div
+                                v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
+                                :key="fontsize"
+                                class="px-4 py-2 text-left text-sm cursor-pointer hover:bg-gray-100"
+                                :class="{ 'bg-indigo-600 text-white': parseInt(editorInstance?.getAttributes('textStyle').fontSize, 10) === parseInt(fontsize) }"
+                                @click="editorInstance?.chain().focus().setFontSize(fontsize + 'px').run()">
+                                {{ fontsize }}
+                            </div>
+                        </div>
+                    </div>
+                </TiptapToolbarGroup>
+
 
                 <TiptapToolbarGroup>
                     <TiptapToolbarButton v-if="toogle.includes('bold')" label="Bold"
