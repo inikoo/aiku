@@ -30,14 +30,13 @@ const emits = defineEmits<{
 	(e: "autoSave"): void
 }>()
 
-console.log('overview2',props)
 </script>
 
 <template>
-	<div class="container flex flex-wrap justify-between w-[900px] h-[600px] bg-white p-4">
+	<div class="container flex flex-wrap justify-between" :styles="getStyles(modelValue.container.properties)">
 		<!-- Image Section -->
 		<div
-			class="imgBx relative flex items-center justify-center w-1/2 h-full bg-gray-900 transition-all duration-300">
+			class="imgBx relative flex items-center justify-center w-1/2  bg-gray-900 transition-all duration-300">
 			<img
 				class="relative w-[700px]"
 				src="https://github.com/anuzbvbmaniac/Responsive-Product-Card---CSS-ONLY/blob/master/assets/img/jordan_proto.png?raw=true"

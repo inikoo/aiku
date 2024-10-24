@@ -120,7 +120,7 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                                     <FontAwesomeIcon icon="fal fa-bars" class="handle text-sm cursor-grab pr-3 mr-2" />
                                 </div>
                                 <h3 class="lg:text-sm text-xs capitalize font-medium select-none">
-                                    {{ element.type }}
+                                    {{ element.name ||  element.type }}
                                 </h3>
                             </div>
 
