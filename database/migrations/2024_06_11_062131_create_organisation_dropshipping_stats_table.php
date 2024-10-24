@@ -20,7 +20,6 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $this->dropshippingStats($table);
-            $table->unsignedSmallInteger('number_active_portfolios')->default(0);
             $table->unsignedSmallInteger('number_portfolios_platform_shopify')->default(0);
             $table->unsignedSmallInteger('number_portfolios_platform_woocommerce')->default(0);
             $table->timestampsTz();
