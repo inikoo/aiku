@@ -50,7 +50,7 @@ const formatSize = (bytes: number) => {
             name="image"
             :url="uploadRoute"
             :multiple="true"
-            :fileLimit="4"
+            :fileLimit
             accept="image/*"
             :maxFileSize="10000000"
             @upload=""
