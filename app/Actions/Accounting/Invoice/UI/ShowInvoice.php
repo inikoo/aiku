@@ -110,8 +110,7 @@ class ShowInvoice extends OrgAction
 
         $customerRoute = [];
 
-        if($this->parent instanceof Fulfilment)
-        {
+        if ($this->parent instanceof Fulfilment) {
             $customerRoute = [
                 'name'         => 'grp.org.fulfilments.show.crm.customers.show',
                 'parameters'   => [

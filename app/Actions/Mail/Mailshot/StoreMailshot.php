@@ -11,10 +11,12 @@ use App\Actions\Mail\Mailshot\UI\HasUIMailshots;
 use App\Actions\Mail\Outbox\Hydrators\OutboxHydrateMailshots;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Models\Catalogue\Shop;
+use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Enums\Mail\Mailshot\MailshotTypeEnum;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
-use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rules\Enum;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -26,31 +28,88 @@ class StoreMailshot extends OrgAction
     use WithAttributes;
     use HasUIMailshots;
     use HasCatalogueAuthorisation;
+    use WithNoStrictRules;
 
-    public function handle(Outbox|Shop $parent, array $modelData): Mailshot
+    /**
+     * @throws \Throwable
+     */
+    public function handle(Outbox $outbox, array $modelData): Mailshot
     {
-        if ($parent instanceof Outbox) {
-            $modelData['shop_id'] = $parent->shop_id;
-        }
-
-        /** @var Mailshot $mailshot */
-        $mailshot = $parent->mailshots()->create($modelData);
-        $mailshot->stats()->create();
+        $modelData['shop_id'] = $outbox->shop_id;
 
 
-        if ($parent instanceof Outbox) {
-            OutboxHydrateMailshots::run($parent);
-        }
+        $mailshot = DB::transaction(function () use ($outbox, $modelData) {
+            /** @var Mailshot $mailshot */
+            $mailshot = $outbox->mailshots()->create($modelData);
+            $mailshot->stats()->create();
+
+            return $mailshot;
+        });
+
+
+        OutboxHydrateMailshots::dispatch($outbox)->delay($this->hydratorsDelay);
 
         return $mailshot;
     }
 
-    public function asController(Organisation $organisation, Shop $shop, ActionRequest $request): Mailshot
+    public function authorize(ActionRequest $request): bool
     {
-        $this->initialisationFromShop($shop, $request);
-
-        return $this->handle($shop, $this->validatedData);
+        if ($this->asAction) {
+            return true;
+        }
+        //todo
+        return false;
     }
+
+
+    public function rules(): array
+    {
+        $rules = [
+            'subject'           => ['required', 'string', 'max:255'],
+            'type'              => ['required', new Enum(MailshotTypeEnum::class)],
+            'recipients_recipe' => ['present', 'array']
+
+        ];
+
+        if (!$this->strict) {
+
+            $rules = $this->noStrictStoreRules($rules);
+
+        }
+
+        return $rules;
+    }
+
+
+    /**
+     * @throws \Throwable
+     */
+    public function action(Outbox $outbox, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Mailshot
+    {
+        if (!$audit) {
+            Mailshot::disableAuditing();
+        }
+
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+
+
+        $this->initialisationFromShop($outbox->shop, $modelData);
+
+        return $this->handle($outbox, $this->validatedData);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function asController(Outbox $outbox, ActionRequest $request): Mailshot
+    {
+        $this->initialisationFromShop($outbox->shop, $request);
+
+        return $this->handle($outbox, $this->validatedData);
+    }
+
 
     public function htmlResponse(Mailshot $mailshot): \Symfony\Component\HttpFoundation\Response
     {
@@ -58,24 +117,5 @@ class StoreMailshot extends OrgAction
             'organisation' => $mailshot->shop->organisation->slug,
             'shop'         => $mailshot->shop->slug
         ]));
-    }
-
-    /*
-    public function rules(): array
-    {
-        return [
-            'code'         => ['required', 'unique:mailshots', 'between:2,256', 'alpha_dash'],
-            'name'         => ['required', 'max:250', 'string'],
-        ];
-    }
-    */
-
-    public function action(Outbox $outbox, array $modelData): Mailshot
-    {
-        $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
-
-        return $this->handle($outbox, $validatedData);
     }
 }

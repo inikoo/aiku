@@ -7,16 +7,18 @@
 
 namespace App\Actions\Mail\Mailshot;
 
+use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Mail\Mailshot;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateMailshot
+class UpdateMailshot extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
-    private bool $asAction = false;
 
     public function handle(Mailshot $mailshot, array $modelData): Mailshot
     {
@@ -28,28 +30,41 @@ class UpdateMailshot
         if ($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+        //todo
+        return false;
     }
-    //    public function rules(): array
-    //    {
-    //        return [
-    //            'code'         => ['sometimes', 'required', 'unique:mailshots', 'between:2,256', 'alpha_dash'],
-    //            'name'         => ['sometimes', 'required', 'max:250', 'string'],
-    //        ];
-    //    }
 
-    public function action(Mailshot $mailshot, $modelData): Mailshot
+    public function rules(): array
     {
-        $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $rules = [
+            'subject'           => ['sometimes','required', 'string', 'max:255'],
+            'recipients_recipe' => ['present', 'array']
+        ];
 
-        return $this->handle($mailshot, $validatedData);
+        if (!$this->strict) {
+            $rules = $this->noStrictUpdateRules($rules);
+        }
+
+        return $rules;
+    }
+
+    public function action(Mailshot $mailshot, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Mailshot
+    {
+        $this->strict = $strict;
+        if (!$audit) {
+            Mailshot::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFromShop($mailshot->shop, $modelData);
+
+        return $this->handle($mailshot, $this->validatedData);
     }
     public function asController(Mailshot $mailshot, ActionRequest $request): Mailshot
     {
-        $request->validate();
-        return $this->handle($mailshot, $request->all());
+        $this->initialisationFromShop($mailshot->shop, $request);
+
+        return $this->handle($mailshot, $this->validatedData);
     }
 
 

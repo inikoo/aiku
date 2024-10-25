@@ -11,6 +11,7 @@ use App\Actions\Utils\Abbreviate;
 use App\Enums\Mail\Mailshot\MailshotStateEnum;
 use App\Enums\Mail\Mailshot\MailshotTypeEnum;
 use App\Models\Catalogue\Shop;
+use App\Models\Traits\HasHistory;
 use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\SlugOptions;
 
 /**
@@ -50,10 +52,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property MailshotTypeEnum $type
+ * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\Mail\DispatchedEmail> $dispatchedEmails
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
@@ -71,11 +76,12 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder<static>|Mailshot withoutTrashed()
  * @mixin Eloquent
  */
-class Mailshot extends Model
+class Mailshot extends Model implements Auditable
 {
     use SoftDeletes;
     use HasFactory;
     use InShop;
+    use HasHistory;
 
     protected $casts = [
         'recipients_recipe' => 'array',
@@ -100,6 +106,19 @@ class Mailshot extends Model
 
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return [
+            'marketing'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'subject',
+        'schedule_at',
+    ];
+
 
     public function getSlugOptions(): SlugOptions
     {
