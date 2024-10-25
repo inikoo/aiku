@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_websites_type_b2c
  * @property int $number_websites_type_dropshipping
  * @property int $number_websites_type_fulfilment
+ * @property int $number_websites_type_digital_agency
  * @property int $number_websites_state_in_process
  * @property int $number_websites_state_live
  * @property int $number_websites_state_closed
@@ -58,7 +59,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_webpages_sub_type_checkout
  * @property int $number_webpages_sub_type_login
  * @property int $number_webpages_sub_type_register
+ * @property int $number_webpages_sub_type_call_back
  * @property int $number_webpages_sub_type_appointment
+ * @property int $number_webpages_sub_type_pricing
  * @property int $number_webpages_sub_type_blog
  * @property int $number_webpages_sub_type_article
  * @property int $number_redirects

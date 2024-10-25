@@ -292,8 +292,8 @@ const sendToIframe = (data: any) => {
                     </div>
                 </div>
                 
-                <div class="w-full py-2 px-3">
-                    <div class="text-lg font-semibold flex items-center justify-between gap-3 border-b border-gray-300">
+                <div class="w-full py-2 px-3 overflow-y-auto">
+                    <div class="sticky top-0 bg-gray-50 z-20 text-lg font-semibold flex items-center justify-between gap-3 border-b border-gray-300">
                         <div class="flex items-center gap-3">
                             <FontAwesomeIcon :icon="selectedTab.icon" aria-hidden="true" />
                             <span>{{ selectedTab.label }}</span>

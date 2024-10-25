@@ -159,10 +159,8 @@ class CreateFamily extends OrgAction
                             ]
                         ],
                         'grp.org.shops.show.catalogue.departments.show.sub-departments.show.family.create' => [
-                            'name'       => 'grp.models.org.catalogue.departments.sub-department.family.store',
+                            'name'       => 'grp.models.sub-department.family.store',
                             'parameters' => [
-                                'organisation'    => $this->organisation->id,
-                                'shop'            => $this->shop->id,
                                 'productCategory' => $this->parent->id
                             ]
                         ],

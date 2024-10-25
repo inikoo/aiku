@@ -31,6 +31,7 @@ class FetchAuroraUsers extends FetchAuroraAction
     {
         $user = null;
         setPermissionsTeamId($organisationSource->getOrganisation()->group_id);
+
         if ($userData = $organisationSource->fetchUser($organisationSourceId)) {
             if ($userData['user']) {
                 if ($user = User::withTrashed()->where('source_id', $userData['user']['source_id'])->first()) {
@@ -58,9 +59,13 @@ class FetchAuroraUsers extends FetchAuroraAction
                 }
 
 
+
+
+
                 if (!$userData['parent']) {
                     $group_id = $organisationSource->getOrganisation()->group_id;
                     $user     = User::withTrashed()->where('group_id', $group_id)->where('username', $userData['related_username'])->first();
+
 
 
                     if ($user) {
@@ -74,7 +79,7 @@ class FetchAuroraUsers extends FetchAuroraAction
                             );
                         }
 
-                        $user = $this->updateUserSources($user, $userData);
+                        return $this->updateUserSources($user, $userData);
                     }
 
 

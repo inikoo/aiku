@@ -23,7 +23,7 @@ const options = ref([
 <template>
 	<div v-if="modelValue.type">
 		<div class="pb-3">
-			<SelectButton
+			<SelectButton v-if="modelValue?.type"
 				v-model="modelValue.type"
 				:options="options"
 				optionLabel="label"
@@ -35,9 +35,9 @@ const options = ref([
 		</div>
 		<div>
 			<div class="my-2 text-gray-500 text-xs font-semibold mb-2">{{ trans("Link") }}</div>
-			<PureInput v-if="modelValue.type == 'external'" v-model="modelValue.url" />
+			<PureInput v-if="modelValue?.type == 'external'" v-model="modelValue.url" />
 			<SelectQuery
-				v-else
+				v-else-if="modelValue"
 				fieldName="id"
 				:object="true"
 				:urlRoute="

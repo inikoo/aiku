@@ -11,8 +11,11 @@ use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
 use App\Models\Catalogue\ProductCategory;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraFamilies extends FetchAuroraAction
 {
@@ -23,28 +26,48 @@ class FetchAuroraFamilies extends FetchAuroraAction
         if ($familyData = $organisationSource->fetchFamily($organisationSourceId)) {
             if ($family = ProductCategory::where('source_family_id', $familyData['family']['source_family_id'])
                 ->first()) {
-                $family = UpdateProductCategory::make()->action(
-                    productCategory: $family,
-                    modelData: $familyData['family'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
+                try {
+                    $family = UpdateProductCategory::make()->action(
+                        productCategory: $family,
+                        modelData: $familyData['family'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordChange($organisationSource, $family->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $familyData['family'], 'Family', 'update');
+
+                    return null;
+                }
             } else {
-                $family = StoreProductCategory::make()->action(
-                    parent: $familyData['parent'],
-                    modelData: $familyData['family'],
-                    hydratorsDelay: 60,
-                    strict: false
-                );
+                try {
+                    $family = StoreProductCategory::make()->action(
+                        parent: $familyData['parent'],
+                        modelData: $familyData['family'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    ProductCategory::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $family,
+                        Arr::except($familyData['family'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $family->source_family_id);
+                    DB::connection('aurora')->table('Category Dimension')
+                        ->where('Category Key', $sourceData[1])
+                        ->update(['aiku_family_id' => $family->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $familyData['family'], 'Family', 'store');
+
+                    return null;
+                }
             }
 
-
-            $sourceData = explode(':', $family->source_family_id);
-
-            DB::connection('aurora')->table('Category Dimension')
-                ->where('Category Key', $sourceData[1])
-                ->update(['aiku_family_id' => $family->id]);
 
             return $family;
         }
