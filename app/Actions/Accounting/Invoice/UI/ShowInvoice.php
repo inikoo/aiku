@@ -108,6 +108,29 @@ class ShowInvoice extends OrgAction
         $payAmount   = $invoice->total_amount - $invoice->payment_amount;
         $roundedDiff = round($payAmount, 2);
 
+        $customerRoute = [];
+
+        if($this->parent instanceof Fulfilment)
+        {
+            $customerRoute = [
+                'name'         => 'grp.org.fulfilments.show.crm.customers.show',
+                'parameters'   => [
+                    'organisation'      => $invoice->organisation->slug,
+                    'fulfilment'        => $invoice->customer->fulfilmentCustomer->fulfilment->slug,
+                    'fulfilmentCustomer' => $invoice->customer->fulfilmentCustomer->slug,
+                ]
+            ];
+        } else {
+            $customerRoute = [
+                'name'         => 'grp.org.shops.show.crm.customers.show',
+                'parameters'   => [
+                    'organisation'      => $invoice->organisation->slug,
+                    'shop'        => $invoice->shop->slug,
+                    'customer' => $invoice->customer->slug,
+                ]
+            ];
+        }
+
         return Inertia::render(
             'Org/Accounting/Invoice',
             [
@@ -190,14 +213,7 @@ class ShowInvoice extends OrgAction
                     'customer' => [
                         'slug'         => $invoice->customer->slug,
                         'reference'    => $invoice->customer->reference,
-                        'route'        => [
-                            'name'         => 'grp.org.fulfilments.show.crm.customers.show',
-                            'parameters'   => [
-                                'organisation'      => $invoice->organisation->slug,
-                                'fulfilment'        => $invoice->customer->fulfilmentCustomer->fulfilment->slug,
-                                'fulfilmentCustomer' => $invoice->customer->fulfilmentCustomer->slug,
-                            ]
-                        ],
+                        'route'        => $customerRoute,
                         'contact_name' => $invoice->customer->contact_name,
                         'company_name' => $invoice->customer->company_name,
                         'location'     => $invoice->customer->location,

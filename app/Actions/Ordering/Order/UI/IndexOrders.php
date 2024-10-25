@@ -354,7 +354,7 @@ class IndexOrders extends OrgAction
 
             ]
         )->table($this->tableStructure($this->parent, OrdersTabsEnum::ORDERS->value))
-            ->table(IndexInvoices::make()->tableStructure($this->parent))
+            ->table(IndexInvoices::make()->tableStructure(parent: $this->parent, prefix: OrdersTabsEnum::INVOICES->value))
                 ->table(IndexDeliveryNotes::make()->tableStructure($this->parent));
     }
 

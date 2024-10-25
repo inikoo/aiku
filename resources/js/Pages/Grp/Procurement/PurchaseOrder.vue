@@ -25,12 +25,13 @@ import AlertMessage from '@/Components/Utils/AlertMessage.vue'
 import BoxNote from '@/Components/Pallet/BoxNote.vue'
 import Popover from '@/Components/Popover.vue'
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue';
 
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faStickyNote } from '@fal'
-library.add( faStickyNote )
+import { faStickyNote, faPaperclip } from '@fal'
+library.add( faStickyNote, faPaperclip )
 
 const props = defineProps<{
     title: string,
@@ -57,6 +58,7 @@ const props = defineProps<{
         products_list: routeType
     }
     attachments?: {}
+    attachmentRoutes?: {}
 }>()
 
 
@@ -74,7 +76,7 @@ const component = computed(() => {
 
 
 const isLoadingButton = ref<string | boolean>(false)
-
+const isModalUploadOpen = ref(false)
 
 // Section: add notes (on popup pageheading)
 const errorNote = ref('')
@@ -173,6 +175,9 @@ const onSubmitNote = async (closePopup: Function) => {
                 </template>
             </Popover>
         </template>
+        <template #other>
+            <Button v-if="currentTab === 'attachments'" @click="() => isModalUploadOpen = true" label="Attach" icon="upload"/>
+        </template>
     </PageHeading>
 
     
@@ -196,5 +201,10 @@ const onSubmitNote = async (closePopup: Function) => {
     </div>
 
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
+    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute" />
+
+    <UploadAttachment v-model="isModalUploadOpen" scope="attachment" :title="{
+        label: 'Upload your file',
+        information: 'The list of column file: customer_reference, notes, stored_items'
+    }" progressDescription="Adding Pallet Deliveries" :attachmentRoutes="attachmentRoutes" />
 </template>

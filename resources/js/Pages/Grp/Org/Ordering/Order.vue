@@ -66,6 +66,7 @@ import { faExclamationTriangle as fadExclamationTriangle } from '@fad'
 import { faExclamationTriangle, faExclamation } from '@fas'
 import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote, faTruck, faFilePdf, faPaperclip, } from '@fal'
 import { Currency } from '@/types/LayoutRules'
+import TableInvoices from '@/Components/Tables/Grp/Org/Accounting/TableInvoices.vue'
 library.add(fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote, faExclamation, faTruck, faFilePdf, faPaperclip)
 
 
@@ -152,6 +153,7 @@ const props = defineProps<{
         reference : String
     }
     attachments?: {}
+    invoices?: {}
     attachmentRoutes?: {}
 }>()
 
@@ -166,6 +168,7 @@ const component = computed(() => {
         transactions: OrderProductTable,
         delivery_notes: TableDeliveryNotes,
         attachments: TableAttachments,
+        invoices: TableInvoices
     }
 
     return components[currentTab.value]

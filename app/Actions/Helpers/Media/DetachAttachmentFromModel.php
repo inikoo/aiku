@@ -61,7 +61,7 @@ class DetachAttachmentFromModel extends OrgAction
 
     public function inTradeUnit(TradeUnit $tradeUnit, Media $attachment)
     {
-        $this->initialisation($tradeUnit->organisation, []);
+        $this->initialisationFromGroup($tradeUnit->group, []);
         $this->handle($tradeUnit, $attachment);
     }
 

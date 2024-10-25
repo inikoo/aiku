@@ -94,7 +94,8 @@ class ShowTradeUnit extends GrpAction
                             'name' => 'grp.models.trade-unit.attachment.detach',
                             'parameters' => [
                                 'tradeUnit' => $tradeUnit->id,
-                            ]
+                            ],
+                            'method'    => 'delete'
                         ]
                     ],
                     'tabs' => [
@@ -107,7 +108,7 @@ class ShowTradeUnit extends GrpAction
                     : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($tradeUnit))),
 
             ]
-        )->table(IndexAttachments::make()->tableStructure($tradeUnit, TradeUnitTabsEnum::ATTACHMENTS->value));
+        )->table(IndexAttachments::make()->tableStructure(TradeUnitTabsEnum::ATTACHMENTS->value));
     }
 
 
