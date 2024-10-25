@@ -13,9 +13,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Models\SysAdmin\Group;
 use App\Models\Web\ExternalLink;
-use App\Models\Web\WebBlock;
-use App\Models\Web\Webpage;
-use App\Rules\AlphaDashSlash;
 use Illuminate\Support\Arr;
 
 class StoreExternalLink extends OrgAction
@@ -23,16 +20,16 @@ class StoreExternalLink extends OrgAction
     use HasWebAuthorisation;
 
 
-    private Group|Webpage|WebBlock $parent;
+    protected Group $group;
 
-    public function handle(Group $parent, array $modelData): ExternalLink
+    public function handle(Group $group, array $modelData): ExternalLink|null
     {
         $webpageId = Arr::get($modelData, "webpage_id");
         $webBlockId = Arr::get($modelData, "web_block_id");
         data_forget($modelData, "webpage_id");
         data_forget($modelData, "web_block_id");
 
-        $externalLink = $parent->externalLinks()->where('url', $modelData['url'])->first();
+        $externalLink = $group->externalLinks()->where('url', $modelData['url'])->first();
 
         if (!$webBlockId) {
             return $externalLink;
@@ -40,20 +37,21 @@ class StoreExternalLink extends OrgAction
 
         if (!$externalLink) {
             $status = CheckExternalLinkStatus::run($modelData['url']);
+            if ($status === 'error') {
+                return null;
+            }
             data_set($modelData, 'status', $status);
 
             /** @var ExternalLink $externalLink */
-            $externalLink = $parent->externalLinks()->create($modelData);
+            $externalLink = $group->externalLinks()->create($modelData);
         }
 
         if ($webpageId) {
-            $webpage = $parent->webpages()->where('id', $webpageId)->first();
-            if ($webBlockId) {
-                AttachExternalLinkToWebBlock::make()->action($webpage, [
-                    'external_link_id' => $externalLink->id,
-                    'web_block_id' => $webBlockId,
-                ]);
-            }
+            $webpage = $group->webpages()->where('id', $webpageId)->first();
+            AttachExternalLinkToWebBlock::make()->action($webpage, [
+                'external_link_id' => $externalLink->id,
+                'web_block_id' => $webBlockId,
+            ]);
         }
         $externalLink->refresh();
 
@@ -75,9 +73,7 @@ class StoreExternalLink extends OrgAction
             'url' => [
                 'required',
                 'ascii',
-                'lowercase',
                 'max:10000',
-                new AlphaDashSlash(),
             ],
             'webpage_id' => [
                 'sometimes',
