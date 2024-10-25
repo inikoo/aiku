@@ -9,6 +9,7 @@
 
 use App\Actions\Dropshipping\ShopifyUser\DeleteShopifyUser;
 use App\Actions\Dropshipping\ShopifyUser\StoreShopifyUser;
+use App\Actions\Dropshipping\WooCommerce\AuthorizeWooCommerceUser;
 use App\Actions\Dropshipping\WooCommerce\StoreWooCommerceUser;
 use App\Actions\UI\Retina\Dropshipping\Client\FetchCustomerClientFromShopify;
 use App\Actions\UI\Retina\Dropshipping\Client\UI\CreateCustomerClient;
@@ -27,6 +28,7 @@ Route::prefix('platform')->as('platform.')->group(function () {
     Route::post('shopify-user', StoreShopifyUser::class)->name('shopify_user.store');
     Route::delete('shopify-user', DeleteShopifyUser::class)->name('shopify_user.delete');
 
+    Route::post('wc-user/authorize', AuthorizeWooCommerceUser::class)->name('wc.store');
     Route::post('wc-user', StoreWooCommerceUser::class)->name('wc.store');
     Route::delete('wc-user', DeleteShopifyUser::class)->name('wc.delete');
 });
