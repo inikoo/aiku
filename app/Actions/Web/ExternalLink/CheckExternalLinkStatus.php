@@ -18,7 +18,7 @@ class CheckExternalLinkStatus extends OrgAction
     public function handle(string $url): string
     {
         try {
-            $result = Http::get($url);
+            $result = Http::timeout(10)->get($url);
             return $result->successful()
                 ? (string) $result->status()
                 : 'error';
