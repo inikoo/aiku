@@ -55,19 +55,22 @@ class SaveModelAttachment extends OrgAction
         );
 
         if ($model->attachments()->where('media_id', $media->id)->exists()) {
-            data_forget($modelData, 'fetched_at');
-            $model->attachments()->updateExistingPivot($media->id, $pivotData);
+
+            $model->attachments()->updateExistingPivot(
+                $media->id,
+                Arr::only($pivotData, ['caption', 'last_fetched_at', 'scope', 'sub_scope'])
+            );
 
             return $media;
         } else {
             data_forget($modelData, 'last_fetched_at');
+            $model->attachments()->attach(
+                [
+                    $media->id => $pivotData
+                ]
+            );
         }
 
-        $model->attachments()->attach(
-            [
-                $media->id => $pivotData
-            ]
-        );
 
         return $media;
     }
