@@ -86,7 +86,7 @@ class AttachAttachmentToModel extends OrgAction
     public function inSupplier(Supplier $supplier, ActionRequest $request)
     {
         $this->parent = $supplier;
-        $this->initialisation($supplier->organisation, $request);
+        $this->initialisationFromGroup($supplier->group, $request);
         return $this->handle($supplier, $this->validatedData);
     }
 

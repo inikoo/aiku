@@ -151,7 +151,8 @@ class ShowSupplier extends GrpAction
                         'name' => 'grp.models.supplier.attachment.detach',
                         'parameters' => [
                             'supplier' => $supplier->id,
-                        ]
+                        ],
+                        'method'    => 'delete'
                     ]
                 ],
                 'tabs'        => [
