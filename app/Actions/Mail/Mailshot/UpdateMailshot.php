@@ -10,8 +10,10 @@ namespace App\Actions\Mail\Mailshot;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Mail\Mailshot\MailshotStateEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Mail\Mailshot;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateMailshot extends OrgAction
@@ -38,6 +40,7 @@ class UpdateMailshot extends OrgAction
     {
         $rules = [
             'subject'           => ['sometimes','required', 'string', 'max:255'],
+            'state'             => ['required', Rule::enum(MailshotStateEnum::class)],
             'recipients_recipe' => ['present', 'array']
         ];
 

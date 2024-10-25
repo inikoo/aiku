@@ -30,9 +30,12 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('email_template_id')->nullable()->index();
             $table->foreign('email_template_id')->references('id')->on('email_templates');
             $table->string('state')->index()->default(MailshotStateEnum::IN_PROCESS->value);
+            $table->string('type')->index();
 
             $table->dateTimeTz('date')->index();
             $table->dateTimeTz('ready_at')->nullable();
+            $table->dateTimeTz('scheduled_at')->nullable();
+
             $table->dateTimeTz('start_sending_at')->nullable();
             $table->dateTimeTz('sent_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();
@@ -41,8 +44,8 @@ return new class () extends Migration {
             $table->jsonb('recipients_recipe');
             $table->unsignedSmallInteger('publisher_id')->nullable()->comment('org user');
             $table->foreign('publisher_id')->references('id')->on('users');
-            $table->string('parent_type')->index();
-            $table->unsignedInteger('parent_id')->index();
+            //$table->string('parent_type')->index();
+            //$table->unsignedInteger('parent_id')->index();
 
 
             $table->jsonb('data');
@@ -51,7 +54,7 @@ return new class () extends Migration {
             $table->datetimeTz('last_fetched_at')->nullable();
             $table = $this->softDeletes($table);
             $table->string('source_id')->nullable()->unique();
-            $table->index(['parent_type', 'parent_id']);
+            //$table->index(['parent_type', 'parent_id']);
 
         });
     }

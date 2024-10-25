@@ -23,7 +23,6 @@ class FetchAuroraAction extends FetchAction
 
     protected function preProcessCommand(Command $command): void
     {
-
         $this->dbSuffix = $command->option('db_suffix') ?? '';
 
         if ($command->getName() == 'fetch:webpages') {
@@ -75,7 +74,8 @@ class FetchAuroraAction extends FetchAction
             'fetch:histories',
             'fetch:uploads',
             'fetch:favourites',
-            'fetch:stock-deliveries'
+            'fetch:stock-deliveries',
+            'fetch:mailshot',
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }
@@ -91,7 +91,6 @@ class FetchAuroraAction extends FetchAction
         ])) {
             $this->with = $command->option('with');
         }
-
     }
 
     protected function doReset(Command $command): void
@@ -113,14 +112,12 @@ class FetchAuroraAction extends FetchAction
             ]) and $command->option('reset')) {
             $this->reset();
         }
-
     }
 
     public function getDBPrefix(Command $command): string
     {
-        return    $command->option('db_suffix') ?? '';
+        return $command->option('db_suffix') ?? '';
     }
-
 
 
     public function rules(): array
@@ -136,11 +133,11 @@ class FetchAuroraAction extends FetchAction
      */
     public function asController(Organisation $organisation, ActionRequest $request): ?Model
     {
-
         $validatedData = $request->validated();
 
         $this->organisationSource = $this->getOrganisationSource($organisation);
         $this->organisationSource->initialisation($organisation);
+
         return $this->handle($this->organisationSource, Arr::get($validatedData, 'id'));
     }
 
@@ -162,14 +159,14 @@ class FetchAuroraAction extends FetchAction
     protected function getFetchType(Command $command): FetchTypeEnum
     {
         return match ($command->getName()) {
-            'fetch:prospects'           => FetchTypeEnum::PROSPECTS,
-            'fetch:invoices'            => FetchTypeEnum::INVOICES,
-            'fetch:locations'           => FetchTypeEnum::LOCATIONS,
-            'fetch:stocks'              => FetchTypeEnum::STOCKS,
-            'fetch:customers'           => FetchTypeEnum::CUSTOMERS,
-            'fetch:employees'           => FetchTypeEnum::EMPLOYEES,
-            'fetch:supplier-products'   => FetchTypeEnum::SUPPLIER_PRODUCTS,
-            default                     => FetchTypeEnum::BASE,
+            'fetch:prospects' => FetchTypeEnum::PROSPECTS,
+            'fetch:invoices' => FetchTypeEnum::INVOICES,
+            'fetch:locations' => FetchTypeEnum::LOCATIONS,
+            'fetch:stocks' => FetchTypeEnum::STOCKS,
+            'fetch:customers' => FetchTypeEnum::CUSTOMERS,
+            'fetch:employees' => FetchTypeEnum::EMPLOYEES,
+            'fetch:supplier-products' => FetchTypeEnum::SUPPLIER_PRODUCTS,
+            default => FetchTypeEnum::BASE,
         };
     }
 

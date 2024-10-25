@@ -616,7 +616,9 @@ trait WithAuroraParsers
     {
         $outbox = Outbox::where('source_id', $sourceId)->first();
         if (!$outbox) {
-            $outbox = FetchAuroraOutboxes::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            dd($sourceData);
+            $outbox     = FetchAuroraOutboxes::run($this->organisationSource, $sourceData[1]);
         }
 
         return $outbox;

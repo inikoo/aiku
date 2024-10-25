@@ -41,6 +41,7 @@ class FetchAuroraLocations extends FetchAuroraAction
                 }
             } else {
                 try {
+
                     $location = StoreLocation::make()->action(
                         parent: $locationData['parent'],
                         modelData: $locationData['location'],

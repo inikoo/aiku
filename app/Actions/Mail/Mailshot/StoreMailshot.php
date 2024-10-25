@@ -12,11 +12,12 @@ use App\Actions\Mail\Outbox\Hydrators\OutboxHydrateMailshots;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Enums\Mail\Mailshot\MailshotStateEnum;
 use App\Enums\Mail\Mailshot\MailshotTypeEnum;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rules\Enum;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -35,7 +36,10 @@ class StoreMailshot extends OrgAction
      */
     public function handle(Outbox $outbox, array $modelData): Mailshot
     {
-        $modelData['shop_id'] = $outbox->shop_id;
+        data_set($modelData, 'date', now(), overwrite: false);
+        data_set($modelData, 'group_id', $outbox->group_id);
+        data_set($modelData, 'organisation_id', $outbox->organisation_id);
+        data_set($modelData, 'shop_id', $outbox->shop_id);
 
 
         $mailshot = DB::transaction(function () use ($outbox, $modelData) {
@@ -57,6 +61,7 @@ class StoreMailshot extends OrgAction
         if ($this->asAction) {
             return true;
         }
+
         //todo
         return false;
     }
@@ -66,15 +71,22 @@ class StoreMailshot extends OrgAction
     {
         $rules = [
             'subject'           => ['required', 'string', 'max:255'],
-            'type'              => ['required', new Enum(MailshotTypeEnum::class)],
+            'type'              => ['sometimes', 'required', Rule::enum(MailshotTypeEnum::class)],
+            'state'             => ['required', Rule::enum(MailshotStateEnum::class)],
             'recipients_recipe' => ['present', 'array']
 
         ];
 
         if (!$this->strict) {
+            $rules['date']             = ['nullable', 'date'];
+            $rules['ready_at']         = ['nullable', 'date'];
+            $rules['scheduled_at']     = ['nullable', 'date'];
+            $rules['start_sending_at'] = ['nullable', 'date'];
+            $rules['sent_at']          = ['nullable', 'date'];
+            $rules['stopped_at']       = ['nullable', 'date'];
+
 
             $rules = $this->noStrictStoreRules($rules);
-
         }
 
         return $rules;
