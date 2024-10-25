@@ -10,42 +10,20 @@
 namespace App\Actions\Web\ExternalLink;
 
 use App\Actions\OrgAction;
-use App\Rules\AlphaDashSlash;
+use Exception;
+use Illuminate\Support\Facades\Http;
 
 class CheckExternalLinkStatus extends OrgAction
 {
-    public function handle(string $url, int $retries = 3): string
+    public function handle(string $url): string
     {
-        if ($retries <= 0) {
-            return '408'; // timeout
+        try {
+            $result = Http::get($url);
+            return $result->successful()
+                ? (string) $result->status()
+                : 'error';
+        } catch (Exception) {
+            return 'error';
         }
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_NOBODY, false);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-        curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        if ($httpCode == 0) {
-            return $this->handle($url, $retries - 1);
-        }
-
-        return $httpCode;
-    }
-
-    public function rules(): array
-    {
-        return [
-            'url' => [
-                'required',
-                'ascii',
-                'lowercase',
-                'max:255',
-                new AlphaDashSlash(),
-            ]
-        ];
     }
 }
