@@ -9,6 +9,7 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Helpers\Media\SaveModelImages;
 use App\Actions\OrgAction;
+use App\Models\Helpers\FetchDownloadImage;
 use App\Models\Helpers\Media;
 use App\Models\Web\WebBlock;
 use App\Models\Web\Webpage;
@@ -22,7 +23,6 @@ class FetchAuroraWebBlockMedia extends OrgAction
 
     public function handle(WebBlock $webBlock, Webpage $webpage, string $auroraImage): Media|null
     {
-
         if ($auroraImage == '/') {
             return null;
         }
@@ -34,9 +34,6 @@ class FetchAuroraWebBlockMedia extends OrgAction
             return $this->getStaticImages($webBlock, '300x250.png');
         }
 
-
-
-        $originalAuroraImage = $auroraImage;
         $this->organisation = $webpage->website->organisation;
         $auroraImageId      = null;
 
@@ -57,15 +54,12 @@ class FetchAuroraWebBlockMedia extends OrgAction
         }
 
 
-
-
         if ($auroraImageId) {
             $auroraImageData = DB::connection('aurora')->table('Image Dimension')
                 ->where('Image Key', $auroraImageId)->first();
 
 
             if ($auroraImageData) {
-
                 $imageData = $this->fetchImage($auroraImageData);
 
 
@@ -78,7 +72,6 @@ class FetchAuroraWebBlockMedia extends OrgAction
             }
         }
 
-        print ">>>media not found >>$originalAuroraImage<<<<<<<<<\n";
         return $this->downloadMediaFromWebpage($webBlock, $webpage, $auroraImage);
     }
 
@@ -94,9 +87,18 @@ class FetchAuroraWebBlockMedia extends OrgAction
     public function downloadMediaFromWebpage(WebBlock $webBlock, Webpage $webpage, string $auroraImage): Media|null
     {
         $urlToFile = "https://www.".$webpage->website->domain.$auroraImage;
+
+        if (!$fetchNotFoundImage = FetchDownloadImage::where('url', $urlToFile)->first()) {
+            $fetchNotFoundImage = FetchDownloadImage::create([
+                'domain' => $webpage->website->domain,
+                'path'   => $auroraImage,
+                'url'    => $urlToFile
+            ]);
+        }
+
         try {
-            $content   = file_get_contents($urlToFile);
-            $tempPath  = tempnam(sys_get_temp_dir(), "img_");
+            $content  = file_get_contents($urlToFile);
+            $tempPath = tempnam(sys_get_temp_dir(), "img_");
 
             $headers  = get_headers($urlToFile, 1);
             $mimeType = $headers["Content-Type"];
@@ -112,13 +114,15 @@ class FetchAuroraWebBlockMedia extends OrgAction
             $tempFile = $tempPath.$extension;
 
             file_put_contents($tempFile, $content);
+            $fetchNotFoundImage->update(['status' => 'found']);
 
             return SaveModelImages::run($webBlock, [
                 "path"         => $tempFile,
                 "originalName" => "aurora_image",
             ]);
-
         } catch (Exception) {
+            $fetchNotFoundImage->update(['status' => 'failed']);
+
             return null;
         }
     }

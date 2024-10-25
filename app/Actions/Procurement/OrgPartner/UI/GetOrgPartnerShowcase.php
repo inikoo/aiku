@@ -9,7 +9,6 @@
 namespace App\Actions\Procurement\OrgPartner\UI;
 
 use App\Http\Resources\Helpers\AddressResource;
-use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use Lorisleiva\Actions\Concerns\AsObject;
 

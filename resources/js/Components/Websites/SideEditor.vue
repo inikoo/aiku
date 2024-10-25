@@ -23,6 +23,7 @@ import UploadImage from '@/Components/Pure/UploadImage.vue'
 import Payments from '@/Components/Websites/Fields/Payment.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorForm.vue"
 import socialMedia from '@/Components/Websites/Fields/SocialMedia.vue'
+import Script from '@/Components/Websites/Fields/Script.vue'
 import FooterColumn from '@/Components/Websites/Fields/FooterColumn.vue'
 import SelectLayout from '@/Components/Websites/Fields/SelectLayout.vue'
 import { isArray, set as setLodash } from 'lodash'
@@ -71,7 +72,8 @@ const getComponent = (componentName: string) => {
         "button" : ButtonProperties,
         "link" : Link,
         "overview_form" : OverviewForm,
-        "layout_type" : SelectLayout
+        "layout_type" : SelectLayout,
+        "script" : Script
     }
 
     return components[componentName]

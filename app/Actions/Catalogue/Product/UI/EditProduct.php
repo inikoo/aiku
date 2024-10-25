@@ -58,6 +58,7 @@ class EditProduct extends OrgAction
     // }
     public function inShop(Organisation $organisation, Shop $shop, Product $product, ActionRequest $request): Product
     {
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($product);

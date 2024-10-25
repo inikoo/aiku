@@ -37,18 +37,19 @@ const setImage = (imageData: any) => {
 				link_data: null,
 			})
 		}
-
-		const flattenedSource = imageData.data[0].source
-			? imageData.data[0].source
-			: imageData.data[0]
+	
+		const flattenedSource = imageData.source ? imageData.source : imageData
 
 		images[activeImageIndex.value].source = {
 			...flattenedSource,
 		}
-
+    
 		emits("update:modelValue", {
 			...props.modelValue,
-			value: { images },
+			value: {
+                ...props.modelValue.value,
+                images: images,
+            },
 		})
 
 		emits("autoSave")
@@ -80,7 +81,10 @@ const onUpload = (uploadData: any) => {
 
 		emits("update:modelValue", {
 			...props.modelValue,
-			value: { images },
+			value: {
+                ...props.modelValue.value,
+                images: images,
+            },
 		})
 
 		emits("autoSave")
@@ -98,18 +102,18 @@ const openImageGallery = (index: number) => {
 }
 
 const getHref = (index: number, isEditable: any) => {
-  const image = props.modelValue?.value?.images?.[index];
-  
-  console.log(image,'this url', index);
-  if (isEditable) {
-    return image?.link_data?.workshop_url;
-  }
-  
-  if (image?.link_data?.url) {
-    return image.link_data.url;
-  }
+	const image = props.modelValue?.value?.images?.[index]
 
-  return null;
+	console.log(image, "this url", index)
+	if (isEditable) {
+		return image?.link_data?.workshop_url
+	}
+
+	if (image?.link_data?.url) {
+		return image.link_data.url
+	}
+
+	return null
 }
 
 const getColumnWidthClass = (layoutType: string, index: number) => {
@@ -155,47 +159,41 @@ const getImageSlots = (layoutType: string) => {
 </script>
 
 <template>
-
 	<div v-if="modelValue?.value?.images" class="flex flex-wrap">
 		<div
 			v-for="index in getImageSlots(modelValue?.value?.layout_type)"
 			:key="index"
-			class="p-2"
-			:class="
-				getColumnWidthClass(
-					modelValue?.value?.layout_type,
-					index - 1
-				)
-			">
+			class="relative p-2"
+			:class="getColumnWidthClass(modelValue?.value?.layout_type, index - 1)">
 			<a
 				v-if="modelValue?.value?.images?.[index - 1]?.source"
 				:href="getHref(index - 1, isEditable)"
-                target="_blank"
-                rel="noopener noreferrer" 
-				class="transition-shadow aspect-h-1 aspect-w-1 w-full ">
-				<div v-if="isEditable" class="absolute top-2 right-2 flex space-x-2">
+				target="_blank"
+				rel="noopener noreferrer"
+				class="transition-shadow aspect-h-1 aspect-w-1 w-full">
+				<Image
+					:src="modelValue?.value?.images?.[index - 1]?.source"
+					class="w-full object-cover object-center group-hover:opacity-75" />
+
+				<!-- Pencil icon for editing when isEditable is true -->
+				<div v-if="isEditable" class="absolute top-2 right-2 z-10 flex space-x-2">
 					<Button
 						:icon="['far', 'fa-pencil']"
 						size="xs"
 						@click="openImageGallery(index - 1)" />
 				</div>
-				<Image
-					:src="modelValue?.value?.images?.[index - 1]?.source"
-					class="w-full object-cover object-center group-hover:opacity-75" />
 			</a>
 
-			<div v-else-if="isEditable" class="py-3">
-				<div
-					type="button"
-					@click="openImageGallery(index - 1)"
-					class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-					<font-awesome-icon
-						:icon="['fas', 'image']"
-						class="mx-auto h-12 w-12 text-gray-400" />
-					<span class="mt-2 block text-sm font-semibold text-gray-900"
-						>Click Pick Image</span
-					>
-				</div>
+			<div
+				v-else-if="isEditable"
+				class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+				@click="openImageGallery(index - 1)">
+				<font-awesome-icon
+					:icon="['fas', 'image']"
+					class="mx-auto h-12 w-12 text-gray-400" />
+				<span class="mt-2 block text-sm font-semibold text-gray-900">
+					Click Pick Image
+				</span>
 			</div>
 		</div>
 	</div>
@@ -206,6 +204,5 @@ const getImageSlots = (layoutType: string) => {
 		@on-close="openGallery = false"
 		:uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: id })"
 		@onPick="setImage"
-		@onUpload="onUpload">
-	</Gallery>
+		@onUpload="onUpload" />
 </template>

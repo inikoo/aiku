@@ -4,81 +4,123 @@
 	"code": "bento-grid-1",
 	"name": "Three column bento grid",
 	"icon": ["fal", "rectangle-wide"],
-	"blueprint" : {},
+	"blueprint": [
+		{
+			"name": "Properties",
+			"key": ["container", "properties"],
+			"replaceForm": [
+				{
+					"key": ["container", "properties", "background"],
+					"type": ["background"],
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "padding"],
+					"type": ["padding"],
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "margin"],
+					"type": ["margin"],
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "border"],
+					"type": ["border"],
+					"props_data": {}
+				}
+			]
+		}
+	],
 	"data": {
 		"fieldValue": {
-			"headline": "<h2><strong><span style='color: #FFFFFF'>What ingredients should be considered when selecting body and hand soaps?</span></strong></h2>",
-			"description": "<p><span style='color: #FFFFFF'>Provide your customers with informed advice.</span></p><p></p>",
-			"button": "Read blog",
-			"image": null
-		},
-		"properties": {
-			"background": {
-				"type": "color",
-				"color": "#fff",
-				"image": {
-					"original": null
-				}
+			"title": "<h3 style=\"text-align: center\"><span style=\"color: #a200ff\"><strong>Dep</strong></span><span style=\"color: #9900ff\"><strong>loy faster</strong></span></h3><h1 style=\"text-align: center\"><strong>Everything you need to deploy your app.</strong></h1>",
+			"column1": {
+				"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
+				"image": []
 			},
-			"padding": {
-				"unit": "px",
-				"top": {
-					"value": 0
-				},
-				"left": {
-					"value": 0
-				},
-				"right": {
-					"value": 0
-				},
-				"bottom": {
-					"value": 0
-				}
+			"column2": {
+				"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
+				"image": []
 			},
-			"margin": {
-				"unit": "px",
-				"top": {
-					"value": 0
-				},
-				"left": {
-					"value": 0
-				},
-				"right": {
-					"value": 0
-				},
-				"bottom": {
-					"value": 0
-				}
+			"column3": {
+				"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
+				"image": []
 			},
-			"border": {
-				"color": "#000000",
-				"unit": "px",
-				"rounded": {
-					"unit": "px",
-					"topright": {
-						"value": 0
+			"column4": {
+				"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
+				"image": []
+			},
+			"container": {
+				"properties": {
+					"border": {
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"unit": "px",
+						"color": "#000000",
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						},
+						"rounded": {
+							"unit": "px",
+							"topleft": {
+								"value": 0
+							},
+							"topright": {
+								"value": 0
+							},
+							"bottomleft": {
+								"value": 0
+							},
+							"bottomright": {
+								"value": 0
+							}
+						}
 					},
-					"topleft": {
-						"value": 0
+					"margin": {
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"unit": "px",
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
 					},
-					"bottomright": {
-						"value": 0
+					"padding": {
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"unit": "px",
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
 					},
-					"bottomleft": {
-						"value": 0
+					"background": {
+						"type": "color",
+						"color": "#fff",
+						"image": {
+							"original": null
+						}
 					}
-				},
-				"top": {
-					"value": 0
-				},
-				"left": {
-					"value": 0
-				},
-				"right": {
-					"value": 0
-				},
-				"bottom": {
-					"value": 0
 				}
 			}
 		}

@@ -43,6 +43,7 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
+use App\Models\WooCommerceUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -141,6 +142,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Collection<int, \App\Models\CRM\WebUser> $webUsers
+ * @property-read WooCommerceUser|null $wooCommerceUser
  * @method static \Database\Factories\CRM\CustomerFactory factory($count = null, $state = [])
  * @method static Builder<static>|Customer newModelQuery()
  * @method static Builder<static>|Customer newQuery()
@@ -292,7 +294,7 @@ class Customer extends Model implements HasMedia, Auditable
 
     public function products(): MorphMany
     {
-        return $this->morphMany(Asset::class, 'owner', 'owner_type', 'owner_id', 'id');
+        return $this->morphMany(Asset::class, 'model', 'model_type', 'model_id', 'id');
     }
 
     public function stocks(): MorphMany
@@ -389,6 +391,11 @@ class Customer extends Model implements HasMedia, Auditable
     public function shopifyUser(): HasOne
     {
         return $this->hasOne(ShopifyUser::class);
+    }
+
+    public function wooCommerceUser(): HasOne
+    {
+        return $this->hasOne(WooCommerceUser::class);
     }
 
     public function deliveryNotes(): HasMany

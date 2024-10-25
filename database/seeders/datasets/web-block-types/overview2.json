@@ -1,0 +1,96 @@
+{
+	"scope": "webpage",
+	"slug": "overview_2",
+	"code": "overview_2",
+	"name": "Overview 2",
+	"icon": ["fal", "text"],
+	"blueprint": [
+		{
+			"name": "Properties",
+			"key": ["container", "properties"],
+			"replaceForm": [
+				{
+					"key": ["container", "properties", "dimension"],
+					"type": "dimension",
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "padding"],
+					"type": "padding",
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "margin"],
+					"type": "margin",
+					"props_data": {}
+				},
+				{
+					"key": ["container", "properties", "border"],
+					"type": "border",
+					"props_data": {}
+				}
+			]
+		}
+	],
+	"data": {
+		"fieldValue": {
+			"text": "<span><h2 style='font-size: 2.25rem; font-weight: 700; color: #1f2937; line-height: 1.25;'> Jordan Proto-Lyte <br /> <span style='font-size: 0.875rem; letter-spacing: 0.05em; text-transform: uppercase; color: #6b7280;'> Running Collection </span> </h2> <p style='margin-top: 1rem; font-size: 0.875rem; color: #374151; max-width: 85%;'> Featuring soft foam cushioning and lightweight, woven fabric in the upper, the Jordan Proto-Lyte is made for all-day, bouncy comfort. Lightweight Breathability: Lightweight woven fabric with real or synthetic leather provides breathable support. Cushioned Comfort: A full-length foam midsole delivers lightweight, plush cushioning. Secure Traction: Exaggerated herringbone-pattern outsole offers traction on a variety of surfaces. </p> </span>",
+			"images": [
+				{
+					"sources": {
+						"avif": "http://10.0.0.100:8080/2bm_AyX-KHViYhTBhS2z9_W6Ep0Pzz_eXjP26ClWQ-8/bG9jYWw6Ly8vYWlrdS9hcHAvbWVkaWEvbWVkaWEvMjc2MTUvYmU0MTQ3Nzk5NGI2MDEwM2NkZDI5NzUyNmQxYmM4MDguanBn.avif",
+						"webp": "http://10.0.0.100:8080/_r_0qxma2l01eS-xcmJB7WNqKNYEnTEWJ3GrnAVSX0s/bG9jYWw6Ly8vYWlrdS9hcHAvbWVkaWEvbWVkaWEvMjc2MTUvYmU0MTQ3Nzk5NGI2MDEwM2NkZDI5NzUyNmQxYmM4MDguanBn.webp",
+						"original": "http://10.0.0.100:8080/5GYU0tMJNtINwmg559U7ADtCTmKeA-AAa5UDwYG_GGA/bG9jYWw6Ly8vYWlrdS9hcHAvbWVkaWEvbWVkaWEvMjc2MTUvYmU0MTQ3Nzk5NGI2MDEwM2NkZDI5NzUyNmQxYmM4MDguanBn"
+					},
+					"properties": {
+						"width": "491px",
+						"height": "819px",
+						"position": {
+							"top": "28px",
+							"left": "9px",
+							"right": "776.333px",
+							"bottom": "65px"
+						}
+					}
+				}
+			],
+			"container": {
+				"properties": {
+					"border": {
+						"top": { "value": 0 },
+						"left": { "value": 0 },
+						"right": { "value": 0 },
+						"bottom": { "value": 0 },
+						"unit": "px",
+						"color": "#000000",
+						"rounded": {
+							"unit": "px",
+							"topleft": { "value": 0 },
+							"topright": { "value": 0 },
+							"bottomleft": { "value": 0 },
+							"bottomright": { "value": 0 }
+						}
+					},
+					"margin": {
+						"top": { "value": 0 },
+						"left": { "value": 0 },
+						"right": { "value": 0 },
+						"bottom": { "value": 0 },
+						"unit": "px"
+					},
+					"padding": {
+						"top": { "value": 0 },
+						"left": { "value": 0 },
+						"right": { "value": 0 },
+						"bottom": { "value": 0 },
+						"unit": "px"
+					},
+					"dimension": {
+						"width": { "unit": "%", "value": "100" },
+						"height": { "unit": "%", "value": "100" }
+					}
+				}
+			}
+		}
+	}
+}

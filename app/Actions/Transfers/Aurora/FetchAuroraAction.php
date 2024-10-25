@@ -66,6 +66,7 @@ class FetchAuroraAction extends FetchAction
             'fetch:payments',
             'fetch:pallets',
             'fetch:families',
+            'fetch:departments',
             'fetch:outers',
             'fetch:portfolios',
             'fetch:stock_movements',
