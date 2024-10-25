@@ -109,7 +109,6 @@ class UpdateLocation extends OrgAction
 
     public function asController(Location $location, ActionRequest $request): Location
     {
-        $this->asAction = true;
         $this->location = $location;
 
         $this->initialisation($location->organisation, $request);
