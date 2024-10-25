@@ -56,7 +56,7 @@ const getComponent = (componentName: string) => {
     const components: Component = {
         'text': SideEditorText,
         'editorhtml': SideEditorInputHTML,
-        'upload_image': UploadImage,
+        'upload_image': UploadImage, 
         'payment_templates': Payments,
         'editor': Editor,
         'socialMedia': socialMedia,
