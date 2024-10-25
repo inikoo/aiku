@@ -67,7 +67,7 @@ class DetachAttachmentFromModel extends OrgAction
 
     public function inSupplier(Supplier $supplier, Media $attachment)
     {
-        $this->initialisation($supplier->organisation, []);
+        $this->initialisationFromGroup($supplier->group, []);
         $this->handle($supplier, $attachment);
     }
 
