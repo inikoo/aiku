@@ -87,7 +87,7 @@ class StoreExternalLink extends OrgAction
     }
 
 
-    public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true): ExternalLink
+    public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true): ExternalLink|null
     {
         $this->asAction       = true;
         $this->strict         = $strict;
