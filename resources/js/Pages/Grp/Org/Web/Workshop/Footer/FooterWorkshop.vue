@@ -11,7 +11,7 @@ import EmptyState from '@/Components/Utils/EmptyState.vue';
 import SideEditor from '@/Components/Websites/SideEditor.vue';
 import { notify } from "@kyvg/vue3-notification"
 import axios from 'axios'
-import { debounce } from 'lodash'
+import { debounce, isArray } from 'lodash'
 import Publish from '@/Components/Publish.vue'
 import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
 import ScreenView from "@/Components/ScreenView.vue"
@@ -34,12 +34,12 @@ const props = defineProps<{
         footer: Object
     }
     autosaveRoute: routeType
-    webBlockTypeCategories: Object
+    webBlockTypes: Object
 }>()
 
 const previewMode = ref(false)
 const isModalOpen = ref(false)
-const usedTemplates = ref(props.data.footer)
+const usedTemplates = ref(isArray(props.data.footer) ? null : props.data.footer)
 const tabsBar = ref(0)
 const isLoading = ref(false)
 const comment = ref('')
@@ -124,7 +124,7 @@ onMounted(() => {
 });
 
 
-
+console.log('ini',usedTemplates.value)
 </script>
 
 <template>
@@ -136,9 +136,8 @@ onMounted(() => {
         </template>
     </PageHeading>
 
-    <!--      <Button label="export test" @click="exportToJson"></Button> -->
     <div class="h-[84vh] grid grid-flow-row-dense grid-cols-4">
-        <div v-if="usedTemplates?.data" class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
+        <div v-if="usedTemplates" class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
             <div class="flex h-full">
                 <div class="w-[10%] bg-slate-200 ">
                     <div v-for="(tab, index) in usedTemplates?.data.bluprint"
@@ -154,7 +153,6 @@ onMounted(() => {
                         :bluprint="usedTemplates.data.bluprint[tabsBar].bluprint" />
                 </div>
             </div>
-
         </div>
 
         <div class="bg-gray-100 h-full" :class="usedTemplates?.data ? 'col-span-3' : 'col-span-4'">
@@ -176,21 +174,10 @@ onMounted(() => {
                                 previewMode ? 'bg-slate-600' : 'bg-slate-300'
                             ]"
                                 class="pr-1 relative inline-flex h-3 w-6 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-                                <!-- <span class="sr-only">Use setting</span> -->
                                 <span aria-hidden="true" :class="previewMode ? 'translate-x-3' : 'translate-x-0'"
                                     class="pointer-events-none inline-block h-full w-1/2 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out">
                                 </span>
                             </Switch>
-
-
-
-                           <!--  <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'">
-                                <FontAwesomeIcon @click="exportToJson" :icon="faDownload" aria-hidden='true' />
-                            </div>
-
-                            <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'">
-                                <FontAwesomeIcon :icon="faUpload" aria-hidden='true' @click="isUploadOpen = true" />
-                            </div> -->
 
                             <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'"
                                 @click="isModalOpen = true">
@@ -222,25 +209,8 @@ onMounted(() => {
     </div>
 
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
-        <BlockList :onPickBlock="onPickTemplate" :webBlockTypes="webBlockTypeCategories" scope="website" />
+        <BlockList :onPickBlock="onPickTemplate" :webBlockTypes="webBlockTypes" scope="website" />
     </Modal>
-
-   <!--  <Modal :isOpen="isUploadOpen" @onClose="isUploadOpen = false" width="w-1/2">
-        <div class="mt-2 flex justify-center rounded-lg border-2 border-dashed border-gray-300 px-6 py-10">
-            <div class="text-center">
-                <FontAwesomeIcon :icon="faUpload" class="mx-auto h-12 w-12 text-gray-500" aria-hidden="true" />
-                <div class="mt-4 flex text-sm leading-6 text-gray-400">
-                    <label for="file-upload" class="relative cursor-pointer rounded-md font-semibold text-indigo-500">
-                        <span>Upload a file</span>
-                        <input id="file-upload" name="file-upload" type="file" class="sr-only" @change="ImportJson" :multiple="false"/>
-                    </label>
-                    <p class="pl-1">or drag and drop</p>
-                </div>
-                <p class="text-xs leading-5 text-gray-400">JSON, up to 10MB</p>
-            </div>
-        </div>
-    </Modal> -->
-
 </template>
 
 

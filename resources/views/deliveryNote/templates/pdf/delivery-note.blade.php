@@ -47,9 +47,8 @@
 <!-- Delivery Details -->
 <table>
     <tr>
-        <td><strong>Order Number:</strong> {{ $deliveryNote['slug'] }}</td>
-        <td><strong>Dispatch Date:</strong> {{ \Carbon\Carbon::parse($deliveryNote['dispatched_at'])->format('Y-m-d') }}</td>
-        <td><strong>Status:</strong> {{ ucfirst($deliveryNote['status']) }}</td>
+        <td><strong>Order Number:</strong> {{ $order['reference'] }}</td>
+        <td><strong>Issued Date:</strong> {{ \Carbon\Carbon::parse($order['in_warehouse_at'])->format('Y-m-d') }}</td>
     </tr>
 </table>
 
@@ -58,36 +57,22 @@
     <thead>
         <tr>
             <td>Item Code</td>
-            <td>Description</td>
-            <td>Quantity</td>
-            <td>Unit Price</td>
-            <td>Total Price</td>
+            <td>Item Name</td>
+            <td>Quantity Required</td>
+            <td>Quantity Picked</td>
+            <td>Quantity Packed</td>
         </tr>
     </thead>
     <tbody>
         @foreach ($items as $item)
         <tr>
-            <td>{{ $item['code'] }}</td>
-            <td>{{ $item['description'] }}</td>
-            <td>{{ $item['quantity'] }}</td>
-            <td>{{ number_format($item['unit_price'], 2) }}</td>
-            <td>{{ number_format($item['total_price'], 2) }}</td>
+            <td>{{ $item->orgStock['code'] }}</td>
+            <td>{{ $item->orgStock['name'] }}</td>
+            <td>{{ $item->orgStock['quantity_required'] }}</td>
+            <td></td>
+            <td></td>
         </tr>
         @endforeach
-    </tbody>
-    <tbody class="totals">
-        <tr>
-            <td colspan="4" class="totals">Subtotal</td>
-            <td>{{ number_format($deliveryNote['goods_amount'], 2) }}</td>
-        </tr>
-        <tr>
-            <td colspan="4" class="totals">Shipping</td>
-            <td>{{ number_format($deliveryNote['shipping_amount'], 2) }}</td>
-        </tr>
-        <tr class="total-row">
-            <td colspan="4">Total</td>
-            <td>{{ number_format($deliveryNote['total_amount'], 2) }}</td>
-        </tr>
     </tbody>
 </table>
 
