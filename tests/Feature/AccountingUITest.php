@@ -5,14 +5,18 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Helpers\Address;
+use App\Models\CRM\Customer;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -24,7 +28,11 @@ beforeAll(function () {
 
 beforeEach(function () {
 
-    $this->organisation = createOrganisation();
+    list(
+        $this->organisation,
+        $this->user,
+        $this->shop
+    ) = createShop();
     $this->group        = $this->organisation->group;
     $this->adminGuest   = createAdminGuest($this->organisation->group);
 
@@ -69,6 +77,20 @@ beforeEach(function () {
     }
     $this->paymentAccount = $paymentAccount;
 
+    $customer = Customer::first();
+
+    if (!$customer) {
+        $customer = createCustomer($this->shop);
+    }
+    $this->customer = $customer;
+
+    $invoice = Invoice::first();
+    if (!$invoice) {
+        $invoiceData = Invoice::factory()->definition();
+        data_set($invoiceData, 'billing_address', new Address(Address::factory()->definition()));
+        $invoice = StoreInvoice::make()->action($this->customer, $invoiceData);
+    }
+    $this->invoice = $invoice;
 
     Config::set(
         'inertia.testing.page_paths',
@@ -412,5 +434,60 @@ test('UI show list invoices', function () {
                         ->etc()
             )
             ->has('data');
+    });
+});
+
+test('UI show invoice', function () {
+    $response = get(route('grp.org.accounting.invoices.show', [$this->organisation->slug, $this->invoice->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page->component('Org/Accounting/Invoice')
+            ->has('title')
+            ->has('breadcrumbs')
+            ->has(
+                'navigation',
+                fn (AssertableInertia $page) => $page
+                ->has('previous')
+                ->has('next')
+            )
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('model', 'invoice')
+                ->where('title', $this->invoice->reference)
+                ->etc()
+            )
+            ->has(
+                'tabs',
+                fn (AssertableInertia $page) => $page
+                ->has('current')
+                ->has('navigation')
+            )
+            ->has('order_summary', 3)
+            ->has('exportPdfRoute')
+            ->has(
+                'box_stats',
+                fn (AssertableInertia $page) => $page
+                ->has(
+                    'customer',
+                    fn (AssertableInertia $page) => $page
+                    ->has('slug')
+                    ->has('reference')
+                    ->has('route')
+                    ->has('contact_name')
+                    ->has('company_name')
+                    ->has('location')
+                    ->has('phone')
+                )
+                ->has(
+                    'information',
+                    fn (AssertableInertia $page) => $page
+                    ->has('recurring_bill')
+                    ->has('routes')
+                    ->has('paid_amount')
+                    ->has('pay_amount')
+                )
+            )
+            ->has('invoice');
     });
 });
