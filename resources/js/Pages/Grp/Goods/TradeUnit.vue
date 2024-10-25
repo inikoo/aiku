@@ -26,6 +26,8 @@ import ModelDetails from "@/Components/ModelDetails.vue";
 import Tabs from "@/Components/Navigation/Tabs.vue";
 import { capitalize } from "@/Composables/capitalize"
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
+import Button from '@/Components/Elements/Buttons/Button.vue';
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue';
 library.add(
     faInventory,
     faBox,
@@ -42,7 +44,7 @@ library.add(
 );
 
 const locale = useLocaleStore();
-
+const isModalUploadOpen = ref(false)
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
 const props = defineProps<{
@@ -54,6 +56,7 @@ const props = defineProps<{
     }
     showcase?: object,
     attachments?: {}
+    attachmentRoutes?: {}
 
 }>()
 
@@ -75,7 +78,16 @@ const component = computed(() => {
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+        <template #other>
+            <Button v-if="currentTab === 'attachments'" @click="() => isModalUploadOpen = true" label="Attach" icon="upload"/>
+        </template>
+    </PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute"></component>
+
+    <UploadAttachment v-model="isModalUploadOpen" scope="attachment" :title="{
+        label: 'Upload your file',
+        information: 'The list of column file: customer_reference, notes, stored_items'
+    }" progressDescription="Adding Pallet Deliveries" :attachmentRoutes="attachmentRoutes" />
 </template>
