@@ -130,7 +130,6 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
     editable.value = !newStatus
 });
 
-
 </script>
 
 <template>
