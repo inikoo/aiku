@@ -58,21 +58,18 @@ class StoreWebsite extends OrgAction
             $website,
             [
                 'scope'  => SnapshotScopeEnum::HEADER,
-                'layout' => json_decode(
-                    Storage::disk('datasets')->get('website/header.json'),
+                /*'layout' => json_decode(
+                    Storage::disk('datasets')->get('web-block-types/header.json'),
                     true
-                )
+                )*/
+                'layout' => []
             ]
         );
         $footerSnapshot = StoreWebsiteSnapshot::run(
             $website,
             [
                 'scope'  => SnapshotScopeEnum::FOOTER,
-                'layout' => [
-                    'src'  => null,
-                    'html' => ''
-
-                ]
+                'layout' => []
             ],
         );
         $website->update(
