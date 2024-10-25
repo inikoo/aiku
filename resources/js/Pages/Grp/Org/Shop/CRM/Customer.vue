@@ -24,8 +24,8 @@ import TableCustomerFavourites from '@/Components/Tables/Grp/Org/CRM/TableCustom
 import TableCustomerBackInStockReminders from '@/Components/Tables/Grp/Org/CRM/TableCustomerBackInStockReminders.vue'
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
-
-
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue';
+import Button from '@/Components/Elements/Buttons/Button.vue';
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faCodeCommit, faGlobe, faGraduationCap, faMoneyBill, faPaperclip, faPaperPlane, faStickyNote, faTags, faCube, faCodeBranch, faShoppingCart, faHeart } from '@fal'
 library.add( faStickyNote, faGlobe, faMoneyBill, faGraduationCap, faTags, faCodeCommit, faPaperclip, faPaperPlane, faCube, faCodeBranch, faShoppingCart, faHeart )
@@ -44,9 +44,11 @@ const props = defineProps<{
     dispatched_emails?: {}
     web_users?: {}
     attachments?: {}
+    attachmentRoutes?: {}
 }>()
 
 let currentTab = ref(props.tabs.current)
+const isModalUploadOpen = ref(false)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
@@ -71,8 +73,16 @@ const component = computed(() => {
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead" />
-
+    <PageHeading :data="pageHead" >
+        <template #other>
+            <Button v-if="currentTab === 'attachments'" @click="() => isModalUploadOpen = true" label="Attach" icon="upload"/>
+        </template>
+    </PageHeading>  
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" />
+    <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute" />
+
+    <UploadAttachment v-model="isModalUploadOpen" scope="attachment" :title="{
+        label: 'Upload your file',
+        information: 'The list of column file: customer_reference, notes, stored_items'
+    }" progressDescription="Adding Pallet Deliveries" :attachmentRoutes="attachmentRoutes" />
 </template>

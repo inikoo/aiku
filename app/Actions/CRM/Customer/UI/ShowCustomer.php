@@ -160,7 +160,8 @@ class ShowCustomer extends OrgAction
                         'name' => 'grp.models.customer.attachment.detach',
                         'parameters' => [
                             'customer' => $customer->id,
-                        ]
+                        ],
+                        'method' => 'delete'
                     ]
                 ],
                 'tabs'        => [
@@ -204,7 +205,7 @@ class ShowCustomer extends OrgAction
         //    ->table(IndexDropshippingRetinaProducts::make()->tableStructure($customer))
         ->table(IndexCustomerFavourites::make()->tableStructure($customer, $tabs::FAVOURITES->value))
         ->table(IndexCustomerBackInStockReminders::make()->tableStructure($customer, $tabs::REMINDERS->value))
-        ->table(IndexAttachments::make()->tableStructure($customer, $tabs::ATTACHMENTS->value))
+        ->table(IndexAttachments::make()->tableStructure($tabs::ATTACHMENTS->value))
         ->table(IndexDispatchedEmails::make()->tableStructure($customer));
 
     }
