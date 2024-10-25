@@ -461,7 +461,8 @@ class ShowOrder extends OrgAction
                         'name' => 'grp.models.order.attachment.detach',
                         'parameters' => [
                             'order' => $order->id,
-                        ]
+                        ],
+                        'method' => 'delete'
                     ]
                 ],
                 // 'nonProductItems' => $nonProductItems,
