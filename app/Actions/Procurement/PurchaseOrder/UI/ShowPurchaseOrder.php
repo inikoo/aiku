@@ -113,7 +113,8 @@ class ShowPurchaseOrder extends OrgAction
                         'name' => 'grp.models.purchase-order.attachment.detach',
                         'parameters' => [
                             'purchaseOrder' => $purchaseOrder->id,
-                        ]
+                        ],
+                        'method' => 'delete'
                     ]
                 ],
                 'tabs'        => [

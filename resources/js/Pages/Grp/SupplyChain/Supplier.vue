@@ -28,6 +28,8 @@ import SupplierShowcase from "@/Components/Showcases/Grp/SupplierShowcase.vue";
 import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue";
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
 import { capitalize } from "@/Composables/capitalize"
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue';
+import Button from '@/Components/Elements/Buttons/Button.vue';
 library.add(
     faInventory,
     faWarehouse,
@@ -61,9 +63,11 @@ const props = defineProps<{
     errors?: object,
     history?: object,
     attachments?: {}
+    attachmentRoutes?: {}
 }>()
 
 let currentTab = ref(props.tabs.current);
+const isModalUploadOpen = ref(false)
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
 const component = computed(() => {
@@ -103,9 +107,18 @@ const getErrors = () => {
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+        <template #other>
+            <Button v-if="currentTab === 'attachments'" @click="() => isModalUploadOpen = true" label="Attach" icon="upload"/>
+        </template>
+    </PageHeading>
     <div v-if="props.errors.purchase_order">{{ getErrors() }}</div>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute"></component>
+
+    <UploadAttachment v-model="isModalUploadOpen" scope="attachment" :title="{
+        label: 'Upload your file',
+        information: 'The list of column file: customer_reference, notes, stored_items'
+    }" progressDescription="Adding Pallet Deliveries" :attachmentRoutes="attachmentRoutes" />
 </template>
 

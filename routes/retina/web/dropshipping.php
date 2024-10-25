@@ -28,7 +28,7 @@ Route::prefix('platform')->as('platform.')->group(function () {
     Route::post('shopify-user', StoreShopifyUser::class)->name('shopify_user.store');
     Route::delete('shopify-user', DeleteShopifyUser::class)->name('shopify_user.delete');
 
-    Route::post('wc-user/authorize', AuthorizeWooCommerceUser::class)->name('wc.store');
+    Route::post('wc-user/authorize', AuthorizeWooCommerceUser::class)->name('wc.authorize');
     Route::post('wc-user', StoreWooCommerceUser::class)->name('wc.store');
     Route::delete('wc-user', DeleteShopifyUser::class)->name('wc.delete');
 });

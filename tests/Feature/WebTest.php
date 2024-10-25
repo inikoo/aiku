@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Web\ExternalLink\StoreExternalLink;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
@@ -20,12 +21,15 @@ use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Dropshipping\ModelHasWebBlocks;
 use App\Models\Helpers\Snapshot;
 use App\Models\Helpers\SnapshotStats;
+use App\Models\Web\ExternalLink;
 use App\Models\Web\WebBlock;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
 use App\Models\Web\WebpageStats;
 use App\Models\Web\Website;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 use function Pest\Laravel\actingAs;
 
@@ -137,13 +141,66 @@ test('create model has web block', function (Webpage $webpage) {
 
 })->depends('create webpage');
 
-test('update model has web block', function (ModelHasWebBlocks $modelHasWebBlock) {
 
+test('model external link', function () {
+    $externalLink = ExternalLink::class;
+    expect($externalLink)->toBe(ExternalLink::class);
+    return $externalLink;
+});
+
+test('store external link', function (ModelHasWebBlocks $modelHasWebBlock) {
+    $group = $modelHasWebBlock->group;
+    $webpage = $modelHasWebBlock->webpage;
+    $webBlock = $modelHasWebBlock->webBlock;
+    $externalLink =   StoreExternalLink::make()->action($group, [
+        'url' => 'https://www.google.com',
+        'webpage_id' => $webpage->id,
+        'web_block_id' => $webBlock->id,
+    ]);
+    expect($externalLink)->toBeInstanceOf(ExternalLink::class)
+        ->and($externalLink->group_id)->toBe($group->id)
+        ->and($externalLink->number_websites_shown)->toBe(1)
+        ->and($externalLink->number_webpages_shown)->toBe(1)
+        ->and($externalLink->number_web_blocks_shown)->toBe(1)
+        ->and($externalLink->number_websites_hidden)->toBe(0)
+        ->and($externalLink->number_webpages_hidden)->toBe(0)
+        ->and($externalLink->number_web_blocks_hidden)->toBe(0)
+        ->and($externalLink->status)->toBe('200');
+
+    return $externalLink;
+})->depends("create model has web block");
+
+test('model external link has web blocks', function (ExternalLink $externalLink) {
+    $webBlocks = $externalLink->webBlocks;
+    expect($webBlocks)->toBeInstanceOf(Collection::class)
+    ->and(count($webBlocks->toArray()))->toBeGreaterThan(0)
+    ->and($webBlocks[0])->toBeInstanceOf(WebBlock::class);
+})->depends('store external link');
+
+test('model external link has webpages', function (ExternalLink $externalLink) {
+    $webpages = $externalLink->webpages;
+    expect($webpages)->toBeInstanceOf(Collection::class)
+    ->and(count($webpages->toArray()))->toBeGreaterThan(0)
+    ->and($webpages[0])->toBeInstanceOf(Webpage::class);
+})->depends('store external link');
+
+test('model external link has websites', function (ExternalLink $externalLink) {
+    $websites = $externalLink->websites;
+    expect($websites)->toBeInstanceOf(Collection::class)
+    ->and(count($websites->toArray()))->toBeGreaterThan(0)
+    ->and($websites[0])->toBeInstanceOf(Website::class);
+})->depends('store external link');
+
+test('update model has web block', function (ModelHasWebBlocks $modelHasWebBlock) {
     $modelHasWebBlock = UpdateModelHasWebBlocks::make()->action($modelHasWebBlock, ['layout' => ['text' => 'Test Text']]);
     expect($modelHasWebBlock)->toBeInstanceOf(ModelHasWebBlocks::class);
 })->depends('create model has web block');
 
 test('delete model has web block', function (ModelHasWebBlocks $modelHasWebBlock) {
+    // clean up external links
+    DB::table('web_block_has_external_link')->where('group_id', $modelHasWebBlock->group_id)->delete();
+    DB::table('model_has_web_blocks')->where('group_id', $modelHasWebBlock->group_id)->delete();
+
     $modelHasWebBlock = DeleteModelHasWebBlocks::make()->action($modelHasWebBlock, []);
     expect($modelHasWebBlock)->toBeInstanceOf(ModelHasWebBlocks::class);
 })->depends('create model has web block');

@@ -73,7 +73,7 @@ trait WithAuroraAttachments
         ];
     }
 
-    protected function processFetchAttachments(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|null $model, string $parseAttachments, string $sourceID = ''): void
+    protected function processFetchAttachments(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|null $model, string $parseAttachments): void
     {
         if (!$model) {
             return;
@@ -87,6 +87,9 @@ trait WithAuroraAttachments
 
         $attachmentsToDelete = $model->attachments()->pluck('source_id', 'model_has_attachments.id')->all();
         foreach ($this->parseAttachments($model->source_id, $parseAttachments) as $attachmentData) {
+
+
+
             $media = SaveModelAttachment::make()->action(
                 model: $model,
                 modelData: $attachmentData['modelData'],
@@ -98,13 +101,17 @@ trait WithAuroraAttachments
 
 
             $sources      = json_decode($modelAttachment->pivot->sources, true);
+
+            $bridgeSources = Arr::get($sources, 'bridge', []);
+            $bridgeSources[] = $attachmentData['modelData']['source_id'];
+            $bridgeSources = array_unique($bridgeSources);
+            $sources['bridge'] = $bridgeSources;
+
             $modelSources = Arr::get($sources, $attachmentModelType, []);
-
-            $modelSources[] = $sourceID == '' ? $model->source_id : $sourceID;
-
+            $modelSources[] =  $model->source_id;
             $modelSources = array_unique($modelSources);
-
             $sources[$attachmentModelType] = $modelSources;
+
             $model->attachments()->updateExistingPivot(
                 $media->id,
                 [

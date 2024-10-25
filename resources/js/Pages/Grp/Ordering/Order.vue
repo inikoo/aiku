@@ -52,7 +52,6 @@ const props = defineProps<{
     invoices?: object
     delivery_notes?: object
     payments?: object
-    attachments?: {}
 }>()
 
 let currentTab = ref(props.tabs?.current);
@@ -66,7 +65,6 @@ const component = computed(() => {
         delivery_notes: TableDeliveryNotes,
         details: ModelDetails,
         history: ModelChangelog,
-        attachments: TableAttachments,
     };
     return components[currentTab.value];
 
