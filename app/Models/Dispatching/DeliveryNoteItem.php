@@ -9,6 +9,7 @@ namespace App\Models\Dispatching;
 
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
+use App\Models\Inventory\OrgStock;
 use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -80,5 +81,10 @@ class DeliveryNoteItem extends Model
     public function deliveryNote(): BelongsTo
     {
         return $this->belongsTo(DeliveryNote::class);
+    }
+
+    public function orgStock(): BelongsTo
+    {
+        return $this->belongsTo(OrgStock::class);
     }
 }
