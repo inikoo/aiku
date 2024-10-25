@@ -26,7 +26,7 @@ class AttachAttachmentToModel extends OrgAction
 
     public function handle(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order $model, array $modelData): Media
     {
-        $file = $modelData['attachment'];
+        $file           = $modelData['attachment'];
         $attachmentData = [
             'path'         => $file->getPathName(),
             'originalName' => $file->getClientOriginalName(),
@@ -34,9 +34,7 @@ class AttachAttachmentToModel extends OrgAction
             'caption'      => pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)
         ];
 
-        $attachment = SaveModelAttachment::make()->action($model, $attachmentData);
-
-        return $attachment;
+        return SaveModelAttachment::make()->action($model, $attachmentData);
     }
 
     public function rules(): array
@@ -69,52 +67,59 @@ class AttachAttachmentToModel extends OrgAction
         ];
     }
 
-    public function inEmployee(Employee $employee, ActionRequest $request)
+    public function inEmployee(Employee $employee, ActionRequest $request): Media
     {
         $this->parent = $employee;
         $this->initialisation($employee->organisation, $request);
+
         return $this->handle($employee, $this->validatedData);
     }
 
-    public function inTradeUnit(TradeUnit $tradeUnit, ActionRequest $request)
+    public function inTradeUnit(TradeUnit $tradeUnit, ActionRequest $request): Media
     {
         $this->parent = $tradeUnit;
-        $this->initialisation($tradeUnit->organisation, $request);
+        $this->initialisationFromGroup($tradeUnit->group, $request);
+
         return $this->handle($tradeUnit, $this->validatedData);
     }
 
-    public function inSupplier(Supplier $supplier, ActionRequest $request)
+    public function inSupplier(Supplier $supplier, ActionRequest $request): Media
     {
         $this->parent = $supplier;
         $this->initialisationFromGroup($supplier->group, $request);
+
         return $this->handle($supplier, $this->validatedData);
     }
 
-    public function inCustomer(Customer $customer, ActionRequest $request)
+    public function inCustomer(Customer $customer, ActionRequest $request): Media
     {
         $this->parent = $customer;
         $this->initialisation($customer->organisation, $request);
+
         return $this->handle($customer, $this->validatedData);
     }
 
-    public function inPurchaseOrder(PurchaseOrder $purchaseOrder, ActionRequest $request)
+    public function inPurchaseOrder(PurchaseOrder $purchaseOrder, ActionRequest $request): Media
     {
         $this->parent = $purchaseOrder;
         $this->initialisation($purchaseOrder->organisation, $request);
+
         return $this->handle($purchaseOrder, $this->validatedData);
     }
 
-    public function inStockDelivery(StockDelivery $stockDelivery, ActionRequest $request)
+    public function inStockDelivery(StockDelivery $stockDelivery, ActionRequest $request): Media
     {
         $this->parent = $stockDelivery;
         $this->initialisation($stockDelivery->organisation, $request);
+
         return $this->handle($stockDelivery, $this->validatedData);
     }
 
-    public function inOrder(Order $order, ActionRequest $request)
+    public function inOrder(Order $order, ActionRequest $request): Media
     {
         $this->parent = $order;
         $this->initialisation($order->organisation, $request);
+
         return $this->handle($order, $this->validatedData);
     }
 }
