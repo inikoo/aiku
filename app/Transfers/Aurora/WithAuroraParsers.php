@@ -27,7 +27,6 @@ use App\Actions\Transfers\Aurora\FetchAuroraLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraMailshots;
 use App\Actions\Transfers\Aurora\FetchAuroraOfferCampaigns;
 use App\Actions\Transfers\Aurora\FetchAuroraOrders;
-use App\Actions\Transfers\Aurora\FetchAuroraOutboxes;
 use App\Actions\Transfers\Aurora\FetchAuroraPallets;
 use App\Actions\Transfers\Aurora\FetchAuroraPaymentAccounts;
 use App\Actions\Transfers\Aurora\FetchAuroraPayments;
@@ -80,7 +79,6 @@ use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
-use App\Models\Mail\Outbox;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\ShippingZone;
@@ -612,17 +610,6 @@ trait WithAuroraParsers
     }
 
 
-    public function parseOutbox($sourceId): ?Outbox
-    {
-        $outbox = Outbox::where('source_id', $sourceId)->first();
-        if (!$outbox) {
-            $sourceData = explode(':', $sourceId);
-            dd($sourceData);
-            $outbox     = FetchAuroraOutboxes::run($this->organisationSource, $sourceData[1]);
-        }
-
-        return $outbox;
-    }
 
     public function parseClockingMachine($sourceId): ?ClockingMachine
     {

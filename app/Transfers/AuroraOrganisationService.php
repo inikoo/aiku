@@ -51,7 +51,6 @@ use App\Transfers\Aurora\FetchAuroraOfferCampaign;
 use App\Transfers\Aurora\FetchAuroraOrder;
 use App\Transfers\Aurora\FetchAuroraOrganisation;
 use App\Transfers\Aurora\FetchAuroraOrgStockMovement;
-use App\Transfers\Aurora\FetchAuroraOutbox;
 use App\Transfers\Aurora\FetchAuroraPallet;
 use App\Transfers\Aurora\FetchAuroraPayment;
 use App\Transfers\Aurora\FetchAuroraPaymentAccount;
@@ -336,10 +335,6 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraPayment($this))->fetch($id);
     }
 
-    public function fetchOutbox($id): ?array
-    {
-        return (new FetchAuroraOutbox($this))->fetch($id);
-    }
 
     public function fetchMailshot($id): ?array
     {
