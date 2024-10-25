@@ -1,0 +1,49 @@
+[
+  {
+    "code": "about_us",
+    "url": "about_us",
+    "title": "About us",
+    "type": "info",
+    "sub_type": "about-us",
+    "children": [
+      {
+        "code": "contact",
+        "url": "contact",
+        "title": "Contact",
+        "type": "info",
+        "sub_type": "contact"
+      },
+      {
+        "code": "terms_and_conditions",
+        "url": "terms-and-conditions",
+        "title": "Terms and Conditions",
+        "type": "info",
+        "sub_type": "terms-and-conditions",
+        "children": [
+          {
+            "code": "privacy",
+            "title": "Privacy",
+            "url": "privacy",
+            "type": "info",
+            "sub_type": "privacy"
+          },
+          {
+            "code": "cookie_policy",
+            "title": "Cookie Policy",
+            "url": "cookie-policy",
+            "type": "info",
+            "sub_type": "cookies-policy"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "code": "pricing",
+    "title": "Pricing",
+    "url": "pricing",
+    "type": "catalogue",
+    "sub_type": "pricing"
+  }
+
+]

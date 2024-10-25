@@ -226,6 +226,11 @@ Route::delete('/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [
 Route::delete('/working-place/{workplace:id}/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inWorkplaceInClockingMachine'])->name('workplace.clocking-machine.clocking.delete');
 */
 
+Route::prefix('sub-department/{productCategory:id}')->name('sub-department.')->group(function () {
+    Route::patch('', UpdateProductCategory::class)->name('update');
+    Route::post('family', [StoreProductCategory::class, 'inSubDepartment'])->name('family.store');
+});
+
 Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
 
     Route::post("google-drive.authorize", [AuthorizeClientGoogleDrive::class, 'authorize'])->name('google_drive.authorize');
@@ -264,10 +269,7 @@ Route::name('org.')->prefix('org/{organisation:id}')->group(function () {
         Route::patch('{productCategory:id}', UpdateProductCategory::class)->name('update')->withoutScopedBindings();
         Route::post('family/store/{productCategory:id}', [StoreProductCategory::class, 'inDepartment'])->name('family.store')->withoutScopedBindings();
         Route::post('sub-department/store/{productCategory:id}', [StoreProductCategory::class, 'inDepartment'])->name('sub-department.store')->withoutScopedBindings();
-        Route::prefix('sub-department')->name('sub-department.')->group(function () {
-            Route::patch('update/{productCategory:id}', UpdateProductCategory::class)->name('update')->withoutScopedBindings();
-            Route::post('family/store/{productCategory:id}', [StoreProductCategory::class, 'inSubDepartment'])->name('family.store')->withoutScopedBindings();
-        });
+
     });
 
 

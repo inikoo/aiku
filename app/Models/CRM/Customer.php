@@ -142,6 +142,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch
  * @property-read Collection<int, \App\Models\CRM\WebUser> $webUsers
+ * @property-read WooCommerceUser|null $wooCommerceUser
  * @method static \Database\Factories\CRM\CustomerFactory factory($count = null, $state = [])
  * @method static Builder<static>|Customer newModelQuery()
  * @method static Builder<static>|Customer newQuery()

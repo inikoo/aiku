@@ -67,6 +67,9 @@ return new class () extends Migration {
             $table->foreign('register_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('basket_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('checkout_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('call_back_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('appointment_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('pricing_id')->references('id')->on('webpages')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

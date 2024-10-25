@@ -1,0 +1,17 @@
+[
+  {
+    "code": "login",
+    "title": "login",
+    "url": "login",
+    "type": "operations",
+    "sub_type": "login"
+  },
+  {
+    "code": "register",
+    "title": "Registration",
+    "url": "register",
+    "type": "operations",
+    "sub_type": "register"
+  }
+]
+

@@ -99,7 +99,7 @@ const submitUpload = async () => {
 		await axios.post(
 			route(
 				props.attachmentRoutes?.attachRoute?.name,
-				props.attachmentRoutes?.attachRoute?.parameters.employee
+				props.attachmentRoutes?.attachRoute?.parameters
 			),
 			{
 				attachment: selectedFile.value,

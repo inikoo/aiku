@@ -9,6 +9,7 @@ namespace App\Actions\Catalogue\ProductCategory;
 
 use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
@@ -25,6 +26,7 @@ class UpdateProductCategory extends OrgAction
 {
     use WithActionUpdate;
     use WithProductCategoryHydrators;
+    use WithNoStrictRules;
 
     private ProductCategory $productCategory;
 
@@ -80,8 +82,7 @@ class UpdateProductCategory extends OrgAction
         if (!$this->strict) {
             $rules['source_department_id'] = ['sometimes', 'string', 'max:255'];
             $rules['source_family_id']     = ['sometimes', 'string', 'max:255'];
-            $rules['created_at']           = ['sometimes', 'date'];
-            $rules['last_fetched_at']      = ['sometimes', 'date'];
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;

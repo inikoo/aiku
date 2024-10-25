@@ -49,10 +49,10 @@ class DeleteModelHasWebBlocks extends OrgAction
         return $modelHasWebBlocks;
     }
 
-    public function jsonResponse(ModelHasWebBlocks $modelHasWebBlocks): void
+/*     public function jsonResponse(ModelHasWebBlocks $modelHasWebBlocks): void
     {
         WebpageResource::make($modelHasWebBlocks->webpage);
-    }
+    } */
 
     public function asController(ModelHasWebBlocks $modelHasWebBlocks, ActionRequest $request): void
     {
