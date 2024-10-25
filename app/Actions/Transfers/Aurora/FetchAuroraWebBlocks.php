@@ -348,7 +348,7 @@ class FetchAuroraWebBlocks extends OrgAction
         $externalLinks = $layout['external_links'] ?? null;
         if ($externalLinks) {
             foreach ($externalLinks as $link) {
-                StoreExternalLink::make()->handle($webpage->group, [
+                StoreExternalLink::make()->action($webpage->group, [
                     'url' => $link,
                     'webpage_id' => $webpage->id,
                     'web_block_id' => $webBlock->id,

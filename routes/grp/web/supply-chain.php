@@ -69,7 +69,7 @@ Route::prefix("suppliers")->name("suppliers")->group(
 
 
         Route::prefix('{supplier}')->group(function () {
-            Route::get('', [ShowSupplier::class, 'inSupplier'])->name('.show');
+            Route::get('', ShowSupplier::class)->name('.show');
             Route::get('edit', [EditSupplier::class, 'inSupplier'])->name('.edit');
 
             Route::prefix('supplier-products')->as('.supplier_products')->group(function () {

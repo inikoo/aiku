@@ -59,12 +59,14 @@ import { inject } from 'vue'
 import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
 import AlertMessage from '@/Components/Utils/AlertMessage.vue'
+import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue';
 
 import { faExclamationTriangle as fadExclamationTriangle } from '@fad'
 import { faExclamationTriangle, faExclamation } from '@fas'
-import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote, faTruck, faFilePdf } from '@fal'
+import {  faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote, faTruck, faFilePdf, faPaperclip, } from '@fal'
 import { Currency } from '@/types/LayoutRules'
-library.add(fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote, faExclamation, faTruck, faFilePdf)
+library.add(fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote, faExclamation, faTruck, faFilePdf, faPaperclip)
 
 
 const props = defineProps<{
@@ -149,10 +151,12 @@ const props = defineProps<{
     delivery_note : {
         reference : String
     }
+    attachments?: {}
+    attachmentRoutes?: {}
 }>()
 
 
-
+const isModalUploadOpen = ref(false)
 const locale = inject('locale', aikuLocaleStructure)
 
 const currentTab = ref(props.tabs?.current)
@@ -160,7 +164,8 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
     const components: Component = {
         transactions: OrderProductTable,
-        delivery_notes: TableDeliveryNotes
+        delivery_notes: TableDeliveryNotes,
+        attachments: TableAttachments,
     }
 
     return components[currentTab.value]
@@ -445,6 +450,9 @@ const onSubmitNote = async (closePopup: Function) => {
                 </template>
             </Popover>
         </template>
+        <template #other>
+            <Button v-if="currentTab === 'attachments'" @click="() => isModalUploadOpen = true" label="Attach" icon="upload"/>
+        </template>
     </PageHeading>
 
     <!-- Section: Pallet Warning -->
@@ -617,6 +625,7 @@ const onSubmitNote = async (closePopup: Function) => {
             :tab="currentTab"
             :updateRoute="routes.updateOrderRoute"
             :state="data?.data?.state"
+            :detachRoute="attachmentRoutes.detachRoute"
         />
     </div>
 
@@ -695,4 +704,9 @@ const onSubmitNote = async (closePopup: Function) => {
             </div>
         </div>
     </Modal>
+
+    <UploadAttachment v-model="isModalUploadOpen" scope="attachment" :title="{
+        label: 'Upload your file',
+        information: 'The list of column file: customer_reference, notes, stored_items'
+    }" progressDescription="Adding Pallet Deliveries" :attachmentRoutes="attachmentRoutes" />
 </template>

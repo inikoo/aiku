@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Web\ExternalLink\StoreExternalLink;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
 use App\Actions\Web\ModelHasWebBlocks\UpdateModelHasWebBlocks;
@@ -20,12 +21,14 @@ use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Dropshipping\ModelHasWebBlocks;
 use App\Models\Helpers\Snapshot;
 use App\Models\Helpers\SnapshotStats;
+use App\Models\Web\ExternalLink;
 use App\Models\Web\WebBlock;
 use App\Models\Web\WebBlockType;
 use App\Models\Web\Webpage;
 use App\Models\Web\WebpageStats;
 use App\Models\Web\Website;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 use function Pest\Laravel\actingAs;
 
@@ -136,6 +139,36 @@ test('create model has web block', function (Webpage $webpage) {
     return $modelHasWebBlock;
 
 })->depends('create webpage');
+
+
+test('model external link', function () {
+    $externalLink = ExternalLink::class;
+    expect($externalLink)->toBe(ExternalLink::class);
+    return $externalLink;
+});
+
+test('store external link', function (ModelHasWebBlocks $modelHasWebBlock) {
+    $externalLink =   StoreExternalLink::make()->action($modelHasWebBlock->group, [
+        'url' => 'https://www.google.com',
+        'webpage_id' => $modelHasWebBlock->webpage->id,
+        'web_block_id' => $modelHasWebBlock->webBlock->id,
+    ]);
+    expect($externalLink)->toBeInstanceOf(ExternalLink::class)
+        ->and($externalLink->webBlocks()->count())->toBe(1)
+        ->and($externalLink->webpages()->count())->toBe(1)
+        ->and($externalLink->websites()->count())->toBe(1)
+        ->and($externalLink->number_websites_shown)->toBe(1)
+        ->and($externalLink->number_webpages_shown)->toBe(1)
+        ->and($externalLink->number_web_blocks_shown)->toBe(1)
+        ->and($externalLink->number_websites_hidden)->toBe(0)
+        ->and($externalLink->number_webpages_hidden)->toBe(0)
+        ->and($externalLink->number_web_blocks_hidden)->toBe(0)
+        ->and($externalLink->status)->toBe('200');
+    // clean up
+    DB::table('web_block_has_external_link')->where('external_link_id', $externalLink->id)->delete();
+    $externalLink->delete();
+})->depends("create model has web block");
+
 
 test('update model has web block', function (ModelHasWebBlocks $modelHasWebBlock) {
 
