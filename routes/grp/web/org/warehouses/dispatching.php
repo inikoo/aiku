@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Dispatching\DeliveryNote\PdfDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Dispatching\DeliveryNote\UI\ShowDeliveryNote;
 use App\Actions\Fulfilment\PalletReturn\UI\IndexPalletReturns;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', ShowDispatchHub::class)->name('backlog');
 Route::get('/delivery-notes', IndexDeliveryNotes::class)->name('delivery-notes');
 Route::get('/delivery-notes/{deliveryNote}', [ShowDeliveryNote::class, 'inWarehouse'])->name('delivery-notes.show');
+Route::get('/delivery-notes/{deliveryNote}/pdf', PdfDeliveryNote::class)->name('delivery-notes.pdf');
 
 Route::get('returns', [IndexPalletReturns::class, 'inWarehouse'])->name('pallet-returns.index');
 Route::get('returns/{palletReturn}', [ShowPalletReturn::class, 'inWarehouse'])->name('pallet-returns.show');
