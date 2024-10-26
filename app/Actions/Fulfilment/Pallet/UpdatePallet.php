@@ -17,6 +17,7 @@ use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePallets;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
@@ -33,6 +34,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdatePallet extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
 
     private Pallet $pallet;
@@ -51,15 +53,15 @@ class UpdatePallet extends OrgAction
                 UpdatePalletReturnStateFromItems::run($pallet->palletReturn);
             }
 
-            GroupHydratePallets::dispatch($pallet->group);
-            OrganisationHydratePallets::dispatch($pallet->organisation);
-            FulfilmentCustomerHydratePallets::dispatch($pallet->fulfilmentCustomer);
-            FulfilmentHydratePallets::dispatch($pallet->fulfilment);
-            WarehouseHydratePallets::dispatch($pallet->warehouse);
+            GroupHydratePallets::dispatch($pallet->group)->delay($this->hydratorsDelay);
+            OrganisationHydratePallets::dispatch($pallet->organisation)->delay($this->hydratorsDelay);
+            FulfilmentCustomerHydratePallets::dispatch($pallet->fulfilmentCustomer)->delay($this->hydratorsDelay);
+            FulfilmentHydratePallets::dispatch($pallet->fulfilment)->delay($this->hydratorsDelay);
+            WarehouseHydratePallets::dispatch($pallet->warehouse)->delay($this->hydratorsDelay);
         }
 
         if ($originalType !== $pallet->type) {
-            AutoAssignServicesToPalletDelivery::make()->handle($pallet->palletDelivery, $pallet, $originalType);
+            AutoAssignServicesToPalletDelivery::run($pallet->palletDelivery, $pallet, $originalType);
         }
         PalletRecordSearch::dispatch($pallet);
 
@@ -81,7 +83,7 @@ class UpdatePallet extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'customer_reference' => [
                 'sometimes',
                 'nullable',
@@ -124,13 +126,17 @@ class UpdatePallet extends OrgAction
                 Rule::Exists('pallet_returns', 'id')->where('fulfilment_id', $this->fulfilment->id)
 
             ],
-            'notes'              => ['nullable', 'string', 'max:1024'],
-            'received_at'        => ['nullable', 'nullable', 'date'],
+            'notes'              => ['sometimes','nullable', 'string', 'max:1024'],
+            'received_at'        => ['sometimes','nullable',  'date'],
             'booked_in_at'       => ['sometimes', 'nullable', 'date'],
             'storing_at'         => ['sometimes', 'nullable', 'date'],
-            'last_fetched_at'    => ['sometimes', 'date'],
 
         ];
+        if (!$this->strict) {
+            $rules                 = $this->noStrictUpdateRules($rules);
+        }
+
+        return $rules;
     }
 
     public function fromRetina(Pallet $pallet, ActionRequest $request): Pallet
@@ -161,8 +167,9 @@ class UpdatePallet extends OrgAction
         return $this->handle($pallet, $this->validatedData);
     }
 
-    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0, bool $audit = true): Pallet
+    public function action(Pallet $pallet, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Pallet
     {
+        $this->strict = $strict;
         if (!$audit) {
             Pallet::disableAuditing();
         }
