@@ -83,17 +83,11 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                 $this->fetchTransactions($organisationSource, $purchaseOrder);
             }
 
-
-            $this->setAttachments($purchaseOrder);
+            $this->processFetchAttachments($purchaseOrder, 'Purchase Order', $purchaseOrderData['purchase_order']['source_id']);
         }
 
 
         return null;
-    }
-
-    private function setAttachments($purchaseOrder): void
-    {
-        $this->processFetchAttachments($purchaseOrder, 'Purchase Order');
     }
 
 

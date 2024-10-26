@@ -165,7 +165,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
                 }
             }
 
-            $this->processFetchAttachments($customer, 'Customer');
+            $this->processFetchAttachments($customer, 'Customer', $customerData['customer']['source_id']);
 
             return $customer;
         }

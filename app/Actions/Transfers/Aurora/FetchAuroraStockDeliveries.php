@@ -27,7 +27,6 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?StockDelivery
     {
         if ($stockDeliveryData = $organisationSource->fetchStockDelivery($organisationSourceId)) {
-
             if (empty($stockDeliveryData['org_parent'])) {
                 print "Warning Supplier Delivery $organisationSourceId do not have parent, skipping\n";
 
@@ -79,12 +78,12 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
             }
 
 
-            $this->setAttachments($stockDelivery);
+            $this->processFetchAttachments($stockDelivery, 'Supplier Delivery', $stockDeliveryData['stockDelivery']['source_id']);
+
 
             if (in_array('transactions', $this->with)) {
                 $this->fetchTransactions($organisationSource, $stockDelivery);
             }
-
 
 
             return $stockDelivery;
@@ -92,12 +91,6 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
 
         return null;
     }
-
-    private function setAttachments($stockDelivery): void
-    {
-        $this->processFetchAttachments($stockDelivery, 'Supplier Delivery');
-    }
-
 
 
     private function fetchTransactions($organisationSource, StockDelivery $stockDelivery): void
@@ -115,7 +108,6 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
         //        }
         //        $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }
-
 
 
     public function getModelsQuery(): Builder

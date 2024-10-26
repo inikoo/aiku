@@ -103,7 +103,7 @@ trait FetchSuppliersTrait
 
         $this->updateSupplierSources($effectiveSupplier, $supplierData['supplier']['source_id']);
         $this->createOrgSupplier($effectiveSupplier, $organisation, $supplierData, $organisationSource);
-        $this->processFetchAttachments($effectiveSupplier, 'Supplier');
+        $this->processFetchAttachments($effectiveSupplier, 'Supplier', $supplierData['supplier']['source_id']);
 
 
         return $effectiveSupplier;

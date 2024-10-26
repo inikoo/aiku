@@ -167,7 +167,7 @@ class FetchAuroraEmployees extends FetchAuroraAction
             }
 
 
-            $this->processFetchAttachments($employee, 'Staff');
+            $this->processFetchAttachments($employee, 'Staff', $employeeData['employee']['source_id']);
 
             return $employee;
         }

@@ -129,7 +129,7 @@ class FetchAuroraOrders extends FetchAuroraAction
             }
         }
 
-        $this->processFetchAttachments($order, 'Order');
+        $this->processFetchAttachments($order, 'Order', $orderData['order']['source_id']);
 
         return $order;
     }
