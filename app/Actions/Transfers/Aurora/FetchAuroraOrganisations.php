@@ -10,6 +10,7 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\SysAdmin\Organisation\UpdateOrganisation;
 use App\Actions\Traits\WithOrganisationSource;
 use App\Actions\Transfers\WithSaveMigrationHistory;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Console\Command;
@@ -23,11 +24,12 @@ class FetchAuroraOrganisations
     use WithOrganisationSource;
     use WithSaveMigrationHistory;
 
+    public string $commandSignature = 'fetch:aurora-organisations  {--d|db_suffix=}';
+
 
     public function handle(SourceOrganisationService $organisationSource, Organisation $organisation): Organisation
     {
         $organisationData = $organisationSource->fetchOrganisation($organisation);
-
 
 
         $organisation = UpdateOrganisation::make()->action(
@@ -49,11 +51,9 @@ class FetchAuroraOrganisations
 
             $this->saveMigrationHistory(
                 $organisation,
-                Arr::except($organisationData['organisation'], ['source','source_id','fetched_at','last_fetched_at'])
+                Arr::except($organisationData['organisation'], ['source', 'source_id', 'fetched_at', 'last_fetched_at'])
             );
-
         }
-
 
 
         $sourceData = explode(':', $organisation->source_id);
@@ -87,14 +87,43 @@ class FetchAuroraOrganisations
                     ]
                 );
             }
-
         }
+
+
+     
+            /** @var Organisation $otherOrganisation */
+        foreach (Organisation::where('type', OrganisationTypeEnum::SHOP)->where('id','!=',$organisation->id)->get() as $otherOrganisation) {
+               
+                $orgPartner = $organisation->orgPartners()->where('partner_id', $otherOrganisation->id)->first();
+                if($orgPartner) {
+                    $supplierData = DB::connection("aurora")
+                        ->table("Supplier Dimension")
+                        ->select('Supplier Key')
+                        ->where("partner_code", $otherOrganisation->slug)
+                        ->first();
+
+
+                    if ($supplierData) {
+                        $modelSources         = Arr::get($orgPartner->sources, 'suppliers', []);
+                        $modelSources[]       = $organisation->id.':'.$supplierData->{'Supplier Key'};
+                        $modelSources         = array_unique($modelSources);
+                        $sources['suppliers'] = $modelSources;
+                        $orgPartner->updateQuietly(
+                            [
+                                'sources' => $sources
+                            ]
+                        );
+                    }
+                }
+            }
+       
+
+
+
 
         return $organisation;
     }
 
-
-    public string $commandSignature = 'fetch:aurora-organisations  {--d|db_suffix=}';
 
     /**
      * @throws \Exception
@@ -102,15 +131,16 @@ class FetchAuroraOrganisations
     public function asCommand(Command $command): int
     {
         foreach (Organisation::all() as $organisation) {
-            if ($organisation->source['type'] !== 'Aurora') {
-                continue;
-            }
-            $organisationSource = $this->getOrganisationSource($organisation);
-            $organisationSource->initialisation($organisation, $command->option('db_suffix') ?? '');
-            $organisation = $this->handle($organisationSource, $organisation);
-            if ($organisation->created_at->lt($organisation->group->created_at)) {
-                $organisation->group->created_at = $organisation->created_at;
-                $organisation->group->save();
+
+            if ($organisation->type == OrganisationTypeEnum::SHOP and Arr::get($organisation->source, 'type') == 'Aurora') {
+
+                $organisationSource = $this->getOrganisationSource($organisation);
+                $organisationSource->initialisation($organisation, $command->option('db_suffix') ?? '');
+                $organisation = $this->handle($organisationSource, $organisation);
+                if ($organisation->created_at->lt($organisation->group->created_at)) {
+                    $organisation->group->created_at = $organisation->created_at;
+                    $organisation->group->save();
+                }
             }
         }
 

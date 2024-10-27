@@ -23,6 +23,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property bool $status
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property array $sources
  * @property-read Organisation $organisation
  * @property-read Organisation $partner
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
@@ -35,6 +36,15 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  */
 class OrgPartner extends Model
 {
+    protected $casts = [
+        'sources'           => 'array',
+    ];
+
+    protected $attributes = [
+        'sources' => '{}',
+    ];
+
+
     protected $guarded = [];
 
     public function organisation(): BelongsTo
