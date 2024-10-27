@@ -54,15 +54,18 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 
         //print ">>".$this->auroraModelData->{'Purchase Order State'}."\n";
         $state = match ($this->auroraModelData->{'Purchase Order State'}) {
-            "Cancelled", "NoReceived", "Placed", "Costing", "InvoiceChecked" => PurchaseOrderStateEnum::SETTLED,
+            //   "Cancelled", "NoReceived", "Placed", "Costing", "InvoiceChecked" => PurchaseOrderStateEnum::SETTLED,
             "InProcess" => PurchaseOrderStateEnum::IN_PROCESS,
-            "Confirmed" => PurchaseOrderStateEnum::CONFIRMED,
-            "Manufactured", "QC_Pass" => PurchaseOrderStateEnum::MANUFACTURED,
-
-            "Inputted", "Dispatched" => PurchaseOrderStateEnum::DISPATCHED,
-            "Received"  => PurchaseOrderStateEnum::RECEIVED,
-            "Checked"   => PurchaseOrderStateEnum::CHECKED,
             "Submitted" => PurchaseOrderStateEnum::SUBMITTED,
+            "Cancelled" => PurchaseOrderStateEnum::CANCELLED,
+            default => PurchaseOrderStateEnum::CONFIRMED,
+
+            //            "Confirmed" => PurchaseOrderStateEnum::CONFIRMED,
+            //            "Manufactured", "QC_Pass" => PurchaseOrderStateEnum::MANUFACTURED,
+            //            "Inputted", "Dispatched" => PurchaseOrderStateEnum::DISPATCHED,
+            //            "Received"  => PurchaseOrderStateEnum::RECEIVED,
+            //            "Checked"   => PurchaseOrderStateEnum::CHECKED,
+
         };
 
         $status = match ($this->auroraModelData->{'Purchase Order State'}) {

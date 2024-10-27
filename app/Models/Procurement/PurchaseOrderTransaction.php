@@ -22,9 +22,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $purchase_order_id
- * @property int $supplier_product_id
- * @property int $historic_supplier_product_id
- * @property int $org_supplier_product_id
+ * @property int|null $supplier_product_id
+ * @property int|null $historic_supplier_product_id
+ * @property int|null $org_supplier_product_id
+ * @property int $stock_id
  * @property int $org_stock_id
  * @property string $state
  * @property string $status
@@ -47,7 +48,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Procurement\PurchaseOrder $purchaseOrder
- * @property-read SupplierProduct $supplierProduct
+ * @property-read SupplierProduct|null $supplierProduct
  * @method static \Database\Factories\Procurement\PurchaseOrderTransactionFactory factory($count = null, $state = [])
  * @method static Builder<static>|PurchaseOrderTransaction newModelQuery()
  * @method static Builder<static>|PurchaseOrderTransaction newQuery()

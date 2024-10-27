@@ -15,7 +15,7 @@ use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdateStateToDispatchedPurchaseOrder
+class UpdateStateToConfirmedPurchaseOrder
 {
     use WithActionUpdate;
     use AsAction;
@@ -27,14 +27,14 @@ class UpdateStateToDispatchedPurchaseOrder
     public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
         $data = [
-            'state' => PurchaseOrderStateEnum::DISPATCHED
+            'state' => PurchaseOrderStateEnum::CONFIRMED,
         ];
 
-        if (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::MANUFACTURED, PurchaseOrderStateEnum::RECEIVED])) {
+        if (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::SUBMITTED])) {
             $purchaseOrder->purchaseOrderTransactions()->update($data);
 
             $data[$purchaseOrder->state->value . '_at'] = null;
-            $data['dispatched_at']                      = now();
+            $data['confirmed_at']                       = now();
 
             $purchaseOrder = $this->update($purchaseOrder, $data);
 
@@ -43,7 +43,7 @@ class UpdateStateToDispatchedPurchaseOrder
             return $purchaseOrder;
         }
 
-        throw ValidationException::withMessages(['status' => 'You can not change the status to dispatched']);
+        throw ValidationException::withMessages(['status' => 'You can not change the status to confirmed']);
     }
 
     /**

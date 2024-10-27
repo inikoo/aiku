@@ -38,35 +38,31 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
- * @property string $parent_type OrgAgent|OrgSupplier|Organisation(intra-group sales)
+ * @property string $parent_type OrgAgent|OrgSupplier|Partner(intra-group sales)
  * @property int $parent_id
  * @property string $parent_code Parent code on the time of consolidation
  * @property string $parent_name Parent name on the time of consolidation
  * @property string $reference
- * @property array $data
  * @property PurchaseOrderStateEnum $state
  * @property PurchaseOrderStatusEnum $status
  * @property \Illuminate\Support\Carbon $date latest relevant date
  * @property \Illuminate\Support\Carbon|null $submitted_at
  * @property \Illuminate\Support\Carbon|null $confirmed_at
- * @property \Illuminate\Support\Carbon|null $manufactured_at
- * @property \Illuminate\Support\Carbon|null $dispatched_at
- * @property \Illuminate\Support\Carbon|null $received_at
- * @property \Illuminate\Support\Carbon|null $checked_at
- * @property \Illuminate\Support\Carbon|null $settled_at
  * @property \Illuminate\Support\Carbon|null $cancelled_at
- * @property int $currency_id
- * @property string|null $grp_exchange
- * @property string|null $org_exchange
+ * @property int $number_stock_deliveries
  * @property int $number_of_items
  * @property float|null $gross_weight
  * @property float|null $net_weight
+ * @property int $currency_id
+ * @property string|null $grp_exchange
+ * @property string|null $org_exchange
  * @property string|null $cost_items
  * @property string|null $cost_extra
  * @property string|null $cost_shipping
  * @property string|null $cost_duties
  * @property string $cost_tax
  * @property string $cost_total
+ * @property array $data
  * @property int|null $agent_id
  * @property int|null $supplier_id
  * @property int|null $partner_id
