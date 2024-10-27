@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\StockDelivery;
 
 use App\Actions\OrgAction;
 use App\Actions\Procurement\StockDelivery\Traits\HasStockDeliveryHydrators;
+use App\Actions\Procurement\WithNoStrictProcurementOrderRules;
 use App\Actions\Procurement\WithPrepareDeliveryStoreFields;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
@@ -25,6 +26,7 @@ class StoreStockDelivery extends OrgAction
     use HasStockDeliveryHydrators;
     use WithPrepareDeliveryStoreFields;
     use WithNoStrictRules;
+    use WithNoStrictProcurementOrderRules;
 
 
     private OrgSupplier|OrgAgent|OrgPartner $parent;
@@ -56,7 +58,7 @@ class StoreStockDelivery extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'   => [
+            'reference' => [
                 'sometimes',
                 'required',
                 $this->strict ? 'alpha_dash' : 'string',
@@ -67,19 +69,14 @@ class StoreStockDelivery extends OrgAction
                     ]
                 ) : null,
             ],
-            'date'        => ['required', 'date'],
-            'parent_code' => ['sometimes', 'required', 'string', 'max:256'],
-            'parent_name' => ['sometimes', 'required', 'string', 'max:256'],
+
 
         ];
 
         if (!$this->strict) {
-            $rules                  = $this->noStrictStoreRules($rules);
-            $rules['dispatched_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['received_at']   = ['sometimes', 'nullable', 'date'];
-            $rules['checked_at']    = ['sometimes', 'nullable', 'date'];
-            $rules['settled_at']    = ['sometimes', 'nullable', 'date'];
-            $rules['cancelled_at']  = ['sometimes', 'nullable', 'date'];
+            $rules = $this->noStrictStoreRules($rules);
+            $rules = $this->noStrictProcurementOrderRules($rules);
+            $rules = $this->noStrictStockDeliveryRules($rules);
         }
 
         return $rules;

@@ -7,6 +7,8 @@
 
 namespace App\Models\Procurement;
 
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStatusEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
@@ -27,8 +29,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $org_supplier_product_id
  * @property int $stock_id
  * @property int $org_stock_id
- * @property string $state
- * @property string $status
+ * @property PurchaseOrderTransactionStateEnum $state
+ * @property PurchaseOrderTransactionDeliveryStatusEnum $delivery_status
  * @property string|null $quantity_ordered
  * @property string|null $quantity_dispatched
  * @property string|null $quantity_fail
@@ -61,7 +63,9 @@ class PurchaseOrderTransaction extends Model
     use InOrganisation;
 
     protected $casts = [
-        'data' => 'array',
+        'data'            => 'array',
+        'state'           => PurchaseOrderTransactionStateEnum::class,
+        'delivery_status' => PurchaseOrderTransactionDeliveryStatusEnum::class
     ];
 
     protected $attributes = [

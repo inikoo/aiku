@@ -31,7 +31,7 @@ return new class () extends Migration {
             $table->dateTimeTz('settled_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();
 
-
+            $table = $this->bodyProcurementOrder($table);
 
             $table->unsignedSmallInteger('number_purchase_orders')->default(0)->index();
 

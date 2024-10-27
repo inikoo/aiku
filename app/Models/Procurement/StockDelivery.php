@@ -50,6 +50,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $checked_at
  * @property string|null $settled_at
  * @property string|null $cancelled_at
+ * @property int|null $agent_id
+ * @property int|null $supplier_id
+ * @property int|null $partner_id
  * @property int $number_purchase_orders
  * @property int $number_of_items
  * @property float|null $gross_weight
@@ -64,9 +67,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $cost_tax
  * @property string $cost_total
  * @property array $data
- * @property int|null $agent_id
- * @property int|null $supplier_id
- * @property int|null $partner_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at

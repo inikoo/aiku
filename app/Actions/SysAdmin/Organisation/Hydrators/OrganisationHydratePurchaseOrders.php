@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -44,7 +44,7 @@ class OrganisationHydratePurchaseOrders
             $this->getEnumStats(
                 model: 'purchase_orders',
                 field: 'status',
-                enum: PurchaseOrderStatusEnum::class,
+                enum: PurchaseOrderDeliveryStatusEnum::class,
                 models: PurchaseOrder::class,
                 where: function ($q) use ($organisation) {
                     $q->where('organisation_id', $organisation->id);

@@ -490,13 +490,13 @@ trait WithAuroraParsers
 
         if (!$orgStock) {
             $res = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
-
             $orgStock = $res['orgStock'];
         }
 
         if (!$orgStock) {
             $res      = FetchAuroraDeletedStocks::run($this->organisationSource, $sourceData[1]);
             $orgStock = $res['orgStock'];
+
         }
 
         return $orgStock;
@@ -611,7 +611,6 @@ trait WithAuroraParsers
 
         return $employee;
     }
-
 
 
     public function parseClockingMachine($sourceId): ?ClockingMachine
@@ -793,13 +792,12 @@ trait WithAuroraParsers
 
 
         if ($auroraParentType == 'Agent') {
-            $parent          = $this->parseAgent(
+            $parent = $this->parseAgent(
                 $sourceId
             );
 
             return OrgAgent::where('organisation_id', $sourceData[0])->where('agent_id', $parent->id)->first();
         } else {
-
             $orgPartner = OrgPartner::whereJsonContains('sources->suppliers', $sourceId)
                 ->first();
             if ($orgPartner) {
@@ -811,12 +809,10 @@ trait WithAuroraParsers
             if ($supplier) {
                 return $supplier->orgSuppliers()->where('organisation_id', $sourceData[0])->first();
             }
-
         }
 
 
         return null;
-
     }
 
 

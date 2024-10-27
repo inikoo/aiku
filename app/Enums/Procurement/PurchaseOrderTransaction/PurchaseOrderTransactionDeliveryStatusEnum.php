@@ -9,12 +9,17 @@ namespace App\Enums\Procurement\PurchaseOrderTransaction;
 
 use App\Enums\EnumHelperTrait;
 
-enum PurchaseOrderTransactionStatusEnum: string
+enum PurchaseOrderTransactionDeliveryStatusEnum: string
 {
     use EnumHelperTrait;
 
     case PROCESSING = 'processing';
-    case PLACED     = 'settled-placed';
-    case FAIL       = 'settled-no-received';
-    case CANCELLED  = 'settled-cancelled';
+    case CONFIRMED = 'confirmed';
+    case READY_TO_SHIP = 'ready-to-ship';
+    case DISPATCHED = 'dispatched';
+    case RECEIVED = 'received';
+    case CHECKED = 'checked';
+    case SETTLED = 'settled';
+    case NOT_RECEIVED = 'not-received';
+    case CANCELLED = 'cancelled';
 }

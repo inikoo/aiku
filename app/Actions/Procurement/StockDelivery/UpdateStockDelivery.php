@@ -8,15 +8,19 @@
 namespace App\Actions\Procurement\StockDelivery;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\WithNoStrictProcurementOrderRules;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Procurement\StockDelivery;
+use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateStockDelivery extends OrgAction
 {
     use WithActionUpdate;
     use WithNoStrictRules;
+    use WithNoStrictProcurementOrderRules;
+
 
     public function handle(StockDelivery $stockDelivery, array $modelData): StockDelivery
     {
@@ -35,21 +39,24 @@ class UpdateStockDelivery extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'   => ['required', 'numeric', 'unique:stock_deliveries'],
-            'date'        => ['required', 'date'],
-            'currency_id' => ['required', 'exists:currencies,id'],
-            'exchange'    => ['required', 'numeric'],
-            'parent_code' => ['sometimes', 'required', 'string', 'max:256'],
-            'parent_name' => ['sometimes', 'required', 'string', 'max:256'],
+            'reference'   => [
+                'sometimes',
+                'required',
+                $this->strict ? 'alpha_dash' : 'string',
+                $this->strict ? new IUnique(
+                    table: 'stock_deliveries',
+                    extraConditions: [
+                        ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                    ]
+                ) : null,
+            ],
         ];
 
         if (!$this->strict) {
             $rules                 = $this->noStrictUpdateRules($rules);
-            $rules['date']         = ['sometimes', 'date'];
-            $rules['received_at']  = ['sometimes', 'nullable', 'date'];
-            $rules['checked_at']   = ['sometimes', 'nullable', 'date'];
-            $rules['settled_at']   = ['sometimes', 'nullable', 'date'];
-            $rules['cancelled_at'] = ['sometimes', 'nullable', 'date'];
+            $rules = $this->noStrictProcurementOrderRules($rules);
+            $rules = $this->noStrictStockDeliveryRules($rules);
+
         }
 
         return $rules;

@@ -25,9 +25,9 @@ trait IsProcurementOrder
         return $table;
     }
 
-    protected function footerProcurementOrder($table)
+    protected function bodyProcurementOrder($table)
     {
-        $table->jsonb('data');
+
 
         $table->unsignedSmallInteger('agent_id')->nullable();
         $table->foreign('agent_id')->references('id')->on('agents');
@@ -35,6 +35,16 @@ trait IsProcurementOrder
         $table->foreign('supplier_id')->references('id')->on('suppliers');
         $table->unsignedSmallInteger('partner_id')->nullable();
         $table->foreign('partner_id')->references('id')->on('organisations');
+
+
+        return $table;
+    }
+
+    protected function footerProcurementOrder($table)
+    {
+        $table->jsonb('data');
+
+
 
         $table->timestampsTz();
         $table->datetimeTz('fetched_at')->nullable();

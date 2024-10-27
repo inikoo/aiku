@@ -6,7 +6,7 @@
  */
 
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
-use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStatusEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasOrderFields;
 use Illuminate\Database\Migrations\Migration;
@@ -40,7 +40,7 @@ return new class () extends Migration {
 
 
             $table->string('state')->index()->default(PurchaseOrderTransactionStateEnum::IN_PROCESS->value);
-            $table->string('status')->index()->default(PurchaseOrderTransactionStatusEnum::PROCESSING->value);
+            $table->string('delivery_status')->index()->default(PurchaseOrderTransactionDeliveryStatusEnum::PROCESSING->value);
 
             $table->decimal('quantity_ordered', 16, 3)->nullable();
             $table->decimal('quantity_dispatched', 16, 3)->default(0)->nullable();

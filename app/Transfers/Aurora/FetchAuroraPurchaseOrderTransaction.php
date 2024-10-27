@@ -7,6 +7,7 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStatusEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Support\Facades\DB;
@@ -15,54 +16,74 @@ class FetchAuroraPurchaseOrderTransaction extends FetchAurora
 {
     protected function parsePurchaseOrderTransaction(PurchaseOrder $purchaseOrder): void
     {
-
-        if (! in_array($this->auroraModelData->{'Purchase Order Transaction Type'}, ['Parcel','Container'])) {
+        if (!in_array($this->auroraModelData->{'Purchase Order Transaction Type'}, ['Parcel', 'Container'])) {
             return;
         }
 
-        $historicSupplierProduct = $this->parseHistoricSupplierProduct($this->organisation->id, $this->auroraModelData->{'Supplier Part Historic Key'});
+
+
+        if ($purchaseOrder->parent_type == 'OrgPartner') {
+            $item = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Part SKU'});
+        } else {
+            $item = $this->parseHistoricSupplierProduct($this->organisation->id, $this->auroraModelData->{'Supplier Part Historic Key'});
+
+            if (!$item) {
+                $item = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Part SKU'});
+            }
+
+        }
 
 
 
-        if (!$historicSupplierProduct) {
+        if (!$item) {
+
+            print "PO Transaction Item not found   ".$this->auroraModelData->{'Purchase Order Transaction Fact Key'}."  \n";
+
+
             return;
         }
 
-        $this->parsedData['historic_supplier_product'] = $historicSupplierProduct;
+        $this->parsedData['item'] = $item;
 
         //enum('Cancelled','NoReceived','InProcess','Submitted','ProblemSupplier','Confirmed','Manufactured','QC_Pass','ReceivedAgent','InDelivery','Inputted','Dispatched','Received','Checked','Placed','InvoiceChecked')
         $state = match ($this->auroraModelData->{'Purchase Order Transaction State'}) {
-            'Cancelled'  => PurchaseOrderTransactionStateEnum::CANCELLED,
-            'NoReceived' => PurchaseOrderTransactionStateEnum::NO_RECEIVED,
-            'InProcess'  => PurchaseOrderTransactionStateEnum::IN_PROCESS,
-            'Submitted'  => PurchaseOrderTransactionStateEnum::SUBMITTED,
-            'ProblemSupplier', 'Confirmed' => PurchaseOrderTransactionStateEnum::CONFIRMED,
-            'Manufactured' => PurchaseOrderTransactionStateEnum::MANUFACTURED,
-            'Dispatched'   => PurchaseOrderTransactionStateEnum::DISPATCHED,
-            'QC_Pass', 'ReceivedAgent', 'InDelivery', 'Inputted', 'Received', 'Checked' => PurchaseOrderTransactionStateEnum::PROCESSING,
+            'Cancelled' => PurchaseOrderTransactionStateEnum::CANCELLED,
+            'NoReceived' => PurchaseOrderTransactionStateEnum::NOT_RECEIVED,
+            'InProcess' => PurchaseOrderTransactionStateEnum::IN_PROCESS,
+            'Submitted' => PurchaseOrderTransactionStateEnum::SUBMITTED,
             'Placed', 'InvoiceChecked' => PurchaseOrderTransactionStateEnum::SETTLED,
+            default => PurchaseOrderTransactionStateEnum::CONFIRMED,
+        };
+
+        $deliveryStatus = match ($this->auroraModelData->{'Purchase Order Transaction State'}) {
+            'Cancelled' => PurchaseOrderTransactionDeliveryStatusEnum::CANCELLED,
+            'NoReceived' => PurchaseOrderTransactionDeliveryStatusEnum::NOT_RECEIVED,
+            'InProcess', 'Submitted' => PurchaseOrderTransactionDeliveryStatusEnum::PROCESSING,
+            'ProblemSupplier', 'Confirmed', 'Inputted' => PurchaseOrderTransactionDeliveryStatusEnum::CONFIRMED,
+            'Manufactured', 'ReceivedAgent' => PurchaseOrderTransactionDeliveryStatusEnum::READY_TO_SHIP,
+            'Dispatched', 'InDelivery' => PurchaseOrderTransactionDeliveryStatusEnum::DISPATCHED,
+            'Received' => PurchaseOrderTransactionDeliveryStatusEnum::RECEIVED,
+            'Checked', 'QC_Pass' => PurchaseOrderTransactionDeliveryStatusEnum::CHECKED,
+            'Placed', 'InvoiceChecked' => PurchaseOrderTransactionDeliveryStatusEnum::SETTLED,
             default => null
         };
 
 
         if ($state == PurchaseOrderTransactionStateEnum::IN_PROCESS) {
             $quantityOrdered = $this->auroraModelData->{'Purchase Order Ordering Units'};
-
         } else {
             $quantityOrdered = $this->auroraModelData->{'Purchase Order Submitted Units'};
-
         }
 
 
-
-
         $this->parsedData['purchase_order_transaction'] = [
-            'quantity_ordered'    => $quantityOrdered,
-            'state'               => $state,
-            'source_id'           => $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Fact Key'},
-            'created_at'          => $this->auroraModelData->{'Creation Date'},
-            'fetched_at'          => now(),
-            'last_fetched_at'     => now(),
+            'quantity_ordered' => $quantityOrdered,
+            'state'            => $state,
+            'delivery_status'  => $deliveryStatus,
+            'source_id'        => $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Fact Key'},
+            'created_at'       => $this->auroraModelData->{'Creation Date'},
+            'fetched_at'       => now(),
+            'last_fetched_at'  => now(),
 
 
         ];

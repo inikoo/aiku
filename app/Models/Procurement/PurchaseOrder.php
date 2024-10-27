@@ -8,7 +8,7 @@
 namespace App\Models\Procurement;
 
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\SysAdmin\Organisation;
@@ -44,12 +44,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $parent_name Parent name on the time of consolidation
  * @property string $reference
  * @property PurchaseOrderStateEnum $state
- * @property PurchaseOrderStatusEnum $status
+ * @property PurchaseOrderDeliveryStatusEnum $delivery_status
  * @property \Illuminate\Support\Carbon $date latest relevant date
  * @property \Illuminate\Support\Carbon|null $submitted_at
  * @property \Illuminate\Support\Carbon|null $confirmed_at
  * @property \Illuminate\Support\Carbon|null $cancelled_at
- * @property int $number_stock_deliveries
+ * @property int|null $agent_id
+ * @property int|null $supplier_id
+ * @property int|null $partner_id
  * @property int $number_of_items
  * @property float|null $gross_weight
  * @property float|null $net_weight
@@ -62,10 +64,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $cost_duties
  * @property string $cost_tax
  * @property string $cost_total
+ * @property int $number_stock_deliveries Number supplier deliveries
+ * @property int $number_stock_deliveries_except_cancelled Number supplier deliveries
+ * @property int $number_stock_deliveries_state_in_process
+ * @property int $number_stock_deliveries_state_dispatched
+ * @property int $number_stock_deliveries_state_received
+ * @property int $number_stock_deliveries_state_checked
+ * @property int $number_stock_deliveries_state_settled
+ * @property int $number_stock_deliveries_status_processing
+ * @property int $number_stock_deliveries_status_not_received
+ * @property int $number_stock_deliveries_status_settled_placed
+ * @property int $number_stock_deliveries_status_settled_cancelled
  * @property array $data
- * @property int|null $agent_id
- * @property int|null $supplier_id
- * @property int|null $partner_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -106,7 +116,7 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     protected $casts = [
         'data'               => 'array',
         'state'              => PurchaseOrderStateEnum::class,
-        'status'             => PurchaseOrderStatusEnum::class,
+        'delivery_status'             => PurchaseOrderDeliveryStatusEnum::class,
         'date'               => 'datetime',
         'submitted_at'       => 'datetime',
         'confirmed_at'       => 'datetime',

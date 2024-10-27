@@ -48,35 +48,35 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                     return null;
                 }
             } else {
-                try {
-                    $purchaseOrder = StorePurchaseOrder::make()->action(
-                        parent: $purchaseOrderData['org_parent'],
-                        modelData: $purchaseOrderData['purchase_order'],
-                        hydratorsDelay: 60,
-                        strict: false,
-                        audit: false
-                    );
+                // try {
+                $purchaseOrder = StorePurchaseOrder::make()->action(
+                    parent: $purchaseOrderData['org_parent'],
+                    modelData: $purchaseOrderData['purchase_order'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
 
-                    PurchaseOrder::enableAuditing();
-                    $this->saveMigrationHistory(
-                        $purchaseOrder,
-                        Arr::except($purchaseOrderData['purchase_order'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                    );
-                    $this->recordNew($organisationSource);
+                PurchaseOrder::enableAuditing();
+                $this->saveMigrationHistory(
+                    $purchaseOrder,
+                    Arr::except($purchaseOrderData['purchase_order'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
+                $this->recordNew($organisationSource);
 
-                    $sourceData = explode(':', $purchaseOrder->source_id);
+                $sourceData = explode(':', $purchaseOrder->source_id);
 
-                    DB::connection('aurora')->table('Purchase Order Dimension')
-                        ->where('Purchase Order Key', $sourceData[1])
-                        ->update(['aiku_id' => $purchaseOrder->id]);
-                } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $purchaseOrderData['purchase_order'], 'PurchaseOrder', 'store');
+                DB::connection('aurora')->table('Purchase Order Dimension')
+                    ->where('Purchase Order Key', $sourceData[1])
+                    ->update(['aiku_id' => $purchaseOrder->id]);
+                //                } catch (Exception $e) {
+                //                    $this->recordError($organisationSource, $e, $purchaseOrderData['purchase_order'], 'PurchaseOrder', 'store');
+                //
+                //                    return null;
+                //                }
 
-                    return null;
-                }
 
 
-                return $purchaseOrder;
             }
 
             if (in_array('transactions', $this->with)) {
@@ -93,10 +93,10 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
 
     private function fetchTransactions($organisationSource, PurchaseOrder $purchaseOrder): void
     {
+
         $transactionsToDelete = $purchaseOrder->purchaseOrderTransactions()->pluck('source_id', 'id')->all();
 
         $sourceData = explode(':', $purchaseOrder->source_id);
-
 
         foreach (
             DB::connection('aurora')
@@ -106,12 +106,10 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                 ->where('Purchase Order Key', $sourceData[1])
                 ->get() as $auroraData
         ) {
-            $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Purchase Order Transaction Fact Key'}]);
-            if ($purchaseOrder->parent_type == 'OrgPartner') {
-                //todo implement this
-            } else {
-                FetchPurchaseOrderTransactions::run($organisationSource, $auroraData->{'Purchase Order Transaction Fact Key'}, $purchaseOrder);
-            }
+            $transactionsToDelete = array_diff($transactionsToDelete, [
+                $purchaseOrder->organisation_id.':'.$auroraData->{'Purchase Order Transaction Fact Key'}
+            ]);
+            FetchPurchaseOrderTransactions::run($organisationSource, $auroraData->{'Purchase Order Transaction Fact Key'}, $purchaseOrder);
         }
         $purchaseOrder->purchaseOrderTransactions()->whereIn('id', array_keys($transactionsToDelete))->delete();
     }

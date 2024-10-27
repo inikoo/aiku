@@ -16,8 +16,9 @@ enum PurchaseOrderStateEnum: string
     case IN_PROCESS = 'in_process';
     case SUBMITTED = 'submitted';
     case CONFIRMED = 'confirmed';
+    case SETTLED = 'settled';
     case CANCELLED = 'cancelled';
-
+    case NOT_RECEIVED = 'not-received';
 
     public static function labels(): array
     {
@@ -25,7 +26,9 @@ enum PurchaseOrderStateEnum: string
             'in_process' => __('In process'),
             'submitted'  => __('Submitted'),
             'confirmed'  => __('Confirmed'),
-            'cancelled'  => __('Cancelled')
+            'settled'    => __('Settled'),
+            'cancelled'  => __('Cancelled'),
+            'not-received' => __('Not Received')
         ];
     }
 
@@ -62,6 +65,16 @@ enum PurchaseOrderStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
+            'settled'    => [
+                'tooltip' => __('Settled'),
+                'icon'    => 'fal fa-check-double',
+                'class'   => 'text-success-500',
+                'color'   => 'success',
+                'app'     => [
+                    'name' => 'check-double',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
             'cancelled'  => [
                 'tooltip' => __('Cancelled'),
                 'icon'    => 'fal fa-times-circle',
@@ -72,6 +85,16 @@ enum PurchaseOrderStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
 
+            ],
+            'not-received' => [
+                'tooltip' => __('Not Received'),
+                'icon'    => 'fal fa-exclamation-circle',
+                'class'   => 'text-warning-500',
+                'color'   => 'warning',
+                'app'     => [
+                    'name' => 'exclamation-circle',
+                    'type' => 'font-awesome-5'
+                ]
             ]
         ];
     }

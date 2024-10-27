@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrderTransaction;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrderTransaction;
@@ -16,6 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdatePurchaseOrderTransaction extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
     public function handle(PurchaseOrderTransaction $purchaseOrderTransaction, array $modelData): PurchaseOrderTransaction
     {
@@ -24,6 +26,9 @@ class UpdatePurchaseOrderTransaction extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if ($this->asAction) {
+            return true;
+        }
         $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
 
         return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
@@ -31,11 +36,30 @@ class UpdatePurchaseOrderTransaction extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'unit_quantity' => ['sometimes', 'required', 'numeric', 'gt:0'],
             'unit_price'    => ['sometimes', 'required', 'numeric'],
         ];
+        if (!$this->strict) {
+            $rules = $this->noStrictUpdateRules($rules);
+        }
+
+        return $rules;
     }
+
+    public function action(PurchaseOrderTransaction $purchaseOrderTransaction, array $modelData, int $hydratorsDelay = 0, bool $strict = true): PurchaseOrderTransaction
+    {
+
+        $this->asAction      = true;
+        $this->strict        = $strict;
+
+        $this->hydratorsDelay = $hydratorsDelay;
+
+        $this->initialisation($purchaseOrderTransaction->organisation, $modelData);
+
+        return $this->handle($purchaseOrderTransaction, $this->validatedData);
+    }
+
 
     public function asController(PurchaseOrderTransaction $purchaseOrderTransaction, ActionRequest $request): PurchaseOrderTransaction
     {
