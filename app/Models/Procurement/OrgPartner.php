@@ -8,6 +8,7 @@
 namespace App\Models\Procurement;
 
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -24,6 +25,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property array $sources
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Organisation $organisation
  * @property-read Organisation $partner
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\PurchaseOrder> $purchaseOrders
@@ -36,6 +38,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  */
 class OrgPartner extends Model
 {
+    use InOrganisation;
+
     protected $casts = [
         'sources'           => 'array',
     ];
@@ -47,10 +51,7 @@ class OrgPartner extends Model
 
     protected $guarded = [];
 
-    public function organisation(): BelongsTo
-    {
-        return $this->belongsTo(Organisation::class);
-    }
+
 
     public function stats(): HasOne
     {

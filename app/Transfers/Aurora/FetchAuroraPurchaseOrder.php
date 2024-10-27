@@ -8,13 +8,9 @@
 namespace App\Transfers\Aurora;
 
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
-use App\Actions\Transfers\Aurora\FetchAuroraDeletedSuppliers;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
 use App\Models\Helpers\Currency;
-use App\Models\Procurement\OrgAgent;
-use App\Models\Procurement\OrgPartner;
-use App\Models\Procurement\OrgSupplier;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -32,21 +28,17 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             return;
         }
 
-        if ($this->auroraModelData->{'Purchase Order Parent'} == 'Agent') {
 
+        $orgParent = $this->parseProcurementOrderParent(
+            $this->auroraModelData->{'Purchase Order Parent'},
+            $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
+        );
 
-            $parent          = $this->parseAgent(
-                $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
-            );
-
-            $orgParent = OrgAgent::where('organisation_id', $this->organisation->id)
-                ->where('agent_id', $parent->id)->first();
-        } else {
-            $orgParent = $this->getOrgParent();
-            if (!$orgParent) {
-                return;
-            }
+        if (!$orgParent) {
+            print "Error No parent found ".$this->auroraModelData->{'Purchase Order Parent'}."  ".$this->auroraModelData->{'Purchase Order Parent Key'}." ".$this->auroraModelData->{'Purchase Order Parent Name'}."  \n";
+            return;
         }
+
 
 
         $this->parsedData["org_parent"] = $orgParent;
@@ -134,43 +126,6 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             ->first();
     }
 
-    protected function getOrgParent(): null|OrgSupplier|OrgPartner
-    {
-        $supplierData = DB::connection("aurora")
-            ->table("Supplier Dimension")
-            ->where("Supplier Key", $this->auroraModelData->{'Purchase Order Parent Key'})
-            ->first();
 
-
-        if ($supplierData) {
-            if ($supplierData->partner_code != '') {
-                /** @var OrgPartner $orgPartner */
-                $orgPartner = OrgPartner::leftJoin('organisations', 'org_partners.partner_id', 'organisations.id')
-                    ->where('org_partners.organisation_id', $this->organisation->id)
-                    ->where('organisations.slug', $supplierData->partner_code)->firstOrFail();
-
-                return $orgPartner;
-            }
-
-
-            if ($supplierData->aiku_ignore == 'Yes') {
-                return null;
-            }
-
-
-
-            $parent = $this->parseSupplier(
-                $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
-            );
-        } else {
-            $parent = FetchAuroraDeletedSuppliers::run($this->organisationSource, $this->auroraModelData->{'Purchase Order Parent Key'});
-        }
-
-        if (!$parent) {
-            return null;
-        }
-
-        return OrgSupplier::where('organisation_id', $this->organisation->id)->where('supplier_id', $parent->id)->first();
-    }
 
 }

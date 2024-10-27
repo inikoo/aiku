@@ -71,7 +71,7 @@ class StoreOrganisation
 
 
             $superAdmins = $group->users()->with('roles')->get()->filter(
-                fn($user) => $user->roles->where('name', 'group-admin')->toArray()
+                fn ($user) => $user->roles->where('name', 'group-admin')->toArray()
             );
 
             foreach ($superAdmins as $superAdmin) {

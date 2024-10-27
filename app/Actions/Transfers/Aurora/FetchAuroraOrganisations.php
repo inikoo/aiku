@@ -90,33 +90,33 @@ class FetchAuroraOrganisations
         }
 
 
-     
-            /** @var Organisation $otherOrganisation */
-        foreach (Organisation::where('type', OrganisationTypeEnum::SHOP)->where('id','!=',$organisation->id)->get() as $otherOrganisation) {
-               
-                $orgPartner = $organisation->orgPartners()->where('partner_id', $otherOrganisation->id)->first();
-                if($orgPartner) {
-                    $supplierData = DB::connection("aurora")
-                        ->table("Supplier Dimension")
-                        ->select('Supplier Key')
-                        ->where("partner_code", $otherOrganisation->slug)
-                        ->first();
+
+        /** @var Organisation $otherOrganisation */
+        foreach (Organisation::where('type', OrganisationTypeEnum::SHOP)->where('id', '!=', $organisation->id)->get() as $otherOrganisation) {
+
+            $orgPartner = $organisation->orgPartners()->where('partner_id', $otherOrganisation->id)->first();
+            if ($orgPartner) {
+                $supplierData = DB::connection("aurora")
+                    ->table("Supplier Dimension")
+                    ->select('Supplier Key')
+                    ->where("partner_code", $otherOrganisation->slug)
+                    ->first();
 
 
-                    if ($supplierData) {
-                        $modelSources         = Arr::get($orgPartner->sources, 'suppliers', []);
-                        $modelSources[]       = $organisation->id.':'.$supplierData->{'Supplier Key'};
-                        $modelSources         = array_unique($modelSources);
-                        $sources['suppliers'] = $modelSources;
-                        $orgPartner->updateQuietly(
-                            [
-                                'sources' => $sources
-                            ]
-                        );
-                    }
+                if ($supplierData) {
+                    $modelSources         = Arr::get($orgPartner->sources, 'suppliers', []);
+                    $modelSources[]       = $organisation->id.':'.$supplierData->{'Supplier Key'};
+                    $modelSources         = array_unique($modelSources);
+                    $sources['suppliers'] = $modelSources;
+                    $orgPartner->updateQuietly(
+                        [
+                            'sources' => $sources
+                        ]
+                    );
                 }
             }
-       
+        }
+
 
 
 

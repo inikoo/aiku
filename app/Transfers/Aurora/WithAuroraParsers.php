@@ -84,6 +84,9 @@ use App\Models\Ordering\Order;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
+use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgPartner;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\HistoricSupplierProduct;
 use App\Models\SupplyChain\Stock;
@@ -783,5 +786,38 @@ trait WithAuroraParsers
 
         return $upload;
     }
+
+    public function parseProcurementOrderParent($auroraParentType, $sourceId): null|OrgAgent|OrgSupplier|OrgPartner
+    {
+        $sourceData = explode(':', $sourceId);
+
+
+        if ($auroraParentType == 'Agent') {
+            $parent          = $this->parseAgent(
+                $sourceId
+            );
+
+            return OrgAgent::where('organisation_id', $sourceData[0])->where('agent_id', $parent->id)->first();
+        } else {
+
+            $orgPartner = OrgPartner::whereJsonContains('sources->suppliers', $sourceId)
+                ->first();
+            if ($orgPartner) {
+                return $orgPartner;
+            }
+
+
+            $supplier = $this->parseSupplier($sourceId);
+            if ($supplier) {
+                return $supplier->orgSuppliers()->where('organisation_id', $sourceData[0])->first();
+            }
+
+        }
+
+
+        return null;
+
+    }
+
 
 }

@@ -11,8 +11,6 @@ use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
 use App\Models\Helpers\Currency;
-use App\Models\Procurement\OrgAgent;
-use App\Models\Procurement\OrgSupplier;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraStockDelivery extends FetchAurora
@@ -24,49 +22,15 @@ class FetchAuroraStockDelivery extends FetchAurora
             return;
         }
 
-        if ($this->auroraModelData->{'Supplier Delivery Parent'} == 'Agent') {
 
+        $orgParent = $this->parseProcurementOrderParent(
+            $this->auroraModelData->{'Supplier Delivery Parent'},
+            $this->organisation->id.':'.$this->auroraModelData->{'Supplier Delivery Parent Key'}
+        );
 
-
-
-            $agentData = DB::connection("aurora")
-                ->table("Agent Dimension")
-                ->where("Agent Key", $this->auroraModelData->{'Supplier Delivery Parent Key'})
-                ->first();
-
-            $parent          = $this->parseAgent(
-                $this->organisation->id.':'.$this->auroraModelData->{'Supplier Delivery Parent Key'}
-            );
-
-            if (!$parent) {
-                dd($this->auroraModelData);
-                return;
-            }
-
-            $orgParent = OrgAgent::where('organisation_id', $this->organisation->id)
-                ->where('agent_id', $parent->id)->first();
-
-            if (!$orgParent) {
-                print "Warning agent ".$parent->id." not found\n";
-                return;
-            }
-        } else {
-
-
-            $parent = $this->parseSupplier($this->organisation->id.':'.$this->auroraModelData->{'Supplier Delivery Parent Key'});
-
-
-            if (!$parent) {
-                print "Warning supplier ".$this->auroraModelData->{'Supplier Delivery Parent Key'}." not found\n";
-                return;
-            }
-
-            $orgParent = OrgSupplier::where('organisation_id', $this->organisation->id)->where('supplier_id', $parent->id)->first();
-
-            if (!$orgParent) {
-                dd($this->auroraModelData);
-                return;
-            }
+        if (!$orgParent) {
+            print "Error No parent found ".$this->auroraModelData->{'Supplier Delivery Parent'}."  ".$this->auroraModelData->{'Supplier Delivery Parent Key'}." ".$this->auroraModelData->{'Supplier Delivery Parent Name'}." \n";
+            return;
         }
 
 
