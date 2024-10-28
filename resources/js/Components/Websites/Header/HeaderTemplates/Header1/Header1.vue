@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
+import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 import MobileMenu from '@/Components/MobileMenu.vue'
 import Menu from 'primevue/menu'
 import { getStyles } from "@/Composables/styles";
@@ -29,7 +29,6 @@ const props = defineProps<{
 }>()
 
 const selectedColor = props.colorThemed?.color
-const toogle = ['bold', 'fontSize', 'italic','underline','link','highlight','color','undo','redo','clear']
 const isOpenGalleryImages = ref(false)
 
 const emits = defineEmits<{
@@ -100,7 +99,7 @@ const toggle = (event) => {
                     :style="getStyles(modelValue.gold_member.properties)"
                     class="justify-center flex w-fit" 
                     v-if="loginMode">
-                    <Editor :toogle="toogle" v-model="modelValue.gold_member.text" :editable="!previewMode"/>
+                    <Editor  v-model="modelValue.gold_member.text" :editable="!previewMode"/>
                 </button>
             </div>
         </div>

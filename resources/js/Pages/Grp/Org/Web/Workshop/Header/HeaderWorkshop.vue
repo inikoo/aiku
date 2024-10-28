@@ -50,7 +50,6 @@ const props = defineProps<{
     }
 }>()
 
-// console.log('autttto', props.route_list)
 provide('route_list', props.route_list)
 const usedTemplates = ref({ 
     header : props.data.data.header,
@@ -61,7 +60,6 @@ const comment = ref('')
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
 const iframeSrc = ref(route('grp.websites.header.preview', [route().params['website']]))
-const loginMode = ref(true)
 const tabs = [
     {
         label: "Topbar settings",
@@ -188,7 +186,6 @@ const autoSave = async (data: {}) => {
 }
 const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
 
-
 const setIframeView = (view: String) => {
     if (view === 'mobile') {
         iframeClass.value = 'w-[375px] h-[667px] mx-auto';
@@ -199,11 +196,9 @@ const setIframeView = (view: String) => {
     }
 }
 
-
 const openFullScreenPreview = () => {
     window.open(iframeSrc.value, '_blank')
 }
-
 
 const handleIframeError = () => {
     console.error('Failed to load iframe content.');
@@ -224,18 +219,8 @@ watch(usedTemplates, (newVal) => {
 
 
 const selectedWebBlock = computed(() => {
+    console.log(selectedTab.value,props.web_block_types)
     return props.web_block_types.filter(item => item.data.component === selectedTab.value.componentName)
-    
-    // const filteredData = { ...props.web_block_types };
-
-    
-    // if (Array.isArray(filteredData.data)) {
-    //     filteredData.data = filteredData.data.filter(item => item.name === tabsBar.value.label)
-    // } else {
-    //     filteredData.data = [];
-    // }
-
-    // return filteredData;
 })
 
 
@@ -259,7 +244,6 @@ const sendToIframe = (data: any) => {
 
 <template>
     <Head :title="capitalize(title)" />
-
     <PageHeading :data="pageHead">
         <template #mainIcon v-if="isLoadingSave">
             <LoadingIcon size="sm" />
@@ -277,7 +261,6 @@ const sendToIframe = (data: any) => {
     
     <div class="h-[84vh] flex">
         <div v-if="usedTemplates" class="col-span-2 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
-
             <!-- Section: Side editor -->
             <div class="flex h-full w-96">
                 <div class="min-w-fit w-[10%] bg-slate-200 ">
@@ -379,14 +362,6 @@ const sendToIframe = (data: any) => {
             :currentTopbar="usedTemplates.topBar"
         />
     </Modal>
-
-
-    <!-- <Modal :isOpen="isOpenModalTopbarList" @onClose="isOpenModalTopbarList = false">
-        <TopbarList 
-            :onSelectTopbar
-            :topbarList="selectedWebBlock"
-        />
-    </Modal> -->
 </template>
 
 
