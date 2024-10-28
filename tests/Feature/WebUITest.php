@@ -148,3 +148,27 @@ test('show banner', function () {
             ->has('tabs');
     });
 });
+
+test('create banner', function () {
+    $response = get(
+        route(
+            'grp.org.shops.show.web.banners.create',
+            [
+                $this->organisation->slug,
+                $this->shop->slug,
+                $this->fulfilmentWebsite->slug,
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->where('title', 'new banner')
+            ->has('breadcrumbs', 4)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'banner')->etc()
+            )
+            ->has('formData');
+    });
+});
