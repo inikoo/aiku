@@ -3,159 +3,212 @@
 	"slug": "header",
 	"code": "header-1",
 	"name": "Header 1",
+	"component": "header",
 	"blueprint": [
 		{
-			"name": "Chip",
+			"name": "Container",
+			"icon": {
+				"icon": "fal fa-rectangle-wide",
+				"tooltip": "Container"
+			},
+			"key": [
+				"container",
+				"properties"
+			],
+			"type": [
+				"properties"
+			],
+			"props_data": {}
+		},
+		{
+			"name": "Button 1",
 			"key": "gold_member",
-			"type": "EditorAndPanelProperties"
+			"replaceForm": [
+				{
+					"key": ["gold_member","visible"],
+					"type": ["VisibleLoggedIn"]
+				},
+				{
+					"key": "gold_member",
+					"type": "EditorAndPanelProperties"
+				}
+			]
 		},
 		{
 			"name": "Logo",
 			"key": "logo",
-			"type": "upload_image"
+			"replaceForm": [
+				{
+					"key": ["logo","visible"],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": "logo",
+					"type": "upload_image"
+				}
+			]
 		}
 	],
 	"data": {
-		"logo": {
-			"visible": "all",
-			"src": null,
-			"url": "https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png",
-			"alt": "",
-			"width": 50,
-			"properties": {
-				"padding": {
-					"unit": "px",
-					"top": {
-						"value": 0
-					},
-					"left": {
-						"value": 0
-					},
-					"right": {
-						"value": 0
-					},
-					"bottom": {
-						"value": 0
-					}
-				},
-				"margin": {
-					"unit": "px",
-					"top": {
-						"value": 0
-					},
-					"left": {
-						"value": 0
-					},
-					"right": {
-						"value": 0
-					},
-					"bottom": {
-						"value": 0
-					}
-				},
-				"border": {
-					"color": "#000000",
-					"unit": "px",
-					"rounded": {
-						"unit": "px",
-						"topright": {
-							"value": 0
-						},
-						"topleft": {
-							"value": 0
-						},
-						"bottomright": {
-							"value": 0
-						},
-						"bottomleft": {
-							"value": 0
+		"fieldValue": {
+			"container": {
+				"properties": {
+					"background": {
+						"type": "color",
+						"color": "#fffff",
+						"image": {
+							"original": null
 						}
 					},
-					"top": {
-						"value": 0
-					},
-					"left": {
-						"value": 0
-					},
-					"right": {
-						"value": 0
-					},
-					"bottom": {
-						"value": 0
+					"text": {
+						"color": "rgba(255,255,255,1)",
+						"fontFamily": "Raleway"
 					}
 				}
-			}
-		},
-		"gold_member": {
-			"visible": "all",
-			"text": "Become a Gold Reward Member",
-			"properties": {
-				"background": {
-					"type": "color",
-					"color": "#8E44AD",
-					"image": {
-						"original": null
-					}
-				},
-				"padding": {
-					"unit": "px",
-					"top": {
-						"value": 5
-					},
-					"left": {
-						"value": 10
-					},
-					"right": {
-						"value": 10
-					},
-					"bottom": {
-						"value": 5
-					}
-				},
-				"margin": {
-					"unit": "px",
-					"top": {
-						"value": 0
-					},
-					"left": {
-						"value": 0
-					},
-					"right": {
-						"value": 0
-					},
-					"bottom": {
-						"value": 0
-					}
-				},
-				"border": {
-					"color": "#000000",
-					"unit": "px",
-					"rounded": {
+			},
+			"logo": {
+				"visible": "all",
+				"src": null,
+				"url": "https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png",
+				"alt": "",
+				"width": 50,
+				"properties": {
+					"padding": {
 						"unit": "px",
-						"topright": {
-							"value": 10
+						"top": {
+							"value": 0
 						},
-						"topleft": {
-							"value": 10
+						"left": {
+							"value": 0
 						},
-						"bottomright": {
-							"value": 10
+						"right": {
+							"value": 0
 						},
-						"bottomleft": {
-							"value": 10
+						"bottom": {
+							"value": 0
 						}
 					},
-					"top": {
-						"value": 0
+					"margin": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
 					},
-					"left": {
-						"value": 0
+					"border": {
+						"color": "#000000",
+						"unit": "px",
+						"rounded": {
+							"unit": "px",
+							"topright": {
+								"value": 0
+							},
+							"topleft": {
+								"value": 0
+							},
+							"bottomright": {
+								"value": 0
+							},
+							"bottomleft": {
+								"value": 0
+							}
+						},
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					}
+				}
+			},
+			"gold_member": {
+				"visible": "all",
+				"text": "Become a Gold Reward Member",
+				"properties": {
+					"background": {
+						"type": "color",
+						"color": "#8E44AD",
+						"image": {
+							"original": null
+						}
 					},
-					"right": {
-						"value": 0
+					"padding": {
+						"unit": "px",
+						"top": {
+							"value": 5
+						},
+						"left": {
+							"value": 10
+						},
+						"right": {
+							"value": 10
+						},
+						"bottom": {
+							"value": 5
+						}
 					},
-					"bottom": {
-						"value": 0
+					"margin": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"border": {
+						"color": "#000000",
+						"unit": "px",
+						"rounded": {
+							"unit": "px",
+							"topright": {
+								"value": 10
+							},
+							"topleft": {
+								"value": 10
+							},
+							"bottomright": {
+								"value": 10
+							},
+							"bottomleft": {
+								"value": 10
+							}
+						},
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
 					}
 				}
 			}

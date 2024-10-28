@@ -72,10 +72,11 @@ const props = defineProps<{
     colorThemed: {
         color: string[]
     }
+    editDataTools : any
+    loginMode:Boolean
 }>()
 
-// console.log('p-header', props)
-
+console.log('inii',props)
 </script>
 
 <template>
@@ -86,8 +87,8 @@ const props = defineProps<{
             v-if="data?.topBar?.data.fieldValue"
             :is="getTopbarComponent(data?.topBar.code)"
             v-model="data.topBar.data.fieldValue"
-            :loginMode="true"
-            :previewMode="true"
+            :loginMode="loginMode"
+            :previewMode="editDataTools.previewMode"
             :uploadImageRoute="null"
             :colorThemed="colorThemed"
         />
@@ -95,11 +96,11 @@ const props = defineProps<{
 
         <!-- Section: Header -->
         <component
-            v-if="data?.header?.data"
-            :is="getComponentsHeader(data?.header?.data?.key)"
-            v-model="data.header.data"
-            :loginMode="true"
-            :previewMode="true"
+            v-if="data?.header?.code"
+            :is="getComponentsHeader(data?.header?.code)"
+            v-model="data.header.data.fieldValue"
+            :loginMode="loginMode"
+            :previewMode="editDataTools.previewMode"
             :uploadImageRoute="null"
             :colorThemed="colorThemed"
         />

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Delivery Note - {{ $deliveryNote['reference'] }}</title>
+    <title>Delivery Note - {{ $deliverynote->reference }}</title>
     <style>
         body { font-family: sans-serif; font-size: 10pt; }
         h1 { font-size: 14pt; }
@@ -21,7 +21,7 @@
 <!-- Header Section -->
 <div class="header">
     <h1>Delivery Note</h1>
-    <p>Delivery Note No: {{ $deliveryNote['reference'] }} | Date: {{ \Carbon\Carbon::parse($deliveryNote['date'])->format('Y-m-d') }}</p>
+    <p>Delivery Note No: {{ $deliverynote->reference }} | Date: {{ \Carbon\Carbon::parse($deliverynote->date)->format('Y-m-d') }}</p>
 </div>
 
 <!-- Company and Customer Details -->
@@ -37,7 +37,7 @@
         </td>
         <td style="width: 50%;">
             <strong>To:</strong> <br>
-            {{ $customer['name'] ?? 'Customer Name' }}<br>
+            {{ $customer->name ?? 'Customer Name' }}<br>
             {{ $deliveryAddress ?? 'Delivery Address' }}<br>
             United Kingdom
         </td>
@@ -47,8 +47,8 @@
 <!-- Delivery Details -->
 <table>
     <tr>
-        <td><strong>Order Number:</strong> {{ $order['reference'] }}</td>
-        <td><strong>Issued Date:</strong> {{ \Carbon\Carbon::parse($order['in_warehouse_at'])->format('Y-m-d') }}</td>
+        <td><strong>Order Number:</strong> {{ $order->reference }}</td>
+        <td><strong>Issued Date:</strong> {{ \Carbon\Carbon::parse($order->in_warehouse_at)->format('Y-m-d') }}</td>
     </tr>
 </table>
 
@@ -66,9 +66,9 @@
     <tbody>
         @foreach ($items as $item)
         <tr>
-            <td>{{ $item->orgStock['code'] }}</td>
-            <td>{{ $item->orgStock['name'] }}</td>
-            <td>{{ $item->orgStock['quantity_required'] }}</td>
+            <td>{{ $item->orgStock->code }}</td>
+            <td>{{ $item->orgStock->name }}</td>
+            <td>{{ number_format($item->quantity_required,0) }}</td>
             <td></td>
             <td></td>
         </tr>
@@ -77,10 +77,8 @@
 </table>
 
 <!-- Footer Section -->
-<div class="footer">
-    <p>Thank you for your business!</p>
-    <p>If you have any questions, please contact us at 00441144384914 or sales@aw-aromatics.com.</p>
-</div>
+<div class="footer"> <p>Thank you for your hard work and attention to detail!</p> 
+<p>If you have any questions or need further information about this order, please don't hesitate to contact us at +44 9999999 or <a href="mailto:dummy@aw-dummy.com">sales@aw-dummy.com</a>.</p> </div>
 
 </body>
 </html>

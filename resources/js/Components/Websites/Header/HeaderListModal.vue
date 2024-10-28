@@ -44,13 +44,11 @@ const currentTopbarCode = props.currentTopbar?.code
                             </h3>
                         </div>
 
-                        <div @click="() => (console.log('bbbbb', block), onSelectBlock(block))" class="min-h-16 max-h-20 w-full aspect-[4/1] overflow-hidden flex items-center bg-gray-100 justify-center border border-gray-300 hover:border-indigo-500 rounded cursor-pointer">
+                        <div @click="() => onSelectBlock(block)" class="min-h-16 max-h-20 w-full aspect-[4/1] overflow-hidden flex items-center bg-gray-100 justify-center border border-gray-300 hover:border-indigo-500 rounded cursor-pointer">
                             <div class="w-auto shadow-md">
                                 <Image :src="block.screenshot" class="object-contain"/>
                             </div>
-                        </div>
-
-                        
+                        </div> 
                     </div>
                 </div>
             </section>

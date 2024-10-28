@@ -29,39 +29,30 @@ const comment = ref('')
 const isLoading = ref(false)
 const usedTemplates = ref(ProductList.listTemplate[0])
 const colorThemed = props.data?.color ? props.data?.color : { color: [...useColorTheme[0]] }
-const options = ProductList.listTemplate.map(option => ({ label: option.name, value: option.key }))
-const valueSelect = ref('product1')
 const mode = ref({ name: 'Logged In', value: 'login' });
 const optionsToogle = ref([
     { name: 'Logged Out', value: 'logout' },
     { name: 'Logged In', value: 'login' },
-
     { name: 'Membership', value: 'member' }
 ]);
-const currentIndex = ref(options.findIndex(option => option.value === valueSelect.value))
-const onOptionChange = (selectedValue) => {
-    const newIndex = options.findIndex(option => option.value === selectedValue)
-    if (newIndex !== -1) {
-        currentIndex.value = newIndex
-        usedTemplates.value = { key: selectedValue, data: props?.data?.product }
-    }
-}
+
+
 
 const toggle = (event) => {
     op.value.toggle(event);
 }
 
 const selectPreviousTemplate = () => {
-    if (currentIndex.value > 0) {
-        currentIndex.value -= 1
-        valueSelect.value = options[currentIndex.value].value
+    let index = ProductList.listTemplate.findIndex((item)=>item.key == usedTemplates.value.key)
+    if(index > 0){
+        usedTemplates.value = ProductList.listTemplate[index - 1]
     }
 }
 
 const selectNextTemplate = () => {
-    if (currentIndex.value < options.length - 1) {
-        currentIndex.value += 1
-        valueSelect.value = options[currentIndex.value].value
+    let index = ProductList.listTemplate.findIndex((item)=>item.key == usedTemplates.value.key)
+    if(index  < ProductList.listTemplate.length - 1){
+        usedTemplates.value = ProductList.listTemplate[index + 1]
     }
 }
 
@@ -83,10 +74,6 @@ const onPublish = async (action: {}, popover: {}) => {
     } */
 }
 
-watch(valueSelect, (newValue) => {
-    onOptionChange(newValue)
-})
-
 </script>
 
 <template>
@@ -97,8 +84,15 @@ watch(valueSelect, (newValue) => {
                     <font-awesome-icon :icon="['fas', 'chevron-left']"
                         class="px-4 cursor-pointer text-gray-600 hover:text-gray-800 transition duration-200"
                         @click="selectPreviousTemplate" />
-                    <PureMultiselect :options="options" label="label" valueProp="value" v-model="valueSelect"
-                        :required="true" class="mx-2 focus:ring-2 focus:ring-blue-500" />
+                    <PureMultiselect 
+                        :options="ProductList.listTemplate" 
+                         label="name" 
+                         valueProp="key"
+                        :object="true" 
+                         v-model="usedTemplates"
+                        :required="true" 
+                        class="mx-2 focus:ring-2 focus:ring-blue-500" 
+                    />
                     <font-awesome-icon :icon="['fas', 'chevron-right']"
                         class="px-4 cursor-pointer text-gray-600 hover:text-gray-800 transition duration-200"
                         @click="selectNextTemplate" />
