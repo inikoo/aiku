@@ -75,7 +75,7 @@ const props = defineProps<{
 }>()
 
 // console.log('p-header', props)
-
+console.log('header',props.data)
 </script>
 
 <template>
@@ -95,9 +95,9 @@ const props = defineProps<{
 
         <!-- Section: Header -->
         <component
-            v-if="data?.header?.data"
-            :is="getComponentsHeader(data?.header?.data?.key)"
-            v-model="data.header.data"
+            v-if="data?.header?.code"
+            :is="getComponentsHeader(data?.header?.code)"
+            v-model="data.header.data.fieldValue"
             :loginMode="true"
             :previewMode="true"
             :uploadImageRoute="null"

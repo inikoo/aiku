@@ -1,14 +1,19 @@
 <script setup lang='ts'>
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCircle, faHandPointer, faStar, faStarHalfAlt } from '@fas'
 import { faHeart, faLongArrowAltDown } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import PureInputNumber from '@/Components/Pure/PureInputNumber.vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import Galleria from 'primevue/galleria';
-
-
+import SwiperGalery from '@/Components/SwiperGalery.vue'
 library.add(faCircle, faHandPointer, faStar, faStarHalfAlt, faHeart, faLongArrowAltDown)
+
+const props = defineProps<{
+    mode: Object;
+    colorThemed?: Object;
+    data: object;
+}>();
 
 const tableData = [
     { label: 'Origin', value: 'Spain' },
@@ -19,6 +24,13 @@ const tableData = [
     { label: 'MSDS', value: 'CLP SDS', url: 'https://www.ancientwisdom.biz/attachment.php?id=10787' },
     { label: 'MSDS', value: 'IFRA Certificate', url: 'https://www.ancientwisdom.biz/attachment.php?id=10788' },
     { label: 'MSDS', value: 'Declaration', url: 'https://www.ancientwisdom.biz/attachment.php?id=10789' },
+]
+
+const images = [
+    'https://swiperjs.com/demos/images/nature-1.jpg',
+    'https://swiperjs.com/demos/images/nature-1.jpg',
+    'https://swiperjs.com/demos/images/nature-1.jpg',
+    'https://swiperjs.com/demos/images/nature-1.jpg'
 ]
 
 const descriptionProduct = `<div id="product_description" class="product_description_block _au_vw_ text-gray-600">
@@ -56,19 +68,10 @@ const productData = {
 <template>
     <div class="grid grid-cols-11 gap-x-8 p-14">
         <div class="col-span-3">
-            <Galleria :value="productData.images" :responsiveOptions="responsiveOptions" :numVisible="1"
-                style="max-width: 640px">
-                <template #item="{ item }">
-                    <img :src="item.src" alt="" class="rounded shadow-md" />
-                </template>
-                <template #thumbnail="slotProps">
-                    <img :src="slotProps" alt="" class="rounded shadow-md" />
-                </template>
-            </Galleria>
+           <SwiperGalery :images="images"/>
         </div>
         <div class="col-span-6">
             <h1 class="font-semibold text-xl mb-2">{{ productData.title }}</h1>
-
             <!-- Section: Code, RRP, Stock -->
             <div class="text-gray-500 mb-4">
                 <div class="flex justify-between text-xs">
@@ -129,8 +132,8 @@ const productData = {
             <div v-html="descriptionProduct" class="text-gray-600"></div>
         </div>
 
-        <div class="col-span-2 divide-y divide-gray-300 text-gray-500 text-sm">
-            <div v-for="row in tableData" :key="row.label" class="py-1 grid grid-cols-5 gap-x-4">
+        <div  class="col-span-2 divide-y divide-gray-300 text-gray-500 text-sm">
+            <div v-if="data.setting.product_spec" v-for="row in tableData" :key="row.label" class="py-1 grid grid-cols-5 gap-x-4">
                 <div class="col-span-2">{{ row.label }}</div>
                 <component :is="row.url ? 'a' : 'div'" :href="row.url" class="col-span-3 text-blue-600 hover:underline">
                     {{ row.value }}

@@ -257,7 +257,7 @@ const dataProduct = ref({
                 </div>
 
                 <!-- Section: Order now -->
-                <div class="flex gap-x-2 mb-6">
+                <div v-if="mode.value == 'login' || mode.value == 'member'" class="flex gap-x-2 mb-6">
                     <div class="flex items-start gap-x-1">
                         <div class="font-bold text-3xl leading-none cursor-pointer">-</div>
                         <div
