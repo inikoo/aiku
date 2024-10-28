@@ -12,6 +12,8 @@ import ModelDetails from "@/Components/ModelDetails.vue";
 import {useTabChange} from "@/Composables/tab-change";
 import { capitalize } from "@/Composables/capitalize";
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue";
+import UploadAttachment from '@/Components/Upload/UploadAttachment.vue';
+import Button from '@/Components/Elements/Buttons/Button.vue';
 
 const ModelChangelog = defineAsyncComponent(() => import('@/Components/ModelChangelog.vue'))
 
@@ -23,6 +25,7 @@ const props = defineProps<{
         navigation: object;
     },
     attachments?: {}
+    attachmentRoutes?: {}
 }>()
 import {library} from '@fortawesome/fontawesome-svg-core';
 import {
@@ -32,7 +35,8 @@ import {
     faBoxUsd,
     faTruck,
     faTerminal,
-    faCameraRetro
+    faCameraRetro,
+    faPaperclip
 } from '@fal';
 
 library.add(
@@ -42,9 +46,10 @@ library.add(
     faBoxUsd,
     faTruck,
     faTerminal,
-    faCameraRetro
+    faCameraRetro,
+    faPaperclip
 );
-
+const isModalUploadOpen = ref(false)
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
 
@@ -63,8 +68,16 @@ const component = computed(() => {
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+        <template #other>
+            <Button v-if="currentTab === 'attachments'" @click="() => isModalUploadOpen = true" label="Attach" icon="upload"/>
+        </template>
+    </PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute"></component>
+    <UploadAttachment v-model="isModalUploadOpen" scope="attachment" :title="{
+        label: 'Upload your file',
+        information: 'The list of column file: customer_reference, notes, stored_items'
+    }" progressDescription="Adding Pallet Deliveries" :attachmentRoutes="attachmentRoutes" />
 </template>
 
