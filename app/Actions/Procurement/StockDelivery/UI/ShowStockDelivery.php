@@ -82,7 +82,8 @@ class ShowStockDelivery extends InertiaAction
                         'name' => 'grp.models.stock-delivery.attachment.detach',
                         'parameters' => [
                             'stockDelivery' => $this->stockDelivery->id,
-                        ]
+                        ],
+                        'method' => 'delete'
                     ]
                 ],
                 'tabs' => [
