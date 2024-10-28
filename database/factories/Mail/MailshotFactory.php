@@ -7,6 +7,8 @@
 
 namespace Database\Factories\Mail;
 
+use App\Enums\Mail\Mailshot\MailshotStateEnum;
+use App\Enums\Mail\Mailshot\MailshotTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class MailshotFactory extends Factory
@@ -16,6 +18,10 @@ class MailshotFactory extends Factory
         return [
             'code' => fake()->lexify(),
             'name' => fake()->company(),
+            'subject' => fake()->text(10),
+            'type' => MailshotTypeEnum::ANNOUNCEMENT,
+            'state' => MailshotStateEnum::IN_PROCESS,
+            'recipients_recipe' => [],
         ];
     }
 }
