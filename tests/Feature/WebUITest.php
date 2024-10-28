@@ -122,3 +122,29 @@ test('index banner', function () {
             ->has('data');
     });
 });
+
+test('show banner', function () {
+    $response = get(
+        route(
+            'grp.org.shops.show.web.banners.show',
+            [
+                $this->organisation->slug,
+                $this->shop->slug,
+                $this->fulfilmentWebsite->slug,
+                $this->banner->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Banners/Banner')
+            ->has('title')
+            ->has('navigation')
+            ->has('breadcrumbs', 0)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->banner->name)->etc()
+            )
+            ->has('tabs');
+    });
+});
