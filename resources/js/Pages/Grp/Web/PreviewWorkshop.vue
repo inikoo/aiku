@@ -90,7 +90,7 @@ const isPreviewLoggedIn = ref(false)
 onMounted(() => {
     if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { data.value = { ...value } });
     if (socketLayout) socketLayout.actions.subscribe((value) => {
-        layout.header = value.header.header;
+        layout.header = value.header.data;
         layout.footer = value.footer.footer;
         layout.navigation = value.navigation; 
     });
@@ -145,7 +145,6 @@ const ShowWebpage = (activityItem) => {
     } else return false
 }
 
-console.log(props.webpage)
 </script>
 
 
@@ -168,6 +167,8 @@ console.log(props.webpage)
                 :data="layout.header"
                 :menu="layout?.navigation"
                 :colorThemed="layout?.colorThemed"
+                :editDataTools="editDataTools"
+                :loginMode="isPreviewLoggedIn"
             />
         </div>        
 

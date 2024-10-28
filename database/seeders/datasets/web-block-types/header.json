@@ -6,18 +6,68 @@
 	"component": "header",
 	"blueprint": [
 		{
+			"name": "Container",
+			"icon": {
+				"icon": "fal fa-rectangle-wide",
+				"tooltip": "Container"
+			},
+			"key": [
+				"container",
+				"properties"
+			],
+			"type": [
+				"properties"
+			],
+			"props_data": {}
+		},
+		{
 			"name": "Button 1",
 			"key": "gold_member",
-			"type": "EditorAndPanelProperties"
+			"replaceForm": [
+				{
+					"key": ["gold_member","visible"],
+					"type": ["VisibleLoggedIn"]
+				},
+				{
+					"key": "gold_member",
+					"type": "EditorAndPanelProperties"
+				}
+			]
 		},
 		{
 			"name": "Logo",
 			"key": "logo",
-			"type": "upload_image"
+			"replaceForm": [
+				{
+					"key": ["logo","visible"],
+					"type": [
+						"VisibleLoggedIn"
+					]
+				},
+				{
+					"key": "logo",
+					"type": "upload_image"
+				}
+			]
 		}
 	],
 	"data": {
 		"fieldValue": {
+			"container": {
+				"properties": {
+					"background": {
+						"type": "color",
+						"color": "#fffff",
+						"image": {
+							"original": null
+						}
+					},
+					"text": {
+						"color": "rgba(255,255,255,1)",
+						"fontFamily": "Raleway"
+					}
+				}
+			},
 			"logo": {
 				"visible": "all",
 				"src": null,
