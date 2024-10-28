@@ -164,7 +164,7 @@ class StoreBanner extends OrgAction
         $this->setRawAttributes($objectData);
 
         $validatedData = $this->validateAttributes();
-        return $this->handle($website, $validatedData);
+        return $this->handle($website->shop, $validatedData);
     }
 
     public function getCommandSignature(): string

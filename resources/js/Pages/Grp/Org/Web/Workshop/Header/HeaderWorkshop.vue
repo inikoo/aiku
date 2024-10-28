@@ -9,11 +9,8 @@ import EmptyState from '@/Components/Utils/EmptyState.vue'
 import SideEditor from '@/Components/Websites/SideEditor.vue'
 import { notify } from "@kyvg/vue3-notification"
 import Publish from '@/Components/Publish.vue'
-import axios from 'axios'
 import { debounce } from 'lodash'
 import ScreenView from "@/Components/ScreenView.vue"
-import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
-import TopbarList from '@/Components/Websites/Topbar/TopbarList.vue'
 import HeaderListModal from '@/Components/Websites/Header/HeaderListModal.vue'
 
 import { routeType } from "@/types/route"
