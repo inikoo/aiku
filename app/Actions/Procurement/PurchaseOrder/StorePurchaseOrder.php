@@ -83,6 +83,7 @@ class StorePurchaseOrder extends OrgAction
             'cost_items'      => ['sometimes', 'required', 'numeric', 'min:0'],
             'cost_shipping'   => ['sometimes', 'required', 'numeric', 'min:0'],
             'cost_total'      => ['sometimes', 'required', 'numeric', 'min:0'],
+            'date'            => ['sometimes', 'required'],
         ];
 
         if (!$this->strict) {

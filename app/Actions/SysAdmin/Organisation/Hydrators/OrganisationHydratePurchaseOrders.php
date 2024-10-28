@@ -39,18 +39,18 @@ class OrganisationHydratePurchaseOrders
         ];
 
 
-        $stats = array_merge(
-            $stats,
-            $this->getEnumStats(
-                model: 'purchase_orders',
-                field: 'status',
-                enum: PurchaseOrderDeliveryStatusEnum::class,
-                models: PurchaseOrder::class,
-                where: function ($q) use ($organisation) {
-                    $q->where('organisation_id', $organisation->id);
-                }
-            )
-        );
+        // $stats = array_merge(
+        //     $stats,
+        //     $this->getEnumStats(
+        //         model: 'purchase_orders',
+        //         field: 'status',
+        //         enum: PurchaseOrderDeliveryStatusEnum::class,
+        //         models: PurchaseOrder::class,
+        //         where: function ($q) use ($organisation) {
+        //             $q->where('organisation_id', $organisation->id);
+        //         }
+        //     )
+        // );
 
 
         $stats = array_merge(
