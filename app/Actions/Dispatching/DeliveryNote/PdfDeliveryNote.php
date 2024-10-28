@@ -28,23 +28,23 @@ class PdfDeliveryNote
     /**
      * @throws MpdfException
      */
-    public function handle(DeliveryNote $deliverynote): Response
+    public function handle(DeliveryNote $deliveryNote): Response
     {
         // Retrieve delivery note details
-        $totalItemsNet = (float) $deliverynote->total_amount;
-        $totalShipping = (float) $deliverynote->order?->shipping_amount ?? 0;
-        $totalNet = $totalItemsNet + $totalShipping;
+        // $totalItemsNet = (float) $deliveryNote->total_amount;
+        // $totalShipping = (float) $deliveryNote->order?->shipping_amount ?? 0;
+        // $totalNet = $totalItemsNet + $totalShipping;
 
         // Prepare data to pass to the Blade template
-        $filename = $deliverynote->slug . '-' . Carbon::now()->format('Y-m-d');
+        $filename = $deliveryNote->slug . '-' . Carbon::now()->format('Y-m-d');
 
         // Generate PDF using Blade template and data array
-        $pdf = PDF::loadView('delivaryNote.templates.pdf.delivery-note', [
-            'deliverynote' => $deliverynote,
-            'order'        => $deliverynote->orders->first(),
-            'customer'     => $deliverynote->customer,
-            'deliveryAddress' => $deliverynote->deliveryAddress,
-            'items'        => $deliverynote->deliveryNoteItems,
+        $pdf = PDF::loadView('deliveryNote.templates.pdf.delivery-note', [
+            'deliverynote' => $deliveryNote,
+            'order'        => $deliveryNote->orders->first(),
+            'customer'     => $deliveryNote->customer,
+            'deliveryAddress' => $deliveryNote->deliveryAddress->formatted_address,
+            'items'        => $deliveryNote->deliveryNoteItems,
         ]);
 
         return $pdf->stream($filename . '.pdf');
@@ -53,8 +53,8 @@ class PdfDeliveryNote
     /**
      * @throws MpdfException
      */
-    public function asController(Organisation $organisation, Warehouse $warehouse, DeliveryNote $deliverynote): Response
+    public function asController(Organisation $organisation, Warehouse $warehouse, DeliveryNote $deliveryNote): Response
     {
-        return $this->handle($deliverynote);
+        return $this->handle($deliveryNote);
     }
 }
