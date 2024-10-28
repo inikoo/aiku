@@ -36,6 +36,11 @@
 			"key": ["button"],
 			"type": ["button"],
 			"props_data": {}
+		},
+		{
+			"name": "Image",
+			"key": "image",
+			"type": "upload_image"
 		}
 	],
 	"data": {
