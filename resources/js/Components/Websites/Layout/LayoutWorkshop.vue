@@ -1,17 +1,19 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import { useColorTheme } from '@/Composables/useStockList'
 import ColorSchemeWorkshopWebsite from '@/Components/Websites/Layout/ColorSchemeWorkshopWebsite.vue'
 import { routeType } from '@/types/route'
 import { Link } from '@inertiajs/vue3'
 import Button from '@/Components/Elements/Buttons/Button.vue'
+import { useFontFamilyList } from '@/Composables/useFont'
+import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 
 import { ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faPaintBrushAlt } from '@fal'
+import { faRocketLaunch } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faPaintBrushAlt)
-
 
 const props = defineProps<{
     data: {
@@ -24,127 +26,132 @@ const props = defineProps<{
             menuRightRoute: routeType
             menuRoute: routeType
         }
-        updateColorRoute : routeType
+        updateColorRoute: routeType
         color: object
     }
-
 }>()
-
-console.log(props)
 
 const listColorTheme = [...useColorTheme]
 
-const selectedColor = ref(props.data.color?.color ? props.data.color?.color :  [...listColorTheme[0]])
+const selectedColor = ref(props.data.color?.color ? props.data.color?.color : [...listColorTheme[0]])
+const selectedIndex = ref(0) // Track the selected index
+const selectedLayout = ref('fullscreen') // Default layout option
+const fontFamily = ref("Inter, sans-serif")
 
-const onClickColor = (colorTheme: string[]) => {
+const onClickColor = (colorTheme: string[], index: number) => {
     selectedColor.value = [...colorTheme]
+    selectedIndex.value = index // Set the selected index
 }
 </script>
 
 <template>
-    <div class="p-8 grid grid-cols-2">
-        <div class="space-y-6">
-            <div class="w-fit flex justify-end">
-                    <Link :href="route(data.updateColorRoute.name,data.updateColorRoute.parameters)" method="patch" as="button" :data="{ layout: {color: selectedColor} }">
-                        <Button label="apply" size="xs"  icon="fas fa-rocket" ></Button>
-                    </Link>
+    <div class="p-8 grid grid-cols-4 gap-6 bg-gray-50 rounded-lg h-[79vh]">
+        <!-- Theme Selector -->
+        <div class="space-y-6 col-span-1 p-4 bg-white rounded-lg shadow-md relative h-full">
+            <!-- Header -->
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <hr class="h-0.5 rounded-full w-full bg-gray-300" />
+                    <span class="whitespace-nowrap text-sm text-gray-600 font-semibold">Select Theme</span>
+                    <hr class="h-0.5 rounded-full w-full bg-gray-300" />
                 </div>
-            <div class="w-fit ">
-                <div class="text-sm text-gray-500 font-semibold">Main Layout</div>
-                <div class="border border-gray-300 px-3 py-2 space-y-2 rounded-md w-64 text-zinc-700">
-                    <div>
-                        <div class="text-sm">Background color</div>
-                        <div class="flex gap-x-2">
-                            <ColorPicker class="h-7 aspect-square rounded shadow flex items-center justify-center" :color="selectedColor[0]" @changeColor="(e) => selectedColor[0] = e.hex">
-                                <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
-                            </ColorPicker>
-                            <div>{{ selectedColor[0] }}</div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-sm">Text color</div>
-                        <div class="flex gap-x-2">
-                            <ColorPicker class="h-7 aspect-square rounded shadow flex items-center justify-center" :color="selectedColor[1]" @changeColor="(e) => selectedColor[1] = e.hex">
-                                <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
-                            </ColorPicker>
-                            <div>{{ selectedColor[1] }}</div>
-                        </div>
+
+                <!-- Color Options -->
+                <div class="flex flex-wrap justify-center gap-3">
+                    <div v-for="(colorTheme, index) in listColorTheme" :key="index"
+                        @click="onClickColor(colorTheme, index)"
+                        class="flex ring-1 ring-gray-300 transition duration-300 rounded-md overflow-hidden cursor-pointer"
+                        :class="{ 'ring-2 ring-indigo-500': selectedIndex === index }">
+                        <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[0] }"></div>
+                        <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[1] }"></div>
+                        <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[2] }"></div>
+                        <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[3] }"></div>
+                        <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[4] }"></div>
+                        <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[5] }"></div>
                     </div>
                 </div>
             </div>
-            <div class="w-fit">
-                <div class="text-sm text-gray-500 font-semibold">Navigation and box</div>
-                <div class="border border-gray-300 px-3 py-2 space-y-2 rounded-md w-64 text-zinc-700">
-                    <div>
-                        <div class="text-sm">Background color</div>
-                        <div class="flex gap-x-2">
-                            <ColorPicker class="h-7 aspect-square rounded shadow flex items-center justify-center" :color="selectedColor[2]" @changeColor="(e) => selectedColor[2] = e.hex">
-                                <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
-                            </ColorPicker>
-                            <div>{{ selectedColor[2] }}</div>
+
+            <!-- Layout Selector -->
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <hr class="h-0.5 rounded-full w-full bg-gray-300" />
+                    <span class="whitespace-nowrap text-sm text-gray-600 font-semibold">Select Layout</span>
+                    <hr class="h-0.5 rounded-full w-full bg-gray-300" />
+                </div>
+
+                <!-- Radio Options for Layout -->
+                <div class="flex gap-4 justify-center">
+                    <!-- Fullscreen Layout Option -->
+                    <label
+                        class="flex flex-col items-center gap-2 p-4 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50 transition"
+                        :class="{ 'border-indigo-500 bg-indigo-50': selectedLayout === 'fullscreen' }">
+                        <input type="radio" value="fullscreen" v-model="selectedLayout" class="hidden">
+                        <div class="w-20 h-12 bg-gray-200 rounded-md flex items-center justify-center">
+                            <div class="w-full h-full"
+                                style="background: repeating-linear-gradient(45deg, #ebf8ff, #ebf8ff 10px, #bee3f8 10px, #bee3f8 20px);">
+                            </div>
                         </div>
-                    </div>
-                    <div>
-                        <div class="text-sm">Text color</div>
-                        <div class="flex gap-x-2">
-                            <ColorPicker class="h-7 aspect-square rounded shadow flex items-center justify-center" :color="selectedColor[3]" @changeColor="(e) => selectedColor[3] = e.hex">
-                                <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
-                            </ColorPicker>
-                            <div>{{ selectedColor[3] }}</div>
+                        <span class="text-sm font-semibold">Fullscreen</span>
+                    </label>
+
+                    <!-- Blog in the Middle Layout Option -->
+                    <label
+                        class="flex flex-col items-center gap-2 p-4 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50 transition"
+                        :class="{ 'border-indigo-500 bg-indigo-50': selectedLayout === 'blog' }">
+                        <input type="radio" value="blog" v-model="selectedLayout" class="hidden">
+                        <div class="w-20 h-12 bg-gray-200 rounded-md flex items-center justify-center">
+                            <div class="w-[60%] h-full rounded"
+                                style="background: repeating-linear-gradient(45deg, #ebf8ff, #ebf8ff 10px, #bee3f8 10px, #bee3f8 20px);">
+                            </div>
                         </div>
-                    </div>
+                        <span class="text-sm font-semibold">Middle</span>
+                    </label>
                 </div>
             </div>
-            <div class="w-fit">
-                <div class="text-sm text-gray-500 font-semibold">Button and mini box</div>
-                <div class="border border-gray-300 px-3 py-2 space-y-2 rounded-md w-64 text-zinc-700">
-                    <div>
-                        <div class="text-sm">Background color</div>
-                        <div class="flex gap-x-2">
-                            <ColorPicker class="h-7 aspect-square rounded shadow flex items-center justify-center" :color="selectedColor[4]" @changeColor="(e) => selectedColor[4] = e.hex">
-                                <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
-                            </ColorPicker>
-                            <div>{{ selectedColor[4] }}</div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="text-sm">Text color</div>
-                        <div class="flex gap-x-2">
-                            <ColorPicker class="h-7 aspect-square rounded shadow flex items-center justify-center" :color="selectedColor[5]" @changeColor="(e) => selectedColor[5] = e.hex">
-                                <FontAwesomeIcon icon='fal fa-paint-brush-alt' class='text-sm text-gray-400' fixed-width aria-hidden='true' />
-                            </ColorPicker>
-                            <div>{{ selectedColor[5] }}</div>
-                        </div>
-                    </div>
+
+            <!-- Font Family Selector -->
+            <div>
+                <div class="flex items-center gap-2 mb-4">
+                    <hr class="h-0.5 rounded-full w-full bg-gray-300" />
+                    <span class="whitespace-nowrap text-sm text-gray-600 font-semibold">Font Family</span>
+                    <hr class="h-0.5 rounded-full w-full bg-gray-300" />
                 </div>
+
+                <div class="flex flex-wrap justify-center gap-3">
+                    <PureMultiselect v-model="fontFamily" required :options="useFontFamilyList">
+                        <template #option="{ option, isSelected, isPointed, search }">
+                            <span :style="{ fontFamily: option.value }">{{ option.label }}</span>
+                        </template>
+                        <template #label="{ value }">
+                            <div class="multiselect-single-label" :style="{ fontFamily: value.value }">{{ value.label }}
+                            </div>
+                        </template>
+                    </PureMultiselect>
+                </div>
+            </div>
+
+            <!-- Publish Button at the Bottom with Absolute Positioning -->
+            <div class="absolute bottom-0 left-0 right-0 p-4 bg-white border-t">
+                <Link :href="route(data.updateColorRoute.name, data.updateColorRoute.parameters)" method="patch"
+                    as="button" :data="{ layout: { color: selectedColor, fontFamily : fontFamily, layout :  selectedLayout }}" class="w-full">
+                <Button type="submit" full label="Publish" :icon="faRocketLaunch" />
+                </Link>
             </div>
         </div>
 
-        <div class="space-y-4">
-            <ColorSchemeWorkshopWebsite
-                :routeList="data.routeList"
-                :color="selectedColor"
-            />
 
-            <div class="space-y-4">
-                <div class="flex items-center gap-x-2">
-                    <hr class="h-0.5 rounded-full w-full bg-gray-300" />
-                    <span class="whitespace-nowrap text-sm text-gray-500">Select theme</span>
-                    <hr class="h-0.5 rounded-full w-full bg-gray-300" />
-                </div>
-                <div class="flex flex-wrap justify-center gap-x-2 gap-y-3">
-                    <div v-for="colorTheme in listColorTheme" @click="() => onClickColor(colorTheme)"
-                        class="flex ring-1 ring-gray-400 hover:ring-indigo-500 shadow rounded overflow-hidden w-fit cursor-pointer">
-                        <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[0] }" />
-                        <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[1] }" />
-                        <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[2] }" />
-                        <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[3] }" />
-                        <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[4] }" />
-                        <div class="h-6 aspect-square" :style="{ backgroundColor: colorTheme[5] }" />
-                    </div>
-                </div>
+        <!-- Workshop Preview -->
+        <div class="space-y-6 col-span-3 ">
+            <div  class="rounded-lg shadow-md bg-white p-8 h-full flex justify-center ">
+                <ColorSchemeWorkshopWebsite 
+                    :routeList="data.routeList" 
+                    :color="selectedColor" 
+                    :layout="selectedLayout"
+                    :fontFamily="fontFamily"
+                />
             </div>
+          
         </div>
     </div>
-
 </template>
