@@ -14,6 +14,7 @@ use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
 use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
+use App\Enums\Mail\Mailshot\MailshotStateEnum;
 use App\Enums\Mail\Mailshot\MailshotTypeEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\CRM\Customer;
@@ -167,7 +168,8 @@ test('create prospect mailshot', function () {
     $dataModel    = [
         'subject'    => 'hello',
         'type'       => MailshotTypeEnum::PROSPECT_MAILSHOT,
-        'recipients' => []
+        'state'      => MailshotStateEnum::IN_PROCESS,
+        'recipients_recipe' => []
 
     ];
     $mailshot     = StoreMailshot::make()->action($outbox, $dataModel);
