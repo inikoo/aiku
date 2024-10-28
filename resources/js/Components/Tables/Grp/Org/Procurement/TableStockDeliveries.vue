@@ -19,11 +19,11 @@ function stockDeliveryRoute(stockDelivery: { } ) {
         case 'grp.org.procurement.stock_deliveries.index':
             return route(
                 'grp.org.procurement.stock_deliveries.show',
-                [stockDelivery.slug]);
+                [route().params['organisation'], stockDelivery.slug]);
         default:
             return route(
                 'grp.org.procurement.stock_deliveries.show',
-                [stockDelivery.slug]);
+                [route().params['organisation'], stockDelivery.slug]);
     }
 }
 

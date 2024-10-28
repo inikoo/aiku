@@ -176,7 +176,8 @@ class IndexStockDeliveries extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name' => 'grp.org.procurement.stock_deliveries.index'
+                                'name' => 'grp.org.procurement.stock_deliveries.index',
+                                'parameters' => $routeParameters
                             ],
                             'label' => __('Stock deliveries'),
                             'icon'  => 'fal fa-bars'
