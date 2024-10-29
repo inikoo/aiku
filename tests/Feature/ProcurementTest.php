@@ -283,7 +283,7 @@ test('change purchase order state to confirmed ', function ($purchaseOrder) {
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CONFIRMED);
 
     return $purchaseOrder;
-})->depends('change state to submit purchase order');
+})->depends('change state to submitted purchase order');
 
 test('change state to submitted from confirmed purchase order', function ($purchaseOrder) {
     $purchaseOrder = UpdatePurchaseOrderStateToSubmitted::make()->action($purchaseOrder);
@@ -293,7 +293,7 @@ test('change state to submitted from confirmed purchase order', function ($purch
 test('change state to creating from submitted purchase order', function ($purchaseOrder) {
     $purchaseOrder = UpdateStateToCreatingPurchaseOrder::make()->action($purchaseOrder);
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::IN_PROCESS);
-})->depends('create purchase order independent supplier');
+})->depends('change state to submitted from confirmed purchase order');
 
 
 
@@ -325,14 +325,14 @@ test('create supplier delivery items', function (StockDelivery $stockDelivery) {
     expect($supplier->stock_delivery_id)->toBe($stockDelivery->id);
 
     return $supplier;
-})->depends('create supplier delivery')->todo();
+})->depends('create supplier delivery');
 
 test('create supplier delivery items by selected purchase order', function (StockDelivery $stockDelivery, $items) {
     $supplier = StoreStockDeliveryItemBySelectedPurchaseOrderTransaction::run($stockDelivery, $items->pluck('id')->toArray());
     expect($supplier)->toBeArray();
 
     return $supplier;
-})->depends('create supplier delivery', 'add item to purchase order')->todo();
+})->depends('create supplier delivery', 'add item to purchase order');
 
 test('change supplier delivery state to dispatch from creating', function (StockDelivery $stockDelivery) {
     expect($stockDelivery)->toBeInstanceOf(StockDelivery::class)
@@ -368,7 +368,7 @@ test('change state to received from checked supplier delivery', function ($stock
 
 test('check supplier delivery items not correct', function ($stockDeliveryItem) {
     $stockDeliveryItem = UpdateStateToCheckedStockDeliveryItem::make()->action($stockDeliveryItem, [
-        'quantity_ordered_checked' => 2
+        'unit_quantity_checked' => 2
     ]);
     expect($stockDeliveryItem->stockDelivery->state)->toEqual(StockDeliveryStateEnum::RECEIVED);
 })->depends('create supplier delivery items');
@@ -376,7 +376,7 @@ test('check supplier delivery items not correct', function ($stockDeliveryItem) 
 test('check supplier delivery items all correct', function ($stockDeliveryItems) {
     foreach ($stockDeliveryItems as $stockDeliveryItem) {
         UpdateStateToCheckedStockDeliveryItem::make()->action($stockDeliveryItem, [
-            'quantity_ordered_checked' => 6
+            'unit_quantity_checked' => 6
         ]);
     }
     expect($stockDeliveryItems[0]->stockDelivery->fresh()->state)->toEqual(StockDeliveryStateEnum::CHECKED);

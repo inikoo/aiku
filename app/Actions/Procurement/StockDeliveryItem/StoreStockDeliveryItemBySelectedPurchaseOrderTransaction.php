@@ -22,9 +22,10 @@ class StoreStockDeliveryItemBySelectedPurchaseOrderTransaction
 
         foreach ($purchaseOrderTransactions as $item) {
             $items[] = StoreStockDeliveryItem::run($stockDelivery, [
+                'group_id'            => $item->group_id,
                 'supplier_product_id' => $item->supplier_product_id,
-                'unit_price'          => $item->unit_price,
-                'unit_quantity'       => $item->unit_quantity
+                'unit_price'          => $item->net_amount,
+                'unit_quantity'       => $item->quantity_ordered
             ]);
         }
 

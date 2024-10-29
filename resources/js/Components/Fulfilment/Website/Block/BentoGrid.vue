@@ -32,28 +32,6 @@ const activeImageIndex = ref(-1)
 const activeImageIndexModal = ref(-1)
 const isModalGallery = ref(false)
 
-function onDragImage({ top = 0, bottom = 0, left = 0, right = 0 }) {
-	props.modelValue.images[activeImageIndex.value].properties.position.top = `${top}px`
-	props.modelValue.images[activeImageIndex.value].properties.position.bottom = `${bottom}px`
-	props.modelValue.images[activeImageIndex.value].properties.position.left = `${left}px`
-	props.modelValue.images[activeImageIndex.value].properties.position.right = `${right}px`
-	onSave()
-}
-
-function onImageScale({ offsetHeight = 100, offsetWidth = 100, transform }) {
-	let transformString = transform
-	let transformVal = transformString
-		.match(/scale\(([^)]+)\)/)[1]
-		.split(", ")
-		.map(Number)
-	props.modelValue.images[activeImageIndex.value].properties.width = `${
-		offsetWidth * transformVal[0]
-	}px`
-	props.modelValue.images[activeImageIndex.value].properties.height = `${
-		offsetHeight * transformVal[1]
-	}px`
-	onSave()
-}
 
 function onSave() {
 	emits("autoSave")
@@ -68,10 +46,6 @@ const onChangeImage = (image) => {
 	onSave()
 }
 
-function activateMoveableImage(index: number) {
-	activeImageIndex.value = index
-	activeTextIndex.value = -1
-}
 </script>
 
 <template>
@@ -94,7 +68,6 @@ function activateMoveableImage(index: number) {
 						</div>
 						<div
 							class="relative min-h-[30rem] w-full grow [container-type:inline-size] max-lg:mx-auto max-lg:max-w-sm">
-							<!-- Default Placeholder Structure (renders only if no images are present) -->
 							<div
 								v-if="
 									!modelValue.column1.images || !modelValue.column1.images.length
@@ -109,7 +82,7 @@ function activateMoveableImage(index: number) {
 								<button
 									@click="
 										() => {
-											isModalGallery = true
+											if (isEditable) isModalGallery = !isModalGallery
 											activeImageIndexModal = 0
 										}
 									"
@@ -124,19 +97,11 @@ function activateMoveableImage(index: number) {
 								v-for="(image, index) in modelValue.column1.images"
 								:key="index"
 								class="absolute"
-								:class="`image-${index}`"
-								@dblclick="activateMoveableImage(index)"
-								ref="el => imageRefs[index] = el"
-								:style="{
-									width: image?.properties?.width || 'auto',
-									height: image?.properties?.height || 'auto',
-									top: image?.properties?.position?.top || 'auto',
-									left: image?.properties?.position?.left || 'auto',
-								}">
+								>
 								<button
 									@click="
 										() => {
-											isModalGallery = true
+											if (isEditable) isModalGallery = !isModalGallery
 											activeImageIndexModal = index
 										}
 									"
@@ -146,30 +111,6 @@ function activateMoveableImage(index: number) {
 								<Image
 									:src="image.sources"
 									class="w-full h-full object-cover rounded-lg" />
-
-								<!-- Moveable Component for the Image -->
-								<Moveable
-									v-if="activeImageIndex === index"
-									class="moveable"
-									:target="[`.image-${index}`]"
-									:draggable="true"
-									:scalable="true"
-									@drag="onDragImage"
-									@scale="onImageScale"
-									:snapDirections="{
-										top: true,
-										left: true,
-										bottom: true,
-										right: true,
-									}"
-									:elementSnapDirections="{
-										top: true,
-										left: true,
-										bottom: true,
-										right: true,
-										center: true,
-										middle: true,
-									}" />
 							</div>
 						</div>
 					</div>
@@ -208,7 +149,7 @@ function activateMoveableImage(index: number) {
 								<button
 									@click="
 										() => {
-											isModalGallery = true
+											if (isEditable) isModalGallery = !isModalGallery
 											activeImageIndexModal = 1
 										}
 									"
@@ -222,7 +163,7 @@ function activateMoveableImage(index: number) {
 								<button
 									@click="
 										() => {
-											isModalGallery = true
+											if (isEditable) isModalGallery = !isModalGallery
 											activeImageIndexModal = 1
 										}
 									"
@@ -271,7 +212,7 @@ function activateMoveableImage(index: number) {
 								<button
 									@click="
 										() => {
-											isModalGallery = true
+											if (isEditable) isModalGallery = !isModalGallery
 											activeImageIndexModal = 2
 										}
 									"
@@ -285,7 +226,7 @@ function activateMoveableImage(index: number) {
 								<button
 									@click="
 										() => {
-											isModalGallery = true
+											if (isEditable) isModalGallery = !isModalGallery
 											activeImageIndexModal = 2
 										}
 									"
@@ -333,7 +274,7 @@ function activateMoveableImage(index: number) {
 								<button
 									@click="
 										() => {
-											isModalGallery = true
+											if (isEditable) isModalGallery = !isModalGallery
 											activeImageIndexModal = 3
 										}
 									"
@@ -349,7 +290,7 @@ function activateMoveableImage(index: number) {
 								<button
 									@click="
 										() => {
-											isModalGallery = true
+											if (isEditable) isModalGallery = !isModalGallery
 											activeImageIndexModal = 3
 										}
 									"

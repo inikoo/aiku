@@ -45,14 +45,14 @@ class SupplierHydratePurchaseOrders
             $stats['number_purchase_orders_state_'.$productState->snake()] = Arr::get($purchaseOrderStateCounts, $productState->value, 0);
         }
 
-        $purchaseOrderStatusCounts =  $supplier->purchaseOrders()
-            ->selectRaw('status, count(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status')->all();
+        // $purchaseOrderStatusCounts =  $supplier->purchaseOrders()
+        //     ->selectRaw('status, count(*) as total')
+        //     ->groupBy('status')
+        //     ->pluck('total', 'status')->all();
 
-        foreach (PurchaseOrderDeliveryStatusEnum::cases() as $purchaseOrderStatusEnum) {
-            $stats['number_purchase_orders_delivery_status_'.$purchaseOrderStatusEnum->snake()] = Arr::get($purchaseOrderStatusCounts, $purchaseOrderStatusEnum->value, 0);
-        }
+        // foreach (PurchaseOrderDeliveryStatusEnum::cases() as $purchaseOrderStatusEnum) {
+        //     $stats['number_purchase_orders_delivery_status_'.$purchaseOrderStatusEnum->snake()] = Arr::get($purchaseOrderStatusCounts, $purchaseOrderStatusEnum->value, 0);
+        // }
 
         $supplier->stats()->update($stats);
     }

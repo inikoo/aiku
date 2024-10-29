@@ -168,6 +168,9 @@ class FetchAuroraWebBlocks extends OrgAction
         $models = [];
         $group = $webpage->group;
 
+        // TODO: department, family, see_also & product
+        // children webpages for department & family
+
         switch ($auroraBlock["type"]) {
             case "images":
                 $webBlockType = $group->webBlockTypes()->where("code", "images")->first();

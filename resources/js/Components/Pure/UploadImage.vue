@@ -34,14 +34,15 @@ const props = withDefaults(
 )
 
 const emits = defineEmits<{
-	(e: "update:modelValue", value: string | number): void
+	(e: "update:modelValue", value: any): void
 	(e: "onUpload", value: Files[]): void
+	(e: "autoSave"): void
 }>()
 
 const isOpenGalleryImages = ref(false)
 const isDragging = ref(false)
 const fileInput = ref(null)
-const addedFiles = ref([])
+const addedFiles = ref<File[]>([])
 
 const onUpload = async () => {
 	try {
@@ -78,10 +79,14 @@ const addComponent = (event) => {
 
 const dragOver = (e) => {
 	e.preventDefault()
+	console.log('asdas');
+	
 	isDragging.value = true
 }
 
 const dragLeave = () => {
+	console.log('leace');
+	
 	isDragging.value = false
 }
 
@@ -104,6 +109,9 @@ const onClickButton = () => {
 	fileInput.value?.click()
 }
 
+function onSave() {
+	emits("autoSave")
+}
 </script>
 
 <template>
@@ -123,8 +131,7 @@ const onClickButton = () => {
 					<input type="file" multiple name="file" id="fileInput" class="sr-only" ref="fileInput"
 						@change="addComponent" />
 				</label>
-
-				<div v-if="!modelValue?.src" class="text-center">
+				<div v-if=" !modelValue?.source" class="text-center">
 					<div class="flex text-sm leading-6 justify-center">
 						<p class="pl-1">{{ trans("Drag Images Here.") }}</p>
 					</div>
@@ -137,7 +144,7 @@ const onClickButton = () => {
 					</div>
 				</div>
 				<div v-else>
-					<Image :src="modelValue?.src"
+					<Image :src=" modelValue?.source"
 						class="w-full object-cover h-full object-center group-hover:opacity-75">
 					</Image>
 
@@ -150,7 +157,8 @@ const onClickButton = () => {
 		</div>
 	</div>
 
-	<div class="mt-8">
+	<!-- command temporary -->
+	<!-- <div class="mt-8">
 		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
 			<div>Image URL</div>
 			<div>100 x 250</div>
@@ -197,8 +205,8 @@ const onClickButton = () => {
 			<div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Margin') }}</div>
 
 			<PaddingMarginProperty v-model="modelValue.properties.margin" />
-		</div>
-	</div>
+		</div> -->
+	<!-- </div> -->
 
 
 	<!-- <Gallery :open="isOpenGalleryImages" @on-close="isOpenGalleryImages = false" :uploadRoutes="''"

@@ -62,7 +62,7 @@ const toggle = (event) => {
             <div class="w-full grid grid-cols-3 items-center gap-6">
                 <!-- Logo -->
                 <div :style="getStyles(modelValue.logo.properties)">
-                    <pre class="text-black">{{ modelValue.logo.src }}</pre>
+
                     <img v-if="!modelValue.logo.src" :src="modelValue?.logo?.url" :alt="modelValue?.logo?.alt"
                         :style="{ width: `${modelValue.logo.width}%` }" />
                     <Image v-else :alt="modelValue?.logo?.alt" :src="modelValue?.logo?.src" :style="{ width: `${modelValue.logo.width}%` }"></Image>
