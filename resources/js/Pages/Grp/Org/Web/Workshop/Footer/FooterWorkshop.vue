@@ -15,7 +15,7 @@ import { debounce, isArray } from 'lodash'
 import Publish from '@/Components/Publish.vue'
 import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
 import ScreenView from "@/Components/ScreenView.vue"
-
+import Image from '@/Components/Image.vue'
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -25,6 +25,8 @@ import { faIcons, faMoneyBill, faUpload, faDownload } from '@fas';
 import { faLineColumns } from '@far';
 import { faExternalLink } from '@fal';
 import { library } from '@fortawesome/fontawesome-svg-core'
+import HeaderListModal from '@/Components/Websites/Header/HeaderListModal.vue'
+import ListItem from '@tiptap/extension-list-item'
 library.add(faExternalLink, faLineColumns, faIcons, faMoneyBill, faUpload, faDownload)
 
 const props = defineProps<{
@@ -218,7 +220,18 @@ const sendToIframe = (data: any) => {
     </div>
 
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
-        <BlockList :onPickBlock="onPickTemplate" :webBlockTypes="webBlockTypes" scope="website" />
+        <HeaderListModal :onSelectBlock="onPickTemplate"
+            :webBlockTypes="webBlockTypes.data.filter((item) => item.component == 'footer')"
+            :currentTopbar="usedTemplates">
+            <template #image="{ block }">
+                <div @click="() => onPickTemplate"
+                    class="min-h-16 w-full aspect-[2/1] overflow-hidden flex items-center bg-gray-100 justify-center border border-gray-300 hover:border-indigo-500 rounded cursor-pointer">
+                    <div class="w-auto shadow-md">
+                        <Image :src="block.screenshot" class="object-contain" />
+                    </div>
+                </div>
+            </template>
+        </HeaderListModal>
     </Modal>
 </template>
 

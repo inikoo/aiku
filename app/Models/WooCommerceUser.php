@@ -4,8 +4,11 @@ namespace App\Models;
 
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
+use App\Models\Catalogue\Product;
+use App\Models\Ordering\Order;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  *
@@ -49,4 +52,16 @@ class WooCommerceUser extends Model
         'data'     => '{}',
         'settings' => '{}',
     ];
+
+    public function products(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'shopify_user_has_products')
+            ->withTimestamps();
+    }
+
+    public function orders(): BelongsToMany
+    {
+        return $this->belongsToMany(Order::class, 'shopify_user_has_fulfilments')
+            ->withTimestamps();
+    }
 }

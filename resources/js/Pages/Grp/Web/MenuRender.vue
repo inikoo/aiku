@@ -17,9 +17,15 @@ const props = defineProps<{
     colorThemed: object
 }>()
 
+console.log('menu2',props)
 </script>
 
 
 <template>
-       <component v-if="data.menu?.data?.navigation" :is="getComponent(data.menu.code)" :navigations="data.menu.data.navigation" :colorThemed="colorThemed"/>
+       <component 
+            v-if="data?.data?.fieldValue" 
+            :is="getComponent(data.code)" 
+            :navigations="data.data.fieldValue.navigation" 
+            :colorThemed="colorThemed"
+        />
 </template>

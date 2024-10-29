@@ -5,19 +5,24 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\CreditTransaction\DeleteCreditTransaction;
+use App\Actions\Accounting\CreditTransaction\UpdateCreditTransaction;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\StorePayment;
+use App\Actions\Accounting\Payment\UpdatePayment;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
 use App\Actions\Accounting\TopUp\SetTopUpStatusToSuccess;
 use App\Actions\Accounting\TopUp\StoreTopUp;
+use App\Actions\Accounting\TopUp\UpdateTopUp;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
+use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -167,6 +172,21 @@ test(
         return $payment;
     }
 )->depends('create payment account');
+
+test(
+    'update payment',
+    function (Payment $payment) {
+        $modelData = [
+            'reference' => 'TST1010'
+        ];
+        $updatedPayment = UpdatePayment::make()->action($payment, $modelData);
+
+        expect($updatedPayment)->toBeInstanceOf(Payment::class)
+            ->and($updatedPayment->reference)->toBe('TST1010');
+
+        return $updatedPayment;
+    }
+)->depends('create payment');
 
 test('create and set success 1st top up', function ($payment) {
     $topUp = StoreTopUp::make()->action($payment, [
@@ -381,4 +401,43 @@ test('check Group stats 3rd time', function ($topUp) {
         ->and($group->accountingStats->number_top_ups_status_fail)->toBe(0)
         ->and($group->accountingStats->number_credit_transactions)->toBe(2);
 
+    return $topUp;
+
 })->depends('create 3rd top up');
+
+test('update top up', function (TopUp $topUp) {
+    $modelData = [
+        'amount' => 100000
+    ];
+    $updatedTopUp = UpdateTopUp::make()->action($topUp, $modelData);
+
+    expect($updatedTopUp)->toBeInstanceOf(TopUp::class)
+        ->and($updatedTopUp->amount)->toBe('100000.00');
+
+    return $updatedTopUp;
+
+})->depends('check Group stats 3rd time');
+
+test('update credit transaction', function (TopUp $topUp) {
+    $creditTransaction = $topUp->customer->creditTransactions->first();
+    $modelData = [
+        'amount' => 120000
+    ];
+    $updatedCreditTransaction = UpdateCreditTransaction::make()->action($creditTransaction, $modelData);
+
+    expect($updatedCreditTransaction)->toBeInstanceOf(CreditTransaction::class)
+        ->and($updatedCreditTransaction->amount)->toBe('120000.00');
+
+    return $updatedCreditTransaction;
+
+})->depends('check Group stats 3rd time');
+
+test('delete credit transaction', function (CreditTransaction $creditTransaction) {
+
+    $deletedCreditTransaction = DeleteCreditTransaction::make()->action($creditTransaction);
+
+    expect(CreditTransaction::find($deletedCreditTransaction->id))->toBeNull();
+
+    return $deletedCreditTransaction;
+
+})->depends('update credit transaction');

@@ -38,7 +38,7 @@ const selectedColor = props.colorThemed?.color
                     <div
                         class="px-5 hover:bg-gray-200 hover:text-orange-500 flex items-center justify-center gap-x-1 h-full cursor-pointer">
                         <div class="w-fit text-center">{{ navigation.label }}</div>
-                        <FontAwesomeIcon icon="fas fa-chevron-down" class="text-[11px]"></FontAwesomeIcon>
+                        <FontAwesomeIcon v-if="navigation.type == 'multiple'" icon="fas fa-chevron-down" class="text-[11px]"></FontAwesomeIcon>
                     </div>
 
                     <!-- Section: Subnav hover -->
