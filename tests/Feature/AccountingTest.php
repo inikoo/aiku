@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\CreditTransaction\DeleteCreditTransaction;
 use App\Actions\Accounting\CreditTransaction\UpdateCreditTransaction;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\StorePayment;
@@ -427,6 +428,16 @@ test('update credit transaction', function (TopUp $topUp) {
     expect($updatedCreditTransaction)->toBeInstanceOf(CreditTransaction::class)
         ->and($updatedCreditTransaction->amount)->toBe('120000.00');
 
-    return $creditTransaction;
+    return $updatedCreditTransaction;
 
 })->depends('check Group stats 3rd time');
+
+test('delete credit transaction', function (CreditTransaction $creditTransaction) {
+
+    $deletedCreditTransaction = DeleteCreditTransaction::make()->action($creditTransaction);
+
+    expect(CreditTransaction::find($deletedCreditTransaction->id))->toBeNull();
+
+    return $deletedCreditTransaction;
+
+})->depends('update credit transaction');
