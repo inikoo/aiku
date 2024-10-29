@@ -7,23 +7,25 @@
 
 namespace App\Actions\SupplyChain\Supplier;
 
+use App\Actions\GrpAction;
 use App\Models\SupplyChain\Agent;
+use App\Models\SupplyChain\Supplier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteSupplier
+class DeleteSupplier extends GrpAction
 {
     use AsController;
     use WithAttributes;
 
-    public function handle(Agent $agent): Agent
+    public function handle(Supplier $supplier): Supplier
     {
-        $agent->delete();
+        $supplier->delete();
 
-        return $agent;
+        return $supplier;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -31,11 +33,18 @@ class DeleteSupplier
         return $request->user()->hasPermissionTo("supply-chain.edit");
     }
 
-    public function asController(Agent $agent, ActionRequest $request): Agent
+    public function action(Supplier $supplier): Supplier
+    {
+        $this->asAction = true;
+
+        return $this->handle($supplier);
+    }
+
+    public function asController(Supplier $supplier, ActionRequest $request): Supplier
     {
         $request->validate();
 
-        return $this->handle($agent);
+        return $this->handle($supplier);
     }
 
     public function htmlResponse(): RedirectResponse

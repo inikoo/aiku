@@ -14,6 +14,7 @@ use App\Actions\Procurement\OrgSupplier\UpdateOrgSupplier;
 use App\Actions\SupplyChain\Agent\DeleteAgent;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Agent\UpdateAgent;
+use App\Actions\SupplyChain\Supplier\DeleteSupplier;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
@@ -242,5 +243,15 @@ test('delete agent', function () {
     expect(Agent::find($agent->id))->toBeNull();
 
     return $deletedAgent;
+});
+
+test('delete supplier', function () {
+    $supplier = Supplier::first();
+
+    $deletedSupplier = DeleteSupplier::make()->action($supplier);
+
+    expect(Supplier::find($supplier->id))->toBeNull();
+
+    return $deletedSupplier;
 });
 
