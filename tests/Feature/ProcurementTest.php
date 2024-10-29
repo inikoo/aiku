@@ -368,15 +368,15 @@ test('change state to received from checked supplier delivery', function ($stock
 
 test('check supplier delivery items not correct', function ($stockDeliveryItem) {
     $stockDeliveryItem = UpdateStateToCheckedStockDeliveryItem::make()->action($stockDeliveryItem, [
-        'quantity_ordered_checked' => 2
+        'unit_quantity_checked' => 2
     ]);
     expect($stockDeliveryItem->stockDelivery->state)->toEqual(StockDeliveryStateEnum::RECEIVED);
-})->depends('create supplier delivery items')->todo();
+})->depends('create supplier delivery items');
 
 test('check supplier delivery items all correct', function ($stockDeliveryItems) {
     foreach ($stockDeliveryItems as $stockDeliveryItem) {
         UpdateStateToCheckedStockDeliveryItem::make()->action($stockDeliveryItem, [
-            'quantity_ordered_checked' => 6
+            'unit_quantity_checked' => 6
         ]);
     }
     expect($stockDeliveryItems[0]->stockDelivery->fresh()->state)->toEqual(StockDeliveryStateEnum::CHECKED);
