@@ -98,7 +98,7 @@ test('can show webpages list in fulfilment website', function () {
     });
 });
 
-test('can show website workshop', function () {
+test('can show fulfilments website workshop', function () {
 
     $website = $this->fulfilmentWebsite;
 
@@ -125,7 +125,7 @@ test('can show website workshop', function () {
     });
 });
 
-test('can show website workshop (header)', function () {
+test('can show fulfilments website workshop (header)', function () {
 
     $website = $this->fulfilmentWebsite;
 
@@ -156,7 +156,7 @@ test('can show website workshop (header)', function () {
     });
 });
 
-test('can show website workshop (footer)', function () {
+test('can show fulfilments website workshop (footer)', function () {
 
     $website = $this->fulfilmentWebsite;
 
