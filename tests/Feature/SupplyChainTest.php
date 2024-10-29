@@ -11,6 +11,7 @@ use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
 use App\Actions\Procurement\OrgAgent\UpdateOrgAgent;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UpdateOrgSupplier;
+use App\Actions\SupplyChain\Agent\DeleteAgent;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Agent\UpdateAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
@@ -216,3 +217,14 @@ test('update org-supplier', function ($orgSupplier) {
 
     return $updatedOrgSupplier;
 })->depends('create org-supplier');
+
+test('delete agent', function () {
+    $agent = Agent::first();
+
+    $deletedAgent = DeleteAgent::make()->action($agent);
+    
+    expect(Agent::find($agent->id))->toBeNull();
+
+    return $deletedAgent;
+});
+
