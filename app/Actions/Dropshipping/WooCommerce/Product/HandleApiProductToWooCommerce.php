@@ -9,7 +9,7 @@ namespace App\Actions\Dropshipping\WooCommerce\Product;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Events\UploadProductToShopifyProgressEvent;
+use App\Events\UploadProductToWooCommerceProgressEvent;
 use App\Models\WooCommerceUser;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -81,13 +81,13 @@ class HandleApiProductToWooCommerce extends OrgAction
                 }
 
                 $wooCommerceUser->products()->attach($product->id, [
-                    'shopify_product_id' => $response['body']['product']['id'],
+                    'wc_product_id' => $response['body']['product']['id'],
                     'portfolio_id' => $portfolio->id
                 ]);
 
                 $uploaded++;
 
-                // UploadProductToShopifyProgressEvent::dispatch($wooCommerceUser, $totalProducts, $uploaded);
+                UploadProductToWooCommerceProgressEvent::dispatch($wooCommerceUser, $totalProducts, $uploaded);
             }
         }
     }
