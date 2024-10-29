@@ -39,13 +39,7 @@ const props = defineProps<{
 
 const debouncedSendUpdateBlock = debounce((block) => sendBlockUpdate(block), 1000, { leading: false, trailing: true })
 const debouncedSendUpdateFooter = debounce((footer) => autoSave(footer), 1000, { leading: false, trailing: true })
-
 const data = ref(cloneDeep(props.webpage))
-const editDataTools = ref({
-    previewMode: !props.webpage ? false : true,
-    isLoggedIn: true,
-})
-
 const layout = reactive({
     header: { ...props.header?.data },
     footer: { ...props.footer?.footer },
@@ -86,26 +80,22 @@ const autoSave = async (data: Object) => {
 }
 
 const isPreviewLoggedIn = ref(false)
+const isPreviewMode = ref(false)
 
 onMounted(() => {
     if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { data.value = { ...value } });
     if (socketLayout) socketLayout.actions.subscribe((value) => {
-        layout.header = value.header.header;
+        layout.header = value.header.data;
         layout.footer = value.footer.footer;
-        layout.navigation = value.navigation;
+        layout.navigation = value.navigation; 
     });
-    window.Echo.join(`header-footer.${route().params['website']}.preview`)
-        .listenForWhisper("otherIsNavigating", (event) => {
-            editDataTools.value = {
-                ...editDataTools.value,
-                previewMode: event.data.previewMode
-            }
-        });
-
     window.addEventListener('message', (event) => {
         // Listen: if workshop change toggle logged in
         if (event.data.key === 'isPreviewLoggedIn') {
             isPreviewLoggedIn.value = event.data.value
+        }
+        if (event.data.key === 'isPreviewMode') {
+            isPreviewMode.value = event.data.value
         }
     });
 });
@@ -134,6 +124,7 @@ const iframeToParent = (data: any) => {
 }
 
 provide('isPreviewLoggedIn', isPreviewLoggedIn)
+provide('isPreviewMode', isPreviewMode)
 
 
 
@@ -145,7 +136,6 @@ const ShowWebpage = (activityItem) => {
     } else return false
 }
 
-console.log(props.webpage)
 </script>
 
 
@@ -153,14 +143,14 @@ console.log(props.webpage)
 
     <div class="container max-w-7xl mx-auto shadow-xl">
         <!-- Section: Toggle loggedin -->
-        <div v-if="!isInWorkshop" class="left-1/2 -translate-x-1/2 fixed bottom-16">
+      <!--   <div v-if="!isInWorkshop" class="left-1/2 -translate-x-1/2 fixed bottom-16">
             <div class="text-center">View</div>
             <div class="bg-gray-100 shadow-xl px-8 py-4 rounded-full flex items-center gap-x-2">
                 <span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged out</span>
                 <Toggle v-model="isPreviewLoggedIn" class="" />
                 <span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged in</span>
             </div>
-        </div>
+        </div> -->
 
         <div class="relative">
             <RenderHeaderMenu
@@ -168,6 +158,8 @@ console.log(props.webpage)
                 :data="layout.header"
                 :menu="layout?.navigation"
                 :colorThemed="layout?.colorThemed"
+                :previewMode="isPreviewMode"
+                :loginMode="isPreviewLoggedIn"
             />
         </div>        
 
@@ -222,9 +214,8 @@ console.log(props.webpage)
         <component
             v-if="footer?.footer?.data"
             :is="getComponentFooter(layout.footer.code)"
-            v-model="layout.footer.data.footer"
-            :keyTemplate="layout.footer"
-            :previewMode="editDataTools.previewMode"
+            v-model="layout.footer.data.fieldValue"
+            :previewMode="isPreviewMode"
             :colorThemed="layout.colorThemed"
         />
     </div>

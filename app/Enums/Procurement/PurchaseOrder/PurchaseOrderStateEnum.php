@@ -16,30 +16,26 @@ enum PurchaseOrderStateEnum: string
     case IN_PROCESS = 'in_process';
     case SUBMITTED = 'submitted';
     case CONFIRMED = 'confirmed';
-    case MANUFACTURED = 'manufactured';
-    case DISPATCHED = 'dispatched';
-    case RECEIVED = 'received';
-    case CHECKED = 'checked';
     case SETTLED = 'settled';
+    case CANCELLED = 'cancelled';
+    case NOT_RECEIVED = 'not-received';
 
     public static function labels(): array
     {
         return [
-            'in_process'   => __('In process'),
-            'submitted'    => __('Submitted'),
-            'confirmed'    => __('Confirmed'),
-            'manufactured' => __('Manufactured'),
-            'dispatched'   => __('Dispatched'),
-            'received'     => __('Received'),
-            'checked'      => __('Checked'),
-            'settled'      => __('Settled'),
+            'in_process' => __('In process'),
+            'submitted'  => __('Submitted'),
+            'confirmed'  => __('Confirmed'),
+            'settled'    => __('Settled'),
+            'cancelled'  => __('Cancelled'),
+            'not-received' => __('Not Received')
         ];
     }
 
     public static function stateIcon(): array
     {
         return [
-            'in_process'   => [
+            'in_process' => [
                 'tooltip' => __('Creating'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -49,7 +45,7 @@ enum PurchaseOrderStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'submitted'    => [
+            'submitted'  => [
                 'tooltip' => __('Submitted'),
                 'icon'    => 'fal fa-paper-plane',
                 'class'   => 'text-indigo-400',
@@ -59,7 +55,7 @@ enum PurchaseOrderStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'confirmed'    => [
+            'confirmed'  => [
                 'tooltip' => __('Confirmed'),
                 'icon'    => 'fal fa-check-circle',
                 'class'   => 'text-gray-500',
@@ -69,56 +65,37 @@ enum PurchaseOrderStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'manufactured' => [
-                'tooltip' => __('Manufactured'),
-                'icon'    => 'fal fa-industry',
-                'class'   => 'text-gray-500',
-                'color'   => 'gray',
-                'app'     => [
-                    'name' => 'check',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
-            'dispatched'   => [
-                'tooltip' => __('Dispatched'),
-                'icon'    => 'fal fa-shipping-fast',
-                'class'   => 'text-gray-500',
-                'color'   => 'gray',
-                'app'     => [
-                    'name' => 'times',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
-            'received'     => [
-                'tooltip' => __('Received'),
-                'icon'    => 'fal fa-check',
-                'class'   => 'text-gray-500',
-                'color'   => 'gray',
-                'app'     => [
-                    'name' => 'check',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
-            'checked'      => [
-                'tooltip' => __('Checked'),
-                'icon'    => 'fal fa-check',
-                'class'   => 'text-gray-500',
-                'color'   => 'gray',
-                'app'     => [
-                    'name' => 'check-double',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
-            'settled'      => [
+            'settled'    => [
                 'tooltip' => __('Settled'),
                 'icon'    => 'fal fa-check-double',
-                'class'   => 'text-gray-500',
-                'color'   => 'gray',
+                'class'   => 'text-success-500',
+                'color'   => 'success',
                 'app'     => [
                     'name' => 'check-double',
                     'type' => 'font-awesome-5'
                 ]
             ],
+            'cancelled'  => [
+                'tooltip' => __('Cancelled'),
+                'icon'    => 'fal fa-times-circle',
+                'class'   => 'text-danger-500',
+                'color'   => 'danger',
+                'app'     => [
+                    'name' => 'times-circle',
+                    'type' => 'font-awesome-5'
+                ]
+
+            ],
+            'not-received' => [
+                'tooltip' => __('Not Received'),
+                'icon'    => 'fal fa-exclamation-circle',
+                'class'   => 'text-warning-500',
+                'color'   => 'warning',
+                'app'     => [
+                    'name' => 'exclamation-circle',
+                    'type' => 'font-awesome-5'
+                ]
+            ]
         ];
     }
 

@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
+import { ref } from 'vue'
+import OverlayPanel from 'primevue/overlaypanel'
 import { ColorPicker } from 'vue-color-kit'
 import 'vue-color-kit/dist/vue-color-kit.css'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faTimes } from '@fal'
+import { faTimes } from '@fortawesome/free-solid-svg-icons'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faTimes)
 
@@ -27,11 +28,7 @@ interface Color {
     hex: string
 }
 
-// To avoid the class (from parent) is inherit to first element
-defineOptions({
-    inheritAttrs: false
-})
-
+// Props and emits setup
 const props = withDefaults(defineProps<{
     color: string
     closeButton?: boolean
@@ -43,49 +40,41 @@ const emits = defineEmits<{
     (e: 'changeColor', value: Color): void
 }>()
 
-// Method: change 0.2 to '33' (hexadecimal)
+// Ref for OverlayPanel
+const overlayPanel = ref<null | InstanceType<typeof OverlayPanel>>(null)
+
+// Helper function: converts opacity to hexadecimal
 const opacityToHexCode = (opacity: number) => {
-    if (opacity < 0 || opacity > 1) {
-        return 'ff'
-    }
-
-    // Convert the opacity to a value between 0 and 255
-    const alphaValue = Math.round(opacity * 255);
-    
-    // Return the base color with the new alpha value
-    return alphaValue.toString(16).padStart(2, '0');
+    const alphaValue = Math.round(opacity * 255)
+    return alphaValue.toString(16).padStart(2, '0')
 }
-
 </script>
 
-
 <template>
-    <Popover v-slot="{ open }" class="relative">
-        <PopoverButton as="template">
-            <slot name="button">
-                <div v-bind="$attrs" class="h-12 w-12 cursor-pointer" :style="{
-                    backgroundColor: color
-                }">
-                </div>
-            </slot>
-        </PopoverButton>
+    <div class="relative">
+        <!-- Toggle button -->
+        <div
+            v-bind="$attrs"
+            class="h-12 w-12 cursor-pointer"
+            :style="{ backgroundColor: color }"
+            @click="overlayPanel.show($event)"
+        ></div>
 
-        <PopoverPanel v-slot="{ close }" class="absolute left-8 top-0 z-10 mt-3">
-            <div class="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
-                <div class="relative  bg-white p-2.5">
-                    <ColorPicker
-                        style="width: 220px;"
-                        theme="dark"
-                        :color="color"
-                        :sucker-hide="true"
-                        @changeColor="(e) => emits('changeColor', {...e, hex: e.hex + opacityToHexCode(e.rgba.a)})"
-                    />
+        <!-- OverlayPanel with ColorPicker -->
+        <OverlayPanel ref="overlayPanel" class="shadow-lg rounded-md">
+            <div class="relative">
+                <ColorPicker
+                    style="width: 220px;"
+                    theme="dark"
+                    :color="color"
+                    :sucker-hide="true"
+                    @changeColor="(e) => {emits('changeColor', {...e, hex: e.hex + opacityToHexCode(e.rgba.a)})}"
+                />
+                
+                <div @click="overlayPanel.hide()" class="absolute top-0 right-0 mt-1 mr-1">
+                    <FontAwesomeIcon icon="faTimes" class="text-gray-400 hover:text-gray-600 cursor-pointer" fixed-width aria-hidden="true" />
                 </div>
             </div>
-
-            <div @click="() => close()" class="absolute -top-1 -right-6">
-                <FontAwesomeIcon icon='fal fa-times' class='text-gray-400 hover:text-gray-600 cursor-pointer' fixed-width aria-hidden='true' />
-            </div>
-        </PopoverPanel>
-    </Popover>
+        </OverlayPanel>
+    </div>
 </template>

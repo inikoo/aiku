@@ -42,7 +42,7 @@ const props = defineProps<{
     bluprint: Array
     uploadImageRoute?: routeType
 }>()
-
+console.log('side',props)
 const modelValue = defineModel()
 
 const emits = defineEmits<{
@@ -56,7 +56,7 @@ const getComponent = (componentName: string) => {
     const components: Component = {
         'text': SideEditorText,
         'editorhtml': SideEditorInputHTML,
-        'upload_image': UploadImage,
+        'upload_image': UploadImage, 
         'payment_templates': Payments,
         'editor': Editor,
         'socialMedia': socialMedia,
@@ -104,7 +104,7 @@ const setFormValue = (mValue: Object, fieldKeys: string | string[], newVal) => {
 
 <template>
     <Accordion>
-        <AccordionPanel v-for="(field, index) in bluprint" :key="index" :value="index" @click="openPanel = index">
+        <AccordionPanel v-for="(field, index) of bluprint" :key="index" :value="index" @click="openPanel = index">
             <AccordionHeader>
                 <div>
                     <Icon :data="field.icon" />

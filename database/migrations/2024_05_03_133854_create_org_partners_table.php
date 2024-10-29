@@ -22,6 +22,7 @@ return new class () extends Migration {
             $table->foreign('partner_id')->references('id')->on('organisations');
             $table->boolean('status')->default(true)->index();
             $table->timestampsTz();
+            $table->jsonb('sources');
             $table->unique(['group_id','organisation_id','partner_id']);
         });
     }

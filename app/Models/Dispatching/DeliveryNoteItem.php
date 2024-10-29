@@ -9,6 +9,7 @@ namespace App\Models\Dispatching;
 
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
+use App\Models\Inventory\OrgStock;
 use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -45,6 +46,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string|null $source_id
  * @property-read \App\Models\Dispatching\DeliveryNote $deliveryNote
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read OrgStock $orgStock
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Dispatching\Picking|null $pickings
  * @property-read \App\Models\Catalogue\Shop $shop
@@ -80,5 +82,10 @@ class DeliveryNoteItem extends Model
     public function deliveryNote(): BelongsTo
     {
         return $this->belongsTo(DeliveryNote::class);
+    }
+
+    public function orgStock(): BelongsTo
+    {
+        return $this->belongsTo(OrgStock::class);
     }
 }

@@ -7,6 +7,8 @@
 
 namespace App\Models\Procurement;
 
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStatusEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
@@ -22,12 +24,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $purchase_order_id
- * @property int $supplier_product_id
- * @property int $historic_supplier_product_id
- * @property int $org_supplier_product_id
+ * @property int|null $supplier_product_id
+ * @property int|null $historic_supplier_product_id
+ * @property int|null $org_supplier_product_id
+ * @property int $stock_id
  * @property int $org_stock_id
- * @property string $state
- * @property string $status
+ * @property PurchaseOrderTransactionStateEnum $state
+ * @property PurchaseOrderTransactionDeliveryStatusEnum $delivery_status
  * @property string|null $quantity_ordered
  * @property string|null $quantity_dispatched
  * @property string|null $quantity_fail
@@ -47,7 +50,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Procurement\PurchaseOrder $purchaseOrder
- * @property-read SupplierProduct $supplierProduct
+ * @property-read SupplierProduct|null $supplierProduct
  * @method static \Database\Factories\Procurement\PurchaseOrderTransactionFactory factory($count = null, $state = [])
  * @method static Builder<static>|PurchaseOrderTransaction newModelQuery()
  * @method static Builder<static>|PurchaseOrderTransaction newQuery()
@@ -60,7 +63,9 @@ class PurchaseOrderTransaction extends Model
     use InOrganisation;
 
     protected $casts = [
-        'data' => 'array',
+        'data'            => 'array',
+        'state'           => PurchaseOrderTransactionStateEnum::class,
+        'delivery_status' => PurchaseOrderTransactionDeliveryStatusEnum::class
     ];
 
     protected $attributes = [

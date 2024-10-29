@@ -30,6 +30,11 @@
 					"props_data": {}
 				}
 			]
+		},
+		{
+			"name": "Image",
+			"key": "image",
+			"type": "upload_image"
 		}
 	],
 	"data": {
@@ -37,19 +42,19 @@
 			"title": "<h3 style=\"text-align: center\"><span style=\"color: #a200ff\"><strong>Dep</strong></span><span style=\"color: #9900ff\"><strong>loy faster</strong></span></h3><h1 style=\"text-align: center\"><strong>Everything you need to deploy your app.</strong></h1>",
 			"column1": {
 				"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
-				"image": []
+				"images": []
 			},
 			"column2": {
 				"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
-				"image": []
+				"images": []
 			},
 			"column3": {
 				"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
-				"image": []
+				"images": []
 			},
 			"column4": {
 				"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
-				"image": []
+				"images": []
 			},
 			"container": {
 				"properties": {

@@ -135,7 +135,7 @@ class FetchAuroraStocks extends FetchAuroraAction
         if ($effectiveStock) {
             /** @var TradeUnit $tradeUnit */
             $tradeUnit = $effectiveStock->tradeUnits()->first();
-            $this->processFetchAttachments($tradeUnit, 'Part');
+            $this->processFetchAttachments($tradeUnit, 'Part', $stockData['stock']['source_id']);
         }
 
         return [

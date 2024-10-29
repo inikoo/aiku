@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\StockDelivery\UI;
 
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\StockDeliveryTabsEnum;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
@@ -22,32 +23,38 @@ use Lorisleiva\Actions\ActionRequest;
 /**
  * @property StockDelivery $stockDelivery
  */
-class ShowStockDelivery extends InertiaAction
+class ShowStockDelivery extends OrgAction
 {
     public function authorize(ActionRequest $request): bool
     {
         if ($this->maya) {
             return true;
         }
-        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
-
-        return $request->user()->hasPermissionTo("procurement.view");
+        $this->canEdit = true;
+        //TODO: Need to think of this
+        return true;
     }
 
-    public function asController(StockDelivery $stockDelivery, ActionRequest $request): void
+    public function asController(Organisation $organisation, StockDelivery $stockDelivery, ActionRequest $request): StockDelivery
     {
-        $this->initialisation($request)->withTab(StockDeliveryTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(StockDeliveryTabsEnum::values());
         $this->stockDelivery    = $stockDelivery;
+        return $this->handle($stockDelivery);
     }
 
     public function maya(Organisation $organisation, StockDelivery $stockDelivery, ActionRequest $request): void
     {
         $this->maya   = true;
-        $this->initialisation($request)->withTab(StockDeliveryTabsEnum::values());
+        $this->initialisation($organisation, $request)->withTab(StockDeliveryTabsEnum::values());
         $this->stockDelivery = $stockDelivery;
     }
 
-    public function htmlResponse(ActionRequest $request): Response
+    public function handle(StockDelivery $stockDelivery): StockDelivery
+    {
+        return $stockDelivery;
+    }
+
+    public function htmlResponse(StockDelivery $stockDelivery, ActionRequest $request): Response
     {
         $this->validateAttributes();
 
@@ -56,11 +63,11 @@ class ShowStockDelivery extends InertiaAction
             'Procurement/StockDelivery',
             [
                 'title'                                 => __('supplier delivery'),
-                'breadcrumbs'                           => $this->getBreadcrumbs($this->stockDelivery),
-                'navigation'                            => [
-                    'previous' => $this->getPrevious($this->stockDelivery, $request),
-                    'next'     => $this->getNext($this->stockDelivery, $request),
-                ],
+                'breadcrumbs'                           => $this->getBreadcrumbs($this->stockDelivery, $request->route()->originalParameters()),
+                // 'navigation'                            => [
+                //     'previous' => $this->getPrevious($this->stockDelivery, $request),
+                //     'next'     => $this->getNext($this->stockDelivery, $request),
+                // ],
                 'pageHead'    => [
                     'icon'  => ['fal', 'people-arrows'],
                     'title' => $this->stockDelivery->id,
@@ -82,7 +89,8 @@ class ShowStockDelivery extends InertiaAction
                         'name' => 'grp.models.stock-delivery.attachment.detach',
                         'parameters' => [
                             'stockDelivery' => $this->stockDelivery->id,
-                        ]
+                        ],
+                        'method' => 'delete'
                     ]
                 ],
                 'tabs' => [
@@ -93,7 +101,9 @@ class ShowStockDelivery extends InertiaAction
                 fn () => AttachmentsResource::collection(IndexAttachments::run($this->stockDelivery))
                 : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($this->stockDelivery))),
             ]
-        );
+        )->table(IndexAttachments::make()->tableStructure(
+            prefix: StockDeliveryTabsEnum::ATTACHMENTS->value
+        ));
     }
 
 
@@ -102,10 +112,10 @@ class ShowStockDelivery extends InertiaAction
         return new StockDeliveryResource($this->stockDelivery);
     }
 
-    public function getBreadcrumbs(StockDelivery $stockDelivery, $suffix = null): array
+    public function getBreadcrumbs(StockDelivery $stockDelivery, array $routeParameters, string $suffix = '' ): array
     {
         return array_merge(
-            (new ShowProcurementDashboard())->getBreadcrumbs(),
+            (new ShowProcurementDashboard())->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'           => 'modelWithIndex',
@@ -113,13 +123,14 @@ class ShowStockDelivery extends InertiaAction
                         'index' => [
                             'route' => [
                                 'name' => 'grp.org.procurement.stock_deliveries.index',
+                                'parameters' => $routeParameters,
                             ],
                             'label' => __('supplier delivery')
                         ],
                         'model' => [
                             'route' => [
                                 'name'       => 'grp.org.procurement.stock_deliveries.show',
-                                'parameters' => [$stockDelivery->slug]
+                                'parameters' => $routeParameters
                             ],
                             'label' => $stockDelivery->reference,
                         ],
@@ -131,35 +142,35 @@ class ShowStockDelivery extends InertiaAction
         );
     }
 
-    public function getPrevious(StockDelivery $stockDelivery, ActionRequest $request): ?array
-    {
-        $previous = StockDelivery::where('number', '<', $stockDelivery->number)->orderBy('number', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
+    // public function getPrevious(StockDelivery $stockDelivery, ActionRequest $request): ?array
+    // {
+    //     $previous = StockDelivery::where('number', '<', $stockDelivery->number)->orderBy('number', 'desc')->first();
+    //     return $this->getNavigation($previous, $request->route()->getName());
 
-    }
+    // }
 
-    public function getNext(StockDelivery $stockDelivery, ActionRequest $request): ?array
-    {
-        $next = StockDelivery::where('number', '>', $stockDelivery->number)->orderBy('number')->first();
-        return $this->getNavigation($next, $request->route()->getName());
-    }
+    // public function getNext(StockDelivery $stockDelivery, ActionRequest $request): ?array
+    // {
+    //     $next = StockDelivery::where('number', '>', $stockDelivery->number)->orderBy('number')->first();
+    //     return $this->getNavigation($next, $request->route()->getName());
+    // }
 
-    private function getNavigation(?StockDelivery $stockDelivery, string $routeName): ?array
-    {
-        if (!$stockDelivery) {
-            return null;
-        }
-        return match ($routeName) {
-            'grp.org.procurement.stock_deliveries.show' => [
-                'label' => $stockDelivery->reference,
-                'route' => [
-                    'name'      => $routeName,
-                    'parameters' => [
-                        'employee' => $stockDelivery->number
-                    ]
+    // private function getNavigation(?StockDelivery $stockDelivery, string $routeName): ?array
+    // {
+    //     if (!$stockDelivery) {
+    //         return null;
+    //     }
+    //     return match ($routeName) {
+    //         'grp.org.procurement.stock_deliveries.show' => [
+    //             'label' => $stockDelivery->reference,
+    //             'route' => [
+    //                 'name'      => $routeName,
+    //                 'parameters' => [
+    //                     'employee' => $stockDelivery->number
+    //                 ]
 
-                ]
-            ]
-        };
-    }
+    //             ]
+    //         ]
+    //     };
+    // }
 }

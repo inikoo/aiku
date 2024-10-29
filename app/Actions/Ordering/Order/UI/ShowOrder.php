@@ -279,14 +279,25 @@ class ShowOrder extends OrgAction
                 default => []
             };
         }
+
         $deliveryNoteRoute    = null;
         $deliveryNoteResource = null;
         if ($order->deliveryNotes()->first()) {
             $deliveryNoteRoute = [
+                    'deliveryNoteRoute' => [
                         'name'        => 'grp.org.shops.show.ordering.orders.show.delivery-note',
                         'parameters'  => array_merge($request->route()->originalParameters(), [
                             'deliveryNote' => $order->deliveryNotes()->first()->slug
                         ])
+                        ],
+                    'deliveryNotePdfRoute' => [
+                        'name' => 'grp.org.warehouses.show.dispatching.delivery-notes.pdf',
+                        'parameters' => [
+                            'organisation' =>  $order->organisation->slug,
+                            'warehouse' => $order->deliveryNotes->first()->warehouse->slug,
+                            'deliveryNote' => $order->deliveryNotes()->first()->slug,
+                        ],
+                    ]
             ];
 
             $deliveryNoteResource = DeliveryNotesResource::make($order->deliveryNotes()->first());

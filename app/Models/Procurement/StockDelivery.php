@@ -37,7 +37,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
- * @property string $parent_type OrgAgent|OrgSupplier|Organisation(intra-group sales)
+ * @property string $parent_type OrgAgent|OrgSupplier|Partner(intra-group sales)
  * @property int $parent_id
  * @property string $parent_code Parent code on the time of consolidation
  * @property string $parent_name Parent name on the time of consolidation
@@ -50,6 +50,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $checked_at
  * @property string|null $settled_at
  * @property string|null $cancelled_at
+ * @property int|null $agent_id
+ * @property int|null $supplier_id
+ * @property int|null $partner_id
+ * @property int $number_purchase_orders
  * @property int $number_of_items
  * @property float|null $gross_weight
  * @property float|null $net_weight
@@ -63,9 +67,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $cost_tax
  * @property string $cost_total
  * @property array $data
- * @property int|null $agent_id
- * @property int|null $supplier_id
- * @property int|null $partner_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at

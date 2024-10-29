@@ -29,6 +29,8 @@ trait WithAuroraAttachments
 {
     public function getModelAttachmentsCollection($model, $id): Collection
     {
+
+
         return DB::connection('aurora')
             ->table('Attachment Bridge as B')
             ->leftJoin('Attachment Dimension as A', 'A.Attachment Key', '=', 'B.Attachment Key')
@@ -73,7 +75,7 @@ trait WithAuroraAttachments
         ];
     }
 
-    protected function processFetchAttachments(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|null $model, string $parseAttachments): void
+    protected function processFetchAttachments(Employee|TradeUnit|Supplier|Customer|PurchaseOrder|StockDelivery|Order|null $model, string $modelType, string $modelSourceID): void
     {
         if (!$model) {
             return;
@@ -86,9 +88,8 @@ trait WithAuroraAttachments
         }
 
         $attachmentsToDelete = $model->attachments()->pluck('source_id', 'model_has_attachments.id')->all();
-        foreach ($this->parseAttachments($model->source_id, $parseAttachments) as $attachmentData) {
 
-
+        foreach ($this->parseAttachments($modelSourceID, $modelType) as $attachmentData) {
 
             $media = SaveModelAttachment::make()->action(
                 model: $model,

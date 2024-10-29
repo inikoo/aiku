@@ -3,6 +3,7 @@ import { ref } from "vue"
 import { trans } from "laravel-vue-i18n"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
+import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
 import Image from "@/Components/Image.vue"
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
@@ -12,12 +13,14 @@ import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 import PaddingMarginProperty from '@/Components/Websites/Fields/Properties/PaddingMarginProperty.vue'
 import BorderProperty from '@/Components/Websites/Fields/Properties/BorderProperty.vue'
+import Modal from "@/Components/Utils/Modal.vue"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faImage, faPhotoVideo, faLink } from "@fal"
 
 import { routeType } from "@/types/route"
+import { cloneDeep } from "lodash"
 
 
 library.add(faImage, faPhotoVideo, faLink)
@@ -31,13 +34,15 @@ const props = withDefaults(
 )
 
 const emits = defineEmits<{
-	(e: "update:modelValue", value: string | number): void
+	(e: "update:modelValue", value: any): void
 	(e: "onUpload", value: Files[]): void
+	(e: "autoSave"): void
 }>()
 
 const isOpenGalleryImages = ref(false)
 const isDragging = ref(false)
 const fileInput = ref(null)
+const addedFiles = ref<File[]>([])
 
 const onUpload = async () => {
 	try {
@@ -54,7 +59,9 @@ const onUpload = async () => {
 				},
 			}
 		)
-		emits("update:modelValue", response.data.data[0])
+		const updatedModelValue = JSON.parse(JSON.stringify(props.modelValue));
+		updatedModelValue.src = cloneDeep(response.data.data[0].source)
+		emits("update:modelValue", updatedModelValue);
 	} catch (error) {
 		console.error("error", error)
 		notify({
@@ -72,10 +79,14 @@ const addComponent = (event) => {
 
 const dragOver = (e) => {
 	e.preventDefault()
+	console.log('asdas');
+	
 	isDragging.value = true
 }
 
 const dragLeave = () => {
+	console.log('leace');
+	
 	isDragging.value = false
 }
 
@@ -87,22 +98,25 @@ const drop = (e) => {
 }
 
 const onPickImage = (e) => {
-	isOpenGalleryImages.value = false
-	emits("update:modelValue", e)
-}
+	isOpenGalleryImages.value = false;
+	const updatedModelValue = JSON.parse(JSON.stringify(props.modelValue));
+	updatedModelValue.src = cloneDeep(e[0].source)
+	emits("update:modelValue", updatedModelValue);
+};
 
 
 const onClickButton = () => {
-	console.log(fileInput.value)
 	fileInput.value?.click()
 }
 
+function onSave() {
+	emits("autoSave")
+}
 </script>
 
 <template>
 	<div>
-		<button type="submit"
-			@click="onClickButton"
+		<button type="submit" @click="onClickButton"
 			class="flex w-full justify-center bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
 			Upload Image
 		</button>
@@ -117,8 +131,7 @@ const onClickButton = () => {
 					<input type="file" multiple name="file" id="fileInput" class="sr-only" ref="fileInput"
 						@change="addComponent" />
 				</label>
-
-				<div v-if="!modelValue?.src" class="text-center">
+				<div v-if=" !modelValue?.source" class="text-center">
 					<div class="flex text-sm leading-6 justify-center">
 						<p class="pl-1">{{ trans("Drag Images Here.") }}</p>
 					</div>
@@ -131,7 +144,7 @@ const onClickButton = () => {
 					</div>
 				</div>
 				<div v-else>
-					<Image :src="modelValue?.src"
+					<Image :src=" modelValue?.source"
 						class="w-full object-cover h-full object-center group-hover:opacity-75">
 					</Image>
 
@@ -144,6 +157,7 @@ const onClickButton = () => {
 		</div>
 	</div>
 
+	<!-- command temporary -->
 	<div class="mt-8">
 		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
 			<div>Image URL</div>
@@ -157,7 +171,7 @@ const onClickButton = () => {
 		</IconField>
 	</div>
 
-	<div class="mt-8 ">
+	<div v-if="modelValue.width" class="mt-8 ">
 		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
 			<div>Width</div>
 		</div>
@@ -167,14 +181,14 @@ const onClickButton = () => {
 		</div>
 	</div>
 
-	<div class="mt-8">
+	<div v-if="modelValue.alt" class="mt-8">
 		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
 			<div>Alternate Text</div>
 		</div>
 		<InputText v-model="modelValue.alt" class="w-full" />
 	</div>
 
-	<div class="mt-8">
+	<div v-if="modelValue.properties.border" class="mt-8">
 		<div v-if="modelValue?.properties?.border" class="border-t border-gray-300">
 			<div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Border') }}</div>
 
@@ -195,8 +209,13 @@ const onClickButton = () => {
 	</div>
 
 
-	<Gallery :open="isOpenGalleryImages" @on-close="isOpenGalleryImages = false" :uploadRoutes="''"
-		@onPick="onPickImage" :tabs="['images_uploaded', 'stock_images']" />
+	<!-- <Gallery :open="isOpenGalleryImages" @on-close="isOpenGalleryImages = false" :uploadRoutes="''"
+		@onPick="onPickImage" :tabs="['images_uploaded', 'stock_images']" /> -->
+
+	<Modal :isOpen="isOpenGalleryImages" @onClose="() => (isOpenGalleryImages = false)" width="w-3/4">
+		<GalleryManagement :maxSelected="1" :tabs="['images_uploaded', 'stock_images']"
+			:closePopup="() => (isOpenGalleryImages = false)" @submitSelectedImages="onPickImage" />
+	</Modal>
 </template>
 
 <style scoped></style>

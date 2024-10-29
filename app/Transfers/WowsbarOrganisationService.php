@@ -259,11 +259,6 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
-    public function fetchOutbox($id): ?array
-    {
-        return null;
-    }
-
     public function fetchMailshot($id): ?array
     {
         return null;

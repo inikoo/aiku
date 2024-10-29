@@ -1,22 +1,21 @@
 <script setup lang="ts">
 import { ref, watch } from "vue"
 import ProductList from '@/Components/Websites/Product/ProductList'
-
-import { capitalize } from "@/Composables/capitalize"
-import { Head } from '@inertiajs/vue3'
+import { trans } from 'laravel-vue-i18n'
 import { useColorTheme } from '@/Composables/useStockList'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import EmptyState from '@/Components/Utils/EmptyState.vue'
-import Modal from '@/Components/Utils/Modal.vue'
+import Popover from 'primevue/popover';
 import { getComponent } from '@/Components/Websites/Product/Content'
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
-import { Splitpanes, Pane } from 'splitpanes'
-import 'splitpanes/dist/splitpanes.css'
+import SelectButton from 'primevue/selectbutton';
+import ToggleSwitch from 'primevue/toggleswitch';
+import { notify } from "@kyvg/vue3-notification"
+import axios from "axios"
 
-import { faCube, faChevronLeft, faChevronRight } from "@fas"
+import { faRocketLaunch } from '@far'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-library.add(faCube, faChevronLeft, faChevronRight)
+library.add(faRocketLaunch)
 
 const props = defineProps<{
     data: {
@@ -25,123 +24,164 @@ const props = defineProps<{
 }>()
 
 const emits = defineEmits(['update:modelValue', 'autoSave'])
-
-const usedTemplates = ref({ data: props?.data?.product, key: 'product1' })
-const previewMode = ref(false)
-const isModalOpen = ref(false)
+const op = ref();
+const comment = ref('')
+const isLoading = ref(false)
+const usedTemplates = ref(ProductList.listTemplate[0])
 const colorThemed = props.data?.color ? props.data?.color : { color: [...useColorTheme[0]] }
+const mode = ref({ name: 'Logged In', value: 'login' });
+const optionsToogle = ref([
+    { name: 'Logged Out', value: 'logout' },
+    { name: 'Logged In', value: 'login' },
+    { name: 'Membership', value: 'member' }
+]);
 
-const options = ProductList.listTemplate.map(option => ({ label: option.name, value: option.key }))
-const valueSelect = ref('product1')
 
-const currentIndex = ref(options.findIndex(option => option.value === valueSelect.value))
 
-const onOptionChange = (selectedValue) => {
-    const newIndex = options.findIndex(option => option.value === selectedValue)
-    if (newIndex !== -1) {
-        currentIndex.value = newIndex
-        usedTemplates.value = { key: selectedValue, data: props?.data?.product }
-    }
+const toggle = (event) => {
+    op.value.toggle(event);
 }
 
-watch(valueSelect, (newValue) => {
-    onOptionChange(newValue)
-})
-
 const selectPreviousTemplate = () => {
-    if (currentIndex.value > 0) {
-        currentIndex.value -= 1
-        valueSelect.value = options[currentIndex.value].value
+    let index = ProductList.listTemplate.findIndex((item)=>item.key == usedTemplates.value.key)
+    if(index > 0){
+        usedTemplates.value = ProductList.listTemplate[index - 1]
     }
 }
 
 const selectNextTemplate = () => {
-    if (currentIndex.value < options.length - 1) {
-        currentIndex.value += 1
-        valueSelect.value = options[currentIndex.value].value
+    let index = ProductList.listTemplate.findIndex((item)=>item.key == usedTemplates.value.key)
+    if(index  < ProductList.listTemplate.length - 1){
+        usedTemplates.value = ProductList.listTemplate[index + 1]
     }
 }
+
+const onPublish = async (action: {}, popover: {}) => {
+    console.log("data: " ,{ data : usedTemplates.value, comment : comment.value })
+    op.value.hide();
+   /*  try {
+        isLoading.value = true
+        const response = await axios.patch(route(action.name, action.parameters), { data : usedTemplates.value, comment : comment.value })
+    } catch (error) {
+        const errorMessage = error.response?.data?.message || error.message || "Unknown error occurred"
+        notify({
+            title: "Something went wrong.",
+            text: errorMessage,
+            type: "error",
+        })
+    } finally {
+        isLoading.value = false
+    } */
+}
+
 </script>
 
 <template>
-
-    <Head :title="capitalize(title)" />
-
-    <splitpanes class="default-theme">
-        <pane min-size="8" max-size="20">
-            <div class="bg-slate-200 px-3 py-2 w-full h-screen">
-                <div class="flex justify-end mb-4">
-                    <Button type="tertiary" label="List Templates" size="xs" icon="fas fa-th-large"
-                        @click="isModalOpen = true" />
-                </div>
-
+    <div class="h-[79vh] grid overflow-hidden grid-cols-4">
+        <div class="col-span-1 flex flex-col border-r border-gray-300 shadow-lg relative overflow-auto">
+            <div class="px-4 py-3 rounded-t-lg shadow">
                 <div class="flex items-center">
-
-                    <font-awesome-icon :icon="['fas', 'chevron-left']" class="px-4 cursor-pointer"
+                    <font-awesome-icon :icon="['fas', 'chevron-left']"
+                        class="px-4 cursor-pointer text-gray-600 hover:text-gray-800 transition duration-200"
                         @click="selectPreviousTemplate" />
-
-
-                    <PureMultiselect :options="options" label="label" valueProp="value" v-model="valueSelect"
-                        class="mx-2" />
-
-                    <font-awesome-icon :icon="['fas', 'chevron-right']" class="px-4 cursor-pointer"
+                    <PureMultiselect 
+                        :options="ProductList.listTemplate" 
+                         label="name" 
+                         valueProp="key"
+                        :object="true" 
+                         v-model="usedTemplates"
+                        :required="true" 
+                        class="mx-2 focus:ring-2 focus:ring-blue-500" 
+                    />
+                    <font-awesome-icon :icon="['fas', 'chevron-right']"
+                        class="px-4 cursor-pointer text-gray-600 hover:text-gray-800 transition duration-200"
                         @click="selectNextTemplate" />
                 </div>
             </div>
-        </pane>
-
-        <pane>
-            <div class="bg-gray-100 px-6 py-6 h-full overflow-auto"
-                :class="usedTemplates?.key ? 'col-span-3' : 'col-span-4'">
-                <div :class="usedTemplates?.key ? 'bg-white' : ''">
-                    <section v-if="usedTemplates?.key">
-                        <component :is="getComponent(usedTemplates.key)" :previewMode="previewMode"
-                            v-model="usedTemplates.data" :colorThemed="colorThemed" />
-                    </section>
-                    <section v-else>
-                        <EmptyState
-                            :data="{ description: 'You need to pick a template from the list', title: 'Pick Header Templates' }">
-                            <template #button-empty-state>
-                                <div class="mt-4 block">
-                                    <Button type="secondary" label="Templates" icon="fas fa-th-large"
-                                        @click="isModalOpen = true"></Button>
-                                </div>
-                            </template>
-                        </EmptyState>
-                    </section>
+            <div class="px-4 py-5 flex-grow">
+                <div class="flex justify-center mb-6">
+                    <SelectButton v-model="mode" :options="optionsToogle" optionLabel="name"
+                        aria-labelledby="multiple" />
+                </div>
+                <div class="px-8">
+                    <div class="py-5 border-t border-gray-300">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-lg font-semibold">Show FAQs</span>
+                            <ToggleSwitch v-model="usedTemplates.setting.faqs" />
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Toggle to show or hide frequently asked questions for your product.
+                        </div>
+                    </div>
+                    <div class="py-5 border-t border-gray-300">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-lg font-semibold">Product Specification</span>
+                            <ToggleSwitch v-model="usedTemplates.setting.product_spec" />
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Toggle to show or hide product specifications for your product.
+                        </div>
+                    </div>
+                    <div class="py-5 border-t border-gray-300">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-lg font-semibold">Customer Reviews</span>
+                            <ToggleSwitch v-model="usedTemplates.setting.customer_review" />
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Toggle to show or hide customer reviews for your product.
+                        </div>
+                    </div>
+                    <div class="py-5 border-t border-gray-300">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-lg font-semibold">Payments & Policy</span>
+                            <ToggleSwitch v-model="usedTemplates.setting.payments_and_policy" />
+                        </div>
+                        <div class="text-xs text-gray-500">
+                            Toggle to show or hide payment and policy information for your product.
+                        </div>
+                    </div>
                 </div>
             </div>
-        </pane>
-    </splitpanes>
+            <div class="px-4 py-4 bg-gray-200">
+                <Button type="submit" full label="Publish" :icon="faRocketLaunch" @click="toggle" />
+            </div>
+        </div>
 
-    <div class="bg-gray-300 p-4 text-white text-center fixed bottom-5 w-full">
-        <div class="flex items-center gap-x-2">
-            <Switch @click="previewMode = !previewMode"
-                class="pr-1 relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors bg-white ring-1 ring-slate-300 duration-200 shadow ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-                <span aria-hidden="true"
-                    :class="previewMode ? 'translate-x-6 bg-indigo-500' : 'translate-x-0 bg-slate-300'"
-                    class="pointer-events-none inline-block h-full w-1/2 transform rounded-full shadow-lg ring-0 transition duration-200 ease-in-out"></span>
-            </Switch>
-            <div class="text-xs leading-none font-medium cursor-pointer select-none"
-                :class="previewMode ? 'text-indigo-500' : ' text-gray-400'">
-                Preview Mode
+        <div class="bg-gray-100 h-full col-span-3 rounded-lg shadow-lg">
+            <div class="bg-gray-100 px-6 py-6 h-[79vh] rounded-lg  overflow-auto">
+                <div :class="usedTemplates?.key ? 'bg-white shadow-md rounded-lg' : ''">
+                    <section v-if="usedTemplates?.key">
+                        <component :is="getComponent(usedTemplates.key)" :mode="mode" :colorThemed="colorThemed"
+                            :data="usedTemplates" />
+                    </section>
+                </div>
             </div>
         </div>
     </div>
 
-    <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-2/5">
-        <div tag="div"
-            class="relative grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-3 gap-x-4 overflow-y-auto overflow-x-hidden">
-            <!-- Loop through available templates in the modal -->
-            <div v-for="product in ProductList.listTemplate" :key="product.key" @click="() => onPickTemplate(product)"
-                class="group flex items-center gap-x-2 relative border border-gray-300 px-3 py-2 rounded cursor-pointer hover:bg-gray-100">
-                <div class="flex items-center justify-center">
-                    <FontAwesomeIcon :icon="product.icon" class="" fixed-width aria-hidden="true" />
+    <Popover ref="op">
+        <div class="flex flex-col gap-4 w-[25rem]">
+            <div>
+                <div class="inline-flex items-start leading-none">
+                    <FontAwesomeIcon :icon="'fas fa-asterisk'" class="font-light text-[12px] text-red-400 mr-1" />
+                    <span class="capitalize">{{ trans('comment') }}</span>
                 </div>
-                <h3 class="text-sm font-medium">{{ product.name }}</h3>
+                <div class="py-2.5">
+                    <textarea rows="3" v-model="comment"
+                        class="block w-64 lg:w-96 rounded-md shadow-sm border-gray-300 focus:border-gray-500 focus:ring-gray-500 sm:text-sm" />
+                </div>
+                <div class="flex justify-end">
+                    <Button :key="comment.length" size="xs" icon="far fa-rocket-launch" label="Publish"
+                        :type="comment.length > 0 ? 'primary' : 'disabled'" @click="onPublish">
+                        <template #icon>
+                            <LoadingIcon v-if="isLoading" />
+                            <FontAwesomeIcon v-else icon='far fa-rocket-launch' class='' aria-hidden='true' />
+                        </template>
+                    </Button>
+                </div>
             </div>
         </div>
-    </Modal>
+    </Popover>
 </template>
 
 

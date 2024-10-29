@@ -511,9 +511,10 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->hasMany(Webpage::class);
     }
 
+
     public function orgPartners(): HasMany
     {
-        return $this->hasMany(OrgPartner::class, 'partner_id');
+        return $this->hasMany(OrgPartner::class);
     }
 
     public function orgAgents(): HasMany

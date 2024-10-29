@@ -6,7 +6,7 @@
  */
 
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
-use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStatusEnum;
+use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasOrderFields;
 use Illuminate\Database\Migrations\Migration;
@@ -25,17 +25,22 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('purchase_order_id')->index();
             $table->foreign('purchase_order_id')->references('id')->on('purchase_orders');
-            $table->unsignedInteger('supplier_product_id')->index();
+            $table->unsignedInteger('supplier_product_id')->nullable()->index();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
-            $table->unsignedInteger('historic_supplier_product_id')->index();
+            $table->unsignedInteger('historic_supplier_product_id')->nullable()->index();
             $table->foreign('historic_supplier_product_id')->references('id')->on('historic_supplier_products');
 
-            $table->unsignedInteger('org_supplier_product_id')->index();
+            $table->unsignedInteger('org_supplier_product_id')->nullable()->index();
+            $table->foreign('org_supplier_product_id')->references('id')->on('org_supplier_products');
 
+            $table->unsignedInteger('stock_id')->index();
+            $table->foreign('stock_id')->references('id')->on('stocks');
             $table->unsignedInteger('org_stock_id')->index();
+            $table->foreign('org_stock_id')->references('id')->on('org_stocks');
+
 
             $table->string('state')->index()->default(PurchaseOrderTransactionStateEnum::IN_PROCESS->value);
-            $table->string('status')->index()->default(PurchaseOrderTransactionStatusEnum::PROCESSING->value);
+            $table->string('delivery_status')->index()->default(PurchaseOrderTransactionDeliveryStatusEnum::PROCESSING->value);
 
             $table->decimal('quantity_ordered', 16, 3)->nullable();
             $table->decimal('quantity_dispatched', 16, 3)->default(0)->nullable();

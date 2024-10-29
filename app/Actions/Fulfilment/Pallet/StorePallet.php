@@ -15,6 +15,7 @@ use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydratePallets;
 use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydratePallets;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePallets;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
@@ -26,19 +27,24 @@ use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StorePallet extends OrgAction
 {
+    use WithNoStrictRules;
+
     private FulfilmentCustomer $fulfilmentCustomer;
 
     private PalletDelivery|FulfilmentCustomer $parent;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): Pallet
     {
-
         if (Arr::get($modelData, 'notes') === null) {
             data_set($modelData, 'notes', '');
         }
@@ -59,22 +65,26 @@ class StorePallet extends OrgAction
         data_set($modelData, 'group_id', $fulfilmentCustomer->group_id);
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
         data_set($modelData, 'fulfilment_id', $fulfilmentCustomer->fulfilment->id);
-        /** @var Pallet $pallet */
-        $pallet = $fulfilmentCustomer->pallets()->create($modelData);
 
-        if ($pallet->reference) {
-            $pallet->generateSlug();
-            $pallet->save();
-        }
-        $pallet->refresh();
+        $pallet = DB::transaction(function () use ($fulfilmentCustomer, $modelData) {
+            /** @var Pallet $pallet */
+            $pallet = $fulfilmentCustomer->pallets()->create($modelData);
 
+            if ($pallet->reference) {
+                $pallet->generateSlug();
+                $pallet->save();
+            }
+            $pallet->refresh();
 
-        FulfilmentCustomerHydratePallets::dispatch($fulfilmentCustomer);
-        FulfilmentHydratePallets::dispatch($fulfilmentCustomer->fulfilment);
-        OrganisationHydratePallets::dispatch($fulfilmentCustomer->organisation);
-        WarehouseHydratePallets::dispatch($pallet->warehouse);
+            return $pallet;
+        });
+
+        FulfilmentCustomerHydratePallets::dispatch($fulfilmentCustomer)->delay($this->hydratorsDelay);
+        FulfilmentHydratePallets::dispatch($fulfilmentCustomer->fulfilment)->delay($this->hydratorsDelay);
+        OrganisationHydratePallets::dispatch($fulfilmentCustomer->organisation)->delay($this->hydratorsDelay);
+        WarehouseHydratePallets::dispatch($pallet->warehouse)->delay($this->hydratorsDelay);
         if ($pallet->location && $pallet->location->warehouseArea) {
-            WarehouseAreaHydratePallets::dispatch($pallet->location->warehouseArea);
+            WarehouseAreaHydratePallets::dispatch($pallet->location->warehouseArea)->delay($this->hydratorsDelay);
         }
         PalletRecordSearch::dispatch($pallet);
 
@@ -93,7 +103,7 @@ class StorePallet extends OrgAction
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'customer_reference' => [
                 'sometimes',
                 'nullable',
@@ -122,11 +132,8 @@ class StorePallet extends OrgAction
                 Rule::enum(PalletTypeEnum::class)
             ],
             'notes'              => ['sometimes', 'nullable', 'string', 'max:1024'],
-            'created_at'         => ['sometimes', 'date'],
-            'received_at'        => ['sometimes', 'nullable', 'date'],
-            'booked_in_at'       => ['sometimes', 'nullable', 'date'],
-            'storing_at'         => ['sometimes', 'nullable', 'date'],
-            'source_id'          => ['sometimes', 'nullable', 'string'],
+
+
             'warehouse_id'       => [
                 'required',
                 'integer',
@@ -153,12 +160,24 @@ class StorePallet extends OrgAction
                 'integer',
                 Rule::exists('rentals', 'id')->where('auto_assign_asset', 'Pallet')
             ],
-            'fetched_at'          => ['sometimes', 'date'],
 
         ];
+
+        if (!$this->strict) {
+            $rules['received_at']  = ['sometimes', 'nullable', 'date'];
+            $rules['booked_in_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['storing_at']   = ['sometimes', 'nullable', 'date'];
+
+            $rules = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
     }
 
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(Organisation $organisation, FulfilmentCustomer $fulfilmentCustomer, PalletDelivery $palletDelivery, ActionRequest $request): Pallet
     {
         $this->parent             = $palletDelivery;
@@ -176,10 +195,18 @@ class StorePallet extends OrgAction
     }
 
 
-    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData, int $hydratorsDelay = 0): Pallet
+    /**
+     * @throws \Throwable
+     */
+    public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Pallet
     {
+        if (!$audit) {
+            Pallet::disableAuditing();
+        }
+
         $this->parent             = $fulfilmentCustomer;
         $this->asAction           = true;
+        $this->strict             = $strict;
         $this->hydratorsDelay     = $hydratorsDelay;
         $this->fulfilmentCustomer = $fulfilmentCustomer;
         $this->initialisationFromFulfilment($fulfilmentCustomer->fulfilment, $modelData);

@@ -89,7 +89,7 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
 
 
             if ($effectiveStock) {
-                $this->processOrgStock($organisationSource, $effectiveStock, $stockData);
+                $orgStock = $this->processOrgStock($organisationSource, $effectiveStock, $stockData);
             }
         }
 

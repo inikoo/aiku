@@ -1,9 +1,9 @@
 {
-	"slug": "footer",
+	"slug": "footer-1",
 	"scope": "website",
-	"code": "footer",
+	"code": "footer-1",
 	"name": "footer 1",
-	"fixed": true,
+	"component": "footer",
 	"icon": ["fal", "folder"],
 	"blueprint": [
 		{
@@ -11,11 +11,11 @@
 			"key": "body",
 			"type": "body",
 			"icon": "far fa-line-columns",
-			"bluprint": [
+			"blueprint": [
 				{
 					"name": "Body",
-					"key": "properties",
-					"type": "properties"
+					"key": ["container","properties"],
+					"type": ["properties"]
 				}
 			]
 		},
@@ -24,10 +24,10 @@
 			"key": "PaymentData",
 			"type": "payment_templates",
 			"icon": "fas fa-money-bill",
-			"bluprint": [
+			"blueprint": [
 				{
 					"name": "Payments",
-					"key": "PaymentData",
+					"key": ["PaymentData"],
 					"type": ["payment_templates"]
 				}
 			]
@@ -37,7 +37,7 @@
 			"key": "socialData",
 			"type": "socialMedia",
 			"icon": "fas fa-icons",
-			"bluprint": [
+			"blueprint": [
 				{
 					"name": "Social Media",
 					"key": "socialData",
@@ -47,7 +47,7 @@
 		}
 	],
 	"data": {
-		"footer": {
+		"fieldValue": {
 			"column": {
 				"column_1": {
 					"name": "column 1",

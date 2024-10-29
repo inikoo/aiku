@@ -107,8 +107,6 @@ interface SourceOrganisationService
 
     public function fetchPayment($id);
 
-    public function fetchOutbox($id);
-
     public function fetchMailshot($id);
 
     public function fetchDispatchedEmail($id);

@@ -143,6 +143,11 @@ class TradeUnit extends Model implements HasMedia, Auditable
 
     public function barcode(): MorphToMany
     {
-        return $this->morphToMany(Barcode::class, 'mode', 'model_has_barcode')->withTimestamps();
+        return $this->morphToMany(Barcode::class, 'model', 'model_has_barcode')->withTimestamps();
+    }
+
+    public function ingredients(): BelongsToMany
+    {
+        return $this->belongsToMany(Ingredient::class, 'trade_unit_has_ingredients');
     }
 }

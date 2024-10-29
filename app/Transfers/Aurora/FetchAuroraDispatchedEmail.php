@@ -31,7 +31,8 @@ class FetchAuroraDispatchedEmail extends FetchAurora
             }
         }
         if (!$parent) {
-            $parent = $this->parseOutbox($this->auroraModelData->{'Email Tracking Email Template Type Key'});
+            //todo get the outbox
+            //$parent= <-- get the outbox
         }
 
         $recipient = match ($this->auroraModelData->{'Email Tracking Recipient'}) {

@@ -1,5 +1,9 @@
 export const useFontFamilyList = [
     {
+        label: "Inter",
+        value: "Inter, sans-serif",
+    },
+    {
         label: "Arial",
         value: "Arial, sans-serif",
     },

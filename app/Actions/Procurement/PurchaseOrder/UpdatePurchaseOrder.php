@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\WithNoStrictProcurementOrderRules;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
@@ -19,6 +20,8 @@ class UpdatePurchaseOrder extends OrgAction
 {
     use WithActionUpdate;
     use WithNoStrictRules;
+    use WithNoStrictProcurementOrderRules;
+
 
 
     private PurchaseOrder $purchaseOrder;
@@ -40,7 +43,7 @@ class UpdatePurchaseOrder extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'number'       => [
+            'reference'       => [
                 'sometimes',
                 'required',
                 $this->strict ? 'alpha_dash' : 'string',
@@ -59,13 +62,13 @@ class UpdatePurchaseOrder extends OrgAction
                     ]
                 ) : null,
             ],
-            'date'            => ['sometimes', 'date'],
-            'parent_code'     => ['sometimes', 'required', 'string', 'max:256'],
-            'parent_name'     => ['sometimes', 'required', 'string', 'max:256'],
         ];
 
         if (!$this->strict) {
             $rules = $this->noStrictUpdateRules($rules);
+            $rules = $this->noStrictProcurementOrderRules($rules);
+            $rules = $this->noStrictPurchaseOrderDatesRules($rules);
+
         }
 
         return $rules;

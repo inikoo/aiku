@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
 use App\Models\SysAdmin\Group;
 use App\Models\Procurement\PurchaseOrder;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -39,18 +39,18 @@ class GroupHydratePurchaseOrders
         ];
 
 
-        $stats = array_merge(
-            $stats,
-            $this->getEnumStats(
-                model: 'purchase_orders',
-                field: 'status',
-                enum: PurchaseOrderStatusEnum::class,
-                models: PurchaseOrder::class,
-                where: function ($q) use ($group) {
-                    $q->where('group_id', $group->id);
-                }
-            )
-        );
+        // $stats = array_merge(
+        //     $stats,
+        //     $this->getEnumStats(
+        //         model: 'purchase_orders',
+        //         field: 'status',
+        //         enum: PurchaseOrderDeliveryStatusEnum::class,
+        //         models: PurchaseOrder::class,
+        //         where: function ($q) use ($group) {
+        //             $q->where('group_id', $group->id);
+        //         }
+        //     )
+        // );
 
 
         $stats = array_merge(

@@ -27,7 +27,6 @@ use App\Actions\Transfers\Aurora\FetchAuroraLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraMailshots;
 use App\Actions\Transfers\Aurora\FetchAuroraOfferCampaigns;
 use App\Actions\Transfers\Aurora\FetchAuroraOrders;
-use App\Actions\Transfers\Aurora\FetchAuroraOutboxes;
 use App\Actions\Transfers\Aurora\FetchAuroraPallets;
 use App\Actions\Transfers\Aurora\FetchAuroraPaymentAccounts;
 use App\Actions\Transfers\Aurora\FetchAuroraPayments;
@@ -80,12 +79,14 @@ use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
-use App\Models\Mail\Outbox;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
+use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgPartner;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\HistoricSupplierProduct;
 use App\Models\SupplyChain\Stock;
@@ -489,13 +490,13 @@ trait WithAuroraParsers
 
         if (!$orgStock) {
             $res = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
-
             $orgStock = $res['orgStock'];
         }
 
         if (!$orgStock) {
             $res      = FetchAuroraDeletedStocks::run($this->organisationSource, $sourceData[1]);
             $orgStock = $res['orgStock'];
+
         }
 
         return $orgStock;
@@ -611,16 +612,6 @@ trait WithAuroraParsers
         return $employee;
     }
 
-
-    public function parseOutbox($sourceId): ?Outbox
-    {
-        $outbox = Outbox::where('source_id', $sourceId)->first();
-        if (!$outbox) {
-            $outbox = FetchAuroraOutboxes::run($this->organisationSource, $sourceId);
-        }
-
-        return $outbox;
-    }
 
     public function parseClockingMachine($sourceId): ?ClockingMachine
     {
@@ -794,5 +785,35 @@ trait WithAuroraParsers
 
         return $upload;
     }
+
+    public function parseProcurementOrderParent($auroraParentType, $sourceId): null|OrgAgent|OrgSupplier|OrgPartner
+    {
+        $sourceData = explode(':', $sourceId);
+
+
+        if ($auroraParentType == 'Agent') {
+            $parent = $this->parseAgent(
+                $sourceId
+            );
+
+            return OrgAgent::where('organisation_id', $sourceData[0])->where('agent_id', $parent->id)->first();
+        } else {
+            $orgPartner = OrgPartner::whereJsonContains('sources->suppliers', $sourceId)
+                ->first();
+            if ($orgPartner) {
+                return $orgPartner;
+            }
+
+
+            $supplier = $this->parseSupplier($sourceId);
+            if ($supplier) {
+                return $supplier->orgSuppliers()->where('organisation_id', $sourceData[0])->first();
+            }
+        }
+
+
+        return null;
+    }
+
 
 }

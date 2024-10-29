@@ -11,8 +11,11 @@ use App\Actions\Fulfilment\Pallet\StorePallet;
 use App\Actions\Fulfilment\Pallet\UpdatePallet;
 use App\Models\Fulfilment\Pallet;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraPallets extends FetchAuroraAction
 {
@@ -25,23 +28,47 @@ class FetchAuroraPallets extends FetchAuroraAction
 
             if ($pallet = Pallet::withTrashed()->where('source_id', $palletData['pallet']['source_id'])
                 ->first()) {
-                $pallet = UpdatePallet::make()->action(
-                    pallet: $pallet,
-                    modelData: $palletData['pallet'],
-                    audit:false
-                );
+                try {
+                    $pallet = UpdatePallet::make()->action(
+                        pallet: $pallet,
+                        modelData: $palletData['pallet'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordChange($organisationSource, $pallet->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $palletData['pallet'], 'Pallet', 'update');
+                    return null;
+                }
             } else {
-                $pallet = StorePallet::make()->action(
-                    fulfilmentCustomer: $palletData['customer']->fulfilmentCustomer,
-                    modelData: $palletData['pallet'],
-                );
+                try {
+                    $pallet = StorePallet::make()->action(
+                        fulfilmentCustomer: $palletData['customer']->fulfilmentCustomer,
+                        modelData: $palletData['pallet'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    Pallet::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $pallet,
+                        Arr::except($palletData['pallet'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $pallet->source_id);
+                    DB::connection('aurora')->table('Fulfilment Asset Dimension')
+                        ->where('Fulfilment Asset Key', $sourceData[1])
+                        ->update(['aiku_id' => $pallet->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $palletData['pallet'], 'Pallet', 'store');
+                    return null;
+                }
+
+
             }
-
-
-            $sourceData = explode(':', $pallet->source_id);
-            DB::connection('aurora')->table('Fulfilment Asset Dimension')
-                ->where('Fulfilment Asset Key', $sourceData[1])
-                ->update(['aiku_id' => $pallet->id]);
 
             return $pallet;
         }

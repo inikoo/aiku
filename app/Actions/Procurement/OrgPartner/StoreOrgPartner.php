@@ -10,25 +10,28 @@ namespace App\Actions\Procurement\OrgPartner;
 use App\Actions\OrgAction;
 use App\Models\Procurement\OrgPartner;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreOrgPartner extends OrgAction
 {
+    /**
+     * @throws \Throwable
+     */
     public function handle(Organisation $organisation, Organisation $partner, $modelData = []): OrgPartner
     {
         data_set($modelData, 'group_id', $organisation->group_id);
-        data_set($modelData, 'organisation_id', $organisation->id);
         data_set($modelData, 'partner_id', $partner->id);
-
         data_set($modelData, 'status', $partner->status, false);
 
 
-        /** @var OrgPartner $orgPartner */
-        $orgPartner = OrgPartner::create($modelData);
-        $orgPartner->stats()->create();
+        return DB::transaction(function () use ($organisation, $modelData) {
+            /** @var OrgPartner $orgPartner */
+            $orgPartner = $organisation->orgPartners()->create($modelData);
+            $orgPartner->stats()->create();
 
-
-        return $orgPartner;
+            return $orgPartner;
+        });
     }
 
 
@@ -38,6 +41,9 @@ class StoreOrgPartner extends OrgAction
         ];
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function action(Organisation $organisation, Organisation $partner, $modelData = [], $hydratorsDelay = 0): OrgPartner
     {
         $this->asAction       = true;

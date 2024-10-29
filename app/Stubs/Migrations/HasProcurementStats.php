@@ -9,7 +9,7 @@ namespace App\Stubs\Migrations;
 
 use App\Enums\Procurement\OrgSupplierProduct\OrgSupplierProductStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
@@ -117,8 +117,8 @@ trait HasProcurementStats
         }
 
 
-        foreach (PurchaseOrderStatusEnum::cases() as $purchaseOrderStatus) {
-            $table->unsignedInteger('number_purchase_orders_status_'.$purchaseOrderStatus->snake())->default(0);
+        foreach (PurchaseOrderDeliveryStatusEnum::cases() as $purchaseOrderStatus) {
+            $table->unsignedInteger('number_purchase_orders_delivery_status_'.$purchaseOrderStatus->snake())->default(0);
         }
 
 

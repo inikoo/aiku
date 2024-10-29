@@ -8,7 +8,7 @@
 namespace App\Models\Procurement;
 
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
-use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStatusEnum;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\SysAdmin\Organisation;
@@ -38,38 +38,44 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property string $slug
- * @property string $parent_type OrgAgent|OrgSupplier|Organisation(intra-group sales)
+ * @property string $parent_type OrgAgent|OrgSupplier|Partner(intra-group sales)
  * @property int $parent_id
  * @property string $parent_code Parent code on the time of consolidation
  * @property string $parent_name Parent name on the time of consolidation
  * @property string $reference
- * @property array $data
  * @property PurchaseOrderStateEnum $state
- * @property PurchaseOrderStatusEnum $status
+ * @property PurchaseOrderDeliveryStatusEnum $delivery_status
  * @property \Illuminate\Support\Carbon $date latest relevant date
  * @property \Illuminate\Support\Carbon|null $submitted_at
  * @property \Illuminate\Support\Carbon|null $confirmed_at
- * @property \Illuminate\Support\Carbon|null $manufactured_at
- * @property \Illuminate\Support\Carbon|null $dispatched_at
- * @property \Illuminate\Support\Carbon|null $received_at
- * @property \Illuminate\Support\Carbon|null $checked_at
- * @property \Illuminate\Support\Carbon|null $settled_at
  * @property \Illuminate\Support\Carbon|null $cancelled_at
- * @property int $currency_id
- * @property string|null $grp_exchange
- * @property string|null $org_exchange
+ * @property int|null $agent_id
+ * @property int|null $supplier_id
+ * @property int|null $partner_id
  * @property int $number_of_items
  * @property float|null $gross_weight
  * @property float|null $net_weight
+ * @property int $currency_id
+ * @property string|null $grp_exchange
+ * @property string|null $org_exchange
  * @property string|null $cost_items
  * @property string|null $cost_extra
  * @property string|null $cost_shipping
  * @property string|null $cost_duties
  * @property string $cost_tax
  * @property string $cost_total
- * @property int|null $agent_id
- * @property int|null $supplier_id
- * @property int|null $partner_id
+ * @property int $number_stock_deliveries Number supplier deliveries
+ * @property int $number_stock_deliveries_except_cancelled Number supplier deliveries
+ * @property int $number_stock_deliveries_state_in_process
+ * @property int $number_stock_deliveries_state_dispatched
+ * @property int $number_stock_deliveries_state_received
+ * @property int $number_stock_deliveries_state_checked
+ * @property int $number_stock_deliveries_state_settled
+ * @property int $number_stock_deliveries_status_processing
+ * @property int $number_stock_deliveries_status_not_received
+ * @property int $number_stock_deliveries_status_settled_placed
+ * @property int $number_stock_deliveries_status_settled_cancelled
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -110,7 +116,7 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     protected $casts = [
         'data'               => 'array',
         'state'              => PurchaseOrderStateEnum::class,
-        'status'             => PurchaseOrderStatusEnum::class,
+        'delivery_status'             => PurchaseOrderDeliveryStatusEnum::class,
         'date'               => 'datetime',
         'submitted_at'       => 'datetime',
         'confirmed_at'       => 'datetime',

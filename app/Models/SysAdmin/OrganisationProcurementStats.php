@@ -42,15 +42,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_purchase_orders_state_in_process
  * @property int $number_purchase_orders_state_submitted
  * @property int $number_purchase_orders_state_confirmed
- * @property int $number_purchase_orders_state_manufactured
- * @property int $number_purchase_orders_state_dispatched
- * @property int $number_purchase_orders_state_received
- * @property int $number_purchase_orders_state_checked
  * @property int $number_purchase_orders_state_settled
- * @property int $number_purchase_orders_status_processing
- * @property int $number_purchase_orders_status_settled_placed
- * @property int $number_purchase_orders_status_settled_no_received
- * @property int $number_purchase_orders_status_settled_cancelled
+ * @property int $number_purchase_orders_state_cancelled
+ * @property int $number_purchase_orders_state_not_received
+ * @property int $number_purchase_orders_delivery_status_processing
+ * @property int $number_purchase_orders_delivery_status_confirmed
+ * @property int $number_purchase_orders_delivery_status_ready_to_ship
+ * @property int $number_purchase_orders_delivery_status_dispatched
+ * @property int $number_purchase_orders_delivery_status_received
+ * @property int $number_purchase_orders_delivery_status_checked
+ * @property int $number_purchase_orders_delivery_status_settled
+ * @property int $number_purchase_orders_delivery_status_not_received
+ * @property int $number_purchase_orders_delivery_status_settled_cancelled
  * @property int $number_stock_deliveries Number supplier deliveries
  * @property int $number_stock_deliveries_except_cancelled Number supplier deliveries
  * @property int $number_stock_deliveries_state_in_process

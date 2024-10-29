@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Web\Banner\StoreBanner;
 use App\Actions\Web\ExternalLink\StoreExternalLink;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
@@ -14,6 +15,7 @@ use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
+use App\Enums\Web\Banner\BannerTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
 use App\Enums\Web\Webpage\WebpageTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
@@ -21,6 +23,7 @@ use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Dropshipping\ModelHasWebBlocks;
 use App\Models\Helpers\Snapshot;
 use App\Models\Helpers\SnapshotStats;
+use App\Models\Web\Banner;
 use App\Models\Web\ExternalLink;
 use App\Models\Web\WebBlock;
 use App\Models\Web\WebBlockType;
@@ -267,3 +270,15 @@ test('hydrate website from command', function (Website $website) {
 
     expect($website->webStats->number_webpages)->toBe(9);
 })->depends('launch fulfilment website from command');
+
+test('store hello banner', function (Website $website) {
+    $banner = StoreBanner::make()->action($website, [
+        'name' => 'hello',
+        'type' => BannerTypeEnum::LANDSCAPE,
+    ]);
+
+    expect($banner)->toBeInstanceOf(Banner::class)
+        ->and($banner->name)->toBe('hello')
+        ->and($banner->type)->toBe(BannerTypeEnum::LANDSCAPE);
+
+})->depends('create b2b website');

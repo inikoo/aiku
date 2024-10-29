@@ -268,6 +268,42 @@ test('UI create customer client', function () {
     });
 });
 
+test('UI edit customer client', function () {
+    $response = get(route('grp.org.shops.show.crm.customers.show.customer-clients.edit', [$this->organisation->slug, $this->shop->slug, $this->customer->slug, $this->customerClient]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->where('title', 'edit client')
+            ->has(
+                'formData',
+                fn (AssertableInertia $form) => $form
+                    ->has('blueprint', 1)
+                    ->where('blueprint.0.title', 'contact')
+                    ->has('blueprint.0.fields.company_name')
+                    ->where('blueprint.0.fields.company_name.label', 'company')
+                    ->where('blueprint.0.fields.company_name.value', $this->customerClient->company_name)
+                    ->has('blueprint.0.fields.contact_name')
+                    ->where('blueprint.0.fields.contact_name.label', 'contact name')
+                    ->where('blueprint.0.fields.contact_name.value', $this->customerClient->contact_name)
+                    ->has('blueprint.0.fields.email')
+                    ->where('blueprint.0.fields.email.label', 'email')
+                    ->where('blueprint.0.fields.email.value', $this->customerClient->email)
+                    ->has('blueprint.0.fields.phone')
+                    ->where('blueprint.0.fields.phone.label', 'phone')
+                    ->where('blueprint.0.fields.phone.value', $this->customerClient->phone)
+                    ->etc()
+            )
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'edit client')
+                        ->has('actions')
+                        ->etc()
+            )
+            ->has('breadcrumbs', 5);
+    });
+});
+
 test('UI Index customer portfolios', function () {
     $response = $this->get(route('grp.org.shops.show.crm.customers.show.portfolios.index', [$this->organisation->slug, $this->shop->slug, $this->customer->slug]));
 
