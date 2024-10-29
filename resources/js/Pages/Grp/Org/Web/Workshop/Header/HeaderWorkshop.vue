@@ -151,7 +151,6 @@ const onPublish = async (action: routeType, popover: Function) => {
 const isLoadingSave = ref(false)
 const onProgress = ref(false)
 const autoSave = async (data: {}) => {
-    console.log('sssd',data)
     router.patch(
         route(props.autosaveRoute.name, props.autosaveRoute.parameters),
         { layout: data },

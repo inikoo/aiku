@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, IframeHTMLAttributes } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -115,16 +115,15 @@ watch(usedTemplates, (newVal) => {
 
 
 watch(previewMode, (newVal) => {
-    if (socketLayout) socketLayout.actions.send({ previewMode: newVal })
+    sendToIframe({key: 'isPreviewMode', value: newVal})
 }, { deep: true })
 
 
-onMounted(() => {
-    if (socketLayout) socketLayout.actions.send({ previewMode: previewMode })
-});
+const _iframe = ref<IframeHTMLAttributes | null>(null)
+const sendToIframe = (data: any) => {
+    _iframe.value?.contentWindow.postMessage(data, '*')
+}
 
-
-console.log('ini',usedTemplates.value)
 </script>
 
 <template>
@@ -140,7 +139,7 @@ console.log('ini',usedTemplates.value)
         <div v-if="usedTemplates" class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
             <div class="flex h-full">
                 <div class="w-[10%] bg-slate-200 ">
-                    <div v-for="(tab, index) in usedTemplates?.data.bluprint"
+                    <div v-for="(tab, index) in usedTemplates.blueprint"
                         class="py-2 px-3 cursor-pointer transition duration-300 ease-in-out transform hover:scale-105"
                         :title="tab.name" @click="tabsBar = index"
                         :class="[tabsBar == tab.key ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']" v-tooltip="tab.name">
@@ -149,8 +148,8 @@ console.log('ini',usedTemplates.value)
                     </div>
                 </div>
                 <div class="w-[90%]">
-                    <SideEditor v-model="usedTemplates.data.footer"
-                        :bluprint="usedTemplates.data.bluprint[tabsBar].bluprint" />
+                    <SideEditor v-model="usedTemplates.data.fieldValue"
+                        :bluprint="usedTemplates.blueprint[tabsBar].blueprint" />
                 </div>
             </div>
         </div>
@@ -189,7 +188,7 @@ console.log('ini',usedTemplates.value)
                     <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
                         <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
                     </div>
-                    <iframe :src="iframeSrc" :title="props.title"
+                    <iframe :src="iframeSrc" :title="props.title"  ref="_iframe"
                         :class="[iframeClass, isIframeLoading ? 'hidden' : '']" @error="handleIframeError"
                         @load="isIframeLoading = false" />
                 </div>

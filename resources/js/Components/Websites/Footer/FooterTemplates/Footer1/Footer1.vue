@@ -130,10 +130,11 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
     editable.value = !newStatus
 });
 
+console.log(props.modelValue)
 </script>
 
 <template>
-    <div id="app" class="py-24 md:px-7" :style="getStyles(modelValue.properties)">
+    <div id="app" class="py-24 md:px-7" :style="getStyles(modelValue.container.properties)">
         <div class="">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-8">
                 <div class="px-4 md:px-0 grid gap-y-2 md:gap-y-6 h-fit">
