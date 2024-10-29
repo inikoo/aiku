@@ -54,7 +54,6 @@ beforeEach(function () {
 });
 
 
-
 test('can show fulfilment website', function () {
 
     $website = $this->fulfilmentWebsite;
@@ -98,6 +97,95 @@ test('can show webpages list in fulfilment website', function () {
             ->has('data.data', 9);
     });
 });
+
+test('can show website workshop', function () {
+
+    $website = $this->fulfilmentWebsite;
+
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.web.websites.workshop',
+            [
+                $this->organisation->slug,
+                $this->fulfilment->slug,
+                $website->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Workshop/WebsiteWorkshop')
+            ->where('title', "Website's workshop")
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", "Workshop")->etc()
+            )
+            ->has('breadcrumbs', 3)
+            ->has('tabs');
+    });
+});
+
+test('can show website workshop (header)', function () {
+
+    $website = $this->fulfilmentWebsite;
+
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.web.websites.workshop.header',
+            [
+                $this->organisation->slug,
+                $this->fulfilment->slug,
+                $website->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Workshop/Header/HeaderWorkshop')
+            ->where('title', "Website Header's Workshop")
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", "Header's Workshop")->etc()
+            )
+            ->has('breadcrumbs', 0)
+            ->has('uploadImageRoute')
+            ->has('autosaveRoute')
+            ->has('route_list')
+            ->has('data')
+            ->has('web_block_types');
+    });
+});
+
+test('can show website workshop (footer)', function () {
+
+    $website = $this->fulfilmentWebsite;
+
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.web.websites.workshop.footer',
+            [
+                $this->organisation->slug,
+                $this->fulfilment->slug,
+                $website->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) use ($website) {
+        $page
+            ->component('Org/Web/Workshop/Footer/FooterWorkshop')
+            ->where('title', "footer")
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $website->code)->etc()
+            )
+            ->has('breadcrumbs', 0)
+            ->has('uploadImageRoute')
+            ->has('autosaveRoute')
+            ->has('data')
+            ->has('webBlockTypes');
+    });
+});
+
 
 test('index banner', function () {
     $response = get(
