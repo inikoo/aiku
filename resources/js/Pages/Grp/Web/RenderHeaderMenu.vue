@@ -72,8 +72,8 @@ const props = defineProps<{
     colorThemed: {
         color: string[]
     }
-    editDataTools : any
     loginMode:Boolean
+    previewMode:Boolean
 }>()
 
 console.log('inii',props)
@@ -88,7 +88,7 @@ console.log('inii',props)
             :is="getTopbarComponent(data?.topBar.code)"
             v-model="data.topBar.data.fieldValue"
             :loginMode="loginMode"
-            :previewMode="editDataTools.previewMode"
+            :previewMode="previewMode"
             :uploadImageRoute="null"
             :colorThemed="colorThemed"
         />
@@ -100,7 +100,7 @@ console.log('inii',props)
             :is="getComponentsHeader(data?.header?.code)"
             v-model="data.header.data.fieldValue"
             :loginMode="loginMode"
-            :previewMode="editDataTools.previewMode"
+            :previewMode="previewMode"
             :uploadImageRoute="null"
             :colorThemed="colorThemed"
         />

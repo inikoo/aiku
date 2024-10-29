@@ -14,7 +14,9 @@ use App\Actions\Procurement\OrgSupplier\UpdateOrgSupplier;
 use App\Actions\SupplyChain\Agent\DeleteAgent;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Agent\UpdateAgent;
+use App\Actions\SupplyChain\Supplier\DeleteSupplier;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
+use App\Actions\SupplyChain\Supplier\UpdateSupplier;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Models\Goods\TradeUnit;
 use App\Models\Procurement\OrgAgent;
@@ -96,6 +98,21 @@ test('create independent supplier', function () {
 
     return $supplier;
 });
+
+test('update supplier', function (Supplier $supplier) {
+    $modelData = [
+        'contact_name' => 'UpdatedName'
+    ];
+    $updatedSupplier     = UpdateSupplier::make()->action(
+        supplier: $supplier,
+        modelData: $modelData
+    );
+
+    expect($updatedSupplier)->toBeInstanceOf(Supplier::class)
+        ->and($updatedSupplier->contact_name)->toBe('UpdatedName');
+
+    return $updatedSupplier;
+})->depends('create independent supplier');
 
 test('create independent supplier 2', function () {
     $supplier = StoreSupplier::make()->action(
@@ -222,9 +239,19 @@ test('delete agent', function () {
     $agent = Agent::first();
 
     $deletedAgent = DeleteAgent::make()->action($agent);
-    
+
     expect(Agent::find($agent->id))->toBeNull();
 
     return $deletedAgent;
+});
+
+test('delete supplier', function () {
+    $supplier = Supplier::first();
+
+    $deletedSupplier = DeleteSupplier::make()->action($supplier);
+
+    expect(Supplier::find($supplier->id))->toBeNull();
+
+    return $deletedSupplier;
 });
 

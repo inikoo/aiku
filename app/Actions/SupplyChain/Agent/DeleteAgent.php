@@ -7,6 +7,7 @@
 
 namespace App\Actions\SupplyChain\Agent;
 
+use App\Actions\GrpAction;
 use App\Actions\OrgAction;
 use App\Models\SupplyChain\Agent;
 use Illuminate\Http\RedirectResponse;
@@ -15,7 +16,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteAgent extends OrgAction
+class DeleteAgent extends GrpAction
 {
     use AsController;
     use WithAttributes;

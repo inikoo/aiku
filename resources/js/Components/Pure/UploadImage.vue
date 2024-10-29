@@ -158,7 +158,7 @@ function onSave() {
 	</div>
 
 	<!-- command temporary -->
-	<!-- <div class="mt-8">
+	<div class="mt-8">
 		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
 			<div>Image URL</div>
 			<div>100 x 250</div>
@@ -171,7 +171,7 @@ function onSave() {
 		</IconField>
 	</div>
 
-	<div class="mt-8 ">
+	<div v-if="modelValue.width" class="mt-8 ">
 		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
 			<div>Width</div>
 		</div>
@@ -181,14 +181,14 @@ function onSave() {
 		</div>
 	</div>
 
-	<div class="mt-8">
+	<div v-if="modelValue.alt" class="mt-8">
 		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
 			<div>Alternate Text</div>
 		</div>
 		<InputText v-model="modelValue.alt" class="w-full" />
 	</div>
 
-	<div class="mt-8">
+	<div v-if="modelValue.properties.border" class="mt-8">
 		<div v-if="modelValue?.properties?.border" class="border-t border-gray-300">
 			<div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Border') }}</div>
 
@@ -205,8 +205,8 @@ function onSave() {
 			<div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Margin') }}</div>
 
 			<PaddingMarginProperty v-model="modelValue.properties.margin" />
-		</div> -->
-	<!-- </div> -->
+		</div>
+	</div>
 
 
 	<!-- <Gallery :open="isOpenGalleryImages" @on-close="isOpenGalleryImages = false" :uploadRoutes="''"
