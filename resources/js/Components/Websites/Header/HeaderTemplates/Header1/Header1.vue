@@ -63,9 +63,9 @@ const toggle = (event) => {
                 <!-- Logo -->
                 <div :style="getStyles(modelValue.logo.properties)">
 
-                    <img v-if="!modelValue.logo.src" :src="modelValue?.logo?.url" :alt="modelValue?.logo?.alt"
+                    <img v-if="!modelValue.logo.source" :src="modelValue?.logo?.url" :alt="modelValue?.logo?.alt"
                         :style="{ width: `${modelValue.logo.width}%` }" />
-                    <Image v-else :alt="modelValue?.logo?.alt" :src="modelValue?.logo?.src" :style="{ width: `${modelValue.logo.width}%` }"></Image>
+                    <Image v-else :alt="modelValue?.logo?.alt" :src="modelValue?.logo?.source" :style="{ width: `${modelValue.logo.width}%` }"></Image>
                 </div>
 
                 <!-- Search Bar -->

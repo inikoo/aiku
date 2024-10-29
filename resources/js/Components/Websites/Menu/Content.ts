@@ -7,7 +7,7 @@ import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundCo
 
 export const getComponent = (componentName: string) => {
     const components: Component = {
-        'menu1': Menu1,
+        'menu-1': Menu1,
     }
 
     return components[componentName] || NotFoundComponents
