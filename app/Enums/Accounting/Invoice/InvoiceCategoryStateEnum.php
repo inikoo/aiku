@@ -6,7 +6,6 @@
  * copyright 2024
 */
 
-
 namespace App\Enums\Accounting\Invoice;
 
 use App\Enums\EnumHelperTrait;
