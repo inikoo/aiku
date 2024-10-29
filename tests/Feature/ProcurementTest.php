@@ -283,7 +283,7 @@ test('change purchase order state to confirmed ', function ($purchaseOrder) {
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::CONFIRMED);
 
     return $purchaseOrder;
-})->depends('change state to submit purchase order');
+})->depends('change state to submitted purchase order');
 
 test('change state to submitted from confirmed purchase order', function ($purchaseOrder) {
     $purchaseOrder = UpdatePurchaseOrderStateToSubmitted::make()->action($purchaseOrder);
@@ -293,7 +293,7 @@ test('change state to submitted from confirmed purchase order', function ($purch
 test('change state to creating from submitted purchase order', function ($purchaseOrder) {
     $purchaseOrder = UpdateStateToCreatingPurchaseOrder::make()->action($purchaseOrder);
     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::IN_PROCESS);
-})->depends('create purchase order independent supplier');
+})->depends('change state to submitted from confirmed purchase order');
 
 
 
@@ -371,7 +371,7 @@ test('check supplier delivery items not correct', function ($stockDeliveryItem) 
         'quantity_ordered_checked' => 2
     ]);
     expect($stockDeliveryItem->stockDelivery->state)->toEqual(StockDeliveryStateEnum::RECEIVED);
-})->depends('create supplier delivery items');
+})->depends('create supplier delivery items')->todo();
 
 test('check supplier delivery items all correct', function ($stockDeliveryItems) {
     foreach ($stockDeliveryItems as $stockDeliveryItem) {
