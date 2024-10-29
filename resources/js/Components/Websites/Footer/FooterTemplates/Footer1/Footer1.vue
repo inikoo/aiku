@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
+import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 import draggable from "vuedraggable";
 import { v4 as uuidv4 } from 'uuid';
 import ContextMenu from 'primevue/contextmenu';

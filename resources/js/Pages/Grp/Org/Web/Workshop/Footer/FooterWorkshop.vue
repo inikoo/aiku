@@ -45,7 +45,16 @@ const isLoading = ref(false)
 const comment = ref('')
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
-const iframeSrc = ref(route('grp.websites.footer.preview', [route().params['website']]))
+console.log(route().params)
+const iframeSrc = ref(
+    route('grp.websites.footer.preview', [
+        route().params['website'],
+        {
+            isInWorkshop: "true",
+            organisation: route().params["organisation"],
+            shop: route().params["shop"],
+        }
+    ]))
 const socketLayout = SocketHeaderFooter(route().params['website']);
 
 
@@ -115,7 +124,7 @@ watch(usedTemplates, (newVal) => {
 
 
 watch(previewMode, (newVal) => {
-    sendToIframe({key: 'isPreviewMode', value: newVal})
+    sendToIframe({ key: 'isPreviewMode', value: newVal })
 }, { deep: true })
 
 
@@ -127,6 +136,7 @@ const sendToIframe = (data: any) => {
 </script>
 
 <template>
+
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
@@ -188,7 +198,7 @@ const sendToIframe = (data: any) => {
                     <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
                         <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
                     </div>
-                    <iframe :src="iframeSrc" :title="props.title"  ref="_iframe"
+                    <iframe :src="iframeSrc" :title="props.title" ref="_iframe"
                         :class="[iframeClass, isIframeLoading ? 'hidden' : '']" @error="handleIframeError"
                         @load="isIframeLoading = false" />
                 </div>

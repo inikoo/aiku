@@ -321,7 +321,7 @@ onBeforeUnmount(() => {
                     <div class="group relative inline-block w-20">
                         <div
                             class="text-sm py-1 px-2 border rounded-md cursor-pointer bg-white border-gray-300 hover:border-gray-400 flex items-center justify-between transition">
-                            <span id="tiptapfontsize">
+                            <span id="tiptapfontsize" class="text-black">
                                 {{ editorInstance?.getAttributes('textStyle').fontSize || 'Text size' }}
                             </span>
                             <FontAwesomeIcon 
@@ -333,7 +333,7 @@ onBeforeUnmount(() => {
                         </div>
 
                         <div
-                            class="w-min h-48 overflow-y-auto cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
+                            class="w-min h-48 overflow-y-auto text-black cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
                             <div
                                 v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
                                 :key="fontsize"
