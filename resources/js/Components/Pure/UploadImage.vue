@@ -60,10 +60,9 @@ const onUpload = async () => {
 			}
 		)
 		const updatedModelValue = JSON.parse(JSON.stringify(props.modelValue));
-		updatedModelValue.src = cloneDeep(response.data.data[0].source)
+		updatedModelValue.source = cloneDeep(response.data.data[0].source)
 		emits("update:modelValue", updatedModelValue);
 	} catch (error) {
-		console.error("error", error)
 		notify({
 			title: "Failed",
 			text: "Error while Uploading data",
@@ -100,7 +99,7 @@ const drop = (e) => {
 const onPickImage = (e) => {
 	isOpenGalleryImages.value = false;
 	const updatedModelValue = JSON.parse(JSON.stringify(props.modelValue));
-	updatedModelValue.src = cloneDeep(e[0].source)
+	updatedModelValue.source = cloneDeep(e[0].source)
 	emits("update:modelValue", updatedModelValue);
 };
 
@@ -112,6 +111,8 @@ const onClickButton = () => {
 function onSave() {
 	emits("autoSave")
 }
+
+console.log(props.modelValue)
 </script>
 
 <template>
@@ -171,6 +172,13 @@ function onSave() {
 		</IconField>
 	</div>
 
+	<div class="mt-8">
+		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
+			<div>Alternate Text</div>
+		</div>
+		<InputText v-model="modelValue.alt" class="w-full" />
+	</div>
+
 	<div v-if="modelValue.width" class="mt-8 ">
 		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
 			<div>Width</div>
@@ -179,13 +187,6 @@ function onSave() {
 			<Slider v-model="modelValue.width" class="w-[85%] transition-all duration-300 ease-in-out" />
 			<div class="text-xs font-bold text-gray-500">{{ modelValue?.width }}%</div>
 		</div>
-	</div>
-
-	<div v-if="modelValue.alt" class="mt-8">
-		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
-			<div>Alternate Text</div>
-		</div>
-		<InputText v-model="modelValue.alt" class="w-full" />
 	</div>
 
 	<div v-if="modelValue.properties.border" class="mt-8">

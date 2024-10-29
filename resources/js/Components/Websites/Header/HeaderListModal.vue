@@ -17,7 +17,7 @@ const props = defineProps<{
         icon: string | string[]
         name: string
     }[]
-    currentTopbar: {}
+    currentTopbar?: {}
 }>()
 
 const currentTopbarCode = props.currentTopbar?.code
@@ -28,13 +28,10 @@ const currentTopbarCode = props.currentTopbar?.code
         <div class="flex-1 p-4">
             <section aria-labelledby="products-heading" class="h-full mx-auto w-full sm:px-6 lg:px-8 overflow-y-auto">
                 <div class="relative grid  gap-y-8 gap-x-4 overflow-y-auto overflow-x-hidden">
-                    <div v-for="block in webBlockTypes"
-                        :key="block.code"
-                        class="overflow-hidden h-fit group flex flex-col gap-x-2 relative "
-                    >
+                    <div v-for="block in webBlockTypes" :key="block.code"
+                        class="overflow-hidden h-fit group flex flex-col gap-x-2 relative ">
                         <div class="mb-1 w-fit"
-                            :class="block.code === currentTopbarCode ? 'text-indigo-500 font-semibold shadow-xl' : 'bg-white'"
-                        >
+                            :class="block.code === currentTopbarCode ? 'text-indigo-500 font-semibold shadow-xl' : 'bg-white'">
                             <div v-if="block?.icon" class="flex items-center justify-center">
                                 <FontAwesomeIcon :icon='block?.icon' class='' fixed-width aria-hidden='true' />
                             </div>
@@ -44,11 +41,15 @@ const currentTopbarCode = props.currentTopbar?.code
                             </h3>
                         </div>
 
-                        <div @click="() => onSelectBlock(block)" class="min-h-16 max-h-20 w-full aspect-[4/1] overflow-hidden flex items-center bg-gray-100 justify-center border border-gray-300 hover:border-indigo-500 rounded cursor-pointer">
-                            <div class="w-auto shadow-md">
-                                <Image :src="block.screenshot" class="object-contain"/>
+                        <slot name="image" :block="block">
+                            <div @click="() => onSelectBlock(block)"
+                                class="min-h-16 max-h-20 w-full aspect-[4/1] overflow-hidden flex items-center bg-gray-100 justify-center border border-gray-300 hover:border-indigo-500 rounded cursor-pointer">
+                                <div class="w-auto shadow-md">
+                                    <Image :src="block.screenshot" class="object-contain" />
+                                </div>
                             </div>
-                        </div> 
+                        </slot>
+
                     </div>
                 </div>
             </section>

@@ -16,7 +16,7 @@ use App\Models\Accounting\CreditTransaction;
 
 class DeleteCreditTransaction extends OrgAction
 {
-    public function handle(CreditTransaction $creditTransaction): void
+    public function handle(CreditTransaction $creditTransaction): CreditTransaction
     {
         $customer = $creditTransaction->customer;
         $creditTransaction->delete();
@@ -25,12 +25,14 @@ class DeleteCreditTransaction extends OrgAction
         ShopHydrateCreditTransactions::dispatch($creditTransaction->shop);
         OrganisationHydrateCreditTransactions::dispatch($creditTransaction->organisation);
         GroupHydrateCreditTransactions::dispatch($creditTransaction->group);
+
+        return $creditTransaction;
     }
 
-    public function action(CreditTransaction $creditTransaction): void
+    public function action(CreditTransaction $creditTransaction): CreditTransaction
     {
         $this->asAction = true;
         $this->initialisationFromShop($creditTransaction->shop, []);
-        $this->handle($creditTransaction);
+        return $this->handle($creditTransaction);
     }
 }
