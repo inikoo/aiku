@@ -3,6 +3,7 @@ import { ref } from "vue"
 import { trans } from "laravel-vue-i18n"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
+import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
 import Image from "@/Components/Image.vue"
 import IconField from 'primevue/iconfield';
 import InputIcon from 'primevue/inputicon';
@@ -12,12 +13,14 @@ import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 import PaddingMarginProperty from '@/Components/Websites/Fields/Properties/PaddingMarginProperty.vue'
 import BorderProperty from '@/Components/Websites/Fields/Properties/BorderProperty.vue'
+import Modal from "@/Components/Utils/Modal.vue"
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faImage, faPhotoVideo, faLink } from "@fal"
 
 import { routeType } from "@/types/route"
+import { cloneDeep } from "lodash"
 
 
 library.add(faImage, faPhotoVideo, faLink)
@@ -38,6 +41,7 @@ const emits = defineEmits<{
 const isOpenGalleryImages = ref(false)
 const isDragging = ref(false)
 const fileInput = ref(null)
+const addedFiles = ref([])
 
 const onUpload = async () => {
 	try {
@@ -54,7 +58,9 @@ const onUpload = async () => {
 				},
 			}
 		)
-		emits("update:modelValue", response.data.data[0])
+		const updatedModelValue = JSON.parse(JSON.stringify(props.modelValue));
+		updatedModelValue.src = cloneDeep(response.data.data[0].source)
+		emits("update:modelValue", updatedModelValue);
 	} catch (error) {
 		console.error("error", error)
 		notify({
@@ -87,13 +93,14 @@ const drop = (e) => {
 }
 
 const onPickImage = (e) => {
-	isOpenGalleryImages.value = false
-	emits("update:modelValue", e)
-}
+	isOpenGalleryImages.value = false;
+	const updatedModelValue = JSON.parse(JSON.stringify(props.modelValue));
+	updatedModelValue.src = cloneDeep(e[0].source)
+	emits("update:modelValue", updatedModelValue);
+};
 
 
 const onClickButton = () => {
-	console.log(fileInput.value)
 	fileInput.value?.click()
 }
 
@@ -101,8 +108,7 @@ const onClickButton = () => {
 
 <template>
 	<div>
-		<button type="submit"
-			@click="onClickButton"
+		<button type="submit" @click="onClickButton"
 			class="flex w-full justify-center bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
 			Upload Image
 		</button>
@@ -195,8 +201,13 @@ const onClickButton = () => {
 	</div>
 
 
-	<Gallery :open="isOpenGalleryImages" @on-close="isOpenGalleryImages = false" :uploadRoutes="''"
-		@onPick="onPickImage" :tabs="['images_uploaded', 'stock_images']" />
+	<!-- <Gallery :open="isOpenGalleryImages" @on-close="isOpenGalleryImages = false" :uploadRoutes="''"
+		@onPick="onPickImage" :tabs="['images_uploaded', 'stock_images']" /> -->
+
+	<Modal :isOpen="isOpenGalleryImages" @onClose="() => (isOpenGalleryImages = false)" width="w-3/4">
+		<GalleryManagement :maxSelected="1" :tabs="['images_uploaded', 'stock_images']"
+			:closePopup="() => (isOpenGalleryImages = false)" @submitSelectedImages="onPickImage" />
+	</Modal>
 </template>
 
 <style scoped></style>

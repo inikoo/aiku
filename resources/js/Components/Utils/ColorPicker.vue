@@ -68,7 +68,7 @@ const opacityToHexCode = (opacity: number) => {
                     theme="dark"
                     :color="color"
                     :sucker-hide="true"
-                    @changeColor="(e) => {emits('changeColor', {...e, hex: e.hex + opacityToHexCode(e.rgba.a)}),overlayPanel.hide()}"
+                    @changeColor="(e) => {emits('changeColor', {...e, hex: e.hex + opacityToHexCode(e.rgba.a)})}"
                 />
                 
                 <div @click="overlayPanel.hide()" class="absolute top-0 right-0 mt-1 mr-1">

@@ -19,7 +19,7 @@ import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { faPresentation, faCube, faText, faPaperclip, faExternalLink } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faHeart } from '@far'
+import { faHeading, faHeart, faSignIn } from '@far'
 import { faBrowser } from '@fal'
 
 import { trans } from 'laravel-vue-i18n'
@@ -62,13 +62,13 @@ const tabs = [
         label: "Topbar settings",
         componentName: "topbar",
         key: 'topBar',
-        icon: faPresentation,
+        icon: faSignIn,
     },
     {
         label: "Website header",
         componentName: "header",
         key: 'header',
-        icon: faPresentation,
+        icon: faHeading,
     }
 ]
 const keySidebar = ref(0)
@@ -151,6 +151,7 @@ const onPublish = async (action: routeType, popover: Function) => {
 const isLoadingSave = ref(false)
 const onProgress = ref(false)
 const autoSave = async (data: {}) => {
+    console.log('sssd',data)
     router.patch(
         route(props.autosaveRoute.name, props.autosaveRoute.parameters),
         { layout: data },
@@ -216,7 +217,6 @@ watch(usedTemplates, (newVal) => {
 
 
 const selectedWebBlock = computed(() => {
-    console.log(selectedTab.value,props.web_block_types)
     return props.web_block_types.filter(item => item.data.component === selectedTab.value.componentName)
 })
 
