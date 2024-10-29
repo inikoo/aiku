@@ -7,6 +7,7 @@
 
 use App\Actions\Web\Banner\StoreBanner;
 use App\Actions\Web\Website\LaunchWebsite;
+use App\Enums\UI\Web\WebsiteTabsEnum;
 use App\Enums\Web\Banner\BannerTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Web\Banner;
@@ -72,6 +73,118 @@ test('can show fulfilment website', function () {
         $page
             ->component('Org/Web/Website')
             ->has('title')
+            ->has('breadcrumbs', 2);
+    });
+});
+
+test('can show fulfilment website (tab showcase)', function () {
+
+    $website = $this->fulfilmentWebsite;
+
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.web.websites.show',
+            [
+                $this->organisation->slug,
+                $this->fulfilment->slug,
+                $website->slug,
+                'tab' => WebsiteTabsEnum::SHOWCASE->value
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Website')
+            ->has('title')
+            ->has(
+                "tabs",
+                fn (AssertableInertia $page) => $page->where("current", WebsiteTabsEnum::SHOWCASE->value)->etc()
+            )
+            ->has(WebsiteTabsEnum::SHOWCASE->value)
+            ->has('breadcrumbs', 2);
+    });
+});
+
+test('can show fulfilment website (tab external links)', function () {
+
+    $website = $this->fulfilmentWebsite;
+
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.web.websites.show',
+            [
+                $this->organisation->slug,
+                $this->fulfilment->slug,
+                $website->slug,
+                'tab' => WebsiteTabsEnum::EXTERNAL_LINKS->value
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Website')
+            ->has('title')
+            ->has(
+                "tabs",
+                fn (AssertableInertia $page) => $page->where("current", WebsiteTabsEnum::EXTERNAL_LINKS->value)->etc()
+            )
+            ->has(WebsiteTabsEnum::EXTERNAL_LINKS->value)
+            ->has('breadcrumbs', 2);
+    });
+});
+
+test('can show fulfilment website (tab analytics)', function () {
+
+    $website = $this->fulfilmentWebsite;
+
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.web.websites.show',
+            [
+                $this->organisation->slug,
+                $this->fulfilment->slug,
+                $website->slug,
+                'tab' => WebsiteTabsEnum::ANALYTICS->value
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Website')
+            ->has('title')
+            ->has(
+                "tabs",
+                fn (AssertableInertia $page) => $page->where("current", WebsiteTabsEnum::ANALYTICS->value)->etc()
+            )
+            ->has(WebsiteTabsEnum::ANALYTICS->value)
+            ->has('breadcrumbs', 2);
+    });
+})->todo();
+
+test('can show fulfilment website (tab web users)', function () {
+
+    $website = $this->fulfilmentWebsite;
+
+    $response = get(
+        route(
+            'grp.org.fulfilments.show.web.websites.show',
+            [
+                $this->organisation->slug,
+                $this->fulfilment->slug,
+                $website->slug,
+                'tab' => WebsiteTabsEnum::WEB_USERS->value
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Website')
+            ->has('title')
+            ->has(
+                "tabs",
+                fn (AssertableInertia $page) => $page->where("current", WebsiteTabsEnum::WEB_USERS->value)->etc()
+            )
+            ->has(WebsiteTabsEnum::WEB_USERS->value)
             ->has('breadcrumbs', 2);
     });
 });
