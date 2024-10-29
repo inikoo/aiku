@@ -446,7 +446,9 @@ onBeforeUnmount(() => {
         </BubbleMenu>
 
         <div class="flex flex-col">
-            <EditorContent :editor="editorInstance" />
+            <slot name="editor-content" :editor="editorInstance">
+                <EditorContent :editor="editorInstance" />
+            </slot>
         </div>
 
         <TiptapLinkCustomDialog v-if="showLinkDialogCustom" :show="showLinkDialogCustom" :attribut="currentLinkInDialog"

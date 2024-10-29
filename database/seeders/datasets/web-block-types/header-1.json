@@ -1,6 +1,6 @@
 {
 	"scope": "website",
-	"slug": "header",
+	"slug": "header-1",
 	"code": "header-1",
 	"name": "Header 1",
 	"component": "header",
@@ -11,42 +11,40 @@
 				"icon": "fal fa-rectangle-wide",
 				"tooltip": "Container"
 			},
-			"key": [
-				"container",
-				"properties"
-			],
-			"type": [
-				"properties"
-			],
+			"key": ["container", "properties"],
+			"type": ["properties"],
 			"props_data": {}
-		},
-		{
-			"name": "Button 1",
-			"key": "gold_member",
-			"replaceForm": [
-				{
-					"key": ["gold_member","visible"],
-					"type": ["VisibleLoggedIn"]
-				},
-				{
-					"key": "gold_member",
-					"type": "EditorAndPanelProperties"
-				}
-			]
 		},
 		{
 			"name": "Logo",
 			"key": "logo",
 			"replaceForm": [
 				{
-					"key": ["logo","visible"],
-					"type": [
-						"VisibleLoggedIn"
-					]
+					"key": ["logo", "visible"],
+					"type": ["VisibleLoggedIn"]
 				},
 				{
 					"key": "logo",
 					"type": "upload_image"
+				}
+			]
+		},
+		{
+			"name": "Button 1",
+			"key": "button_1",
+			"replaceForm": [
+				{
+					"key": ["button_1", "visible"],
+					"type": ["VisibleLoggedIn"]
+				},
+
+				{
+					"key": ["button_1", "text"],
+					"type": ["editorhtml"]
+				},
+				{
+					"key": ["button_1", "properties"],
+					"type": "properties"
 				}
 			]
 		}
@@ -57,20 +55,77 @@
 				"properties": {
 					"background": {
 						"type": "color",
-						"color": "#fffff",
+						"color": "#ffff",
 						"image": {
 							"original": null
 						}
 					},
-					"text": {
-						"color": "rgba(255,255,255,1)",
-						"fontFamily": "Raleway"
+					"padding": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"margin": {
+						"unit": "px",
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
+					},
+					"border": {
+						"color": "#000000",
+						"unit": "px",
+						"rounded": {
+							"unit": "px",
+							"topright": {
+								"value": 0
+							},
+							"topleft": {
+								"value": 0
+							},
+							"bottomright": {
+								"value": 0
+							},
+							"bottomleft": {
+								"value": 0
+							}
+						},
+						"top": {
+							"value": 0
+						},
+						"left": {
+							"value": 0
+						},
+						"right": {
+							"value": 0
+						},
+						"bottom": {
+							"value": 0
+						}
 					}
 				}
 			},
 			"logo": {
 				"visible": "all",
-				"src": null,
+				"src": {},
 				"url": "https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png",
 				"alt": "",
 				"width": 50,
@@ -138,7 +193,7 @@
 					}
 				}
 			},
-			"gold_member": {
+			"button_1": {
 				"visible": "all",
 				"text": "Become a Gold Reward Member",
 				"properties": {
