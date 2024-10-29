@@ -325,14 +325,14 @@ test('create supplier delivery items', function (StockDelivery $stockDelivery) {
     expect($supplier->stock_delivery_id)->toBe($stockDelivery->id);
 
     return $supplier;
-})->depends('create supplier delivery')->todo();
+})->depends('create supplier delivery');
 
 test('create supplier delivery items by selected purchase order', function (StockDelivery $stockDelivery, $items) {
     $supplier = StoreStockDeliveryItemBySelectedPurchaseOrderTransaction::run($stockDelivery, $items->pluck('id')->toArray());
     expect($supplier)->toBeArray();
 
     return $supplier;
-})->depends('create supplier delivery', 'add item to purchase order')->todo();
+})->depends('create supplier delivery', 'add item to purchase order');
 
 test('change supplier delivery state to dispatch from creating', function (StockDelivery $stockDelivery) {
     expect($stockDelivery)->toBeInstanceOf(StockDelivery::class)
