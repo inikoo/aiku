@@ -12,6 +12,7 @@ use App\Actions\Procurement\OrgAgent\UpdateOrgAgent;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\OrgSupplier\UpdateOrgSupplier;
 use App\Actions\SupplyChain\Agent\StoreAgent;
+use App\Actions\SupplyChain\Agent\UpdateAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Models\Goods\TradeUnit;
@@ -50,6 +51,21 @@ test('create agent', function () {
 
     return $agent;
 });
+
+test('update agent', function (Agent $agent) {
+    $modelData = [
+        'name' => 'UpdatedName'
+    ];
+    $updatedAgent     = UpdateAgent::make()->action(
+        agent: $agent,
+        modelData: $modelData
+    );
+
+    expect($updatedAgent)->toBeInstanceOf(Agent::class)
+        ->and($updatedAgent->name)->toBe('UpdatedName');
+
+    return $updatedAgent;
+})->depends('create agent');
 
 
 test('create another agent', function () {
