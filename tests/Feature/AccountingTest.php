@@ -7,6 +7,7 @@
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\StorePayment;
+use App\Actions\Accounting\Payment\UpdatePayment;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
@@ -167,6 +168,21 @@ test(
         return $payment;
     }
 )->depends('create payment account');
+
+test(
+    'update payment',
+    function (Payment $payment) {
+        $modelData = [
+            'reference' => 'TST1010'
+        ];
+        $updatedPayment = UpdatePayment::make()->action($payment, $modelData);
+
+        expect($updatedPayment)->toBeInstanceOf(Payment::class)
+            ->and($updatedPayment->reference)->toBe('TST1010');
+
+        return $updatedPayment;
+    }
+)->depends('create payment');
 
 test('create and set success 1st top up', function ($payment) {
     $topUp = StoreTopUp::make()->action($payment, [
