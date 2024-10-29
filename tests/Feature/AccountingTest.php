@@ -13,6 +13,7 @@ use App\Actions\Accounting\PaymentAccount\UpdatePaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\UpdatePaymentServiceProvider;
 use App\Actions\Accounting\TopUp\SetTopUpStatusToSuccess;
 use App\Actions\Accounting\TopUp\StoreTopUp;
+use App\Actions\Accounting\TopUp\UpdateTopUp;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Catalogue\Shop\StoreShop;
@@ -397,4 +398,19 @@ test('check Group stats 3rd time', function ($topUp) {
         ->and($group->accountingStats->number_top_ups_status_fail)->toBe(0)
         ->and($group->accountingStats->number_credit_transactions)->toBe(2);
 
+    return $topUp;
+
 })->depends('create 3rd top up');
+
+test('update top up', function (TopUp $topUp) {
+    $modelData = [
+        'amount' => 100000
+    ];
+    $updatedTopUp = UpdateTopUp::make()->action($topUp, $modelData);
+
+    expect($updatedTopUp)->toBeInstanceOf(TopUp::class)
+        ->and($updatedTopUp->amount)->toBe('100000.00');
+
+    return $updatedTopUp;
+
+})->depends('check Group stats 3rd time');
