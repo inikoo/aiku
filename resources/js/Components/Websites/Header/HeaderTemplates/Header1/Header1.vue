@@ -78,10 +78,10 @@ const toggle = (event) => {
 
                 <!-- Gold Member Button -->
                 <div class="justify-self-end w-fit">
-                    <button :style="getStyles(modelValue.gold_member.properties)"
+                    <button :style="getStyles(modelValue.button_1.properties)"
                         class="flex items-center justify-center px-4 py-2 bg-gold-500 text-white rounded-md shadow-md hover:bg-gold-600 transition duration-300 w-fit"
                         v-if="loginMode">
-                        <Editor v-model="modelValue.gold_member.text" :editable="false" />
+                        <Editor v-model="modelValue.button_1.text" :editable="false" />
                     </button>
                 </div>
 
