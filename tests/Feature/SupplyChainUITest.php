@@ -74,3 +74,18 @@ test('UI show supplier', function () {
 
     });
 });
+
+test('UI Index agents', function () {
+
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.supply-chain.agents.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SupplyChain/Agents')
+            ->has('title')
+            ->has('pageHead')
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
