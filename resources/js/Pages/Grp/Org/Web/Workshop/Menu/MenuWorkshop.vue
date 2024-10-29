@@ -53,7 +53,7 @@ const props = defineProps<{
   uploadImageRoute: routeType
   data: {}
   autosaveRoute: routeType
-  webBlockTypeCategories: Object
+  webBlockTypes: Object
 }>()
 
 
@@ -116,6 +116,7 @@ const onPublish = async (action: routeType, popover: Funcition) => {
 }
 
 const onPickTemplate = (menu: Object) => {
+  console.log(menu)
   isModalOpen.value = false
   Navigation.value = menu
 }
@@ -159,6 +160,7 @@ const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, {
   leading: false,
   trailing: true,
 })
+
 watch(
   Navigation,
   (newVal) => {
@@ -178,14 +180,15 @@ watch(
         @onPublish="(popover) => onPublish(action.route, popover)" />
     </template>
   </PageHeading>
+
   <div v-if="Navigation.data" class="h-[85vh] grid grid-flow-row-dense grid-cols-4">
     <div class="col-span-1 bg-slate-200 px-3 py-2 flex flex-col h-full">
       <div class="flex justify-between">
         <div class="font-bold text-sm">Navigations:</div>
         <Button type="create" label="Add Navigation" size="xs"
-          v-if="Navigation?.data?.navigation?.length < 8 && !previewMode" @click="addNavigation"></Button>
+          v-if="Navigation?.data?.fieldValue.navigation?.length < 8 && !previewMode" @click="addNavigation"></Button>
       </div>
-      <draggable :list="Navigation.data.navigation" ghost-class="ghost" group="column" itemKey="id"
+      <draggable :list="Navigation.data.fieldValue.navigation" ghost-class="ghost" group="column" itemKey="id"
         class="mt-2 space-y-1" :animation="200">
         <template #item="{ element, index }">
           <div @click="selectedNav = index" :class="[
@@ -225,7 +228,6 @@ watch(
             </div>
             <Switch @click="previewMode = !previewMode" :class="[previewMode ? 'bg-slate-600' : 'bg-slate-300']"
               class="pr-1 relative inline-flex h-3 w-6 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
-              <!-- <span class="sr-only">Use setting</span> -->
               <span aria-hidden="true" :class="previewMode ? 'translate-x-3' : 'translate-x-0'"
                 class="pointer-events-none inline-block h-full w-1/2 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out" />
             </Switch>
@@ -235,7 +237,7 @@ watch(
           </div>
         </div>
 
-        <EditMode v-if="!previewMode" :Navigation="Navigation?.data?.navigation" :selectedNav="selectedNav" />
+        <EditMode v-if="!previewMode" :Navigation="Navigation?.data?.fieldValue?.navigation" :selectedNav="selectedNav" />
         <div v-else class="h-full w-full bg-slate-100">
           <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
             <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
@@ -248,7 +250,7 @@ watch(
     </div>
   </div>
 
-  <div v-else  class="h-[85vh]">
+  <div v-else class="h-[85vh]">
     <EmptyState :data="{ description: 'You need pick a template from list', title: 'Pick Menu Templates' }">
       <template #button-empty-state>
         <div class="mt-4 block">
@@ -259,7 +261,7 @@ watch(
   </div>
 
   <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
-    <BlockList :onPickBlock="onPickTemplate" :webBlockTypes="webBlockTypeCategories" scope="website" />
+    <BlockList :onPickBlock="onPickTemplate" :webBlockTypes="webBlockTypes" scope="website" />
   </Modal>
 </template>
 

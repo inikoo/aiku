@@ -107,6 +107,11 @@ console.log('inii',props)
 
 
         <!-- Section: Menu -->
-        <NavigationMenu v-if="menu" :data="menu" :colorThemed="colorThemed" class="hidden md:block" />
+        <NavigationMenu 
+            v-if="menu" 
+            :data="menu?.menu" 
+            :colorThemed="colorThemed" 
+            class="hidden md:block" 
+        />
     </div>
 </template>

@@ -54,7 +54,7 @@ class IndexPickings extends OrgAction
 
         $query->leftJoin('employees as picker_employees', 'pickings.picker_id', '=', 'picker_employees.id');
         $query->leftJoin('employees as packer_employees', 'pickings.packer_id', '=', 'packer_employees.id');
-        
+
         return $query->defaultSort('pickings.id')
             ->select([
                 'pickings.id',

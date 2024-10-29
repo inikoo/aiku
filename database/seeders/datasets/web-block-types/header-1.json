@@ -125,9 +125,9 @@
 			},
 			"logo": {
 				"visible": "all",
-				"src": null,
+				"source": null,
 				"url": "https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png",
-				"alt": "",
+				"alt": "image",
 				"width": 50,
 				"properties": {
 					"padding": {

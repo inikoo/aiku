@@ -220,20 +220,18 @@ const sendToIframe = (data: any) => {
     </div>
 
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
-        <HeaderListModal 
-            :onSelectBlock="onPickTemplate"
-            :webBlockTypes="webBlockTypes.data.filter((item)=>item.component == 'footer')"
-            :currentTopbar="usedTemplates"
-        >
-        <template #image="{block}">
-            <div  @click="()=>onPickTemplate"
-                                class="min-h-16 w-full aspect-[2/1] overflow-hidden flex items-center bg-gray-100 justify-center border border-gray-300 hover:border-indigo-500 rounded cursor-pointer">
-                                <div class="w-auto shadow-md">
-                                    <Image :src="block.screenshot" class="object-contain" />
-                                </div>
-                            </div>
-        </template>
-    </HeaderListModal>
+        <HeaderListModal :onSelectBlock="onPickTemplate"
+            :webBlockTypes="webBlockTypes.data.filter((item) => item.component == 'footer')"
+            :currentTopbar="usedTemplates">
+            <template #image="{ block }">
+                <div @click="() => onPickTemplate"
+                    class="min-h-16 w-full aspect-[2/1] overflow-hidden flex items-center bg-gray-100 justify-center border border-gray-300 hover:border-indigo-500 rounded cursor-pointer">
+                    <div class="w-auto shadow-md">
+                        <Image :src="block.screenshot" class="object-contain" />
+                    </div>
+                </div>
+            </template>
+        </HeaderListModal>
     </Modal>
 </template>
 

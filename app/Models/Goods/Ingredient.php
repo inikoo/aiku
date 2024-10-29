@@ -6,7 +6,6 @@
  * copyright 2024
 */
 
-
 namespace App\Models\Goods;
 
 use App\Models\SysAdmin\Group;
