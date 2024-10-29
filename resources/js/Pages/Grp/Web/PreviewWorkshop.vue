@@ -39,13 +39,7 @@ const props = defineProps<{
 
 const debouncedSendUpdateBlock = debounce((block) => sendBlockUpdate(block), 1000, { leading: false, trailing: true })
 const debouncedSendUpdateFooter = debounce((footer) => autoSave(footer), 1000, { leading: false, trailing: true })
-
 const data = ref(cloneDeep(props.webpage))
-const editDataTools = ref({
-    previewMode: !props.webpage ? false : true,
-    isLoggedIn: true,
-})
-
 const layout = reactive({
     header: { ...props.header?.data },
     footer: { ...props.footer?.footer },
@@ -86,6 +80,7 @@ const autoSave = async (data: Object) => {
 }
 
 const isPreviewLoggedIn = ref(false)
+const isPreviewMode = ref(false)
 
 onMounted(() => {
     if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { data.value = { ...value } });
@@ -94,18 +89,13 @@ onMounted(() => {
         layout.footer = value.footer.footer;
         layout.navigation = value.navigation; 
     });
-    window.Echo.join(`header-footer.${route().params['website']}.preview`)
-        .listenForWhisper("otherIsNavigating", (event) => {
-            editDataTools.value = {
-                ...editDataTools.value,
-                previewMode: event.data.previewMode
-            }
-        });
-
     window.addEventListener('message', (event) => {
         // Listen: if workshop change toggle logged in
         if (event.data.key === 'isPreviewLoggedIn') {
             isPreviewLoggedIn.value = event.data.value
+        }
+        if (event.data.key === 'isPreviewMode') {
+            isPreviewMode.value = event.data.value
         }
     });
 });
@@ -134,6 +124,7 @@ const iframeToParent = (data: any) => {
 }
 
 provide('isPreviewLoggedIn', isPreviewLoggedIn)
+provide('isPreviewMode', isPreviewMode)
 
 
 
@@ -167,7 +158,7 @@ const ShowWebpage = (activityItem) => {
                 :data="layout.header"
                 :menu="layout?.navigation"
                 :colorThemed="layout?.colorThemed"
-                :editDataTools="editDataTools"
+                :previewMode="isPreviewMode"
                 :loginMode="isPreviewLoggedIn"
             />
         </div>        
@@ -223,9 +214,8 @@ const ShowWebpage = (activityItem) => {
         <component
             v-if="footer?.footer?.data"
             :is="getComponentFooter(layout.footer.code)"
-            v-model="layout.footer.data.footer"
-            :keyTemplate="layout.footer"
-            :previewMode="editDataTools.previewMode"
+            v-model="layout.footer.data.fieldValue"
+            :previewMode="isPreviewMode"
             :colorThemed="layout.colorThemed"
         />
     </div>
