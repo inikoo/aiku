@@ -8,7 +8,6 @@
 namespace App\Actions\Procurement\StockDelivery\UI;
 
 use App\Actions\Helpers\Media\UI\IndexAttachments;
-use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\Procurement\StockDeliveryTabsEnum;
@@ -112,7 +111,7 @@ class ShowStockDelivery extends OrgAction
         return new StockDeliveryResource($this->stockDelivery);
     }
 
-    public function getBreadcrumbs(StockDelivery $stockDelivery, array $routeParameters, string $suffix = '' ): array
+    public function getBreadcrumbs(StockDelivery $stockDelivery, array $routeParameters, string $suffix = ''): array
     {
         return array_merge(
             (new ShowProcurementDashboard())->getBreadcrumbs($routeParameters),

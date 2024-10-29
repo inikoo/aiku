@@ -8,7 +8,6 @@
 namespace App\Actions\SupplyChain\Agent;
 
 use App\Actions\GrpAction;
-use App\Actions\OrgAction;
 use App\Models\SupplyChain\Agent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -30,8 +29,7 @@ class DeleteAgent extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->asAction)
-        {
+        if ($this->asAction) {
             return true;
         }
         return $request->user()->hasPermissionTo("procurement.edit");

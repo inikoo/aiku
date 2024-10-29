@@ -254,4 +254,3 @@ test('delete supplier', function () {
 
     return $deletedSupplier;
 });
-

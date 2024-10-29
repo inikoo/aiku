@@ -479,7 +479,7 @@ test('add tag to location', function ($location) {
     ]);
 
     expect($tag)->toBeInstanceOf(Tag::class);
-    
+
     $location = SyncTagsLocation::make()->action($location, [
         'tags' => [$tag->tag_slug],
     ]);
@@ -490,7 +490,7 @@ test('add tag to location', function ($location) {
         ->and($location->tags()->count())->toBe(1);
 
     return $location;
-    
+
 })->depends('create location in warehouse area');
 
 test('remove lost stock', function ($lostAndFoundStock) {
