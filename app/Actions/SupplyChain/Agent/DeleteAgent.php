@@ -7,6 +7,7 @@
 
 namespace App\Actions\SupplyChain\Agent;
 
+use App\Actions\OrgAction;
 use App\Models\SupplyChain\Agent;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -14,7 +15,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteAgent
+class DeleteAgent extends OrgAction
 {
     use AsController;
     use WithAttributes;
@@ -28,7 +29,17 @@ class DeleteAgent
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction)
+        {
+            return true;
+        }
         return $request->user()->hasPermissionTo("procurement.edit");
+    }
+
+    public function action(Agent $agent): Agent
+    {
+        $this->asAction = true;
+        return $this->handle($agent);
     }
 
     public function asController(Agent $agent, ActionRequest $request): Agent
