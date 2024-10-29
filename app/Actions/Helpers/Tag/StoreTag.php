@@ -79,6 +79,11 @@ class StoreTag extends OrgAction
         return new TagResource($tag);
     }
 
+    public function action(array $modelData): Tag
+    {
+        $this->asAction = true;
+        return $this->handle($modelData);
+    }
 
     public function inLocation(Location $location, ActionRequest $request): Tag
     {
