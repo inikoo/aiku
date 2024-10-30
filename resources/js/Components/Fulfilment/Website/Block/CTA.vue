@@ -5,7 +5,7 @@
   -->
 
 <script setup lang="ts">
-import { faCube, faLink } from "@fal"
+import { faCube, faLink, faImage } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { ref } from "vue"
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
@@ -13,7 +13,7 @@ import Image from "@/Components/Image.vue"
 import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
 import { getStyles } from "@/Composables/styles"
 
-library.add(faCube, faLink)
+library.add(faCube, faLink, faImage)
 
 const props = defineProps<{
 	modelValue: any
@@ -48,26 +48,41 @@ const onUpload = (e) => {
 		console.error("No files or multiple files detected.")
 	}
 }
-
-console.log(props.modelValue)
 </script>
 
 <template>
 	<div class="relative" :style="getStyles(modelValue.container.properties)">
 		<div
-			@click="
-				() => {
-					if (isEditable) openGallery = !openGallery
-				}
-			"
 			class="relative h-80 overflow-hidden bg-indigo-600 md:absolute md:left-0 md:h-full md:w-1/3 lg:w-1/2">
+			<!-- Edit button to open the gallery, conditionally shown based on isEditable -->
+			<button
+				v-if="isEditable"
+				@click.stop="openGallery.value = !openGallery.value"
+				style="position: absolute; top: 10px; left: 10px; z-index: 10">
+				<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
+			</button>
+
+			<!-- Fallback image if modelValue.image.source is not available -->
 			<img
-				v-if="!modelValue?.image"
+				v-if="!modelValue?.image?.source"
 				src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png"
 				alt="Informative Image"
 				class="h-full w-full object-cover" />
-			<Image v-else :src="modelValue?.image?.source" class="h-full w-full object-cover" />
+
+			<!-- Clickable link with Image component if modelValue.image.source is available -->
+			<a
+				v-else
+				:href="modelValue?.image?.url || '#'"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="block h-full w-full">
+				<Image
+					:src="modelValue?.image?.source"
+					:alt="modelValue?.image?.alt"
+					class="h-full w-full object-cover" />
+			</a>
 		</div>
+
 		<div class="relative mx-auto max-w-7xl py-24 sm:py-32 lg:px-8 lg:py-40">
 			<div class="pl-6 pr-6 md:ml-auto md:w-2/3 md:pl-16 lg:w-1/2 lg:pl-24 lg:pr-0 xl:pl-32">
 				<Editor
