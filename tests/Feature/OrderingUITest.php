@@ -80,3 +80,22 @@ test('UI create asset shipping', function () {
             ->has('formData');
     });
 });
+
+test('UI show asset shipping', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.assets.shipping.show', [$this->organisation, $this->shop, $this->shippingZoneSchema]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/ShippingZoneSchema')
+            ->where('title', 'Shipping Zone Schema')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->shippingZoneSchema->name)
+                        ->etc()
+            )
+            ->has('navigation')
+            ->has('tabs');
+    });
+});
