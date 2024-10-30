@@ -7,6 +7,7 @@
 
 namespace Database\Factories\Discounts;
 
+use App\Enums\Discounts\OfferCampaign\OfferCampaignTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class OfferCampaignFactory extends Factory
@@ -15,7 +16,8 @@ class OfferCampaignFactory extends Factory
     {
         return [
             'code' => fake()->lexify,
-            'name' => fake()->name
+            'name' => fake()->name,
+            'type' => OfferCampaignTypeEnum::SHOP_OFFERS
         ];
     }
 }
