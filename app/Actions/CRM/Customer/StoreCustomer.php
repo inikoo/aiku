@@ -17,6 +17,7 @@ use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCustomers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCustomers;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
@@ -44,6 +45,7 @@ class StoreCustomer extends OrgAction
 {
     use AsCommand;
     use WithModelAddressActions;
+    use WithNoStrictRules;
 
 
     /**
@@ -184,7 +186,10 @@ class StoreCustomer extends OrgAction
                     ]
                 ),
             ],
-            'phone'                    => ['nullable', new Phone()],
+            'phone'                    => [
+                'nullable',
+                $this->strict ? new Phone() : 'string:255',
+            ],
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
             'contact_website'          => ['sometimes', 'nullable', 'active_url'],
             'contact_address'          => ['required', new ValidAddress()],
@@ -224,9 +229,9 @@ class StoreCustomer extends OrgAction
                 ),
             ];
             $rules['contact_website'] = ['sometimes', 'nullable', 'string', 'max:255'];
-            $rules['deleted_at']      = ['sometimes', 'nullable', 'date'];
-            $rules['fetched_at']      = ['sometimes', 'date'];
-            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
+
+
+            $rules = $this->noStrictStoreRules($rules);
         }
 
         return $rules;

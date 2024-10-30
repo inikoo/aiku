@@ -13,6 +13,7 @@ use App\Actions\Helpers\TaxNumber\DeleteTaxNumber;
 use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Http\Resources\CRM\CustomersResource;
@@ -28,6 +29,7 @@ class UpdateCustomer extends OrgAction
 {
     use WithActionUpdate;
     use WithModelAddressActions;
+    use WithNoStrictRules;
 
     private Customer $customer;
 
@@ -132,7 +134,11 @@ class UpdateCustomer extends OrgAction
                     ]
                 ),
             ],
-            'phone'                    => ['sometimes', 'nullable', new Phone()],
+            'phone'                    => [
+                'sometimes',
+                'nullable',
+                $this->strict ? new Phone() : 'string:255',
+            ],
             'identity_document_number' => ['sometimes', 'nullable', 'string'],
             'contact_website'          => ['sometimes', 'nullable', 'active_url'],
             'contact_address'          => ['sometimes', 'required', new ValidAddress()],
@@ -146,10 +152,9 @@ class UpdateCustomer extends OrgAction
         ];
 
 
-
         if (!$this->strict) {
-            $rules['phone']           = ['sometimes', 'string', 'max:255'];
-            $rules['email'] = [
+            $rules['phone']           = ['sometimes', 'nullable', 'string', 'max:255'];
+            $rules['email']           = [
                 'sometimes',
                 'nullable',
                 'string',
@@ -165,10 +170,7 @@ class UpdateCustomer extends OrgAction
                 ),
             ];
             $rules['contact_website'] = ['sometimes', 'nullable', 'string', 'max:255'];
-            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
-            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
-
+            $rules                    = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;
