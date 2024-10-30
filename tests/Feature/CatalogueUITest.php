@@ -431,3 +431,16 @@ test('UI create Charges', function () {
             ->has('formData');
     });
 });
+
+test('UI edit Charges', function () {
+    $response = get(route('grp.org.shops.show.assets.charges.edit', [$this->organisation->slug, $this->shop->slug, $this->charge->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('pageHead')
+            ->has('formData');
+    });
+});
