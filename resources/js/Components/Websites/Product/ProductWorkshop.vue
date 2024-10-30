@@ -21,7 +21,7 @@ library.add(faRocketLaunch)
 const props = defineProps<{
     data: {
         settings: string,
-        updateProductTemplate: routeType
+        updateRoute: routeType
     }
 }>()
 
@@ -38,6 +38,7 @@ const optionsToogle = ref([
     { name: 'Membership', value: 'member' }
 ])
 
+console.log(props.data)
 
 
 const toggle = (event) => {
@@ -64,7 +65,7 @@ const onPublish = async (action: {}, popover: {}) => {
 
     try {
         isLoading.value = true
-        const response = await axios.patch(route(props.data[0].updateProductTemplate.name, props.data[0].updateProductTemplate.parameters), { data: usedTemplates.value, comment: comment.value })
+        const response = await axios.patch(route(props.data.updateRoute.name, props.data.updateRoute.parameters), { data: usedTemplates.value, comment: comment.value })
         console.log(response)
     } catch (error) {
         const errorMessage = error.response?.data?.message || error.message || "Unknown error occurred"
