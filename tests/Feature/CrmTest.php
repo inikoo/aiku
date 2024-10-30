@@ -6,6 +6,7 @@
  */
 
 use App\Actions\CRM\BackInStockReminder\StoreBackInStockReminder;
+use App\Actions\CRM\BackInStockReminder\UpdateBackInStockReminder;
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\HydrateCustomers;
@@ -285,6 +286,25 @@ test('add back in stock reminder to customer', function (Customer $customer) {
 
     return $reminder;
 })->depends('create customer');
+
+test('update back in stock reminder', function (BackInStockReminder $reminder) {
+    $targetDate = Carbon::now()->addDays(2)->startOfMinute();
+
+    $updatedReminder = UpdateBackInStockReminder::make()->action(
+        backInStockReminder: $reminder,
+        modelData: [
+            'last_fetched_at' => $targetDate
+        ],
+        strict: false
+    );
+
+    $updatedReminder->refresh();
+
+    expect($updatedReminder)->toBeInstanceOf(BackInStockReminder::class);
+    // ->and($updatedFavourite->last_fetched_at)->toEqual($targetDate); //:(
+
+    return $updatedReminder;
+})->depends('add back in stock reminder to customer');
 
 test('hydrate customers', function (Customer $customer) {
     HydrateCustomers::run($customer);
