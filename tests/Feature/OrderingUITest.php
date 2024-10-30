@@ -62,3 +62,21 @@ test('UI index asset shipping', function () {
             ->has('data');
     });
 });
+
+test('UI create asset shipping', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.assets.shipping.create', [$this->organisation, $this->shop]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->where('title', 'new schema')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'new schema')
+                        ->etc()
+            )
+            ->has('formData');
+    });
+});
