@@ -3,7 +3,7 @@ import { getComponent as getComponentsHeader } from '@/Components/CMS/Website/He
 import NavigationMenu from './MenuRender.vue'
 import { routeType } from "@/types/route"
 import IrisLoginInformation from '@/Layouts/Iris/IrisLoginInformation.vue'
-import { getTopbarComponent } from '@/Components/Websites/Topbar/TopbarList'
+import { getTopbarComponent } from '@/Components/CMS/Website/TopBars/TopbarList'
 
 const props = defineProps<{
     data: {
@@ -82,7 +82,7 @@ console.log('inii',props)
 <template>
     <div>
         <!-- <pre>{{ data.topBar.data }}</pre> -->
-        <!-- Section: Topbar -->
+        <!-- Section: TopBars -->
         <component
             v-if="data?.topBar?.data.fieldValue"
             :is="getTopbarComponent(data?.topBar.code)"

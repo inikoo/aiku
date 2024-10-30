@@ -166,7 +166,7 @@ console.log("environment:", usePage().props.environment);
                 "
                 class="flex border border-gray-300 rounded-md"
             >
-                <!-- Dropdown: Topbar -->
+                <!-- Dropdown: TopBars -->
                 <Menu v-if="layoutStore.group || (layoutStore.organisations.data.length > 1)" as="div" class="relative inline-block text-left">
                     <TopBarSelectButton
                         :icon="

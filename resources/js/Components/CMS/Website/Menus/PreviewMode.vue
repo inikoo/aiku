@@ -1,7 +1,7 @@
 <!--
   - Author: Raul Perusquia <raul@inikoo.com>
-  - Created: Tue, 22 Aug 2023 19:44:06 Malaysia Time, Kuala Lumpur, Malaysia
-  - Copyright (c) 2023, Raul A Perusquia Flores
+  - Created: Wed, 30 Oct 2024 16:00:09 Malaysia Time, Kuala Lumpur, Malaysia
+  - Copyright (c) 2024, Raul A Perusquia Flores
   -->
 
 <script setup lang="ts">
@@ -10,7 +10,7 @@ import draggable from "vuedraggable";
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import { data as dataHeader, bluprintForm as bluprintFormHeader} from '@/Components/Websites/Header/HeaderTemplates/Header1/descriptor'
 import { getRenderComponent  as getRenderComponentHeader} from "@/Components/CMS/Website/Headers/Content"
-import { getComponent } from "@/Components/Websites/Menu/Content"
+import { getComponent } from "@/Components/CMS/Website/Menus/Content"
 
 
 import { library } from '@fortawesome/fontawesome-svg-core';

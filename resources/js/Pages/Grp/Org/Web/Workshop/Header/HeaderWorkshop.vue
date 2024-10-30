@@ -59,7 +59,7 @@ const isIframeLoading = ref(true)
 const iframeSrc = ref(route('grp.websites.header.preview', [route().params['website']]))
 const tabs = [
     {
-        label: "Topbar settings",
+        label: "TopBars settings",
         componentName: "topbar",
         key: 'topBar',
         icon: faSignIn,

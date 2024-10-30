@@ -6,7 +6,7 @@ import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { computed, ref } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import Tabs from "@/Components/Navigation/Tabs.vue"
-import LayoutWorkshop from "@/Components/Websites/Layout/LayoutWorkshop.vue"
+import LayoutWorkshop from "@/Components/CMS/Website/Layout/LayoutWorkshop.vue"
 import WorkshopProduct from "@/Components/Websites/Product/ProductWorkshop.vue"
 import { capitalize } from "@/Composables/capitalize"
 import CategoryWorkshop from '@/Components/Websites/Category/CategoryWorkshop.vue'

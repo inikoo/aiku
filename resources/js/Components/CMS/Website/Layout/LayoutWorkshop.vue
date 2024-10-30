@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import { useColorTheme } from '@/Composables/useStockList'
-import ColorSchemeWorkshopWebsite from '@/Components/Websites/Layout/ColorSchemeWorkshopWebsite.vue'
+import ColorSchemeWorkshopWebsite from '@/Components/CMS/Website/Layout/ColorSchemeWorkshopWebsite.vue'
 import { routeType } from '@/types/route'
 import { Link } from '@inertiajs/vue3'
 import Button from '@/Components/Elements/Buttons/Button.vue'

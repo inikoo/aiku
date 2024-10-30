@@ -8,9 +8,9 @@
 import type { Component } from 'vue'
 
 //Components
-import Topbar1 from '@/Components/Websites/Topbar/Template/Topbar1.vue'
-import Topbar2 from '@/Components/Websites/Topbar/Template/Topbar2.vue'
-import Topbar3 from '@/Components/Websites/Topbar/Template/Topbar3.vue'
+import Topbar1 from '@/Components/CMS/Website/TopBars/Template/Topbar1.vue'
+import Topbar2 from '@/Components/CMS/Website/TopBars/Template/Topbar2.vue'
+import Topbar3 from '@/Components/CMS/Website/TopBars/Template/Topbar3.vue'
 import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundComponent.vue'
 
 
