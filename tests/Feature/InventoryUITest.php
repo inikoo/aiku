@@ -274,6 +274,23 @@ test("UI Index Stock Families", function () {
     });
 });
 
+test("UI Create stock family", function () {
+    $response = get(
+        route("grp.goods.stock-families.create")
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("CreateModel")
+            ->has("title")
+            ->has("breadcrumbs", 4)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", "new SKU family")->etc()
+            )
+            ->has("formData");
+    });
+});
+
 test("UI Show Stock Family", function () {
     $this->withoutExceptionHandling();
     $response = get(
