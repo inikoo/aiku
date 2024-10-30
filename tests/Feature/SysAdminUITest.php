@@ -69,3 +69,25 @@ test('UI index organisation', function () {
             );
     });
 });
+
+test('UI edit organisation', function () {
+    $response = get(
+        route(
+            'grp.organisations.edit',
+            [$this->organisation->slug]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->where('title', 'organisation')
+            ->has('breadcrumbs', 3)
+            ->has('formData')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->organisation->name)
+                        ->etc()
+            );
+    });
+});
