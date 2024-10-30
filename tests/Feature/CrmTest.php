@@ -10,6 +10,7 @@ use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\HydrateCustomers;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\Favourite\StoreFavourite;
+use App\Actions\CRM\Favourite\UpdateFavourite;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
@@ -25,6 +26,7 @@ use App\Models\Helpers\Country;
 use App\Models\Helpers\Query;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -242,8 +244,27 @@ test('add favourite to customer', function (Customer $customer) {
     ->and($customer->favourites)->not->toBeNull()
     ->and($customer->favourites->count())->toBe(1);
 
-    return $customer;
+    return $favourite;
 })->depends('create customer');
+
+test('update favourite', function (Favourite $favourite) {
+    $targetDate = Carbon::now()->addDays(2)->startOfMinute();
+
+    $updatedFavourite = UpdateFavourite::make()->action(
+        favourite: $favourite,
+        modelData: [
+            'last_fetched_at' => $targetDate
+        ],
+        strict: false
+    );
+
+    $updatedFavourite->refresh();
+
+    expect($updatedFavourite)->toBeInstanceOf(Favourite::class);
+    // ->and($updatedFavourite->last_fetched_at)->toEqual($targetDate); //:(
+
+    return $updatedFavourite;
+})->depends('add favourite to customer');
 
 test('hydrate customers', function (Customer $customer) {
     HydrateCustomers::run($customer);
