@@ -11,7 +11,7 @@ import { notify } from "@kyvg/vue3-notification"
 import Publish from '@/Components/Publish.vue'
 import { debounce } from 'lodash'
 import ScreenView from "@/Components/ScreenView.vue"
-import HeaderListModal from '@/Components/Websites/Header/HeaderListModal.vue'
+import HeaderListModal from '@/Components/CMS/Website/Headers/HeaderListModal.vue'
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'

@@ -13,7 +13,7 @@ import debounce from 'lodash/debounce'
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { socketWeblock, SocketHeaderFooter } from '@/Composables/SocketWebBlock'
 import RenderHeaderMenu from './RenderHeaderMenu.vue'
-import { getComponent as getComponentFooter } from '@/Components/Websites/Footer/Content'
+import { getComponent as getComponentFooter } from '@/Components/CMS/Website/Footers/Content'
 import { usePage } from '@inertiajs/vue3'
 import { useColorTheme } from '@/Composables/useStockList'
 import { cloneDeep } from 'lodash'

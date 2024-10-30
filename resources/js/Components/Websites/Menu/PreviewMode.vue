@@ -9,7 +9,7 @@
 import draggable from "vuedraggable";
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import { data as dataHeader, bluprintForm as bluprintFormHeader} from '@/Components/Websites/Header/HeaderTemplates/Header1/descriptor'
-import { getRenderComponent  as getRenderComponentHeader} from "@/Components/Websites/Header/Content"
+import { getRenderComponent  as getRenderComponentHeader} from "@/Components/CMS/Website/Headers/Content"
 import { getComponent } from "@/Components/Websites/Menu/Content"
 
 

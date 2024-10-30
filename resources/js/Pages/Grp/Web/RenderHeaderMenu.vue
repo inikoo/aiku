@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { getComponent as getComponentsHeader } from '@/Components/Websites/Header/Content'
+import { getComponent as getComponentsHeader } from '@/Components/CMS/Website/Headers/Content'
 import NavigationMenu from './MenuRender.vue'
 import { routeType } from "@/types/route"
 import IrisLoginInformation from '@/Layouts/Iris/IrisLoginInformation.vue'

@@ -25,7 +25,7 @@ import { faIcons, faMoneyBill, faUpload, faDownload } from '@fas';
 import { faLineColumns } from '@far';
 import { faExternalLink } from '@fal';
 import { library } from '@fortawesome/fontawesome-svg-core'
-import HeaderListModal from '@/Components/Websites/Header/HeaderListModal.vue'
+import HeaderListModal from '@/Components/CMS/Website/Headers/HeaderListModal.vue'
 import ListItem from '@tiptap/extension-list-item'
 library.add(faExternalLink, faLineColumns, faIcons, faMoneyBill, faUpload, faDownload)
 

@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { getRenderComponent } from "@/Components/Websites/Header/Content"
+import { getRenderComponent } from "@/Components/CMS/Website/Headers/Content"
 import NavigationMenu from '@/Layouts/Iris/NavigationMenu.vue'
 import { routeType } from "@/types/route"
 

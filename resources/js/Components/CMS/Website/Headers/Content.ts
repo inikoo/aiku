@@ -1,13 +1,13 @@
 import type { Component } from 'vue'
 
 //Components
-import Header1 from '@/Components/Websites/Header/HeaderTemplates/Header1/Header1.vue'
+import Header1 from '@/Components/CMS/Website/Headers/Header1Workshop.vue'
 import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundComponent.vue'
 
 
 
 //render componnets
-import RenderHeader1 from '@/Components/Websites/Header/HeaderTemplates/Header1/RenderHeader1.vue'
+import RenderHeader1 from '@/Components/CMS/Website/Headers/Header1Iris.vue'
 
 export const getComponent = (componentName: string) => {
     const components: Component = {

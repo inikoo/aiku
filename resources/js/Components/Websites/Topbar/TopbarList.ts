@@ -18,7 +18,7 @@ import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundCo
 // import { data as dataHeader1, bluprintForm as bluprintForm1  } from '@/Components/Websites/Header/HeaderTemplates/Header1/descriptor'
 
 //render componnets
-// import RenderHeader1 from '@/Components/Websites/Header/HeaderTemplates/Header1/RenderHeader1.vue'
+// import RenderHeader1 from '@/Components/Websites/Header/HeaderTemplates/Header1/Header1Iris.vue'
 
 export const getTopbarComponent = (componentName: string) => {
     const components: Component = {

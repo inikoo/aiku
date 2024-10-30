@@ -1,7 +1,7 @@
 import type { Component } from 'vue'
 
 //Components
-import Footer1 from '@/Components/Websites/Footer/FooterTemplates/Footer1/Footer1.vue'
+import Footer1 from '@/Components/CMS/Website/Footers/Footer1Workshop.vue'
 import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundComponent.vue'
 
 
