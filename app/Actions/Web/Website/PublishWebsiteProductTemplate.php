@@ -26,7 +26,6 @@ class PublishWebsiteProductTemplate extends OrgAction
 {
     use WithActionUpdate;
     use HasWebAuthorisation;
-    use WebsiteProductContentManagement;
 
     public function handle(Website $website, array $modelData): Website
     {
