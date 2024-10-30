@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\CRM\BackInStockReminder\StoreBackInStockReminder;
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\HydrateCustomers;
@@ -26,6 +27,7 @@ use App\Models\Helpers\Country;
 use App\Models\Helpers\Query;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
+use App\Models\Reminder\BackInStockReminder;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia;
 
@@ -265,6 +267,24 @@ test('update favourite', function (Favourite $favourite) {
 
     return $updatedFavourite;
 })->depends('add favourite to customer');
+
+test('add back in stock reminder to customer', function (Customer $customer) {
+    $reminder = StoreBackInStockReminder::make()->action(
+        $customer,
+        $this->product,
+        []
+    );
+
+    $customer->refresh();
+
+    expect($reminder)->toBeInstanceOf(BackInStockReminder::class);
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+    ->and($customer->backInStockReminder)->not->toBeNull()
+    ->and($customer->backInStockReminder->count())->toBe(1);
+
+    return $reminder;
+})->depends('create customer');
 
 test('hydrate customers', function (Customer $customer) {
     HydrateCustomers::run($customer);
