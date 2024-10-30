@@ -12,6 +12,8 @@ use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\HydrateCustomers;
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\CRM\CustomerNote\StoreCustomerNote;
+use App\Actions\CRM\CustomerNote\UpdateCustomerNote;
 use App\Actions\CRM\Favourite\StoreFavourite;
 use App\Actions\CRM\Favourite\UpdateFavourite;
 use App\Actions\CRM\Prospect\StoreProspect;
@@ -23,6 +25,7 @@ use App\Enums\Mail\Mailshot\MailshotStateEnum;
 use App\Enums\Mail\Mailshot\MailshotTypeEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\CRM\Customer;
+use App\Models\CRM\CustomerNote;
 use App\Models\CRM\Favourite;
 use App\Models\CRM\Prospect;
 use App\Models\Helpers\Country;
@@ -316,6 +319,45 @@ test('delete back in stock reminder', function (BackInStockReminder $reminder) {
 
     return $deletedReminder;
 })->depends('update back in stock reminder');
+
+test('create customer note', function (Customer $customer) {
+    expect($customer)->toBeInstanceOf(Customer::class)
+    ->and($customer->customerNotes)->not->toBeNull()
+    ->and($customer->customerNotes->count())->toBe(1);
+
+    $note = StoreCustomerNote::make()->action(
+        $customer,
+        [
+            'note' => 'note babadeebabadoo'
+        ]
+    );
+
+    $customer->refresh();
+
+    expect($note)->toBeInstanceOf(CustomerNote::class);
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+    ->and($customer->customerNotes)->not->toBeNull()
+    ->and($customer->customerNotes->count())->toBe(2);
+
+    return $note;
+})->depends('create customer');
+
+test('update customer note', function (CustomerNote $note) {
+
+    $updatedNote = UpdateCustomerNote::make()->action(
+        $note,
+        [
+            'note' => 'note babadeebabadoo update'
+        ]
+    );
+
+    $updatedNote->refresh();
+
+    expect($updatedNote)->toBeInstanceOf(CustomerNote::class);
+
+    return $updatedNote;
+})->depends('create customer note');
 
 test('hydrate customers', function (Customer $customer) {
     HydrateCustomers::run($customer);
