@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { trans } from 'laravel-vue-i18n'
-import PaddingMarginProperty from '@/Components/Websites/Fields/Properties/PaddingMarginProperty.vue'
-import BackgroundProperty from '@/Components/Websites/Fields/Properties/BackgroundProperty.vue'
-import BorderProperty from '@/Components/Websites/Fields/Properties/BorderProperty.vue'
+import PaddingMarginProperty from '@/Components/Workshop/Properties/PaddingMarginProperty.vue'
+import BackgroundProperty from '@/Components/Workshop/Properties/BackgroundProperty.vue'
+import BorderProperty from '@/Components/Workshop/Properties/BorderProperty.vue'
 import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorForm.vue"
 
 const props = defineProps<{

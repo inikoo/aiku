@@ -6,7 +6,7 @@ import { capitalize } from "@/Composables/capitalize"
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Modal from '@/Components/Utils/Modal.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
-import SideEditor from '@/Components/Websites/SideEditor.vue'
+import SideEditor from '@/Components/Workshop/SideEditor.vue'
 import { notify } from "@kyvg/vue3-notification"
 import Publish from '@/Components/Publish.vue'
 import { debounce } from 'lodash'

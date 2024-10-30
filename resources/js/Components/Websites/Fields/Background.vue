@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import BackgroundProperty from '@/Components/Websites/Fields/Properties/BackgroundProperty.vue'
+import BackgroundProperty from '@/Components/Workshop/Properties/BackgroundProperty.vue'
 import { trans } from 'laravel-vue-i18n'
 
 const props = defineProps<{

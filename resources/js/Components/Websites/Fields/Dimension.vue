@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import DimensionProperty from '@/Components/Websites/Fields/Properties/DimensionProperty.vue'
+import DimensionProperty from '@/Components/Workshop/Properties/DimensionProperty.vue'
 import { trans } from 'laravel-vue-i18n'
 
 const model = defineModel()

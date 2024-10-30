@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import BorderProperty from '@/Components/Websites/Fields/Properties/BorderProperty.vue'
+import BorderProperty from '@/Components/Workshop/Properties/BorderProperty.vue'
 import { trans } from 'laravel-vue-i18n'
 
 const model = defineModel()

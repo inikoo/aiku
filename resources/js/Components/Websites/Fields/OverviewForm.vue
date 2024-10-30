@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, watch } from "vue"
-import PaddingMarginProperty from "@/Components/Websites/Fields/Properties/PaddingMarginProperty.vue"
+import PaddingMarginProperty from "@/Components/Workshop/Properties/PaddingMarginProperty.vue"
 import { trans } from "laravel-vue-i18n"
 import draggable from "vuedraggable"
 

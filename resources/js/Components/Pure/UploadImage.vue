@@ -10,8 +10,8 @@ import InputText from 'primevue/inputtext';
 import Slider from 'primevue/slider';
 import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
-import PaddingMarginProperty from '@/Components/Websites/Fields/Properties/PaddingMarginProperty.vue'
-import BorderProperty from '@/Components/Websites/Fields/Properties/BorderProperty.vue'
+import PaddingMarginProperty from '@/Components/Workshop/Properties/PaddingMarginProperty.vue'
+import BorderProperty from '@/Components/Workshop/Properties/BorderProperty.vue'
 import Modal from "@/Components/Utils/Modal.vue"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
