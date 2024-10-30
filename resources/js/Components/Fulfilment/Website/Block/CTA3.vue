@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import Editor from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
+import Editor2 from "@/Components/Forms/Fields/BubleTextEditor/Editor.vue"
+import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 import Image from "@/Components/Image.vue"
 import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
 import { getStyles } from "@/Composables/styles"
@@ -40,10 +41,10 @@ const onUpload = (e) => {
 }
 </script>
 
-<template>
+<template> 
 	<div class="relative overflow-hidden rounded-lg lg:h-96" :style="getStyles(properties)">
 		<div class="absolute inset-0">
-			<img :src="modelValue.image" alt="" class="h-full w-full object-cover object-center" />
+			<img :src="modelValue.container.properties.background.image.source ? modelValue.container.properties.background.image.source.original : modelValue.image" alt="" class="h-full w-full object-cover object-center" />
 		</div>
 
 		<div aria-hidden="true" class="relative h-96 w-full lg:hidden" />
