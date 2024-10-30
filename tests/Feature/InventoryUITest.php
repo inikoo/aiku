@@ -8,11 +8,13 @@
  *
  */
 
+use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Enums\UI\Inventory\LocationTabsEnum;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
+use App\Models\SupplyChain\StockFamily;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -25,6 +27,7 @@ beforeAll(function () {
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->adminGuest = createAdminGuest($this->organisation->group);
+    $this->group = group();
 
     $warehouse = Warehouse::first();
     if (!$warehouse) {
@@ -40,6 +43,16 @@ beforeEach(function () {
         $location = StoreLocation::make()->action($warehouse, $storeData);
     }
     $this->location = $location;
+
+    $stockFamily = StockFamily::first();
+    if (!$stockFamily) {
+        $arrayData = [
+            'code' => 'ABC',
+            'name' => 'ABC Stock'
+        ];
+        $stockFamily = StoreStockFamily::make()->action($this->group, $arrayData);
+    }
+    $this->stockFamily = $stockFamily;
 
     Config::set("inertia.testing.page_paths", [resource_path("js/Pages/Grp")]);
     actingAs($this->adminGuest->getUser());
@@ -240,5 +253,42 @@ test("UI Index Org Stocks", function () {
                 fn (AssertableInertia $page) => $page->where("title", 'Current SKUs')->etc()
             )
             ->has("data");
+    });
+});
+
+test("UI Index Stock Families", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.goods.stock-families.index")
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Goods/StockFamilies")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'SKUs families')->etc()
+            )
+            ->has("data");
+    });
+});
+
+test("UI Show Stock Family", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.goods.stock-families.show", [$this->stockFamily->slug])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Goods/StockFamily")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has('navigation')
+            ->has('tabs')
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->stockFamily->name)->etc()
+            );
     });
 });
