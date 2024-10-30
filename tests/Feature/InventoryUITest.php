@@ -274,3 +274,21 @@ test("UI Index Stock Families", function () {
     });
 });
 
+test("UI Show Stock Family", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.goods.stock-families.show", [$this->stockFamily->slug])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Goods/StockFamily")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has('navigation')
+            ->has('tabs')
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->stockFamily->name)->etc()
+            );
+    });
+});
