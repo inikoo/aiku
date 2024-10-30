@@ -10,6 +10,7 @@ namespace Tests\Feature;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\SyncStockTradeUnits;
 use App\Actions\Goods\Stock\UpdateStock;
+use App\Actions\Goods\StockFamily\DeleteStockFamily;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Helpers\Tag\StoreTag;
@@ -503,6 +504,14 @@ test('remove found stock', function ($lostAndFoundStock) {
     expect($lostAndFound->quantity)->toBe(2.0);
 })->depends('add found stock');
 
+test('delete stock familiy', function ($stockFamily) {
+    $deletedStockFamily = DeleteStockFamily::make()->action($stockFamily);
+
+    expect(StockFamily::find($deletedStockFamily->id))->toBeNull();
+
+    return $deletedStockFamily;
+
+})->depends('create stock family');
 
 test('hydrate warehouses', function (Warehouse $warehouse) {
     HydrateWarehouse::run($warehouse);

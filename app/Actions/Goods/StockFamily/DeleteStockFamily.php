@@ -7,6 +7,7 @@
 
 namespace App\Actions\Goods\StockFamily;
 
+use App\Actions\GrpAction;
 use App\Models\SupplyChain\StockFamily;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
@@ -14,7 +15,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class DeleteStockFamily
+class DeleteStockFamily extends GrpAction
 {
     use AsController;
     use WithAttributes;
@@ -31,6 +32,10 @@ class DeleteStockFamily
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction)
+        {
+            return true;
+        }
         return $request->user()->hasPermissionTo("inventory.stocks.edit");
     }
 
@@ -38,6 +43,12 @@ class DeleteStockFamily
     {
         $request->validate();
 
+        return $this->handle($stockFamily);
+    }
+
+    public function action(StockFamily $stockFamily): StockFamily
+    {
+        $this->asAction = true;
         return $this->handle($stockFamily);
     }
 

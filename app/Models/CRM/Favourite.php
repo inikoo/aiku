@@ -48,7 +48,8 @@ class Favourite extends Model
     use InShop;
 
     protected $casts = [
-        'unfavourited_at'  => 'datetime'
+        'unfavourited_at'  => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
     protected $guarded = [];

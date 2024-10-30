@@ -128,9 +128,9 @@ const addMenuToColumn = (data) => {
 
 watch(() => props.previewMode, (newStatus, oldStatus) => {
     editable.value = !newStatus
+    editKey.value = uuidv4();
 });
 
-console.log(props.modelValue)
 </script>
 
 <template>
@@ -172,7 +172,7 @@ console.log(props.modelValue)
                                                         <div class="w-full"
                                                             @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_1']['data'], subIndex)">
                                                             <span class="text-sm block">
-                                                                <Editor v-model="sub.name" :key="editKey"
+                                                                <Editor v-model="sub.name" :key="editKey" :editable="editable"
                                                                     @onEditClick="selectAllEditor" />
                                                             </span>
                                                         </div>

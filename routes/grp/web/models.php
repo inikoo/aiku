@@ -168,6 +168,7 @@ use App\Actions\Web\Webpage\ReorderWebBlocks;
 use App\Actions\Web\Webpage\UpdateWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Actions\Web\Website\PublishWebsiteMarginal;
+use App\Actions\Web\Website\PublishWebsiteProductTemplate;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Actions\Web\Website\UpdateWebsite;
 use App\Actions\Web\Website\UploadImagesToWebsite;
@@ -497,6 +498,8 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
     Route::patch('autosave/menu', [PublishWebsiteMarginal::class, 'menu'])->name('autosave.menu');
 
     Route::post('publish/menu', [PublishWebsiteMarginal::class, 'menu'])->name('publish.menu');
+
+    Route::patch('/settings/update', PublishWebsiteProductTemplate::class)->name('settings.update');
 
     Route::patch('color', [PublishWebsiteMarginal::class, 'color'])->name('update.color');
 

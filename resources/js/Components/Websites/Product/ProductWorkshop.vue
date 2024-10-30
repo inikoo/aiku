@@ -4,64 +4,69 @@ import ProductList from '@/Components/Websites/Product/ProductList'
 import { trans } from 'laravel-vue-i18n'
 import { useColorTheme } from '@/Composables/useStockList'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import Popover from 'primevue/popover';
+import Popover from 'primevue/popover'
 import { getComponent } from '@/Components/Websites/Product/Content'
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
-import SelectButton from 'primevue/selectbutton';
-import ToggleSwitch from 'primevue/toggleswitch';
+import SelectButton from 'primevue/selectbutton'
+import ToggleSwitch from 'primevue/toggleswitch'
 import { notify } from "@kyvg/vue3-notification"
 import axios from "axios"
 
 import { faRocketLaunch } from '@far'
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { routeType } from "@/types/route"
 library.add(faRocketLaunch)
 
 const props = defineProps<{
     data: {
-        product: Object
+        settings: string,
+        updateRoute: routeType
     }
 }>()
 
 const emits = defineEmits(['update:modelValue', 'autoSave'])
-const op = ref();
+const op = ref()
 const comment = ref('')
 const isLoading = ref(false)
 const usedTemplates = ref(ProductList.listTemplate[0])
 const colorThemed = props.data?.color ? props.data?.color : { color: [...useColorTheme[0]] }
-const mode = ref({ name: 'Logged In', value: 'login' });
+const mode = ref({ name: 'Logged In', value: 'login' })
 const optionsToogle = ref([
     { name: 'Logged Out', value: 'logout' },
     { name: 'Logged In', value: 'login' },
     { name: 'Membership', value: 'member' }
-]);
+])
 
+console.log(props.data)
 
 
 const toggle = (event) => {
-    op.value.toggle(event);
+    op.value.toggle(event)
 }
 
 const selectPreviousTemplate = () => {
-    let index = ProductList.listTemplate.findIndex((item)=>item.key == usedTemplates.value.key)
-    if(index > 0){
+    let index = ProductList.listTemplate.findIndex((item) => item.key == usedTemplates.value.key)
+    if (index > 0) {
         usedTemplates.value = ProductList.listTemplate[index - 1]
     }
 }
 
 const selectNextTemplate = () => {
-    let index = ProductList.listTemplate.findIndex((item)=>item.key == usedTemplates.value.key)
-    if(index  < ProductList.listTemplate.length - 1){
+    let index = ProductList.listTemplate.findIndex((item) => item.key == usedTemplates.value.key)
+    if (index < ProductList.listTemplate.length - 1) {
         usedTemplates.value = ProductList.listTemplate[index + 1]
     }
 }
 
 const onPublish = async (action: {}, popover: {}) => {
-    console.log("data: " ,{ data : usedTemplates.value, comment : comment.value })
-    op.value.hide();
-   /*  try {
+    // console.log("data: ", { data: JSON.stringify(usedTemplates.value), comment: comment.value })
+    // op.value.hide()
+
+    try {
         isLoading.value = true
-        const response = await axios.patch(route(action.name, action.parameters), { data : usedTemplates.value, comment : comment.value })
+        const response = await axios.patch(route(props.data.updateRoute.name, props.data.updateRoute.parameters), { data: usedTemplates.value, comment: comment.value })
+        console.log(response)
     } catch (error) {
         const errorMessage = error.response?.data?.message || error.message || "Unknown error occurred"
         notify({
@@ -71,7 +76,7 @@ const onPublish = async (action: {}, popover: {}) => {
         })
     } finally {
         isLoading.value = false
-    } */
+    }
 }
 
 </script>
@@ -84,15 +89,8 @@ const onPublish = async (action: {}, popover: {}) => {
                     <font-awesome-icon :icon="['fas', 'chevron-left']"
                         class="px-4 cursor-pointer text-gray-600 hover:text-gray-800 transition duration-200"
                         @click="selectPreviousTemplate" />
-                    <PureMultiselect 
-                        :options="ProductList.listTemplate" 
-                         label="name" 
-                         valueProp="key"
-                        :object="true" 
-                         v-model="usedTemplates"
-                        :required="true" 
-                        class="mx-2 focus:ring-2 focus:ring-blue-500" 
-                    />
+                    <PureMultiselect :options="ProductList.listTemplate" label="name" valueProp="key" :object="true"
+                        v-model="usedTemplates" :required="true" class="mx-2 focus:ring-2 focus:ring-blue-500" />
                     <font-awesome-icon :icon="['fas', 'chevron-right']"
                         class="px-4 cursor-pointer text-gray-600 hover:text-gray-800 transition duration-200"
                         @click="selectNextTemplate" />
