@@ -36,7 +36,7 @@ class GetStockShowcase
                  'number_locations'   => $numberLocations,
                  'quantity_locations' => $quantityLocations,
                  'photo'              => $stock->imageSources(),
-                 'locations'          => LocationOrgStocksResource::collection($stock->orgStocks->first()->locationOrgStocks)
+                //  'locations'          => LocationOrgStocksResource::collection($stock->orgStocks->first()->locationOrgStocks)
              ],
             'locationRoute'            => [
                 'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',

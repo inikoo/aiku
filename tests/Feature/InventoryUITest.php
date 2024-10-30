@@ -8,12 +8,14 @@
  *
  */
 
+use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Enums\UI\Inventory\LocationTabsEnum;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
+use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use Inertia\Testing\AssertableInertia;
 
@@ -53,6 +55,13 @@ beforeEach(function () {
         $stockFamily = StoreStockFamily::make()->action($this->group, $arrayData);
     }
     $this->stockFamily = $stockFamily;
+
+    $stock = Stock::first();
+    if (!$stock) {
+        $stockData = Stock::factory()->definition();
+        $stock = StoreStock::make()->action($this->group, $stockData);
+    }
+    $this->stock = $stock;
 
     Config::set("inertia.testing.page_paths", [resource_path("js/Pages/Grp")]);
     actingAs($this->adminGuest->getUser());
@@ -322,5 +331,23 @@ test("UI Index Stocks", function () {
             ->has("breadcrumbs", 3)
             ->has("pageHead")
             ->has("data");
+    });
+});
+
+test("UI Show Stocks", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.goods.stocks.show", [$this->stock->slug])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Goods/Stock")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->stock->slug)->etc()
+            )
+            ->has("tabs");
     });
 });
