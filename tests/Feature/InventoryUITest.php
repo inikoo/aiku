@@ -10,9 +10,11 @@
 
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
+use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Enums\UI\Inventory\LocationTabsEnum;
+use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SupplyChain\Stock;
@@ -62,6 +64,13 @@ beforeEach(function () {
         $stock = StoreStock::make()->action($this->group, $stockData);
     }
     $this->stock = $stock;
+
+    $tradeUnit = TradeUnit::first();
+    if (!$tradeUnit) {
+        $tradeUnitData = TradeUnit::factory()->definition();
+        $tradeUnit = StoreTradeUnit::make()->action($this->group, $tradeUnitData);
+    }
+    $this->tradeUnit = $tradeUnit;
 
     Config::set("inertia.testing.page_paths", [resource_path("js/Pages/Grp")]);
     actingAs($this->adminGuest->getUser());
@@ -364,5 +373,23 @@ test("UI Index Trade Units", function () {
             ->has("breadcrumbs", 3)
             ->has("pageHead")
             ->has("data");
+    });
+});
+
+test("UI Show TradeUnit", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.goods.trade-units.show", [$this->tradeUnit->slug])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Goods/TradeUnit")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->tradeUnit->code)->etc()
+            )
+            ->has("tabs");
     });
 });
