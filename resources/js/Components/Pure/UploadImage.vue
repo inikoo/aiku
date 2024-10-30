@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref } from "vue"
+import { ref, watch, computed } from "vue"
 import { trans } from "laravel-vue-i18n"
 import Button from "@/Components/Elements/Buttons/Button.vue"
-import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
 import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
 import Image from "@/Components/Image.vue"
 import IconField from 'primevue/iconfield';
@@ -14,17 +13,15 @@ import axios from "axios"
 import PaddingMarginProperty from '@/Components/Websites/Fields/Properties/PaddingMarginProperty.vue'
 import BorderProperty from '@/Components/Websites/Fields/Properties/BorderProperty.vue'
 import Modal from "@/Components/Utils/Modal.vue"
-
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faImage, faPhotoVideo, faLink } from "@fal"
-
 import { routeType } from "@/types/route"
 import { cloneDeep } from "lodash"
 
-
 library.add(faImage, faPhotoVideo, faLink)
 
+// Define props and emits
 const props = withDefaults(
 	defineProps<{
 		modelValue: any
@@ -39,11 +36,13 @@ const emits = defineEmits<{
 	(e: "autoSave"): void
 }>()
 
+// Component state
 const isOpenGalleryImages = ref(false)
 const isDragging = ref(false)
 const fileInput = ref(null)
 const addedFiles = ref<File[]>([])
 
+// Upload function
 const onUpload = async () => {
 	try {
 		const formData = new FormData()
@@ -59,18 +58,19 @@ const onUpload = async () => {
 				},
 			}
 		)
-		const updatedModelValue = JSON.parse(JSON.stringify(props.modelValue));
-		updatedModelValue.source = cloneDeep(response.data.data[0].source)
-		emits("update:modelValue", updatedModelValue);
+		const updatedModelValue = { ...props.modelValue, source: cloneDeep(response.data.data[0].source) }
+		emits("update:modelValue", updatedModelValue)
+		onSave()
 	} catch (error) {
 		notify({
 			title: "Failed",
-			text: "Error while Uploading data",
+			text: "Error while uploading data",
 			type: "error",
 		})
 	}
 }
 
+// Drag and drop handlers
 const addComponent = (event) => {
 	addedFiles.value = event.target.files
 	onUpload()
@@ -78,14 +78,10 @@ const addComponent = (event) => {
 
 const dragOver = (e) => {
 	e.preventDefault()
-	console.log('asdas');
-	
 	isDragging.value = true
 }
 
 const dragLeave = () => {
-	console.log('leace');
-	
 	isDragging.value = false
 }
 
@@ -96,23 +92,34 @@ const drop = (e) => {
 	onUpload()
 }
 
+// Handle gallery image selection
 const onPickImage = (e) => {
-	isOpenGalleryImages.value = false;
-	const updatedModelValue = JSON.parse(JSON.stringify(props.modelValue));
-	updatedModelValue.source = cloneDeep(e[0].source)
-	emits("update:modelValue", updatedModelValue);
-};
+	isOpenGalleryImages.value = false
+	const updatedModelValue = { ...props.modelValue, source: cloneDeep(e[0].source) }
+	emits("update:modelValue", updatedModelValue)
+	onSave()
+}
 
-
+// Open file input
 const onClickButton = () => {
 	fileInput.value?.click()
 }
 
+// Auto-save function
 function onSave() {
 	emits("autoSave")
 }
 
-console.log(props.modelValue)
+// Watch for specific changes in modelValue and auto-save
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    console.log("Model value changed", newValue)
+    emits("autoSave")
+  },
+  { deep: true }
+)
+
 </script>
 
 <template>
@@ -179,7 +186,7 @@ console.log(props.modelValue)
 		<InputText v-model="modelValue.alt" class="w-full" />
 	</div>
 
-	<div v-if="modelValue.width" class="mt-8 ">
+	<div v-if="modelValue?.width" class="mt-8 ">
 		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
 			<div>Width</div>
 		</div>
@@ -189,7 +196,7 @@ console.log(props.modelValue)
 		</div>
 	</div>
 
-	<div v-if="modelValue.properties.border" class="mt-8">
+	<div v-if="modelValue?.properties?.border" class="mt-8">
 		<div v-if="modelValue?.properties?.border" class="border-t border-gray-300">
 			<div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Border') }}</div>
 
@@ -210,9 +217,7 @@ console.log(props.modelValue)
 	</div>
 
 
-	<!-- <Gallery :open="isOpenGalleryImages" @on-close="isOpenGalleryImages = false" :uploadRoutes="''"
-		@onPick="onPickImage" :tabs="['images_uploaded', 'stock_images']" /> -->
-
+	<!-- Modal and Gallery Management -->
 	<Modal :isOpen="isOpenGalleryImages" @onClose="() => (isOpenGalleryImages = false)" width="w-3/4">
 		<GalleryManagement :maxSelected="1" :tabs="['images_uploaded', 'stock_images']"
 			:closePopup="() => (isOpenGalleryImages = false)" @submitSelectedImages="onPickImage" />
