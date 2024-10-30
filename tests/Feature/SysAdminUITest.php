@@ -48,3 +48,24 @@ test('UI show organisation setting', function () {
             );
     });
 })->todo();
+
+test('UI index organisation', function () {
+    $response = get(
+        route(
+            'grp.organisations.index',
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Organisations/Organisations')
+            ->where('title', 'organisations')
+            ->has('breadcrumbs', 2)
+            ->has('data')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'organisations')
+                        ->etc()
+            );
+    });
+});
