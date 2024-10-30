@@ -309,3 +309,18 @@ test("UI Show Stock Family", function () {
             );
     });
 });
+
+test("UI Index Stocks", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.goods.stocks.index")
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Goods/Stocks")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has("pageHead")
+            ->has("data");
+    });
+});
