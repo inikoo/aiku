@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\CRM\BackInStockReminder\DeleteBackInStockReminder;
 use App\Actions\CRM\BackInStockReminder\StoreBackInStockReminder;
 use App\Actions\CRM\BackInStockReminder\UpdateBackInStockReminder;
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
@@ -305,6 +306,16 @@ test('update back in stock reminder', function (BackInStockReminder $reminder) {
 
     return $updatedReminder;
 })->depends('add back in stock reminder to customer');
+
+test('delete back in stock reminder', function (BackInStockReminder $reminder) {
+    $deletedReminder = DeleteBackInStockReminder::make()->action(
+        backInStockReminder: $reminder,
+    );
+
+    expect(BackInStockReminder::find($deletedReminder->id))->toBeNull();
+
+    return $deletedReminder;
+})->depends('update back in stock reminder');
 
 test('hydrate customers', function (Customer $customer) {
     HydrateCustomers::run($customer);
