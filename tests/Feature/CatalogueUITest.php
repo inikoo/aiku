@@ -432,6 +432,24 @@ test('UI create Charges', function () {
     });
 });
 
+test('UI show Charges', function () {
+    $response = get(route('grp.org.shops.show.assets.charges.show', [$this->organisation->slug, $this->shop->slug, $this->charge->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Catalogue/Charge')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has('navigation')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->charge->name)
+                        ->etc()
+            );
+    });
+});
+
 test('UI edit Charges', function () {
     $response = get(route('grp.org.shops.show.assets.charges.edit', [$this->organisation->slug, $this->shop->slug, $this->charge->slug]));
 
