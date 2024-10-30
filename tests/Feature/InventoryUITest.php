@@ -351,3 +351,18 @@ test("UI Show Stocks", function () {
             ->has("tabs");
     });
 });
+
+test("UI Index Trade Units", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.goods.trade-units.index")
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Goods/TradeUnits")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has("pageHead")
+            ->has("data");
+    });
+});
