@@ -14,7 +14,7 @@ trait WithShippingZoneSchemaSubNavigation
 {
     protected function getShippingZoneSchemaSubNavigation(Shop $shop): array
     {
-        return [
+        $navigation = [
             [
                 'isAnchor' => true,
                 'label'    => __('Schemas'),
@@ -27,7 +27,9 @@ trait WithShippingZoneSchemaSubNavigation
                         'tooltip' => __('Schemas')
                         ]
             ],
-            [
+        ];
+        if ($shop->currentShippingZoneSchema) {
+            $current = [
                 'label'    => __('Current'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.assets.shipping.show',
@@ -37,8 +39,12 @@ trait WithShippingZoneSchemaSubNavigation
                     'icon'    => ['fal', 'fa-cube'],
                     'tooltip' => __('Current Schema')
                 ]
-            ],
-            [
+                ];
+            array_push($navigation, $current);
+        }
+
+        if ($shop->discountShippingZoneSchema) {
+            $discount = [
                 'label'    => __('Discount'),
                 'href'     => [
                     'name'       => 'grp.org.shops.show.assets.shipping.show',
@@ -48,8 +54,11 @@ trait WithShippingZoneSchemaSubNavigation
                     'icon'    => ['fal', 'fa-cube'],
                     'tooltip' => __('Discount Schema')
                 ]
-            ],
-        ];
+                ];
+            array_push($navigation, $discount);
+        }
+
+        return $navigation;
     }
 
 }
