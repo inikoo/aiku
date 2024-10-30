@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $unfavourited_at
  * @property int|null $current_favourite_id
  * @property string|null $fetched_at
- * @property string|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read \App\Models\SysAdmin\Group $group

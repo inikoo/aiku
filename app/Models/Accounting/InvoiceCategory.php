@@ -16,6 +16,24 @@ use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property int $group_id
+ * @property string $slug
+ * @property string $name
+ * @property InvoiceCategoryStateEnum $state
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\Accounting\InvoiceCategorySalesIntervals|null $salesIntervals
+ * @property-read \App\Models\Accounting\InvoiceCategoryStats|null $stats
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceCategory newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceCategory newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceCategory query()
+ * @mixin \Eloquent
+ */
 class InvoiceCategory extends Model implements Auditable
 {
     use HasSlug;

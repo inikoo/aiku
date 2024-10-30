@@ -11,9 +11,7 @@ use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Discounts\OfferCampaign\StoreOfferCampaign;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Models\Catalogue\Shop;
-use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
-use App\Models\Discounts\OfferComponent;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -40,7 +38,7 @@ beforeEach(function () {
     $this->shop = $shop;
 
     $this->shop = UpdateShop::make()->action($this->shop, ['state' => ShopStateEnum::OPEN]);
-    
+
     $offerCampaign = OfferCampaign::first();
     if (!$offerCampaign) {
         $storeData = OfferCampaign::factory()->definition();

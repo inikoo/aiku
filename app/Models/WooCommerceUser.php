@@ -28,7 +28,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  * @property WebUserAuthTypeEnum $auth_type
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Order> $orders
  * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $products
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WooCommerceUser newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|WooCommerceUser newQuery()

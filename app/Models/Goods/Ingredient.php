@@ -17,6 +17,24 @@ use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property int $group_id
+ * @property string $slug
+ * @property string $name
+ * @property int $number_trade_units
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read Group $group
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Goods\TradeUnit> $tradeUnits
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Ingredient newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Ingredient newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Ingredient query()
+ * @mixin \Eloquent
+ */
 class Ingredient extends Model implements Auditable
 {
     use HasSlug;

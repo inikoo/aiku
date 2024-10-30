@@ -7,7 +7,6 @@
 
 namespace App\Models;
 
-use App\Models\Dropshipping\ShopifyUser;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
@@ -15,14 +14,16 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
  *
  *
  * @property int $id
+ * @property int $woo_commerce_user_id
  * @property int $product_id
+ * @property int|null $portfolio_id
+ * @property int $woo_commerce_product_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property int|null $portfolio_id
- * @property-read ShopifyUser $shopifyUser
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopifyUserHasProduct newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopifyUserHasProduct newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopifyUserHasProduct query()
+ * @property-read \App\Models\WooCommerceUser $wooCommerceUser
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WooCommerceUserHasProduct newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WooCommerceUserHasProduct newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|WooCommerceUserHasProduct query()
  * @mixin \Eloquent
  */
 class WooCommerceUserHasProduct extends Pivot
