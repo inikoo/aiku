@@ -99,3 +99,22 @@ test('UI show asset shipping', function () {
             ->has('tabs');
     });
 });
+
+test('UI edit asset shipping', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.assets.shipping.edit', [$this->organisation, $this->shop, $this->shippingZoneSchema]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->where('title', 'Shipping Zone Schema')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->shippingZoneSchema->name)
+                        ->etc()
+            )
+            ->has('navigation')
+            ->has('formData');
+    });
+});
