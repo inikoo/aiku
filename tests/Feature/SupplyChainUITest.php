@@ -121,3 +121,22 @@ test('UI show agent', function () {
 
     });
 });
+
+test('UI create agent', function () {
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.supply-chain.agents.create'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'new agent')
+                        ->etc()
+            )
+            ->has('formData');
+
+    });
+});
