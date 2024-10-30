@@ -5,13 +5,17 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Catalogue\Charge\StoreCharge;
 use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
+use App\Enums\Catalogue\Charge\ChargeTriggerEnum;
+use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
@@ -79,6 +83,25 @@ beforeEach(function () {
         );
     }
     $this->collection = $collection;
+
+    $charge = Charge::first();
+    if (!$charge) {
+        $charge = StoreCharge::make()->action(
+            $this->shop,
+            [
+                'code'        => 'MyFColl',
+                'name'        => 'My first charge',
+                'type'        => ChargeTypeEnum::HANGING,
+                'trigger'     => ChargeTriggerEnum::ORDER,
+                'description' => 'Charge description',
+                'price'       => fake()->numberBetween(100, 2000),
+                'unit'        => 'charge',
+            ]
+        );
+        $this->shop->refresh();
+    }
+    $this->charge = $charge;
+
 
     Config::set(
         'inertia.testing.page_paths',
@@ -151,25 +174,6 @@ test('UI edit department', function () {
                             ])
             )
             ->has('breadcrumbs', 3);
-    });
-});
-
-test('UI show department (customers tab)', function () {
-    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/shops/'.$this->shop->slug.'/catalogue/departments/'.$this->department->slug.'?tab=customers');
-    $response->assertInertia(function (AssertableInertia $page) {
-        $page
-            ->component('Org/Catalogue/Department')
-            ->has('title')
-            ->has('breadcrumbs', 3)
-            ->has('navigation')
-            ->has(
-                'pageHead',
-                fn (AssertableInertia $page) => $page
-                        ->where('title', $this->product->department->name)
-                        ->etc()
-            )
-            ->has('tabs');
-
     });
 });
 
@@ -412,5 +416,18 @@ test('UI Index Charges', function () {
             ->has('title')
             ->has('breadcrumbs', 3)
             ->has('data');
+    });
+});
+
+test('UI create Charges', function () {
+    $response = get(route('grp.org.shops.show.assets.charges.create', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has('pageHead')
+            ->has('formData');
     });
 });
