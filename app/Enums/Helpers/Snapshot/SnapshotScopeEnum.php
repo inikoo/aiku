@@ -20,6 +20,7 @@ enum SnapshotScopeEnum: string
     case COLOR          = 'color';
     case BANNER         = 'banner';
     case EMAIL_TEMPLATE = 'email_template';
+    case PRODUCT_TEMPLATE = 'product_template';
 
     public static function labels(): array
     {
