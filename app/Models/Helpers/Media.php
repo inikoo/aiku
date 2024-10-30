@@ -22,11 +22,13 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * @property string $type
  * @property string|null $model_type
  * @property int|null $model_id
- * @property string|null $uuid
  * @property string $collection_name
  * @property string $name
  * @property string $file_name
  * @property string|null $mime_type
+ * @property string|null $uuid
+ * @property string $ulid
+ * @property string|null $checksum
  * @property string $disk
  * @property string|null $conversions_disk
  * @property int $size
@@ -34,8 +36,6 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media as BaseMedia;
  * @property array $custom_properties
  * @property array $generated_conversions
  * @property array $responsive_images
- * @property string $ulid
- * @property string|null $checksum
  * @property int $multiplicity
  * @property int $usage
  * @property bool $is_animated

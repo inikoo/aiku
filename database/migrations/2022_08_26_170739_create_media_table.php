@@ -20,11 +20,16 @@ return new class () extends Migration {
             $table->string('type')->index()->default('image');
             $table->string('model_type')->nullable();
             $table->unsignedInteger('model_id')->nullable();
-            $table->uuid()->nullable()->unique();
+
             $table->string('collection_name')->index();
             $table->string('name');
             $table->string('file_name');
             $table->string('mime_type')->nullable();
+
+            $table->uuid()->nullable()->unique();
+            $table->ulid()->index();
+            $table->string('checksum')->index()->nullable();
+
             $table->string('disk');
             $table->string('conversions_disk')->nullable();
             $table->unsignedInteger('size');
@@ -32,8 +37,8 @@ return new class () extends Migration {
             $table->json('custom_properties');
             $table->json('generated_conversions');
             $table->json('responsive_images');
-            $table->ulid()->index();
-            $table->string('checksum')->index()->nullable();
+
+
             $table->unsignedSmallInteger('multiplicity')->index()->default(1);
             $table->unsignedSmallInteger('usage')->index()->default(1);
             $table->boolean('is_animated')->default(false);

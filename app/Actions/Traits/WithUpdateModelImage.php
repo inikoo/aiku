@@ -57,7 +57,7 @@ trait WithUpdateModelImage
                     )
                 )
                 ->usingName($originalFilename)
-                ->usingFileName($checksum.'.'.$extension)
+                ->usingFileName(hash('crc32b', $checksum).'.'.$extension)
                 ->toMediaCollection($collection);
             $media->refresh();
             UpdateIsAnimatedMedia::run($media, $imagePath);

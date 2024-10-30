@@ -40,17 +40,23 @@ class StoreMediaFromIcon
 
 
         try {
+
+
+            $svg = GetDiceBearAvatar::run($iconType, $seed);
+            $checksum = md5($svg);
+
             /** @var Media $media */
-            $media = $model->addMediaFromString(GetDiceBearAvatar::run($iconType, $seed))
+            $media = $model->addMediaFromString($svg)
                 ->preservingOriginal()
                 ->withProperties(
                     [
+                        'checksum' => $checksum,
                         'group_id' => $group_id,
                         'ulid'     => Str::ulid()
                     ]
                 )
                 ->usingName($model->slug."-icon")
-                ->usingFileName($model->slug."-icon.sgv")
+                ->usingFileName(hash('crc32b', $checksum).'.svg')
                 ->toMediaCollection('icon');
 
 
