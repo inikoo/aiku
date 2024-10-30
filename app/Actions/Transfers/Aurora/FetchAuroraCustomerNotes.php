@@ -7,8 +7,8 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\CRM\CustomerNote\StoreHistory;
-use App\Actions\CRM\CustomerNote\UpdateHistory;
+use App\Actions\CRM\CustomerNote\StoreCustomerNote;
+use App\Actions\CRM\CustomerNote\UpdateCustomerNote;
 use App\Models\CRM\CustomerNote;
 use App\Transfers\SourceOrganisationService;
 use Exception;
@@ -27,7 +27,7 @@ class FetchAuroraCustomerNotes extends FetchAuroraAction
             if ($customerNote = CustomerNote::where('source_id', $customerNoteData['customer_note']['source_id'])
                 ->first()) {
                 try {
-                    $customerNote = UpdateHistory::make()->action(
+                    $customerNote = UpdateCustomerNote::make()->action(
                         customerNote: $customerNote,
                         modelData: $customerNoteData['customer_note'],
                         hydratorsDelay: 60,
@@ -41,7 +41,7 @@ class FetchAuroraCustomerNotes extends FetchAuroraAction
                 }
             } else {
                 try {
-                    $customerNote = StoreHistory::make()->action(
+                    $customerNote = StoreCustomerNote::make()->action(
                         customer: $customerNoteData['customer'],
                         modelData: $customerNoteData['customer_note'],
                         hydratorsDelay: 60,
