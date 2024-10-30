@@ -13,8 +13,15 @@ class GetWebsiteWorkshopProduct
 
     public function handle(Website $website, Product $product): array
     {
+        // 'product' => ProductWebpageResource::make($product),
         return [
-            'product' => ProductWebpageResource::make($product)
+            'settings' => $website->settings,
+            'updateProductTemplate' => [
+                    'name'       => 'grp.models.website.settings.update',
+                    'parameters' => [
+                        'website' => $website->id
+                    ]
+                ]
         ];
     }
 }
