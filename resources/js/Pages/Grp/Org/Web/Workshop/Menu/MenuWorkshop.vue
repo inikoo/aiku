@@ -79,7 +79,7 @@ const addNavigation = () => {
 
 const deleteNavigation = (index: Number) => {
   selectedNav.value = null
-  Navigation.value.splice(index, 1)
+  Navigation.value?.data?.fieldValue.navigation.splice(index, 1)
 }
 
 const onPublish = async (action: routeType, popover: Funcition) => {
