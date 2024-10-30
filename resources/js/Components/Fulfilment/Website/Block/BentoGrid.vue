@@ -29,9 +29,8 @@ const emits = defineEmits<{
 
 const activeTextIndex = ref(-1)
 const activeImageIndex = ref(-1)
-const activeImageIndexModal = ref(-1)
+const activeImageIndexModal = ref(null)
 const isModalGallery = ref(false)
-
 
 function onSave() {
 	emits("autoSave")
@@ -39,17 +38,18 @@ function onSave() {
 
 const onChangeImage = (image) => {
 	const data = { ...props.modelValue }
-	data.images[activeImageIndexModal.value].sources = { ...image[0].source }
+	console.log(data,'hehheeh');
+	
+	/* data.image[activeImageIndexModal.value.source = { ...image[0].source }
 	isModalGallery.value = false
 	activeImageIndexModal.value = -1
-	props.modelValue = data
+	props.modelValue = data */
 	onSave()
 }
-
 </script>
 
 <template>
-	<div :style="getStyles(modelValue.container.properties)">
+	<div :style="getStyles(modelValue?.container?.properties)">
 		<div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
 			<Editor
 				v-model="modelValue.title"
@@ -70,9 +70,10 @@ const onChangeImage = (image) => {
 							class="relative min-h-[30rem] w-full grow [container-type:inline-size] max-lg:mx-auto max-lg:max-w-sm">
 							<div
 								v-if="
-									!modelValue.column1.images || !modelValue.column1.images.length
+									!modelValue.column1.source 
 								"
 								class="absolute inset-x-10 bottom-0 top-10 overflow-hidden rounded-t-[12cqw] border-x-[3cqw] border-t-[3cqw] border-gray-700 bg-gray-900 shadow-2xl">
+							
 								<img
 									class="size-full object-cover object-top"
 									src="https://tailwindui.com/plus/img/component-images/bento-03-mobile-friendly.png"
@@ -83,33 +84,32 @@ const onChangeImage = (image) => {
 									@click="
 										() => {
 											if (isEditable) isModalGallery = !isModalGallery
-											activeImageIndexModal = 0
+											activeImageIndexModal = 'column1'
 										}
 									"
 									style="position: absolute; top: 0; left: 10px; z-index: 10">
-						<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
+									<FontAwesomeIcon
+										:icon="faImage"
+										class="text-lg h-4 text-indigo-500" />
 								</button>
 							</div>
 
 							<!-- Images Structure (renders only if images are present) -->
-							<div
-								v-else
-								v-for="(image, index) in modelValue.column1.images"
-								:key="index"
-								class="absolute"
-								>
+							<div v-else class="absolute">
 								<button
 									@click="
 										() => {
 											if (isEditable) isModalGallery = !isModalGallery
-											activeImageIndexModal = index
+											activeImageIndexModal = 0
 										}
 									"
 									style="position: absolute; top: 0; left: 10px; z-index: 10">
-						<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
+									<FontAwesomeIcon
+										:icon="faImage"
+										class="text-lg h-4 text-indigo-500" />
 								</button>
 								<Image
-									:src="image.sources"
+									:src="modelValue.column1.source"
 									class="w-full h-full object-cover rounded-lg" />
 							</div>
 						</div>
@@ -138,7 +138,7 @@ const onChangeImage = (image) => {
 							class="flex flex-1 items-center justify-center px-8 max-lg:pb-12 max-lg:pt-10 sm:px-10 lg:pb-2">
 							<!-- Default Image Structure (renders if column2.image is absent) -->
 							<div
-								v-if="!modelValue.column2.image"
+								v-if="!modelValue.column2.source"
 								class="relative w-full max-lg:max-w-xs">
 								<img
 									class="w-full object-cover rounded-lg shadow-lg"
@@ -153,8 +153,10 @@ const onChangeImage = (image) => {
 											activeImageIndexModal = 1
 										}
 									"
-                  style="position: absolute; top: 0; left: 10px; z-index: 10">
-                  <FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
+									style="position: absolute; top: 0; left: 10px; z-index: 10">
+									<FontAwesomeIcon
+										:icon="faImage"
+										class="text-lg h-4 text-indigo-500" />
 								</button>
 							</div>
 
@@ -167,11 +169,13 @@ const onChangeImage = (image) => {
 											activeImageIndexModal = 1
 										}
 									"
-                  style="position: absolute; top: 0; left: 10px; z-index: 10">
-                  <FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
+									style="position: absolute; top: 0; left: 10px; z-index: 10">
+									<FontAwesomeIcon
+										:icon="faImage"
+										class="text-lg h-4 text-indigo-500" />
 								</button>
 								<img
-									:src="modelValue.column2.image.sources"
+									:src="modelValue.column2.source"
 									class="w-full object-cover rounded-lg shadow-lg" />
 							</div>
 						</div>
@@ -201,7 +205,7 @@ const onChangeImage = (image) => {
 							class="flex flex-1 items-center justify-center px-8 max-lg:py-6 lg:pb-2">
 							<!-- Default Image Structure (renders if column3.image is absent) -->
 							<div
-								v-if="!modelValue.column3.image"
+								v-if="!modelValue.column3.source"
 								class="relative w-full max-lg:max-w-xs">
 								<img
 									class="h-[min(152px,40cqw)] object-cover object-center rounded-lg shadow-lg"
@@ -213,11 +217,13 @@ const onChangeImage = (image) => {
 									@click="
 										() => {
 											if (isEditable) isModalGallery = !isModalGallery
-											activeImageIndexModal = 2
+											activeImageIndexModal = 0
 										}
 									"
 									style="position: absolute; top: 0; left: 10px; z-index: 10">
-						<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
+									<FontAwesomeIcon
+										:icon="faImage"
+										class="text-lg h-4 text-indigo-500" />
 								</button>
 							</div>
 
@@ -227,14 +233,16 @@ const onChangeImage = (image) => {
 									@click="
 										() => {
 											if (isEditable) isModalGallery = !isModalGallery
-											activeImageIndexModal = 2
+											activeImageIndexModal = 0
 										}
 									"
-                  style="position: absolute; top: 0; left: 10px; z-index: 10">
-                  <FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
+									style="position: absolute; top: 0; left: 10px; z-index: 10">
+									<FontAwesomeIcon
+										:icon="faImage"
+										class="text-lg h-4 text-indigo-500" />
 								</button>
 								<img
-									:src="modelValue.column3.image.sources"
+									:src="modelValue.column3.source"
 									class="h-[min(152px,40cqw)] object-cover object-center rounded-lg shadow-lg" />
 							</div>
 						</div>
@@ -263,7 +271,7 @@ const onChangeImage = (image) => {
 							class="relative min-h-[30rem] w-full grow [container-type:inline-size] max-lg:mx-auto max-lg:max-w-sm">
 							<!-- Default Image Structure (renders if column4.image is absent) -->
 							<div
-								v-if="!modelValue.column4.image"
+								v-if="!modelValue.column4.source"
 								class="absolute inset-x-10 bottom-0 top-10 overflow-hidden rounded-t-[12cqw] border-x-[3cqw] border-t-[3cqw] border-gray-700 bg-gray-900 shadow-2xl">
 								<img
 									class="size-full object-cover object-top"
@@ -275,11 +283,13 @@ const onChangeImage = (image) => {
 									@click="
 										() => {
 											if (isEditable) isModalGallery = !isModalGallery
-											activeImageIndexModal = 3
+											activeImageIndexModal = 0
 										}
 									"
-                  style="position: absolute; top: 0; left: 10px; z-index: 10">
-                  <FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
+									style="position: absolute; top: 0; left: 10px; z-index: 10">
+									<FontAwesomeIcon
+										:icon="faImage"
+										class="text-lg h-4 text-indigo-500" />
 								</button>
 							</div>
 
@@ -291,14 +301,16 @@ const onChangeImage = (image) => {
 									@click="
 										() => {
 											if (isEditable) isModalGallery = !isModalGallery
-											activeImageIndexModal = 3
+											activeImageIndexModal = 0
 										}
 									"
-                  style="position: absolute; top: 0; left: 10px; z-index: 10">
-                  <FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
+									style="position: absolute; top: 0; left: 10px; z-index: 10">
+									<FontAwesomeIcon
+										:icon="faImage"
+										class="text-lg h-4 text-indigo-500" />
 								</button>
 								<img
-									:src="modelValue.column4.image.sources"
+									:src="modelValue.column4.source"
 									class="size-full object-cover object-top" />
 							</div>
 						</div>
