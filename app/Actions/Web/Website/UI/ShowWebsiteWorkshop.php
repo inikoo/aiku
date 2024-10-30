@@ -74,17 +74,16 @@ class ShowWebsiteWorkshop extends OrgAction
             WebsiteWorkshopTabsEnum::WEBSITE_LAYOUT->value => $this->tab == WebsiteWorkshopTabsEnum::WEBSITE_LAYOUT->value ?
                 fn () => GetWebsiteWorkshopLayout::run($this->scope, $website)
                 : Inertia::lazy(fn () => GetWebsiteWorkshopLayout::run($this->scope, $website)),
+
         ];
 
         if ($product) {
-            $tabs[WebsiteWorkshopTabsEnum::PRODUCT->value] = [
-                 $this->tab == WebsiteWorkshopTabsEnum::PRODUCT->value
+            $tabs[WebsiteWorkshopTabsEnum::PRODUCT->value] = $this->tab == WebsiteWorkshopTabsEnum::PRODUCT->value
                     ?
                     fn () => GetWebsiteWorkshopProduct::run($website, $product)
                     : Inertia::lazy(
                         fn () => GetWebsiteWorkshopProduct::run($website, $product)
-                    ),
-            ];
+                    );
         }
 
         if ($family) {
