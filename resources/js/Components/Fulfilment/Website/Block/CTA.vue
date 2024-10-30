@@ -62,14 +62,20 @@ const onUpload = (e) => {
 				<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
 			</button>
 
-			<!-- Fallback image if modelValue.image.source is not available -->
-			<img
+			<!-- Fallback image wrapped in a clickable link if no custom image is available -->
+			<a
 				v-if="!modelValue?.image?.source"
-				src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png"
-				alt="Informative Image"
-				class="h-full w-full object-cover" />
+				:href="modelValue?.image?.url || '#'"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="block h-full w-full">
+				<img
+					src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/content/content-gallery-3.png"
+					alt="Informative Image"
+					class="h-full w-full object-cover" />
+			</a>
 
-			<!-- Clickable link with Image component if modelValue.image.source is available -->
+			<!-- Clickable link with Image component if custom image source is available -->
 			<a
 				v-else
 				:href="modelValue?.image?.url || '#'"
@@ -83,7 +89,7 @@ const onUpload = (e) => {
 			</a>
 		</div>
 
-		<div class="relative mx-auto max-w-7xl py-24 sm:py-32 lg:px-8 lg:py-40">
+		<div class=" max-w-7xl py-24 sm:py-32 lg:px-8 lg:py-40">
 			<div class="pl-6 pr-6 md:ml-auto md:w-2/3 md:pl-16 lg:w-1/2 lg:pl-24 lg:pr-0 xl:pl-32">
 				<Editor
 					v-if="modelValue?.text"

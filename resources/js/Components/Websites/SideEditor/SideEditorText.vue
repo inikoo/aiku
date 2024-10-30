@@ -8,5 +8,7 @@ const model = defineModel<{ text: string }>()
 </script>
 
 <template>
-    <InputText v-model="model" />
+    <div class="p-2">
+        <InputText v-model="model" />
+    </div>
 </template>

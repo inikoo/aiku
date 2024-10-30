@@ -50,30 +50,30 @@ function onSave() {
 </script>
 
 <template>
-	
 	<div
 		class="container flex flex-wrap justify-between"
 		:styles="getStyles(modelValue.container.properties)">
 		<!-- Image Section -->
 		<div class="imgBx relative w-1/2 transition-all duration-300">
-				<div 
-				class="absolute">
-					<button
-						@click="
-							() => {
-								if (isEditable) isModalGallery = !isModalGallery
-							}
-						"
-						style="position: absolute; top: 0; left: 10px; z-index: 10">
-						<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
-					</button>
+			<div class="absolute">
+				<button
+					@click="
+						() => {
+							if (isEditable) isModalGallery = !isModalGallery
+						}
+					"
+					style="position: absolute; top: 0; left: 10px; z-index: 10">
+					<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
+				</button>
+				<a :href="modelValue?.image?.url || '#'" target="_blank" rel="noopener noreferrer">
 					<img
 						v-if="!modelValue?.image"
 						src="https://flowbite.s3.amazonaws.com/docs/gallery/square/image.jpg"
 						alt="Informative Image"
 						class="h-full w-full object-cover" />
 					<Image :src="modelValue?.image?.source" />
-				</div>
+				</a>
+			</div>
 		</div>
 
 		<!-- Details Section -->

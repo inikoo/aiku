@@ -32,102 +32,150 @@
 			]
 		},
 		{
-			"name": "Image",
-			"key": "image",
-			"type": "upload_image"
+			"name": "Column 1",
+			"key": ["column1"],
+			"replaceForm": [
+				{
+					"key": ["column1"],
+					"type": "upload_image",
+					"props_data": {}
+				}
+			]
+		},
+		{
+			"name": "Column 2",
+			"key": ["column2"],
+			"replaceForm": [
+				{
+					"key": ["column2"],
+					"type": "upload_image",
+					"props_data": {}
+				}
+			]
+		},
+		{
+			"name": "Column 3",
+			"key": ["column3"],
+			"replaceForm": [
+				{
+					"key": ["column3"],
+					"type": "upload_image",
+					"props_data": {}
+				}
+			]
+		},
+		{
+			"name": "Column 4",
+			"key": ["column4"],
+			"replaceForm": [
+				{
+					"key": ["column4"],
+					"type": "upload_image",
+					"props_data": {}
+				}
+			]
 		}
 	],
 	"data": {
 		"fieldValue": {
-			"title": "<h3 style=\"text-align: center\"><span style=\"color: #a200ff\"><strong>Dep</strong></span><span style=\"color: #9900ff\"><strong>loy faster</strong></span></h3><h1 style=\"text-align: center\"><strong>Everything you need to deploy your app.</strong></h1>",
-			"column1": {
-				"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
-				"images": []
-			},
-			"column2": {
-				"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
-				"images": []
-			},
-			"column3": {
-				"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
-				"images": []
-			},
-			"column4": {
-				"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
-				"images": []
-			},
-			"container": {
-				"properties": {
-					"border": {
-						"top": {
-							"value": 0
-						},
-						"left": {
-							"value": 0
-						},
-						"unit": "px",
-						"color": "#000000",
-						"right": {
-							"value": 0
-						},
-						"bottom": {
-							"value": 0
-						},
-						"rounded": {
+				"title": "<h3 style=\"text-align: center\"><span style=\"color: #a200ff\"><strong>Dep</strong></span><span style=\"color: #9900ff\"><strong>loy faster</strong></span></h3><h1 style=\"text-align: center\"><strong>Everything you need to deploy your app.</strong></h1>",
+				"column1": {
+					"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
+					"source":null,
+					"url": "https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png",
+					"alt": ""
+				},
+				"column2": {
+					"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
+					"source":null,
+					"url": "https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png",
+					"alt": ""
+				},
+				"column3": {
+					"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
+					"source":null,
+					"url": "https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png",
+					"alt": ""
+				},
+				"column4": {
+					"text": "<p><span style=\"font-size: 20px\"><strong>Mobile friendly</strong></span></p><p><span style=\"font-size: 14px\">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</span></p>",
+					"source":null,
+					"url": "https://d19ayerf5ehaab.cloudfront.net/assets/store-18687/18687-logo-1642004490.png",
+					"alt": ""
+				},
+				"container": {
+					"properties": {
+						"border": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
 							"unit": "px",
-							"topleft": {
+							"color": "#000000",
+							"right": {
 								"value": 0
 							},
-							"topright": {
+							"bottom": {
 								"value": 0
 							},
-							"bottomleft": {
+							"rounded": {
+								"unit": "px",
+								"topleft": {
+									"value": 0
+								},
+								"topright": {
+									"value": 0
+								},
+								"bottomleft": {
+									"value": 0
+								},
+								"bottomright": {
+									"value": 0
+								}
+							}
+						},
+						"margin": {
+							"top": {
 								"value": 0
 							},
-							"bottomright": {
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
 								"value": 0
 							}
-						}
-					},
-					"margin": {
-						"top": {
-							"value": 0
 						},
-						"left": {
-							"value": 0
+						"padding": {
+							"top": {
+								"value": 0
+							},
+							"left": {
+								"value": 0
+							},
+							"unit": "px",
+							"right": {
+								"value": 0
+							},
+							"bottom": {
+								"value": 0
+							}
 						},
-						"unit": "px",
-						"right": {
-							"value": 0
-						},
-						"bottom": {
-							"value": 0
-						}
-					},
-					"padding": {
-						"top": {
-							"value": 0
-						},
-						"left": {
-							"value": 0
-						},
-						"unit": "px",
-						"right": {
-							"value": 0
-						},
-						"bottom": {
-							"value": 0
-						}
-					},
-					"background": {
-						"type": "color",
-						"color": "#fff",
-						"image": {
-							"original": null
+						"background": {
+							"type": "color",
+							"color": "#fff",
+							"image": {
+								"original": null
+							}
 						}
 					}
 				}
-			}
+			
 		}
 	}
 }
