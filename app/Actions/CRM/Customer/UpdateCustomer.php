@@ -124,7 +124,7 @@ class UpdateCustomer extends OrgAction
             'email'                    => [
                 'sometimes',
                 'nullable',
-                'email',
+                $this->strict ? 'email' : 'string:500',
                 new IUnique(
                     table: 'customers',
                     extraConditions: [

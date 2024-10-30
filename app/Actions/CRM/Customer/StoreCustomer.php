@@ -177,7 +177,7 @@ class StoreCustomer extends OrgAction
             'company_name'             => ['nullable', 'string', 'max:255'],
             'email'                    => [
                 'nullable',
-                'email',
+                $this->strict ? 'email' : 'string:500',
                 new IUnique(
                     table: 'customers',
                     extraConditions: [
@@ -229,7 +229,6 @@ class StoreCustomer extends OrgAction
                 ),
             ];
             $rules['contact_website'] = ['sometimes', 'nullable', 'string', 'max:255'];
-
 
             $rules = $this->noStrictStoreRules($rules);
         }

@@ -9,6 +9,7 @@ namespace App\Actions\CRM\WebUser;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
@@ -22,6 +23,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateWebUser extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
     private WebUser $webUser;
 
@@ -74,7 +76,7 @@ class UpdateWebUser extends OrgAction
             'email'      => [
                 'sometimes',
                 'nullable',
-                'max:255',
+                $this->strict ? 'email' : 'string:500',
                 new IUnique(
                     table: 'web_users',
                     extraConditions: [
@@ -91,8 +93,8 @@ class UpdateWebUser extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
-            $rules['deleted_at'] = ['sometimes','nullable', 'date'];
+
+            $rules                    = $this->noStrictUpdateRules($rules);
 
         }
 

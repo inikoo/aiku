@@ -9,6 +9,7 @@ namespace App\Actions\CRM\WebUser;
 
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateWebUsers;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\CRM\WebUser\WebUserAuthTypeEnum;
 use App\Enums\CRM\WebUser\WebUserTypeEnum;
 use App\Models\CRM\Customer;
@@ -29,6 +30,8 @@ use Throwable;
 
 class StoreWebUser extends OrgAction
 {
+    use WithNoStrictRules;
+
     private Customer $customer;
     private Customer|FulfilmentCustomer $parent;
 
@@ -110,7 +113,7 @@ class StoreWebUser extends OrgAction
         ];
 
         $emailRule = [
-            'email',
+            $this->strict ? 'email' : 'string:500',
             'max:255',
             new IUnique(
                 table: 'web_users',
@@ -127,10 +130,7 @@ class StoreWebUser extends OrgAction
         }
 
         if (!$this->strict) {
-            $rules['fetched_at'] = ['sometimes', 'date'];
-            $rules['created_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['deleted_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
+            $rules = $this->noStrictStoreRules($rules);
         }
 
         return $rules;
