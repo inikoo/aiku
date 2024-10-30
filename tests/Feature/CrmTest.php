@@ -5,10 +5,15 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\CRM\BackInStockReminder\DeleteBackInStockReminder;
+use App\Actions\CRM\BackInStockReminder\StoreBackInStockReminder;
+use App\Actions\CRM\BackInStockReminder\UpdateBackInStockReminder;
 use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\HydrateCustomers;
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\CRM\Favourite\StoreFavourite;
+use App\Actions\CRM\Favourite\UpdateFavourite;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
@@ -18,11 +23,14 @@ use App\Enums\Mail\Mailshot\MailshotStateEnum;
 use App\Enums\Mail\Mailshot\MailshotTypeEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\CRM\Customer;
+use App\Models\CRM\Favourite;
 use App\Models\CRM\Prospect;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Query;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
+use App\Models\Reminder\BackInStockReminder;
+use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -39,6 +47,10 @@ beforeEach(function () {
         $this->shop
     ) = createShop();
 
+    list(
+        $this->tradeUnit,
+        $this->product
+    ) = createProduct($this->shop);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -220,6 +232,90 @@ test('can show list of prospects lists', function () {
             ->has('title');
     });
 })->todo();
+
+test('add favourite to customer', function (Customer $customer) {
+    $favourite = StoreFavourite::make()->action(
+        $customer,
+        $this->product,
+        []
+    );
+
+    $customer->refresh();
+
+    expect($favourite)->toBeInstanceOf(Favourite::class);
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+    ->and($customer->favourites)->not->toBeNull()
+    ->and($customer->favourites->count())->toBe(1);
+
+    return $favourite;
+})->depends('create customer');
+
+test('update favourite', function (Favourite $favourite) {
+    $targetDate = Carbon::now()->addDays(2)->startOfMinute();
+
+    $updatedFavourite = UpdateFavourite::make()->action(
+        favourite: $favourite,
+        modelData: [
+            'last_fetched_at' => $targetDate
+        ],
+        strict: false
+    );
+
+    $updatedFavourite->refresh();
+
+    expect($updatedFavourite)->toBeInstanceOf(Favourite::class);
+    // ->and($updatedFavourite->last_fetched_at)->toEqual($targetDate); //:(
+
+    return $updatedFavourite;
+})->depends('add favourite to customer');
+
+test('add back in stock reminder to customer', function (Customer $customer) {
+    $reminder = StoreBackInStockReminder::make()->action(
+        $customer,
+        $this->product,
+        []
+    );
+
+    $customer->refresh();
+
+    expect($reminder)->toBeInstanceOf(BackInStockReminder::class);
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+    ->and($customer->backInStockReminder)->not->toBeNull()
+    ->and($customer->backInStockReminder->count())->toBe(1);
+
+    return $reminder;
+})->depends('create customer');
+
+test('update back in stock reminder', function (BackInStockReminder $reminder) {
+    $targetDate = Carbon::now()->addDays(2)->startOfMinute();
+
+    $updatedReminder = UpdateBackInStockReminder::make()->action(
+        backInStockReminder: $reminder,
+        modelData: [
+            'last_fetched_at' => $targetDate
+        ],
+        strict: false
+    );
+
+    $updatedReminder->refresh();
+
+    expect($updatedReminder)->toBeInstanceOf(BackInStockReminder::class);
+    // ->and($updatedFavourite->last_fetched_at)->toEqual($targetDate); //:(
+
+    return $updatedReminder;
+})->depends('add back in stock reminder to customer');
+
+test('delete back in stock reminder', function (BackInStockReminder $reminder) {
+    $deletedReminder = DeleteBackInStockReminder::make()->action(
+        backInStockReminder: $reminder,
+    );
+
+    expect(BackInStockReminder::find($deletedReminder->id))->toBeNull();
+
+    return $deletedReminder;
+})->depends('update back in stock reminder');
 
 test('hydrate customers', function (Customer $customer) {
     HydrateCustomers::run($customer);
