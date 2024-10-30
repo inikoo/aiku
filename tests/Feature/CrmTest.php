@@ -9,6 +9,7 @@ use App\Actions\CRM\Customer\AddDeliveryAddressToCustomer;
 use App\Actions\CRM\Customer\DeleteCustomerDeliveryAddress;
 use App\Actions\CRM\Customer\HydrateCustomers;
 use App\Actions\CRM\Customer\StoreCustomer;
+use App\Actions\CRM\Favourite\StoreFavourite;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
@@ -18,6 +19,7 @@ use App\Enums\Mail\Mailshot\MailshotStateEnum;
 use App\Enums\Mail\Mailshot\MailshotTypeEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\CRM\Customer;
+use App\Models\CRM\Favourite;
 use App\Models\CRM\Prospect;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Query;
@@ -39,6 +41,10 @@ beforeEach(function () {
         $this->shop
     ) = createShop();
 
+    list(
+        $this->tradeUnit,
+        $this->product
+    ) = createProduct($this->shop);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -220,6 +226,24 @@ test('can show list of prospects lists', function () {
             ->has('title');
     });
 })->todo();
+
+test('add favourite to customer', function (Customer $customer) {
+    $favourite = StoreFavourite::make()->action(
+        $customer,
+        $this->product,
+        []
+    );
+
+    $customer->refresh();
+
+    expect($favourite)->toBeInstanceOf(Favourite::class);
+
+    expect($customer)->toBeInstanceOf(Customer::class)
+    ->and($customer->favourites)->not->toBeNull()
+    ->and($customer->favourites->count())->toBe(1);
+
+    return $customer;
+})->depends('create customer');
 
 test('hydrate customers', function (Customer $customer) {
     HydrateCustomers::run($customer);
