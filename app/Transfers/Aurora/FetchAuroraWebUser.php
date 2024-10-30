@@ -17,6 +17,14 @@ class FetchAuroraWebUser extends FetchAurora
     {
         $data = [];
 
+        $customer = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Website User Customer Key'});
+
+        if (!$customer->shop->website) {
+            return;
+        }
+
+        $this->parsedData['customer'] = $customer;
+
 
         $hasPassword = $this->isSha256($this->auroraModelData->{'Website User Password'});
 
@@ -36,8 +44,7 @@ class FetchAuroraWebUser extends FetchAurora
         }
 
 
-        $this->parsedData['customer'] = $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Website User Customer Key'});
-        $this->parsedData['webUser']  =
+        $this->parsedData['webUser'] =
             [
                 'status'          => $this->auroraModelData->{'Website User Active'} == 'Yes',
                 'type'            => WebUserTypeEnum::WEB->value,

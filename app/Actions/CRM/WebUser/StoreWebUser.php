@@ -138,6 +138,11 @@ class StoreWebUser extends OrgAction
 
     public function prepareForValidation(ActionRequest $request): void
     {
+
+        if (!$this->shop->website) {
+            dd('xx');
+        }
+
         if ($this->get('type') === null) {
             $this->fill(['type' => WebUserTypeEnum::WEB]);
         }
@@ -178,8 +183,9 @@ class StoreWebUser extends OrgAction
      */
     public function action(Customer $customer, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Webuser
     {
+
         if (!$audit) {
-            Webuser::disableAuditing();
+            abort(422, 'Shop dont have a website');
         }
         $this->asAction       = true;
         $this->customer       = $customer;
