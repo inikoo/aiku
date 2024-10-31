@@ -10,6 +10,7 @@ namespace Tests\Feature;
 use App\Actions\Dispatching\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNote;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToInQueue;
 use App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem;
 use App\Actions\Dispatching\Shipment\StoreShipment;
 use App\Actions\Dispatching\Shipment\UpdateShipment;
@@ -201,6 +202,15 @@ test('create second delivery note item', function (DeliveryNote $deliveryNote) {
     }
     // dd($deliveryNoteItem->pickings);
     return $deliveryNoteItem;
+})->depends('create second delivery note');
+
+test('update second delivery note item state to in queue', function (DeliveryNote $deliveryNote) {
+
+    $deliveryNote = UpdateDeliveryNoteStateToInQueue::make()->action($deliveryNote);
+
+    expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class)
+        ->and($deliveryNote->state)->toBe(DeliveryNoteStateEnum::IN_QUEUE);
+    return $deliveryNote;
 })->depends('create second delivery note');
 
 
