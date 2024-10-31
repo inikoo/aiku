@@ -11,6 +11,7 @@ use App\Actions\Dispatching\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToInQueue;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPickerAssigned;
 use App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem;
 use App\Actions\Dispatching\Picking\AssignPickerToPicking;
 use App\Actions\Dispatching\Shipment\StoreShipment;
@@ -240,7 +241,17 @@ test('assign picker to picking', function (DeliveryNote $deliveryNote) {
     return $deliveryNote;
 })->depends('update second delivery note item state to in queue');
 
+test('update delivery note state to picker assigned', function (DeliveryNote $deliveryNote) {
 
+    $deliveryNote = UpdateDeliveryNoteStateToPickerAssigned::make()->action($deliveryNote);
+
+    expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class)
+        ->and($deliveryNote->state)->toBe(DeliveryNoteStateEnum::PICKER_ASSIGNED);
+
+    $deliveryNote->refresh();
+
+    return $deliveryNote;
+})->depends('assign picker to picking');
 
 test('create shipment', function ($deliveryNote, $shipper) {
     $arrayData              = [
