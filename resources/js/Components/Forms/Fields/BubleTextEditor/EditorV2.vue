@@ -186,6 +186,9 @@ const editorInstance = useEditor({
 
 function openLinkDialogCustom() {
     const attrs = editorInstance.value?.getText({ blockSeparator: '\n\n' })
+    currentLinkInDialog.value = {
+        content: attrs 
+    }
     showLinkDialogCustom.value = true;
     showDialog.value = true;
 }
