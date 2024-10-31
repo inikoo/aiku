@@ -42,7 +42,7 @@ class UpdatePickingStateToPacking extends OrgAction
     public function rules(): array
     {
         return [
-            'packer' => ['sometimes', 'exists:users,id'],
+            'packer' => ['sometimes', 'exists:employees,id'],
         ];
     }
 
