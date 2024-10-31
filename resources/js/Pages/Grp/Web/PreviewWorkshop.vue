@@ -26,7 +26,6 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Toggle from '@/Components/Pure/Toggle.vue'
 
-
 defineOptions({ layout: WebPreview })
 const props = defineProps<{
     webpage?: RootWebpage
@@ -37,8 +36,8 @@ const props = defineProps<{
     autosaveRoute: routeType
 }>()
 
-const debouncedSendUpdateBlock = debounce((block) => sendBlockUpdate(block), 1000, { leading: false, trailing: true })
-const debouncedSendUpdateFooter = debounce((footer) => autoSave(footer), 1000, { leading: false, trailing: true })
+const debouncedSendUpdateBlock = debounce((block) => sendBlockUpdate(block), 5000, { leading: false, trailing: true })
+const debouncedSendUpdateFooter = debounce((footer) => autoSave(footer), 5000, { leading: false, trailing: true })
 const data = ref(cloneDeep(props.webpage))
 const layout = reactive({
     header: { ...props.header?.data },
@@ -107,10 +106,11 @@ onUnmounted(() => {
 });
 
 
-watch(layout.footer, (newVal) => {
+/* watch(layout.footer, (newVal) => {
+    console.log('ddd',newVal)
     debouncedSendUpdateFooter(newVal)
 }, { deep: true })
-
+ */
 
 const isInWorkshop = JSON.parse(route().params.isInWorkshop || false)
 
@@ -217,6 +217,7 @@ const ShowWebpage = (activityItem) => {
             v-model="layout.footer.data.fieldValue"
             :previewMode="isPreviewMode"
             :colorThemed="layout.colorThemed"
+            @autoSave="() => {console.log(layout.footer),debouncedSendUpdateFooter(layout.footer)} "
         />
     </div>
 </template>
