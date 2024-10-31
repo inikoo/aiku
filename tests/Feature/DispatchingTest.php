@@ -11,10 +11,12 @@ use App\Actions\Dispatching\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToInQueue;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPicked;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPickerAssigned;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPicking;
 use App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem;
 use App\Actions\Dispatching\Picking\AssignPickerToPicking;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToPicked;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToPicking;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToQueried;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToWaiting;
@@ -305,8 +307,22 @@ test('update picking state to waiting', function (Picking $picking) {
     return $picking;
 })->depends('update picking state to queried');
 
+test('update delivery note and picking state to picked', function (Picking $picking) {
+    
+    $deliveryNote = $picking->deliveryNoteItem->deliveryNote;
+    expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class);
 
+    $picking = UpdatePickingStateToPicked::make()->action($picking);
 
+    expect($picking->state)->toBe(PickingStateEnum::PICKED);
+
+    $deliveryNote = UpdateDeliveryNoteStateToPicked::make()->action($deliveryNote);
+    expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::PICKED);
+
+    $deliveryNote->refresh();
+
+    return $deliveryNote;
+})->depends('update picking state to waiting');
 
 
 test('create shipment', function ($deliveryNote, $shipper) {
