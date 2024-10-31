@@ -10,6 +10,7 @@ namespace App\Models\Dispatching;
 use App\Enums\Dispatching\Picking\PickingOutcomeEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Enums\Dispatching\Picking\PickingVesselEnum;
+use App\Models\HumanResources\Employee;
 use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -78,5 +79,15 @@ class Picking extends Model
     public function deliveryNoteItem(): BelongsTo
     {
         return $this->belongsTo(DeliveryNoteItem::class);
+    }
+
+    public function picker(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class, 'picker_id');
+    }
+
+    public function packer(): BelongsTo
+    {
+        return $this->belongsTo(Employee::class, 'packer_id');
     }
 }
