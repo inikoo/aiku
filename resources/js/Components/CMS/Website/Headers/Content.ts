@@ -2,7 +2,7 @@ import type { Component } from 'vue'
 
 //Components
 import Header1 from '@/Components/CMS/Website/Headers/Header1Workshop.vue'
-import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundComponent.vue'
+import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
 
 
 

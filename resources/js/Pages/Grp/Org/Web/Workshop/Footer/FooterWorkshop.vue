@@ -8,12 +8,12 @@ import { Switch } from '@headlessui/vue'
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Modal from '@/Components/Utils/Modal.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue';
-import SideEditor from '@/Components/Workshop/SideEditor.vue';
+import SideEditor from '@/Components/Workshop/SideEditor/SideEditorText.vue';
 import { notify } from "@kyvg/vue3-notification"
 import axios from 'axios'
 import { debounce, isArray } from 'lodash'
 import Publish from '@/Components/Publish.vue'
-import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
+import BlockList from '@/Components/CMS/Webpage/BlockList.vue'
 import ScreenView from "@/Components/ScreenView.vue"
 import Image from '@/Components/Image.vue'
 

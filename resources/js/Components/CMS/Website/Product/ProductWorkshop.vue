@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from "vue"
-import ProductList from '@/Components/Websites/Product/ProductList'
+import ProductList from '@/Components/CMS/Website/Product/ProductList'
 import { trans } from 'laravel-vue-i18n'
 import { useColorTheme } from '@/Composables/useStockList'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Popover from 'primevue/popover'
-import { getComponent } from '@/Components/Websites/Product/Content'
+import { getComponent } from '@/Components/CMS/Website/Product/Content'
 import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import SelectButton from 'primevue/selectbutton'
 import ToggleSwitch from 'primevue/toggleswitch'

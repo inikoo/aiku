@@ -5,11 +5,11 @@ import BackgroundProperty from '@/Components/Workshop/Properties/BackgroundPrope
 import BorderProperty from '@/Components/Workshop/Properties/BorderProperty.vue'
 import TextProperty from '@/Components/Workshop/Properties/TextProperty.vue'
 import DimensionProperty from '@/Components/Workshop/Properties/DimensionProperty.vue'
-import ButtonsProperty from '@/Components/Workshop/Properties/ButtonsProperty.vue'
+import ButtonsProperty from '@/Components/CMS/Fields/ButtonProperties.vue'
 import { trans } from 'laravel-vue-i18n'
 import PureInput from '@/Components/Pure/PureInput.vue'
 import ColorPicker from '@/Components/Utils/ColorPicker.vue'
-import Link from '@/Components/Websites/Fields/Link.vue'
+import Link from '@/Components/CMS/Fields/Link.vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faText } from '@far'

@@ -12,7 +12,7 @@ import EditMode from "@/Components/CMS/Website/Menus/EditMode.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import axios from "axios"
 import { Head } from "@inertiajs/vue3"
-import BlockList from "@/Components/Fulfilment/Website/Block/BlockList.vue"
+import BlockList from "@/Components/CMS/Webpage/BlockList.vue"
 import ScreenView from "@/Components/ScreenView.vue"
 import { debounce } from "lodash"
 import EmptyState from '@/Components/Utils/EmptyState.vue'

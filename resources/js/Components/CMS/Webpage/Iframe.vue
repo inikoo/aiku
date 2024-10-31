@@ -8,7 +8,7 @@
 import { faPresentation, faLink, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import dataList from "../data/blogActivity.js"
+import dataList from "../../Fulfilment/Website/data/blogActivity.js"
 import PureInput from "@/Components/Pure/PureInput.vue"
 import { ref } from "vue"
 import Popover from '@/Components/Popover.vue'

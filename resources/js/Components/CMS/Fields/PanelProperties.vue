@@ -5,7 +5,7 @@ import BackgroundProperty from '@/Components/Workshop/Properties/BackgroundPrope
 import BorderProperty from '@/Components/Workshop/Properties/BorderProperty.vue'
 import TextProperty from '@/Components/Workshop/Properties/TextProperty.vue'
 import DimensionProperty from '@/Components/Workshop/Properties/DimensionProperty.vue'
-import ButtonsProperty from '@/Components/Workshop/Properties/ButtonsProperty.vue'
+import ButtonsProperty from '@/Components/CMS/Fields/ButtonProperties.vue'
 import { trans } from 'laravel-vue-i18n'
 
 const model = defineModel()

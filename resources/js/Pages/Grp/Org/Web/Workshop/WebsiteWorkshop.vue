@@ -7,9 +7,9 @@ import { computed, ref } from "vue"
 import { useTabChange } from "@/Composables/tab-change"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import LayoutWorkshop from "@/Components/CMS/Website/Layout/LayoutWorkshop.vue"
-import WorkshopProduct from "@/Components/Websites/Product/ProductWorkshop.vue"
+import WorkshopProduct from "@/Components/CMS/Website/Product/ProductWorkshop.vue"
 import { capitalize } from "@/Composables/capitalize"
-import CategoryWorkshop from '@/Components/Websites/Category/CategoryWorkshop.vue'
+import CategoryWorkshop from '@/Components/CMS/Website/Family/CategoryWorkshop.vue'
 
 library.add(faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPalette, faCheeseburger, faDraftingCompass, faWindow)
 

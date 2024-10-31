@@ -6,24 +6,22 @@
 
 <script setup lang="ts">
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText, faEye, faEyeSlash } from '@fal'
 import draggable from "vuedraggable"
-import PanelProperties from '@/Components/Websites/Fields/PanelProperties.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import debounce from 'lodash/debounce'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import Modal from "@/Components/Utils/Modal.vue"
-import BlockList from '@/Components/Fulfilment/Website/Block/BlockList.vue'
-import VisibleCheckmark from '@/Components/Websites/Fields/VisibleCheckmark.vue';
+import BlockList from '@/Components/CMS/Webpage/BlockList.vue'
+import VisibleCheckmark from '@/Components/CMS/Fields/VisibleCheckmark.vue';
 import SideEditor from '@/Components/Workshop/SideEditor.vue'
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
 import { Collapse } from 'vue-collapsed'
 import { trans } from 'laravel-vue-i18n'
-import { set } from 'lodash'
 
 
 library.add(faBrowser, faDraftingCompass, faRectangleWide, faStars, faBars, faText, faEye, faEyeSlash )

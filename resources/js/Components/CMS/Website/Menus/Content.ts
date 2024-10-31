@@ -8,7 +8,7 @@ import type { Component } from 'vue'
 
 //Components
 import Menu1 from '@/Components/CMS/Website/Menus/Menu1Workshop.vue'
-import NotFoundComponents from '@/Components/Fulfilment/Website/Block/NotFoundComponent.vue'
+import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
 
 
 export const getComponent = (componentName: string) => {

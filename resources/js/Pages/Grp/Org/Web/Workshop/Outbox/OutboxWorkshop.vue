@@ -3,10 +3,10 @@ import { ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
-import Unlayer from "@/Components/Websites/Outboxes/Unlayer.vue"
+import Unlayer from "@/Components/CMS/Website/Outboxes/Unlayer.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Modal from "@/Components/Utils/Modal.vue"
-import TemplateMailshot from '@/Components/Websites/Outboxes/Templates/TemplateMailshot.vue'
+import TemplateMailshot from '@/Components/CMS/Website/Outboxes/Templates/TemplateMailshot.vue'
 
 
 import { library } from '@fortawesome/fontawesome-svg-core'
