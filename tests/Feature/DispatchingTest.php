@@ -17,6 +17,7 @@ use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPacking;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPicked;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPickerAssigned;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPicking;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToSettled;
 use App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem;
 use App\Actions\Dispatching\Picking\AssignPackerToPicking;
 use App\Actions\Dispatching\Picking\AssignPickerToPicking;
@@ -390,6 +391,14 @@ test('update delivery note state to finalised', function (DeliveryNote $delivery
 
     return $deliveryNote;
 })->depends('update delivery note state to packed');
+
+test('update delivery note state to settled', function (DeliveryNote $deliveryNote) {
+
+    $deliveryNote = UpdateDeliveryNoteStateToSettled::make()->action($deliveryNote);
+    expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::SETTLED);
+
+    return $deliveryNote;
+})->depends('update delivery note state to finalised');
 
 
 test('create shipment', function ($deliveryNote, $shipper) {

@@ -31,4 +31,11 @@ class UpdateDeliveryNoteStateToSettled extends OrgAction
 
         return $this->handle($deliveryNote);
     }
+
+    public function action(DeliveryNote $deliveryNote): DeliveryNote
+    {
+        $this->initialisationFromShop($deliveryNote->shop, []);
+
+        return $this->handle($deliveryNote);
+    }
 }
