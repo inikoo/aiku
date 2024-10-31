@@ -15,8 +15,7 @@ class DeleteDeliveryNote
     use AsAction;
     public function handle(DeliveryNote $deliveryNote): ?bool
     {
-        foreach ($deliveryNote->deliveryNoteItems as $item)
-        {
+        foreach ($deliveryNote->deliveryNoteItems as $item) {
             $item->pickings()->delete();
         }
         $deliveryNote->deliveryNoteItems()->delete();

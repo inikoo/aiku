@@ -40,7 +40,7 @@ class UpdateDeliveryNoteStateToPicking extends OrgAction
 
     public function action(DeliveryNote $deliveryNote): DeliveryNote
     {
-        $this->initialisationFromShop($deliveryNote->shop,[]);
+        $this->initialisationFromShop($deliveryNote->shop, []);
 
         return $this->handle($deliveryNote);
     }
