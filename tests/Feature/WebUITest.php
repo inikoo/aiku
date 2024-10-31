@@ -6,11 +6,13 @@
  */
 
 use App\Actions\Web\Banner\StoreBanner;
+use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
 use App\Enums\UI\Web\WebsiteTabsEnum;
 use App\Enums\Web\Banner\BannerTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Web\Banner;
+use App\Models\Web\Webpage;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -45,6 +47,19 @@ beforeEach(function () {
     }
     $this->banner = $banner;
 
+    list(
+        $this->organisationNoFulfilment,
+        $this->userNoFulfilment,
+        $this->shopNoFulfilment
+    )                        = createShop();
+
+    $this->websiteNoFulfilment = createWebsite($this->shopNoFulfilment);
+
+    $webpage = Webpage::first();
+    if (!$webpage) {
+        $webpage = StoreWebpage::make()->action($this->websiteNoFulfilment->storefront, Webpage::factory()->definition());
+    }
+    $this->webpage = $webpage;
 
     $this->user->refresh();
     Config::set(
@@ -398,5 +413,31 @@ test('web website workshop menu', function () {
             ->has('data')
             ->has('webBlockTypes')
             ->has('uploadImageRoute');
+    });
+});
+
+test('can show webpages in shop website', function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route(
+            'grp.org.shops.show.web.webpages.show',
+            [
+                $this->organisation->slug,
+                $this->shopNoFulfilment->slug,
+                $this->websiteNoFulfilment->slug,
+                $this->webpage->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Webpage')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->webpage->code)->etc()
+            )
+            ->has('tabs');
     });
 });
