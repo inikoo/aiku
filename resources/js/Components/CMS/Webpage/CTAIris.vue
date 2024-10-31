@@ -7,10 +7,7 @@
 <script setup lang="ts">
 import { faCube, faLink, faImage } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { ref } from "vue"
-import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 import Image from "@/Components/Image.vue"
-import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
 import { getStyles } from "@/Composables/styles"
 
 library.add(faCube, faLink, faImage)
@@ -25,44 +22,18 @@ const props = defineProps<{
 	properties: {}
 }>()
 
-const emits = defineEmits<{
-	(e: "update:modelValue", value: string): void
-	(e: "autoSave"): void
-}>()
 
-const openGallery = ref(false)
-
-const setImage = (e) => {
-	openGallery.value = false
-	emits("update:modelValue", { ...props.modelValue, image: e })
-	emits("autoSave")
-}
-
-const onUpload = (e) => {
-	// Assuming e.data contains the files, verify this structure in your context
-	if (e.data && e.data.length <= 1) {
-		openGallery.value = false
-		emits("update:modelValue", { ...props.modelValue, image: e.data[0] })
-		emits("autoSave")
-	} else {
-		console.error("No files or multiple files detected.")
-	}
-}
 </script>
 
 <template>
 	<div class="relative" :style="getStyles(modelValue.container.properties)">
 		<div
 			class="relative h-80 overflow-hidden bg-indigo-600 md:absolute md:left-0 md:h-full md:w-1/3 lg:w-1/2">
-			<!-- Edit button to open the gallery, conditionally shown based on isEditable -->
 			<button
-				v-if="isEditable"
-				@click.stop="openGallery.value = !openGallery.value"
 				style="position: absolute; top: 10px; left: 10px; z-index: 10">
 				<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
 			</button>
 
-			<!-- Fallback image wrapped in a clickable link if no custom image is available -->
 			<a
 				v-if="!modelValue?.image?.source"
 				:href="modelValue?.image?.url || '#'"
@@ -91,12 +62,7 @@ const onUpload = (e) => {
 
 		<div class=" max-w-7xl py-24 sm:py-32 lg:px-8 lg:py-40">
 			<div class="pl-6 pr-6 md:ml-auto md:w-2/3 md:pl-16 lg:w-1/2 lg:pl-24 lg:pr-0 xl:pl-32">
-				<Editor
-					v-if="modelValue?.text"
-					v-model="modelValue.text"
-					:editable="isEditable"
-					@update:modelValue="() => emits('autoSave')"
-					class="mb-4" />
+				<div v-html="modelValue.text" />
 				<div
 					typeof="button"
 					:style="getStyles(modelValue.button.container.properties)"
@@ -106,12 +72,4 @@ const onUpload = (e) => {
 			</div>
 		</div>
 	</div>
-
-	<Gallery
-		:open="openGallery"
-		@on-close="openGallery = false"
-		:uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: id })"
-		@onPick="setImage"
-		@onUpload="onUpload">
-	</Gallery>
 </template>

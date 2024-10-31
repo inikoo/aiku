@@ -2,11 +2,8 @@
 import { faCube, faStar, faImage } from "@fas"
 import { faPencil } from "@far"
 import { library } from "@fortawesome/fontawesome-svg-core"
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
 import Image from "@/Components/Image.vue"
 import { ref, defineProps, defineEmits } from "vue"
-import Button from "@/Components/Elements/Buttons/Button.vue"
 
 library.add(faCube, faStar, faImage, faPencil)
 
@@ -19,95 +16,8 @@ const props = defineProps<{
 	isEditable?: boolean
 }>()
 
-const emits = defineEmits<{
-	(e: "update:modelValue", value: any): void
-	(e: "autoSave"): void
-}>()
-
-const openGallery = ref(false)
-const activeImageIndex = ref<number | null>(null)
-
-const setImage = (imageData: any) => {
-	if (activeImageIndex.value !== null) {
-		const images = props.modelValue?.value?.images || []
-
-		while (images.length <= activeImageIndex.value) {
-			images.push({
-				source: null,
-				link_data: null,
-			})
-		}
-	
-		const flattenedSource = imageData.source ? imageData.source : imageData
-
-		images[activeImageIndex.value].source = {
-			...flattenedSource,
-		}
-    
-		emits("update:modelValue", {
-			...props.modelValue,
-			value: {
-                ...props.modelValue.value,
-                images: images,
-            },
-		})
-
-		emits("autoSave")
-	} else {
-		console.error("Invalid index or modelValue structure.")
-	}
-
-	openGallery.value = false
-	activeImageIndex.value = null
-}
-
-const onUpload = (uploadData: any) => {
-	if (activeImageIndex.value !== null && uploadData.data && uploadData.data.length <= 1) {
-		const images = props.modelValue?.value?.images || []
-		while (images.length <= activeImageIndex.value) {
-			images.push({
-				source: null,
-				link_data: null,
-			})
-		}
-
-		const flattenedSource = uploadData.data[0].source
-			? uploadData.data[0].source
-			: uploadData.data[0]
-
-		images[activeImageIndex.value].source = {
-			...flattenedSource,
-		}
-
-		emits("update:modelValue", {
-			...props.modelValue,
-			value: {
-                ...props.modelValue.value,
-                images: images,
-            },
-		})
-
-		emits("autoSave")
-	} else {
-		console.error("Invalid index, no files, or multiple files detected.")
-	}
-
-	openGallery.value = false
-	activeImageIndex.value = null
-}
-
-const openImageGallery = (index: number) => {
-	activeImageIndex.value = index
-	openGallery.value = true
-}
-
 const getHref = (index: number, isEditable: any) => {
 	const image = props.modelValue?.value?.images?.[index]
-
-	console.log(image, "this url", index)
-	if (isEditable) {
-		return image?.link_data?.workshop_url
-	}
 
 	if (image?.link_data?.url) {
 		return image.link_data.url
@@ -174,35 +84,8 @@ const getImageSlots = (layoutType: string) => {
 				<Image
 					:src="modelValue?.value?.images?.[index - 1]?.source"
 					class="w-full object-cover object-center group-hover:opacity-75" />
-
-				<!-- Pencil icon for editing when isEditable is true -->
-				<div v-if="isEditable" class="absolute top-2 right-2 z-10 flex space-x-2">
-					<Button
-						:icon="['far', 'fa-pencil']"
-						size="xs"
-						@click="openImageGallery(index - 1)" />
-				</div>
 			</a>
-
-			<div
-				v-else-if="isEditable"
-				class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-				@click="openImageGallery(index - 1)">
-				<font-awesome-icon
-					:icon="['fas', 'image']"
-					class="mx-auto h-12 w-12 text-gray-400" />
-				<span class="mt-2 block text-sm font-semibold text-gray-900">
-					Click Pick Image
-				</span>
-			</div>
 		</div>
 	</div>
 
-	<!-- Gallery for picking/uploading images -->
-	<Gallery
-		:open="openGallery"
-		@on-close="openGallery = false"
-		:uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: id })"
-		@onPick="setImage"
-		@onUpload="onUpload" />
 </template>
