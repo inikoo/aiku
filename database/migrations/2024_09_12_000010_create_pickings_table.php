@@ -43,10 +43,10 @@ return new class () extends Migration {
             $table->foreign('org_stock_id')->references('id')->on('org_stocks');
 
             $table->unsignedSmallInteger('picker_id')->nullable()->index();
-            $table->foreign('picker_id')->references('id')->on('users');
+            $table->foreign('picker_id')->references('id')->on('employees');
 
             $table->unsignedSmallInteger('packer_id')->nullable()->index();
-            $table->foreign('packer_id')->references('id')->on('users');
+            $table->foreign('packer_id')->references('id')->on('employees');
 
             $table->string('vessel_picking')->default(null)->nullable()->index();
             $table->string('vessel_packing')->default(null)->nullable()->index();
