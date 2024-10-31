@@ -21,6 +21,7 @@ use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Models\Web\Website;
 use Exception;
 use Illuminate\Support\Arr;
+use Lorisleiva\Actions\ActionRequest;
 
 class PublishWebsiteProductTemplate extends OrgAction
 {
@@ -77,12 +78,10 @@ class PublishWebsiteProductTemplate extends OrgAction
 
     public function rules(): array
     {
-        $rules = [
+        return [
             'comment' => ['sometimes', 'required', 'string', 'max:1024'],
             'data' => ['required']
         ];
-
-        return $rules;
     }
 
 
@@ -99,6 +98,13 @@ class PublishWebsiteProductTemplate extends OrgAction
         $validatedData = $this->validateAttributes();
 
         return $this->handle($website, $validatedData);
+    }
+
+    public function asController(Website $website, ActionRequest $request): Website
+    {
+        $this->initialisation($website->organisation, $request);
+
+        return $this->handle($website, $this->validatedData);
     }
 
     public string $commandSignature = 'publish:website {website?}';
