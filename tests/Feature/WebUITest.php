@@ -441,3 +441,30 @@ test('can show webpages in shop website', function () {
             ->has('tabs');
     });
 });
+
+test('can show workshop webpages in shop website', function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route(
+            'grp.org.shops.show.web.webpages.workshop',
+            [
+                $this->organisation->slug,
+                $this->shopNoFulfilment->slug,
+                $this->websiteNoFulfilment->slug,
+                $this->webpage->slug
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/WebpageWorkshop')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->webpage->code)->etc()
+            )
+            ->has('webpage')
+            ->has('webBlockTypes');
+    });
+});
