@@ -1,27 +1,27 @@
 import type { Component } from 'vue'
 
-import WowsbarBanner from '@/Components/CMS/Webpage/WowsbarBanner.vue'
+import WowsbarBanner from '@/Components/CMS/Webpage/WowsbarBannerWorkshop.vue'
 import ProductPage from '@/Components/CMS/Webpage/ProductPage.vue'
-import Text from '@/Components/CMS/Webpage/TextContent.vue'
+import Text from '@/Components/CMS/Webpage/TextContentWorkshop.vue'
 import FamilyPageOffer from '@/Components/CMS/Webpage/FamilyPage-offer.vue'
 import ProductList from '@/Components/CMS/Webpage/ProductList.vue'
-import CTA from '@/Components/CMS/Webpage/CTA.vue'
-import Rewiews from '@/Components/CMS/Webpage/Reviews.vue'
-import Image from '@/Components/CMS/Webpage/Image.vue'
-import CTA2 from '@/Components/CMS/Webpage/CTA2.vue'
-import CTA3 from '@/Components/CMS/Webpage/CTA3.vue'
-import Gallery from '@/Components/CMS/Webpage/Gallery.vue'
-import Iframe from '@/Components/CMS/Webpage/Iframe.vue'
-import BentoGrid from '@/Components/CMS/Webpage/BentoGrid.vue'
+import CTA from '@/Components/CMS/Webpage/CTAWorkshop.vue'
+import Rewiews from '@/Components/CMS/Webpage/ReviewsWorkshop.vue'
+import Image from '@/Components/CMS/Webpage/ImageWorkshop.vue'
+import CTA2 from '@/Components/CMS/Webpage/CTA2Workshop.vue'
+import CTA3 from '@/Components/CMS/Webpage/CTA3Workshop.vue'
+import Gallery from '@/Components/CMS/Webpage/GalleryWorkshop.vue'
+import Iframe from '@/Components/CMS/Webpage/IframeWorkshop.vue'
+import BentoGrid from '@/Components/CMS/Webpage/BentoGridWorksop.vue'
 import Product from '@/Components/CMS/Webpage/Product.vue'
 import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
 import Grid1 from '@/Components/CMS/Webpage/Grid1.vue'
-import Department from '@/Components/CMS/Webpage/Department.vue'
-import Overview from '@/Components/CMS/Webpage/Overview.vue'
-import Script from '@/Components/CMS/Webpage/Script.vue'
-import SeeAlso from '@/Components/CMS/Webpage/SeeAlso.vue'
-import  CtaAurora1 from "@/Components/CMS/Webpage/CtaAurora1.vue"
-import Overview2 from "@/Components/CMS/Webpage/Overview2.vue"
+import Department from '@/Components/CMS/Webpage/DepartmentWorkshop.vue'
+import Overview from '@/Components/CMS/Webpage/OverviewWorkshop.vue'
+import Script from '@/Components/CMS/Webpage/ScriptWorkShop.vue'
+import SeeAlso from '@/Components/CMS/Webpage/SeeAlsoWorkshop.vue'
+import  CtaAurora1 from "@/Components/CMS/Webpage/CtaAurora1Workshop.vue"
+import Overview2 from "@/Components/CMS/Webpage/Overview2Workshop.vue"
 import Action from "@/Components/Forms/Fields/Action.vue"
 
 

@@ -37,4 +37,11 @@ class UpdatePickingStateToWaiting extends OrgAction
 
         return $this->handle($picking);
     }
+
+    public function action(Picking $picking): Picking
+    {
+        $this->initialisationFromShop($picking->shop, []);
+
+        return $this->handle($picking);
+    }
 }

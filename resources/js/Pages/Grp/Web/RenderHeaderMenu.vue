@@ -75,8 +75,6 @@ const props = defineProps<{
     loginMode:Boolean
     previewMode:Boolean
 }>()
-
-console.log('inii',props)
 </script>
 
 <template>
