@@ -23,6 +23,10 @@ const props = defineProps<{
     colorThemed?: Object
 }>();
 
+const emits = defineEmits<{
+    (e: 'autoSave'): void
+}>()
+
 const editable = ref(!props.previewMode)
 const selectedData = ref(null)
 const selectedIndex = ref(null)
@@ -64,6 +68,7 @@ const onDrag = () => {
 const onDrop = () => {
     editable.value = true;
     editKey.value = uuidv4();
+    emits('autoSave')
 }
 
 
@@ -109,7 +114,6 @@ const onRightClickSubMenu = (event, data, column, index) => {
 };
 
 const selectAllEditor = (editor: any) => {
-    console.log('dff',editor)
     editor.commands.selectAll()
 }
 
@@ -151,7 +155,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                         <div class="w-fit"
                                             @contextmenu="onRightClickMenu($event, item, modelValue.column['column_1']['data'], index)">
                                             <span class="text-xl font-semibold w-fit leading-6">
-                                                <Editor v-model="item.name" :editable="editable" :key="editKey"
+                                                <Editor @update:modelValue="() => emits('autoSave')"  v-model="item.name" :editable="editable" :key="editKey"
                                                     @onEditClick="selectAllEditor" />
                                             </span>
                                         </div>
@@ -172,7 +176,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                         <div class="w-full"
                                                             @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_1']['data'], subIndex)">
                                                             <span class="text-sm block">
-                                                                <Editor v-model="sub.name" :key="editKey" :editable="editable"
+                                                                <Editor @update:modelValue="() => emits('autoSave')" v-model="sub.name" :key="editKey" :editable="editable"
                                                                     @onEditClick="selectAllEditor" />
                                                             </span>
                                                         </div>
@@ -198,7 +202,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                     <div class="w-fit"
                                                         @contextmenu="onRightClickMenu($event, item, modelValue.column['column_1']['data'], index)">
                                                         <span class="text-xl font-semibold leading-6">
-                                                            <Editor v-model="item.name" :editable="editable"
+                                                            <Editor @update:modelValue="() => emits('autoSave')" v-model="item.name" :editable="editable"
                                                                 :key="editKey" @onEditClick="selectAllEditor" />
                                                         </span>
                                                     </div>
@@ -229,7 +233,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                                     <div class="w-full"
                                                                         @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_1']['data'], subIndex)">
                                                                         <span class="text-sm block">
-                                                                            <Editor v-model="sub.name"
+                                                                            <Editor @update:modelValue="() => emits('autoSave')" v-model="sub.name"
                                                                                 :editable="editable" :key="editKey"
                                                                                 @onEditClick="selectAllEditor" />
                                                                         </span>
@@ -273,7 +277,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                         <div class="w-full"
                                             @contextmenu="onRightClickMenu($event, item, modelValue.column['column_2']['data'], index)">
                                             <span class="text-xl font-semibold w-fit leading-6">
-                                                <Editor v-model="item.name" :editable="editable" :key="editKey"
+                                                <Editor @update:modelValue="() => emits('autoSave')" v-model="item.name" :editable="editable" :key="editKey"
                                                     @onEditClick="selectAllEditor" />
                                             </span>
                                         </div>
@@ -294,7 +298,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                         <div class="w-full"
                                                             @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_2']['data'], subIndex)">
                                                             <span class="text-sm block">
-                                                                <Editor v-model="sub.name" :editable="editable"
+                                                                <Editor @update:modelValue="() => emits('autoSave')" v-model="sub.name" :editable="editable"
                                                                     :key="editKey" @onEditClick="selectAllEditor" />
                                                             </span>
                                                         </div>
@@ -321,7 +325,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                     <div class="w-fit"
                                                         @contextmenu="onRightClickMenu($event, item, modelValue.column['column_2']['data'], index)">
                                                         <span class="text-xl font-semibold leading-6">
-                                                            <Editor v-model="item.name" :editable="editable"
+                                                            <Editor @update:modelValue="() => emits('autoSave')" v-model="item.name" :editable="editable"
                                                                 :key="editKey" @onEditClick="selectAllEditor" />
                                                         </span>
                                                     </div>
@@ -352,7 +356,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                                     <div class="w-full"
                                                                         @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_2']['data'], subIndex)">
                                                                         <span class="text-sm block">
-                                                                            <Editor v-model="sub.name"
+                                                                            <Editor @update:modelValue="() => emits('autoSave')" v-model="sub.name"
                                                                                 :toogle="['link']" :editable="editable"
                                                                                 :key="editKey"
                                                                                 @onEditClick="selectAllEditor" />
@@ -395,7 +399,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                         <div class="w-full"
                                             @contextmenu="onRightClickMenu($event, item, modelValue.column['column_3']['data'], index)">
                                             <span class="text-xl font-semibold w-fit leading-6">
-                                                <Editor v-model="item.name" :editable="editable" :key="editKey"
+                                                <Editor @update:modelValue="() => emits('autoSave')" v-model="item.name" :editable="editable" :key="editKey"
                                                     @onEditClick="selectAllEditor" />
                                             </span>
                                         </div>
@@ -416,7 +420,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                         <div class="w-full"
                                                             @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_3']['data'], subIndex)">
                                                             <span class="text-sm block">
-                                                                <Editor v-model="sub.name" :editable="editable"
+                                                                <Editor @update:modelValue="() => emits('autoSave')" v-model="sub.name" :editable="editable"
                                                                     :key="editKey" @onEditClick="selectAllEditor" />
                                                             </span>
                                                         </div>
@@ -443,7 +447,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                     <div class="w-fit"
                                                         @contextmenu="onRightClickMenu($event, item, modelValue.column['column_3']['data'], index)">
                                                         <span class="text-xl font-semibold leading-6">
-                                                            <Editor v-model="item.name" :editable="editable"
+                                                            <Editor @update:modelValue="() => emits('autoSave')" v-model="item.name" :editable="editable"
                                                                 :key="editKey" @onEditClick="selectAllEditor" />
                                                         </span>
                                                     </div>
@@ -474,7 +478,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                                                     <div class="w-full"
                                                                         @contextmenu="onRightClickSubMenu($event, item, modelValue.column['column_3']['data'], subIndex)">
                                                                         <span class="text-sm block">
-                                                                            <Editor v-model="sub.name"
+                                                                            <Editor @update:modelValue="() => emits('autoSave')" v-model="sub.name"
                                                                                 :editable="editable" :key="editKey"
                                                                                 @onEditClick="selectAllEditor" />
                                                                         </span>
@@ -524,11 +528,11 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                         </div>
                         <address
                             class="mt-10 md:mt-0 not-italic mb-4 text-center md:text-left text-xs md:text-sm text-gray-300">
-                            <Editor v-model="modelValue.column.column_4.data.textBox1" :editable="editable" />
+                            <Editor @update:modelValue="() => emits('autoSave')" v-model="modelValue.column.column_4.data.textBox1" :editable="editable" />
                         </address>
 
                         <div class="flex justify-center gap-x-8 text-gray-300 md:block">
-                            <Editor v-model="modelValue.column.column_4.data.textBox2" :editable="editable" />
+                            <Editor @update:modelValue="() => emits('autoSave')" v-model="modelValue.column.column_4.data.textBox2" :editable="editable" />
                         </div>
                         <div
                             class="hidden md:block mb-6 md:mb-5 bg-[#9c7c64] md:bg-transparent text-center md:text-left pt-4 pb-6 space-y-4 md:py-0 md:space-y-0">
@@ -543,14 +547,14 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                         class="border-b border-gray-500 md:border-none flex items-center space-x-2 px-5 pb-4 md:pb-0 md:px-0">
                         <i class="text-4xl md:text-3xl fab fa-whatsapp text-green-500"></i>
                         <span class="w-10/12 md:w-full md:text-sm">
-                            <Editor v-model="modelValue.column.column_4.data.textBox3" :editable="editable" />
+                            <Editor @update:modelValue="() => emits('autoSave')" v-model="modelValue.column.column_4.data.textBox3" :editable="editable" />
                         </span>
                     </div>
                 </div>
             </div>
 
             <div class="text-[10px] md:text-base border-t mt-8 pb-2 pt-2 md:pb-0 md:pt-4 text-center">
-                <Editor v-model="modelValue.copyRight" :editable="editable" />
+                <Editor @update:modelValue="() => emits('autoSave')" v-model="modelValue.copyRight" :editable="editable" />
             </div>
         </div>
     </div>
