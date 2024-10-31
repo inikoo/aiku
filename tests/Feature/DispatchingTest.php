@@ -15,7 +15,9 @@ use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPicked;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPickerAssigned;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPicking;
 use App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem;
+use App\Actions\Dispatching\Picking\AssignPackerToPicking;
 use App\Actions\Dispatching\Picking\AssignPickerToPicking;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToPacking;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToPicked;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToPicking;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToQueried;
@@ -321,8 +323,22 @@ test('update delivery note and picking state to picked', function (Picking $pick
 
     $deliveryNote->refresh();
 
-    return $deliveryNote;
+    return $picking;
 })->depends('update picking state to waiting');
+
+test('assign packer to picking', function (Picking $picking) {
+
+    $assignedPicking = AssignPackerToPicking::make()->action($picking, [
+        'packer_id' => $this->employee->id
+    ]);
+
+    expect($assignedPicking)->toBeInstanceOf(Picking::class)
+        ->and($assignedPicking->packer)->not->toBeNull();
+
+    $picking->refresh();
+
+    return $picking;
+})->depends('update delivery note and picking state to picked');
 
 
 test('create shipment', function ($deliveryNote, $shipper) {
