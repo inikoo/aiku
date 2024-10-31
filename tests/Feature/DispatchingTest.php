@@ -12,8 +12,10 @@ use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToInQueue;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPickerAssigned;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPicking;
 use App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem;
 use App\Actions\Dispatching\Picking\AssignPickerToPicking;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToPicking;
 use App\Actions\Dispatching\Shipment\StoreShipment;
 use App\Actions\Dispatching\Shipment\UpdateShipment;
 use App\Actions\Dispatching\Shipper\StoreShipper;
@@ -26,6 +28,7 @@ use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
+use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Dispatching\DeliveryNote;
@@ -252,6 +255,33 @@ test('update delivery note state to picker assigned', function (DeliveryNote $de
 
     return $deliveryNote;
 })->depends('assign picker to picking');
+
+test('update delivery note and picking state to picking', function (DeliveryNote $deliveryNote) {
+    
+    $deliveryNoteItem = $deliveryNote->deliveryNoteItems->first();
+    expect($deliveryNoteItem)->toBeInstanceOf(DeliveryNoteItem::class);
+
+    $picking = $deliveryNoteItem->pickings;
+    expect($picking)->toBeInstanceOf(Picking::class);
+
+    $picking = UpdatePickingStateToPicking::make()->action($picking, [
+        'quantity_picked' => 10
+    ]);
+
+    expect($picking->state)->toBe(PickingStateEnum::PICKING)
+        ->and($picking->quantity_picked)->toBe(10);
+
+    $deliveryNote = UpdateDeliveryNoteStateToPicking::make()->action($deliveryNote);
+    expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::PICKING);
+
+    $deliveryNote->refresh();
+
+    return $deliveryNote;
+})->depends('update delivery note state to picker assigned');
+
+
+
+
 
 test('create shipment', function ($deliveryNote, $shipper) {
     $arrayData              = [
