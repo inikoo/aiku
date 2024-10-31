@@ -10,6 +10,7 @@ namespace Tests\Feature;
 use App\Actions\Dispatching\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNote;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToFinalised;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToInQueue;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPacked;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPacking;
@@ -381,6 +382,14 @@ test('update delivery note state to packed', function (Picking $picking) {
 
     return $deliveryNote;
 })->depends('update picking state to done');
+
+test('update delivery note state to finalised', function (DeliveryNote $deliveryNote) {
+
+    $deliveryNote = UpdateDeliveryNoteStateToFinalised::make()->action($deliveryNote);
+    expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::FINALISED);
+
+    return $deliveryNote;
+})->depends('update delivery note state to packed');
 
 
 test('create shipment', function ($deliveryNote, $shipper) {
