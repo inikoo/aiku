@@ -32,7 +32,7 @@ class AssignPackerToPicking extends OrgAction
     public function rules(): array
     {
         return [
-            'packer_id' => ['sometimes', 'exists:users,id'],
+            'packer_id' => ['sometimes', 'exists:employees,id'],
         ];
     }
 
