@@ -18,9 +18,11 @@ use App\Actions\Dispatching\Shipper\UpdateShipper;
 use App\Actions\Dispatching\ShippingEvent\StoreShippingEvent;
 use App\Actions\Dispatching\ShippingEvent\UpdateShippingEvent;
 use App\Actions\Goods\Stock\StoreStock;
+use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
+use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\Shipment;
@@ -122,12 +124,16 @@ test('create delivery note item', function (DeliveryNote $deliveryNote) {
     $historicAsset = HistoricAsset::find(1);
     try {
         $stock       = StoreStock::make()->action($this->group, Stock::factory()->definition());
+        $orgStock       = StoreOrgStock::make()->action($this->organisation, $stock, [
+            'state' => OrgStockStateEnum::ACTIVE
+        ]);
         $transaction = StoreTransaction::make()->action($this->order, $historicAsset, Transaction::factory()->definition());
 
         $deliveryNoteData = [
             'delivery_note_id' => $deliveryNote->id,
-            'stock_id'         => $stock->id,
+            'org_stock_id'         => $orgStock->id,
             'transaction_id'   => $transaction->id,
+            'quantity_required' => 10
         ];
 
         $deliveryNoteItem = StoreDeliveryNoteItem::make()->action($deliveryNote, $deliveryNoteData);
@@ -137,9 +143,9 @@ test('create delivery note item', function (DeliveryNote $deliveryNote) {
         echo $e->getMessage();
         $deliveryNoteItem = null;
     }
-
+    // dd($deliveryNoteItem->pickings);
     return $deliveryNoteItem;
-})->depends('create delivery note')->todo();
+})->depends('create delivery note');
 
 
 test('remove delivery note', function ($deliveryNote) {
@@ -149,6 +155,54 @@ test('remove delivery note', function ($deliveryNote) {
 
     return $success;
 })->depends('create delivery note', 'create delivery note item');
+
+test('create second delivery note', function () {
+    $arrayData = [
+        'reference'           => 'A234567',
+        'state'               => DeliveryNoteStateEnum::SUBMITTED,
+        'status'              => DeliveryNoteStatusEnum::HANDLING,
+        'email'               => 'test@email.com',
+        'phone'               => '+62081353890000',
+        'date'                => date('Y-m-d'),
+        'delivery_address'    => new Address(Address::factory()->definition()),
+        'warehouse_id'        => $this->warehouse->id
+    ];
+
+    $deliveryNote = StoreDeliveryNote::make()->action($this->order, $arrayData);
+    expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class)
+        ->and($deliveryNote->reference)->toBe($arrayData['reference']);
+
+
+    return $deliveryNote;
+});
+
+test('create second delivery note item', function (DeliveryNote $deliveryNote) {
+    $historicAsset = HistoricAsset::find(1);
+    try {
+        $stock       = StoreStock::make()->action($this->group, Stock::factory()->definition());
+        $orgStock       = StoreOrgStock::make()->action($this->organisation, $stock, [
+            'state' => OrgStockStateEnum::ACTIVE
+        ]);
+        $transaction = StoreTransaction::make()->action($this->order, $historicAsset, Transaction::factory()->definition());
+
+        $deliveryNoteData = [
+            'delivery_note_id' => $deliveryNote->id,
+            'org_stock_id'         => $orgStock->id,
+            'transaction_id'   => $transaction->id,
+            'quantity_required' => 10
+        ];
+
+        $deliveryNoteItem = StoreDeliveryNoteItem::make()->action($deliveryNote, $deliveryNoteData);
+
+        expect($deliveryNoteItem->delivery_note_id)->toBe($deliveryNoteData['delivery_note_id']);
+    } catch (Throwable $e) {
+        echo $e->getMessage();
+        $deliveryNoteItem = null;
+    }
+    // dd($deliveryNoteItem->pickings);
+    return $deliveryNoteItem;
+})->depends('create second delivery note');
+
 
 
 test('create shipment', function ($deliveryNote, $shipper) {
