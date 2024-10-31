@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue"
+import { onBeforeUnmount, onMounted, ref, defineExpose } from "vue"
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
 /* import type DataTable from "@/models/table" */
 
@@ -186,6 +186,9 @@ const editorInstance = useEditor({
 
 function openLinkDialogCustom() {
     const attrs = editorInstance.value?.getText({ blockSeparator: '\n\n' })
+    currentLinkInDialog.value = {
+        content: attrs 
+    }
     showLinkDialogCustom.value = true;
     showDialog.value = true;
 }
@@ -269,6 +272,15 @@ onMounted(() => {
 onBeforeUnmount(() => {
     editorInstance.value?.destroy()
 })
+
+const onEditorClick = () => {
+    emits('onEditClick', editorInstance.value)
+}
+
+defineExpose({
+    editor : editorInstance
+})
+
 </script>
 
 <template>
@@ -447,7 +459,7 @@ onBeforeUnmount(() => {
 
         <div class="flex flex-col">
             <slot name="editor-content" :editor="editorInstance">
-                <EditorContent :editor="editorInstance" />
+                <EditorContent @click="onEditorClick" :editor="editorInstance" />
             </slot>
         </div>
 

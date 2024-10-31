@@ -10,13 +10,18 @@ namespace Tests\Feature;
 use App\Actions\Dispatching\DeliveryNote\DeleteDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNote;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToFinalised;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToInQueue;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPacked;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPacking;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPicked;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPickerAssigned;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPicking;
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToSettled;
 use App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem;
 use App\Actions\Dispatching\Picking\AssignPackerToPicking;
 use App\Actions\Dispatching\Picking\AssignPickerToPicking;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToDone;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToPacking;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToPicked;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToPicking;
@@ -339,6 +344,61 @@ test('assign packer to picking', function (Picking $picking) {
 
     return $picking;
 })->depends('update delivery note and picking state to picked');
+
+test('update delivery note and picking state to packing', function (Picking $picking) {
+    
+    $deliveryNote = $picking->deliveryNoteItem->deliveryNote;
+    expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class);
+
+    $deliveryNote = UpdateDeliveryNoteStateToPacking::make()->action($deliveryNote);
+    expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::PACKING)
+        ->and($deliveryNote->deliveryNoteItems->first()->pickings->state)->toBe(PickingStateEnum::PACKING);
+
+    $deliveryNote->refresh();
+
+    return $deliveryNote;
+})->depends('assign packer to picking');
+
+test('update picking state to done', function (DeliveryNote $deliveryNote) {
+    
+    $deliveryNoteItem = $deliveryNote->deliveryNoteItems->first();
+    expect($deliveryNoteItem)->toBeInstanceOf(DeliveryNoteItem::class);
+
+    $picking = $deliveryNoteItem->pickings;
+    expect($picking)->toBeInstanceOf(Picking::class);
+
+    $picking = UpdatePickingStateToDone::make()->action($picking);
+    expect($picking->state)->toBe(PickingStateEnum::DONE);
+
+    return $picking;
+})->depends('update delivery note and picking state to packing');
+
+test('update delivery note state to packed', function (Picking $picking) {
+    
+    $deliveryNote = $picking->deliveryNoteItem->deliveryNote;
+    expect($deliveryNote)->toBeInstanceOf(DeliveryNote::class);
+
+    $deliveryNote = UpdateDeliveryNoteStateToPacked::make()->action($deliveryNote);
+    expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::PACKED);
+
+    return $deliveryNote;
+})->depends('update picking state to done');
+
+test('update delivery note state to finalised', function (DeliveryNote $deliveryNote) {
+
+    $deliveryNote = UpdateDeliveryNoteStateToFinalised::make()->action($deliveryNote);
+    expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::FINALISED);
+
+    return $deliveryNote;
+})->depends('update delivery note state to packed');
+
+test('update delivery note state to settled', function (DeliveryNote $deliveryNote) {
+
+    $deliveryNote = UpdateDeliveryNoteStateToSettled::make()->action($deliveryNote);
+    expect($deliveryNote->state)->toBe(DeliveryNoteStateEnum::SETTLED);
+
+    return $deliveryNote;
+})->depends('update delivery note state to finalised');
 
 
 test('create shipment', function ($deliveryNote, $shipper) {
