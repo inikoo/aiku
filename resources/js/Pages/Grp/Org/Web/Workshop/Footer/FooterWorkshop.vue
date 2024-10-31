@@ -47,7 +47,6 @@ const isLoading = ref(false)
 const comment = ref('')
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
-console.log(route().params)
 const iframeSrc = ref(
     route('grp.websites.footer.preview', [
         route().params['website'],
@@ -61,6 +60,7 @@ const socketLayout = SocketHeaderFooter(route().params['website']);
 
 
 const onPickTemplate = (footer: Object) => {
+    console.log('masukk')
     isModalOpen.value = false
     usedTemplates.value = footer
 }
@@ -224,7 +224,7 @@ const sendToIframe = (data: any) => {
             :webBlockTypes="webBlockTypes.data.filter((item) => item.component == 'footer')"
             :currentTopbar="usedTemplates">
             <template #image="{ block }">
-                <div @click="() => onPickTemplate"
+                <div @click="() => onPickTemplate(block)"
                     class="min-h-16 w-full aspect-[2/1] overflow-hidden flex items-center bg-gray-100 justify-center border border-gray-300 hover:border-indigo-500 rounded cursor-pointer">
                     <div class="w-auto shadow-md">
                         <Image :src="block.screenshot" class="object-contain" />

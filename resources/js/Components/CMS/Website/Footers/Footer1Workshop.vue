@@ -8,6 +8,8 @@ import ContextMenu from 'primevue/contextmenu';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { getStyles } from '@/Composables/styles';
 
+import { FieldValue, Column1, Daum, Daum2 } from '@/types/Website/Website/footer1'
+
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faShieldAlt, faPlus, faTrash, faAngleUp, faAngleDown } from "@fas"
@@ -17,7 +19,7 @@ import { faBars } from '@fal'
 library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faBars, faPlus, faTrash)
 
 const props = defineProps<{
-    modelValue: object,
+    modelValue: FieldValue,
     keyTemplate: String
     previewMode: Boolean
     colorThemed?: Object
@@ -28,9 +30,9 @@ const emits = defineEmits<{
 }>()
 
 const editable = ref(!props.previewMode)
-const selectedData = ref(null)
-const selectedIndex = ref(null)
-const selectedColumn = ref(null)
+const selectedData = ref<Daum | null>(null)
+const selectedIndex = ref<Number | null >(null)
+const selectedColumn = ref<Column1 | null>(null)
 const editKey = ref(uuidv4())
 const menu = ref();
 const subMenu = ref();
@@ -99,17 +101,17 @@ const deleteSubMenu = () => {
     selectedData.value.data.splice(selectedIndex.value, 1)
 }
 
-const onRightClickMenu = (event, data, column, index) => {
+const onRightClickMenu = (event, data : Daum, column : Column1, index : Number) => {
     selectedData.value = data;
     selectedIndex.value = index,
-        selectedColumn.value = column
+    selectedColumn.value = column
     menu.value.show(event);
 };
 
-const onRightClickSubMenu = (event, data, column, index) => {
+const onRightClickSubMenu = (event, data : Daum, column : Column1, index : Number) => {
     selectedData.value = data;
     selectedIndex.value = index,
-        selectedColumn.value = column
+    selectedColumn.value = column
     subMenu.value.show(event);
 };
 
@@ -117,8 +119,7 @@ const selectAllEditor = (editor: any) => {
     editor.commands.selectAll()
 }
 
-const addMenuToColumn = (data) => {
-    console.log(data)
+const addMenuToColumn = (data : Column1) => {
     data.push(
         {
             name: "New Menu",
