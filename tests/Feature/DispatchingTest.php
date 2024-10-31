@@ -17,6 +17,7 @@ use App\Actions\Dispatching\DeliveryNoteItem\StoreDeliveryNoteItem;
 use App\Actions\Dispatching\Picking\AssignPickerToPicking;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToPicking;
 use App\Actions\Dispatching\Picking\UpdatePickingStateToQueried;
+use App\Actions\Dispatching\Picking\UpdatePickingStateToWaiting;
 use App\Actions\Dispatching\Shipment\StoreShipment;
 use App\Actions\Dispatching\Shipment\UpdateShipment;
 use App\Actions\Dispatching\Shipper\StoreShipper;
@@ -291,6 +292,18 @@ test('update picking state to queried', function (Picking $picking) {
 
     return $picking;
 })->depends('update delivery note and picking state to picking');
+
+test('update picking state to waiting', function (Picking $picking) {
+    
+    $picking = UpdatePickingStateToWaiting::make()->action($picking);
+
+    expect($picking)->toBeInstanceOf(Picking::class)
+        ->and($picking->state)->toBe(PickingStateEnum::WAITING);
+
+    $picking->refresh();
+
+    return $picking;
+})->depends('update picking state to queried');
 
 
 
