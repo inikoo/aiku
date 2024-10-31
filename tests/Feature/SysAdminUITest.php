@@ -91,3 +91,25 @@ test('UI edit organisation', function () {
             );
     });
 });
+
+test('UI organisation edit settings', function () {
+    $response = get(
+        route(
+            'grp.org.settings.edit',
+            [$this->organisation->slug]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->where('title', 'Organisation settings')
+            ->has('breadcrumbs', 2)
+            ->has('formData')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Organisation settings')
+                        ->etc()
+            );
+    });
+});

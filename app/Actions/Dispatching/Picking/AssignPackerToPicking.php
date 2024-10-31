@@ -32,13 +32,20 @@ class AssignPackerToPicking extends OrgAction
     public function rules(): array
     {
         return [
-            'packer_id' => ['sometimes', 'exists:users,id'],
+            'packer_id' => ['sometimes', 'exists:employees,id'],
         ];
     }
 
     public function asController(Picking $picking, ActionRequest $request): Picking
     {
         $this->initialisationFromShop($picking->shop, $request);
+
+        return $this->handle($picking, $this->validatedData);
+    }
+
+    public function action(Picking $picking, array $modelData): Picking
+    {
+        $this->initialisationFromShop($picking->shop, $modelData);
 
         return $this->handle($picking, $this->validatedData);
     }

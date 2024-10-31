@@ -118,3 +118,20 @@ test('UI edit asset shipping', function () {
             ->has('formData');
     });
 });
+
+test('UI show ordering backlog', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.ordering.backlog', [$this->organisation, $this->shop]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Ordering/OrdersBacklog')
+            ->where('title', 'orders backlog')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'orders backlog')
+                        ->etc()
+            );
+    });
+});

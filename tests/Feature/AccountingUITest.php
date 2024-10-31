@@ -491,3 +491,20 @@ test('UI show invoice', function () {
             ->has('invoice');
     });
 });
+
+test('UI index customer balances', function () {
+    $response = get(route('grp.org.accounting.balances.index', [$this->organisation->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page->component('Org/Accounting/CustomerBalances')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                ->where('title', 'Customer Balances')
+                ->etc()
+            )
+            ->has('data');
+    });
+});

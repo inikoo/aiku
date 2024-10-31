@@ -66,7 +66,7 @@ class UpdatePickingStateToPicking extends OrgAction
     public function rules(): array
     {
         return [
-            'picker'           => ['sometimes', 'exists:users,id'],
+            'picker'           => ['sometimes', 'exists:employees,id'],
             'quantity_picked'  => ['sometimes'],
             'quantity_removed' => ['sometimes'],
             'location_id'      => ['sometimes', 'exists:locations,id']

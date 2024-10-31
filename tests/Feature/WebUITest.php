@@ -373,3 +373,30 @@ test('create banner', function () {
             ->has('formData');
     });
 });
+
+test('web website workshop menu', function () {
+    $response = get(
+        route(
+            'grp.org.shops.show.web.websites.workshop.menu',
+            [
+                $this->organisation->slug,
+                $this->shop->slug,
+                $this->fulfilmentWebsite->slug,
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Workshop/Menu/MenuWorkshop')
+            ->where('title', "Website Menu's Workshop")
+            ->has('breadcrumbs')
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", "Menu's Workshop")->etc()
+            )
+            ->has('autosaveRoute')
+            ->has('data')
+            ->has('webBlockTypes')
+            ->has('uploadImageRoute');
+    });
+});
