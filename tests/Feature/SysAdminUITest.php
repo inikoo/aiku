@@ -92,7 +92,7 @@ test('UI edit organisation', function () {
     });
 });
 
-test('UI edit settings organisation', function () {
+test('UI organisation edit settings', function () {
     $response = get(
         route(
             'grp.org.settings.edit',
