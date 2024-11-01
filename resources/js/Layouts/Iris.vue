@@ -22,17 +22,18 @@ const layout = useIrisLayoutStore()
 // const layout = inject('layout', useIrisLayoutStore())
 provide('layout', layout)
 
-const header = usePage().props?.iris?.header ? usePage().props?.iris?.header : { key : "header1" , data : headerData, bluprint : bluprintFormHeader }
+/* const header = usePage().props?.iris?.header ? usePage().props?.iris?.header : { key : "header1" , data : headerData, bluprint : bluprintFormHeader }
 const footer =  usePage().props?.iris?.footer ? usePage().props?.iris?.footer :  { key : "footer1" , data : footerData, bluprint : bluprintFormFooter }
-const navigation =  usePage().props?.iris?.menu ? usePage().props?.iris?.menu : { key : "menu1" , data : navigationData }
+const navigation =  usePage().props?.iris?.menu ? usePage().props?.iris?.menu : { key : "menu1" , data : navigationData } */
 const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color :  {color : [...useColorTheme[2]]}
+console.log( 'propsasdasdasdasd',colorThemed);
 
 </script>
 
 <template>
     <div class="relative">
         <ScreenWarning v-if="layout.app.environment === 'staging'" />
-        <div  class="container max-w-7xl mx-auto shadow-xl">
+        <div :class="[colorThemed.layout === 'blog' ? 'container max-w-7xl mx-auto shadow-xl' : '']" :style="{ fontFamily: colorThemed.fontFamily}">
             <IrisLoginInformation />
             <!--    <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation"/> -->
 
@@ -42,11 +43,7 @@ const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color
                 <slot />
             </main>
 
-<<<<<<< HEAD
 <!--              <Footer :data="footer" :colorThemed="colorThemed"/>-->
-=======
-            <Footer :data="footer" :colorThemed="colorThemed"/>
->>>>>>> origin/main
         </div>
     </div>
 
