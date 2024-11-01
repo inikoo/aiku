@@ -8,15 +8,28 @@
 
 namespace App\Models\Ordering;
 
-use App\Enums\Ordering\Adjustment\AdjustmentTypeEnum;
 use App\Enums\Ordering\Purge\PurgedOrderStatusEnum;
-use App\Enums\Ordering\Purge\PurgeStateEnum;
-use App\Enums\Ordering\Purge\PurgeTypeEnum;
-use App\Models\Helpers\Currency;
-use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property int $purge_id
+ * @property int $order_id
+ * @property PurgedOrderStatusEnum $status
+ * @property string|null $purged_at
+ * @property string|null $order_last_updated_at
+ * @property string|null $note
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Ordering\Purge $purge
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PurgedOrder newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PurgedOrder newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PurgedOrder query()
+ * @mixin \Eloquent
+ */
 class PurgedOrder extends Model
 {
     protected $guarded = [];

@@ -13,7 +13,7 @@ use App\Enums\EnumHelperTrait;
 enum PurgedOrderStatusEnum: string
 {
     use EnumHelperTrait;
-    
+
     case IN_PROCESS    = 'in-process';
     case PURGED    = 'purged';
     case CANCELLED       = 'cancelled';

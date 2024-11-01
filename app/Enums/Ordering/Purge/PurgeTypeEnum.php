@@ -13,7 +13,7 @@ use App\Enums\EnumHelperTrait;
 enum PurgeTypeEnum: string
 {
     use EnumHelperTrait;
-    
+
     case SCHEDULED    = 'scheduled';
     case MANUAL    = 'manual';
 }

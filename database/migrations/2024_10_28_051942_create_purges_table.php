@@ -7,10 +7,9 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     use HasGroupOrganisationRelationship;
-    
+
     public function up(): void
     {
         Schema::create('purges', function (Blueprint $table) {
@@ -26,11 +25,11 @@ return new class extends Migration
             $table->unsignedSmallInteger('inactive_days');
             $table->unsignedMediumInteger('estimated_orders');
             $table->unsignedMediumInteger('estimated_transactions');
-            $table->decimal('estimated_amount', 18,2);
+            $table->decimal('estimated_amount', 18, 2);
             $table->unsignedInteger('number_orders');
             $table->unsignedInteger('number_purged_orders');
             $table->unsignedInteger('number_purged_transactions');
-            $table->decimal('purged_amount', 18,2);
+            $table->decimal('purged_amount', 18, 2);
             $table->unsignedMediumInteger('number_purge_exculpated');
             $table->unsignedMediumInteger('number_purge_cancelled');
             $table->unsignedMediumInteger('number_purge_errors');

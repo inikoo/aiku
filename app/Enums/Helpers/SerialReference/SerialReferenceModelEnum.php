@@ -24,5 +24,6 @@ enum SerialReferenceModelEnum: string
     case RENTAL_AGREEMENT  = 'rental_agreement';
     case RECURRING_BILL    = 'recurring_bill';
     case STORED_ITEM_AUDIT = 'stored_item_audit';
+    case TOP_UP            = 'top_up';
 
 }

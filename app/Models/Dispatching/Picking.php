@@ -52,6 +52,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property-read \App\Models\Dispatching\DeliveryNoteItem $deliveryNoteItem
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read Employee|null $packer
+ * @property-read Employee|null $picker
  * @property-read \App\Models\Catalogue\Shop $shop
  * @method static Builder<static>|Picking newModelQuery()
  * @method static Builder<static>|Picking newQuery()

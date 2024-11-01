@@ -169,8 +169,8 @@ test('create location in warehouse', function ($warehouse) {
         ->and($warehouse->stats->number_locations)->toBe(1)
         ->and($warehouse->stats->number_locations_status_operational)->toBe(1)
         ->and($warehouse->stats->number_locations_status_broken)->toBe(0);
-    
-        return $location;
+
+    return $location;
 })->depends('create warehouse');
 
 test('create other location in warehouse', function ($warehouse) {
