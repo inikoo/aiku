@@ -27,6 +27,7 @@ use App\Actions\Inventory\LocationOrgStock\UpdateLocationOrgStock;
 use App\Actions\Inventory\OrgStock\AddLostAndFoundOrgStock;
 use App\Actions\Inventory\OrgStock\RemoveLostAndFoundStock;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
+use App\Actions\Inventory\OrgStock\UpdateOrgStock;
 use App\Actions\Inventory\OrgStockFamily\StoreOrgStockFamily;
 use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
@@ -342,6 +343,21 @@ test('create org stock', function (Stock $stock) {
 
     return $orgStock;
 })->depends('update stock state');
+
+test('update org stock', function (OrgStock $orgStock) {
+
+    $orgStock = UpdateOrgStock::make()->action(
+        orgStock: $orgStock,
+        modelData: [
+            'last_fetched_at' => now()->addDay()
+        ],
+        strict: false
+    );
+
+    expect($orgStock)->toBeInstanceOf(OrgStock::class);
+
+    return $orgStock;
+})->depends('create org stock');
 
 test('create org stock family', function (Stock $stock) {
     /** @var StockFamily $stockFamily */
