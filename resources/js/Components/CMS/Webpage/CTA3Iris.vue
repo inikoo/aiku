@@ -23,22 +23,7 @@ const emits = defineEmits<{
 
 const openGallery = ref(false)
 
-const setImage = (e) => {
-	openGallery.value = false
-	emits("update:modelValue", { ...props.modelValue, image: e })
-	emits("autoSave")
-}
 
-const onUpload = (e) => {
-	// Assuming e.data contains the files, verify this structure in your context
-	if (e.data && e.data.length <= 1) {
-		openGallery.value = false
-		emits("update:modelValue", { ...props.modelValue, image: e.data[0] })
-		emits("autoSave")
-	} else {
-		console.error("No files or multiple files detected.")
-	}
-}
 </script>
 
 <template> 
@@ -53,11 +38,7 @@ const onUpload = (e) => {
 		<div
 			class="absolute inset-x-0 bottom-0 rounded-bl-lg rounded-br-lg bg-white bg-opacity-75 p-6 backdrop-blur backdrop-filter sm:flex sm:items-center sm:justify-between lg:inset-x-auto lg:inset-y-0 lg:w-96 lg:flex-col lg:items-start lg:rounded-br-none lg:rounded-tl-lg">
 			<div class="text-gray-600 pr-3 overflow-y-auto mb-4">
-				<Editor
-					v-if="modelValue?.text"
-					v-model="modelValue.text"
-					:editable="true"
-					@update:modelValue="() => emits('autoSave')" />
+					<div v-html="modelValue.text" />
 			</div>
 
 			<div

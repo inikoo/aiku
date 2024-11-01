@@ -59,6 +59,7 @@ const onChangeImage = (image) => {
 </script>
 
 <template>
+	<pre>{{ modelValue }}</pre>
 	<div :style="getStyles(modelValue?.container?.properties)">
 		<div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
 			<Editor
@@ -306,7 +307,7 @@ const onChangeImage = (image) => {
 							<!-- Render Column4 Image (when present) -->
 							<div
 								v-else
-								class="absolute inset-x-10 bottom-0 top-10 overflow-hidden rounded-t-[12cqw] border-x-[3cqw] border-t-[3cqw] border-gray-700 bg-gray-900 shadow-2xl">
+								class="absolute ">
 								<button
 									@click="
 										() => {

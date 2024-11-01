@@ -39,7 +39,7 @@ console.log( 'propsasdasdasdasd',colorThemed);
 
 
             <!-- Main Content -->
-            <main class="text-gray-700">
+            <main class="text-gray-700 max-w-7xl mx-auto shadow-xl">
                 <slot />
             </main>
 

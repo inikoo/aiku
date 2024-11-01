@@ -32,18 +32,17 @@ const emits = defineEmits<{
 
 <template>
 	<div :style="getStyles(modelValue.container.properties)">
-		<div
-			class="relative isolate overflow-hidden px-6 py-24 text-center shadow-2xl l sm:px-16">
-			<Editor
-				:editable="isEditable"
-				v-model="modelValue.headline"
-				@update:modelValue="() => emits('autoSave')" />
+		<div class="relative isolate overflow-hidden px-6 py-24 text-center shadow-2xl l sm:px-16">
+			<span class="text-xl font-semibold w-fit leading-6">
+				<div v-html="modelValue.headline" />
+			</span>
+		
 			<!--   <h2 class="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl">Boost your productivity today.</h2> -->
-			<Editor
-				:editable="isEditable"
-				v-model="modelValue.description"
-				@update:modelValue="() => emits('autoSave')" />
-
+		
+			<span class="text-xl font-semibold w-fit leading-6">
+				<div v-html="modelValue.description" />
+			</span>
+		
 			<div class="mt-10 flex items-center justify-center gap-x-6">
 				<div
 					typeof="button"
