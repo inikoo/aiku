@@ -23,9 +23,11 @@ use App\Actions\Inventory\LocationOrgStock\AuditLocationOrgStock;
 use App\Actions\Inventory\LocationOrgStock\DeleteLocationOrgStock;
 use App\Actions\Inventory\LocationOrgStock\MoveOrgStockToOtherLocation;
 use App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock;
+use App\Actions\Inventory\LocationOrgStock\UpdateLocationOrgStock;
 use App\Actions\Inventory\OrgStock\AddLostAndFoundOrgStock;
 use App\Actions\Inventory\OrgStock\RemoveLostAndFoundStock;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
+use App\Actions\Inventory\OrgStock\UpdateOrgStock;
 use App\Actions\Inventory\OrgStockFamily\StoreOrgStockFamily;
 use App\Actions\Inventory\Warehouse\HydrateWarehouse;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
@@ -342,6 +344,21 @@ test('create org stock', function (Stock $stock) {
     return $orgStock;
 })->depends('update stock state');
 
+test('update org stock', function (OrgStock $orgStock) {
+
+    $orgStock = UpdateOrgStock::make()->action(
+        orgStock: $orgStock,
+        modelData: [
+            'last_fetched_at' => now()->addDay()
+        ],
+        strict: false
+    );
+
+    expect($orgStock)->toBeInstanceOf(OrgStock::class);
+
+    return $orgStock;
+})->depends('create org stock');
+
 test('create org stock family', function (Stock $stock) {
     /** @var StockFamily $stockFamily */
     $stockFamily = $stock->stockFamily;
@@ -416,6 +433,16 @@ test('attach stock to location', function (Location $location) {
 
     return $locationOrgStocks[0];
 })->depends('create location in warehouse area');
+
+test('update location org stock', function (LocationOrgStock $locationOrgStock) {
+    $locationOrgStock = UpdateLocationOrgStock::make()->action($locationOrgStock, [
+        'type' => LocationStockTypeEnum::STORING
+    ]);
+
+    expect($locationOrgStock)->toBeInstanceOf(LocationOrgStock::class)
+        ->and($locationOrgStock->type)->toBe(LocationStockTypeEnum::STORING);
+    return $locationOrgStock;
+})->depends('attach stock to location');
 
 
 test('detach stock from location', function (LocationOrgStock $locationOrgStock) {
