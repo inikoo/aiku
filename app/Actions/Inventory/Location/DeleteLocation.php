@@ -33,6 +33,10 @@ class DeleteLocation extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
+        if($this->asAction)
+        {
+            return true;
+        }
         return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
     }
 
@@ -43,6 +47,11 @@ class DeleteLocation extends OrgAction
         return $this->handle($location);
     }
 
+    public function action(Location $location): Location
+    {
+        $this->asAction = true;
+        return $this->handle($location);
+    }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Warehouse $warehouse, Location $location, ActionRequest $request): Location
