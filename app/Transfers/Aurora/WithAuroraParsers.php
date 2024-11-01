@@ -678,7 +678,7 @@ trait WithAuroraParsers
         return $warehouse;
     }
 
-    public function parsePayment($sourceId): Payment
+    public function parsePayment($sourceId): ?Payment
     {
         $payment = Payment::withTrashed()->where('source_id', $sourceId)->first();
         if (!$payment) {

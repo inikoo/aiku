@@ -262,6 +262,8 @@ class FetchResetBase
                 $command->line("✅ customers \t\t".$this->stepTime());
 
                 DB::connection('aurora')->table('Payment Dimension')->update([$aikuIdField => null]);
+                DB::connection('aurora')->table('Top Up Dimension')->update([$aikuIdField => null]);
+
                 DB::connection('aurora')->table('Payment Account Dimension')->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Payment Service Provider Dimension')->update([$aikuIdField => null]);
                 $command->line("✅ payments \t\t".$this->stepTime());

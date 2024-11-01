@@ -108,6 +108,14 @@ class StoreShop extends OrgAction
                     'organisation_id' => $organisation->id,
                 ]
             );
+            $shop->serialReferences()->create(
+                [
+                    'model'           => SerialReferenceModelEnum::TOP_UP,
+                    'organisation_id' => $organisation->id,
+                    'format'          => $shop->slug.'-%04d'
+                ]
+            );
+
 
             if ($shop->type == ShopTypeEnum::FULFILMENT) {
                 StoreFulfilment::make()->make()->action(
