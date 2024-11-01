@@ -14,6 +14,7 @@ use App\Actions\Goods\StockFamily\DeleteStockFamily;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Helpers\Tag\StoreTag;
+use App\Actions\Inventory\Location\DeleteLocation;
 use App\Actions\Inventory\Location\HydrateLocation;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\Tags\SyncTagsLocation;
@@ -166,6 +167,8 @@ test('create location in warehouse', function ($warehouse) {
         ->and($warehouse->stats->number_locations)->toBe(1)
         ->and($warehouse->stats->number_locations_status_operational)->toBe(1)
         ->and($warehouse->stats->number_locations_status_broken)->toBe(0);
+    
+        return $location;
 })->depends('create warehouse');
 
 test('create other location in warehouse', function ($warehouse) {
@@ -203,7 +206,13 @@ test('create location in warehouse area', function ($warehouseArea) {
     return $location;
 })->depends('create warehouse area');
 
+test('delete location', function (Location $location) {
+    $location = DeleteLocation::make()->action($location);
 
+    expect(Location::find($location->id))->toBeNull();
+
+    return $location;
+})->depends('create location in warehouse');
 
 
 /*
