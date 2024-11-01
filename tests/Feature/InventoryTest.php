@@ -23,6 +23,7 @@ use App\Actions\Inventory\LocationOrgStock\AuditLocationOrgStock;
 use App\Actions\Inventory\LocationOrgStock\DeleteLocationOrgStock;
 use App\Actions\Inventory\LocationOrgStock\MoveOrgStockToOtherLocation;
 use App\Actions\Inventory\LocationOrgStock\StoreLocationOrgStock;
+use App\Actions\Inventory\LocationOrgStock\UpdateLocationOrgStock;
 use App\Actions\Inventory\OrgStock\AddLostAndFoundOrgStock;
 use App\Actions\Inventory\OrgStock\RemoveLostAndFoundStock;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
@@ -416,6 +417,16 @@ test('attach stock to location', function (Location $location) {
 
     return $locationOrgStocks[0];
 })->depends('create location in warehouse area');
+
+test('update location org stock', function (LocationOrgStock $locationOrgStock) {
+    $locationOrgStock = UpdateLocationOrgStock::make()->action($locationOrgStock, [
+        'type' => LocationStockTypeEnum::STORING
+    ]);
+
+    expect($locationOrgStock)->toBeInstanceOf(LocationOrgStock::class)
+        ->and($locationOrgStock->type)->toBe(LocationStockTypeEnum::STORING);
+    return $locationOrgStock;
+})->depends('attach stock to location');
 
 
 test('detach stock from location', function (LocationOrgStock $locationOrgStock) {
