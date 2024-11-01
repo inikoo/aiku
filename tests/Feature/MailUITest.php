@@ -7,6 +7,10 @@
  *
 */
 
+use App\Actions\Mail\Outbox\StoreOutbox;
+use App\Enums\Mail\Outbox\OutboxBlueprintEnum;
+use App\Enums\Mail\Outbox\OutboxTypeEnum;
+use App\Models\Mail\Outbox;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -22,6 +26,21 @@ beforeEach(function () {
         $this->user,
         $this->shop
     )                        = createShop();
+    $postRoom = $this->shop->group->postRooms()->first();
+    $outbox = Outbox::first();
+    if (!$outbox) {
+        $outbox = StoreOutbox::make()->action(
+            $postRoom,
+            $this->shop,
+            [
+                'type'      => OutboxTypeEnum::NEWSLETTER,
+                'name'      => 'Test',
+                'blueprint' => OutboxBlueprintEnum::EMAIL_TEMPLATE,
+                'layout'    => []
+            ]
+        );
+    }
+    $this->outbox = $outbox;
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
@@ -44,5 +63,24 @@ test('UI index mail outboxes', function () {
             )
             ->has('data')
             ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show mail outboxes', function () {
+    $response = $this->get(route('grp.org.shops.show.mail.outboxes.show', [$this->organisation->slug, $this->shop->slug, $this->outbox]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Mail/Outbox')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->outbox->slug)
+                        ->etc()
+            )
+            ->has('navigation')
+            ->has('tabs')
+            ->has('breadcrumbs', 5);
     });
 });
