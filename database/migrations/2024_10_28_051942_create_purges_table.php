@@ -15,9 +15,7 @@ return new class () extends Migration {
         Schema::create('purges', function (Blueprint $table) {
             $table->id();
             $table = $this->groupOrgRelationship($table);
-            $table->string('state')->default(PurgeStateEnum::IN_PROCESS);
-            $table->string('type')->default(PurgeTypeEnum::SCHEDULED);
-            $table->unsignedInteger('shop_id')->index();
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->dateTimeTz('date');
             $table->dateTimeTz('start_purge_date');

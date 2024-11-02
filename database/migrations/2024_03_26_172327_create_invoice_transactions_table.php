@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->dateTimeTz('date')->index();
 
-            $table->unsignedInteger('shop_id')->index();
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('invoice_id')->nullable();
             $table->foreign('invoice_id')->references('id')->on('invoices');

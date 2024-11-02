@@ -33,7 +33,7 @@ return new class () extends Migration {
                 $table->foreign('fulfilment_id')->references('id')->on('fulfilments');
                 $table->unsignedInteger('fulfilment_customer_id')->index();
                 $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
-                $table->unsignedInteger('warehouse_id')->index();
+                $table->unsignedSmallInteger('warehouse_id')->index();
                 $table->foreign('warehouse_id')->references('id')->on('warehouses');
                 $table->unsignedInteger('warehouse_area_id')->nullable()->index();
                 $table->foreign('warehouse_area_id')->references('id')->on('warehouse_areas');
