@@ -131,7 +131,7 @@ class Asset extends Model implements HasMedia
 
     public function barcode(): MorphToMany
     {
-        return $this->morphToMany(Barcode::class, 'model', 'model_has_barcode')->withTimestamps();
+        return $this->morphToMany(Barcode::class, 'model', 'model_has_barcodes')->withTimestamps();
     }
 
     public function historicAssets(): HasMany

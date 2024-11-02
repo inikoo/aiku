@@ -9,6 +9,7 @@ namespace App\Actions\Goods\TradeUnit;
 
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateTradeUnits;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\Goods\TradeUnit;
 use App\Models\SysAdmin\Group;
 use App\Rules\AlphaDashDot;
@@ -17,6 +18,8 @@ use Illuminate\Validation\Rule;
 
 class StoreTradeUnit extends GrpAction
 {
+    use WithNoStrictRules;
+
     public function handle(Group $group, array $modelData): TradeUnit
     {
         /** @var TradeUnit $tradeUnit */
@@ -56,17 +59,20 @@ class StoreTradeUnit extends GrpAction
         ];
 
         if (!$this->strict) {
-            $rules['source_id']    = ['sometimes', 'nullable', 'string'];
-            $rules['source_slug']  = ['sometimes', 'nullable', 'string'];
             $rules['gross_weight'] = ['sometimes',  'nullable', 'numeric'];
             $rules['net_weight']   = ['sometimes',  'nullable', 'numeric'];
+            $rules['source_slug']  = ['sometimes', 'nullable', 'string'];
+            $rules = $this->noStrictStoreRules($rules);
         }
 
         return $rules;
     }
 
-    public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true): TradeUnit
+    public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): TradeUnit
     {
+        if (!$audit) {
+            TradeUnit::disableAuditing();
+        }
         $this->hydratorsDelay = $hydratorsDelay;
         $this->strict         = $strict;
         $this->initialisation($group, $modelData);

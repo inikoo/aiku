@@ -387,7 +387,7 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraArtefact($this))->fetch($id);
     }
 
-    public function fetchBarcode($id): array
+    public function fetchBarcode($id): ?array
     {
         return (new FetchAuroraBarcode($this))->fetch($id);
     }

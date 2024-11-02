@@ -9,6 +9,7 @@ namespace App\Transfers\Aurora;
 
 use App\Actions\Transfers\Aurora\FetchAuroraAdjustments;
 use App\Actions\Transfers\Aurora\FetchAuroraAgents;
+use App\Actions\Transfers\Aurora\FetchAuroraBarcodes;
 use App\Actions\Transfers\Aurora\FetchAuroraCharges;
 use App\Actions\Transfers\Aurora\FetchAuroraClockingMachines;
 use App\Actions\Transfers\Aurora\FetchAuroraCustomers;
@@ -66,6 +67,7 @@ use App\Models\Dispatching\Shipper;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
+use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Language;
@@ -285,6 +287,7 @@ trait WithAuroraParsers
 
         return $website;
     }
+
 
     public function parseWebpage($sourceId): Webpage|null
     {
@@ -814,6 +817,20 @@ trait WithAuroraParsers
 
         return null;
     }
+
+    public function parseBarcode($sourceId): Barcode|null
+    {
+        $barcode = Barcode::where('source_id', $sourceId)->first();
+        if (!$barcode) {
+            $sourceData = explode(':', $sourceId);
+            $barcode    = FetchAuroraBarcodes::run($this->organisationSource, $sourceData[1]);
+
+        }
+
+        return $barcode;
+    }
+
+
 
 
 }

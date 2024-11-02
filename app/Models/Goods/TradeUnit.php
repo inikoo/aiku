@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 03 May 2023 11:42:04 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Wed, 03 May 2023 11:42:04 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
@@ -40,7 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property int|null $barcode_id
- * @property Collection<int, Barcode> $barcode
+ * @property Barcode|null $barcode
  * @property int|null $net_weight (grams)
  * @property int|null $gross_weight incl packing (grams)
  * @property int|null $marketing_weight to be shown in website (grams)
@@ -51,11 +51,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_slug
  * @property string|null $source_id
+ * @property array $sources
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $attachments
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read Collection<int, Barcode> $barcodes
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $images
@@ -84,13 +88,17 @@ class TradeUnit extends Model implements HasMedia, Auditable
 
 
     protected $casts = [
-        'data'       => 'array',
-        'dimensions' => 'array',
+        'data'            => 'array',
+        'dimensions'      => 'array',
+        'sources'         => 'array',
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
     protected $attributes = [
         'data'       => '{}',
         'dimensions' => '{}',
+        'sources'     => '{}',
     ];
 
     protected $guarded = [];
@@ -142,9 +150,16 @@ class TradeUnit extends Model implements HasMedia, Auditable
         return $this->morphedByMany(SupplierProduct::class, 'model_has_trade_units');
     }
 
-    public function barcode(): MorphToMany
+    public function barcode(): BelongsTo
     {
-        return $this->morphToMany(Barcode::class, 'model', 'model_has_barcode')->withTimestamps();
+        return $this->belongsTo(Barcode::class);
+    }
+
+    public function barcodes(): MorphToMany
+    {
+        return $this->morphToMany(Barcode::class, 'model', 'model_has_barcodes')
+            ->withPivot('status', 'withdrawn_at','type')
+            ->withTimestamps();
     }
 
     public function ingredients(): BelongsToMany

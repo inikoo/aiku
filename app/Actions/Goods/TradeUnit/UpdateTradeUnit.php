@@ -9,6 +9,7 @@ namespace App\Actions\Goods\TradeUnit;
 
 use App\Actions\Goods\Stock\Hydrators\StockHydrateGrossWeightFromTradeUnits;
 use App\Actions\GrpAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Goods\TradeUnit;
 use App\Rules\AlphaDashDot;
@@ -19,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateTradeUnit extends GrpAction
 {
     use WithActionUpdate;
-
+    use WithNoStrictRules;
 
     private TradeUnit $tradeUnit;
 
@@ -73,15 +74,20 @@ class UpdateTradeUnit extends GrpAction
         if (!$this->strict) {
             $rules['gross_weight'] = ['sometimes', 'nullable', 'numeric'];
             $rules['net_weight']   = ['sometimes', 'nullable', 'numeric'];
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;
     }
 
-    public function action(TradeUnit $tradeUnit, array $modelData, int $hydratorsDelay = 0, bool $strict = true): TradeUnit
+    public function action(TradeUnit $tradeUnit, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): TradeUnit
     {
-        $this->tradeUnit      = $tradeUnit;
         $this->strict         = $strict;
+        if (!$audit) {
+            TradeUnit::disableAuditing();
+        }
+        $this->tradeUnit      = $tradeUnit;
+
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($tradeUnit->group, $modelData);
 
