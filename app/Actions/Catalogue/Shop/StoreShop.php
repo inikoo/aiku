@@ -116,6 +116,14 @@ class StoreShop extends OrgAction
                 ]
             );
 
+            $shop->serialReferences()->create(
+                [
+                    'model'           => SerialReferenceModelEnum::PURGE,
+                    'organisation_id' => $organisation->id,
+                    'format'          => 'purge-'.$shop->slug.'-%04d'
+                ]
+            );
+
 
             if ($shop->type == ShopTypeEnum::FULFILMENT) {
                 StoreFulfilment::make()->make()->action(

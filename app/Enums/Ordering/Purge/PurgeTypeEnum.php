@@ -14,6 +14,6 @@ enum PurgeTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case SCHEDULED    = 'scheduled';
+    case CRON    = 'cron';
     case MANUAL    = 'manual';
 }

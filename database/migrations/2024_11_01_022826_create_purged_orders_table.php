@@ -1,4 +1,9 @@
 <?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sat, 02 Nov 2024 11:19:59 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use App\Enums\Ordering\Purge\PurgedOrderStatusEnum;
 use Illuminate\Database\Migrations\Migration;
@@ -16,6 +21,12 @@ return new class () extends Migration {
             $table->string('status')->default(PurgedOrderStatusEnum::IN_PROCESS);
             $table->dateTimeTz('purged_at')->nullable();
             $table->dateTimeTz('order_last_updated_at')->nullable();
+
+            $table->decimal('amount', 18, 2);
+            $table->decimal('org_amount', 18, 2);
+            $table->decimal('grp_amount', 18, 2);
+            $table->unsignedInteger('number_transactions');
+
             $table->text('note')->nullable();
             $table->timestampsTz();
         });

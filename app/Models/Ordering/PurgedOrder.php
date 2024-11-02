@@ -21,6 +21,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property PurgedOrderStatusEnum $status
  * @property string|null $purged_at
  * @property string|null $order_last_updated_at
+ * @property string $amount
+ * @property string $org_amount
+ * @property string $grp_amount
+ * @property int $number_transactions
  * @property string|null $note
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

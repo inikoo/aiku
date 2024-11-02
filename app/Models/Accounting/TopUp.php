@@ -68,6 +68,7 @@ class TopUp extends Model implements Auditable
         'amount'         => 'decimal:2',
         'grp_amount'     => 'decimal:2',
         'org_amount'     => 'decimal:2',
+
     ];
 
     protected $attributes = [
