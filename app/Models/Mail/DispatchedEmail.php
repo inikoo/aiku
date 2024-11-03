@@ -8,6 +8,7 @@
 namespace App\Models\Mail;
 
 use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Enums\Mail\DispatchedEmail\DispatchedEmailTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use Illuminate\Database\Eloquent\Model;
@@ -22,15 +23,16 @@ use Illuminate\Support\Facades\Auth;
  * @property int|null $outbox_id
  * @property int|null $mailshot_id
  * @property int|null $email_address_id
+ * @property DispatchedEmailTypeEnum $type
  * @property string|null $ses_id
  * @property string|null $recipient_type
  * @property int|null $recipient_id
  * @property DispatchedEmailStateEnum $state
- * @property string|null $sent_at
- * @property string|null $first_read_at
- * @property string|null $last_read_at
- * @property string|null $first_clicked_at
- * @property string|null $last_clicked_at
+ * @property \Illuminate\Support\Carbon|null $sent_at
+ * @property \Illuminate\Support\Carbon|null $first_read_at
+ * @property \Illuminate\Support\Carbon|null $last_read_at
+ * @property \Illuminate\Support\Carbon|null $first_clicked_at
+ * @property \Illuminate\Support\Carbon|null $last_clicked_at
  * @property int $number_reads
  * @property int $number_clicks
  * @property bool $mask_as_spam
@@ -39,10 +41,10 @@ use Illuminate\Support\Facades\Auth;
  * @property bool $is_test
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $fetched_at
- * @property string|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
- * @property-read \App\Models\Mail\EmailAddress|null $emailAddresses
+ * @property-read \App\Models\Mail\EmailAddress|null $emailAddress
  * @property-read \App\Models\Mail\Mailshot|null $mailshot
  * @property-read \App\Models\Mail\Outbox|null $outbox
  * @property-read Model|\Eloquent|null $recipient
@@ -56,6 +58,14 @@ class DispatchedEmail extends Model
     protected $casts = [
         'data'  => 'array',
         'state' => DispatchedEmailStateEnum::class,
+        'type'  => DispatchedEmailTypeEnum::class,
+        'sent_at' => 'datetime',
+        'first_read_at' => 'datetime',
+        'last_read_at' => 'datetime',
+        'first_clicked_at' => 'datetime',
+        'last_clicked_at' => 'datetime',
+        'fetched_at' => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
     protected $attributes = [
