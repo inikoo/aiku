@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\DB;
 class FetchAuroraWebsites extends FetchAuroraAction
 {
     use WithAuroraParsers;
-
+    use WithShopSetOutboxesSourceId;
 
     public string $commandSignature = 'fetch:websites {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
@@ -139,6 +139,8 @@ class FetchAuroraWebsites extends FetchAuroraAction
                 );
             }
 
+
+            $this->setShopSetOutboxesSourceId($website->shop);
 
             return $website;
         }

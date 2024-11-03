@@ -12,7 +12,6 @@ use App\Actions\Helpers\TaxNumber\StoreTaxNumber;
 use App\Actions\Helpers\TaxNumber\UpdateTaxNumber;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Transfers\SourceOrganisationService;
 use Exception;
@@ -23,6 +22,7 @@ use Throwable;
 
 class FetchAuroraShops extends FetchAuroraAction
 {
+    use WithShopSetOutboxesSourceId;
     public string $commandSignature = 'fetch:shops {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
@@ -32,8 +32,7 @@ class FetchAuroraShops extends FetchAuroraAction
             setPermissionsTeamId($organisationSource->getOrganisation()->group_id);
 
 
-            if ($shop = Shop::where('source_id', $shopData['shop']['source_id'])
-                ->first()) {
+            if ($shop = Shop::where('source_id', $shopData['shop']['source_id'])->first()) {
                 try {
                     $shop = UpdateShop::make()->action(
                         shop: $shop,
@@ -98,81 +97,35 @@ class FetchAuroraShops extends FetchAuroraAction
             }
 
 
-            $shopSourceId = explode(':', $shop->source_id);
+            $this->setShopSetOutboxesSourceId($shop);
 
-            $auroraOutboxes = DB::connection('aurora')->table('Email Campaign Type Dimension')
-                ->where('Email Campaign Type Store Key', $shopSourceId[1])
-                ->get()
-                ->pluck('Email Campaign Type Key', 'Email Campaign Type Code')->all();
+            $sourceData  = explode(':', $shop->source_id);
+            $accountData = DB::connection('aurora')->table('Payment Account Dimension')
+                ->select('Payment Account Key')
+                ->leftJoin('Payment Account Store Bridge', 'Payment Account Store Payment Account Key', 'Payment Account Key')
+                ->where('Payment Account Block', 'Accounts')
+                ->where('Payment Account Store Store Key', $sourceData[1])
+                ->first();
+            if ($accountData) {
+                $accounts = $shop->getAccounts();
+                $accounts->update(
+                    [
+                        'source_id' => $shop->organisation->id.':'.$accountData->{'Payment Account Key'}
+                    ]
+                );
 
-
-            foreach ($shop->outboxes as $outbox) {
-                $sourceId = match ($outbox->type) {
-                    OutboxTypeEnum::NEW_CUSTOMER => $auroraOutboxes['New Customer'],
-                    OutboxTypeEnum::ABANDONED_CART => $auroraOutboxes['AbandonedCart'],
-                    OutboxTypeEnum::BASKET_LOW_STOCK => $auroraOutboxes['Basket Low Stock'] ?? null,
-                    OutboxTypeEnum::BASKET_REMINDER_1 => $auroraOutboxes['Basket Reminder 1'],
-                    OutboxTypeEnum::BASKET_REMINDER_2 => $auroraOutboxes['Basket Reminder 2'],
-                    OutboxTypeEnum::BASKET_REMINDER_3 => $auroraOutboxes['Basket Reminder 3'],
-                    OutboxTypeEnum::DELIVERY_CONFIRMATION => $auroraOutboxes['Delivery Confirmation'],
-                    OutboxTypeEnum::DELIVERY_NOTE_DISPATCHED => $auroraOutboxes['Delivery Note Dispatched'],
-                    OutboxTypeEnum::DELIVERY_NOTE_UNDISPATCHED => $auroraOutboxes['Delivery Note Undispatched'],
-                    //    'invite' => $auroraOutboxes['Invite'],
-                    //    'invite-full-mailshot' => $auroraOutboxes['Invite Full Mailshot'],
-                    //   'invite-mailshot' => $auroraOutboxes['Invite Mailshot'],
-                    //   'invoice-deleted' => $auroraOutboxes['Invoice Deleted'],
-                    OutboxTypeEnum::MARKETING => $auroraOutboxes['Marketing'],
-                    OutboxTypeEnum::NEW_ORDER => $auroraOutboxes['New Order'],
-                    OutboxTypeEnum::NEWSLETTER => $auroraOutboxes['Newsletter'],
-                    OutboxTypeEnum::OOS_NOTIFICATION => $auroraOutboxes['OOS Notification'],
-                    OutboxTypeEnum::ORDER_CONFIRMATION => $auroraOutboxes['Order Confirmation'],
-                    OutboxTypeEnum::PASSWORD_REMINDER => $auroraOutboxes['Password Reminder'],
-                    OutboxTypeEnum::REGISTRATION => $auroraOutboxes['Registration'],
-                    OutboxTypeEnum::REGISTRATION_APPROVED => $auroraOutboxes['Registration Approved'],
-                    OutboxTypeEnum::REGISTRATION_REJECTED => $auroraOutboxes['Registration Rejected'],
-                    OutboxTypeEnum::REORDER_REMINDER => $auroraOutboxes['GR Reminder'],
-
-
-                    default => null
-                };
-
-                if ($sourceId) {
-                    $outbox->update(
-                        [
-                            'source_id' => $organisationSource->getOrganisation()->id.':'.$sourceId
-                        ]
-                    );
-                }
-
-
-                $sourceData  = explode(':', $shop->source_id);
-                $accountData = DB::connection('aurora')->table('Payment Account Dimension')
-                    ->select('Payment Account Key')
-                    ->leftJoin('Payment Account Store Bridge', 'Payment Account Store Payment Account Key', 'Payment Account Key')
-                    ->where('Payment Account Block', 'Accounts')
-                    ->where('Payment Account Store Store Key', $sourceData[1])
-                    ->first();
-                if ($accountData) {
-                    $accounts = $shop->getAccounts();
+                if ($accounts->fetched_at) {
                     $accounts->update(
                         [
-                            'source_id' => $organisationSource->getOrganisation()->id.':'.$accountData->{'Payment Account Key'}
+                            'last_fetched_at' => now()
                         ]
                     );
-
-                    if ($accounts->fetched_at) {
-                        $accounts->update(
-                            [
-                                'last_fetched_at' => now()
-                            ]
-                        );
-                    } else {
-                        $accounts->update(
-                            [
-                                'fetched_at' => now()
-                            ]
-                        );
-                    }
+                } else {
+                    $accounts->update(
+                        [
+                            'fetched_at' => now()
+                        ]
+                    );
                 }
             }
 
