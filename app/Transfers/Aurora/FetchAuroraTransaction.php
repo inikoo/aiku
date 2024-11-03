@@ -64,7 +64,7 @@ class FetchAuroraTransaction extends FetchAurora
             };
 
 
-            $date = $this->parseDate($this->auroraModelData->{'Order Date'});
+            $date = $this->parseDatetime($this->auroraModelData->{'Order Date'});
             $date = new Carbon($date);
 
             $this->parsedData['historic_asset'] = $historicAsset;

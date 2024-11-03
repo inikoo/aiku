@@ -43,7 +43,7 @@ class FetchAuroraFamily extends FetchAurora
             'last_fetched_at'          => now(),
         ];
 
-        $createdAt = $this->parseDate($this->auroraModelData->{'Product Category Valid From'});
+        $createdAt = $this->parseDatetime($this->auroraModelData->{'Product Category Valid From'});
         if ($createdAt) {
             $this->parsedData['family']['created_at'] = $createdAt;
         }

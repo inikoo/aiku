@@ -252,7 +252,7 @@ class FetchAuroraWebpage extends FetchAurora
 
 
 
-        if ($createdAt = $this->parseDate($auroraModelData->{'Webpage Creation Date'})) {
+        if ($createdAt = $this->parseDatetime($auroraModelData->{'Webpage Creation Date'})) {
             $webpage['created_at'] = $createdAt;
         }
 

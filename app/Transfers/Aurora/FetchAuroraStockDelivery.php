@@ -77,10 +77,10 @@ class FetchAuroraStockDelivery extends FetchAurora
         $this->parsedData["stockDelivery"] = [
             'date' => $date,
 
-            'dispatched_at' => $this->parseDate($this->auroraModelData->{'Supplier Delivery Dispatched Date'}),
-            'received_at'   => $this->parseDate($this->auroraModelData->{'Supplier Delivery Received Date'}),
-            'checked_at'    => $this->parseDate($this->auroraModelData->{'Supplier Delivery Checked Date'}),
-            'settled_at'    => $this->parseDate($this->auroraModelData->{'Supplier Delivery Placed Date'}),
+            'dispatched_at' => $this->parseDatetime($this->auroraModelData->{'Supplier Delivery Dispatched Date'}),
+            'received_at'   => $this->parseDatetime($this->auroraModelData->{'Supplier Delivery Received Date'}),
+            'checked_at'    => $this->parseDatetime($this->auroraModelData->{'Supplier Delivery Checked Date'}),
+            'settled_at'    => $this->parseDatetime($this->auroraModelData->{'Supplier Delivery Placed Date'}),
             'cancelled_at'  => $cancelled_at,
 
             'parent_code' => $this->auroraModelData->{'Supplier Delivery Parent Code'},

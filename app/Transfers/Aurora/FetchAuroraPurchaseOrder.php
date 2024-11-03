@@ -84,12 +84,12 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 
         $this->parsedData["purchase_order"] = [
             'date'         => $this->auroraModelData->{'Purchase Order Date'},
-            'submitted_at' => $this->parseDate($this->auroraModelData->{'Purchase Order Submitted Date'}),
-            'confirmed_at' => $this->parseDate($this->auroraModelData->{'Purchase Order Confirmed Date'}),
-            //'manufactured_at' => $this->parseDate($this->auroraModelData->{'Purchase Order Manufactured Date'}),
-            //'received_at'     => $this->parseDate($this->auroraModelData->{'Purchase Order Received Date'}),
-            //'checked_at'      => $this->parseDate($this->auroraModelData->{'Purchase Order Checked Date'}),
-            //'settled_at'      => $this->parseDate($this->auroraModelData->{'Purchase Order Consolidated Date'}),
+            'submitted_at' => $this->parseDatetime($this->auroraModelData->{'Purchase Order Submitted Date'}),
+            'confirmed_at' => $this->parseDatetime($this->auroraModelData->{'Purchase Order Confirmed Date'}),
+            //'manufactured_at' => $this->parseDatetime($this->auroraModelData->{'Purchase Order Manufactured Date'}),
+            //'received_at'     => $this->parseDatetime($this->auroraModelData->{'Purchase Order Received Date'}),
+            //'checked_at'      => $this->parseDatetime($this->auroraModelData->{'Purchase Order Checked Date'}),
+            //'settled_at'      => $this->parseDatetime($this->auroraModelData->{'Purchase Order Consolidated Date'}),
 
             'parent_code' => $this->auroraModelData->{'Purchase Order Parent Code'},
             'parent_name' => $this->auroraModelData->{'Purchase Order Parent Name'},
