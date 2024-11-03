@@ -158,7 +158,7 @@ class TradeUnit extends Model implements HasMedia, Auditable
     public function barcodes(): MorphToMany
     {
         return $this->morphToMany(Barcode::class, 'model', 'model_has_barcodes')
-            ->withPivot('status', 'withdrawn_at','type')
+            ->withPivot('status', 'withdrawn_at', 'type')
             ->withTimestamps();
     }
 

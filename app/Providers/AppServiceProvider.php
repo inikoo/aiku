@@ -148,7 +148,6 @@ class AppServiceProvider extends ServiceProvider
 
                 // Mail
                 'DispatchedEmail'               => 'App\Models\Mail\DispatchedEmail',
-                'Email'                         => 'App\Models\Mail\Email',
                 'EmailAddress'                  => 'App\Models\Mail\EmailAddress',
                 'EmailTemplate'                 => 'App\Models\Mail\EmailTemplate',
                 'EmailTrackingEvent'            => 'App\Models\Mail\EmailTrackingEvent',

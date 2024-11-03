@@ -7,17 +7,16 @@
 
 namespace App\Models\Mail;
 
+use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Auth;
 
 /**
- * App\Models\Mail\DispatchedEmail
+ *
  *
  * @property int $id
  * @property int|null $outbox_id
@@ -26,9 +25,7 @@ use Illuminate\Support\Facades\Auth;
  * @property string|null $ses_id
  * @property string|null $recipient_type
  * @property int|null $recipient_id
- * @property \App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum $state
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property DispatchedEmailStateEnum $state
  * @property string|null $sent_at
  * @property string|null $first_read_at
  * @property string|null $last_read_at
@@ -39,8 +36,13 @@ use Illuminate\Support\Facades\Auth;
  * @property bool $mask_as_spam
  * @property bool $provoked_unsubscribe
  * @property array $data
+ * @property bool $is_test
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property string|null $source_id
- * @property-read \App\Models\Mail\Email|null $email
+ * @property-read \App\Models\Mail\EmailAddress|null $emailAddresses
  * @property-read \App\Models\Mail\Mailshot|null $mailshot
  * @property-read \App\Models\Mail\Outbox|null $outbox
  * @property-read Model|\Eloquent|null $recipient
@@ -52,36 +54,27 @@ use Illuminate\Support\Facades\Auth;
 class DispatchedEmail extends Model
 {
     protected $casts = [
-        'data'        => 'array',
-        'state'       => \App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum::class,
+        'data'  => 'array',
+        'state' => DispatchedEmailStateEnum::class,
     ];
 
     protected $attributes = [
-        'data'     => '{}',
+        'data' => '{}',
     ];
 
     protected $guarded = [];
 
-    public function email(): BelongsTo
+    public function emailAddress(): BelongsTo
     {
-        return $this->belongsTo(Email::class);
+        return $this->belongsTo(EmailAddress::class);
     }
 
-    /*    public function mailshotRecipient(): HasOne
-        {
-            return $this->hasOne(MailshotRecipient::class);
-        }*/
 
     public function recipient(): MorphTo
     {
         return $this->morphTo();
     }
 
-    /*    public function events(): HasMany
-        {
-            return $this->hasMany(DispatchedEmailEvent::class);
-
-        }*/
 
     public function mailshot(): BelongsTo
     {
@@ -95,7 +88,6 @@ class DispatchedEmail extends Model
 
     public function getName(): string
     {
-
         if ($this->is_test) {
             return Auth::user()->contact_name;
         }
@@ -103,8 +95,10 @@ class DispatchedEmail extends Model
         if ($this->recipient) {
             /** @var Prospect|Customer $recipient */
             $recipient = $this->recipient;
+
             return $recipient->name;
         }
+
         return '';
     }
 

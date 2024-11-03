@@ -22,7 +22,7 @@ return new class () extends Migration {
             $table->json('data')->nullable();
             $table->unsignedInteger('screenshot_id')->nullable();
             $table->foreign('screenshot_id')->references('id')->on('media');
-            $table->unsignedInteger('outbox_id');
+            $table->unsignedSmallInteger('outbox_id')->index();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
             $table->string('state')->index()->default(EmailTemplateStateEnum::IN_PROCESS);
             $table->unsignedInteger('unpublished_snapshot_id')->nullable()->index();
