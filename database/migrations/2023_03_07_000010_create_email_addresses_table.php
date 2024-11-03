@@ -14,6 +14,9 @@ return new class () extends Migration {
     {
         Schema::create('email_addresses', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedSmallInteger('group_id')->index();
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+
             //https://stackoverflow.com/questions/1199190/what-is-the-optimal-length-for-an-email-address-in-a-database
             $table->string('email', 254)->unique();
             $table->dateTimeTz('last_marketing_dispatch_at')->nullable()->index();

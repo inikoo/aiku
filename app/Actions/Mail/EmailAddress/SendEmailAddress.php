@@ -20,7 +20,7 @@ class SendEmailAddress
 
     public function handle(array $content, string $to, $attach = null, $type = 'html'): void
     {
-        $emailAddress = GetEmailAddress::run($to);
+        $emailAddress = StoreEmailAddress::run(group(), $to);
         $response     = SendSesEmail::run($content, $emailAddress->email, $attach, $type);
 
         $modelData = [

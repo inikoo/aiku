@@ -6,15 +6,20 @@
  */
 
 use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
         Schema::create('dispatched_emails', function (Blueprint $table) {
             $table->id();
+            $table = $this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('shop_id')->index()->nullable();
+            $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('outbox_id')->nullable();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
             $table->unsignedInteger('mailshot_id')->nullable();
@@ -22,8 +27,8 @@ return new class () extends Migration {
             $table->unsignedInteger('email_address_id')->nullable();
             $table->foreign('email_address_id')->references('id')->on('email_addresses');
             $table->string('type')->index();
-
-            $table->string('ses_id')->nullable()->index();
+            $table->string('provider')->index();
+            $table->string('provider_dispatch_id')->nullable();
             $table->string('recipient_type')->nullable();
             $table->unsignedInteger('recipient_id')->nullable();
             $table->index(['recipient_type','recipient_id']);
@@ -43,6 +48,7 @@ return new class () extends Migration {
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
             $table->string('source_id')->nullable()->unique();
+            $table->index(['provider','provider_dispatch_id']);
         });
     }
 

@@ -21,7 +21,6 @@ class FetchAuroraProspect extends FetchAurora
      */
     protected function parseModel(): void
     {
-
         $customerId = null;
         if ($this->auroraModelData->{'Prospect Customer Key'}) {
             $customer = $this->parseCustomer(

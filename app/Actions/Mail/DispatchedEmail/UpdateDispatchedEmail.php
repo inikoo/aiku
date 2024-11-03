@@ -7,16 +7,20 @@
 
 namespace App\Actions\Mail\DispatchedEmail;
 
+use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Mail\DispatchedEmail;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateDispatchedEmail
+class UpdateDispatchedEmail extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
-    private bool $asAction = false;
 
     public function handle(DispatchedEmail $dispatchedEmail, array $modelData): DispatchedEmail
     {
@@ -28,21 +32,31 @@ class UpdateDispatchedEmail
         if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("mail.edit");
     }
+
     public function rules(): array
     {
-        return [
-            'code'         => ['sometimes', 'required', 'unique:dispatched_emails', 'between:2,64', 'alpha_dash'],
+        $rules = [
+            'ses_id' => ['sometimes', 'required', 'string'],
+            'state'  => ['sometimes', 'required', Rule::enum(DispatchedEmailStateEnum::class)]
         ];
-    }
-    public function action(DispatchedEmail $dispatchedEmail, array $modelData): DispatchedEmail
-    {
-        $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        if (!$this->strict) {
+            $rules = $this->noStrictUpdateRules($rules);
+        }
 
-        return $this->handle($dispatchedEmail, $validatedData);
+        return $rules;
+    }
+
+    public function action(DispatchedEmail $dispatchedEmail, array $modelData, int $hydratorsDelay = 0, bool $strict = true): DispatchedEmail
+    {
+        $this->strict         = $strict;
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisation($dispatchedEmail->organisation, $modelData);
+
+        return $this->handle($dispatchedEmail, $this->validatedData);
     }
 
     public function jsonResponse(DispatchedEmail $dispatchedEmail): DispatchedEmailResource
