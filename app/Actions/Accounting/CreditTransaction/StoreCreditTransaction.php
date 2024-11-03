@@ -12,17 +12,18 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateCreditTransactions;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateCreditTransactions;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateCreditTransactions;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
 use App\Models\Accounting\CreditTransaction;
 use App\Models\CRM\Customer;
 use Illuminate\Validation\Rule;
-use Lorisleiva\Actions\Concerns\AsAction;
 
 class StoreCreditTransaction extends OrgAction
 {
-    use AsAction;
     use WithOrderExchanges;
+    use WithNoStrictRules;
+
 
     public function handle(Customer $customer, array $modelData): CreditTransaction
     {
@@ -73,9 +74,7 @@ class StoreCreditTransaction extends OrgAction
         if (!$this->strict) {
             $rules['grp_exchange'] = ['sometimes', 'numeric'];
             $rules['org_exchange'] = ['sometimes', 'numeric'];
-            $rules['source_id'] = ['sometimes', 'string'];
-            $rules['fetched_at'] = ['sometimes', 'date'];
-            $rules['created_at'] = ['sometimes', 'date'];
+            $rules = $this->noStrictStoreRules($rules);
         }
 
         return $rules;

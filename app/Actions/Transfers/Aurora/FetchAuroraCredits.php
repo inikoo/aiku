@@ -11,8 +11,10 @@ use App\Actions\Accounting\CreditTransaction\StoreCreditTransaction;
 use App\Actions\Accounting\CreditTransaction\UpdateCreditTransaction;
 use App\Models\Accounting\CreditTransaction;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraCredits extends FetchAuroraAction
 {
@@ -21,21 +23,41 @@ class FetchAuroraCredits extends FetchAuroraAction
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?CreditTransaction
     {
         if ($creditData = $organisationSource->fetchCredit($organisationSourceId)) {
-
             if ($creditTransaction = CreditTransaction::where('source_id', $creditData['credit']['source_id'])->first()) {
-                $creditTransaction = UpdateCreditTransaction::make()->action(
-                    creditTransaction: $creditTransaction,
-                    modelData: $creditData['credit']
-                );
+                try {
+                    $creditTransaction = UpdateCreditTransaction::make()->action(
+                        creditTransaction: $creditTransaction,
+                        modelData: $creditData['credit'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+                    $this->recordChange($organisationSource, $creditTransaction->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $creditData['credit'], 'CreditTransaction', 'update');
+
+                    return null;
+                }
             } else {
-                $creditTransaction = StoreCreditTransaction::make()->action(
-                    customer: $creditData['customer'],
-                    modelData: $creditData['credit'],
-                    hydratorsDelay:60,
-                    strict: false
-                );
+                try {
+                    $creditTransaction = StoreCreditTransaction::make()->action(
+                        customer: $creditData['customer'],
+                        modelData: $creditData['credit'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
 
 
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $creditTransaction->source_id);
+                    DB::connection('aurora')->table('Credit Transaction Fact')
+                        ->where('Credit Transaction Key', $sourceData[1])
+                        ->update(['aiku_id' => $creditTransaction->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $creditData['credit'], 'CreditTransaction', 'store');
+
+                    return null;
+                }
             }
 
             return $creditTransaction;

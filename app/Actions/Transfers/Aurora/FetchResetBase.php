@@ -211,6 +211,14 @@ class FetchResetBase
                 DB::connection('aurora')->table('Website User Dimension')
                     ->update([$aikuIdField => null]);
 
+                DB::connection('aurora')->table('Credit Transaction Fact')
+                    ->whereNotNull($aikuIdField)
+                    ->update(
+                        [
+                            $aikuIdField => null,
+                        ]
+                    );
+
 
                 DB::connection('aurora')->table('Customer Favourite Product Fact')->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Back in Stock Reminder Fact')->update([$aikuIdField => null]);
