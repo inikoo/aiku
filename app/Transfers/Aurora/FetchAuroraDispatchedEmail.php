@@ -22,6 +22,10 @@ class FetchAuroraDispatchedEmail extends FetchAurora
             return;
         }
 
+        if(!$this->auroraModelData->{'mail Tracking Email'}){
+            return;
+        }
+
 
         //enum('Ready','Sent to SES','Rejected by SES','Sent','Soft Bounce','Hard Bounce','Delivered','Spam','Opened','Clicked','Error')
         $state = match ($this->auroraModelData->{'Email Tracking State'}) {
