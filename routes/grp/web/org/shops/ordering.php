@@ -9,6 +9,7 @@ use App\Actions\Dispatching\DeliveryNote\UI\ShowDeliveryNote;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\Ordering\Purge\UI\CreatePurge;
+use App\Actions\Ordering\Purge\UI\EditPurge;
 use App\Actions\Ordering\Purge\UI\IndexPurges;
 use App\Actions\Ordering\Purge\UI\ShowPurge;
 use App\Actions\Ordering\UI\ShowOrdersBacklog;
@@ -27,6 +28,7 @@ Route::get('/purges/create', CreatePurge::class)->name('purges.create');
 
 Route::prefix('purges/{purge:id}')->group(function () {
     Route::get('', ShowPurge::class)->name('purges.show');
+    Route::get('edit', EditPurge::class)->name('purges.edit');
 });
 
 /*

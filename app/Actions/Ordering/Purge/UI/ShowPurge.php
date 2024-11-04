@@ -76,6 +76,14 @@ class ShowPurge extends OrgAction
                             'title' => __('purge')
                         ],
                     'actions' => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'edit',
+                            'route' => [
+                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
+                            ]
+                        ]
                     ],
                     // 'subNavigation' => $this->getCollectionSubNavigation($collection),
                 ],
