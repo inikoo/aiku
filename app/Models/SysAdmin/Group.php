@@ -53,6 +53,7 @@ use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Purge;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Procurement\PurchaseOrder;
@@ -687,6 +688,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function externalLinks(): HasMany
     {
         return $this->hasMany(ExternalLink::class);
+    }
+
+    public function purges(): HasMany
+    {
+        return $this->hasMany(Purge::class);
     }
 
 }

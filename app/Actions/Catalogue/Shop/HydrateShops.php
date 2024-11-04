@@ -26,6 +26,7 @@ use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOrders;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydratePaymentAccounts;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydratePayments;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateProducts;
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydratePurges;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateSales;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateTopUps;
 use App\Models\Catalogue\Shop;
@@ -44,6 +45,7 @@ class HydrateShops extends HydrateModel
         ShopHydrateCustomers::run($shop);
         ShopHydrateCustomerInvoices::run($shop);
         ShopHydrateOrders::run($shop);
+        ShopHydratePurges::run($shop);
         ShopHydrateDeliveryNotes::run($shop);
         ShopHydrateDepartments::run($shop);
         ShopHydrateFamilies::run($shop);

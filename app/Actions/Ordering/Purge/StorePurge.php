@@ -26,7 +26,9 @@ class StorePurge extends OrgAction
          /** @var Purge $purge */
         $purge = $shop->purges()->create($modelData);
         $purge->refresh();
-        $purge->stats()->create();
+        $purge->stats()->create([
+            'currency_id' => $shop->currency_id
+        ]);
 
         $dateThreshold = Carbon::now()->subDays(30);
         $orders = $shop->orders()

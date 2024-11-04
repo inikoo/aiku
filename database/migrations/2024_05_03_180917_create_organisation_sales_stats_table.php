@@ -19,6 +19,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->salesStatsFields($table);
+            $table = $this->purgeStatsFields($table);
             $table->timestampsTz();
         });
     }
