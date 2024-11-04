@@ -8,6 +8,7 @@
 
 namespace App\Actions\Ordering\Purge;
 
+use App\Actions\Ordering\Purge\Hydrators\PurgeHydratePurgedOrders;
 use App\Actions\Ordering\PurgedOrder\StorePurgedOrder;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
@@ -30,6 +31,8 @@ class UpdatePurge extends OrgAction
             data_set($modelData, 'cancelled_at', now());
         }
         $purge = $this->update($purge, $modelData);
+
+        PurgeHydratePurgedOrders::dispatch($purge);
 
         return $purge;
     }

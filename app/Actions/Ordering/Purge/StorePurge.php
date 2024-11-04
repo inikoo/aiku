@@ -8,6 +8,7 @@
 
 namespace App\Actions\Ordering\Purge;
 
+use App\Actions\Ordering\Purge\Hydrators\PurgeHydratePurgedOrders;
 use App\Actions\Ordering\PurgedOrder\StorePurgedOrder;
 use App\Actions\OrgAction;
 use App\Enums\Ordering\Purge\PurgeTypeEnum;
@@ -39,6 +40,8 @@ class StorePurge extends OrgAction
         {
             StorePurgedOrder::make()->action($purge, $order);
         }
+
+        PurgeHydratePurgedOrders::dispatch($purge);
 
         return $purge;
     }
