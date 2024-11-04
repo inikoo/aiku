@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\Web\Website;
 use Arr;
+use Carbon\Carbon;
 use Exception;
 use Http;
 use Illuminate\Support\Facades\Date;
@@ -31,11 +32,13 @@ class GetWebsiteCloudflareZoneID extends OrgAction
     public function handle(Website $website, array $modelData): array
     {
 
-
         $groupSettigns = $website->group->settings;
         $apiToken = Arr::get($groupSettigns, 'cloudflare.apiToken');
         if (!$apiToken) {
             $apiToken = env('CLOUDFLARE_ANALYTICS_API_TOKEN'); // for now
+            if (!$apiToken) {
+                dd('api token not found');
+            }
             data_set($groupSettigns, 'cloudflare.apiToken', $apiToken);
             $website->group->update(['settings' => $groupSettigns]);
         }
@@ -47,7 +50,7 @@ class GetWebsiteCloudflareZoneID extends OrgAction
         if (!$zoneTag) {
             $zoneTag = $this->getZoneTag($website, $modelData);
             if ($zoneTag == "error") {
-                dd("error");
+                return [];
             }
             if (!Arr::get($dataWebsite, "cloudflare.zoneTag")) {
                 data_set($dataWebsite, 'cloudflare.zoneTag', $zoneTag);
@@ -64,112 +67,224 @@ class GetWebsiteCloudflareZoneID extends OrgAction
     {
         $zoneTag = Arr::get($modelData, "zoneTag");
         $apiToken = Arr::get($modelData, "apiToken");
-        $since = Arr::get($modelData, "since");
-        $until = Arr::get($modelData, "until");
-
-        // get zone analytics
-        $query = <<<GQL
-            query Viewer {
-                    viewer {
-            zones(filter: { zoneTag: "$zoneTag" }) {
-            totals: httpRequests1hGroups(
-                limit: 10000
-                filter: { datetime_geq: "$since", datetime_lt: "$until" }
-            ) {
-                uniq {
-                uniques
-                __typename
-                }
-                __typename
-            }
-            zones: httpRequests1hGroups(
-                orderBy: [datetime_ASC]
-                limit: 10000
-                filter: { datetime_geq: "$since", datetime_lt: "$until" }
-            ) {
-                dimensions {
-                timeslot: datetime
-                __typename
-                }
-                uniq {
-                uniques
-                __typename
-                }
-                sum {
-                browserMap {
-                    pageViews
-                    key: uaBrowserFamily
-                    __typename
-                }
-                bytes
-                cachedBytes
-                cachedRequests
-                contentTypeMap {
-                    bytes
-                    requests
-                    key: edgeResponseContentTypeName
-                    __typename
-                }
-                clientSSLMap {
-                    requests
-                    key: clientSSLProtocol
-                    __typename
-                }
-                countryMap {
-                    bytes
-                    requests
-                    threats
-                    key: clientCountryName
-                    __typename
-                }
-                encryptedBytes
-                encryptedRequests
-                ipClassMap {
-                    requests
-                    key: ipType
-                    __typename
-                }
-                pageViews
-                requests
-                responseStatusMap {
-                    requests
-                    key: edgeResponseStatus
-                    __typename
-                }
-                threats
-                threatPathingMap {
-                    requests
-                    key: threatPathingName
-                    __typename
-                }
-                __typename
-                }
-                __typename
-            }
-            __typename
-            }
-            __typename
-        }
-        }
-        GQL;
-
 
         $urlCLoudflareGraphql = "https://api.cloudflare.com/client/v4/graphql";
-        $response = Http::withHeaders([
+        $response = Http::timeout(10)->withHeaders([
             'Authorization' => "Bearer $apiToken",
             'Content-Type' => 'application/json',
         ])->post($urlCLoudflareGraphql, [
-            'query' => $query,
+            'query' => $this->getQuery($zoneTag, $modelData),
         ]);
 
         return $response->json();
+    }
+
+    private function isIso8601($dateString)
+    {
+        try {
+            $date = Carbon::parse($dateString);
+            return $date->toIso8601String() === $dateString;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    private function isDate($dateString)
+    {
+        try {
+            $date = Carbon::parse($dateString);
+            return $date->toDateString() === $dateString;
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    private function getQuery($zoneTag, $modelData): string
+    {
+
+        $since = Arr::get($modelData, 'since') ?? Date::now()->subDay()->toIso8601String();
+        $until = Arr::get($modelData, 'until') ?? Date::now()->toIso8601String();
+
+        if ($this->isIso8601($since) && $this->isIso8601($until)) {
+            return  <<<GQL
+                query Viewer {
+                        viewer {
+                zones(filter: { zoneTag: "$zoneTag" }) {
+                totals: httpRequests1hGroups(
+                    limit: 10000
+                    filter: { datetime_geq: "$since", datetime_lt: "$until" }
+                ) {
+                    uniq {
+                    uniques
+                    __typename
+                    }
+                    __typename
+                }
+                zones: httpRequests1hGroups(
+                    orderBy: [datetime_ASC]
+                    limit: 10000
+                    filter: { datetime_geq: "$since", datetime_lt: "$until" }
+                ) {
+                    dimensions {
+                    timeslot: datetime
+                    __typename
+                    }
+                    uniq {
+                    uniques
+                    __typename
+                    }
+                    sum {
+                    browserMap {
+                        pageViews
+                        key: uaBrowserFamily
+                        __typename
+                    }
+                    bytes
+                    cachedBytes
+                    cachedRequests
+                    contentTypeMap {
+                        bytes
+                        requests
+                        key: edgeResponseContentTypeName
+                        __typename
+                    }
+                    clientSSLMap {
+                        requests
+                        key: clientSSLProtocol
+                        __typename
+                    }
+                    countryMap {
+                        bytes
+                        requests
+                        threats
+                        key: clientCountryName
+                        __typename
+                    }
+                    encryptedBytes
+                    encryptedRequests
+                    ipClassMap {
+                        requests
+                        key: ipType
+                        __typename
+                    }
+                    pageViews
+                    requests
+                    responseStatusMap {
+                        requests
+                        key: edgeResponseStatus
+                        __typename
+                    }
+                    threats
+                    threatPathingMap {
+                        requests
+                        key: threatPathingName
+                        __typename
+                    }
+                    __typename
+                    }
+                    __typename
+                }
+                __typename
+                }
+                __typename
+            }
+            }
+            GQL;
+        } elseif ($this->isDate($since) && $this->isDate($until)) {
+            return <<<GQL
+                query Viewer {
+                    viewer {
+                        zones(filter: { zoneTag: "$zoneTag" }) {
+                        totals: httpRequests1dGroups(
+                            limit: 10000
+                            filter: { date_geq: "$since", date_lt: "$until" }
+                        ) {
+                            uniq {
+                            uniques
+                            __typename
+                            }
+                            __typename
+                        }
+                        zones: httpRequests1dGroups(
+                            orderBy: [date_ASC]
+                            limit: 10000
+                            filter: { date_geq: "$since", date_lt: "$until" }
+                        ) {
+                            dimensions {
+                            timeslot: date
+                            __typename
+                            }
+                            uniq {
+                            uniques
+                            __typename
+                            }
+                            sum {
+                            browserMap {
+                                pageViews
+                                key: uaBrowserFamily
+                                __typename
+                            }
+                            bytes
+                            cachedBytes
+                            cachedRequests
+                            contentTypeMap {
+                                bytes
+                                requests
+                                key: edgeResponseContentTypeName
+                                __typename
+                            }
+                            clientSSLMap {
+                                requests
+                                key: clientSSLProtocol
+                                __typename
+                            }
+                            countryMap {
+                                bytes
+                                requests
+                                threats
+                                key: clientCountryName
+                                __typename
+                            }
+                            encryptedBytes
+                            encryptedRequests
+                            ipClassMap {
+                                requests
+                                key: ipType
+                                __typename
+                            }
+                            pageViews
+                            requests
+                            responseStatusMap {
+                                requests
+                                key: edgeResponseStatus
+                                __typename
+                            }
+                            threats
+                            threatPathingMap {
+                                requests
+                                key: threatPathingName
+                                __typename
+                            }
+                            __typename
+                            }
+                            __typename
+                        }
+                        __typename
+                        }
+                        __typename
+                    }
+                }
+                GQL;
+        } else {
+            return "error";
+        }
     }
 
     private function getZoneTag(Website $website, array $modelData): string
     {
         $apiToken = Arr::get($modelData, "apiToken");
         $urlCLoudflareRest = "https://api.cloudflare.com/client/v4"; // -> api to get zone id, account id & site tag
-        $resultZone = Http::withHeaders([
+        $resultZone = Http::timeout(10)->withHeaders([
             'Authorization' => "Bearer $apiToken",
             'Content-Type' => 'application/json',
         ])->get($urlCLoudflareRest . "/zones", [
@@ -181,7 +296,7 @@ class GetWebsiteCloudflareZoneID extends OrgAction
             return "error";
         }
         if (!Arr::get($resultZone, 'result')) {
-            print $website->domain . " zone tag not found";
+            print $website->domain . " zone tag not found" . "\n";
             return "error";
         }
 
@@ -191,8 +306,8 @@ class GetWebsiteCloudflareZoneID extends OrgAction
     public function rules(): array
     {
         return [
-            'since' => ['required'],
-            'until' => ['required']
+            'since' => ['sometimes', 'required'],
+            'until' => ['sometimes', 'required']
         ];
     }
 
@@ -214,10 +329,6 @@ class GetWebsiteCloudflareZoneID extends OrgAction
      */
     public function asCommand($command): int
     {
-        $day = [
-            'since' => Date::now()->subDay()->toIso8601String(),
-            'until' => Date::now()->toIso8601String()
-        ]; // -> for command line only
 
         if ($command->argument("website")) {
             try {
@@ -228,14 +339,14 @@ class GetWebsiteCloudflareZoneID extends OrgAction
                 exit();
             }
 
-            $this->action($website, $day);
+            $this->action($website, []);
 
             $command->line("Website ".$website->slug." fetched");
 
         } else {
             foreach (Website::orderBy('id')->get() as $website) {
                 $command->line("Website ".$website->slug." fetched");
-                $this->action($website, $day);
+                $this->action($website, []);
             }
         }
 
