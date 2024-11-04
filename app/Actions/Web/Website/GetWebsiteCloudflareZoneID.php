@@ -35,7 +35,7 @@ class GetWebsiteCloudflareZoneID extends OrgAction
         $groupSettigns = $website->group->settings;
         $apiToken = Arr::get($groupSettigns, 'cloudflare.apiToken');
         if (!$apiToken) {
-            $apiToken = env('CLOUDFLARE_ANALYTICS_API_TOKEN'); // for now
+            $apiToken = env('CLOUDFLARE_ANALYTICS_API_TOKEN'); // from env cause group not stored api token yet
             if (!$apiToken) {
                 dd('api token not found');
             }
@@ -101,124 +101,47 @@ class GetWebsiteCloudflareZoneID extends OrgAction
 
     private function getQuery($zoneTag, $modelData): string
     {
-
         $since = Arr::get($modelData, 'since') ?? Date::now()->subDay()->toIso8601String();
         $until = Arr::get($modelData, 'until') ?? Date::now()->toIso8601String();
 
-        if ($this->isIso8601($since) && $this->isIso8601($until)) {
-            return  <<<GQL
-                query Viewer {
-                        viewer {
+        $timeField = 'datetime';
+        $groupsFunction = 'httpRequests1hGroups';
+        $orderBy = 'datetime_ASC';
+
+        if ($this->isDate($since) && $this->isDate($until)) {
+            $timeField = 'date';
+            $groupsFunction = 'httpRequests1dGroups';
+            $orderBy = 'date_ASC';
+        }
+
+        return <<<GQL
+        query Viewer {
+            viewer {
                 zones(filter: { zoneTag: "$zoneTag" }) {
-                totals: httpRequests1hGroups(
-                    limit: 10000
-                    filter: { datetime_geq: "$since", datetime_lt: "$until" }
-                ) {
-                    uniq {
-                    uniques
-                    __typename
-                    }
-                    __typename
-                }
-                zones: httpRequests1hGroups(
-                    orderBy: [datetime_ASC]
-                    limit: 10000
-                    filter: { datetime_geq: "$since", datetime_lt: "$until" }
-                ) {
-                    dimensions {
-                    timeslot: datetime
-                    __typename
-                    }
-                    uniq {
-                    uniques
-                    __typename
-                    }
-                    sum {
-                    browserMap {
-                        pageViews
-                        key: uaBrowserFamily
-                        __typename
-                    }
-                    bytes
-                    cachedBytes
-                    cachedRequests
-                    contentTypeMap {
-                        bytes
-                        requests
-                        key: edgeResponseContentTypeName
-                        __typename
-                    }
-                    clientSSLMap {
-                        requests
-                        key: clientSSLProtocol
-                        __typename
-                    }
-                    countryMap {
-                        bytes
-                        requests
-                        threats
-                        key: clientCountryName
-                        __typename
-                    }
-                    encryptedBytes
-                    encryptedRequests
-                    ipClassMap {
-                        requests
-                        key: ipType
-                        __typename
-                    }
-                    pageViews
-                    requests
-                    responseStatusMap {
-                        requests
-                        key: edgeResponseStatus
-                        __typename
-                    }
-                    threats
-                    threatPathingMap {
-                        requests
-                        key: threatPathingName
-                        __typename
-                    }
-                    __typename
-                    }
-                    __typename
-                }
-                __typename
-                }
-                __typename
-            }
-            }
-            GQL;
-        } elseif ($this->isDate($since) && $this->isDate($until)) {
-            return <<<GQL
-                query Viewer {
-                    viewer {
-                        zones(filter: { zoneTag: "$zoneTag" }) {
-                        totals: httpRequests1dGroups(
-                            limit: 10000
-                            filter: { date_geq: "$since", date_lt: "$until" }
-                        ) {
-                            uniq {
+                    totals: $groupsFunction(
+                        limit: 10000
+                        filter: { {$timeField}_geq: "$since", {$timeField}_lt: "$until" }
+                    ) {
+                        uniq {
                             uniques
-                            __typename
-                            }
                             __typename
                         }
-                        zones: httpRequests1dGroups(
-                            orderBy: [date_ASC]
-                            limit: 10000
-                            filter: { date_geq: "$since", date_lt: "$until" }
-                        ) {
-                            dimensions {
-                            timeslot: date
+                        __typename
+                    }
+                    zones: $groupsFunction(
+                        orderBy: [$orderBy]
+                        limit: 10000
+                        filter: { {$timeField}_geq: "$since", {$timeField}_lt: "$until" }
+                    ) {
+                        dimensions {
+                            timeslot: $timeField
                             __typename
-                            }
-                            uniq {
+                        }
+                        uniq {
                             uniques
                             __typename
-                            }
-                            sum {
+                        }
+                        sum {
                             browserMap {
                                 pageViews
                                 key: uaBrowserFamily
@@ -266,19 +189,17 @@ class GetWebsiteCloudflareZoneID extends OrgAction
                                 __typename
                             }
                             __typename
-                            }
-                            __typename
-                        }
-                        __typename
                         }
                         __typename
                     }
+                    __typename
                 }
-                GQL;
-        } else {
-            return "error";
+                __typename
+            }
         }
+    GQL;
     }
+
 
     private function getZoneTag(Website $website, array $modelData): string
     {
@@ -309,6 +230,21 @@ class GetWebsiteCloudflareZoneID extends OrgAction
             'since' => ['sometimes', 'required'],
             'until' => ['sometimes', 'required']
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $since = $this->since;
+            $until = $this->until;
+            if (isset($since) && !$this->isIso8601($since) && !$this->isDate($since)) {
+                $validator->errors()->add('since', 'The since field must be a valid ISO 8601 or YYYY-MM-DD date.');
+            }
+
+            if (isset($until) && !$this->isIso8601($until) && !$this->isDate($until)) {
+                $validator->errors()->add('until', 'The until field must be a valid ISO 8601 or YYYY-MM-DD date.');
+            }
+        });
     }
 
     public function action(Website $website, array $modelData, bool $strict = true): array
