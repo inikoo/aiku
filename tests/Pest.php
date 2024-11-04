@@ -93,27 +93,32 @@ function createOrganisation(): Organisation
 }
 
 
+
 function createAdminGuest(Group $group): Guest
 {
     $guest = Guest::first();
     if (!$guest) {
         app()->instance('group', $group);
         setPermissionsTeamId($group->id);
-        $guest = StoreGuest::make()
-            ->action(
-                $group,
-                array_merge(
-                    Guest::factory()->definition(),
-                    [
-                        'positions' => [
-                            [
-                                'slug'   => 'group-admin',
-                                'scopes' => []
+        try {
+            $guest = StoreGuest::make()
+                ->action(
+                    $group,
+                    array_merge(
+                        Guest::factory()->definition(),
+                        [
+                            'positions' => [
+                                [
+                                    'slug' => 'group-admin',
+                                    'scopes' => []
+                                ]
                             ]
                         ]
-                    ]
-                )
-            );
+                    )
+                );
+        } catch (Exception|Throwable $e) {
+            dd($e);
+        }
     }
 
     return $guest;
