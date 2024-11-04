@@ -45,6 +45,7 @@ use App\Models\Mail\Outbox;
 use App\Models\Mail\SenderEmail;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Purge;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
@@ -557,6 +558,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function redirects(): HasMany
     {
         return $this->hasMany(Redirect::class);
+    }
+
+    public function purges(): HasMany
+    {
+        return $this->hasMany(Purge::class);
     }
 
 }

@@ -6,6 +6,7 @@
  */
 
 use App\Enums\CRM\Customer\CustomerStateEnum;
+use App\Enums\Ordering\Purge\PurgedOrderStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -23,7 +24,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('number_purged_orders');
 
-            foreach (CustomerStateEnum::cases() as $case) {
+            foreach (PurgedOrderStatusEnum::cases() as $case) {
                 $table->unsignedInteger("number_purged_orders_status_{$case->snake()}")->default(0);
             }
 
