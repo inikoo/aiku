@@ -67,9 +67,8 @@ class CreatePurge extends OrgAction
                             ]
                         ],
                     'route' => [
-                        'name'       => 'grp.models.org.catalogue.collections.store',
+                        'name'       => 'grp.models.purge.store',
                         'parameters' => [
-                            'organisation' => $shop->organisation_id,
                             'shop'         => $shop->id,
                         ]
                     ]

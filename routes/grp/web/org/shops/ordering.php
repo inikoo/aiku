@@ -10,6 +10,7 @@ use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Order\UI\ShowOrder;
 use App\Actions\Ordering\Purge\UI\CreatePurge;
 use App\Actions\Ordering\Purge\UI\IndexPurges;
+use App\Actions\Ordering\Purge\UI\ShowPurge;
 use App\Actions\Ordering\UI\ShowOrdersBacklog;
 
 Route::get('/backlog', ShowOrdersBacklog::class)->name('backlog');
@@ -24,10 +25,9 @@ Route::prefix('orders/{order}')->group(function () {
 Route::get('/purges/', IndexPurges::class)->name('purges.index');
 Route::get('/purges/create', CreatePurge::class)->name('purges.create');
 
-// Route::prefix('orders/{order}')->group(function () {
-//     Route::get('', ShowOrder::class)->name('orders.show');
-//     Route::get('delivery-note/{deliveryNote}', [ShowDeliveryNote::class, 'inOrderInShop'])->name('orders.show.delivery-note');
-// });
+Route::prefix('purges/{purge:id}')->group(function () {
+    Route::get('', ShowPurge::class)->name('purges.show');
+});
 
 /*
 
