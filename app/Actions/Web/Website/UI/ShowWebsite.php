@@ -16,6 +16,7 @@ use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\ExternalLink\UI\IndexExternalLinks;
 use App\Actions\Web\HasWorkshopAction;
+use App\Actions\Web\Website\GetWebsiteCloudflareZoneID;
 use App\Enums\UI\Web\WebsiteTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\CRM\WebUsersResource;
@@ -130,7 +131,11 @@ class ShowWebsite extends OrgAction
 
                 WebsiteTabsEnum::EXTERNAL_LINKS->value => $this->tab == WebsiteTabsEnum::EXTERNAL_LINKS->value ?
                     fn () => ExternalLinksResource::collection(IndexExternalLinks::run($website))
-                    : Inertia::lazy(fn () => ExternalLinksResource::collection(IndexExternalLinks::run($website)))
+                    : Inertia::lazy(fn () => ExternalLinksResource::collection(IndexExternalLinks::run($website))),
+
+                WebsiteTabsEnum::ANALYTICS->value => $this->tab == WebsiteTabsEnum::ANALYTICS->value ?
+                    fn () => GetWebsiteCloudflareZoneID::make()->action($website, [])
+                    : Inertia::lazy(fn () => GetWebsiteCloudflareZoneID::make()->action($website, []))
             ]
         )->table(
             IndexWebUsers::make()->tableStructure(
