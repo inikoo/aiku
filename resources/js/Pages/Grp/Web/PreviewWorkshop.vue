@@ -140,7 +140,6 @@ const ShowWebpage = (activityItem) => {
 
 
 <template>
-
     <div class="container max-w-7xl mx-auto shadow-xl">
         <!-- Section: Toggle loggedin -->
       <!--   <div v-if="!isInWorkshop" class="left-1/2 -translate-x-1/2 fixed bottom-16">
