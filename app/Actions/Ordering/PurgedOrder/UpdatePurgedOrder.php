@@ -8,6 +8,7 @@
 
 namespace App\Actions\Ordering\PurgedOrder;
 
+use App\Actions\Ordering\Purge\Hydrators\PurgeHydratePurgedOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Purge\PurgedOrderStatusEnum;
@@ -26,6 +27,8 @@ class UpdatePurgedOrder extends OrgAction
     {
 
         $purgedOrder = $this->update($purgedOrder, $modelData);
+
+        PurgeHydratePurgedOrders::dispatch($purgedOrder->purge);
 
         return $purgedOrder;
     }
