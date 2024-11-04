@@ -22,7 +22,7 @@ class FetchAuroraDispatchedEmail extends FetchAurora
             return;
         }
 
-        if(!$this->auroraModelData->{'mail Tracking Email'}){
+        if(!$this->auroraModelData->{'Email Tracking Email'}){
             return;
         }
 
