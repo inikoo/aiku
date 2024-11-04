@@ -6,6 +6,7 @@
  */
 
 use App\Enums\CRM\Customer\CustomerStateEnum;
+use App\Enums\Ordering\Purge\PurgedOrderStatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,28 +19,28 @@ return new class () extends Migration {
             $table->unsignedInteger('purge_id')->index();
             $table->foreign('purge_id')->references('id')->on('purges');
 
-            $table->unsignedMediumInteger('estimated_number_orders');
-            $table->unsignedMediumInteger('estimated_number_transactions');
+            $table->unsignedMediumInteger('estimated_number_orders')->default(0);
+            $table->unsignedMediumInteger('estimated_number_transactions')->default(0);
 
-            $table->unsignedInteger('number_purged_orders');
+            $table->unsignedInteger('number_purged_orders')->default(0);
 
-            foreach (CustomerStateEnum::cases() as $case) {
+            foreach (PurgedOrderStatusEnum::cases() as $case) {
                 $table->unsignedInteger("number_purged_orders_status_{$case->snake()}")->default(0);
             }
 
-            $table->unsignedInteger('number_purged_transactions');
+            $table->unsignedInteger('number_purged_transactions')->default(0);
 
             $table->unsignedSmallInteger('currency_id');
             $table->foreign('currency_id')->references('id')->on('currencies');
 
-            $table->decimal('estimated_amount', 18);
-            $table->decimal('estimated_org_amount', 18);
-            $table->decimal('estimated_grp_amount', 18);
+            $table->decimal('estimated_amount', 18)->default(0);
+            $table->decimal('estimated_org_amount', 18)->default(0);
+            $table->decimal('estimated_grp_amount', 18)->default(0);
 
 
-            $table->decimal('purged_amount', 18);
-            $table->decimal('purged_org_amount', 18);
-            $table->decimal('purged_grp_amount', 18);
+            $table->decimal('purged_amount', 18)->default(0);
+            $table->decimal('purged_org_amount', 18)->default(0);
+            $table->decimal('purged_grp_amount', 18)->default(0);
 
 
             $table->timestampsTz();

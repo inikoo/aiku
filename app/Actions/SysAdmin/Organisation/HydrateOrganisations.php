@@ -43,6 +43,7 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRentals;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateServices;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStocks;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurges;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateRedirects;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItemAudits;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateStoredItems;
@@ -72,6 +73,7 @@ class HydrateOrganisations extends HydrateModel
         OrganisationHydrateOrgPaymentServiceProviders::run($organisation);
         OrganisationHydrateCustomers::run($organisation);
         OrganisationHydrateOrders::run($organisation);
+        OrganisationHydratePurges::run($organisation);
         OrganisationHydrateDeliveryNotes::run($organisation);
         OrganisationHydratePurchaseOrders::run($organisation);
         OrganisationHydrateWebsites::run($organisation);

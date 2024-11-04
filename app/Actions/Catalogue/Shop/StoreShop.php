@@ -176,7 +176,6 @@ class StoreShop extends OrgAction
             SeedOfferCampaigns::run($shop);
         }
 
-
         return $shop;
     }
 

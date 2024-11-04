@@ -8,6 +8,7 @@
 namespace App\Models\Mail;
 
 use App\Actions\Utils\Abbreviate;
+use App\Enums\Mail\Outbox\OutboxBlueprintEnum;
 use App\Enums\Mail\Outbox\OutboxStateEnum;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Models\Catalogue\Shop;
@@ -39,13 +40,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property OutboxTypeEnum $type
  * @property string $name
- * @property string $blueprint
+ * @property OutboxBlueprintEnum $blueprint
  * @property OutboxStateEnum $state
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string|null $source_id
+ * @property array $sources
  * @property-read Collection<int, \App\Models\Mail\DispatchedEmail> $dispatchedEmails
  * @property-read \App\Models\Mail\EmailTemplate|null $emailTemplate
  * @property-read Fulfilment|null $fulfilment
@@ -81,12 +82,15 @@ class Outbox extends Model
 
     protected $casts = [
         'data'  => 'array',
+        'sources' => 'array',
         'type'  => OutboxTypeEnum::class,
-        'state' => OutboxStateEnum::class
+        'state' => OutboxStateEnum::class,
+        'blueprint' => OutboxBlueprintEnum::class
     ];
 
     protected $attributes = [
         'data' => '{}',
+        'sources' => '{}'
     ];
 
     protected $guarded = [];

@@ -14,5 +14,6 @@ enum OutboxBlueprintEnum: string
     use EnumHelperTrait;
     case EMAIL_TEMPLATE = 'email_template';
     case MAILSHOT       = 'mailshot';
+    case INVITE       = 'invite';
     case TEST           = 'test';
 }

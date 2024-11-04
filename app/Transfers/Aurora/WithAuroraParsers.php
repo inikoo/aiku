@@ -636,7 +636,8 @@ trait WithAuroraParsers
 
         $mailshot = Mailshot::where('source_id', $sourceId)->first();
         if (!$mailshot) {
-            $mailshot = FetchAuroraMailshots::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $mailshot = FetchAuroraMailshots::run($this->organisationSource, $sourceData[1]);
         }
 
         return $mailshot;
@@ -650,7 +651,8 @@ trait WithAuroraParsers
 
         $prospect = Prospect::where('source_id', $sourceId)->first();
         if (!$prospect) {
-            $prospect = FetchAuroraProspects::run($this->organisationSource, $sourceId);
+            $sourceData = explode(':', $sourceId);
+            $prospect = FetchAuroraProspects::run($this->organisationSource, $sourceData[1]);
         }
 
         return $prospect;
