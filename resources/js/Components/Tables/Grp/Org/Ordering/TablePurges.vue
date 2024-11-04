@@ -26,35 +26,28 @@ defineProps<{
 }>()
 
 
-// function orderRoute(order: Order) {
-//     console.log(route().current())
-//     switch (route().current()) {
-//         case "grp.org.shops.show.crm.show.orders.index":
-//             return route(
-//                 "grp.org.shops.show.crm.show.orders.show",
-//                 [route().params["organisation"], , route().params["shop"], route().params["customer"], order.slug])
-//         case "grp.org.shops.show.ordering.orders.index":
-//             return route(
-//                 "grp.org.shops.show.ordering.orders.show",
-//                 [route().params["organisation"], route().params["shop"], order.slug])
-//         case "grp.org.shops.show.crm.customers.show.orders.index":
-//             return route(
-//                 "grp.org.shops.show.crm.customers.show.orders.show",
-//                 [route().params["organisation"], route().params["shop"], route().params["customer"], order.slug])
-//         case "grp.org.shops.show.crm.customers.show.customer-clients.orders.index":
-//             return route(
-//                 "grp.org.shops.show.crm.customers.show.customer-clients.orders.show",
-//                 [route().params["organisation"], route().params["shop"], route().params["customer"], route().params["customerClient"], order.slug])
-//         default:
-//             return null
-//     }
-// }
+function purgeRoute(purge: {}) {
+    console.log(route().current())
+    switch (route().current()) {
+        case "grp.org.shops.show.ordering.purges.index":
+            return route(
+                "grp.org.shops.show.ordering.purges.show",
+                [route().params["organisation"], route().params["shop"], purge.id])
+        default:
+            return null
+    }
+}
 
 
 </script>
 
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
+        <template #cell(scheduled_at)="{ item: purge }">
+            <Link :href="purgeRoute(purge)" class="primaryLink">
+                {{ purge["scheduled_at"] }}
+            </Link>
+        </template>
         <!-- <template #cell(date)="{ item: order }">
             {{ useFormatTime(order.date, {formatTime: 'ddmy'}) }}
         </template> -->
