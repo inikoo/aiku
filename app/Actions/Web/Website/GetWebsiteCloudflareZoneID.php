@@ -36,6 +36,9 @@ class GetWebsiteCloudflareZoneID extends OrgAction
         $apiToken = Arr::get($groupSettigns, 'cloudflare.apiToken');
         if (!$apiToken) {
             $apiToken = env('CLOUDFLARE_ANALYTICS_API_TOKEN'); // for now
+            if (!$apiToken) {
+                dd('api token not found');
+            }
             data_set($groupSettigns, 'cloudflare.apiToken', $apiToken);
             $website->group->update(['settings' => $groupSettigns]);
         }
