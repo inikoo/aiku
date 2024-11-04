@@ -73,7 +73,6 @@ const onDrop = () => {
     emits('autoSave')
 }
 
-
 const addSubmenu = () => {
     if (selectedData.value.data) {
         selectedData.value.data.push(

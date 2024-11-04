@@ -4,6 +4,7 @@ import Editor from "@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue"
 import MobileMenu from '@/Components/MobileMenu.vue'
 import Menu from 'primevue/menu'
 import { getStyles } from "@/Composables/styles";
+import { viewVisible } from "@/Composables/Workshop";
 
 import { faPresentation, faCube, faText, faPaperclip } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
@@ -54,6 +55,7 @@ const toggle = (event) => {
     _menu.value.toggle(event)
 };
 
+
 </script>
 
 <template>
@@ -80,7 +82,7 @@ const toggle = (event) => {
                 <div class="justify-self-end w-fit">
                     <button :style="getStyles(modelValue.button_1.properties)"
                         class="flex items-center justify-center px-4 py-2 bg-gold-500 text-white rounded-md shadow-md hover:bg-gold-600 transition duration-300 w-fit"
-                        v-if="loginMode">
+                        v-if="viewVisible(loginMode,modelValue.button_1.visible)">
                         <Editor v-model="modelValue.button_1.text" :editable="false" />
                     </button>
                 </div>

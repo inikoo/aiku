@@ -35,12 +35,11 @@
 			"replaceForm": [
 				{
 					"key": ["button_1", "visible"],
-					"type": ["VisibleLoggedIn"]
+					"type": "VisibleLoggedIn"
 				},
-
 				{
 					"key": ["button_1", "text"],
-					"type": ["editorhtml"]
+					"type": "editorhtml"
 				},
 				{
 					"key": ["button_1", "properties"],

@@ -345,7 +345,7 @@ defineExpose({
                         </div>
 
                         <div
-                            class="w-min h-48 overflow-y-auto text-black cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
+                            class="w-min h-32 overflow-y-auto text-black cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
                             <div
                                 v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
                                 :key="fontsize"
@@ -382,7 +382,7 @@ defineExpose({
                     </TiptapToolbarButton>
 
                     <TiptapToolbarButton v-if="toogle.includes('color')" label="Text Color">
-                        <ColorPicker v-model="editorInstance.getAttributes('textStyle').color"
+                        <ColorPicker v-model="editorInstance.getAttributes('textStyle').color" style="z-index: 99;"
                             @update:model-value="color => editorInstance?.chain().focus().setColor(`#${color}`).run()" />
                     </TiptapToolbarButton>
 

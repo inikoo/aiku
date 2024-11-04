@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, IframeHTMLAttributes } from 'vue'
-import { Head } from '@inertiajs/vue3'
+import { ref, watch, IframeHTMLAttributes } from 'vue'
+import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
-import { SocketHeaderFooter } from '@/Composables/SocketWebBlock'
 import { Switch } from '@headlessui/vue'
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Modal from '@/Components/Utils/Modal.vue'
@@ -13,21 +12,22 @@ import { notify } from "@kyvg/vue3-notification"
 import axios from 'axios'
 import { debounce, isArray } from 'lodash'
 import Publish from '@/Components/Publish.vue'
-import BlockList from '@/Components/CMS/Webpage/BlockList.vue'
 import ScreenView from "@/Components/ScreenView.vue"
 import Image from '@/Components/Image.vue'
+import HeaderListModal from '@/Components/CMS/Fields/ListModal.vue'
+import { trans } from "laravel-vue-i18n"
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faIcons, faMoneyBill, faUpload, faDownload } from '@fas';
+import { faIcons, faMoneyBill, faUpload, faDownload, faThLarge } from '@fas';
 import { faLineColumns } from '@far';
 import { faExternalLink } from '@fal';
 import { library } from '@fortawesome/fontawesome-svg-core'
-import HeaderListModal from '@/Components/CMS/Website/Headers/HeaderListModal.vue'
-import ListItem from '@tiptap/extension-list-item'
-library.add(faExternalLink, faLineColumns, faIcons, faMoneyBill, faUpload, faDownload)
+
+
+library.add(faExternalLink, faLineColumns, faIcons, faMoneyBill, faUpload, faThLarge)
 
 const props = defineProps<{
     pageHead: TSPageHeading
@@ -46,21 +46,19 @@ const tabsBar = ref(0)
 const isLoading = ref(false)
 const comment = ref('')
 const iframeClass = ref('w-full h-full')
+const saveCancelToken = ref<Function | null>(null)
 const isIframeLoading = ref(true)
 const iframeSrc = ref(
     route('grp.websites.footer.preview', [
         route().params['website'],
         {
-            isInWorkshop: "true",
             organisation: route().params["organisation"],
             shop: route().params["shop"],
         }
     ]))
-const socketLayout = SocketHeaderFooter(route().params['website']);
 
 
 const onPickTemplate = (footer: Object) => {
-    console.log('masukk')
     isModalOpen.value = false
     usedTemplates.value = footer
 }
@@ -90,14 +88,38 @@ const onPublish = async (action: routeType, popover: Function) => {
 
 
 const autoSave = async (data: Object) => {
-    try {
+   /*  try {
         const response = await axios.patch(
             route(props.autosaveRoute.name, props.autosaveRoute.parameters),
             { layout: data }
         )
     } catch (error: any) {
         console.error('error', error)
-    }
+    } */
+    router.patch(
+        route(props.autosaveRoute.name, props.autosaveRoute.parameters),
+        { layout: data },
+        {
+            onFinish: () => {
+                saveCancelToken.value = null
+            },
+            onCancelToken: (cancelToken) => {
+                saveCancelToken.value = cancelToken.cancel
+            },
+            onCancel: () => {
+                console.log('The saving progress canceled.')
+            },
+            onError: (error) => {
+                notify({
+                    title: trans('Something went wrong.'),
+                    text: error.message,
+                    type: 'error',
+                })
+            },
+            preserveScroll: true,
+            preserveState: true,
+        }
+    )
 }
 
 const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
@@ -113,7 +135,7 @@ const setIframeView = (view: String) => {
 }
 
 const openFullScreenPreview = () => {
-    window.open(iframeSrc.value, '_blank')
+    window.open(iframeSrc.value + '&isInWorkshop=true', '_blank')
 }
 
 const handleIframeError = () => {
@@ -121,6 +143,7 @@ const handleIframeError = () => {
 }
 
 watch(usedTemplates, (newVal) => {
+    if (saveCancelToken.value) saveCancelToken.value()
     if (newVal) debouncedSendUpdate(newVal)
 }, { deep: true })
 
@@ -138,7 +161,6 @@ const sendToIframe = (data: any) => {
 </script>
 
 <template>
-
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
         <template #button-publish="{ action }">
@@ -192,7 +214,7 @@ const sendToIframe = (data: any) => {
 
                             <div class="py-1 px-2 cursor-pointer" title="template" v-tooltip="'Template'"
                                 @click="isModalOpen = true">
-                                <FontAwesomeIcon icon="fas fa-th-large" aria-hidden='true' />
+                                <FontAwesomeIcon :icon="faThLarge" aria-hidden='true' />
                             </div>
                         </div>
                     </div>

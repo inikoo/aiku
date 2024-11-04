@@ -47,16 +47,16 @@ const props = defineProps<{
 const comment = ref("")
 const isLoading = ref<string | boolean>(false)
 const openDrawer = ref<string | boolean>(false)
-const iframeSrc = ref(
+const isPreviewMode = ref<string | boolean>(false)
+const iframeSrc = 
 	route("grp.websites.preview", [
 		route().params["website"],
 		route().params["webpage"],
 		{
-			isInWorkshop: "true",
 			organisation: route().params["organisation"],
 			shop: route().params["shop"],
 		},
-	])
+	]
 )
 const data = ref({ ...props.webpage })
 const iframeClass = ref("w-full h-full")
@@ -232,7 +232,7 @@ const handleIframeError = () => {
 }
 
 const openFullScreenPreview = () => {
-	window.open(iframeSrc.value, "_blank")
+	window.open(iframeSrc + '&isInWorkshop=true', "_blank")
 }
 
 onUnmounted(() => {
@@ -242,6 +242,10 @@ onUnmounted(() => {
 const sendToIframe = (data: any) => {
 	_iframe.value?.contentWindow.postMessage(data, "*")
 }
+
+watch(isPreviewMode, (newVal) => {
+    sendToIframe({ key: 'isPreviewMode', value: newVal })
+}, { deep: true })
 
 onMounted(() => {
 	if (socketConnectionWebpage)
@@ -255,7 +259,6 @@ onMounted(() => {
 	})
 })
 
-console.log("props", props)
 </script>
 
 <template>
@@ -345,6 +348,23 @@ console.log("props", props)
 							" />
 						<span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'"
 							>Logged in</span
+						>
+					</div>
+
+					<div class="h-6 w-px bg-gray-400 mx-2"></div>
+
+					<div class="flex items-center gap-x-2">
+						<span :class="!isPreviewMode ? 'text-gray-600' : 'text-gray-400'"
+							>Edit</span
+						>
+						<Toggle
+							v-model="isPreviewMode"
+							@update:modelValue="
+								(newVal) =>
+									sendToIframe({ key: 'isPreviewMode', value: newVal })
+							" />
+						<span :class="isPreviewMode ? 'text-gray-600' : 'text-gray-400'"
+							>Preview</span
 						>
 					</div>
 				</div>

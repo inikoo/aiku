@@ -11,7 +11,7 @@ import { notify } from "@kyvg/vue3-notification"
 import Publish from '@/Components/Publish.vue'
 import { debounce } from 'lodash'
 import ScreenView from "@/Components/ScreenView.vue"
-import HeaderListModal from '@/Components/CMS/Website/Headers/HeaderListModal.vue'
+import HeaderListModal from '@/Components/CMS/Fields/ListModal.vue'
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -56,7 +56,7 @@ const isLoading = ref(false)
 const comment = ref('')
 const iframeClass = ref('w-full h-full')
 const isIframeLoading = ref(true)
-const iframeSrc = ref(route('grp.websites.header.preview', [route().params['website']]))
+const iframeSrc = route('grp.websites.header.preview', [route().params['website']])
 const tabs = [
     {
         label: "TopBars settings",
@@ -194,7 +194,7 @@ const setIframeView = (view: String) => {
 }
 
 const openFullScreenPreview = () => {
-    window.open(iframeSrc.value, '_blank')
+    window.open(iframeSrc+ '?isInWorkshop=true', '_blank')
 }
 
 const handleIframeError = () => {
@@ -324,7 +324,7 @@ const sendToIframe = (data: any) => {
                 <!-- Workshop Preview -->
                 <iframe
                     ref="_iframe"
-                    :src="iframeSrc + '?isInWorkshop=true'"
+                    :src="iframeSrc"
                     :title="props.title"
                     :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
                     @error="handleIframeError"

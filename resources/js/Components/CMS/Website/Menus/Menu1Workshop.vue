@@ -57,23 +57,6 @@ const selectedColor = props.colorThemed?.color
                                         {{ link.label }}
                                     </a>
                                 </div>
-
-                                <div v-if="subnav.title != 'Fragrance'"
-                                    class="font-semibold underline text-xs cursor-pointer">
-                                    See all
-                                </div>
-                                <div v-else class="mt-6">
-                                    <div class="font-bold underline">
-                                        Starters
-                                    </div>
-                                    <div class="mt-2">
-                                        Shop Beauty & Spa Starters
-                                    </div>
-                                    <div class="mt-6 underline font-semibold">
-                                        BLOG - AW Product Guide
-                                    </div>
-
-                                </div>
                             </div>
                         </div>
                     </div>

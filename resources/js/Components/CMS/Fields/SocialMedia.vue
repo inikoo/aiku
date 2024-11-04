@@ -4,8 +4,10 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import { cloneDeep } from 'lodash'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-import Popover from '@/Components/Popover.vue'
+/* import Popover from '@/Components/Popover.vue' */
 import PureInput from '@/Components/Pure/PureInput.vue'
+import Popover from 'primevue/popover';
+
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faShieldAlt, faTimes } from "@fas"
@@ -81,6 +83,11 @@ const deleteSocial = (event,index) => {
     set.splice(index,1)
     emits('update:modelValue',set);
 }
+const _popover = ref();
+
+const toggle = (event) => {
+    _popover.value[0].toggle(event);
+}
 
 </script>
 
@@ -91,24 +98,25 @@ const deleteSocial = (event,index) => {
                 <DisclosureButton :class="!open ? 'rounded-lg' : 'rounded-t-lg'"
                     class="flex w-full justify-between bg-slate-200  px-4 py-2 text-left text-sm font-medium  hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500/75">
                     <span class="font-medium text-sm">{{ item.label }}</span>
-                    <FontAwesomeIcon :icon="['fas', 'times']" class="text-red-500 p-1" @click="(e)=>deleteSocial(e,index)"/>
+                    <FontAwesomeIcon :icon="['fas', 'times']" class="text-red-500 p-1"
+                        @click="(e)=>deleteSocial(e,index)" />
                 </DisclosureButton>
                 <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500 bg-slate-100 rounded-b-lg">
                     <div>
                         <div class="p-1">
                             <span class="text-xs  my-2"> Icon : </span>
-                            <Popover class="relative h-full" width="w-[350px]">
-                                <template #button>
-                                            <Button type="dashed" :full="true" ><FontAwesomeIcon :icon="item.icon"></FontAwesomeIcon></Button>
-                                </template>
-                                <template #content="{ close: closed }">
-                                    <div class="grid grid-cols-3 gap-6 p-1">
-                                        <div v-for="icon in icons" :key="icon.label" @click="()=>changeIcon(icon,item,index)" class="cursor-pointer flex flex-col items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-200">
-                                            <FontAwesomeIcon :icon="icon.value" class="text-xl mb-2"></FontAwesomeIcon>
-                                            <span class="text-xs font-medium text-gray-700">{{ icon.label }}</span>
-                                        </div>
+                            <Button type="dashed" :full="true" @click="toggle">
+                                <FontAwesomeIcon :icon="item.icon"></FontAwesomeIcon>
+                            </Button>
+                            <Popover ref="_popover">
+                                <div class="grid grid-cols-3 gap-6 p-1">
+                                    <div v-for="icon in icons" :key="icon.label"
+                                        @click="() => changeIcon(icon, item, index)"
+                                        class="cursor-pointer flex flex-col items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-200">
+                                        <FontAwesomeIcon :icon="icon.value" class="text-xl mb-2"></FontAwesomeIcon>
+                                        <span class="text-xs font-medium text-gray-700">{{ icon.label }}</span>
                                     </div>
-                                </template>
+                                </div>
                             </Popover>
                         </div>
 
@@ -126,8 +134,7 @@ const deleteSocial = (event,index) => {
             </Disclosure>
 
         </div>
-        <Button type="dashed" icon="fal fa-plus" label="Add Social Media" full size="s" class="mt-2"
-            @click="add" />
+        <Button type="dashed" icon="fal fa-plus" label="Add Social Media" full size="s" class="mt-2" @click="add" />
     </div>
 </template>
 

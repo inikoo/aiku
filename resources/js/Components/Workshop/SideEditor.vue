@@ -87,7 +87,10 @@ const onUpdateValue = () => {
 const getFormValue = (data: Object, fieldKeys: string | string[]) => {
     if (Array.isArray(fieldKeys)) {
         return fieldKeys.reduce((acc, key) => {
-            if (acc && typeof acc === "object" && key in acc) return acc[key]
+            if (acc && typeof acc === "object" && key in acc) {
+             /*    console.log(fieldKeys,acc[key]) */
+                return acc[key]
+            }
             return null
         }, data)
     } else {
