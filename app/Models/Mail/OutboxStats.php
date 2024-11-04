@@ -20,8 +20,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_mailshots
  * @property int $number_dispatched_emails
  * @property int $number_dispatched_emails_state_ready
+ * @property int $number_dispatched_emails_state_sent_to_provider
  * @property int $number_dispatched_emails_state_error
- * @property int $number_dispatched_emails_state_rejected
+ * @property int $number_dispatched_emails_state_rejected_by_provider
  * @property int $number_dispatched_emails_state_sent
  * @property int $number_dispatched_emails_state_delivered
  * @property int $number_dispatched_emails_state_hard_bounce

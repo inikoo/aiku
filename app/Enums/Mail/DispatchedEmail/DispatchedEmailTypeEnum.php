@@ -13,17 +13,19 @@ enum DispatchedEmailTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case MARKETING    = 'marketing';
-    case TRANSACTIONAL    = 'transactional';
+    case MARKETING = 'marketing';
+    case TRANSACTIONAL = 'transactional';
+    case INVITE = 'invite';
     case TEST = 'test';
 
 
     public static function labels(): array
     {
         return [
-            'marketing'          => __('Marketing'),
-            'transactional'          => __('Transactional'),
-            'test'       => __('Test'),
+            'marketing'     => __('Marketing'),
+            'transactional' => __('Transactional'),
+            'test'          => __('Test'),
+            'invite'        => __('Invite')
 
         ];
     }

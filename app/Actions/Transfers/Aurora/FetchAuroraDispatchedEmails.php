@@ -11,39 +11,59 @@ use App\Actions\Mail\DispatchedEmail\StoreDispatchEmail;
 use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
 use App\Models\Mail\DispatchedEmail;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
-use JetBrains\PhpStorm\NoReturn;
+use Throwable;
 
 class FetchAuroraDispatchedEmails extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:dispatched-emails {organisations?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:dispatched_emails {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
-    #[NoReturn] public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?DispatchedEmail
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?DispatchedEmail
     {
-        if ($shopData = $organisationSource->fetchDispatchedEmail($organisationSourceId)) {
-            if ($dispatchedEmail = DispatchedEmail::where('source_id', $shopData['dispatchedEmail']['source_id'])
+        $dispatchedEmail = null;
+        if ($dispatchedEmailData = $organisationSource->fetchDispatchedEmail($organisationSourceId)) {
+            if ($dispatchedEmail = DispatchedEmail::where('source_id', $dispatchedEmailData['dispatchedEmail']['source_id'])
                 ->first()) {
-                $dispatchedEmail = UpdateDispatchedEmail::run(
+                //try {
+                $dispatchedEmail = UpdateDispatchedEmail::make()->action(
                     dispatchedEmail: $dispatchedEmail,
-                    modelData: $shopData['dispatchedEmail']
+                    modelData: $dispatchedEmailData['dispatchedEmail'],
+                    hydratorsDelay: 60,
+                    strict: false,
                 );
+                $this->recordChange($organisationSource, $dispatchedEmail->wasChanged());
+                //                } catch (Exception $e) {
+                //                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'update');
+                //
+                //                    return null;
+                //                }
             } else {
-                $dispatchedEmail = StoreDispatchEmail::run(
-                    parent: $shopData['parent'],
-                    email: $shopData['email'],
-                    modelData: $shopData['dispatchedEmail']
+                // try {
+                $dispatchedEmail = StoreDispatchEmail::make()->action(
+                    parent: $dispatchedEmailData['parent'],
+                    recipient: $dispatchedEmailData['recipient'],
+                    modelData: $dispatchedEmailData['dispatchedEmail'],
+                    hydratorsDelay: 60,
+                    strict: false,
                 );
-            }
 
-            DB::connection('aurora')->table('Email Tracking Dimension')
-                ->where('Email Tracking Key', $dispatchedEmail->source_id)
-                ->update(['aiku_id' => $dispatchedEmail->id]);
-            return $dispatchedEmail;
+                $this->recordNew($organisationSource);
+                $sourceData = explode(':', $dispatchedEmail->source_id);
+                DB::connection('aurora')->table('Email Tracking Dimension')
+                    ->where('Email Tracking Key', $sourceData[1])
+                    ->update(['aiku_id' => $dispatchedEmail->id]);
+                //                } catch (Exception|Throwable $e) {
+                //                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'store');
+                //
+                //                    return null;
+                //                }
+            }
         }
 
-        return null;
+        return $dispatchedEmail;
     }
 
 
@@ -52,7 +72,7 @@ class FetchAuroraDispatchedEmails extends FetchAuroraAction
         return DB::connection('aurora')
             ->table('Email Tracking Dimension')
             ->select('Email Tracking Key as source_id')
-            ->orderBy('source_id');
+            ->orderBy('Email Tracking Created Date');
     }
 
     public function count(): ?int

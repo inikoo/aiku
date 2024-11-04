@@ -47,6 +47,11 @@ class PurgedOrder extends Model
         return $this->belongsTo(Purge::class, 'purge_id');
     }
 
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class, 'order_id');
+    }
+
 
 
 }

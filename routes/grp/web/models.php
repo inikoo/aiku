@@ -141,6 +141,8 @@ use App\Actions\Manufacturing\RawMaterial\ImportRawMaterial;
 use App\Actions\Manufacturing\RawMaterial\StoreRawMaterial;
 use App\Actions\Manufacturing\RawMaterial\UpdateRawMaterial;
 use App\Actions\Ordering\Order\StoreOrder;
+use App\Actions\Ordering\Purge\StorePurge;
+use App\Actions\Ordering\Purge\UpdatePurge;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Group\UpdateGroupSettings;
@@ -533,6 +535,9 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::post('client', StoreCustomerClient::class)->name('client.store');
     Route::post('order', [StoreOrder::class, 'inCustomer'])->name('order.store');
 });
+
+Route::post('{shop:id}/purge', StorePurge::class)->name('purge.store');
+Route::patch('purge/{purge:id}/update', UpdatePurge::class)->name('purge.update');
 
 Route::name('customer-client.')->prefix('customer-client/{customerClient:id}')->group(function () {
     Route::patch('/', UpdateCustomerClient::class)->name('update');

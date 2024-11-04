@@ -24,10 +24,10 @@ return new class () extends Migration {
             $table->string('state')->default(PurgeStateEnum::IN_PROCESS);
             $table->string('type');
             $table->dateTimeTz('scheduled_at');
-            $table->dateTimeTz('start_at');
-            $table->dateTimeTz('end_at');
-            $table->dateTimeTz('cancelled_at');
-            $table->unsignedSmallInteger('inactive_days');
+            $table->dateTimeTz('start_at')->nullable();
+            $table->dateTimeTz('end_at')->nullable();
+            $table->dateTimeTz('cancelled_at')->nullable();
+            $table->unsignedSmallInteger('inactive_days')->nullable();
             $table->timestampsTz();
         });
     }

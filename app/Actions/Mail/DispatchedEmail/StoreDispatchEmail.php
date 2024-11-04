@@ -7,31 +7,65 @@
 
 namespace App\Actions\Mail\DispatchedEmail;
 
-use App\Actions\Mail\EmailAddress\GetEmailAddress;
+use App\Actions\Mail\EmailAddress\StoreEmailAddress;
+use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Enums\Mail\DispatchedEmail\DispatchedEmailProviderEnum;
+use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Enums\Mail\DispatchedEmail\DispatchedEmailTypeEnum;
+use App\Enums\Mail\Outbox\OutboxBlueprintEnum;
+use App\Models\CRM\Customer;
+use App\Models\CRM\Prospect;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
 use App\Models\Mail\Outbox;
+use App\Models\SysAdmin\User;
+use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreDispatchEmail
+class StoreDispatchEmail extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
+    use WithNoStrictRules;
 
-    private bool $asAction = false;
 
-    public function handle(Outbox|Mailshot $parent, string $email, array $modelData): DispatchedEmail
+    public function handle(Outbox|Mailshot $parent, Customer|Prospect|User $recipient, array $modelData): DispatchedEmail
     {
+        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'organisation_id', $parent->organisation_id);
+        data_set($modelData, 'shop_id', $parent->shop_id);
+
         if (class_basename($parent) == 'Mailshot') {
-            $modelData['outbox_id'] = $parent->outbox_id;
+            $outbox = $parent->outbox;
+            data_set($modelData, 'outbox_id', $parent->outbox_id);
+        } else {
+            $outbox = $parent;
         }
 
-        $emailAddress                 = GetEmailAddress::run($email);
-        $modelData['email_address_id'] = $emailAddress->id;
+
+        data_set(
+            $modelData,
+            'type',
+            match ($outbox->blueprint) {
+                OutboxBlueprintEnum::MAILSHOT => DispatchedEmailTypeEnum::MARKETING,
+                OutboxBlueprintEnum::EMAIL_TEMPLATE => DispatchedEmailTypeEnum::TRANSACTIONAL,
+                OutboxBlueprintEnum::TEST => DispatchedEmailTypeEnum::TEST,
+                OutboxBlueprintEnum::INVITE => DispatchedEmailTypeEnum::INVITE,
+            }
+        );
+
+
+        data_set($modelData, 'recipient_type', class_basename($recipient));
+        data_set($modelData, 'recipient_id', $recipient->id);
+
+
+        $emailAddress = StoreEmailAddress::run($parent->group, Arr::pull($modelData, 'email_address'));
+        data_set($modelData, 'email_address_id', $emailAddress->id);
+
+
         /** @var DispatchedEmail $dispatchedEmail */
         $dispatchedEmail = $parent->dispatchedEmails()->create($modelData);
+
         return $dispatchedEmail;
     }
 
@@ -40,20 +74,36 @@ class StoreDispatchEmail
         if ($this->asAction) {
             return true;
         }
+
         return $request->user()->hasPermissionTo("mail.edit");
     }
+
     public function rules(): array
     {
-        return [
+        $rules = [
+            'email_address'        => ['required', 'email'],
+            'provider'             => ['required', Rule::enum(DispatchedEmailProviderEnum::class)],
+            'provider_dispatch_id' => ['sometimes', 'required', 'string'],
         ];
+
+        if (!$this->strict) {
+            $rules['state']                = ['required', Rule::enum(DispatchedEmailStateEnum::class)];
+            $rules['email_address']        = ['required', 'string'];
+            $rules['provider_dispatch_id'] = ['sometimes', ' nullable', 'string'];
+
+            $rules = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
     }
 
-    public function action(Outbox|Mailshot $parent, string $email, array $modelData): DispatchedEmail
+    public function action(Outbox|Mailshot $parent, Customer|Prospect|User $recipient, array $modelData, int $hydratorsDelay = 0, bool $strict = true): DispatchedEmail
     {
-        $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisation($parent->organisation, $modelData);
 
-        return $this->handle($parent, $email, $validatedData);
+        return $this->handle($parent, $recipient, $this->validatedData);
     }
 }
