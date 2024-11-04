@@ -179,7 +179,7 @@ test('prospect query count', function () {
 
 test('create prospect mailshot', function () {
     $shop         = $this->shop;
-    $outbox       = Outbox::where('shop_id', $shop->id)->where('type', OutboxTypeEnum::SHOP_PROSPECT)->first();
+    $outbox       = Outbox::where('shop_id', $shop->id)->where('type', OutboxTypeEnum::INVITE)->first();
     $dataModel    = [
         'subject'    => 'hello',
         'type'       => MailshotTypeEnum::PROSPECT_MAILSHOT,

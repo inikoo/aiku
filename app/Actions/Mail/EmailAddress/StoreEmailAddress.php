@@ -8,17 +8,18 @@
 namespace App\Actions\Mail\EmailAddress;
 
 use App\Models\Mail\EmailAddress;
+use App\Models\SysAdmin\Group;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class GetEmailAddress
+class StoreEmailAddress
 {
     use AsAction;
 
-    public function handle(string $email): EmailAddress
+    public function handle(Group $group, string $email): EmailAddress
     {
-        $emailAddress = EmailAddress::where('email', $email)->first();
+        $emailAddress = $group->emailAddresses()->where('email', $email)->first();
         if (!$emailAddress) {
-            $emailAddress = EmailAddress::create(
+            $emailAddress = $group->emailAddresses()->create(
                 [
                     'email' => $email
                 ]

@@ -7,6 +7,7 @@
 
 namespace App\Models\Mail;
 
+use App\Models\Traits\InGroup;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * App\Models\Mail\EmailAddress
  *
  * @property int $id
+ * @property int $group_id
  * @property string $email
  * @property string|null $last_marketing_dispatch_at
  * @property string|null $last_transactional_dispatch_at
@@ -25,6 +27,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_transactional_dispatches
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Mail\Mailshot|null $mailshot
  * @method static Builder<static>|EmailAddress newModelQuery()
  * @method static Builder<static>|EmailAddress newQuery()
@@ -33,6 +36,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class EmailAddress extends Model
 {
+    use InGroup;
+
     protected $guarded = [];
 
     public function mailshot(): BelongsTo

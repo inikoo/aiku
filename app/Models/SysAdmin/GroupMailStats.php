@@ -29,7 +29,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_outboxes_type_abandoned_cart
  * @property int $number_outboxes_type_delivery_confirmation
  * @property int $number_outboxes_type_reorder_reminder
- * @property int $number_outboxes_type_shop_prospect
  * @property int $number_outboxes_type_marketing
  * @property int $number_outboxes_type_newsletter
  * @property int $number_outboxes_type_oos_notification
@@ -41,6 +40,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_outboxes_type_rental_agreement
  * @property int $number_outboxes_type_pallet_delivery_processed
  * @property int $number_outboxes_type_pallet_return_dispatched
+ * @property int $number_outboxes_type_invite
  * @property int $number_outboxes_type_test
  * @property int $number_outboxes_state_in_process
  * @property int $number_outboxes_state_active
@@ -55,8 +55,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_post_room_state_stopped
  * @property int $number_dispatched_emails
  * @property int $number_dispatched_emails_state_ready
+ * @property int $number_dispatched_emails_state_sent_to_provider
  * @property int $number_dispatched_emails_state_error
- * @property int $number_dispatched_emails_state_rejected
+ * @property int $number_dispatched_emails_state_rejected_by_provider
  * @property int $number_dispatched_emails_state_sent
  * @property int $number_dispatched_emails_state_delivered
  * @property int $number_dispatched_emails_state_hard_bounce

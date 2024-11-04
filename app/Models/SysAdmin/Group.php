@@ -46,6 +46,7 @@ use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Mail\EmailAddress;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\PostRoom;
 use App\Models\Manufacturing\Artefact;
@@ -125,6 +126,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, DeliveryNote> $deliveryNotes
  * @property-read \App\Models\SysAdmin\GroupDiscountsStats|null $discountsStats
  * @property-read \App\Models\SysAdmin\GroupDropshippingStat|null $dropshippingStats
+ * @property-read LaravelCollection<int, EmailAddress> $emailAddresses
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read LaravelCollection<int, ExternalLink> $externalLinks
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
@@ -690,6 +692,10 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(ExternalLink::class);
     }
 
+    public function emailAddresses(): HasMany
+    {
+        return $this->hasMany(EmailAddress::class);
+    }
     public function purges(): HasMany
     {
         return $this->hasMany(Purge::class);
