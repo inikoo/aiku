@@ -63,7 +63,6 @@ class ShowWebsite extends OrgAction
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
 
-
         return Inertia::render(
             'Org/Web/Website',
             [
@@ -134,8 +133,8 @@ class ShowWebsite extends OrgAction
                     : Inertia::lazy(fn () => ExternalLinksResource::collection(IndexExternalLinks::run($website))),
 
                 WebsiteTabsEnum::ANALYTICS->value => $this->tab == WebsiteTabsEnum::ANALYTICS->value ?
-                    fn () => GetWebsiteCloudflareZoneID::make()->action($website, [])
-                    : Inertia::lazy(fn () => GetWebsiteCloudflareZoneID::make()->action($website, []))
+                    fn () => GetWebsiteCloudflareZoneID::make()->action($website, $request->only(['since', 'until']))
+                    : Inertia::lazy(fn () => GetWebsiteCloudflareZoneID::make()->action($website, $request->only(['since', 'until'])))
             ]
         )->table(
             IndexWebUsers::make()->tableStructure(
