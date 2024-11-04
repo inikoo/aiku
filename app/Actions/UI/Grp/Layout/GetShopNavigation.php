@@ -414,6 +414,16 @@ class GetShopNavigation
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
+                        [
+                            "label"   => __("purges"),
+                            "tooltip" => __("Purges"),
+                            "icon"    => ["fal", "fa-trash-alt"],
+                            'root'    => 'grp.org.shops.show.ordering.purges.',
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.ordering.purges.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
                         /*
                         [
                             "label"   => __("delivery notes"),
