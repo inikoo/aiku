@@ -60,6 +60,7 @@ use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Purge;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Procurement\OrgAgent;
@@ -700,6 +701,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function redirects(): HasMany
     {
         return $this->hasMany(Redirect::class);
+    }
+
+    public function purges(): HasMany
+    {
+        return $this->hasMany(Purge::class);
     }
 
 }
