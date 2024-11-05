@@ -26,7 +26,6 @@ class AttachModelToOutbox extends OrgAction
             'group_id' => $outbox->group_id,
             'organisation_id' => $outbox->organisation_id,
             'shop_id' => $outbox->shop_id,
-            'data' => '{}'
         ]);
 
         GroupHydrateOutboxes::dispatch($outbox->group);
