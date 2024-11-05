@@ -119,14 +119,13 @@ class StoreStock extends GrpAction
 
         $this->initialisation(group(), $request);
 
-        return $this->handle(group(), $request->validated());
+        return $this->handle(group(), $this->validatedData);
     }
 
     public function htmlResponse(Stock $stock): RedirectResponse
     {
         if (!$stock->stock_family_id) {
-            return Redirect::route('grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show', [
-                $stock->stockFamily->slug,
+            return Redirect::route('grp.goods.stocks.show', [
                 $stock->slug
             ]);
         } else {
