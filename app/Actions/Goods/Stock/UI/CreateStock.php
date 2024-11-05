@@ -51,7 +51,7 @@ class CreateStock extends InertiaAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.org_stocks.index',
+                                'name'       => str_replace('create', 'index', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
@@ -94,7 +94,7 @@ class CreateStock extends InertiaAction
     public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
         return array_merge(
-            IndexOrgStocks::make()->getBreadcrumbs(
+            IndexStocks::make()->getBreadcrumbs(
                 routeName: preg_replace('/create$/', 'index', $routeName),
                 routeParameters: $routeParameters,
             ),

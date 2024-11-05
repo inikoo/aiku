@@ -348,7 +348,7 @@ class IndexStocks extends GrpAction
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ],
                                 default => [
-                                    'name'       => 'inventory.stocks.create',
+                                    'name'       => 'grp.goods.stocks.create',
                                     'parameters' => array_values($request->route()->originalParameters())
                                 ]
                             }
