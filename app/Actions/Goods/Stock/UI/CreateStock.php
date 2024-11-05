@@ -7,28 +7,45 @@
 
 namespace App\Actions\Goods\Stock\UI;
 
+use App\Actions\GrpAction;
 use App\Actions\InertiaAction;
 use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Models\SupplyChain\StockFamily;
+use App\Models\SysAdmin\Group;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateStock extends InertiaAction
+class CreateStock extends GrpAction
 {
+    private Group|StockFamily $parent;
+
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('inventory.stocks.edit');
+        if($this->parent instanceof StockFamily)
+        {
+            return $request->user()->hasPermissionTo("goods.{$this->parent->group->id}.create");
+        }
+        return $request->user()->hasPermissionTo("goods.{$this->parent->id}.create");
+    }
+
+    public function asController(ActionRequest $request): Response
+    {
+        $this->parent = group();
+        $this->initialisation(group(), $request);
+
+        return $this->handle(group(), $request);
     }
 
     public function inStockFamily(StockFamily $stockFamily, ActionRequest $request): Response
     {
-        $this->initialisation($request);
+        $this->parent = $stockFamily;
+        $this->initialisation($stockFamily->group, $request);
 
         return $this->handle($stockFamily, $request);
     }
 
-    public function handle(StockFamily $parent, ActionRequest $request): Response
+    public function handle(Group|StockFamily $parent, ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -81,8 +98,10 @@ class CreateStock extends InertiaAction
                             'parameters' => []
                         ],
                         'grp.goods.stock-families.show' => [
-                            'name'      => 'grp.models.stock.store',
-                            'arguments' => []
+                            'name'      => 'grp.models.stock-family.stock.store',
+                            'arguments' => [
+                                'stockFamily' => $parent->id
+                            ]
                         ],
                         default => [
                             'name'      => 'grp.models.stock.store',

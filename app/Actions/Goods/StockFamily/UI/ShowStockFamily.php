@@ -97,6 +97,12 @@ class ShowStockFamily extends GrpAction
                     ]
                     */
                 ],
+                'createStockRoute' => [
+                    'name'       => 'grp.goods.stock-families.show.stocks.create',
+                    'parameters' => [
+                        'stockFamily' => $stockFamily->slug
+                    ]
+                ],
                 'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => StockFamilyTabsEnum::navigation()
