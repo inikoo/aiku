@@ -104,6 +104,7 @@ use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPalletAudit;
 use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
+use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 use App\Actions\Helpers\Media\AttachAttachmentToModel;
@@ -228,6 +229,12 @@ Route::delete('/working-place/{workplace:id}/clocking/{clocking:id}', [ DeleteCl
 Route::delete('/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inClockingMachine'])->name('clocking-machine.clocking.delete');
 Route::delete('/working-place/{workplace:id}/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inWorkplaceInClockingMachine'])->name('workplace.clocking-machine.clocking.delete');
 */
+
+Route::name('stock-family')->prefix('stock-family/{stockFamily:id}')->group(function () {
+    Route::post('/stock', [StoreStock::class,'inStockFamily'])->name('stock.store');
+});
+
+Route::post('/stock', StoreStock::class)->name('stock.store');
 
 Route::prefix('sub-department/{productCategory:id}')->name('sub-department.')->group(function () {
     Route::patch('', UpdateProductCategory::class)->name('update');

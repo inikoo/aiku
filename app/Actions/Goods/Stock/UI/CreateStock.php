@@ -80,6 +80,10 @@ class CreateStock extends InertiaAction
                             'name'      => 'grp.models.stock-family.stock.store',
                             'arguments' => $parent->id
                         ],
+                        'grp.goods.stock-families.show' => [
+                            'name'      => 'grp.models.stock.store',
+                            'arguments' => []
+                        ],
                         default => [
                             'name'      => 'grp.models.stock.store',
                             'arguments' => []

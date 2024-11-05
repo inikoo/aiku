@@ -114,6 +114,14 @@ class StoreStock extends GrpAction
         return $this->handle($stockFamily, $this->validatedData);
     }
 
+    public function asController(ActionRequest $request): Stock
+    {
+
+        $this->initialisation(group(), $request);
+
+        return $this->handle(group(), $request->validated());
+    }
+
     public function htmlResponse(Stock $stock): RedirectResponse
     {
         if (!$stock->stock_family_id) {
