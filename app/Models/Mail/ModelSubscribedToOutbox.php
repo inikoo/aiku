@@ -24,7 +24,6 @@ class ModelSubscribedToOutbox extends Model
 
     protected $attributes = [
         'data' => '{}',
-        'sources' => '{}'
     ];
 
     protected $guarded = [];
