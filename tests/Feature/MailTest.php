@@ -13,7 +13,7 @@ use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Mail\Outbox\AttachModelToOutbox;
-use App\Actions\Mail\Outbox\DettachModelToOutbox;
+use App\Actions\Mail\Outbox\DetachModelToOutbox;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\Mail\Outbox\UpdateModelToOutbox;
 use App\Actions\Web\Website\StoreWebsite;
@@ -235,9 +235,9 @@ test('test update model to outbox', function (Outbox $outbox) {
     return $outbox;
 })->depends('test post room hydrator');
 
-test('test dettach model to outbox', function (Outbox $outbox) {
+test('test detach model to outbox', function (Outbox $outbox) {
 
-    DettachModelToOutbox::make()->action(
+    DetachModelToOutbox::make()->action(
         $this->customer,
         $outbox,
     );

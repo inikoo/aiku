@@ -150,4 +150,16 @@ class Outbox extends Model
     {
         return $this->belongsTo(PostRoom::class);
     }
+
+    public function subscribers(): HasMany
+    {
+        return $this->hasMany(ModelSubscribedToOutbox::class)
+                    ->whereNull('unsubscribed_at');
+    }
+
+    public function unsubscribed(): HasMany
+    {
+        return $this->hasMany(ModelSubscribedToOutbox::class)
+                    ->whereNotNull('unsubscribed_at');
+    }
 }
