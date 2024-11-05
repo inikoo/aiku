@@ -107,6 +107,7 @@ use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
+use App\Actions\Goods\StockFamily\UpdateStockFamily;
 use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 use App\Actions\Helpers\Media\AttachAttachmentToModel;
@@ -233,7 +234,8 @@ Route::delete('/working-place/{workplace:id}/clocking-machine/{clockingMachine:i
 */
 
 Route::name('stock-family')->prefix('stock-family/{stockFamily:id}')->group(function () {
-    Route::post('/stock', [StoreStock::class,'inStockFamily'])->name('stock.store');
+    Route::patch('/update', UpdateStockFamily::class)->name('.update');
+    Route::post('/stock', [StoreStock::class,'inStockFamily'])->name('.stock.store');
 });
 
 Route::name('stock.')->prefix('/stock')->group(function () {

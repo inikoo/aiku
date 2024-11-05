@@ -31,15 +31,18 @@ class UpdateStockFamily extends GrpAction
         $stockFamily = $this->update($stockFamily, $modelData, ['data']);
         StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
         $changes = $stockFamily->getChanges();
-
-        if (Arr::hasAny($changes, ['code', 'name'])) {
-            foreach ($stockFamily->orgStocksFamilies as $orgStockFamily) {
-                $orgStockFamily->update(
-                    [
-                        'code'       => $stockFamily->code,
-                        'name'       => $stockFamily->name,
-                    ]
-                );
+        if($stockFamily->orgStockFamilies)
+        {
+            if (Arr::hasAny($changes, ['code', 'name'])) {
+            /** @var StockFamily $stockFamily */
+                foreach ($stockFamily->orgStockFamilies as $orgStockFamily) {
+                    $orgStockFamily->update(
+                        [
+                            'code'       => $stockFamily->code,
+                            'name'       => $stockFamily->name,
+                        ]
+                    );
+                }
             }
         }
 
@@ -56,7 +59,7 @@ class UpdateStockFamily extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.stocks.edit");
+        return $request->user()->hasPermissionTo("goods.{$this->group->id}.edit");
     }
 
     public function rules(): array
