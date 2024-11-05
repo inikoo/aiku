@@ -16,6 +16,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
+use App\Models\Mail\Outbox;
 use App\Models\Manufacturing\Production;
 use App\Models\Traits\HasEmail;
 use App\Models\Traits\HasImage;
@@ -258,6 +259,11 @@ class User extends Authenticatable implements HasMedia, Auditable
     {
         return $this->belongsToMany(JobPosition::class, 'user_has_pseudo_job_positions')->withTimestamps()
             ->using(UserHasPseudoJobPositions::class)->withPivot(['scopes']);
+    }
+
+    public function subscribedOutboxes(): MorphToMany
+    {
+        return $this->morphToMany(Outbox::class, 'model', 'model_subscribed_to_outboxes')->withTimestamps();
     }
 
 }
