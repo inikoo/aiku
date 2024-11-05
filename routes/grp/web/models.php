@@ -232,16 +232,17 @@ Route::delete('/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [
 Route::delete('/working-place/{workplace:id}/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inWorkplaceInClockingMachine'])->name('workplace.clocking-machine.clocking.delete');
 */
 
-Route::name('stock-family')->prefix('stock-family/{stockFamily:id}')->group(function () {
-    Route::post('/stock', [StoreStock::class,'inStockFamily'])->name('stock.store');
+
+Route::prefix('stock-family')->name('stock-family.')->group(function () {
+    Route::post('', StoreStockFamily::class)->name('store');
+    Route::post('{stockFamily:id}/stock', [StoreStock::class, 'inStockFamily'])->name('stock.store');
 });
+
 
 Route::name('stock.')->prefix('/stock')->group(function () {
     Route::post('/', StoreStock::class)->name('store');
     Route::patch('/{stock:id}', UpdateStock::class)->name('update');
 });
-
-Route::post('/stock-family', StoreStockFamily::class)->name('stock-family.store');
 
 Route::prefix('sub-department/{productCategory:id}')->name('sub-department.')->group(function () {
     Route::patch('', UpdateProductCategory::class)->name('update');
