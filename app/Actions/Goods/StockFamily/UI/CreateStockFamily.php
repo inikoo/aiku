@@ -23,10 +23,10 @@ class CreateStockFamily extends GrpAction
     {
         $this->initialisation(group(), $request);
 
-        return $this->handle();
+        return $this->handle($request);
     }
 
-    public function handle(): Response
+    public function handle(ActionRequest $request): Response
     {
         return Inertia::render(
             'CreateModel',
@@ -45,8 +45,8 @@ class CreateStockFamily extends GrpAction
                             'style' => 'cancel',
                             'label' => __('cancel'),
                             'route' => [
-                                'name'       => 'grp.goods.stock-families.index',
-                                'parameters' => []
+                                'name'       => str_replace('create', 'index', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters())
                             ],
                         ]
                     ]

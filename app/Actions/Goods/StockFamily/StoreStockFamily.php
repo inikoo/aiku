@@ -38,7 +38,7 @@ class StoreStockFamily extends GrpAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+        return true;
     }
 
     public function rules(): array
@@ -73,14 +73,16 @@ class StoreStockFamily extends GrpAction
 
     public function asController(ActionRequest $request): StockFamily
     {
-        $request->validate();
+        $this->initialisation(group(), $request);
 
-        return $this->handle(group(), $request->validated());
+        return $this->handle(group(), $this->validatedData);
     }
 
 
     public function htmlResponse(StockFamily $stockFamily): RedirectResponse
     {
-        return Redirect::route('grp.org.warehouses.show.inventory.org_stock_families.index');
+        return Redirect::route('grp.goods.stock-families.show', [
+            'stockFamily' => $stockFamily->slug
+        ]);
     }
 }
