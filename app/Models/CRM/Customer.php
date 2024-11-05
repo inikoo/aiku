@@ -422,6 +422,13 @@ class Customer extends Model implements HasMedia, Auditable
 
     public function subscribedOutboxes(): MorphMany
     {
-        return $this->morphMany(ModelSubscribedToOutbox::class, 'model');
+        return $this->morphMany(ModelSubscribedToOutbox::class, 'model')
+                    ->whereNull('unsubscribed_at');
+    }
+
+    public function unsubscribedOutboxes(): MorphMany
+    {
+        return $this->morphMany(ModelSubscribedToOutbox::class, 'model')
+                    ->whereNotNull('unsubscribed_at');
     }
 }
