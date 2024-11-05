@@ -148,6 +148,15 @@ class EditStock extends InertiaAction
         }
 
         return match ($routeName) {
+            'grp.goods.stocks.edit' => [
+                'label' => $stock->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'stock' => $stock->slug
+                    ]
+                ]
+            ],
             'grp.org.warehouses.show.inventory.org-stocks.edit' => [
                 'label' => $stock->name,
                 'route' => [
