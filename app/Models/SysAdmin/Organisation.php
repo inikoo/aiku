@@ -54,6 +54,7 @@ use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\OrgStockFamily;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Mail\ModelSubscribedToOutbox;
 use App\Models\Mail\Outbox;
 use App\Models\Manufacturing\Artefact;
 use App\Models\Manufacturing\ManufactureTask;
@@ -706,6 +707,12 @@ class Organisation extends Model implements HasMedia, Auditable
     public function purges(): HasMany
     {
         return $this->hasMany(Purge::class);
+    }
+
+    public function outboxSubscribers(): HasMany
+    {
+        return $this->hasMany(ModelSubscribedToOutbox::class)
+                    ->whereNull('unsubscribed_at');
     }
 
 }

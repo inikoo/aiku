@@ -47,6 +47,7 @@ use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\Mail\EmailAddress;
+use App\Models\Mail\ModelSubscribedToOutbox;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\PostRoom;
 use App\Models\Manufacturing\Artefact;
@@ -701,4 +702,9 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(Purge::class);
     }
 
+    public function outboxSubscribers(): HasMany
+    {
+        return $this->hasMany(ModelSubscribedToOutbox::class)
+                    ->whereNull('unsubscribed_at');
+    }
 }

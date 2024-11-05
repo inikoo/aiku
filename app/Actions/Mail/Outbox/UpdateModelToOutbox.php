@@ -9,7 +9,10 @@
 
 namespace App\Actions\Mail\Outbox;
 
+use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOutboxes;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\Mail\Outbox;
@@ -20,12 +23,16 @@ class UpdateModelToOutbox extends OrgAction
     public function handle(User|Customer|Prospect $model, Outbox $outbox, array $modelData): void
     {
         $model->subscribedOutboxes()->updateExistingPivot($outbox->id, $modelData);
+
+        GroupHydrateOutboxes::dispatch($outbox->group);
+        OrganisationHydrateOutboxes::dispatch($outbox->organisation);
+        ShopHydrateOutboxes::dispatch($outbox->shop);
     }
     public function rules(): array
     {
         return [
-            'data' => ['somtimes', 'required'],
-            'unsubscribed_at' => ['somtimes', 'required', 'date'],
+            'data' => ['somtimes'],
+            'unsubscribed_at' => ['somtimes', 'date'],
         ];
     }
 

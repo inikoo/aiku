@@ -36,6 +36,7 @@ class GroupHydrateOutboxes
     {
         $stats = [
             'number_outboxes' => $group->outboxes()->count(),
+            'number_outbox_subscribers' => $group->outboxSubscribers()->count()
         ];
 
         $stats = array_merge(

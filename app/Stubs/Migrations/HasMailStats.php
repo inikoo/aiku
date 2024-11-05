@@ -31,6 +31,7 @@ trait HasMailStats
             $table->unsignedInteger('number_outboxes_state_'.$outboxStateEnum->snake())->default(0);
         }
 
+        $table->unsignedInteger('number_outbox_subscribers')->default(0);
 
         return $table;
     }
