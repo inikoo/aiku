@@ -10,6 +10,7 @@
 namespace App\Actions\Mail\Outbox;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOutboxes;
+use App\Actions\Mail\Outbox\Hydrators\OutboxHydrateSubscriber;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
@@ -30,6 +31,7 @@ class UpdateModelToOutbox extends OrgAction
         if ($subscription) {
             $subscription->update($modelData);
 
+            OutboxHydrateSubscriber::dispatch($outbox);
             GroupHydrateOutboxes::dispatch($outbox->group);
             OrganisationHydrateOutboxes::dispatch($outbox->organisation);
             ShopHydrateOutboxes::dispatch($outbox->shop);
@@ -38,8 +40,8 @@ class UpdateModelToOutbox extends OrgAction
     public function rules(): array
     {
         return [
-            'data' => ['somtimes'],
-            'unsubscribed_at' => ['somtimes', 'date'],
+            'data' => ['sometimes'],
+            'unsubscribed_at' => ['sometimes', 'date'],
         ];
     }
 

@@ -19,6 +19,8 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('outbox_id')->nullable();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
 
+            $table->unsignedInteger('number_subscribers')->default(0);
+            $table->unsignedInteger('number_unsubscribed')->default(0);
             $table->unsignedSmallInteger('number_mailshots')->default(0);
             $table = $this->dispatchedEmailStats($table);
 

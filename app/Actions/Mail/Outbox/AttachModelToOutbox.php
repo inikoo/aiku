@@ -10,6 +10,7 @@
 namespace App\Actions\Mail\Outbox;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOutboxes;
+use App\Actions\Mail\Outbox\Hydrators\OutboxHydrateSubscriber;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
@@ -29,6 +30,7 @@ class AttachModelToOutbox extends OrgAction
             'shop_id' => $outbox->shop_id,
         ]);
 
+        OutboxHydrateSubscriber::dispatch($outbox);
         GroupHydrateOutboxes::dispatch($outbox->group);
         OrganisationHydrateOutboxes::dispatch($outbox->organisation);
         ShopHydrateOutboxes::dispatch($outbox->shop);

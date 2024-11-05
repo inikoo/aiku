@@ -10,6 +10,7 @@
 namespace App\Actions\Mail\Outbox;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOutboxes;
+use App\Actions\Mail\Outbox\Hydrators\OutboxHydrateSubscriber;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
@@ -18,12 +19,21 @@ use App\Models\CRM\Prospect;
 use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\User;
 
-class DettachModelToOutbox extends OrgAction
+class DetachModelToOutbox extends OrgAction
 {
     public function handle(User|Customer|Prospect $model, Outbox $outbox): void
     {
-        $model->subscribedOutboxes()->where('outbox_id', $outbox->id)->delete();
 
+        $subscription = $model->subscribedOutboxes()->where('outbox_id', $outbox->id)->first();
+        
+        if (!$subscription) 
+        {
+            $subscription = $model->unsubscribedOutboxes()->where('outbox_id', $outbox->id)->first();
+        }
+
+        $subscription->delete();
+
+        OutboxHydrateSubscriber::dispatch($outbox);
         GroupHydrateOutboxes::dispatch($outbox->group);
         OrganisationHydrateOutboxes::dispatch($outbox->organisation);
         ShopHydrateOutboxes::dispatch($outbox->shop);

@@ -13,7 +13,7 @@ use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Mail\Outbox\AttachModelToOutbox;
-use App\Actions\Mail\Outbox\DettachModelToOutbox;
+use App\Actions\Mail\Outbox\DetachModelToOutbox;
 use App\Actions\Mail\Outbox\StoreOutbox;
 use App\Actions\Mail\Outbox\UpdateModelToOutbox;
 use App\Actions\Web\Website\StoreWebsite;
@@ -204,7 +204,15 @@ test('test attach model to outbox', function (Outbox $outbox) {
 
     $this->customer->refresh();
 
-    expect($this->customer->subscribedOutboxes()->count())->toBe(1);
+    $outbox->refresh();
+
+    expect($this->customer->subscribedOutboxes()->count())->toBe(1)
+        ->and($this->customer->unsubscribedOutboxes()->count())->toBe(0)
+        ->and($outbox->group->mailStats->number_outbox_subscribers)->toBe(1)
+        ->and($outbox->organisation->mailStats->number_outbox_subscribers)->toBe(1)
+        ->and($outbox->shop->mailStats->number_outbox_subscribers)->toBe(1)
+        ->and($outbox->stats->number_subscribers)->toBe(1)
+        ->and($outbox->stats->number_unsubscribed)->toBe(0);
 
     return $outbox;
 })->depends('test post room hydrator');
@@ -222,27 +230,45 @@ test('test update model to outbox', function (Outbox $outbox) {
     );
 
     $this->customer->refresh();
+    
+    $modelUnsubscribedToOutbox = $this->customer->unsubscribedOutboxes()
+    ->where('outbox_id', $outbox->id)
+    ->first();
+    
+    $outbox->refresh();
 
-    $modelSubscribedToOutbox = $this->customer->subscribedOutboxes()
-        ->where('outbox_id', $outbox->id)
-        ->first();
+    expect($modelUnsubscribedToOutbox)->toBeInstanceOf(ModelSubscribedToOutbox::class)
+        ->and($modelUnsubscribedToOutbox->data)->toBe("{'test': '1'}")
+        ->and(Carbon::parse($modelUnsubscribedToOutbox->unsubscribed_at)->toDateString())->toBe($unsubscribedAt);
+    
 
-
-    expect($modelSubscribedToOutbox)->toBeInstanceOf(ModelSubscribedToOutbox::class)
-        ->and($modelSubscribedToOutbox->data)->toBe("{'test': '1'}")
-        ->and(Carbon::parse($modelSubscribedToOutbox->unsubscribed_at)->toDateString())->toBe($unsubscribedAt);
+    expect($this->customer->subscribedOutboxes()->count())->toBe(0)
+        ->and($this->customer->unsubscribedOutboxes()->count())->toBe(1)
+        ->and($outbox->group->mailStats->number_outbox_subscribers)->toBe(0)
+        ->and($outbox->organisation->mailStats->number_outbox_subscribers)->toBe(0)
+        ->and($outbox->shop->mailStats->number_outbox_subscribers)->toBe(0)
+        ->and($outbox->stats->number_subscribers)->toBe(0)
+        ->and($outbox->stats->number_unsubscribed)->toBe(1);
 
     return $outbox;
 })->depends('test post room hydrator');
 
-test('test dettach model to outbox', function (Outbox $outbox) {
+test('test detach model to outbox', function (Outbox $outbox) {
 
-    DettachModelToOutbox::make()->action(
+    DetachModelToOutbox::make()->action(
         $this->customer,
         $outbox,
     );
 
     $this->customer->refresh();
+    $outbox->refresh();
 
-    expect($this->customer->subscribedOutboxes()->count())->toBe(0);
+    expect($this->customer->subscribedOutboxes()->count())->toBe(0)
+        ->and($this->customer->unsubscribedOutboxes()->count())->toBe(0)
+        ->and($outbox->group->mailStats->number_outbox_subscribers)->toBe(0)
+        ->and($outbox->organisation->mailStats->number_outbox_subscribers)->toBe(0)
+        ->and($outbox->shop->mailStats->number_outbox_subscribers)->toBe(0)
+        ->and($outbox->stats->number_subscribers)->toBe(0)
+        ->and($outbox->stats->number_unsubscribed)->toBe(0);
+
 })->depends('test update model to outbox');
