@@ -16,6 +16,7 @@ use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\UniversalSearch;
+use App\Models\Mail\ModelSubscribedToOutbox;
 use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -29,6 +30,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -217,9 +219,9 @@ class Prospect extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(64);
     }
 
-    public function subscribedOutboxes(): MorphToMany
+    public function subscribedOutboxes(): MorphMany
     {
-        return $this->morphToMany(Outbox::class, 'model', 'model_subscribed_to_outboxes')->withTimestamps();
+        return $this->morphMany(ModelSubscribedToOutbox::class, 'model');
     }
 
 

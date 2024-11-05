@@ -29,6 +29,7 @@ use App\Models\Helpers\Issue;
 use App\Models\Helpers\Media;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Helpers\UniversalSearch;
+use App\Models\Mail\ModelSubscribedToOutbox;
 use App\Models\Mail\Outbox;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
@@ -419,8 +420,8 @@ class Customer extends Model implements HasMedia, Auditable
         return $this->hasMany(BackInStockReminder::class);
     }
 
-    public function subscribedOutboxes(): MorphToMany
+    public function subscribedOutboxes(): MorphMany
     {
-        return $this->morphToMany(Outbox::class, 'model', 'model_subscribed_to_outboxes')->withTimestamps();
+        return $this->morphMany(ModelSubscribedToOutbox::class, 'model');
     }
 }

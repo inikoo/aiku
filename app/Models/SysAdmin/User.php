@@ -16,6 +16,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
+use App\Models\Mail\ModelSubscribedToOutbox;
 use App\Models\Mail\Outbox;
 use App\Models\Manufacturing\Production;
 use App\Models\Traits\HasEmail;
@@ -26,6 +27,7 @@ use App\Models\Traits\WithPushNotifications;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -261,9 +263,9 @@ class User extends Authenticatable implements HasMedia, Auditable
             ->using(UserHasPseudoJobPositions::class)->withPivot(['scopes']);
     }
 
-    public function subscribedOutboxes(): MorphToMany
+    public function subscribedOutboxes(): MorphMany
     {
-        return $this->morphToMany(Outbox::class, 'model', 'model_subscribed_to_outboxes')->withTimestamps();
+        return $this->morphMany(ModelSubscribedToOutbox::class, 'model');
     }
 
 }
