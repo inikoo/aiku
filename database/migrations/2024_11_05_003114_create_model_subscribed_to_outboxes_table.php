@@ -21,7 +21,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('outbox_id')->index();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
             $table->jsonb('data');
-            $table->dateTimeTz('unsubscribed_at');
+            $table->dateTimeTz('unsubscribed_at')->nullable();
             $table->index(['model_type', 'model_id']);
             $table->timestampsTz();
         });
