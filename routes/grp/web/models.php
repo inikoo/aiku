@@ -106,6 +106,7 @@ use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\UpdateStock;
+use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 use App\Actions\Helpers\Media\AttachAttachmentToModel;
@@ -240,6 +241,7 @@ Route::name('stock.')->prefix('/stock')->group(function () {
     Route::patch('/{stock:id}', UpdateStock::class)->name('update');
 });
 
+Route::post('/stock-family', StoreStockFamily::class)->name('stock-family.store');
 
 Route::prefix('sub-department/{productCategory:id}')->name('sub-department.')->group(function () {
     Route::patch('', UpdateProductCategory::class)->name('update');
