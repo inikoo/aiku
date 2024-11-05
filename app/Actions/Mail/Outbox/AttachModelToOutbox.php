@@ -22,7 +22,8 @@ class AttachModelToOutbox extends OrgAction
 {
     public function handle(User|Customer|Prospect $model, Outbox $outbox): void
     {
-        $model->subscribedOutboxes()->attach($outbox->id, [
+        $model->subscribedOutboxes()->create([
+            'outbox_id' => $outbox->id,
             'group_id' => $outbox->group_id,
             'organisation_id' => $outbox->organisation_id,
             'shop_id' => $outbox->shop_id,

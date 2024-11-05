@@ -22,11 +22,18 @@ class UpdateModelToOutbox extends OrgAction
 {
     public function handle(User|Customer|Prospect $model, Outbox $outbox, array $modelData): void
     {
-        $model->subscribedOutboxes()->updateExistingPivot($outbox->id, $modelData);
 
-        GroupHydrateOutboxes::dispatch($outbox->group);
-        OrganisationHydrateOutboxes::dispatch($outbox->organisation);
-        ShopHydrateOutboxes::dispatch($outbox->shop);
+        $subscription = $model->subscribedOutboxes()
+                        ->where('outbox_id', $outbox->id)
+                        ->first();
+
+        if ($subscription) {
+            $subscription->update($modelData);
+
+            GroupHydrateOutboxes::dispatch($outbox->group);
+            OrganisationHydrateOutboxes::dispatch($outbox->organisation);
+            ShopHydrateOutboxes::dispatch($outbox->shop);
+        }
     }
     public function rules(): array
     {

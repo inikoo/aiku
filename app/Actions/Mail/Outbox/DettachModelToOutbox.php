@@ -22,7 +22,7 @@ class DettachModelToOutbox extends OrgAction
 {
     public function handle(User|Customer|Prospect $model, Outbox $outbox): void
     {
-        $model->subscribedOutboxes()->detach($outbox->id);
+        $model->subscribedOutboxes()->where('outbox_id', $outbox->id)->delete();
 
         GroupHydrateOutboxes::dispatch($outbox->group);
         OrganisationHydrateOutboxes::dispatch($outbox->organisation);
