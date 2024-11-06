@@ -8,6 +8,8 @@
 
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
+use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
+use App\Actions\Accounting\InvoiceTransaction\UpdateInvoiceTransaction;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
@@ -28,11 +30,13 @@ use App\Actions\Ordering\ShippingZone\StoreShippingZone;
 use App\Actions\Ordering\ShippingZone\UpdateShippingZone;
 use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
 use App\Actions\Ordering\ShippingZoneSchema\UpdateShippingZoneSchema;
+use App\Actions\Ordering\Transaction\DeleteTransaction;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Purge\PurgeTypeEnum;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -285,10 +289,18 @@ test('update invoice from customer', function ($invoice) {
 })->depends('create invoice from customer');
 
 test('create invoice from order', function (Order $order) {
+    $transaction = $order->transactions->first();
     $invoiceData = Invoice::factory()->definition();
     data_set($invoiceData, 'billing_address', new Address(Address::factory()->definition()));
     data_set($invoiceData, 'reference', '00002');
     $invoice  = StoreInvoice::make()->action($order, $invoiceData);
+    $invoiceTransaction = StoreInvoiceTransaction::make()->action($invoice, $transaction, [
+        'date' => now(),
+        'tax_category_id' => $transaction->tax_category_id,
+        'quantity' => 10,
+        'gross_amount' => 1000,
+        'net_amount' => 1000,
+    ]);
     $customer = $invoice->customer;
     $this->shop->refresh();
     expect($invoice)->toBeInstanceOf(Invoice::class)
@@ -297,10 +309,22 @@ test('create invoice from order', function (Order $order) {
         ->and($invoice->reference)->toBe('00002')
         ->and($customer->stats->number_invoices)->toBe(2)
         ->and($this->shop->salesStats->number_invoices)->toBe(2);
+    expect($invoiceTransaction)->toBeInstanceOf(InvoiceTransaction::class);
 
 
     return $invoice;
 })->depends('create order', 'update invoice from customer');
+
+test('update invoice transaction', function (Invoice $invoice) {
+    $transaction = $invoice->invoiceTransactions->first();
+    $updatedTransaction = UpdateInvoiceTransaction::make()->action($transaction, [
+        'quantity' => 100
+    ]);
+    expect($updatedTransaction)->toBeInstanceOf(InvoiceTransaction::class)
+        ->and(intval($updatedTransaction->quantity))->toBe(100);
+
+    return $updatedTransaction;
+})->depends('create invoice from order');
 
 test('create old order', function () {
     $billingAddress  = new Address(Address::factory()->definition());
@@ -333,10 +357,11 @@ test('create old order', function () {
         'updated_at' => Date::now()->subDays(40)->toDateString()
     ]);
 
-    return $shop;
+    return $order;
 });
 
-test('create purge', function (Shop $shop) {
+test('create purge', function (Order $order) {
+    $shop = $order->shop;
     $purge = StorePurge::make()->action($shop, [
         'type' => PurgeTypeEnum::MANUAL,
         'scheduled_at' => now()
@@ -372,3 +397,13 @@ test('update purge order', function (Purge $purge) {
 
     return $updatedPurgedOrder;
 })->depends('create purge');
+
+test('delete transaction', function (Order $order) {
+    $transaction = $order->transactions->first();
+
+    $deletedTransaction = DeleteTransaction::make()->action($order, $transaction);
+    $order->refresh();
+
+    expect($order->transactions()->count())->toBe(0);
+    return $order;
+})->depends('create old order');
