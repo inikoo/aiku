@@ -393,3 +393,76 @@ test("UI Show TradeUnit", function () {
             ->has("tabs");
     });
 });
+
+
+test("UI Create Stock in Group", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.goods.stocks.create", [])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("CreateModel")
+            ->where("title", "new stock")
+            ->has("breadcrumbs", 4)
+            ->has('icon')
+            ->has('formData', fn (AssertableInertia $page) => $page->where("route", [
+                'name'      => 'grp.models.stock.store',
+                'parameters' => []
+            ])->etc())
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'new SKU')->etc()
+            );
+    });
+});
+
+test("UI Edit Stock in Group", function () {
+    $this->withoutExceptionHandling();
+
+    $response = get(
+        route("grp.goods.stocks.edit", [$this->stock->slug])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("EditModel")
+            ->where("title", "sku")
+            ->has("breadcrumbs", 3)
+            ->has('navigation')
+            ->has('formData', fn (AssertableInertia $page) => $page->where("args", [
+                'updateRoute' => [
+                    'name'       => 'grp.models.stock.update',
+                    'parameters' => $this->stock->id
+                ],
+            ])->etc())
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->stock->name)->etc()
+            );
+    });
+});
+
+
+test("UI Create Stock in Stock Family Group", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.goods.stock-families.show.stocks.create", [$this->stockFamily->slug])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("CreateModel")
+            ->where("title", "new stock")
+            ->has("breadcrumbs", 5)
+            ->has('icon')
+            ->has('formData', fn (AssertableInertia $page) => $page->where("route", [
+                'name'      => 'grp.models.stock-family.stock.store',
+                'parameters' => [
+                    'stockFamily' => $this->stockFamily->id
+                ]
+            ])->etc())
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'new SKU')->etc()
+            );
+    });
+});
