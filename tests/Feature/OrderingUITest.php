@@ -135,3 +135,21 @@ test('UI show ordering backlog', function () {
             );
     });
 });
+
+test('UI index ordering purges', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.ordering.purges.index', [$this->organisation, $this->shop]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Ordering/Purges')
+            ->where('title', 'purges')
+            ->has('breadcrumbs', 3)
+            ->has('data')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'Purges')
+                        ->etc()
+            );
+    });
+});
