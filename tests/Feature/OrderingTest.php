@@ -28,6 +28,7 @@ use App\Actions\Ordering\ShippingZone\StoreShippingZone;
 use App\Actions\Ordering\ShippingZone\UpdateShippingZone;
 use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
 use App\Actions\Ordering\ShippingZoneSchema\UpdateShippingZoneSchema;
+use App\Actions\Ordering\Transaction\DeleteTransaction;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
 use App\Enums\Ordering\Order\OrderStateEnum;
@@ -333,10 +334,11 @@ test('create old order', function () {
         'updated_at' => Date::now()->subDays(40)->toDateString()
     ]);
 
-    return $shop;
+    return $order;
 });
 
-test('create purge', function (Shop $shop) {
+test('create purge', function (Order $order) {
+    $shop = $order->shop;
     $purge = StorePurge::make()->action($shop, [
         'type' => PurgeTypeEnum::MANUAL,
         'scheduled_at' => now()
@@ -372,3 +374,13 @@ test('update purge order', function (Purge $purge) {
 
     return $updatedPurgedOrder;
 })->depends('create purge');
+
+test('delete transaction', function (Order $order) {
+    $transaction = $order->transactions->first();
+
+    $deletedTransaction = DeleteTransaction::make()->action($order, $transaction);
+    $order->refresh();
+
+    expect($order->transactions()->count())->toBe(0);
+    return $order;
+})->depends('create old order');
