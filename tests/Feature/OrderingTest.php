@@ -21,6 +21,7 @@ use App\Actions\Ordering\Order\UpdateStateToCreatingOrder;
 use App\Actions\Ordering\Order\UpdateStateToFinalizedOrder;
 use App\Actions\Ordering\Order\UpdateStateToHandlingOrder;
 use App\Actions\Ordering\Order\UpdateStateToPackedOrder;
+use App\Actions\Ordering\Purge\StorePurge;
 use App\Actions\Ordering\ShippingZone\StoreShippingZone;
 use App\Actions\Ordering\ShippingZone\UpdateShippingZone;
 use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
@@ -28,6 +29,7 @@ use App\Actions\Ordering\ShippingZoneSchema\UpdateShippingZoneSchema;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Purge\PurgeTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Shop;
@@ -36,10 +38,12 @@ use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Purge;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Date;
 
 beforeAll(function () {
     loadDB();
@@ -293,3 +297,50 @@ test('create invoice from order', function (Order $order) {
 
     return $invoice;
 })->depends('create order', 'update invoice from customer');
+
+test('create old order', function () {
+    $billingAddress  = new Address(Address::factory()->definition());
+    $deliveryAddress = new Address(Address::factory()->definition());
+
+    $modelData = Order::factory()->definition();
+    data_set($modelData, 'billing_address', $billingAddress);
+    data_set($modelData, 'delivery_address', $deliveryAddress);
+
+    $order = StoreOrder::make()->action(parent:$this->customer, modelData:$modelData);
+
+
+    $transactionData = Transaction::factory()->definition();
+    $historicAsset   = $this->product->historicAsset;
+    expect($historicAsset)->toBeInstanceOf(HistoricAsset::class);
+    $transaction = StoreTransaction::make()->action($order, $historicAsset, $transactionData);
+    
+    $order->refresh();
+
+    expect($order)->toBeInstanceOf(Order::class)
+    ->and($order->state)->toBe(OrderStateEnum::CREATING)
+        ->and($order->stats->number_transactions)->toBe(1)
+        ->and($order->stats->number_transactions_at_creation)->toBe(1);
+        expect($transaction)->toBeInstanceOf(Transaction::class);
+
+    $this->customer->refresh();
+    $shop = $order->shop;
+    $shop->refresh();
+    $order->update([
+        'updated_at' => Date::now()->subDays(40)->toDateString()
+    ]);
+
+    return $shop;
+});
+
+test('create purge', function (Shop $shop) {
+    $purge = StorePurge::make()->action($shop, [
+        'type' => PurgeTypeEnum::MANUAL,
+        'scheduled_at' => now()
+    ]);
+
+    expect($purge)->toBeInstanceOf(Purge::class)
+        ->and($purge->type)->toBe(PurgeTypeEnum::MANUAL)
+        ->and($purge->stats->estimated_number_orders)->toBe(1);
+
+    return $purge;
+})->depends('create old order');
