@@ -11,13 +11,15 @@ trait WithAuroraCleaners
 {
     public function sanitiseText($string): string
     {
-        $string  = str_replace("\0", "", $string);
-
-        return $string;
+        return str_replace("\0", "", $string);
     }
 
     public function clearTextWithHtml($string): string
     {
+        if(is_null($string)){
+            return '';
+        }
+
         $string = preg_replace('#<br\s*/?>#i', "\n", $string);
 
         return strip_tags(html_entity_decode(htmlspecialchars_decode($string)));
