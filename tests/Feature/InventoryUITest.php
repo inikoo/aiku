@@ -393,3 +393,23 @@ test("UI Show TradeUnit", function () {
             ->has("tabs");
     });
 });
+
+
+test("UI Create Stock in Stock Family Group", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.goods.stock-families.show.stocks.create", [$this->stockFamily->slug])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("CreateModel")
+            ->where("title", "new stock")
+            ->has("breadcrumbs", 5)
+            ->has('icon')
+            ->has('formData')
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'new SKU')->etc()
+            );
+    });
+});
