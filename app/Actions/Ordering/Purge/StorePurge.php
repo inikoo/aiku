@@ -30,7 +30,6 @@ class StorePurge extends OrgAction
         $purge->stats()->create([
             'currency_id' => $shop->currency_id
         ]);
-
         $dateThreshold = Carbon::now()->subDays(30);
         $orders = $shop->orders()
             ->where('updated_at', '<', $dateThreshold)
@@ -67,6 +66,14 @@ class StorePurge extends OrgAction
     public function asController(Shop $shop, ActionRequest $request)
     {
         $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($shop, $this->validatedData);
+    }
+
+    public function action(Shop $shop, array $modelData)
+    {
+        $this->initialisationFromShop($shop, $modelData);
+
         return $this->handle($shop, $this->validatedData);
     }
 }

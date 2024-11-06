@@ -64,4 +64,11 @@ class UpdatePurge extends OrgAction
         $this->initialisationFromShop($purge->shop, $request);
         return $this->handle($purge, $this->validatedData);
     }
+
+    public function action(Purge $purge, array $modelData)
+    {
+        $this->asAction = true;
+        $this->initialisationFromShop($purge->shop, $modelData);
+        return $this->handle($purge, $this->validatedData);
+    }
 }

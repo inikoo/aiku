@@ -58,26 +58,45 @@ class PurgeHydratePurgedOrders extends HydrateModel
                 return $purgedOrder->order->transactions->count();
             });
 
-        $purgedAmount = $purge->purgedOrders()
-            ->where('status', PurgedOrderStatusEnum::PURGED)
-            ->sum('order.net_amount');
+        $estimatedPurgedOrderAmounts = $purge->purgedOrders()
+            ->get();
+        
+            $estimatedpPurgedAmount = $estimatedPurgedOrderAmounts->sum(function ($purgedOrder) {
+                return $purgedOrder->order->net_amount ?? 0;
+            });
+            
+            $estimatedPurgedOrgAmount = $estimatedPurgedOrderAmounts->sum(function ($purgedOrder) {
+                return $purgedOrder->order->org_net_amount ?? 0;
+            });
+            
+            $estimatedPurgedGrpAmount = $estimatedPurgedOrderAmounts->sum(function ($purgedOrder) {
+                return $purgedOrder->order->grp_net_amount ?? 0;
+            });
 
-        $purgedOrgAmount = $purge->purgedOrders()
+        $purgedOrderAmounts = $purge->purgedOrders()
             ->where('status', PurgedOrderStatusEnum::PURGED)
-            ->sum('order.org_net_amount');
-
-        $purgedGrpAmount = $purge->purgedOrders()
-            ->where('status', PurgedOrderStatusEnum::PURGED)
-            ->sum('order.grp_net_amount');
+            ->get();
+        
+            $purgedAmount = $purgedOrderAmounts->sum(function ($purgedOrder) {
+                return $purgedOrder->order->net_amount ?? 0;
+            });
+            
+            $purgedOrgAmount = $purgedOrderAmounts->sum(function ($purgedOrder) {
+                return $purgedOrder->order->org_net_amount ?? 0;
+            });
+            
+            $purgedGrpAmount = $purgedOrderAmounts->sum(function ($purgedOrder) {
+                return $purgedOrder->order->grp_net_amount ?? 0;
+            });
 
         $stats = [
             'estimated_number_orders'          => $purge->purgedOrders()->count(),
             'estimated_number_transactions'    => $estimatedNumberTransactions,
             'number_purged_orders'             => $purgedOrders,
             'number_purged_transactions'       => $purgedTransactions,
-            'estimated_amount'                 => $purge->purgedOrders()->sum('order.net_amount'),
-            'estimated_org_amount'             => $purge->purgedOrders()->sum('order.org_net_amount'),
-            'estimated_grp_amount'             => $purge->purgedOrders()->sum('order.grp_net_amount'),
+            'estimated_amount'                 => $estimatedpPurgedAmount,
+            'estimated_org_amount'             => $estimatedPurgedOrgAmount,
+            'estimated_grp_amount'             => $estimatedPurgedGrpAmount,
             'purged_amount'                    => $purgedAmount,
             'purged_org_amount'                => $purgedOrgAmount,
             'purged_grp_amount'                => $purgedGrpAmount
