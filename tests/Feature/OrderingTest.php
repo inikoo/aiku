@@ -22,6 +22,7 @@ use App\Actions\Ordering\Order\UpdateStateToFinalizedOrder;
 use App\Actions\Ordering\Order\UpdateStateToHandlingOrder;
 use App\Actions\Ordering\Order\UpdateStateToPackedOrder;
 use App\Actions\Ordering\Purge\StorePurge;
+use App\Actions\Ordering\Purge\UpdatePurge;
 use App\Actions\Ordering\ShippingZone\StoreShippingZone;
 use App\Actions\Ordering\ShippingZone\UpdateShippingZone;
 use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
@@ -42,6 +43,7 @@ use App\Models\Ordering\Purge;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
+use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Date;
 
@@ -344,3 +346,15 @@ test('create purge', function (Shop $shop) {
 
     return $purge;
 })->depends('create old order');
+
+test('update purge', function (Purge $purge) {
+    $newSchedule = Date::now()->addDays(5);
+    $purge = UpdatePurge::make()->action($purge, [
+        'scheduled_at' => $newSchedule
+    ]);
+
+    expect($purge)->toBeInstanceOf(Purge::class)
+        ->and(Carbon::parse($purge->scheduled_at)->toDateString())->toBe($newSchedule->toDateString());
+
+    return $purge;
+})->depends('create purge');
