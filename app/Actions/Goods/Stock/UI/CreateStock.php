@@ -8,8 +8,6 @@
 namespace App\Actions\Goods\Stock\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\InertiaAction;
-use App\Actions\Inventory\OrgStock\UI\IndexOrgStocks;
 use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Group;
 use Inertia\Inertia;
@@ -22,8 +20,7 @@ class CreateStock extends GrpAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if($this->parent instanceof StockFamily)
-        {
+        if ($this->parent instanceof StockFamily) {
             return $request->user()->hasPermissionTo("goods.{$this->parent->group->id}.create");
         }
         return $request->user()->hasPermissionTo("goods.{$this->parent->id}.create");
@@ -97,9 +94,9 @@ class CreateStock extends GrpAction
                             'name'      => 'grp.models.stock.store',
                             'parameters' => []
                         ],
-                        'grp.goods.stock-families.show' => [
+                        'grp.goods.stock-families.show.stocks.create' => [
                             'name'      => 'grp.models.stock-family.stock.store',
-                            'arguments' => [
+                            'parameters' => [
                                 'stockFamily' => $parent->id
                             ]
                         ],
