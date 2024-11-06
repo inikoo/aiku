@@ -7,7 +7,10 @@
  *
 */
 
+use App\Actions\Ordering\Purge\StorePurge;
 use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
+use App\Enums\Ordering\Purge\PurgeTypeEnum;
+use App\Models\Ordering\Purge;
 use App\Models\Ordering\ShippingZoneSchema;
 use Inertia\Testing\AssertableInertia;
 
@@ -28,26 +31,33 @@ beforeEach(function () {
         $this->shop
     ) = createShop();
 
-    $this->adminGuest   = createAdminGuest($this->organisation->group);
-
     $shippingZoneSchema = ShippingZoneSchema::first();
     if (!$shippingZoneSchema) {
         $shippingZoneSchema = StoreShippingZoneSchema::make()->action($this->shop, ShippingZoneSchema::factory()->definition());
     }
     $this -> shippingZoneSchema = $shippingZoneSchema;
 
+    $purge = Purge::where('shop_id', $this->shop->id)->first();
+    if (!$purge) {
+        $purge = StorePurge::make()->action($this->shop, [
+            'type' => PurgeTypeEnum::MANUAL,
+            'scheduled_at' => now()
+        ]);
+    }
+    $this->purge = $purge;
+
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]
     );
-    actingAs($this->adminGuest->getUser());
+    actingAs($this->user);
 });
 
 
 
 test('UI index asset shipping', function () {
     $this->withoutExceptionHandling();
-    $response = get(route('grp.org.shops.show.assets.shipping.index', [$this->organisation, $this->shop]));
+    $response = get(route('grp.org.shops.show.assets.shipping.index', [$this->organisation->slug, $this->shop]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Catalogue/Shippings')
@@ -65,7 +75,7 @@ test('UI index asset shipping', function () {
 
 test('UI create asset shipping', function () {
     $this->withoutExceptionHandling();
-    $response = get(route('grp.org.shops.show.assets.shipping.create', [$this->organisation, $this->shop]));
+    $response = get(route('grp.org.shops.show.assets.shipping.create', [$this->organisation->slug, $this->shop]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CreateModel')
@@ -83,7 +93,7 @@ test('UI create asset shipping', function () {
 
 test('UI show asset shipping', function () {
     $this->withoutExceptionHandling();
-    $response = get(route('grp.org.shops.show.assets.shipping.show', [$this->organisation, $this->shop, $this->shippingZoneSchema]));
+    $response = get(route('grp.org.shops.show.assets.shipping.show', [$this->organisation->slug, $this->shop, $this->shippingZoneSchema]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Catalogue/ShippingZoneSchema')
@@ -102,7 +112,7 @@ test('UI show asset shipping', function () {
 
 test('UI edit asset shipping', function () {
     $this->withoutExceptionHandling();
-    $response = get(route('grp.org.shops.show.assets.shipping.edit', [$this->organisation, $this->shop, $this->shippingZoneSchema]));
+    $response = get(route('grp.org.shops.show.assets.shipping.edit', [$this->organisation->slug, $this->shop, $this->shippingZoneSchema]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('EditModel')
@@ -121,7 +131,7 @@ test('UI edit asset shipping', function () {
 
 test('UI show ordering backlog', function () {
     $this->withoutExceptionHandling();
-    $response = get(route('grp.org.shops.show.ordering.backlog', [$this->organisation, $this->shop]));
+    $response = get(route('grp.org.shops.show.ordering.backlog', [$this->organisation->slug, $this->shop]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Ordering/OrdersBacklog')
@@ -138,7 +148,7 @@ test('UI show ordering backlog', function () {
 
 test('UI index ordering purges', function () {
     $this->withoutExceptionHandling();
-    $response = get(route('grp.org.shops.show.ordering.purges.index', [$this->organisation, $this->shop]));
+    $response = get(route('grp.org.shops.show.ordering.purges.index', [$this->organisation->slug, $this->shop]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Ordering/Purges')
@@ -156,7 +166,7 @@ test('UI index ordering purges', function () {
 
 test('UI create ordering purge', function () {
     $this->withoutExceptionHandling();
-    $response = get(route('grp.org.shops.show.ordering.purges.create', [$this->organisation, $this->shop]));
+    $response = get(route('grp.org.shops.show.ordering.purges.create', [$this->organisation->slug, $this->shop]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CreateModel')
@@ -174,6 +184,32 @@ test('UI create ordering purge', function () {
                 'pageHead',
                 fn (AssertableInertia $page) => $page
                         ->where('title', 'new purge')
+                        ->etc()
+            );
+    });
+});
+
+test('UI edit ordering purge', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.ordering.purges.edit', [$this->organisation->slug, $this->shop, $this->purge]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('EditModel')
+            ->where('title', 'Purge')
+            ->has('breadcrumbs', 3)
+            ->has('formData', fn ($page) => $page
+                ->where('args', [
+                    'updateRoute' => [
+                        'name'       => 'grp.models.purge.update',
+                        'parameters' => $this->purge->id
+
+                    ],
+                ])
+                ->etc())
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', $this->purge->scheduled_at->toISOString())
                         ->etc()
             );
     });
