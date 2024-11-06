@@ -153,3 +153,28 @@ test('UI index ordering purges', function () {
             );
     });
 });
+
+test('UI create ordering purge', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.ordering.purges.create', [$this->organisation, $this->shop]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->where('title', 'new purge')
+            ->has('breadcrumbs', 4)
+            ->has('formData', fn ($page) => $page
+                ->where('route', [
+                    'name'       => 'grp.models.purge.store',
+                    'parameters' => [
+                        'shop'         => $this->shop->id,
+                    ]
+                ])
+                ->etc())
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                        ->where('title', 'new purge')
+                        ->etc()
+            );
+    });
+});
