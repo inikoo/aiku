@@ -413,3 +413,23 @@ test("UI Create Stock in Stock Family Group", function () {
             );
     });
 });
+
+test("UI Edit Stock in Group", function () {
+    $this->withoutExceptionHandling();
+
+    $response = get(
+        route("grp.goods.stocks.edit", [$this->stock->slug])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("EditModel")
+            ->where("title", "sku")
+            ->has("breadcrumbs", 3)
+            ->has('navigation')
+            ->has('formData')
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->stock->name)->etc()
+            );
+    });
+});
