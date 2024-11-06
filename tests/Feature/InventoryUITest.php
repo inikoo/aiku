@@ -309,6 +309,30 @@ test("UI Create stock family", function () {
     });
 });
 
+test("UI Edit stock family", function () {
+    $response = get(
+        route("grp.goods.stock-families.edit", [$this->stockFamily])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("EditModel")
+            ->has("breadcrumbs", 3)
+            ->has("title")
+            ->has("navigation")
+            ->has("formData", fn ($page) => $page->where("args", [
+                'updateRoute' => [
+                    'name'      => 'grp.models.stock-family.update',
+                    'parameters' => $this->stockFamily->id
+                ],
+            ])->etc())
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->stockFamily->name)->etc()
+            )
+            ->has("formData");
+    });
+});
+
 test("UI Show Stock Family", function () {
     $this->withoutExceptionHandling();
     $response = get(
