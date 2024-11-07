@@ -29,6 +29,7 @@ Route::get('/purges/create', CreatePurge::class)->name('purges.create');
 Route::prefix('purges/{purge:id}')->group(function () {
     Route::get('', ShowPurge::class)->name('purges.show');
     Route::get('edit', EditPurge::class)->name('purges.edit');
+    Route::get('order/{order}', [ShowOrder::class, 'inPurge'])->name('purges.order')->withoutScopedBindings();
 });
 
 /*

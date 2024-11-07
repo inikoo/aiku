@@ -16,8 +16,8 @@ enum PurgeTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE                       = 'showcase';
-    case ORDERS                         = 'orders';
+    case SHOWCASE        = 'showcase';
+    case PURGED_ORDERS   = 'purged_orders';
 
 
 
@@ -31,10 +31,8 @@ enum PurgeTabsEnum: string
                 'title' => __('showcase'),
                 'icon'  => 'fal fa-info-circle',
             ],
-            PurgeTabsEnum::ORDERS => [
-                'type'  => 'icon',
-                'align' => 'right',
-                'title' => __('orders'),
+            PurgeTabsEnum::PURGED_ORDERS => [
+                'title' => __('purged orders'),
                 'icon'  => 'fal fa-dollar-sign',
             ],
         };
