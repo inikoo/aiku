@@ -19,7 +19,7 @@ enum CustomerDropshippingTabsEnum: string
     case HISTORY             = 'history';
     case TIMELINE            = 'timeline';
     case ATTACHMENTS         = 'attachments';
-    case DISPATCHED_EMAILS   = 'dispatched_emails';
+    // case DISPATCHED_EMAILS   = 'dispatched_emails';
     case CREDIT_TRANSACTIONS = 'credit_transactions';
     case FAVOURITES          = 'favourites';
     case REMINDERS           = 'reminders';
@@ -42,12 +42,12 @@ enum CustomerDropshippingTabsEnum: string
                 'icon'  => 'fal fa-paperclip',
                 'type'  => 'icon'
             ],
-            CustomerDropshippingTabsEnum::DISPATCHED_EMAILS => [
-                'align' => 'right',
-                'title' => __('dispatched emails'),
-                'icon'  => 'fal fa-paper-plane',
-                'type'  => 'icon',
-            ],
+            // CustomerDropshippingTabsEnum::DISPATCHED_EMAILS => [
+            //     'align' => 'right',
+            //     'title' => __('dispatched emails'),
+            //     'icon'  => 'fal fa-paper-plane',
+            //     'type'  => 'icon',
+            // ],
             CustomerDropshippingTabsEnum::CREDIT_TRANSACTIONS => [
                 'align' => 'right',
                 'title' => __('credit transactions'),
