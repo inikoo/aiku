@@ -93,10 +93,10 @@ class ShowOutboxWorkshop extends OrgAction
                     'name'       => 'grp.models.email-templates.content.publish',
                     'parameters' => $emailTemplate->id
                 ],
-                'loadRoute'           => [
-                    'name'       => 'grp.models.email-templates.content.show',
-                    'parameters' => $emailTemplate->id
-                ]
+                // 'loadRoute'           => [ -> i don't know what kind of data should i give to this route
+                //     'name'       => 'grp.models.email-templates.content.show',
+                //     'parameters' => $emailTemplate->id
+                // ]
             ]
         );
     }
