@@ -30,7 +30,6 @@ use App\Models\Helpers\Media;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Mail\ModelSubscribedToOutbox;
-use App\Models\Mail\Outbox;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
 use App\Models\Reminder\BackInStockReminder;
@@ -139,10 +138,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\CRM\CustomerStats|null $stats
  * @property-read Collection<int, Stock> $stocks
  * @property-read Collection<int, StoredItem> $storedItems
+ * @property-read Collection<int, ModelSubscribedToOutbox> $subscribedOutboxes
  * @property-read TaxNumber|null $taxNumber
  * @property-read Collection<int, TopUp> $topUps
  * @property-read Collection<int, Transaction> $transactions
  * @property-read UniversalSearch|null $universalSearch
+ * @property-read Collection<int, ModelSubscribedToOutbox> $unsubscribedOutboxes
  * @property-read Collection<int, \App\Models\CRM\WebUser> $webUsers
  * @property-read WooCommerceUser|null $wooCommerceUser
  * @method static \Database\Factories\CRM\CustomerFactory factory($count = null, $state = [])

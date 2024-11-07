@@ -230,17 +230,17 @@ test('test update model to outbox', function (Outbox $outbox) {
     );
 
     $this->customer->refresh();
-    
+
     $modelUnsubscribedToOutbox = $this->customer->unsubscribedOutboxes()
     ->where('outbox_id', $outbox->id)
     ->first();
-    
+
     $outbox->refresh();
 
     expect($modelUnsubscribedToOutbox)->toBeInstanceOf(ModelSubscribedToOutbox::class)
         ->and($modelUnsubscribedToOutbox->data)->toBe("{'test': '1'}")
         ->and(Carbon::parse($modelUnsubscribedToOutbox->unsubscribed_at)->toDateString())->toBe($unsubscribedAt);
-    
+
 
     expect($this->customer->subscribedOutboxes()->count())->toBe(0)
         ->and($this->customer->unsubscribedOutboxes()->count())->toBe(1)

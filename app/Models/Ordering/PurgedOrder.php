@@ -28,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $note
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Ordering\Order|null $order
  * @property-read \App\Models\Ordering\Purge $purge
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PurgedOrder newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PurgedOrder newQuery()

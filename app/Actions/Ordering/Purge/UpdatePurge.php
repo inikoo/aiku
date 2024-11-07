@@ -9,14 +9,11 @@
 namespace App\Actions\Ordering\Purge;
 
 use App\Actions\Ordering\Purge\Hydrators\PurgeHydratePurgedOrders;
-use App\Actions\Ordering\PurgedOrder\StorePurgedOrder;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Purge\PurgeStateEnum;
 use App\Enums\Ordering\Purge\PurgeTypeEnum;
-use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Purge;
-use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -39,8 +36,7 @@ class UpdatePurge extends OrgAction
 
     public function authorize(ActionRequest $request)
     {
-        if($this->asAction)
-        {
+        if ($this->asAction) {
             return true;
         }
 

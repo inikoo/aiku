@@ -9,10 +9,8 @@
 namespace App\Actions\Ordering\Purge\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Ordering\Purge\PurgeStateEnum;
 use App\Enums\Ordering\Purge\PurgeTypeEnum;
-use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Purge;
 use App\Models\SysAdmin\Organisation;

@@ -65,7 +65,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $emergency_contact
  * @property array|null $salary
  * @property array|null $working_hours
- * @property string $week_working_hours
+ * @property numeric $week_working_hours
  * @property array $data
  * @property array $errors
  * @property string|null $pin
@@ -85,7 +85,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read Collection<int, Issue> $issues
- * @property-read EmployeeHasOtherOrganisationJobPosition $pivot
+ * @property-read EmployeeHasOtherOrganisationJobPosition|\App\Models\HumanResources\EmployeeHasJobPositions|null $pivot
  * @property-read Collection<int, \App\Models\HumanResources\JobPosition> $jobPositions
  * @property-read MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read Organisation $organisation

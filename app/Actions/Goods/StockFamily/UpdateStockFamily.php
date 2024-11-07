@@ -31,10 +31,9 @@ class UpdateStockFamily extends GrpAction
         $stockFamily = $this->update($stockFamily, $modelData, ['data']);
         StockFamilyHydrateUniversalSearch::dispatch($stockFamily);
         $changes = $stockFamily->getChanges();
-        if($stockFamily->orgStockFamilies)
-        {
+        if ($stockFamily->orgStockFamilies) {
             if (Arr::hasAny($changes, ['code', 'name'])) {
-            /** @var StockFamily $stockFamily */
+                /** @var StockFamily $stockFamily */
                 foreach ($stockFamily->orgStockFamilies as $orgStockFamily) {
                     $orgStockFamily->update(
                         [

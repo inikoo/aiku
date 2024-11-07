@@ -24,13 +24,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $payment_id
  * @property string $type
  * @property \Illuminate\Support\Carbon $date
- * @property string $amount
- * @property string|null $running_amount
+ * @property numeric $amount
+ * @property numeric|null $running_amount
  * @property int $currency_id
- * @property string|null $grp_exchange
- * @property string|null $org_exchange
- * @property string|null $grp_amount
- * @property string|null $org_amount
+ * @property numeric|null $grp_exchange
+ * @property numeric|null $org_exchange
+ * @property numeric|null $grp_amount
+ * @property numeric|null $org_amount
  * @property string|null $notes
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $fetched_at

@@ -156,9 +156,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Offer> $offers
  * @property-read ShopOrdersIntervals|null $orderIntervals
  * @property-read LaravelCollection<int, Order> $orders
- * @property-read PaymentAccountShop $pivot
+ * @property-read PaymentAccountShop|OrgPaymentServiceProviderShop|null $pivot
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read Organisation $organisation
+ * @property-read LaravelCollection<int, ModelSubscribedToOutbox> $outboxSubscribers
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, Payment> $payments
@@ -166,6 +167,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\Catalogue\ProductCategory> $productCategories
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Product> $products
  * @property-read LaravelCollection<int, Prospect> $prospects
+ * @property-read LaravelCollection<int, Purge> $purges
  * @property-read LaravelCollection<int, Redirect> $redirects
  * @property-read LaravelCollection<int, Rental> $rentals
  * @property-read LaravelCollection<int, Role> $roles

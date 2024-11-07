@@ -16,7 +16,7 @@ trait WithAuroraCleaners
 
     public function clearTextWithHtml($string): string
     {
-        if(is_null($string)){
+        if (is_null($string)) {
             return '';
         }
 

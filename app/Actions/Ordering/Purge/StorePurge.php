@@ -24,7 +24,7 @@ class StorePurge extends OrgAction
     {
         data_set($modelData, 'group_id', $shop->group_id);
         data_set($modelData, 'organisation_id', $shop->organisation_id);
-         /** @var Purge $purge */
+        /** @var Purge $purge */
         $purge = $shop->purges()->create($modelData);
         $purge->refresh();
         $purge->stats()->create([
@@ -35,8 +35,7 @@ class StorePurge extends OrgAction
             ->where('updated_at', '<', $dateThreshold)
             ->get();
 
-        foreach($orders as $order)
-        {
+        foreach ($orders as $order) {
             StorePurgedOrder::make()->action($purge, $order);
         }
 
@@ -47,8 +46,7 @@ class StorePurge extends OrgAction
 
     public function authorize(ActionRequest $request)
     {
-        if($this->asAction)
-        {
+        if ($this->asAction) {
             return true;
         }
 

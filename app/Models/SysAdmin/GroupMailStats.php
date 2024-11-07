@@ -45,6 +45,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_outboxes_state_in_process
  * @property int $number_outboxes_state_active
  * @property int $number_outboxes_state_suspended
+ * @property int $number_outbox_subscribers
  * @property int $number_mailshots
  * @property int $number_post_room_state_in_process
  * @property int $number_post_room_state_ready

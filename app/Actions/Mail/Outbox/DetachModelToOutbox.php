@@ -25,9 +25,8 @@ class DetachModelToOutbox extends OrgAction
     {
 
         $subscription = $model->subscribedOutboxes()->where('outbox_id', $outbox->id)->first();
-        
-        if (!$subscription) 
-        {
+
+        if (!$subscription) {
             $subscription = $model->unsubscribedOutboxes()->where('outbox_id', $outbox->id)->first();
         }
 

@@ -37,14 +37,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $order_id
  * @property int|null $transaction_id
  * @property int|null $recurring_bill_transaction_id
- * @property string $quantity
- * @property string $gross_amount
- * @property string $net_amount
+ * @property numeric $quantity
+ * @property numeric $gross_amount
+ * @property numeric $net_amount
  * @property int $tax_category_id
- * @property string|null $grp_exchange
- * @property string|null $org_exchange
- * @property string|null $grp_net_amount
- * @property string|null $org_net_amount
+ * @property numeric|null $grp_exchange
+ * @property numeric|null $org_exchange
+ * @property numeric|null $grp_net_amount
+ * @property numeric|null $org_net_amount
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

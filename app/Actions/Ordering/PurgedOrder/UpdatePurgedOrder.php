@@ -12,11 +12,7 @@ use App\Actions\Ordering\Purge\Hydrators\PurgeHydratePurgedOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Purge\PurgedOrderStatusEnum;
-use App\Models\Catalogue\Shop;
-use App\Models\Ordering\Order;
-use App\Models\Ordering\Purge;
 use App\Models\Ordering\PurgedOrder;
-use Carbon\Carbon;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -35,8 +31,7 @@ class UpdatePurgedOrder extends OrgAction
 
     public function authorize(ActionRequest $request)
     {
-        if($this->asAction)
-        {
+        if ($this->asAction) {
             return true;
         }
 

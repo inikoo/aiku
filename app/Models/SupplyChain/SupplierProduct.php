@@ -47,7 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $stock_id
  * @property SupplierProductStateEnum $state
  * @property bool $is_available
- * @property string $cost unit cost
+ * @property numeric $cost unit cost
  * @property int $currency_id
  * @property int|null $units_per_pack units per pack
  * @property int|null $units_per_carton units per carton

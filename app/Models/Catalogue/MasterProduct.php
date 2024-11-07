@@ -39,16 +39,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $name
  * @property string|null $description
  * @property string $unit
- * @property string|null $price
+ * @property numeric|null $price
  * @property array $data
  * @property array $settings
  * @property int|null $gross_weight outer weight including packing, grams
  * @property int|null $marketing_weight to be shown in website, grams
  * @property string|null $barcode mirror from trade_unit
- * @property string|null $rrp RRP per outer
+ * @property numeric|null $rrp RRP per outer
  * @property int|null $image_id
  * @property int|null $available_quantity outer available quantity for sale
- * @property string $variant_ratio
+ * @property numeric $variant_ratio
  * @property bool $variant_is_visible
  * @property int|null $main_master_product_id
  * @property \Illuminate\Support\Carbon|null $created_at

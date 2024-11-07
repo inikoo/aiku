@@ -10,7 +10,6 @@ namespace App\Actions\Mail\Outbox\Hydrators;
 
 use App\Models\Mail\Outbox;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class OutboxHydrateSubscriber

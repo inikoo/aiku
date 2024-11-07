@@ -39,7 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string|null $name
  * @property string|null $description
- * @property string|null $price
+ * @property numeric|null $price
  * @property string $units
  * @property string $unit
  * @property array $data

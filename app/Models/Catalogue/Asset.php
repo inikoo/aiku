@@ -46,7 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code mirror of asset model
  * @property string|null $name mirror of asset model
  * @property string|null $price mirror of asset model
- * @property string $units mirror of asset model
+ * @property numeric $units mirror of asset model
  * @property string|null $unit mirror of asset model
  * @property int $currency_id
  * @property array $data

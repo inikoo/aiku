@@ -153,6 +153,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupOrdersIntervals|null $ordersIntervals
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Organisation> $organisations
+ * @property-read LaravelCollection<int, ModelSubscribedToOutbox> $outboxSubscribers
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, PaymentServiceProvider> $paymentServiceProviders
@@ -164,6 +165,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Production> $productions
  * @property-read LaravelCollection<int, Product> $products
  * @property-read LaravelCollection<int, PurchaseOrder> $purchaseOrders
+ * @property-read LaravelCollection<int, Purge> $purges
  * @property-read LaravelCollection<int, RawMaterial> $rawMaterials
  * @property-read LaravelCollection<int, RecurringBill> $recurringBills
  * @property-read LaravelCollection<int, Redirect> $redirects

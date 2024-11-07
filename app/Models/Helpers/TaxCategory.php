@@ -22,7 +22,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $label
  * @property string $name
  * @property bool $status
- * @property string $rate
+ * @property numeric $rate
  * @property int|null $country_id
  * @property array $data
  * @property string|null $source_id

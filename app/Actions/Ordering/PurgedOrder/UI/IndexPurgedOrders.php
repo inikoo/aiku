@@ -8,32 +8,17 @@
 
 namespace App\Actions\Ordering\PurgedOrder\UI;
 
-use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\CRM\Customer\UI\ShowCustomer;
-use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\UI\Dispatch\ShowDispatchHub;
-use App\Enums\UI\DeliveryNotes\DeliveryNotesTabsEnum;
-use App\Http\Resources\Dispatching\DeliveryNotesResource;
 use App\Http\Resources\Ordering\PurgedOrdersResource;
-use App\Http\Resources\Ordering\PurgesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
-use App\Models\CRM\Customer;
-use App\Models\Dispatching\DeliveryNote;
-use App\Models\Dropshipping\CustomerClient;
-use App\Models\Inventory\Warehouse;
-use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;
 use App\Models\Ordering\PurgedOrder;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Inertia\Inertia;
-use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
@@ -97,13 +82,13 @@ class IndexPurgedOrders extends OrgAction
                 );
 
 
-                $table->column(key: 'order_reference', label: __('order'), sortable: true, canBeHidden: false, searchable: true);
-                $table->column(key: 'status', label: __('status'), sortable: true, canBeHidden: false, searchable: true);
-                $table->column(key: 'purged_at', label: __('purged at'), sortable: true, canBeHidden: false, searchable: true);
-                $table->column(key: 'amount', label: __('amount'), sortable: true, canBeHidden: false, searchable: true);
-                $table->column(key: 'number_transactions', label: __('transactions'), sortable: true, canBeHidden: false, searchable: true);
-                $table->column(key: 'note', label: __('note'), sortable: true, canBeHidden: false, searchable: true);
-            };
+            $table->column(key: 'order_reference', label: __('order'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'status', label: __('status'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'purged_at', label: __('purged at'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'amount', label: __('amount'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'number_transactions', label: __('transactions'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'note', label: __('note'), sortable: true, canBeHidden: false, searchable: true);
+        };
     }
 
     public function authorize(ActionRequest $request): bool

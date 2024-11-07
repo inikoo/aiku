@@ -72,6 +72,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_delivery_notes_cancelled_at_state_packed
  * @property int $number_delivery_notes_cancelled_at_state_finalised
  * @property int $number_delivery_notes_cancelled_at_state_settled
+ * @property int $number_purges
+ * @property int $number_purges_state_in_process
+ * @property int $number_purges_state_purging
+ * @property int $number_purges_state_finished
+ * @property int $number_purges_state_cancelled
+ * @property int $number_purges_type_cron
+ * @property int $number_purges_type_manual
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group

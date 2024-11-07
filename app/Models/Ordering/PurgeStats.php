@@ -19,10 +19,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $estimated_number_transactions
  * @property int $number_purged_orders
  * @property int $number_purged_orders_status_in_process
- * @property int $number_purged_orders_status_registered
- * @property int $number_purged_orders_status_active
- * @property int $number_purged_orders_status_losing
- * @property int $number_purged_orders_status_lost
+ * @property int $number_purged_orders_status_purged
+ * @property int $number_purged_orders_status_exculpated
+ * @property int $number_purged_orders_status_cancelled
+ * @property int $number_purged_orders_status_error
  * @property int $number_purged_transactions
  * @property int $currency_id
  * @property string $estimated_amount

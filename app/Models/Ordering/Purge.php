@@ -27,10 +27,10 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property PurgeStateEnum $state
  * @property PurgeTypeEnum $type
  * @property \Illuminate\Support\Carbon $scheduled_at
- * @property \Illuminate\Support\Carbon $start_at
- * @property \Illuminate\Support\Carbon $end_at
- * @property \Illuminate\Support\Carbon $cancelled_at
- * @property int $inactive_days
+ * @property \Illuminate\Support\Carbon|null $start_at
+ * @property \Illuminate\Support\Carbon|null $end_at
+ * @property \Illuminate\Support\Carbon|null $cancelled_at
+ * @property int|null $inactive_days
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits

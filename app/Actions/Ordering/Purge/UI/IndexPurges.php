@@ -9,20 +9,10 @@
 namespace App\Actions\Ordering\Purge\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\CRM\Customer\UI\ShowCustomer;
-use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\OrgAction;
-use App\Actions\UI\Dispatch\ShowDispatchHub;
-use App\Enums\UI\DeliveryNotes\DeliveryNotesTabsEnum;
-use App\Http\Resources\Dispatching\DeliveryNotesResource;
 use App\Http\Resources\Ordering\PurgesResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
-use App\Models\CRM\Customer;
-use App\Models\Dispatching\DeliveryNote;
-use App\Models\Dropshipping\CustomerClient;
-use App\Models\Inventory\Warehouse;
-use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -103,13 +93,13 @@ class IndexPurges extends OrgAction
                 );
 
 
-                $table->column(key: 'scheduled_at', label: __('date'), sortable: true, canBeHidden: false, searchable: true);
-                $table->column(key: 'type', label: __('type'), sortable: true, canBeHidden: false, searchable: true);
-                $table->column(key: 'state', label: __('state'), sortable: true, canBeHidden: false, searchable: true);
-                $table->column(key: 'estimated_number_orders', label: __('orders'), sortable: true, canBeHidden: false, searchable: true);
-                $table->column(key: 'estimated_number_transactions', label: __('transactions'), sortable: true, canBeHidden: false, searchable: true);
-                $table->column(key: 'estimated_amount', label: __('amount'), sortable: true, canBeHidden: false, searchable: true);
-            };
+            $table->column(key: 'scheduled_at', label: __('date'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'type', label: __('type'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'state', label: __('state'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'estimated_number_orders', label: __('orders'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'estimated_number_transactions', label: __('transactions'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'estimated_amount', label: __('amount'), sortable: true, canBeHidden: false, searchable: true);
+        };
     }
 
     public function authorize(ActionRequest $request): bool

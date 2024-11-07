@@ -31,10 +31,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $customer_id
  * @property int $payment_id
  * @property TopUpStatusEnum $status
- * @property string $amount
+ * @property numeric $amount
  * @property int $currency_id
- * @property string|null $grp_amount
- * @property string|null $org_amount
+ * @property numeric|null $grp_amount
+ * @property numeric|null $org_amount
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

@@ -341,14 +341,14 @@ test('create old order', function () {
     $historicAsset   = $this->product->historicAsset;
     expect($historicAsset)->toBeInstanceOf(HistoricAsset::class);
     $transaction = StoreTransaction::make()->action($order, $historicAsset, $transactionData);
-    
+
     $order->refresh();
 
     expect($order)->toBeInstanceOf(Order::class)
     ->and($order->state)->toBe(OrderStateEnum::CREATING)
         ->and($order->stats->number_transactions)->toBe(1)
         ->and($order->stats->number_transactions_at_creation)->toBe(1);
-        expect($transaction)->toBeInstanceOf(Transaction::class);
+    expect($transaction)->toBeInstanceOf(Transaction::class);
 
     $this->customer->refresh();
     $shop = $order->shop;

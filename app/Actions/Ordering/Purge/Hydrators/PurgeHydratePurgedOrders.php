@@ -10,12 +10,7 @@ namespace App\Actions\Ordering\Purge\Hydrators;
 
 use App\Actions\HydrateModel;
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Fulfilment\Pallet\PalletStateEnum;
-use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
-use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use App\Enums\Ordering\Purge\PurgedOrderStatusEnum;
-use App\Models\Fulfilment\Pallet;
-use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Ordering\Purge;
 use App\Models\Ordering\PurgedOrder;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -42,7 +37,7 @@ class PurgeHydratePurgedOrders extends HydrateModel
         $purgedOrders = $purge->purgedOrders()
             ->where('status', PurgedOrderStatusEnum::PURGED)
             ->count();
-        
+
         $estimatedNumberTransactions = $purge->purgedOrders()
             ->with('order.transactions')
             ->get()
@@ -60,34 +55,34 @@ class PurgeHydratePurgedOrders extends HydrateModel
 
         $estimatedPurgedOrderAmounts = $purge->purgedOrders()
             ->get();
-        
-            $estimatedpPurgedAmount = $estimatedPurgedOrderAmounts->sum(function ($purgedOrder) {
-                return $purgedOrder->order->net_amount ?? 0;
-            });
-            
-            $estimatedPurgedOrgAmount = $estimatedPurgedOrderAmounts->sum(function ($purgedOrder) {
-                return $purgedOrder->order->org_net_amount ?? 0;
-            });
-            
-            $estimatedPurgedGrpAmount = $estimatedPurgedOrderAmounts->sum(function ($purgedOrder) {
-                return $purgedOrder->order->grp_net_amount ?? 0;
-            });
+
+        $estimatedpPurgedAmount = $estimatedPurgedOrderAmounts->sum(function ($purgedOrder) {
+            return $purgedOrder->order->net_amount ?? 0;
+        });
+
+        $estimatedPurgedOrgAmount = $estimatedPurgedOrderAmounts->sum(function ($purgedOrder) {
+            return $purgedOrder->order->org_net_amount ?? 0;
+        });
+
+        $estimatedPurgedGrpAmount = $estimatedPurgedOrderAmounts->sum(function ($purgedOrder) {
+            return $purgedOrder->order->grp_net_amount ?? 0;
+        });
 
         $purgedOrderAmounts = $purge->purgedOrders()
             ->where('status', PurgedOrderStatusEnum::PURGED)
             ->get();
-        
-            $purgedAmount = $purgedOrderAmounts->sum(function ($purgedOrder) {
-                return $purgedOrder->order->net_amount ?? 0;
-            });
-            
-            $purgedOrgAmount = $purgedOrderAmounts->sum(function ($purgedOrder) {
-                return $purgedOrder->order->org_net_amount ?? 0;
-            });
-            
-            $purgedGrpAmount = $purgedOrderAmounts->sum(function ($purgedOrder) {
-                return $purgedOrder->order->grp_net_amount ?? 0;
-            });
+
+        $purgedAmount = $purgedOrderAmounts->sum(function ($purgedOrder) {
+            return $purgedOrder->order->net_amount ?? 0;
+        });
+
+        $purgedOrgAmount = $purgedOrderAmounts->sum(function ($purgedOrder) {
+            return $purgedOrder->order->org_net_amount ?? 0;
+        });
+
+        $purgedGrpAmount = $purgedOrderAmounts->sum(function ($purgedOrder) {
+            return $purgedOrder->order->grp_net_amount ?? 0;
+        });
 
         $stats = [
             'estimated_number_orders'          => $purge->purgedOrders()->count(),

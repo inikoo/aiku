@@ -8,7 +8,6 @@
 
 namespace App\Actions\Ordering\Purge\UI;
 
-use App\Models\Catalogue\Collection;
 use App\Models\Ordering\Purge;
 use Lorisleiva\Actions\Concerns\AsObject;
 

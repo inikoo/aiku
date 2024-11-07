@@ -9,13 +9,9 @@
 namespace App\Actions\Ordering\PurgedOrder;
 
 use App\Actions\OrgAction;
-use App\Enums\Ordering\Purge\PurgedOrderStatusEnum;
-use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;
 use App\Models\Ordering\PurgedOrder;
-use Carbon\Carbon;
-use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StorePurgedOrder extends OrgAction
@@ -36,8 +32,7 @@ class StorePurgedOrder extends OrgAction
 
     public function authorize(ActionRequest $request)
     {
-        if($this->asAction)
-        {
+        if ($this->asAction) {
             return true;
         }
     }

@@ -56,6 +56,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Mail\PostRoom|null $postRoom
  * @property-read Shop|null $shop
  * @property-read \App\Models\Mail\OutboxStats|null $stats
+ * @property-read Collection<int, \App\Models\Mail\ModelSubscribedToOutbox> $subscribers
+ * @property-read Collection<int, \App\Models\Mail\ModelSubscribedToOutbox> $unsubscribed
  * @property-read Website|null $website
  * @method static \Database\Factories\Mail\OutboxFactory factory($count = null, $state = [])
  * @method static Builder<static>|Outbox newModelQuery()

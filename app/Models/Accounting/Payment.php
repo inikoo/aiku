@@ -46,9 +46,9 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property PaymentStateEnum $state
  * @property PaymentSubsequentStatusEnum|null $subsequent_status
  * @property int $currency_id
- * @property string $amount
- * @property string $group_amount
- * @property string $org_amount
+ * @property numeric $amount
+ * @property numeric $group_amount
+ * @property numeric $org_amount
  * @property array $data
  * @property string $date Most relevant date at current state
  * @property string|null $completed_at

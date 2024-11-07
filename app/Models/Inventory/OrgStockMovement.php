@@ -33,9 +33,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $location_id
  * @property string|null $operation_type
  * @property int|null $operation_id
- * @property string $quantity
- * @property string $amount
- * @property string $group_amount
+ * @property numeric $quantity
+ * @property numeric $amount
+ * @property numeric $group_amount
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at

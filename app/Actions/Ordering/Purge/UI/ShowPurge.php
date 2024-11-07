@@ -8,23 +8,10 @@
 
 namespace App\Actions\Ordering\Purge\UI;
 
-use App\Actions\Catalogue\Product\UI\IndexProducts;
-use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
-use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
-use App\Actions\Catalogue\Shop\UI\IndexShops;
-use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
-use App\Actions\Catalogue\WithCollectionSubNavigation;
 use App\Actions\Ordering\PurgedOrder\UI\IndexPurgedOrders;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Enums\UI\Catalogue\CollectionTabsEnum;
 use App\Enums\UI\Ordering\PurgeTabsEnum;
-use App\Http\Resources\Catalogue\CollectionResource;
-use App\Http\Resources\Catalogue\CollectionsResource;
-use App\Http\Resources\Catalogue\DepartmentsResource;
-use App\Http\Resources\Catalogue\FamiliesResource;
-use App\Http\Resources\Catalogue\ProductsResource;
 use App\Http\Resources\Ordering\PurgedOrdersResource;
 use App\Http\Resources\Ordering\PurgeResource;
 use App\Models\Catalogue\Collection;

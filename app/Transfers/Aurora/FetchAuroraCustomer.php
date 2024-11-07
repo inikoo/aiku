@@ -185,7 +185,7 @@ class FetchAuroraCustomer extends FetchAurora
 
     protected function cleanName($name): string
     {
-        if(is_null($name)){
+        if (is_null($name)) {
             return '';
         }
 
