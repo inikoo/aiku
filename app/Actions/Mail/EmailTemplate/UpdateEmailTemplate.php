@@ -30,7 +30,7 @@ class UpdateEmailTemplate extends OrgAction
         if ($this->asAction) {
             return true;
         }
-
+        return true;
     }
 
     public function rules(): array
