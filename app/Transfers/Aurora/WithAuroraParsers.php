@@ -492,14 +492,13 @@ trait WithAuroraParsers
         $sourceData = explode(':', $sourceId);
 
         if (!$orgStock) {
-            $res = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
+            $res      = FetchAuroraStocks::run($this->organisationSource, $sourceData[1]);
             $orgStock = $res['orgStock'];
         }
 
         if (!$orgStock) {
             $res      = FetchAuroraDeletedStocks::run($this->organisationSource, $sourceData[1]);
             $orgStock = $res['orgStock'];
-
         }
 
         return $orgStock;
@@ -637,7 +636,7 @@ trait WithAuroraParsers
         $mailshot = Mailshot::where('source_id', $sourceId)->first();
         if (!$mailshot) {
             $sourceData = explode(':', $sourceId);
-            $mailshot = FetchAuroraMailshots::run($this->organisationSource, $sourceData[1]);
+            $mailshot   = FetchAuroraMailshots::run($this->organisationSource, $sourceData[1]);
         }
 
         return $mailshot;
@@ -652,7 +651,7 @@ trait WithAuroraParsers
         $prospect = Prospect::where('source_id', $sourceId)->first();
         if (!$prospect) {
             $sourceData = explode(':', $sourceId);
-            $prospect = FetchAuroraProspects::run($this->organisationSource, $sourceData[1]);
+            $prospect   = FetchAuroraProspects::run($this->organisationSource, $sourceData[1]);
         }
 
         return $prospect;
@@ -662,7 +661,8 @@ trait WithAuroraParsers
     {
         $dispatchedEmail = DispatchedEmail::where('source_id', $sourceId)->first();
         if (!$dispatchedEmail) {
-            $dispatchedEmail = FetchAuroraDispatchedEmails::run($this->organisationSource, $sourceId);
+            $sourceData      = explode(':', $sourceId);
+            $dispatchedEmail = FetchAuroraDispatchedEmails::run($this->organisationSource, $sourceData[1]);
         }
 
         return $dispatchedEmail;
@@ -826,13 +826,10 @@ trait WithAuroraParsers
         if (!$barcode) {
             $sourceData = explode(':', $sourceId);
             $barcode    = FetchAuroraBarcodes::run($this->organisationSource, $sourceData[1]);
-
         }
 
         return $barcode;
     }
-
-
 
 
 }

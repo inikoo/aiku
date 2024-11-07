@@ -18,50 +18,68 @@ use Throwable;
 
 class FetchAuroraDispatchedEmails extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:dispatched_emails {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:dispatched_emails {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--w|with=* : Accepted values: events}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?DispatchedEmail
     {
         $dispatchedEmail = null;
-        if ($dispatchedEmailData = $organisationSource->fetchDispatchedEmail($organisationSourceId)) {
+        $dispatchedEmailData = $organisationSource->fetchDispatchedEmail($organisationSourceId);
+
+        if ($dispatchedEmailData) {
             if ($dispatchedEmail = DispatchedEmail::where('source_id', $dispatchedEmailData['dispatchedEmail']['source_id'])
                 ->first()) {
-                //try {
-                $dispatchedEmail = UpdateDispatchedEmail::make()->action(
-                    dispatchedEmail: $dispatchedEmail,
-                    modelData: $dispatchedEmailData['dispatchedEmail'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
-                $this->recordChange($organisationSource, $dispatchedEmail->wasChanged());
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'update');
-                //
-                //                    return null;
-                //                }
-            } else {
-                // try {
-                $dispatchedEmail = StoreDispatchEmail::make()->action(
-                    parent: $dispatchedEmailData['parent'],
-                    recipient: $dispatchedEmailData['recipient'],
-                    modelData: $dispatchedEmailData['dispatchedEmail'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
+                try {
+                    $dispatchedEmail = UpdateDispatchedEmail::make()->action(
+                        dispatchedEmail: $dispatchedEmail,
+                        modelData: $dispatchedEmailData['dispatchedEmail'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+                    $this->recordChange($organisationSource, $dispatchedEmail->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'update');
 
-                $this->recordNew($organisationSource);
-                $sourceData = explode(':', $dispatchedEmail->source_id);
-                DB::connection('aurora')->table('Email Tracking Dimension')
-                    ->where('Email Tracking Key', $sourceData[1])
-                    ->update(['aiku_id' => $dispatchedEmail->id]);
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'store');
-                //
-                //                    return null;
-                //                }
+                    return null;
+                }
+            } else {
+                try {
+                    $dispatchedEmail = StoreDispatchEmail::make()->action(
+                        parent: $dispatchedEmailData['parent'],
+                        recipient: $dispatchedEmailData['recipient'],
+                        modelData: $dispatchedEmailData['dispatchedEmail'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+
+                    $this->recordNew($organisationSource);
+                    $sourceData = explode(':', $dispatchedEmail->source_id);
+                    DB::connection('aurora')->table('Email Tracking Dimension')
+                        ->where('Email Tracking Key', $sourceData[1])
+                        ->update(['aiku_id' => $dispatchedEmail->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'store');
+
+                    return null;
+                }
             }
         }
+
+
+        if ($dispatchedEmail && in_array('events', $this->with)) {
+            $sourceData = explode(':', $dispatchedEmail->source_id);
+
+            foreach (
+                DB::connection('aurora')
+                    ->table('Email Tracking Event Dimension')
+                    ->select('Email Tracking Event Key as source_id')
+                    ->where('Email Tracking Event Tracking Key', $sourceData[1])
+                    ->get() as $eventData
+            ) {
+                FetchAuroraEmailTrackingEvents::run($organisationSource, $eventData->source_id);
+            }
+        }
+
 
         return $dispatchedEmail;
     }
@@ -69,14 +87,25 @@ class FetchAuroraDispatchedEmails extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Email Tracking Dimension')
-            ->select('Email Tracking Key as source_id')
-            ->orderBy('Email Tracking Created Date');
+            ->select('Email Tracking Key as source_id');
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query->orderBy('Email Tracking Created Date');
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Email Tracking Dimension')->count();
+        $query = DB::connection('aurora')
+            ->table('Email Tracking Dimension');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query->count();
     }
 }

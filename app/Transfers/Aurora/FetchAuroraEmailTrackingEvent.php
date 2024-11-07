@@ -22,11 +22,11 @@ class FetchAuroraEmailTrackingEvent extends FetchAurora
         //enum('Sent','Rejected by SES','Send','Read','Hard Bounce','Soft Bounce','Spam','Delivered','Opened','Clicked','Send to SES Error')
         $type = match ($this->auroraModelData->{'Email Tracking Event Type'}) {
             'Send to SES Error' => 'declined-by-provider',
-            'Spam'              => 'marked-as-spam',
-            default             => Str::kebab($this->auroraModelData->{'Email Tracking Event Type'})
+            'Spam' => 'marked-as-spam',
+            default => Str::kebab($this->auroraModelData->{'Email Tracking Event Type'})
         };
 
-        $this->parsedData['dispatchedEmail'] = $this->parseDispatchedEmail($this->auroraModelData->{'Email Tracking Event Tracking Key'});
+        $this->parsedData['dispatchedEmail'] = $this->parseDispatchedEmail($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Event Tracking Key'});
 
         if (!$this->parsedData['dispatchedEmail']) {
             return;
@@ -37,7 +37,7 @@ class FetchAuroraEmailTrackingEvent extends FetchAurora
 
         if ($this->auroraModelData->{'Email Tracking Event Data'} and
             !(
-                $this->auroraModelData->{'Email Tracking Event Data'} != '""'  or
+                $this->auroraModelData->{'Email Tracking Event Data'} != '""' or
                 $this->auroraModelData->{'Email Tracking Event Data'} != '{}'
             )
         ) {
@@ -48,18 +48,19 @@ class FetchAuroraEmailTrackingEvent extends FetchAurora
         }
 
 
-
         if ($this->auroraModelData->{'Email Tracking Event Status Code'} != '') {
             $data['status_code'] = $this->auroraModelData->{'Email Tracking Event Status Code'};
         }
 
 
         $this->parsedData['emailTrackingEvent'] = [
-            'type'            => $type,
-            'notification_id' => $this->auroraModelData->{'Email Tracking Event Message ID'},
-            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Event Key'},
-            'created_at'      => $this->parseDatetime($this->auroraModelData->{'Email Tracking Event Date'}),
-            'data'            => $data,
+            'type'               => $type,
+            'provider_reference' => $this->auroraModelData->{'Email Tracking Event Message ID'},
+            'source_id'          => $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Event Key'},
+            'created_at'         => $this->parseDatetime($this->auroraModelData->{'Email Tracking Event Date'}),
+            'data'               => $data,
+            'fetched_at'         => now(),
+            'last_fetched_at'    => now(),
         ];
     }
 

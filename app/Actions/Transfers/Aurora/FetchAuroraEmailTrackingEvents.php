@@ -8,34 +8,60 @@
 namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Mail\EmailTrackingEvent\StoreEmailTrackingEvent;
+use App\Actions\Mail\EmailTrackingEvent\UpdateEmailTrackingEvent;
 use App\Models\Mail\EmailTrackingEvent;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraEmailTrackingEvents extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:email-tracking-events {organisations?*} {--s|source_id=}';
+    public string $commandSignature = 'fetch:email_tracking_events {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?EmailTrackingEvent
     {
-        if ($emailTrackingEventData = $organisationSource->fetchEmailTrackingEvent($organisationSourceId)) {
+        $emailTrackingEventData = $organisationSource->fetchEmailTrackingEvent($organisationSourceId);
+        if ($emailTrackingEventData) {
             if (!$emailTrackingEventData['dispatchedEmail']) {
                 return null;
             }
 
-            if (!$emailTrackingEvent = EmailTrackingEvent::where('source_id', $emailTrackingEventData['emailTrackingEvent']['source_id'])
-                ->first()) {
-                $emailTrackingEvent = StoreEmailTrackingEvent::run(
-                    dispatchedEmail: $emailTrackingEventData['dispatchedEmail'],
-                    modelData: $emailTrackingEventData['emailTrackingEvent']
-                );
+            if ($emailTrackingEvent = EmailTrackingEvent::where('source_id', $emailTrackingEventData['emailTrackingEvent']['source_id'])->first()) {
+                try {
+                    $emailTrackingEvent = UpdateEmailTrackingEvent::make()->action(
+                        emailTrackingEvent: $emailTrackingEvent,
+                        modelData: $emailTrackingEventData['emailTrackingEvent'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $emailTrackingEventData['emailTrackingEvent'], 'EmailTrackingEvent', 'update');
+
+                    return null;
+                }
+            } else {
+                try {
+                    $emailTrackingEvent = StoreEmailTrackingEvent::make()->action(
+                        dispatchedEmail: $emailTrackingEventData['dispatchedEmail'],
+                        modelData: $emailTrackingEventData['emailTrackingEvent'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+
+                    $this->recordNew($organisationSource);
+                    $sourceData = explode(':', $emailTrackingEvent->source_id);
+                    DB::connection('aurora')->table('Email Tracking Event Dimension')
+                        ->where('Email Tracking Event Key', $sourceData[1])
+                        ->update(['aiku_id' => $emailTrackingEvent->id]);
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $emailTrackingEventData['emailTrackingEvent'], 'EmailTrackingEvent', 'store');
+
+                    return null;
+                }
             }
 
-            DB::connection('aurora')->table('Email Tracking Event Dimension')
-                ->where('Email Tracking Event Key', $emailTrackingEvent->source_id)
-                ->update(['aiku_id' => $emailTrackingEvent->id]);
 
             return $emailTrackingEvent;
         }
@@ -46,14 +72,25 @@ class FetchAuroraEmailTrackingEvents extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        return DB::connection('aurora')
+        $query = DB::connection('aurora')
             ->table('Email Tracking Event Dimension')
-            ->select('Email Tracking Event Key as source_id')
-            ->orderBy('source_id');
+            ->select('Email Tracking Event Key as source_id');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query->orderBy('Email Tracking Event Date');
     }
 
     public function count(): ?int
     {
-        return DB::connection('aurora')->table('Email Tracking Event Dimension')->count();
+        $query = DB::connection('aurora')->table('Email Tracking Event Dimension');
+
+        if ($this->onlyNew) {
+            $query->whereNull('aiku_id');
+        }
+
+        return $query->count();
     }
 }

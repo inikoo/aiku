@@ -15,6 +15,7 @@ use App\Models\CRM\Prospect;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\Auth;
 
@@ -51,6 +52,7 @@ use Illuminate\Support\Facades\Auth;
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
  * @property-read \App\Models\Mail\EmailAddress|null $emailAddress
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mail\EmailTrackingEvent> $emailTrackingEvents
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Mail\Mailshot|null $mailshot
  * @property-read \App\Models\SysAdmin\Organisation $organisation
@@ -122,6 +124,11 @@ class DispatchedEmail extends Model
         }
 
         return '';
+    }
+
+    public function emailTrackingEvents(): HasMany
+    {
+        return $this->hasMany(EmailTrackingEvent::class);
     }
 
 }

@@ -76,6 +76,8 @@ class FetchAuroraAction extends FetchAction
             'fetch:favourites',
             'fetch:stock-deliveries',
             'fetch:mailshot',
+            'fetch:dispatched_emails',
+            'fetch:email_tracking_events'
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }
@@ -87,7 +89,8 @@ class FetchAuroraAction extends FetchAction
             'fetch:invoices',
             'fetch:delivery-notes',
             'fetch:purchase-orders',
-            'fetch:webpages'
+            'fetch:webpages',
+            'fetch:dispatched_emails'
         ])) {
             $this->with = $command->option('with');
         }
