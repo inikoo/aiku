@@ -18,6 +18,13 @@ class UpdateEmailTemplate extends OrgAction
         return $emailTemplate;
     }
 
+    public function asController(EmailTemplate $emailTemplate, ActionRequest $request): EmailTemplate
+    {
+        $this->initialisation($emailTemplate->organisation, $request);
+
+        return $this->action($emailTemplate, $this->validatedData);
+    }
+
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
