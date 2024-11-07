@@ -132,6 +132,9 @@ use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
+use App\Actions\Mail\EmailTemplate\PublishEmailTemplate;
+use App\Actions\Mail\EmailTemplate\UpdateEmailTemplate;
+use App\Actions\Mail\EmailTemplate\UploadImagesToEmailTemplate;
 use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Manufacturing\Artefact\ImportArtefact;
@@ -587,6 +590,12 @@ Route::patch('/group-settings', UpdateGroupSettings::class)->name('group-setting
 
 Route::patch('/{mailshot:id}/mailshot', UpdateMailshot::class)->name('shop.mailshot.update');
 Route::post('/shop/{shop:id}/mailshot', StoreMailshot::class)->name('shop.mailshot.store');
+
+Route::name('email-templates.')->prefix('email-templates')->group(function () {
+    Route::patch('{emailTemplate:id}/update', UpdateEmailTemplate::class)->name('content.update');
+    Route::post('{emailTemplate:id}/images', UploadImagesToEmailTemplate::class)->name('images.store');
+    Route::post('{emailTemplate:id}/publish', PublishEmailTemplate::class)->name('content.publish');
+});
 
 Route::patch('/guest/{guest:id}', UpdateGuest::class)->name('guest.update');
 Route::post('/guest/', StoreGuest::class)->name('guest.store');
