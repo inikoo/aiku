@@ -107,7 +107,6 @@ class EditRental extends OrgAction
                                     'type'     => 'input',
                                     'label'    => __('label'),
                                     'value'    => $rental->name,
-                                    'readonly' => true
                                 ],
                                 'description' => [
                                     'type'  => 'input',
@@ -147,8 +146,12 @@ class EditRental extends OrgAction
                     // Make sure to change the FulfilmentUITest after fixing this
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.product.update',
-                            'parameters' => $rental->id
+                            'name'       => 'grp.models.org.fulfilment.rentals.update',
+                            'parameters' => [
+                                'organisation' => $rental->organisation_id,
+                                'fulfilment'   => $rental->fulfilment_id,
+                                'rental'       => $rental->id
+                            ]
 
                         ],
                     ]

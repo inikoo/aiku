@@ -771,8 +771,12 @@ test('UI edit rental', function () {
             ->has(
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
-                        ->where('name', 'grp.models.product.update')
-                        ->where('parameters', $this->rental->id) //wrong route
+                        ->where('name', 'grp.models.org.fulfilment.rentals.update')
+                        ->where('parameters', [
+                            'organisation' => $this->rental->organisation_id,
+                                'fulfilment'   => $this->rental->fulfilment_id,
+                                'rental'       => $this->rental->id
+                        ]) //wrong route
             )
             ->has('breadcrumbs', 4);
     });

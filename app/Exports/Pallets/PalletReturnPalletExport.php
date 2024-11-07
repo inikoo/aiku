@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Exports\StoredItem;
+namespace App\Exports\Pallets;
 
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Models\Fulfilment\FulfilmentCustomer;

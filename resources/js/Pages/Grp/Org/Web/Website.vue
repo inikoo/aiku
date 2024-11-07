@@ -57,7 +57,8 @@ const props = defineProps<{
     changelog?: object
     showcase?: object
     web_users?: object
-    external_links?: {}
+    external_links?: {},
+    analytics: object
 }>()
 
 let currentTab = ref(props.tabs.current)
@@ -77,14 +78,15 @@ const component = computed(() => {
     return components[currentTab.value]
 
 })
+console.log(props);
 
 </script>
 
 
 <template>
-
+    
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead" />
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-    <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
+    <component :is="component" :data="props[currentTab]" :tab="currentTab" ></component>
 </template>
