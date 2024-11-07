@@ -52,14 +52,48 @@ class FetchAuroraTradeUnit extends FetchAurora
 
 
         $this->parsedData['trade_unit'] = [
-            'name'         => $name,
-            'code'         => $reference,
-            'source_id'    => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
-            'source_slug'  => $sourceSlug,
-            'gross_weight' => $grossWeight,
-            'net_weight'   => $netWeight,
+            'name'            => $name,
+            'code'            => $reference,
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
+            'source_slug'     => $sourceSlug,
+            'gross_weight'    => $grossWeight,
+            'net_weight'      => $netWeight,
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
+
         ];
 
+
+        $barcodes = [];
+
+        $auroraBarcodes = DB::connection('aurora')
+            ->table('Barcode Asset Bridge')
+            ->where('Barcode Asset Type', 'Part')
+            ->where('Barcode Asset Key', $this->auroraModelData->{'Part SKU'})
+            ->get();
+
+        foreach ($auroraBarcodes as $auroraBarcode) {
+            $barcode = $this->parseBarcode($this->organisation->id.':'.$auroraBarcode->{'Barcode Asset Barcode Key'});
+
+            if (!$barcode) {
+                continue;
+            }
+
+
+            $barcodeData = [
+                'type'         => 'ean',
+                'status'       => $auroraBarcode->{'Barcode Asset Status'} === 'Assigned',
+                'withdrawn_at' => $this->parseDatetime($auroraBarcode->{'Barcode Asset Withdrawn Date'})
+            ];
+            $createdAt   = $this->parseDatetime($auroraBarcode->{'Barcode Asset Assigned Date'});
+
+            if ($createdAt) {
+                $barcodeData['created_at'] = $createdAt;
+            }
+
+            $barcodes[$barcode->id] = $barcodeData;
+        }
+        $this->parsedData['barcodes'] = $barcodes;
         //dd($this->auroraModelData);
 
     }

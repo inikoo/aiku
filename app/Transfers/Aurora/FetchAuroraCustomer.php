@@ -185,6 +185,10 @@ class FetchAuroraCustomer extends FetchAurora
 
     protected function cleanName($name): string
     {
+        if(is_null($name)){
+            return '';
+        }
+
         $name = trim($name);
 
         if (preg_match('/^([:\-.+,*01?#_\/])+$/', $name)) {

@@ -29,6 +29,8 @@ import Tabs from "@/Components/Navigation/Tabs.vue";
 import { faX } from "@fortawesome/free-solid-svg-icons";
 import { capitalize } from "@/Composables/capitalize"
 import TableStocks from "@/Components/Tables/Grp/Goods/TableStocks.vue";
+import { Link } from "@inertiajs/vue3"
+import Button from '@/Components/Elements/Buttons/Button.vue';
 
 library.add(
     faInventory,
@@ -53,7 +55,12 @@ const props = defineProps<{
         navigation: object;
     }
     stocks: object
-
+    createStockRoute: {
+        name: string;
+        parameters?: {
+            stockFamily?: string;
+        };
+    };
 }>()
 
 let currentTab = ref(props.tabs.current);
@@ -75,7 +82,13 @@ const component = computed(() => {
 
 <template>
     <Head :title="capitalize(title)" />
-    <PageHeading :data="pageHead"></PageHeading>
+    <PageHeading :data="pageHead">
+        <template #other>
+            <Link v-if="currentTab === 'stocks'"  :href="route(createStockRoute.name, createStockRoute.parameters)" >
+                <Button  label="Create" icon="create"/>
+            </Link>
+        </template>
+    </PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate"/>
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
 </template>

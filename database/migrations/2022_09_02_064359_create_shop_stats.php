@@ -26,9 +26,7 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table = $this->catalogueStats($table);
             $table = $this->billableFields($table);
-
             $table = $this->uploadStats($table);
-
             $table->timestampsTz();
         });
     }

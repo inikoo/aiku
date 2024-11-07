@@ -43,6 +43,16 @@ class CreateRental extends OrgAction
                             [
                                 'title'  => __('name'),
                                 'fields' => [
+                                    'code' => [
+                                        'type'       => 'input',
+                                        'label'      => __('code'),
+                                        'required'   => true
+                                    ],
+                                    'name' => [
+                                        'type'       => 'input',
+                                        'label'      => __('name'),
+                                        'required'   => true
+                                    ],
                                     'price' => [
                                         'type'       => 'input',
                                         'label'      => __('price'),

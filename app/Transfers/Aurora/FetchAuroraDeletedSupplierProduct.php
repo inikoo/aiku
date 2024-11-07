@@ -14,7 +14,7 @@ class FetchAuroraDeletedSupplierProduct extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $deleted_at        = $this->parseDate($this->auroraModelData->{'Supplier Part Deleted Date'});
+        $deleted_at        = $this->parseDatetime($this->auroraModelData->{'Supplier Part Deleted Date'});
         $auroraDeletedData = json_decode(gzuncompress($this->auroraModelData->{'Supplier Part Deleted Metadata'}));
 
         $supplier = $this->parseSupplier(

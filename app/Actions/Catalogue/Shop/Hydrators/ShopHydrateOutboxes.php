@@ -36,6 +36,7 @@ class ShopHydrateOutboxes
     {
         $stats = [
             'number_outboxes' => $shop->outboxes()->count(),
+            'number_outbox_subscribers' => $shop->outboxSubscribers()->count()
         ];
 
         $stats = array_merge(

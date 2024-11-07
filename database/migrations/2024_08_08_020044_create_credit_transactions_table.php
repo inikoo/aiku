@@ -18,7 +18,7 @@ return new class () extends Migration {
         Schema::create('credit_transactions', function (Blueprint $table) {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
-            $table->unsignedInteger('shop_id')->index();
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');

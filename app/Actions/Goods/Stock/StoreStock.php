@@ -13,6 +13,7 @@ use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStocks;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
+use App\Enums\UI\SupplyChain\StockFamilyTabsEnum;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Group;
@@ -114,16 +115,24 @@ class StoreStock extends GrpAction
         return $this->handle($stockFamily, $this->validatedData);
     }
 
+    public function asController(ActionRequest $request): Stock
+    {
+
+        $this->initialisation(group(), $request);
+
+        return $this->handle(group(), $this->validatedData);
+    }
+
     public function htmlResponse(Stock $stock): RedirectResponse
     {
         if (!$stock->stock_family_id) {
-            return Redirect::route('grp.org.warehouses.show.inventory.org_stock_families.show.stocks.show', [
-                $stock->stockFamily->slug,
+            return Redirect::route('grp.goods.stocks.show', [
                 $stock->slug
             ]);
         } else {
-            return Redirect::route('grp.org.warehouses.show.inventory.org-stocks.show', [
-                $stock->slug
+            return Redirect::route('grp.goods.stock-families.show', [
+                $stock->stockFamily->slug,
+                'tab' => StockFamilyTabsEnum::STOCKS
             ]);
         }
     }

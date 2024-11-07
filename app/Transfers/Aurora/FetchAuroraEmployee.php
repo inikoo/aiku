@@ -29,7 +29,7 @@ class FetchAuroraEmployee extends FetchAurora
 
             $data   = [];
             $errors = [];
-            if ($this->parseDate($this->auroraModelData->{'Staff Valid From'}) == '') {
+            if ($this->parseDatetime($this->auroraModelData->{'Staff Valid From'}) == '') {
                 $errors = [
                     'missing' => ['created_at', 'employment_start_at']
                 ];
@@ -95,8 +95,8 @@ class FetchAuroraEmployee extends FetchAurora
                 'emergency_contact'        => $this->auroraModelData->{'Staff Next of Kind'} ?: null,
                 'job_title'                => $this->auroraModelData->{'Staff Job Title'} ?: null,
                 'salary'                   => $salary,
-                'employment_start_at'      => $this->parseDate($this->auroraModelData->{'Staff Valid From'}),
-                'employment_end_at'        => $this->parseDate($this->auroraModelData->{'Staff Valid To'}),
+                'employment_start_at'      => $this->parseDatetime($this->auroraModelData->{'Staff Valid From'}),
+                'employment_end_at'        => $this->parseDatetime($this->auroraModelData->{'Staff Valid To'}),
                 'type'                     => Str::snake($this->auroraModelData->{'Staff Type'}, '-'),
                 'state'                    => match ($this->auroraModelData->{'Staff Currently Working'}) {
                     'No' => EmployeeStateEnum::LEFT,

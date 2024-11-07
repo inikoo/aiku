@@ -16,6 +16,8 @@ use App\Enums\CRM\Prospect\ProspectSuccessStatusEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\UniversalSearch;
+use App\Models\Mail\ModelSubscribedToOutbox;
+use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasAddress;
@@ -28,6 +30,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -215,5 +219,16 @@ class Prospect extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(64);
     }
 
+    public function subscribedOutboxes(): MorphMany
+    {
+        return $this->morphMany(ModelSubscribedToOutbox::class, 'model')
+                    ->whereNull('unsubscribed_at');
+    }
+
+    public function unsubscribedOutboxes(): MorphMany
+    {
+        return $this->morphMany(ModelSubscribedToOutbox::class, 'model')
+                    ->whereNotNull('unsubscribed_at');
+    }
 
 }

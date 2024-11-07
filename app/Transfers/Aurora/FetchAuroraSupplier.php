@@ -43,7 +43,7 @@ class FetchAuroraSupplier extends FetchAurora
 
         $status = true;
 
-        $archivedAt = $this->parseDate($this->auroraModelData->{'Supplier Valid To'});
+        $archivedAt = $this->parseDatetime($this->auroraModelData->{'Supplier Valid To'});
         if ($this->auroraModelData->{'Supplier Type'} == 'Archived') {
             $status     = false;
             $archivedAt = null;
@@ -81,7 +81,7 @@ class FetchAuroraSupplier extends FetchAurora
                 'currency_id'     => $this->parseCurrencyID($this->auroraModelData->{'Supplier Default Currency Code'}),
                 'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Key'},
                 'source_slug'     => $sourceSlug,
-                'created_at'      => $this->parseDate($this->auroraModelData->{'Supplier Valid From'}),
+                'created_at'      => $this->parseDatetime($this->auroraModelData->{'Supplier Valid From'}),
                 'deleted_at'      => $archivedAt,
                 'address'         => $this->parseAddress(prefix: 'Supplier Contact', auAddressData: $this->auroraModelData),
                 'archived_at'     => $archivedAt,

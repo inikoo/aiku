@@ -139,11 +139,11 @@ class FetchAuroraOrder extends FetchAurora
 
         $this->parsedData["order"] = [
             'date'            => $date,
-            'submitted_at'    => $this->parseDate($this->auroraModelData->{'Order Submitted by Customer Date'}),
-            'in_warehouse_at' => $this->parseDate($this->auroraModelData->{'Order Send to Warehouse Date'}),
-            'packed_at'       => $this->parseDate($this->auroraModelData->{'Order Packed Date'}),
-            'finalised_at'    => $this->parseDate($this->auroraModelData->{'Order Packed Done Date'}),
-            'dispatched_at'   => $this->parseDate($this->auroraModelData->{'Order Dispatched Date'}),
+            'submitted_at'    => $this->parseDatetime($this->auroraModelData->{'Order Submitted by Customer Date'}),
+            'in_warehouse_at' => $this->parseDatetime($this->auroraModelData->{'Order Send to Warehouse Date'}),
+            'packed_at'       => $this->parseDatetime($this->auroraModelData->{'Order Packed Date'}),
+            'finalised_at'    => $this->parseDatetime($this->auroraModelData->{'Order Packed Done Date'}),
+            'dispatched_at'   => $this->parseDatetime($this->auroraModelData->{'Order Dispatched Date'}),
             'handing_type'    => $handingType,
             'billing_locked'  => $billingLocked,
             'delivery_locked' => $deliveryLocked,

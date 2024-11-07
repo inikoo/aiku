@@ -6,6 +6,7 @@
  */
 
 use App\Actions\Web\Banner\StoreBanner;
+use App\Actions\Web\Banner\UpdateBanner;
 use App\Actions\Web\ExternalLink\StoreExternalLink;
 use App\Actions\Web\ModelHasWebBlocks\DeleteModelHasWebBlocks;
 use App\Actions\Web\ModelHasWebBlocks\StoreModelHasWebBlock;
@@ -281,4 +282,16 @@ test('store hello banner', function (Website $website) {
         ->and($banner->name)->toBe('hello')
         ->and($banner->type)->toBe(BannerTypeEnum::LANDSCAPE);
 
+    return $banner;
 })->depends('create b2b website');
+
+test('update hello banner', function (Banner $banner) {
+    $banner = UpdateBanner::make()->action($banner, [
+        'name' => 'hello2',
+    ]);
+
+    expect($banner)->toBeInstanceOf(Banner::class)
+        ->and($banner->name)->toBe('hello2')
+        ->and($banner->type)->toBe(BannerTypeEnum::LANDSCAPE);
+
+})->depends('store hello banner');

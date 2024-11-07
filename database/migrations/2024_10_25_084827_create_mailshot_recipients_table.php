@@ -14,7 +14,7 @@ return new class () extends Migration {
     {
         Schema::create('mailshot_recipients', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedSmallInteger('mailshot_id')->index();
+            $table->unsignedInteger('mailshot_id')->index();
             $table->foreign('mailshot_id')->references('id')->on('mailshots')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedInteger('dispatched_email_id')->index();
             $table->foreign('dispatched_email_id')->references('id')->on('dispatched_emails')->onUpdate('cascade')->onDelete('cascade');

@@ -50,10 +50,10 @@ class FetchAuroraInvoice extends FetchAurora
 
         $billingAddressData = $this->parseAddress(prefix: 'Invoice', auAddressData: $this->auroraModelData);
 
-        $date = $this->parseDate($this->auroraModelData->{'Invoice Date'});
+        $date = $this->parseDatetime($this->auroraModelData->{'Invoice Date'});
         $date = new Carbon($date);
 
-        $taxLiabilityAt = $this->parseDate($this->auroraModelData->{'Invoice Tax Liability Date'});
+        $taxLiabilityAt = $this->parseDatetime($this->auroraModelData->{'Invoice Tax Liability Date'});
         if (!$taxLiabilityAt) {
             $taxLiabilityAt = $this->auroraModelData->{'Invoice Date'};
         }

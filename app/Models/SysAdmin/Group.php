@@ -46,6 +46,8 @@ use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\Mail\EmailAddress;
+use App\Models\Mail\ModelSubscribedToOutbox;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\PostRoom;
 use App\Models\Manufacturing\Artefact;
@@ -53,6 +55,7 @@ use App\Models\Manufacturing\ManufactureTask;
 use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Purge;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Procurement\PurchaseOrder;
@@ -124,6 +127,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, DeliveryNote> $deliveryNotes
  * @property-read \App\Models\SysAdmin\GroupDiscountsStats|null $discountsStats
  * @property-read \App\Models\SysAdmin\GroupDropshippingStat|null $dropshippingStats
+ * @property-read LaravelCollection<int, EmailAddress> $emailAddresses
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read LaravelCollection<int, ExternalLink> $externalLinks
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
@@ -689,4 +693,18 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(ExternalLink::class);
     }
 
+    public function emailAddresses(): HasMany
+    {
+        return $this->hasMany(EmailAddress::class);
+    }
+    public function purges(): HasMany
+    {
+        return $this->hasMany(Purge::class);
+    }
+
+    public function outboxSubscribers(): HasMany
+    {
+        return $this->hasMany(ModelSubscribedToOutbox::class)
+                    ->whereNull('unsubscribed_at');
+    }
 }

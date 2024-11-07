@@ -159,4 +159,6 @@ interface SourceOrganisationService
 
     public function fetchBackInStockReminder($id);
 
+    public function fetchTopUp($id);
+
 }

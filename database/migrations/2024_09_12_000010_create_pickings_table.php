@@ -19,7 +19,7 @@ return new class () extends Migration {
         Schema::create('pickings', function (Blueprint $table) {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
-            $table->unsignedInteger('shop_id')->index();
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('delivery_note_id')->index();
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
@@ -43,10 +43,10 @@ return new class () extends Migration {
             $table->foreign('org_stock_id')->references('id')->on('org_stocks');
 
             $table->unsignedSmallInteger('picker_id')->nullable()->index();
-            $table->foreign('picker_id')->references('id')->on('users');
+            $table->foreign('picker_id')->references('id')->on('employees');
 
             $table->unsignedSmallInteger('packer_id')->nullable()->index();
-            $table->foreign('packer_id')->references('id')->on('users');
+            $table->foreign('packer_id')->references('id')->on('employees');
 
             $table->string('vessel_picking')->default(null)->nullable()->index();
             $table->string('vessel_packing')->default(null)->nullable()->index();

@@ -7,7 +7,9 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Enums\Mail\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Models\Mail\Outbox;
 use Illuminate\Support\Facades\DB;
 use Str;
 
@@ -15,41 +17,70 @@ class FetchAuroraDispatchedEmail extends FetchAurora
 {
     protected function parseModel(): void
     {
+
+        if (!$this->auroraModelData->{'Email Tracking Recipient Key'}) {
+            return;
+        }
+
+        if(!$this->auroraModelData->{'Email Tracking Email'}){
+            return;
+        }
+
+
         //enum('Ready','Sent to SES','Rejected by SES','Sent','Soft Bounce','Hard Bounce','Delivered','Spam','Opened','Clicked','Error')
         $state = match ($this->auroraModelData->{'Email Tracking State'}) {
-            'Sent to SES'     => DispatchedEmailStateEnum::SENT_TO_PROVIDER,
+            'Sent to SES' => DispatchedEmailStateEnum::SENT_TO_PROVIDER,
             'Rejected by SES' => DispatchedEmailStateEnum::REJECTED_BY_PROVIDER,
-            'Spam'            => DispatchedEmailStateEnum::MARKED_AS_SPAM,
-            default           => Str::kebab($this->auroraModelData->{'Email Tracking State'})
+            'Spam' => DispatchedEmailStateEnum::SPAM,
+            default => Str::kebab($this->auroraModelData->{'Email Tracking State'})
         };
 
         $parent = null;
-        if ($this->parseMailshot($this->auroraModelData->{'Email Tracking Email Mailshot Key'})) {
-            $parent = $this->parseMailshot($this->auroraModelData->{'Email Tracking Email Mailshot Key'});
-            if (!$parent) {
-                print('Error Mailshot not found');
-            }
+        if ($this->auroraModelData->{'Email Tracking Email Mailshot Key'}) {
+
+            $parent = $this->parseMailshot($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Mailshot Key'});
+
         }
+
+
         if (!$parent) {
-            //todo get the outbox
-            //$parent= <-- get the outbox
+
+            $parent = Outbox::withTrashed()
+                ->whereJsonContains('sources->outboxes', $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Template Type Key'})
+                ->first();
+        }
+
+
+
+        if (!$parent) {
+            dd($this->auroraModelData);
         }
 
         $recipient = match ($this->auroraModelData->{'Email Tracking Recipient'}) {
-            'Customer' => $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Key'}),
-            'Prospect' => $this->parseProspect($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Key'}),
-            default    => null
+            'Customer' => $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Recipient Key'}),
+            'Prospect' => $this->parseProspect($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Recipient Key'}),
+            'User' => $this->parseUser($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Recipient Key'}),
+
+            default => null
         };
+
+        if (!$recipient) {
+            dd($this->auroraModelData);
+        }
 
         $this->parsedData['recipient'] = $recipient;
         $this->parsedData['parent']    = $parent;
-        $this->parsedData['email']     = $this->auroraModelData->{'Email Tracking Email'};
 
 
         $this->parsedData['dispatchedEmail'] = [
-            'state'      => $state,
-            'source_id'  => $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Key'},
-            'created_at' => $this->parseDate($this->auroraModelData->{'Email Tracking Created Date'})
+            'provider'             => DispatchedEmailProviderEnum::SES,
+            'provider_dispatch_id' => $this->auroraModelData->{'Email Tracking SES Id'},
+            'email_address'        => $this->auroraModelData->{'Email Tracking Email'},
+            'state'                => $state,
+            'fetched_at'           => now(),
+            'last_fetched_at'      => now(),
+            'source_id'            => $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Key'},
+            'created_at'           => $this->parseDatetime($this->auroraModelData->{'Email Tracking Created Date'})
         ];
     }
 

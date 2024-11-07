@@ -13,7 +13,7 @@ return new class () extends Migration {
             $table->id();
             $table = $this->groupOrgRelationship($table);
 
-            $table->unsignedInteger('website_id')->index();
+            $table->unsignedSmallInteger('website_id')->index();
             $table->foreign('website_id')->references('id')->on('websites');
 
             $table->unsignedInteger('webpage_id')->index();

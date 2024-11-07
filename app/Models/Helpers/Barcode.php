@@ -100,16 +100,16 @@ class Barcode extends Model implements Auditable
 
     public function stock(): MorphToMany
     {
-        return $this->morphedByMany(Stock::class, 'model', 'model_has_barcode');
+        return $this->morphedByMany(Stock::class, 'model', 'model_has_barcodes');
     }
 
     public function tradeUnit(): MorphToMany
     {
-        return $this->morphedByMany(TradeUnit::class, 'model', 'model_has_barcode');
+        return $this->morphedByMany(TradeUnit::class, 'model', 'model_has_barcodes');
     }
 
     public function product(): MorphToMany
     {
-        return $this->morphedByMany(Asset::class, 'model', 'model_has_barcode');
+        return $this->morphedByMany(Asset::class, 'model', 'model_has_barcodes');
     }
 }

@@ -53,7 +53,7 @@ class FetchAuroraWebUser extends FetchAurora
                 'data'            => $data,
                 'username'        => $this->auroraModelData->{'Website User Handle'},
                 'email'           => $this->auroraModelData->{'Website User Handle'},
-                'created_at'      => $this->parseDate($this->auroraModelData->{'Website User Created'}),
+                'created_at'      => $this->parseDatetime($this->auroraModelData->{'Website User Created'}),
                 'is_root'         => true,
                 'fetched_at'      => now(),
                 'last_fetched_at' => now(),

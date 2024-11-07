@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, watch } from "vue"
-import { navigation } from "@/Components/Websites/Menu/Descriptor"
 import draggable from "vuedraggable"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
@@ -12,10 +11,10 @@ import EditMode from "@/Components/CMS/Website/Menus/EditMode.vue"
 import Modal from "@/Components/Utils/Modal.vue"
 import axios from "axios"
 import { Head } from "@inertiajs/vue3"
-import BlockList from "@/Components/CMS/Webpage/BlockList.vue"
 import ScreenView from "@/Components/ScreenView.vue"
 import { debounce } from "lodash"
 import EmptyState from '@/Components/Utils/EmptyState.vue'
+import HeaderListModal from '@/Components/CMS/Fields/ListModal.vue'
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from "@/types/PageHeading"
@@ -31,9 +30,9 @@ import {
   faTimes,
   faPlusCircle,
   faBars,
-  faExternalLink,
 } from "@fas"
-import { faHeart } from "@far"
+import { faHeart, faExternalLink } from "@far"
+
 
 library.add(
   faChevronRight,
@@ -57,7 +56,6 @@ const props = defineProps<{
 }>()
 
 
-console.log(props)
 
 const Navigation = ref(props.data.menu)
 const selectedNav = ref(0)
@@ -115,8 +113,7 @@ const onPublish = async (action: routeType, popover: Funcition) => {
   }
 }
 
-const onPickTemplate = (menu: Object) => {
-  console.log(menu)
+const onSelectBlock = (menu: Object) => {
   isModalOpen.value = false
   Navigation.value = menu
 }
@@ -186,7 +183,7 @@ watch(
       <div class="flex justify-between">
         <div class="font-bold text-sm">Navigations:</div>
         <Button type="create" label="Add Navigation" size="xs"
-          v-if="Navigation?.data?.fieldValue.navigation?.length < 8 && !previewMode" @click="addNavigation"></Button>
+          v-if="Navigation?.data?.fieldValue.navigation?.length < 8 " @click="addNavigation"></Button>
       </div>
       <draggable :list="Navigation.data.fieldValue.navigation" ghost-class="ghost" group="column" itemKey="id"
         class="mt-2 space-y-1" :animation="200">
@@ -261,7 +258,11 @@ watch(
   </div>
 
   <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false">
-    <BlockList :onPickBlock="onPickTemplate" :webBlockTypes="webBlockTypes" scope="website" />
+    <HeaderListModal 
+            :onSelectBlock
+            :webBlockTypes="webBlockTypes.data.filter((item)=> item.component == 'menu')"
+            :currentTopbar="usedTemplates"
+        />
   </Modal>
 </template>
 

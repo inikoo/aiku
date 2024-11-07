@@ -104,6 +104,10 @@ use App\Actions\Fulfilment\StoredItem\SyncStoredItemToPalletAudit;
 use App\Actions\Fulfilment\StoredItem\UpdateStoredItem;
 use App\Actions\Fulfilment\StoredItemAudit\StoreStoredItemAudit;
 use App\Actions\Fulfilment\StoredItemAudit\UpdateStoredItemAudit;
+use App\Actions\Goods\Stock\StoreStock;
+use App\Actions\Goods\Stock\UpdateStock;
+use App\Actions\Goods\StockFamily\StoreStockFamily;
+use App\Actions\Goods\StockFamily\UpdateStockFamily;
 use App\Actions\Helpers\GoogleDrive\AuthorizeClientGoogleDrive;
 use App\Actions\Helpers\GoogleDrive\CallbackClientGoogleDrive;
 use App\Actions\Helpers\Media\AttachAttachmentToModel;
@@ -128,6 +132,9 @@ use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Location\UpdateLocation;
 use App\Actions\Inventory\Warehouse\UpdateWarehouse;
 use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
+use App\Actions\Mail\EmailTemplate\PublishEmailTemplate;
+use App\Actions\Mail\EmailTemplate\UpdateEmailTemplate;
+use App\Actions\Mail\EmailTemplate\UploadImagesToEmailTemplate;
 use App\Actions\Mail\Mailshot\StoreMailshot;
 use App\Actions\Mail\Mailshot\UpdateMailshot;
 use App\Actions\Manufacturing\Artefact\ImportArtefact;
@@ -141,6 +148,8 @@ use App\Actions\Manufacturing\RawMaterial\ImportRawMaterial;
 use App\Actions\Manufacturing\RawMaterial\StoreRawMaterial;
 use App\Actions\Manufacturing\RawMaterial\UpdateRawMaterial;
 use App\Actions\Ordering\Order\StoreOrder;
+use App\Actions\Ordering\Purge\StorePurge;
+use App\Actions\Ordering\Purge\UpdatePurge;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Group\UpdateGroupSettings;
@@ -226,6 +235,19 @@ Route::delete('/working-place/{workplace:id}/clocking/{clocking:id}', [ DeleteCl
 Route::delete('/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inClockingMachine'])->name('clocking-machine.clocking.delete');
 Route::delete('/working-place/{workplace:id}/clocking-machine/{clockingMachine:id}/clocking/{clocking:id}', [ DeleteClocking::class, 'inWorkplaceInClockingMachine'])->name('workplace.clocking-machine.clocking.delete');
 */
+
+
+Route::prefix('stock-family')->name('stock-family.')->group(function () {
+    Route::patch('{stockFamily:id}/update', UpdateStockFamily::class)->name('update');
+    Route::post('', StoreStockFamily::class)->name('store');
+    Route::post('{stockFamily:id}/stock', [StoreStock::class, 'inStockFamily'])->name('stock.store');
+});
+
+
+Route::name('stock.')->prefix('/stock')->group(function () {
+    Route::post('/', StoreStock::class)->name('store');
+    Route::patch('/{stock:id}', UpdateStock::class)->name('update');
+});
 
 Route::prefix('sub-department/{productCategory:id}')->name('sub-department.')->group(function () {
     Route::patch('', UpdateProductCategory::class)->name('update');
@@ -534,6 +556,9 @@ Route::name('customer.')->prefix('customer/{customer:id}')->group(function () {
     Route::post('order', [StoreOrder::class, 'inCustomer'])->name('order.store');
 });
 
+Route::post('{shop:id}/purge', StorePurge::class)->name('purge.store');
+Route::patch('purge/{purge:id}/update', UpdatePurge::class)->name('purge.update');
+
 Route::name('customer-client.')->prefix('customer-client/{customerClient:id}')->group(function () {
     Route::patch('/', UpdateCustomerClient::class)->name('update');
     Route::post('order', [StoreOrder::class, 'inCustomerClient'])->name('order.store');
@@ -565,6 +590,12 @@ Route::patch('/group-settings', UpdateGroupSettings::class)->name('group-setting
 
 Route::patch('/{mailshot:id}/mailshot', UpdateMailshot::class)->name('shop.mailshot.update');
 Route::post('/shop/{shop:id}/mailshot', StoreMailshot::class)->name('shop.mailshot.store');
+
+Route::name('email-templates.')->prefix('email-templates')->group(function () {
+    Route::patch('{emailTemplate:id}/update', UpdateEmailTemplate::class)->name('content.update');
+    Route::post('{emailTemplate:id}/images', UploadImagesToEmailTemplate::class)->name('images.store');
+    Route::post('{emailTemplate:id}/publish', PublishEmailTemplate::class)->name('content.publish');
+});
 
 Route::patch('/guest/{guest:id}', UpdateGuest::class)->name('guest.update');
 Route::post('/guest/', StoreGuest::class)->name('guest.store');

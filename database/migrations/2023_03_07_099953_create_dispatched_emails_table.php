@@ -6,27 +6,33 @@
  */
 
 use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
         Schema::create('dispatched_emails', function (Blueprint $table) {
             $table->id();
+            $table = $this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('shop_id')->index()->nullable();
+            $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('outbox_id')->nullable();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
-            $table->unsignedSmallInteger('mailshot_id')->nullable();
+            $table->unsignedInteger('mailshot_id')->nullable();
             $table->foreign('mailshot_id')->references('id')->on('mailshots');
             $table->unsignedInteger('email_address_id')->nullable();
             $table->foreign('email_address_id')->references('id')->on('email_addresses');
-            $table->string('ses_id')->nullable()->index();
+            $table->string('type')->index();
+            $table->string('provider')->index();
+            $table->string('provider_dispatch_id')->nullable();
             $table->string('recipient_type')->nullable();
             $table->unsignedInteger('recipient_id')->nullable();
             $table->index(['recipient_type','recipient_id']);
             $table->string('state')->default(DispatchedEmailStateEnum::READY->value);
-            $table->timestampsTz();
             $table->dateTimeTz('sent_at')->nullable();
             $table->dateTimeTz('first_read_at')->nullable();
             $table->dateTimeTz('last_read_at')->nullable();
@@ -37,7 +43,12 @@ return new class () extends Migration {
             $table->boolean('mask_as_spam')->default(false);
             $table->boolean('provoked_unsubscribe')->default(false);
             $table->jsonb('data');
+            $table->boolean('is_test')->default(false)->index();
+            $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->string('source_id')->nullable()->unique();
+            $table->index(['provider','provider_dispatch_id']);
         });
     }
 

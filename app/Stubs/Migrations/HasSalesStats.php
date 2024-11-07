@@ -13,6 +13,8 @@ use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
+use App\Enums\Ordering\Purge\PurgeStateEnum;
+use App\Enums\Ordering\Purge\PurgeTypeEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasSalesStats
@@ -45,6 +47,21 @@ trait HasSalesStats
 
         foreach (OrderHandingTypeEnum::cases() as $case) {
             $table->unsignedInteger('number_orders_handing_type_' . $case->snake())->default(0);
+        }
+
+        return $table;
+    }
+
+    public function purgeStatsFields(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_purges')->default(0);
+
+        foreach (PurgeStateEnum::cases() as $case) {
+            $table->unsignedInteger('number_purges_state_' . $case->snake())->default(0);
+        }
+
+        foreach (PurgeTypeEnum::cases() as $case) {
+            $table->unsignedInteger('number_purges_type_' . $case->snake())->default(0);
         }
 
         return $table;

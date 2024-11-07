@@ -37,18 +37,29 @@ function onSave() {
 }
 
 const onChangeImage = (image) => {
-	const data = { ...props.modelValue }
-	console.log(data,'hehheeh');
+	const data = { ...props.modelValue };
+	console.log(activeImageIndexModal.value,'asd');
 	
-	/* data.image[activeImageIndexModal.value.source = { ...image[0].source }
-	isModalGallery.value = false
-	activeImageIndexModal.value = -1
-	props.modelValue = data */
-	onSave()
-}
+	if (activeImageIndexModal.value === 'column1') {
+		data.column1.source = image[0].source;
+	} else if (activeImageIndexModal.value === 'column2') {
+		data.column2.source = image[0].source;
+	} else if (activeImageIndexModal.value === 'column3') {
+		data.column3.source = image[0].source;
+	} else if (activeImageIndexModal.value === 'column4') {
+		data.column4.source = image[0].source;
+	}
+
+	props.modelValue = data;
+	isModalGallery.value = false;
+	activeImageIndexModal.value = null;
+
+	onSave();
+};
 </script>
 
 <template>
+	<pre>{{ modelValue }}</pre>
 	<div :style="getStyles(modelValue?.container?.properties)">
 		<div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
 			<Editor
@@ -100,7 +111,7 @@ const onChangeImage = (image) => {
 									@click="
 										() => {
 											if (isEditable) isModalGallery = !isModalGallery
-											activeImageIndexModal = 0
+											activeImageIndexModal = 'column1'
 										}
 									"
 									style="position: absolute; top: 0; left: 10px; z-index: 10">
@@ -150,7 +161,7 @@ const onChangeImage = (image) => {
 									@click="
 										() => {
 											if (isEditable) isModalGallery = !isModalGallery
-											activeImageIndexModal = 1
+											activeImageIndexModal = 'column2'
 										}
 									"
 									style="position: absolute; top: 0; left: 10px; z-index: 10">
@@ -166,7 +177,7 @@ const onChangeImage = (image) => {
 									@click="
 										() => {
 											if (isEditable) isModalGallery = !isModalGallery
-											activeImageIndexModal = 1
+											activeImageIndexModal = 'column2'
 										}
 									"
 									style="position: absolute; top: 0; left: 10px; z-index: 10">
@@ -174,7 +185,7 @@ const onChangeImage = (image) => {
 										:icon="faImage"
 										class="text-lg h-4 text-indigo-500" />
 								</button>
-								<img
+								<Image
 									:src="modelValue.column2.source"
 									class="w-full object-cover rounded-lg shadow-lg" />
 							</div>
@@ -217,7 +228,7 @@ const onChangeImage = (image) => {
 									@click="
 										() => {
 											if (isEditable) isModalGallery = !isModalGallery
-											activeImageIndexModal = 0
+											activeImageIndexModal = 'column3'
 										}
 									"
 									style="position: absolute; top: 0; left: 10px; z-index: 10">
@@ -233,7 +244,7 @@ const onChangeImage = (image) => {
 									@click="
 										() => {
 											if (isEditable) isModalGallery = !isModalGallery
-											activeImageIndexModal = 0
+											activeImageIndexModal = 'column3'
 										}
 									"
 									style="position: absolute; top: 0; left: 10px; z-index: 10">
@@ -241,7 +252,7 @@ const onChangeImage = (image) => {
 										:icon="faImage"
 										class="text-lg h-4 text-indigo-500" />
 								</button>
-								<img
+								<Image
 									:src="modelValue.column3.source"
 									class="h-[min(152px,40cqw)] object-cover object-center rounded-lg shadow-lg" />
 							</div>
@@ -283,7 +294,7 @@ const onChangeImage = (image) => {
 									@click="
 										() => {
 											if (isEditable) isModalGallery = !isModalGallery
-											activeImageIndexModal = 0
+											activeImageIndexModal = 'column4'
 										}
 									"
 									style="position: absolute; top: 0; left: 10px; z-index: 10">
@@ -296,12 +307,12 @@ const onChangeImage = (image) => {
 							<!-- Render Column4 Image (when present) -->
 							<div
 								v-else
-								class="absolute inset-x-10 bottom-0 top-10 overflow-hidden rounded-t-[12cqw] border-x-[3cqw] border-t-[3cqw] border-gray-700 bg-gray-900 shadow-2xl">
+								class="absolute ">
 								<button
 									@click="
 										() => {
 											if (isEditable) isModalGallery = !isModalGallery
-											activeImageIndexModal = 0
+											activeImageIndexModal = 'column4'
 										}
 									"
 									style="position: absolute; top: 0; left: 10px; z-index: 10">
@@ -309,7 +320,7 @@ const onChangeImage = (image) => {
 										:icon="faImage"
 										class="text-lg h-4 text-indigo-500" />
 								</button>
-								<img
+								<Image
 									:src="modelValue.column4.source"
 									class="size-full object-cover object-top" />
 							</div>

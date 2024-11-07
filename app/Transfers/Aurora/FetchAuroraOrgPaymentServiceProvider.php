@@ -45,16 +45,16 @@ class FetchAuroraOrgPaymentServiceProvider extends FetchAurora
             ->where('Payment Account Service Provider Key', $this->auroraModelData->{'Payment Service Provider Key'})
             ->orderBy('Payment Account From')->first();
 
-        if ($createdDateData and $this->parseDate($createdDateData->{'Payment Account From'})) {
-            $this->parsedData['orgPaymentServiceProvider']['created_at'] = $this->parseDate($createdDateData->{'Payment Account From'});
+        if ($createdDateData and $this->parseDatetime($createdDateData->{'Payment Account From'})) {
+            $this->parsedData['orgPaymentServiceProvider']['created_at'] = $this->parseDatetime($createdDateData->{'Payment Account From'});
         } else {
             $createdDateData = DB::connection('aurora')->table('Payment Dimension')
                 ->select('Payment Created Date as date')
                 ->where('Payment Service Provider Key', $this->auroraModelData->{'Payment Service Provider Key'})
                 ->orderBy('Payment Created Date')->first();
 
-            if ($createdDateData and $this->parseDate($createdDateData->{'date'})) {
-                $this->parsedData['orgPaymentServiceProvider']['created_at'] = $this->parseDate($createdDateData->{'date'});
+            if ($createdDateData and $this->parseDatetime($createdDateData->{'date'})) {
+                $this->parsedData['orgPaymentServiceProvider']['created_at'] = $this->parseDatetime($createdDateData->{'date'});
             }
         }
     }

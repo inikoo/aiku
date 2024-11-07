@@ -15,7 +15,7 @@ return new class () extends Migration {
         Schema::create('fulfilment_warehouse', function (Blueprint $table) {
             $table->unsignedInteger('fulfilment_id')->nullable();
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments')->onUpdate('cascade')->onDelete('cascade');
-            $table->unsignedInteger('warehouse_id')->nullable();
+            $table->unsignedSmallInteger('warehouse_id')->nullable();
             $table->foreign('warehouse_id')->references('id')->on('warehouses')->onUpdate('cascade')->onDelete('cascade');
             $table->timestampsTz();
         });

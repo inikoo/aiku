@@ -16,6 +16,8 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
+use App\Models\Mail\ModelSubscribedToOutbox;
+use App\Models\Mail\Outbox;
 use App\Models\Manufacturing\Production;
 use App\Models\Traits\HasEmail;
 use App\Models\Traits\HasImage;
@@ -25,6 +27,7 @@ use App\Models\Traits\WithPushNotifications;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -258,6 +261,18 @@ class User extends Authenticatable implements HasMedia, Auditable
     {
         return $this->belongsToMany(JobPosition::class, 'user_has_pseudo_job_positions')->withTimestamps()
             ->using(UserHasPseudoJobPositions::class)->withPivot(['scopes']);
+    }
+
+    public function subscribedOutboxes(): MorphMany
+    {
+        return $this->morphMany(ModelSubscribedToOutbox::class, 'model')
+                    ->whereNull('unsubscribed_at');
+    }
+
+    public function unsubscribedOutboxes(): MorphMany
+    {
+        return $this->morphMany(ModelSubscribedToOutbox::class, 'model')
+                    ->whereNotNull('unsubscribed_at');
     }
 
 }

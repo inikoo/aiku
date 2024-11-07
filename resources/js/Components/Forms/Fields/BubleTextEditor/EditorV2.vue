@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue"
+import { onBeforeUnmount, onMounted, ref, defineExpose } from "vue"
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
 /* import type DataTable from "@/models/table" */
 
@@ -186,6 +186,9 @@ const editorInstance = useEditor({
 
 function openLinkDialogCustom() {
     const attrs = editorInstance.value?.getText({ blockSeparator: '\n\n' })
+    currentLinkInDialog.value = {
+        content: attrs 
+    }
     showLinkDialogCustom.value = true;
     showDialog.value = true;
 }
@@ -269,6 +272,15 @@ onMounted(() => {
 onBeforeUnmount(() => {
     editorInstance.value?.destroy()
 })
+
+const onEditorClick = () => {
+    emits('onEditClick', editorInstance.value)
+}
+
+defineExpose({
+    editor : editorInstance
+})
+
 </script>
 
 <template>
@@ -333,7 +345,7 @@ onBeforeUnmount(() => {
                         </div>
 
                         <div
-                            class="w-min h-48 overflow-y-auto text-black cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
+                            class="w-min h-32 overflow-y-auto text-black cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
                             <div
                                 v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
                                 :key="fontsize"
@@ -370,7 +382,7 @@ onBeforeUnmount(() => {
                     </TiptapToolbarButton>
 
                     <TiptapToolbarButton v-if="toogle.includes('color')" label="Text Color">
-                        <ColorPicker v-model="editorInstance.getAttributes('textStyle').color"
+                        <ColorPicker v-model="editorInstance.getAttributes('textStyle').color" style="z-index: 99;"
                             @update:model-value="color => editorInstance?.chain().focus().setColor(`#${color}`).run()" />
                     </TiptapToolbarButton>
 
@@ -447,7 +459,7 @@ onBeforeUnmount(() => {
 
         <div class="flex flex-col">
             <slot name="editor-content" :editor="editorInstance">
-                <EditorContent :editor="editorInstance" />
+                <EditorContent @click="onEditorClick" :editor="editorInstance" />
             </slot>
         </div>
 

@@ -12,12 +12,16 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('model_has_barcode', function (Blueprint $table) {
+        Schema::create('model_has_barcodes', function (Blueprint $table) {
             $table->id();
+            $table->string('type')->index();
+
+            $table->boolean('status')->default(true);
             $table->unsignedInteger('barcode_id')->index();
             $table->string('model_type');
             $table->unsignedInteger('model_id');
             $table->timestampsTz();
+            $table->dateTimeTz('withdrawn_at')->nullable();
             $table->index(['model_type','model_id']);
         });
     }
@@ -25,6 +29,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('model_has_barcode');
+        Schema::dropIfExists('model_has_barcodes');
     }
 };

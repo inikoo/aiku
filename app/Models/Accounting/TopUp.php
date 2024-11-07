@@ -25,7 +25,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $id
  * @property int $group_id
  * @property int $organisation_id
- * @property string $slug
+ * @property string|null $slug
  * @property string $reference
  * @property int $shop_id
  * @property int $customer_id
@@ -33,13 +33,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property TopUpStatusEnum $status
  * @property string $amount
  * @property int $currency_id
- * @property string|null $grp_exchange
- * @property string|null $org_exchange
  * @property string|null $grp_amount
  * @property string|null $org_amount
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Accounting\CreditTransaction|null $creditTransaction
@@ -66,10 +66,9 @@ class TopUp extends Model implements Auditable
         'status'         => TopUpStatusEnum::class,
         'data'           => 'array',
         'amount'         => 'decimal:2',
-        'grp_exchange'   => 'decimal:4',
-        'org_exchange'   => 'decimal:4',
         'grp_amount'     => 'decimal:2',
         'org_amount'     => 'decimal:2',
+
     ];
 
     protected $attributes = [

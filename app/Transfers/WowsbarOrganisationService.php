@@ -409,5 +409,10 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchTopUp($id): ?array
+    {
+        return null;
+    }
+
 
 }

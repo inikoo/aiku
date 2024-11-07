@@ -72,6 +72,7 @@ use App\Transfers\Aurora\FetchAuroraStockFamily;
 use App\Transfers\Aurora\FetchAuroraSupplier;
 use App\Transfers\Aurora\FetchAuroraSupplierProduct;
 use App\Transfers\Aurora\FetchAuroraTimesheet;
+use App\Transfers\Aurora\FetchAuroraTopUp;
 use App\Transfers\Aurora\FetchAuroraTradeUnit;
 use App\Transfers\Aurora\FetchAuroraTradeUnitImages;
 use App\Transfers\Aurora\FetchAuroraTransaction;
@@ -386,7 +387,7 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraArtefact($this))->fetch($id);
     }
 
-    public function fetchBarcode($id): array
+    public function fetchBarcode($id): ?array
     {
         return (new FetchAuroraBarcode($this))->fetch($id);
     }
@@ -474,6 +475,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchBackInStockReminder($id): ?array
     {
         return (new FetchAuroraBackInStockReminder($this))->fetch($id);
+    }
+
+    public function fetchTopUp($id): ?array
+    {
+        return (new FetchAuroraTopUp($this))->fetch($id);
     }
 
 

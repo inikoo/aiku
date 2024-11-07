@@ -7,13 +7,14 @@
 
 namespace App\Actions\Goods\StockFamily\UI;
 
+use App\Actions\GrpAction;
 use App\Actions\InertiaAction;
 use App\Models\SupplyChain\StockFamily;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditStockFamily extends InertiaAction
+class EditStockFamily extends GrpAction
 {
     public function handle(StockFamily $stockFamily): StockFamily
     {
@@ -22,12 +23,12 @@ class EditStockFamily extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.stock-families.edit");
+        return $request->user()->hasPermissionTo("goods.{$this->group->id}.edit");
     }
 
     public function asController(StockFamily $stockFamily, ActionRequest $request): StockFamily
     {
-        $this->initialisation($request);
+        $this->initialisation(group(), $request);
 
         return $this->handle($stockFamily);
     }

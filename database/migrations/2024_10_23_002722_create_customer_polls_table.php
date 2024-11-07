@@ -12,7 +12,7 @@ return new class () extends Migration {
         Schema::create('customer_polls', function (Blueprint $table) {
             $table->id();
             $table = $this->groupOrgRelationship($table);
-            $table->unsignedInteger('shop_id')->index();
+            $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->string('name');
             $table->string('label');

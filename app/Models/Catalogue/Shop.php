@@ -41,10 +41,12 @@ use App\Models\Helpers\Timezone;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Helpers\Upload;
 use App\Models\Mail\Mailshot;
+use App\Models\Mail\ModelSubscribedToOutbox;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\SenderEmail;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Purge;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
@@ -559,4 +561,14 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(Redirect::class);
     }
 
+    public function purges(): HasMany
+    {
+        return $this->hasMany(Purge::class);
+    }
+
+    public function outboxSubscribers(): HasMany
+    {
+        return $this->hasMany(ModelSubscribedToOutbox::class)
+                    ->whereNull('unsubscribed_at');
+    }
 }

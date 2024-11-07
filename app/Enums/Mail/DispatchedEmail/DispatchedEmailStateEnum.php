@@ -13,43 +13,46 @@ enum DispatchedEmailStateEnum: string
 {
     use EnumHelperTrait;
 
-    case READY    = 'ready';
-    case ERROR    = 'error';
-    case REJECTED = 'rejected';
+    case READY = 'ready';
+    case SENT_TO_PROVIDER = 'sent_to_provider';
+
+    case ERROR = 'error';
+    case REJECTED_BY_PROVIDER = 'rejected_by_provider';
 
     case SENT = 'sent';
 
-    case DELIVERED   = 'delivered';
+    case DELIVERED = 'delivered';
     case HARD_BOUNCE = 'hard-bounce';
     case SOFT_BOUNCE = 'soft-bounce';
-    case OPENED      = 'opened';
+    case OPENED = 'opened';
 
-    case CLICKED      = 'clicked';
-    case SPAM         = 'spam';
+    case CLICKED = 'clicked';
+    case SPAM = 'spam';
     case UNSUBSCRIBED = 'unsubscribed';
 
 
     public static function labels(): array
     {
         return [
-            'ready'          => __('Ready to send'),
-            'error'          => __('Error, count not send'),
-            'rejected'       => __('Rejected'),
-            'sent'           => __('Sent'),
-            'delivered'      => __('Delivered'),
-            'hard-bounce'    => __('Hard bounce'),
-            'soft-bounce'    => __('Soft bounce'),
-            'opened'         => __('Opened'),
-            'clicked'        => __('Clicked'),
-            'spam'           => __('Spam'),
-            'unsubscribed'   => __('Unsubscribed'),
+            'ready'                => __('Ready to send'),
+            'sent_to_provider'     => __('Sent to provider'),
+            'error'                => __('Error, count not send'),
+            'rejected_by_provider' => __('Rejected'),
+            'sent'                 => __('Sent'),
+            'delivered'            => __('Delivered'),
+            'hard-bounce'          => __('Hard bounce'),
+            'soft-bounce'          => __('Soft bounce'),
+            'opened'               => __('Opened'),
+            'clicked'              => __('Clicked'),
+            'spam'                 => __('Spam'),
+            'unsubscribed'         => __('Unsubscribed'),
         ];
     }
 
     public static function stateIcon(): array
     {
         return [
-            'ready'       => [
+            'ready'                => [
 
                 'tooltip' => __('Ready'),
                 'icon'    => 'fal fa-spell-check',
@@ -57,7 +60,14 @@ enum DispatchedEmailStateEnum: string
 
 
             ],
-            'error'       => [
+            'sent_to_provider'     => [
+
+                'tooltip' => __('Sent to provider'),
+                'icon'    => 'fal fa-paper-plane',
+                'class'   => 'text-green-600 animate-pulse'
+
+            ],
+            'error'                => [
 
                 'tooltip' => __('Ready'),
                 'icon'    => 'fal fa-exclamation-circle',
@@ -65,7 +75,7 @@ enum DispatchedEmailStateEnum: string
 
 
             ],
-            'rejected'      => [
+            'rejected_by_provider' => [
 
                 'tooltip' => __('Reject, email has a virus'),
                 'icon'    => 'fal fa-virus',
@@ -73,20 +83,20 @@ enum DispatchedEmailStateEnum: string
 
 
             ],
-            'sent'        => [
+            'sent'                 => [
 
                 'tooltip' => __('sent'),
                 'icon'    => 'fal fa-paper-plane',
                 'class'   => 'text-green-600 animate-pulse'
 
             ],
-            'delivered'        => [
+            'delivered'            => [
 
                 'tooltip' => __('delivered'),
                 'icon'    => 'fal fa-inbox-in',
 
             ],
-            'hard-bounce' => [
+            'hard-bounce'          => [
 
                 'tooltip' => __('hand bounce'),
                 'icon'    => 'fal fa-exclamation-triangle',

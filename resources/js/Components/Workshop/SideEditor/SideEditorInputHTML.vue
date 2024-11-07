@@ -3,7 +3,8 @@ import Editor from '@/Components/Forms/Fields/BubleTextEditor/EditorV2.vue'
 import { EditorContent } from '@tiptap/vue-3'
 
 const props = defineProps<{}>()
-const model = defineModel<{ text: string }>()
+const model = defineModel<{ text: string | null }>()
+console.log(model.value)
 </script>
 
 <template>

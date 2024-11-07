@@ -33,9 +33,12 @@ return new class () extends Migration {
             $table->unsignedInteger('image_id')->nullable();
             $table->jsonb('data');
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();
             $table->string('source_slug')->index()->nullable();
             $table->string('source_id')->nullable()->index();
+            $table->jsonb('sources');
         });
     }
 

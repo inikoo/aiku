@@ -16,3 +16,11 @@ export const checkVisible = (visible: string | null, isLoggedIn: boolean) => {
         return !isLoggedIn
     }
 }
+
+// all, logout, login 
+export const viewVisible = (mode = true , visibilty = 'all') =>{
+    if(visibilty == 'all') return true
+    else if(mode && visibilty == "logout") return false
+    else if(!mode && visibilty == "login") return false
+    else return true
+}

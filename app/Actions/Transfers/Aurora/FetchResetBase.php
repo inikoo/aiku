@@ -211,6 +211,14 @@ class FetchResetBase
                 DB::connection('aurora')->table('Website User Dimension')
                     ->update([$aikuIdField => null]);
 
+                DB::connection('aurora')->table('Credit Transaction Fact')
+                    ->whereNotNull($aikuIdField)
+                    ->update(
+                        [
+                            $aikuIdField => null,
+                        ]
+                    );
+
 
                 DB::connection('aurora')->table('Customer Favourite Product Fact')->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Back in Stock Reminder Fact')->update([$aikuIdField => null]);
@@ -262,6 +270,8 @@ class FetchResetBase
                 $command->line("✅ customers \t\t".$this->stepTime());
 
                 DB::connection('aurora')->table('Payment Dimension')->update([$aikuIdField => null]);
+                DB::connection('aurora')->table('Top Up Dimension')->update([$aikuIdField => null]);
+
                 DB::connection('aurora')->table('Payment Account Dimension')->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Payment Service Provider Dimension')->update([$aikuIdField => null]);
                 $command->line("✅ payments \t\t".$this->stepTime());

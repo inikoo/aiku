@@ -64,7 +64,7 @@ class FetchAuroraWebsite extends FetchAurora
         $this->parsedData['website']['state']  = $state;
         $this->parsedData['website']['status'] = $this->auroraModelData->{'Website Status'} === 'Active';
 
-        if ($launchedAt = $this->parseDate($this->auroraModelData->{'Website Launched'})) {
+        if ($launchedAt = $this->parseDatetime($this->auroraModelData->{'Website Launched'})) {
             $this->parsedData['website']['launched_at'] = $launchedAt;
         }
 
@@ -75,7 +75,7 @@ class FetchAuroraWebsite extends FetchAurora
         }
 
 
-        if ($createdAt = $this->parseDate($this->auroraModelData->{'Website From'})) {
+        if ($createdAt = $this->parseDatetime($this->auroraModelData->{'Website From'})) {
             $this->parsedData['website']['created_at'] = $createdAt;
         }
     }

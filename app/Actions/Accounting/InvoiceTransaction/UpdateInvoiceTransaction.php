@@ -23,6 +23,7 @@ class UpdateInvoiceTransaction extends OrgAction
     public function rules(): array
     {
         $rules = [
+            'quantity'            => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_ordered'    => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_bonus'      => ['sometimes', 'required', 'numeric', 'min:0'],
             'quantity_dispatched' => ['sometimes', 'required', 'numeric', 'min:0'],

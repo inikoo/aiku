@@ -108,6 +108,22 @@ class StoreShop extends OrgAction
                     'organisation_id' => $organisation->id,
                 ]
             );
+            $shop->serialReferences()->create(
+                [
+                    'model'           => SerialReferenceModelEnum::TOP_UP,
+                    'organisation_id' => $organisation->id,
+                    'format'          => $shop->slug.'-%04d'
+                ]
+            );
+
+            $shop->serialReferences()->create(
+                [
+                    'model'           => SerialReferenceModelEnum::PURGE,
+                    'organisation_id' => $organisation->id,
+                    'format'          => 'purge-'.$shop->slug.'-%04d'
+                ]
+            );
+
 
             if ($shop->type == ShopTypeEnum::FULFILMENT) {
                 StoreFulfilment::make()->make()->action(
@@ -159,7 +175,6 @@ class StoreShop extends OrgAction
         if ($shop->type == ShopTypeEnum::B2B) {
             SeedOfferCampaigns::run($shop);
         }
-
 
         return $shop;
     }
