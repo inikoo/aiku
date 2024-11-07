@@ -14,7 +14,9 @@ use App\Actions\Fulfilment\Rental\Search\RentalRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Rental;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -65,7 +67,7 @@ class UpdateRental extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("products.{$this->shop->id}.edit");
+        return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
     public function rules(): array
@@ -99,11 +101,11 @@ class UpdateRental extends OrgAction
         ];
     }
 
-    public function asController(Rental $rental, ActionRequest $request): Rental
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, Rental $rental, ActionRequest $request): Rental
     {
         $this->rental = $rental;
 
-        $this->initialisationFromShop($rental->shop, $request);
+        $this->initialisationFromFulfilment($fulfilment, $request);
 
         return $this->handle($rental, $this->validatedData);
     }

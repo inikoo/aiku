@@ -18,10 +18,15 @@ use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Fulfilment\Rental\RentalStateEnum;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Rental;
+use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use Google\Service\ShoppingContent\ActionReason;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
 
 class StoreRental extends OrgAction
 {
@@ -123,6 +128,15 @@ class StoreRental extends OrgAction
         ];
     }
 
+    public function htmlResponse(Rental $rental)
+    {
+        return Redirect::route('grp.org.fulfilments.show.billables.rentals.show', [
+            'organisation' => $rental->organisation->slug,
+            'fulfilment'   => $rental->fulfilment->slug,
+            'rental'       => $rental->slug
+        ]);
+    }
+
 
     public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0): Rental
     {
@@ -132,5 +146,11 @@ class StoreRental extends OrgAction
         $this->initialisationFromShop($shop, $modelData);
 
         return $this->handle($shop, $this->validatedData);
+    }
+
+    public function asController(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request)
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+        return $this->handle($fulfilment->shop, $this->validatedData);
     }
 }

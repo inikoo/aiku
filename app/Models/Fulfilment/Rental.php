@@ -16,6 +16,7 @@ use App\Models\Catalogue\RentalStats;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -143,6 +144,11 @@ class Rental extends Model implements Auditable
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(RentalSalesIntervals::class);
+    }
+
+    public function fulfilment() : BelongsTo 
+    {
+        return $this->belongsTo(Fulfilment::class);
     }
 
 
