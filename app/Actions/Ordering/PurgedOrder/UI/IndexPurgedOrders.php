@@ -99,9 +99,9 @@ class IndexPurgedOrders extends OrgAction
 
                 $table->column(key: 'order_reference', label: __('order'), sortable: true, canBeHidden: false, searchable: true);
                 $table->column(key: 'status', label: __('status'), sortable: true, canBeHidden: false, searchable: true);
-                $table->column(key: 'purged_at', label: __('purged_at'), sortable: true, canBeHidden: false, searchable: true);
+                $table->column(key: 'purged_at', label: __('purged at'), sortable: true, canBeHidden: false, searchable: true);
                 $table->column(key: 'amount', label: __('amount'), sortable: true, canBeHidden: false, searchable: true);
-                $table->column(key: 'number_transactions', label: __('number_transactions'), sortable: true, canBeHidden: false, searchable: true);
+                $table->column(key: 'number_transactions', label: __('transactions'), sortable: true, canBeHidden: false, searchable: true);
                 $table->column(key: 'note', label: __('note'), sortable: true, canBeHidden: false, searchable: true);
             };
     }

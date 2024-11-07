@@ -49,7 +49,7 @@ class ShowPurge extends OrgAction
     public function asController(Organisation $organisation, Shop $shop, Purge $purge, ActionRequest $request): Purge
     {
         $this->parent = $shop;
-        $this->initialisationFromShop($shop, $request)->withTab(CollectionTabsEnum::values());
+        $this->initialisationFromShop($shop, $request)->withTab(PurgeTabsEnum::values());
         return $this->handle($purge);
     }
 
@@ -94,13 +94,13 @@ class ShowPurge extends OrgAction
                     'navigation' => PurgeTabsEnum::navigation()
                 ],
 
-                PurgeTabsEnum::SHOWCASE->value => $this->tab == CollectionTabsEnum::SHOWCASE->value ?
+                PurgeTabsEnum::SHOWCASE->value => $this->tab == PurgeTabsEnum::SHOWCASE->value ?
                     fn () => GetPurgeShowcase::run($purge)
                     : Inertia::lazy(fn () => GetPurgeShowcase::run($purge)),
 
-                // PurgeTabsEnum::PURGED_ORDERS->value => $this->tab == PurgeTabsEnum::PURGED_ORDERS->value ?
-                //     fn () => PurgedOrdersResource::collection(IndexPurgedOrders::run($purge))
-                //     : Inertia::lazy(fn () => PurgedOrdersResource::collection(IndexPurgedOrders::run($purge))),
+                PurgeTabsEnum::PURGED_ORDERS->value => $this->tab == PurgeTabsEnum::PURGED_ORDERS->value ?
+                    fn () => PurgedOrdersResource::collection(IndexPurgedOrders::run($purge))
+                    : Inertia::lazy(fn () => PurgedOrdersResource::collection(IndexPurgedOrders::run($purge))),
 
                 // ProductTabsEnum::MAILSHOTS->value => $this->tab == ProductTabsEnum::MAILSHOTS->value ?
                 //     fn () => MailshotResource::collection(IndexMailshots::run($product))
@@ -113,7 +113,7 @@ class ShowPurge extends OrgAction
                 */
 
             ]
-        );
+        )->table(IndexPurgedOrders::make()->tableStructure(prefix:PurgeTabsEnum::PURGED_ORDERS->value));
     }
 
     public function jsonResponse(Purge $purge): PurgeResource
