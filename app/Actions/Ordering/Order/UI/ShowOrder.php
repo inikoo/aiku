@@ -13,6 +13,7 @@ use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
+use App\Actions\Ordering\Purge\UI\ShowPurge;
 use App\Actions\Ordering\Transaction\UI\IndexNonProductItems;
 use App\Actions\Ordering\Transaction\UI\IndexTransactions;
 use App\Actions\OrgAction;
@@ -38,13 +39,14 @@ use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Http\Resources\Ordering\NonProductItemsResource;
 use App\Models\Helpers\Address;
+use App\Models\Ordering\Purge;
 use Illuminate\Support\Facades\DB;
 
 class ShowOrder extends OrgAction
 {
     use HasOrderingAuthorisation;
 
-    private Shop|Customer|CustomerClient $parent;
+    private Shop|Customer|CustomerClient|Purge $parent;
 
     public function handle(Order $order): Order
     {
@@ -83,6 +85,15 @@ class ShowOrder extends OrgAction
     public function inCustomerClient(Organisation $organisation, Shop $shop, Customer $customer, CustomerClient $customerClient, Order $order, ActionRequest $request): Order
     {
         $this->parent = $customerClient;
+        $this->scope  = $shop;
+        $this->initialisationFromShop($shop, $request)->withTab(OrderTabsEnum::values());
+
+        return $this->handle($order);
+    }
+
+    public function inPurge(Organisation $organisation, Shop $shop, Purge $purge, Order $order, ActionRequest $request): Order
+    {
+        $this->parent = $purge;
         $this->scope  = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(OrderTabsEnum::values());
 
@@ -612,6 +623,24 @@ class ShowOrder extends OrgAction
                     $suffix
                 )
             ),
+            'grp.org.shops.show.ordering.purges.order'
+            => array_merge(
+                (new ShowPurge())->getBreadcrumbs($this->parent, 'grp.org.shops.show.ordering.purges.order', $routeParameters),
+                $headCrumb(
+                    $order,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.shops.show.ordering.purges.show',
+                            'parameters' => Arr::except($routeParameters, ['order'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.shops.show.ordering.purges.order',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
             default => []
         };
     }
@@ -659,6 +688,19 @@ class ShowOrder extends OrgAction
                 ]
             ],
             'grp.org.shops.show.crm.customers.show.orders.show' => [
+                'label' => $order->reference,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation' => $this->organisation->slug,
+                        'shop'         => $order->shop->slug,
+                        'purge'        => $this->parent->slug,
+                        'order'        => $order->slug
+                    ]
+
+                ]
+            ],
+            'grp.org.shops.show.ordering.purges.order' => [
                 'label' => $order->reference,
                 'route' => [
                     'name'       => $routeName,

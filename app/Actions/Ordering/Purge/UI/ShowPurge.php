@@ -15,6 +15,7 @@ use App\Actions\Catalogue\Shop\UI\IndexShops;
 use App\Actions\Catalogue\Shop\UI\ShowCatalogue;
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Catalogue\WithCollectionSubNavigation;
+use App\Actions\Ordering\PurgedOrder\UI\IndexPurgedOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\UI\Catalogue\CollectionTabsEnum;
@@ -24,6 +25,7 @@ use App\Http\Resources\Catalogue\CollectionsResource;
 use App\Http\Resources\Catalogue\DepartmentsResource;
 use App\Http\Resources\Catalogue\FamiliesResource;
 use App\Http\Resources\Catalogue\ProductsResource;
+use App\Http\Resources\Ordering\PurgedOrdersResource;
 use App\Http\Resources\Ordering\PurgeResource;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\Shop;
@@ -96,9 +98,9 @@ class ShowPurge extends OrgAction
                     fn () => GetPurgeShowcase::run($purge)
                     : Inertia::lazy(fn () => GetPurgeShowcase::run($purge)),
 
-                // ProductTabsEnum::CUSTOMERS->value => $this->tab == ProductTabsEnum::CUSTOMERS->value ?
-                //     fn () => CustomersResource::collection(IndexCustomers::run($product))
-                //     : Inertia::lazy(fn () => CustomersResource::collection(IndexCustomers::run($product))),
+                // PurgeTabsEnum::PURGED_ORDERS->value => $this->tab == PurgeTabsEnum::PURGED_ORDERS->value ?
+                //     fn () => PurgedOrdersResource::collection(IndexPurgedOrders::run($purge))
+                //     : Inertia::lazy(fn () => PurgedOrdersResource::collection(IndexPurgedOrders::run($purge))),
 
                 // ProductTabsEnum::MAILSHOTS->value => $this->tab == ProductTabsEnum::MAILSHOTS->value ?
                 //     fn () => MailshotResource::collection(IndexMailshots::run($product))
