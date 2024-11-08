@@ -101,12 +101,15 @@ class ShowOrgSupplier extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
-                        $this->canEdit && $orgSupplier->owner_type == 'Organisation' ? [
+                        $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'route' => [
-                                'name'       => 'grp.org.procurement.org_suppliers.show.purchase_orders.create',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'name'       => 'grp.models.org-supplier.purchase-order.store',
+                                'parameters' => [
+                                    'orgSupplier' => $orgSupplier->id
+                                ],
+                                'method'     => 'post'
                             ],
                             'label' => __('purchase order')
                         ] : false,
