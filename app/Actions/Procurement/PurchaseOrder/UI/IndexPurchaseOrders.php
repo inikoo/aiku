@@ -52,11 +52,11 @@ class IndexPurchaseOrders extends OrgAction
         if (class_basename($parent) == 'OrgAgent') {
             $query->leftJoin('org_agents', 'org_agents.id', 'purchase_orders.parent_id');
             $query->where('purchase_orders.parent_type', 'OrgAgent')->where('purchase_orders.parent_id', $parent->id);
-            $query->addSelect('agents.slug as agent_slug');
+            $query->addSelect('org_agents.slug as parent_slug');
         } elseif (class_basename($parent) == 'OrgSupplier') {
             $query->leftJoin('suppliers', 'suppliers.id', 'purchase_orders.parent_id');
             $query->where('purchase_orders.parent_type', 'OrgSupplier')->where('purchase_orders.parent_id', $parent->id);
-            $query->addSelect('agents.slug as agent_slug');
+            $query->addSelect('suppliers.slug as parent_slug');
         } elseif (class_basename($parent) == 'OrgPartner') {
             $query->where('purchase_orders.organisation_id', $parent->partner->id);
             $query->addSelect(['parent_id', 'parent_type']);
