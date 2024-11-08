@@ -11,12 +11,16 @@ namespace App\Actions\Web\Website;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Exception;
 use Google\Client;
-use Google\Service\SearchConsole;
-use Google\Service\SearchConsole\SearchAnalyticsQueryRequest;
+use Google\Service\Webmasters;
+use Google\Service\Webmasters\SearchAnalyticsQueryRequest;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Date;
+use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class GetWebsiteGoogleCloud extends OrgAction
@@ -25,65 +29,96 @@ class GetWebsiteGoogleCloud extends OrgAction
     use WithNoStrictRules;
 
     private Website $website;
+    private bool $saveSecret = false;
 
     /**
      * @throws \Throwable
      */
-    public function handle(Website $website, array $modelData): void
+    public function handle(Website $website, array $modelData): array
     {
-        $clientID = env("GOOGLE_OAUTH_CLIENT_SECRET");
+        $settings = $website->group->settings;
+        $oauthClientSecret = Arr::get($settings, 'gcp.oauthClientSecret');
+        if (!$oauthClientSecret) {
+            $oauthClientSecret = env("GOOGLE_OAUTH_CLIENT_SECRET");
+            if (!$oauthClientSecret) {
+                dd("secret is empty \n");
+            }
+            data_set($settings, "gcp.oauthClientSecret", $oauthClientSecret);
+            $website->group->update(['settings' => $settings]);
+        }
 
-        $jsonClientID = base64_decode($clientID);
         $client = new Client();
-        $client->setAuthConfig(json_decode($jsonClientID, true));
-        $client->addScope('https://www.googleapis.com/auth/webmasters');
-        $client->addScope('https://www.googleapis.com/auth/webmasters.readonly');
-        $service = new SearchConsole($client);
-        $siteUrl = "https://www." . $website->domain;
-        // $http = $client->authorize();
-        // $endPint = "https://www.googleapis.com/webmasters/v3/sites";
+        $gcpOauthClientSecretDecoded = base64_decode($oauthClientSecret);
+        $client->setAuthConfig(json_decode($gcpOauthClientSecretDecoded, true));
+        $client->addScope(Webmasters::WEBMASTERS_READONLY);
+        $service = new Webmasters($client);
+
+        $websiteData = $website->data;
+        $siteUrl = Arr::get($websiteData, 'gcp.siteUrl');
+        if (!$siteUrl) {
+            $siteEntry = $service->sites->listSites()->getSiteEntry();
+            $listSite = Arr::pluck($siteEntry, "siteUrl");
+            $siteUrl = Arr::where($listSite, function (string $value) use ($website) {
+                return str_contains($value, $website->domain);
+            });
+            if (empty($siteUrl)) {
+                return [];
+            }
+            $siteUrl = Arr::first($siteUrl);
+            data_set($websiteData, 'gcp.siteUrl', $siteUrl);
+            $website->update(['data' => $websiteData]);
+        }
+
+        if ($this->saveSecret) {
+            return [];
+        }
+
         $query = new SearchAnalyticsQueryRequest();
-        $query->startDate = Date::now()->subWeek()->toDateString();
-        $query->endDate = Date::now()->toDateString();
+        $currentDate = Date::now();
+        $query->startDate = Arr::get($modelData, 'startDate') ?? $currentDate->copy()->subWeek()->toDateString();
+        $query->endDate = Arr::get($modelData, 'endDate') ?? $currentDate->toDateString();
+        $query->dimensions = Arr::get($modelData, 'dimentions') ?? ['date'];
+        $query->searchType = Arr::get($modelData, 'searchType') ?? 'web';
 
         $res = $service->searchanalytics->query($siteUrl, $query);
-        foreach ($res->getRows() as $row) {
-            // dd($row);
-            // $query = $row->keys[0];        // Search query
-            $clicks = $row->clicks;        // Number of clicks
-            $impressions = $row->impressions; // Number of impressions
-            $ctr = $row->ctr;              // Click-through rate
-            $position = $row->position;    // Average position
-
-            echo "Clicks: $clicks, Impressions: $impressions, CTR: $ctr, Position: $position\n";
-        }
-        // dd($res);
-        // try {
-        //     // Execute the request
-        //     $response = $service->searchanalytics->query($siteUrl, $req);
-
-        //     // Output the results
-        //     foreach ($response->getRows() as $row) {
-        //         $query = $row->keys[0];         // The search query
-        //         $clicks = $row->clicks;          // Number of clicks
-        //         $impressions = $row->impressions; // Number of impressions
-        //         $ctr = $row->ctr;                // Click-through rate
-        //         $position = $row->position;      // Average position in search results
-
-        //         echo "Query: $query, Clicks: $clicks, Impressions: $impressions, CTR: $ctr, Position: $position\n";
-        //     }
-        // } catch (Exception $e) {
-        //     echo 'An error occurred: ' . $e->getMessage();
-        // }
+        return $res->getRows();
     }
 
-    public string $commandSignature = "gcp:search-result {website?}";
+    public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): array
+    {
+        $this->initialisationFromShop($shop, $request);
+        return $this->action($website, $this->validatedData);
+    }
+
+    public function rules(): array
+    {
+        return [
+            'startDate' => ['sometimes', 'date'],
+            'endDate' => ['sometimes', 'date'],
+            'dimensions' => ['sometimes'],
+            'searchType' => ['sometimes']
+        ];
+    }
+
+    public function action(Website $website, array $modelData, bool $strict = true): array
+    {
+        $this->strict   = $strict;
+        $this->asAction = true;
+        $this->setRawAttributes($modelData);
+        $validatedData = $this->validateAttributes();
+
+        return $this->handle($website, $validatedData);
+    }
+
+    public string $commandSignature = "gcp:search-result {website?} {--saveSecret}";
 
     /**
      * @throws \Exception
      */
     public function asCommand($command): int
     {
+
+        $this->saveSecret = $command->option("saveSecret");
 
         if ($command->argument("website")) {
             try {
@@ -94,17 +129,16 @@ class GetWebsiteGoogleCloud extends OrgAction
                 exit();
             }
 
-            $this->handle($website, []);
+            $this->action($website, []);
 
             $command->line("Website ".$website->slug." fetched");
 
         } else {
             foreach (Website::orderBy('id')->get() as $website) {
                 $command->line("Website ".$website->slug." fetched");
-                $this->handle($website, []);
+                $this->action($website, []);
             }
         }
-
 
         return 0;
     }
