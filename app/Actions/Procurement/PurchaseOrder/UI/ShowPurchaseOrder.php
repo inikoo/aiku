@@ -310,7 +310,7 @@ class ShowPurchaseOrder extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation'  => $purchaseOrder->organisation,
+                        'organisation'  => $purchaseOrder->organisation->slug,
                         'purchaseOrder' => $purchaseOrder->slug
                     ]
 
