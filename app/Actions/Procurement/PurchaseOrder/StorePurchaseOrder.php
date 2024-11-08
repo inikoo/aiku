@@ -7,6 +7,7 @@
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
+use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydratePurchaseOrders;
 use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydratePurchaseOrders;
@@ -16,6 +17,7 @@ use App\Actions\SupplyChain\Agent\Hydrators\AgentHydratePurchaseOrders;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydratePurchaseOrders;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydratePurchaseOrders;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
 use App\Models\Procurement\OrgAgent;
@@ -23,6 +25,7 @@ use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Rules\IUnique;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -38,6 +41,22 @@ class StorePurchaseOrder extends OrgAction
     public function handle(OrgSupplier|OrgAgent|OrgPartner $parent, array $modelData): PurchaseOrder
     {
         $modelData = $this->prepareDeliveryStoreFields($parent, $modelData);
+        if (!Arr::get($modelData, 'reference')) {
+            data_set(
+                $modelData,
+                'reference',
+                GetSerialReference::run(
+                    container: $parent->organisation,
+                    modelType: SerialReferenceModelEnum::PURCHASE_ORDER
+                )
+            );
+        }
+        if (!Arr::get($modelData, 'date')) {
+            data_set($modelData, 'date', now());
+        }
+        if (!Arr::get($modelData, 'currency_id')) {
+            data_set($modelData, 'currency_id', $parent->organisation->currency_id);
+        }
 
         /** @var PurchaseOrder $purchaseOrder */
         $purchaseOrder = $parent->purchaseOrders()->create($modelData);
@@ -84,6 +103,7 @@ class StorePurchaseOrder extends OrgAction
             'cost_shipping'   => ['sometimes', 'required', 'numeric', 'min:0'],
             'cost_total'      => ['sometimes', 'required', 'numeric', 'min:0'],
             'date'            => ['sometimes', 'required'],
+            'currency_id'     => ['sometimes', 'required'],
         ];
 
         if (!$this->strict) {
@@ -147,6 +167,6 @@ class StorePurchaseOrder extends OrgAction
 
         $purchaseOrder = $this->handle($orgSupplier, $this->validatedData);
 
-        return redirect()->route('grp.org.procurement.purchase_orders.show', $purchaseOrder->slug);
+        return redirect()->route('grp.org.procurement.purchase_orders.show', [$orgSupplier->organisation->slug, $purchaseOrder->slug]);
     }
 }
