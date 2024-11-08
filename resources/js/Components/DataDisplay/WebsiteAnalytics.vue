@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faArrowUp, faArrowDown, faHandSparkles, faEnvelope, faUser, faHdd, faCloudDownload } from "@fal"
+import {
+	faArrowUp,
+	faArrowDown,
+	faHandSparkles,
+	faEnvelope,
+	faUser,
+	faHdd,
+	faCloudDownload,
+} from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import Chart from "primevue/chart"
 import { onMounted, Ref, ref } from "vue"
 import { useFormatTime } from "../../Composables/useFormatTime"
 import { router } from "@inertiajs/vue3"
 import SelectButton from "primevue/selectbutton"
+import OverviewCard from "./OverviewCard.vue"
 
 library.add(faArrowUp, faArrowDown, faHandSparkles, faEnvelope, faUser, faHdd, faCloudDownload)
 
@@ -54,7 +63,7 @@ const reloadData = (until: string, since: string) => {
 
 // Metrics for display in summary and charts
 const summaryMetrics: Ref<SummaryMetric[]> = ref([])
-const value = ref("24 Hours");
+const value = ref("24 Hours")
 const options = ref(["24 Hours", "7 Days", "30 Days"])
 const metrics = [
 	{ label: "Unique Visitors", dataKey: "uniques", color: "--p-cyan-500" },
@@ -67,33 +76,32 @@ const chartsData = ref([])
 const chartsOptions = ref([])
 
 const handleSelectChange = () => {
-	const today = new Date();
-	let until: string | undefined;
-	let since: string | undefined;
+	const today = new Date()
+	let until: string | undefined
+	let since: string | undefined
 
 	// Determine the date range based on the selected value
 	if (value.value === "7 Days") {
-		const sevenDaysAgo = new Date(today);
-		sevenDaysAgo.setDate(today.getDate() - 7);
-		since = sevenDaysAgo.toISOString().split("T")[0];
-		until = today.toISOString().split("T")[0]; // Set until to today’s date
+		const sevenDaysAgo = new Date(today)
+		sevenDaysAgo.setDate(today.getDate() - 7)
+		since = sevenDaysAgo.toISOString().split("T")[0]
+		until = today.toISOString().split("T")[0] // Set until to today’s date
 	} else if (value.value === "30 Days") {
-		const thirtyDaysAgo = new Date(today);
-		thirtyDaysAgo.setDate(today.getDate() - 30);
-		since = thirtyDaysAgo.toISOString().split("T")[0];
-		until = today.toISOString().split("T")[0]; // Set until to today’s date
+		const thirtyDaysAgo = new Date(today)
+		thirtyDaysAgo.setDate(today.getDate() - 30)
+		since = thirtyDaysAgo.toISOString().split("T")[0]
+		until = today.toISOString().split("T")[0] // Set until to today’s date
 	}
 
 	// Reload data with or without date parameters based on selection
 	if (since && until) {
 		// If we have since and until, pass them to reloadData
-		reloadData(until, since);
+		reloadData(until, since)
 	} else {
 		// If "24 Hours" is selected, reload data without any date parameters
-		reloadData(undefined, undefined);
+		reloadData(undefined, undefined)
 	}
-};
-
+}
 
 const setChartDataAndOptions = () => {
 	const optionsTime = { formatTime: "hm" }
@@ -221,36 +229,14 @@ onMounted(() => {
 				size="small"
 				@change="handleSelectChange" />
 		</div>
-		<dl class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-			<div
+		<div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+			<OverviewCard
 				v-for="metric in summaryMetrics"
 				:key="metric.id"
-				class="relative overflow-hidden rounded-lg bg-white px-4 pb-12 pt-5 shadow sm:px-6 sm:pt-6">
-				<dt>
-					<div class="absolute rounded-md bg-indigo-500 p-3">
-						<FontAwesomeIcon
-							:icon="metric.icon"
-							class="h-5 aspect-square text-white"
-							fixed-width
-							aria-hidden="true" />
-					</div>
-					<p class="ml-16 truncate text-sm font-medium text-gray-500">
-						{{ metric.label }}
-					</p>
-				</dt>
-				<dd class="ml-16 flex items-baseline pb-6 sm:pb-7">
-					<p class="text-2xl font-semibold text-gray-900">{{ metric.value }}</p>
-					<p
-						:class="[
-							
-							'ml-2 flex items-baseline text-sm font-semibold',
-						]">
-						
-						
-					</p>
-				</dd>
-			</div>
-		</dl>
+				:label="metric.label"
+				:value="metric.value"
+				:icon="metric.icon" />
+		</div>
 
 		<!-- Display each chart in a stacked view -->
 		<div v-for="(chartData, index) in chartsData" :key="index" class="mt-8">

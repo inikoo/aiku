@@ -28,7 +28,7 @@
         "commerceguys/intl": "^1.1",
         "doctrine/dbal": "^3.5",
         "elasticsearch/elasticsearch": "^8.8",
-        "google/apiclient": "^2.12.1",
+        "google/apiclient": "^2.15.0",
         "guzzlehttp/guzzle": "^7.2",
         "hisorange/browser-detect": "^4.5",
         "http-interop/http-factory-guzzle": "^1.2",

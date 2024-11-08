@@ -26,40 +26,34 @@ library.add(faSpinnerThird)
 
 // on mount load editor unlayer
 
-const Store = async (update, data) => {
+const Store = async (update: any, data: any) => {
+    if (!props.updateRoute) return;
     try {
-        const response = await axios.post(
-            route(
-                props.updateRoute.name,
-                props.updateRoute.parameters
-            ),
+        const response = await axios.patch(
+            route(props.updateRoute.name, props.updateRoute.parameters),
             { data: update, pagesHtml: { ...data } },
-        )
-        emits('onSaveToServer', response?.data?.isDirty)
+        );
+        emits("onSaveToServer", response?.data?.isDirty);
     } catch (error) {
-        console.log(error)
+        console.error("Error saving data:", error);
     }
-}
+};
 
 const Load = async () => {
+    if (!props.loadRoute) return null;
     try {
         const response = await axios.get(
-            route(
-                props.loadRoute.name,
-                props.loadRoute.parameters
-            ),
-        )
-        if (response) {
-            // console.log(response)
-            return response.data.html.design
-        }
+            route(props.loadRoute.name, props.loadRoute.parameters)
+        );
+        return response?.data?.html?.design || null;
     } catch (error) {
-        console.log(error)
+        console.error("Error loading data:", error);
         notify({
             title: "Failed",
-            text: "failed to get data",
+            text: "Failed to get data",
             type: "error",
         });
+        return null;
     }
 }
 
@@ -76,112 +70,92 @@ const getMergeTagData = () => {
         });
 }
 
+console.log(props);
 
 
 onMounted(async () => {
-    //loadeditor
     await loadScript();
 
-    const opt = {
+    const editorOptions = {
         id: editorId,
-        displayMode: 'email',
+        displayMode: "email",
         features: {
-            sendTestEmail: true
+            sendTestEmail: true,
         },
-        /* mergeTags: await getMergeTagData(), */
         tools: {
-            form: {
-                enabled: false
-            },
-            menu: {
-                enabled: true
-            },
-            divider: {
-                enabled: true
-            },
+            form: { enabled: false },
+            menu: { enabled: true },
+            divider: { enabled: true },
         },
         fonts: {
             showDefaultFonts: true,
             customFonts: [
                 {
                     label: "Comic Sans",
-                    value: "'Comic Sans MS', cursive, sans-serif"
+                    value: "'Comic Sans MS', cursive, sans-serif",
                 },
                 {
                     label: "Lobster Two",
                     value: "'Lobster Two',cursive",
-                    url: "https://fonts.googleapis.com/css?family=Lobster+Two:400,700"
+                    url: "https://fonts.googleapis.com/css?family=Lobster+Two:400,700",
                 },
                 {
                     label: "Roboto",
                     value: "Roboto",
-                    url: "https://fonts.googleapis.com/css2?family=Roboto:ital,wght@1,100&display=swap"
+                    url: "https://fonts.googleapis.com/css2?family=Roboto:ital,wght@1,100&display=swap",
                 },
                 {
                     label: "Montserrat",
                     value: "Montserrat",
-                    url: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,100&display=swap"
-                }
-            ]
-        }
-        // other options for the editor can be added here if needed
+                    url: "https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@1,100&display=swap",
+                },
+            ],
+        },
     };
 
-    // unlayer adalah global object yang dibuat oleh embed.js
-    editor = unlayer.createEditor(opt);
+    editor = unlayer.createEditor(editorOptions);
 
-    //autosave
-    editor.addEventListener('design:updated', function (updates) {
-        editor.exportHtml(function (data) {
-            Store(updates, data)
-        })
-    })
-
-    //onready
-    editor.addEventListener('editor:ready', function () {
-        isUnlayerLoading.value = false
+    editor.addEventListener("design:updated", function (updates) {
+        editor.exportHtml((data) => {
+            Store(updates, data);
+        });
     });
 
-    //loadData
-    const load = await Load();
-    editor.loadDesign(load);
+    editor.addEventListener("editor:ready", () => {
+        isUnlayerLoading.value = false;
+    });
 
-    //uploadImage
-    editor.registerCallback('image', async function (file, done) {
+    const loadDesignData = await Load();
+    if (loadDesignData) {
+        editor.loadDesign(loadDesignData);
+    } else {
+        console.warn("No design data available to load");
+    }
+
+    editor.registerCallback("image", async (file, done) => {
+        if (!props.imagesUploadRoute) return;
         try {
             const response = await axios.post(
-                route(
-                    props.imagesUploadRoute.name,
-                    props.imagesUploadRoute.parameters
-                ),
+                route(props.imagesUploadRoute.name, props.imagesUploadRoute.parameters),
                 { images: file.attachments },
-                {
-                    headers: { "Content-Type": "multipart/form-data" },
-                }
+                { headers: { "Content-Type": "multipart/form-data" } }
             );
-            for (const image of response.data.data) {
-                done({ progress: 100, url: image.source.original })
-            }
-
-
+            response.data.data.forEach((image: any) => {
+                done({ progress: 100, url: image.source.original });
+            });
         } catch (error) {
-            console.log(error)
+            console.error("Error uploading image:", error);
         }
-    })
-
-    //bodyUnlayer
-    editor.setBodyValues({
-        /* backgroundColor: "white", */
-        /*   contentWidth: "50%", // or percent "50%" */
-        fontFamily: {
-            label: "Helvetica",
-            value: "'Helvetica Neue', Helvetica, Arial, sans-serif"
-        },
-        /*   preheaderText: "" */
     });
 
-    editorRef.value = editor
+    editor.setBodyValues({
+        fontFamily: {
+            label: "Helvetica",
+            value: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+        },
+    });
 
+    editorRef.value = editor;
 });
 
 defineExpose({
@@ -189,6 +163,7 @@ defineExpose({
     setToNewTemplate: setToNewTemplate,
     ready: isUnlayerLoading
 })
+console.log(props,'dsad');
 
 </script>
 
