@@ -137,7 +137,7 @@ class ShowPurchaseOrder extends OrgAction
                 //     'title'         => 'Dummy Alert from BE',
                 //     'description'   => 'Dummy description'
                 // ],
-                'notes'       => $purchaseOrder->notes,
+                'notes'       => $purchaseOrder->notes ?? '',
                 'timelines'   => $finalTimeline,
 
                 'box_stats'      => [
