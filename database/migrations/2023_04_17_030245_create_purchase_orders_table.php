@@ -23,6 +23,7 @@ return new class () extends Migration {
             $table = $this->headProcurementOrder($table);
             $table->string('state')->index()->default(PurchaseOrderTransactionStateEnum::IN_PROCESS->value);
             $table->string('delivery_status')->index()->default(PurchaseOrderTransactionDeliveryStatusEnum::PROCESSING->value);
+            $table->text('notes')->nullable();
             $table->dateTimeTz('date')->comment('latest relevant date');
             $table->dateTimeTz('submitted_at')->nullable();
             $table->dateTimeTz('confirmed_at')->nullable();
