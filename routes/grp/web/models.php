@@ -150,6 +150,7 @@ use App\Actions\Manufacturing\RawMaterial\UpdateRawMaterial;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Purge\StorePurge;
 use App\Actions\Ordering\Purge\UpdatePurge;
+use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Group\UpdateGroupSettings;
@@ -619,6 +620,10 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
 Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->group(function () {
     Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inStockDelivery'])->name('attachment.attach');
     Route::delete('attachment/{attachment:id}/detach', [DetachAttachmentFromModel::class, 'inStockDelivery'])->name('attachment.detach')->withoutScopedBindings();
+});
+
+Route::name('org-supplier.')->prefix('org-supplier/{orgSupplier:id}')->group(function () {
+    Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgSupplier'])->name('purchase-order.store');
 });
 
 require __DIR__."/models/inventory/location_org_stock.php";

@@ -26,6 +26,7 @@ use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
@@ -148,25 +149,32 @@ class StorePurchaseOrder extends OrgAction
         return $this->handle($parent, $this->validatedData);
     }
 
-    public function inOrgAgent(OrgAgent $orgAgent, ActionRequest $request): \Illuminate\Http\RedirectResponse
+    public function inOrgAgent(OrgAgent $orgAgent, ActionRequest $request): PurchaseOrder
     {
         $this->parent = $orgAgent;
 
-
         $this->initialisation($orgAgent->organisation, $request);
 
-        $purchaseOrder = $this->handle($orgAgent, $this->validatedData);
-
-        return redirect()->route('grp.org.procurement.purchase_orders.show', $purchaseOrder->slug);
+        return $this->handle($orgAgent, $this->validatedData);
     }
 
-    public function inOrgSupplier(OrgSupplier $orgSupplier, ActionRequest $request): \Illuminate\Http\RedirectResponse|PurchaseOrder
+    public function inOrgSupplier(OrgSupplier $orgSupplier, ActionRequest $request): PurchaseOrder
     {
         $this->parent = $orgSupplier;
         $this->initialisation($orgSupplier->organisation, $request);
 
-        $purchaseOrder = $this->handle($orgSupplier, $this->validatedData);
-
-        return redirect()->route('grp.org.procurement.purchase_orders.show', [$orgSupplier->organisation->slug, $purchaseOrder->slug]);
+        return $this->handle($orgSupplier, $this->validatedData);
+    }
+    
+    public function htmlResponse(PurchaseOrder $purchaseOrder)
+    {
+        if($this->parent instanceof OrgAgent)
+        {
+            return Redirect::route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]);
+        } 
+        elseif ($this->parent instanceof OrgSupplier)
+        {
+            return Redirect::route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]);
+        }
     }
 }

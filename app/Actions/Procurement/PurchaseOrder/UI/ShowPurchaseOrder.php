@@ -124,13 +124,13 @@ class ShowPurchaseOrder extends OrgAction
                             'order' => $purchaseOrder->id,
                         ]
                     ],
-                    'products_list'    => [
+                   /*  'products_list'    => [
                         'name'       => 'grp.json.shop.catalogue.order.products',
                         'parameters' => [
                             'shop'  => $purchaseOrder->shop->slug,
                             'scope' => $purchaseOrder->slug
                         ]
-                    ],
+                    ], */
                 ],
                 // 'alert'   => [  // TODO
                 //     'status'        => 'danger',
@@ -220,6 +220,10 @@ class ShowPurchaseOrder extends OrgAction
                 ],
                 'currency'       => CurrencyResource::make($purchaseOrder->currency)->toArray(request()),
                 'data'           => PurchaseOrderResource::make($purchaseOrder),
+                'tabs'        => [
+                    'current'    => $this->tab,
+                    'navigation' => PurchaseOrderTabsEnum::navigation()
+                ],
 
                 PurchaseOrderTabsEnum::SHOWCASE->value => $this->tab == PurchaseOrderTabsEnum::SHOWCASE->value ?
                     fn () => new PurchaseOrderResource(($purchaseOrder))
