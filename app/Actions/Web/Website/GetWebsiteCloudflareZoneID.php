@@ -16,6 +16,7 @@ use Arr;
 use Carbon\Carbon;
 use Exception;
 use Http;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Date;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -25,7 +26,7 @@ class GetWebsiteCloudflareZoneID extends OrgAction
     use WithNoStrictRules;
 
     private Website $website;
-
+    private bool $saveSecret = false;
     /**
      * @throws \Throwable
      */
@@ -58,23 +59,36 @@ class GetWebsiteCloudflareZoneID extends OrgAction
             }
         }
 
+        if ($this->saveSecret) {
+            return [];
+        }
+
         data_set($modelData, "zoneTag", $zoneTag);
 
         return $this->getZoneAnalytics($modelData);
     }
 
-    private function getZoneAnalytics(array $modelData): array
+    private function getZoneAnalytics(array $modelData, $try = 3): array
     {
         $zoneTag = Arr::get($modelData, "zoneTag");
         $apiToken = Arr::get($modelData, "apiToken");
 
         $urlCLoudflareGraphql = "https://api.cloudflare.com/client/v4/graphql";
-        $response = Http::timeout(10)->withHeaders([
-            'Authorization' => "Bearer $apiToken",
-            'Content-Type' => 'application/json',
-        ])->post($urlCLoudflareGraphql, [
-            'query' => $this->getQuery($zoneTag, $modelData),
-        ]);
+        if ($try == 0) {
+            return [];
+        }
+
+        try {
+            $response = Http::timeout(10)->withHeaders([
+                'Authorization' => "Bearer $apiToken",
+                'Content-Type' => 'application/json',
+            ])->post($urlCLoudflareGraphql, [
+                'query' => $this->getQuery($zoneTag, $modelData),
+            ]);
+        } catch (ConnectionException $e) {
+            return $this->getZoneAnalytics($modelData, $try--);
+        }
+
 
         return $response->json();
     }
@@ -201,16 +215,23 @@ class GetWebsiteCloudflareZoneID extends OrgAction
     }
 
 
-    private function getZoneTag(Website $website, array $modelData): string
+    private function getZoneTag(Website $website, array $modelData, $try = 3): string
     {
         $apiToken = Arr::get($modelData, "apiToken");
         $urlCLoudflareRest = "https://api.cloudflare.com/client/v4"; // -> api to get zone id, account id & site tag
-        $resultZone = Http::timeout(10)->withHeaders([
-            'Authorization' => "Bearer $apiToken",
-            'Content-Type' => 'application/json',
-        ])->get($urlCLoudflareRest . "/zones", [
-            'name' => $website->domain,
-        ])->json();
+        if ($try == 0) {
+            return "error";
+        }
+        try {
+            $resultZone = Http::timeout(10)->withHeaders([
+                'Authorization' => "Bearer $apiToken",
+                'Content-Type' => 'application/json',
+            ])->get($urlCLoudflareRest . "/zones", [
+                'name' => $website->domain,
+            ])->json();
+        } catch (ConnectionException $e) {
+            return $this->getZoneTag($website, $modelData, $try--);
+        }
 
         if (!empty($resultZone['errors'])) {
             print_r($resultZone);
@@ -258,14 +279,14 @@ class GetWebsiteCloudflareZoneID extends OrgAction
     }
 
 
-    public string $commandSignature = "cloudflareWebsite:web-analytics {website?}";
+    public string $commandSignature = "cloudflareWebsite:web-analytics {website?} {--saveSecret}";
 
     /**
      * @throws \Exception
      */
     public function asCommand($command): int
     {
-
+        $this->saveSecret = $command->option("saveSecret");
         if ($command->argument("website")) {
             try {
                 /** @var Website $website */
