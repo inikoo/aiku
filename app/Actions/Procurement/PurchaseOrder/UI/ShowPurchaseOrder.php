@@ -12,6 +12,7 @@ use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\PurchaseOrderTransaction\UI\IndexPurchaseOrderTransactions;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
+use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\UI\Procurement\PurchaseOrderTabsEnum;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
@@ -20,6 +21,7 @@ use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\PurchaseOrderTransactionResource;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
+use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
@@ -57,6 +59,35 @@ class ShowPurchaseOrder extends OrgAction
     {
         $this->validateAttributes();
 
+        $timeline = [];
+        foreach (PurchaseOrderStateEnum::cases() as $state) {
+            if ($state === PurchaseOrderStateEnum::IN_PROCESS) {
+                $timestamp = $purchaseOrder->created_at;
+            } else {
+                $timestamp = $purchaseOrder->{$state->snake().'_at'} ? $purchaseOrder->{$state->snake().'_at'} : null;
+            }
+
+            // If all possible values are null, set the timestamp to null explicitly
+            $timestamp = $timestamp ?: null;
+
+            $timeline[$state->value] = [
+                'label'     => $state->labels()[$state->value],
+                'tooltip'   => $state->labels()[$state->value],
+                'key'       => $state->value,
+                /* 'icon'    => $palletDelivery->state->stateIcon()[$state->value]['icon'], */
+                'timestamp' => $timestamp
+            ];
+        }
+
+        $finalTimeline = Arr::except(
+            $timeline,
+            [
+                $purchaseOrder->state->value == PurchaseOrderStateEnum::CANCELLED->value
+                    ? PurchaseOrderStateEnum::SETTLED->value
+                    : PurchaseOrderStateEnum::CANCELLED->value
+            ]
+        );
+
         return Inertia::render(
             'Procurement/PurchaseOrder',
             [
@@ -86,7 +117,7 @@ class ShowPurchaseOrder extends OrgAction
 
                 ],
                 'routes'      => [
-                    'updateOrderRoute' => [
+                    'updatePurchaseOrderRoute' => [
                         'method'     => 'patch',
                         'name'       => 'grp.models.order.update',
                         'parameters' => [
@@ -95,138 +126,100 @@ class ShowPurchaseOrder extends OrgAction
                     ],
                     'products_list'    => [
                         'name'       => 'grp.json.shop.catalogue.order.products',
-                        // 'parameters' => [
-                        //     'shop'  => $purchaseOrder->shop->slug,
-                        //     'scope' => $purchaseOrder->slug
-                        // ]
-                    ]
-                ],
-
-                'attachmentRoutes' => [
-                    'attachRoute' => [
-                        'name' => 'grp.models.purchase-order.attachment.attach',
                         'parameters' => [
-                            'purchaseOrder' => $purchaseOrder->id,
+                            'shop'  => $purchaseOrder->shop->slug,
+                            'scope' => $purchaseOrder->slug
                         ]
                     ],
-                    'detachRoute' => [
-                        'name' => 'grp.models.purchase-order.attachment.detach',
-                        'parameters' => [
-                            'purchaseOrder' => $purchaseOrder->id,
-                        ],
-                        'method' => 'delete'
-                    ]
                 ],
-                'tabs'        => [
-                    'current'    => $this->tab,
-                    'navigation' => PurchaseOrderTabsEnum::navigation()
-                ],
-
-                'timelines'   => 'TOOOOOOOOOOOOO DOOOOOOOOOOOOOOOOOOOOOOO',
-
-                'notes'       => [
-                    "note_list" => [
-                        [
-                            "label"    => __("Customer"),
-                            "note"     => $purchaseOrder->customer_notes ?? '',
-                            "editable" => false,
-                            "bgColor"  => "#FF7DBD",
-                            "field"    => "customer_notes"
-                        ],
-                        [
-                            "label"    => __("Public"),
-                            "note"     => $purchaseOrder->public_notes ?? '',
-                            "editable" => true,
-                            "bgColor"  => "#94DB84",
-                            "field"    => "public_notes"
-                        ],
-                        [
-                            "label"    => __("Private"),
-                            "note"     => $purchaseOrder->internal_notes ?? '',
-                            "editable" => true,
-                            "bgColor"  => "#FCF4A3",
-                            "field"    => "internal_notes"
-                        ]
-                    ]
-                ],
+                // 'alert'   => [  // TODO
+                //     'status'        => 'danger',
+                //     'title'         => 'Dummy Alert from BE',
+                //     'description'   => 'Dummy description'
+                // ],
+                'notes'       => $purchaseOrder->notes,
+                'timelines'   => $finalTimeline,
 
                 'box_stats'      => [
                     // 'customer'      => array_merge(
-                    //     CustomerResource::make($purchaseOrder->customer)->getArray(),
+                    //     CustomerResource::make($order->customer)->getArray(),
                     //     [
                     //         'addresses' => [
-                    //             'delivery' => AddressResource::make($purchaseOrder->deliveryAddress ?? new Address()),
-                    //             'billing'  => AddressResource::make($purchaseOrder->billingAddress ?? new Address())
+                    //             'delivery' => AddressResource::make($order->deliveryAddress ?? new Address()),
+                    //             'billing'  => AddressResource::make($order->billingAddress ?? new Address())
                     //         ],
                     //     ]
                     // ),
-                    // 'products'      => [
-                    //     'payment'          => [
-                    //         'routes'       => [
-                    //             'fetch_payment_accounts' => [
-                    //                 'name'       => 'grp.json.shop.payment-accounts',
-                    //                 'parameters' => [
-                    //                     'shop' => $purchaseOrder->shop->slug
-                    //                 ]
-                    //             ],
-                    //             'submit_payment'         => [
-                    //                 'name'       => 'grp.models.customer.payment.order.store',
-                    //                 'parameters' => [
-                    //                     'customer' => $purchaseOrder->customer_id,
-                    //                     'scope'    => $purchaseOrder->id
-                    //                 ]
-                    //             ]
+                    'products'      => [
+                        // 'payment'          => [
+                        //     'routes'       => [
+                        //         'fetch_payment_accounts' => [
+                        //             'name'       => 'grp.json.shop.payment-accounts',
+                        //             'parameters' => [
+                        //                 'shop' => $order->shop->slug
+                        //             ]
+                        //         ],
+                        //         'submit_payment'         => [
+                        //             'name'       => 'grp.models.order.payment.store',
+                        //             'parameters' => [
+                        //                 'order'    => $order->id,
+                        //                 'customer' => $order->customer_id,
+                        //             ]
+                        //         ]
 
-                    //         ],
-                    //         'total_amount' => (float) $purchaseOrder->total_amount,
-                    //         'paid_amount'  => (float) $purchaseOrder->payment_amount,
-                    //         'pay_amount'   => 33333333333333333333333333333333333333333333333,
-                    //     ],
-                    //     'estimated_weight' => 2222222222222222222222222222222222222222222222222222
-                    // ],
+                        //     ],
+                        //     'total_amount' => (float) $order->total_amount,
+                        //     'paid_amount'  => (float) $order->payment_amount,
+                        //     'pay_amount'   => $roundedDiff,
+                        // ],
+                        // 'estimated_weight' => $estWeight
+                    ],
 
+                    // 'delivery_status' => OrderStateEnum::stateIcon($order->state->value),
                     'order_summary' => [
-                        [
-                            [
-                                'label'       => 'Items',
-                                'quantity'    => 99999999999999999999999999999999999,
-                                'price_base'  => 'Multiple',
-                                'price_total' => $purchaseOrder->net_amount
-                            ],
-                        ],
-                        [
-                            [
-                                'label'       => 'Charges',
-                                'information' => '',
-                                'price_total' => '0'
-                            ],
-                            [
-                                'label'       => 'Shipping',
-                                'information' => '',
-                                'price_total' => '0'
-                            ]
-                        ],
-                        [
-                            [
-                                'label'       => 'Net',
-                                'information' => '',
-                                'price_total' => $purchaseOrder->net_amount
-                            ],
-                            [
-                                'label'       => 'Tax 20%',
-                                'information' => '',
-                                'price_total' => $purchaseOrder->tax_amount
-                            ]
-                        ],
-                        [
-                            [
-                                'label'       => 'Total',
-                                'price_total' => $purchaseOrder->total_amount
-                            ]
-                        ],
+                        // [
+                        //     [
+                        //         'label'       => 'Items',
+                        //         'quantity'    => $purchaseOrder->number,
+                        //         'price_base'  => 'Multiple',
+                        //         'price_total' => $order->net_amount
+                        //     ],
+                        // ],
+                        // [
+                        //     [
+                        //         'label'       => 'Charges',
+                        //         'information' => '',
+                        //         'price_total' => '0'
+                        //     ],
+                        //     [
+                        //         'label'       => 'Shipping',
+                        //         'information' => '',
+                        //         'price_total' => '0'
+                        //     ]
+                        // ],
+                        // [
+                        //     [
+                        //         'label'       => 'Net',
+                        //         'information' => '',
+                        //         'price_total' => $order->net_amount
+                        //     ],
+                        //     [
+                        //         'label'       => 'Tax 20%',
+                        //         'information' => '',
+                        //         'price_total' => $order->tax_amount
+                        //     ]
+                        // ],
+                        // [
+                        //     [
+                        //         'label'       => 'Total',
+                        //         'price_total' => $order->total_amount
+                        //     ]
+                        // ],
                         'currency' => CurrencyResource::make($purchaseOrder->currency),
                     ],
                 ],
+                'currency'       => CurrencyResource::make($purchaseOrder->currency)->toArray(request()),
+                'data'           => PurchaseOrderResource::make($purchaseOrder),
 
                 PurchaseOrderTabsEnum::SHOWCASE->value => $this->tab == PurchaseOrderTabsEnum::SHOWCASE->value ?
                     fn () => new PurchaseOrderResource(($purchaseOrder))
