@@ -62,6 +62,7 @@ class UpdatePurchaseOrder extends OrgAction
                     ]
                 ) : null,
             ],
+            'notes' => ['sometimes', 'string']
         ];
 
         if (!$this->strict) {
