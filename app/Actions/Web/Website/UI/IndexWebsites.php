@@ -155,7 +155,7 @@ class IndexWebsites extends OrgAction
                 ->column(key: 'code', label: __('code'), sortable: true)
                 ->column(key: 'name', label: __('name'), sortable: true)
                 ->column(key: 'domain', label: __('domain'), sortable: true)
-                ->defaultSort('level');
+                ->defaultSort('code');
         };
     }
 
