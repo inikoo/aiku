@@ -43,6 +43,7 @@ use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Language;
 use App\Models\Helpers\Media;
+use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\Timezone;
 use App\Models\Helpers\Upload;
 use App\Models\HumanResources\ClockingMachine;
@@ -707,6 +708,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function purges(): HasMany
     {
         return $this->hasMany(Purge::class);
+    }
+
+    public function serialReferences(): MorphMany
+    {
+        return $this->morphMany(SerialReference::class, 'container');
     }
 
     public function outboxSubscribers(): HasMany

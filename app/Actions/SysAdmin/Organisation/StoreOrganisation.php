@@ -13,6 +13,7 @@ use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
+use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
@@ -86,6 +87,7 @@ class StoreOrganisation
                 ]);
             }
 
+            
 
             $organisation->refresh();
 
@@ -127,6 +129,21 @@ class StoreOrganisation
                     StoreOrgPartner::make()->action($organisation, $otherOrganisation);
                 }
             }
+
+            $organisation->serialReferences()->create(
+                [
+                    'model'           => SerialReferenceModelEnum::PURCHASE_ORDER,
+                    'organisation_id' => $organisation->id,
+                    'format'          => 'PO'.$organisation->slug.'-%04d'
+                ]
+            );
+            $organisation->serialReferences()->create(
+                [
+                    'model'           => SerialReferenceModelEnum::STOCK_DELIVERY,
+                    'organisation_id' => $organisation->id,
+                    'format'          => 'SD'.$organisation->slug.'-%04d'
+                ]
+            );
 
             SeedOrganisationOutboxes::run($organisation);
 
