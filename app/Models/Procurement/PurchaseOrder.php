@@ -116,7 +116,7 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     protected $casts = [
         'data'               => 'array',
         'state'              => PurchaseOrderStateEnum::class,
-        'delivery_status'             => PurchaseOrderDeliveryStatusEnum::class,
+        'delivery_status'    => PurchaseOrderDeliveryStatusEnum::class,
         'date'               => 'datetime',
         'submitted_at'       => 'datetime',
         'confirmed_at'       => 'datetime',
