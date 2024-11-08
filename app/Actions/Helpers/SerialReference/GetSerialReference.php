@@ -12,6 +12,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Helpers\SerialReference;
 use App\Models\Catalogue\Shop;
+use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Illuminate\Support\Facades\DB;
 
@@ -22,7 +23,7 @@ class GetSerialReference
     /**
      * @throws \Throwable
      */
-    public function handle(Shop|FulfilmentCustomer|PaymentAccount|Fulfilment $container, $modelType): string
+    public function handle(Shop|FulfilmentCustomer|PaymentAccount|Fulfilment|Organisation $container, $modelType): string
     {
         /** @var SerialReference $serialReference */
         $serialReference = $container->serialReferences()->where('model', $modelType)->firstOrFail();

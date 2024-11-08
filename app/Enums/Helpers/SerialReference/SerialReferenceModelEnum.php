@@ -17,6 +17,7 @@ enum SerialReferenceModelEnum: string
     case CUSTOMER = 'customer';
     case ORDER = 'order';
     case PURCHASE_ORDER = 'purchase_order';
+    case STOCK_DELIVERY = 'stock_delivery';
     case PALLET_DELIVERY = 'pallet_delivery';
     case PALLET_RETURN = 'pallet_return';
     case PALLET = 'pallet';
