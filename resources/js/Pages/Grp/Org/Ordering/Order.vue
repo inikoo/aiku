@@ -211,6 +211,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
 }
 
 
+console.log(props,'haha');
 
 // Section: Payment invoice
 const listPaymentMethod = ref([])
