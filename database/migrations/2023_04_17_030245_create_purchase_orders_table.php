@@ -25,8 +25,10 @@ return new class () extends Migration {
             $table->string('delivery_status')->index()->default(PurchaseOrderTransactionDeliveryStatusEnum::PROCESSING->value);
             $table->text('notes')->nullable();
             $table->dateTimeTz('date')->comment('latest relevant date');
+            $table->dateTimeTz('in_process_at')->nullable();
             $table->dateTimeTz('submitted_at')->nullable();
             $table->dateTimeTz('confirmed_at')->nullable();
+            $table->dateTimeTz('settled_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();
 
             $table = $this->bodyProcurementOrder($table);
