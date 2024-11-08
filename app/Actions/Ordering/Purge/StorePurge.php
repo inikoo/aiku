@@ -11,6 +11,7 @@ namespace App\Actions\Ordering\Purge;
 use App\Actions\Ordering\Purge\Hydrators\PurgeHydratePurgedOrders;
 use App\Actions\Ordering\PurgedOrder\StorePurgedOrder;
 use App\Actions\OrgAction;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Purge\PurgeTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Purge;
@@ -33,6 +34,7 @@ class StorePurge extends OrgAction
         $dateThreshold = Carbon::now()->subDays(30);
         $orders = $shop->orders()
             ->where('updated_at', '<', $dateThreshold)
+            ->where('state', OrderStateEnum::CREATING)
             ->get();
 
         foreach($orders as $order)
