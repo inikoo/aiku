@@ -48,15 +48,14 @@ class IndexPurchaseOrders extends OrgAction
         }
 
         $query = QueryBuilder::for(PurchaseOrder::class);
-
         if (class_basename($parent) == 'OrgAgent') {
             $query->leftJoin('org_agents', 'org_agents.id', 'purchase_orders.parent_id');
             $query->where('purchase_orders.parent_type', 'OrgAgent')->where('purchase_orders.parent_id', $parent->id);
-            $query->addSelect('org_agents.slug as parent_slug');
+            $query->with('parent');
         } elseif (class_basename($parent) == 'OrgSupplier') {
             $query->leftJoin('suppliers', 'suppliers.id', 'purchase_orders.parent_id');
             $query->where('purchase_orders.parent_type', 'OrgSupplier')->where('purchase_orders.parent_id', $parent->id);
-            $query->addSelect('suppliers.slug as parent_slug');
+            $query->with('parent');
         } elseif (class_basename($parent) == 'OrgPartner') {
             $query->where('purchase_orders.organisation_id', $parent->partner->id);
             $query->addSelect(['parent_id', 'parent_type']);
