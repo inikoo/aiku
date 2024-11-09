@@ -158,6 +158,9 @@ class FetchAuroraWebBlocks extends OrgAction
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     private function processData(
         Webpage $webpage,
         $auroraBlock,
@@ -274,7 +277,7 @@ class FetchAuroraWebBlocks extends OrgAction
                 break;
             case "button":
                 $webBlockType = $group->webBlockTypes()->where("slug", "cta-aurora-1")->first();
-                $layout       = $this->processCTAData($webpage, $webBlockType, $auroraBlock);
+                $layout       = $this->processCTAData($webpage, $webBlockType, $auroraBlock, $this->dbSuffix);
                 break;
             default:
                 print ">>>>> ".$webpage->slug."  ".$auroraBlock["type"]."  <<<<<<\n";

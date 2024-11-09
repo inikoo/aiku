@@ -17,10 +17,14 @@ use Lorisleiva\Actions\Concerns\AsAction;
 trait WithFetchCTAWebBlock
 {
     use AsAction;
-    public function processCTAData(Webpage $webpage, WebBlockType $webBlockType, $auroraBlock): array
+
+    /**
+     * @throws \Exception
+     */
+    public function processCTAData(Webpage $webpage, WebBlockType $webBlockType, $auroraBlock, $dbSuffix = ''): array
     {
         data_set($layout, "data.fieldValue", Arr::get($webBlockType, "data.fieldValue"));
-        data_set($layout, "data.fieldValue.title", "<h1>" . Arr::get($auroraBlock, "title") . "</h1>");
+        data_set($layout, "data.fieldValue.title", "<h1>".Arr::get($auroraBlock, "title")."</h1>");
         data_set($layout, "data.fieldValue.text", Arr::get($auroraBlock, "text"));
         data_set($layout, "data.fieldValue.button.text", Arr::get($auroraBlock, "button_label"));
         data_set($layout, "data.fieldValue.button.container.properties.background.color", Arr::get($auroraBlock, "bg_color"));
@@ -28,11 +32,11 @@ trait WithFetchCTAWebBlock
         data_set(
             $layout,
             "data.fieldValue.button.container.properties.background.image.original",
-            ["aurora_source" =>  Arr::get($auroraBlock, "bg_image")]
+            ["aurora_source" => Arr::get($auroraBlock, "bg_image")]
         );
         $auroraBtnLink = Arr::get($auroraBlock, "link");
         if ($auroraBtnLink) {
-            $originalBtnLink = FetchAuroraWebBlockLink::make()->handle($webpage->website, $auroraBtnLink);
+            $originalBtnLink = FetchAuroraWebBlockLink::make()->handle($webpage->website, $auroraBtnLink, $dbSuffix);
             data_set($layout, "data.fieldValue.button.link", $originalBtnLink);
         }
 
