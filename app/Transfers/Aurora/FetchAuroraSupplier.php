@@ -16,6 +16,12 @@ class FetchAuroraSupplier extends FetchAurora
 
     protected function parseModel(): void
     {
+
+        if ($this->auroraModelData->{'aiku_ignore'} == 'Yes') {
+            return;
+        }
+
+
         $agentData = Db::connection('aurora')->table('Agent Supplier Bridge')
             ->leftJoin('Agent Dimension', 'Agent Supplier Agent Key', '=', 'Agent Key')
             ->select('Agent Code', 'Agent Key')

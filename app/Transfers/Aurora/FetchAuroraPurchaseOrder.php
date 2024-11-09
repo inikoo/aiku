@@ -11,13 +11,26 @@ use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
 use App\Models\Helpers\Currency;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraPurchaseOrder extends FetchAurora
 {
     protected function parseModel(): void
     {
+
+
+        if ($this->auroraModelData->{'Purchase Order Parent'} == 'Supplier') {
+            $supplierData = Db::connection('aurora')->table('Supplier Dimension')
+                ->select('aiku_ignore')
+                ->where('Supplier Key', $this->auroraModelData->{'Purchase Order Parent Key'})->first();
+            if ($supplierData->aiku_ignore == 'Yes') {
+                return;
+            }
+        }
+
+
+
+
         if (in_array($this->auroraModelData->{'Purchase Order Parent'}, ['Parcel', 'Container'])) {
             print_r($this->auroraModelData);
 
@@ -34,6 +47,7 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
         );
 
+
         if (!$orgParent) {
             print "Error No parent found ".$this->auroraModelData->{'Purchase Order Parent'}."  ".$this->auroraModelData->{'Purchase Order Parent Key'}." ".$this->auroraModelData->{'Purchase Order Parent Name'}."  \n";
 
@@ -43,6 +57,12 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 
         $this->parsedData["org_parent"] = $orgParent;
 
+        $cancelledAt = null;
+        $createdAt = $this->parseDatetime($this->auroraModelData->{'Purchase Order Creation Date'});
+        $submittedAt = $this->parseDatetime($this->auroraModelData->{'Purchase Order Submitted Date'});
+        $confirmedAt = $this->parseDatetime($this->auroraModelData->{'Purchase Order Confirmed Date'});
+
+        $date = $createdAt;
 
         $state = match ($this->auroraModelData->{'Purchase Order State'}) {
             "InProcess" => PurchaseOrderStateEnum::IN_PROCESS,
@@ -50,6 +70,29 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             "Cancelled" => PurchaseOrderStateEnum::CANCELLED,
             default => PurchaseOrderStateEnum::CONFIRMED,
         };
+
+
+        if ($state == PurchaseOrderStateEnum::SUBMITTED) {
+            if ($submittedAt) {
+                $date = $submittedAt;
+            }
+            $confirmedAt = null;
+        }
+        if ($state == PurchaseOrderStateEnum::CONFIRMED) {
+            if ($confirmedAt) {
+                $date = $confirmedAt;
+            }
+        }
+
+        $exchangeDate = $date;
+
+        if ($state == PurchaseOrderStateEnum::CANCELLED) {
+            $cancelledAt = $this->parseDatetime($this->auroraModelData->{'Purchase Order Cancelled Date'});
+
+            if ($cancelledAt) {
+                $date = $cancelledAt;
+            }
+        }
 
 
         $deliveryStatus = match ($this->auroraModelData->{'Purchase Order State'}) {
@@ -65,10 +108,6 @@ class FetchAuroraPurchaseOrder extends FetchAurora
         };
 
 
-        $cancelled_at = null;
-        if ($this->auroraModelData->{'Purchase Order State'} == "Cancelled") {
-            $cancelled_at = $this->auroraModelData->{'Purchase Order Cancelled Date'};
-        }
 
 
         $org_exchange = $this->auroraModelData->{'Purchase Order Currency Exchange'};
@@ -76,16 +115,15 @@ class FetchAuroraPurchaseOrder extends FetchAurora
         $grp_exchange = GetHistoricCurrencyExchange::run(
             Currency::find($this->parseCurrencyID($this->auroraModelData->{'Purchase Order Currency Code'})),
             $this->organisation->group->currency,
-            Carbon::parse($this->auroraModelData->{'Purchase Order Date'})
+            $exchangeDate
         );
 
 
-        $data = [];
-
+        $data                               = [];
         $this->parsedData["purchase_order"] = [
-            'date'         => $this->auroraModelData->{'Purchase Order Date'},
-            'submitted_at' => $this->parseDatetime($this->auroraModelData->{'Purchase Order Submitted Date'}),
-            'confirmed_at' => $this->parseDatetime($this->auroraModelData->{'Purchase Order Confirmed Date'}),
+            'date'         => $date,
+            'submitted_at' => $submittedAt,
+            'confirmed_at' => $confirmedAt,
             //'manufactured_at' => $this->parseDatetime($this->auroraModelData->{'Purchase Order Manufactured Date'}),
             //'received_at'     => $this->parseDatetime($this->auroraModelData->{'Purchase Order Received Date'}),
             //'checked_at'      => $this->parseDatetime($this->auroraModelData->{'Purchase Order Checked Date'}),
@@ -100,18 +138,20 @@ class FetchAuroraPurchaseOrder extends FetchAurora
 
             "cost_items"    => $this->auroraModelData->{'Purchase Order Items Net Amount'},
             "cost_shipping" => $this->auroraModelData->{'Purchase Order Shipping Net Amount'},
-            "cost_total" => $this->auroraModelData->{'Purchase Order Total Amount'},
+            "cost_total"    => $this->auroraModelData->{'Purchase Order Total Amount'},
 
             "source_id"       => $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Key'},
             "org_exchange"    => $org_exchange,
             "grp_exchange"    => $grp_exchange,
             "currency_id"     => $this->parseCurrencyID($this->auroraModelData->{'Purchase Order Currency Code'}),
-            "created_at"      => $this->auroraModelData->{'Purchase Order Creation Date'},
-            "cancelled_at"    => $cancelled_at,
+            "created_at"      => $createdAt,
+            "cancelled_at"    => $cancelledAt,
             "data"            => $data,
             'fetched_at'      => now(),
             'last_fetched_at' => now()
         ];
+
+
     }
 
     protected function fetchData($id): object|null

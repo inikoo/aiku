@@ -37,7 +37,7 @@ class FetchAuroraPurchaseOrderTransaction extends FetchAurora
 
         if (!$item) {
 
-            print "PO Transaction Item not found   ".$this->auroraModelData->{'Purchase Order Transaction Fact Key'}."  \n";
+            print "PO  ".$this->auroraModelData->{'Purchase Order Key'}."  Transaction Item not found   ".$this->auroraModelData->{'Purchase Order Transaction Fact Key'}."  \n";
 
 
             return;
