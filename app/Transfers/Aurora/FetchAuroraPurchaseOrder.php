@@ -23,7 +23,7 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             $supplierData = Db::connection('aurora')->table('Supplier Dimension')
                 ->select('aiku_ignore')
                 ->where('Supplier Key', $this->auroraModelData->{'Purchase Order Parent Key'})->first();
-            if ($supplierData->aiku_ignore == 'Yes') {
+            if ($supplierData && $supplierData->aiku_ignore == 'Yes') {
                 return;
             }
         }
