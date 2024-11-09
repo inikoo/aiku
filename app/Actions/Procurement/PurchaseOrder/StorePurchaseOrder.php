@@ -165,15 +165,12 @@ class StorePurchaseOrder extends OrgAction
 
         return $this->handle($orgSupplier, $this->validatedData);
     }
-    
+
     public function htmlResponse(PurchaseOrder $purchaseOrder)
     {
-        if($this->parent instanceof OrgAgent)
-        {
+        if ($this->parent instanceof OrgAgent) {
             return Redirect::route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]);
-        } 
-        elseif ($this->parent instanceof OrgSupplier)
-        {
+        } elseif ($this->parent instanceof OrgSupplier) {
             return Redirect::route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]);
         }
     }

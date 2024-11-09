@@ -45,9 +45,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $reference
  * @property PurchaseOrderStateEnum $state
  * @property PurchaseOrderDeliveryStatusEnum $delivery_status
+ * @property string|null $notes
  * @property \Illuminate\Support\Carbon $date latest relevant date
+ * @property string|null $in_process_at
  * @property \Illuminate\Support\Carbon|null $submitted_at
  * @property \Illuminate\Support\Carbon|null $confirmed_at
+ * @property \Illuminate\Support\Carbon|null $settled_at
  * @property \Illuminate\Support\Carbon|null $cancelled_at
  * @property int|null $agent_id
  * @property int|null $supplier_id

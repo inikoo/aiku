@@ -16,7 +16,6 @@ use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\OrgSupplierResource;
-use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\Http\Resources\SupplyChain\SupplierProductResource;
