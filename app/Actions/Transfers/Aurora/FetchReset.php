@@ -13,14 +13,14 @@ use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class FetchResetBase
+class FetchReset
 {
     use AsAction;
     use WithAuroraOrganisationsArgument;
     use WithAttributes;
     use HasFetchReset;
 
-    public string $commandSignature = 'fetch:reset_base {organisations?*} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:reset {organisations?*} {--d|db_suffix=}';
     private int $timeStart;
     private int $timeLastStep;
 
@@ -370,7 +370,21 @@ class FetchResetBase
                 $command->line("✅ invoices \t\t".$this->stepTime());
 
 
-                $command->line('🆗 base');
+                DB::connection('aurora')->table('Email Campaign Type Dimension')
+                    ->whereNotNull($aikuIdField)
+                    ->update([$aikuIdField => null]);
+                DB::connection('aurora')->table('Email Campaign Dimension')
+                    ->whereNotNull($aikuIdField)
+                    ->update([$aikuIdField => null]);
+                DB::connection('aurora')->table('Email Tracking Dimension')
+                    ->whereNotNull($aikuIdField)
+                    ->update([$aikuIdField => null]);
+                DB::connection('aurora')->table('Email Tracking Event Dimension')
+                    ->whereNotNull($aikuIdField)
+                    ->update([$aikuIdField => null]);
+
+                $command->line("✅ post rooms \t\t".$this->stepTime());
+
             }
         }
 
