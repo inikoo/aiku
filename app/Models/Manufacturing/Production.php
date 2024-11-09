@@ -33,6 +33,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property WarehouseStateEnum $state
  * @property array $settings
  * @property array $data
+ * @property string $opened_at
+ * @property string $closed_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at

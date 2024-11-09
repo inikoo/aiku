@@ -50,9 +50,6 @@ class SeedJobPositions extends Seeder
 
     private function processJobPosition(Organisation $organisation, array $jobPositionData): void
     {
-
-
-
         /** @var JobPosition $jobPosition */
         $jobPosition = $organisation->jobPositions()->where('code', $jobPositionData['code'])->first();
         if ($jobPosition) {

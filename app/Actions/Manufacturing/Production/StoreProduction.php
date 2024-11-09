@@ -13,6 +13,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductions;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProductions;
 use App\Actions\SysAdmin\Organisation\SeedJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Manufacturing\Production\ProductionStateEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Manufacturing\Production;
@@ -22,34 +23,46 @@ use App\Rules\IUnique;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
+use Throwable;
 
 class StoreProduction extends OrgAction
 {
+    use WithNoStrictRules;
+
+    /**
+     * @throws \Throwable
+     */
     public function handle(Organisation $organisation, $modelData): Production
     {
         data_set($modelData, 'group_id', $organisation->group_id);
-        /** @var Production $production */
-        $production = $organisation->productions()->create($modelData);
-        $production->stats()->create();
 
-        SeedProductionPermissions::run($production);
+        $production = DB::transaction(function () use ($organisation, $modelData) {
+            /** @var Production $production */
+            $production = $organisation->productions()->create($modelData);
+            $production->stats()->create();
 
-        $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
-            fn ($user) => $user->roles->where('name', "org-admin-$organisation->id")->toArray()
-        );
-        foreach ($orgAdmins as $orgAdmin) {
-            UserAddRoles::run($orgAdmin, [
-                Role::where('name', RolesEnum::getRoleName(RolesEnum::MANUFACTURING_ADMIN->value, $production))->first()
-            ]);
-        }
+            SeedProductionPermissions::run($production);
 
-        GroupHydrateProductions::dispatch($organisation->group);
-        OrganisationHydrateProductions::run($organisation);
+            $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
+                fn ($user) => $user->roles->where('name', "org-admin-$organisation->id")->toArray()
+            );
+            foreach ($orgAdmins as $orgAdmin) {
+                UserAddRoles::run($orgAdmin, [
+                    Role::where('name', RolesEnum::getRoleName(RolesEnum::MANUFACTURING_ADMIN->value, $production))->first()
+                ]);
+            }
+            SeedJobPositions::run($organisation);
+
+            return $production;
+        });
+
+        GroupHydrateProductions::dispatch($organisation->group)->delay($this->hydratorsDelay);
+        OrganisationHydrateProductions::dispatch($organisation)->delay($this->hydratorsDelay);
         ProductionHydrateUniversalSearch::dispatch($production);
-        SeedJobPositions::run($organisation);
 
 
         return $production;
@@ -66,8 +79,8 @@ class StoreProduction extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'code'       => [
+        $rules = [
+            'code' => [
                 'required',
                 'max:12',
                 'alpha_dash',
@@ -78,22 +91,39 @@ class StoreProduction extends OrgAction
                     ]
                 ),
             ],
-            'name'       => ['required', 'max:250', 'string'],
-            'state'      => ['sometimes', Rule::enum(ProductionStateEnum::class)],
-            'source_id'  => ['sometimes', 'string'],
-            'created_at' => ['sometimes', 'date'],
+            'name' => ['required', 'max:250', 'string'],
+
         ];
+        if (!$this->strict) {
+            $rules['opened_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['closed_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['state']     = ['sometimes', Rule::enum(ProductionStateEnum::class)];
+            $rules              = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
     }
 
-    public function action(Organisation $organisation, array $modelData): Production
+    /**
+     * @throws \Throwable
+     */
+    public function action(Organisation $organisation, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Production
     {
+        if (!$audit) {
+            Production::disableAuditing();
+        }
         $this->asAction = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($organisation, $modelData);
 
         return $this->handle($organisation, $this->validatedData);
     }
 
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(Organisation $organisation, ActionRequest $request): Production
     {
         $this->initialisation($organisation, $request);
@@ -107,13 +137,14 @@ class StoreProduction extends OrgAction
         return Redirect::route('grp.org.productions.index');
     }
 
-    public string $commandSignature = 'production:create {organisation : organisation slug} {code} {name} {--source_id=} {--state=} {--created_at=}';
+    public string $commandSignature = 'production:create {organisation : organisation slug} {code} {name} {--source_id=} {--state=} {--created_at=} {--opened_at=} {--closed_at=}';
 
     public function asCommand(Command $command): int
     {
         $this->asAction = true;
 
         try {
+            /** @var Organisation $organisation */
             $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
@@ -127,31 +158,47 @@ class StoreProduction extends OrgAction
         $modelData = [
             'code' => $command->argument('code'),
             'name' => $command->argument('name'),
+
         ];
 
         if ($command->option('state')) {
             $modelData['state'] = $command->option('state');
+            $this->strict       = false;
         }
 
         if ($command->option('source_id')) {
+            $this->strict           = false;
             $modelData['source_id'] = $command->option('source_id');
         }
 
         if ($command->option('created_at')) {
+            $this->strict            = false;
             $modelData['created_at'] = $command->option('created_at');
         }
+        if ($command->option('opened_at')) {
+            $this->strict           = false;
+            $modelData['opened_at'] = $command->option('opened_at');
+        }
+        if ($command->option('closed_at')) {
+            $this->strict           = false;
+            $modelData['closed_at'] = $command->option('closed_at');
+        }
+        if (!$this->strict) {
+            Production::disableAuditing();
+            $this->hydratorsDelay = 60;
+        }
 
-        $this->setRawAttributes($modelData);
 
         try {
-            $validatedData = $this->validateAttributes();
-        } catch (Exception $e) {
+            $this->initialisation($organisation, $modelData);
+            $production = $this->handle($organisation, $this->validatedData);
+
+        } catch (Exception|Throwable $e) {
             $command->error($e->getMessage());
 
             return 1;
         }
 
-        $production = $this->make()->action($organisation, $validatedData);
 
         $command->info("Production $production->code created successfully 🎉");
 

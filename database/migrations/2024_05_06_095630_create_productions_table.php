@@ -25,6 +25,8 @@ return new class () extends Migration {
             $table->string('state')->index()->default(ProductionStateEnum::IN_PROCESS->value);
             $table->jsonb('settings');
             $table->jsonb('data');
+            $table->datetimeTz('opened_at')->nullable();
+            $table->datetimeTz('closed_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
