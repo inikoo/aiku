@@ -61,7 +61,6 @@ const reloadData = (until: string, since: string) => {
 	})
 }
 
-// Metrics for display in summary and charts
 const summaryMetrics: Ref<SummaryMetric[]> = ref([])
 const value = ref("24 Hours")
 const options = ref(["24 Hours", "7 Days", "30 Days"])
@@ -80,30 +79,33 @@ const handleSelectChange = () => {
 	let until: string | undefined
 	let since: string | undefined
 
-	// Determine the date range based on the selected value
 	if (value.value === "7 Days") {
 		const sevenDaysAgo = new Date(today)
 		sevenDaysAgo.setDate(today.getDate() - 7)
 		since = sevenDaysAgo.toISOString().split("T")[0]
-		until = today.toISOString().split("T")[0] // Set until to today’s date
+		until = today.toISOString().split("T")[0]
 	} else if (value.value === "30 Days") {
 		const thirtyDaysAgo = new Date(today)
 		thirtyDaysAgo.setDate(today.getDate() - 30)
 		since = thirtyDaysAgo.toISOString().split("T")[0]
-		until = today.toISOString().split("T")[0] // Set until to today’s date
+		until = today.toISOString().split("T")[0]
 	}
 
-	// Reload data with or without date parameters based on selection
 	if (since && until) {
-		// If we have since and until, pass them to reloadData
 		reloadData(until, since)
 	} else {
-		// If "24 Hours" is selected, reload data without any date parameters
 		reloadData(undefined, undefined)
 	}
 }
 
 const setChartDataAndOptions = () => {
+	if (!props.data.data.viewer.zones || props.data.data.viewer.zones.length === 0) {
+		// Set empty data if zones are empty
+		summaryMetrics.value = []
+		chartsData.value = []
+		return
+	}
+
 	const optionsTime = { formatTime: "hm" }
 	const mainZone = props.data.data.viewer.zones[0]
 	const dates = mainZone.zones.map((item) => useFormatTime(item.dimensions.timeslot, optionsTime))
@@ -168,7 +170,7 @@ const setChartDataAndOptions = () => {
 		0
 	)
 	const totalBytes = mainZone.zones.reduce((sum, day) => sum + day.sum.bytes, 0)
-	const uniqueVisitors = mainZone.totals.reduce((sum, item) => sum + (item.uniq?.uniques || 0), 0)
+	const uniqueVisitors = mainZone.zones.reduce((sum, item) => sum + (item.uniq?.uniques || 0), 0)
 
 	summaryMetrics.value = [
 		{
@@ -221,28 +223,39 @@ onMounted(() => {
 
 <template>
 	<div class="px-5 py-4">
-		<h3 class="text-base font-semibold leading-6 text-gray-900">Overview (Last 24 Hours)</h3>
-		<div class="p-3">
-			<SelectButton
-				v-model="value"
-				:options="options"
-				size="small"
-				@change="handleSelectChange" />
-		</div>
-		<div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-			<OverviewCard
-				v-for="metric in summaryMetrics"
-				:key="metric.id"
-				:label="metric.label"
-				:value="metric.value"
-				:icon="metric.icon" />
+		<!-- Display header and SelectButton only if data is available -->
+		<div v-if="props.data.data.viewer.zones && props.data.data.viewer.zones.length > 0">
+			<h3 class="text-base font-semibold leading-6 text-gray-900">Overview (Last 24 Hours)</h3>
+			<div class="p-3">
+				<SelectButton
+					v-model="value"
+					:options="options"
+					size="small"
+					@change="handleSelectChange" />
+			</div>
 		</div>
 
-		<!-- Display each chart in a stacked view -->
-		<div v-for="(chartData, index) in chartsData" :key="index" class="mt-8">
-			<h4 class="text-gray-700 mb-2">{{ metrics[index].label }}</h4>
-			<Chart type="line" :data="chartData" :options="chartsOptions[index]" class="h-36" />
+		<!-- Conditional content based on data availability -->
+		<div v-if="props.data.data.viewer.zones && props.data.data.viewer.zones.length > 0">
+			<!-- Summary metrics -->
+			<div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+				<OverviewCard
+					v-for="metric in summaryMetrics"
+					:key="metric.id"
+					:label="metric.label"
+					:value="metric.value"
+					:icon="metric.icon" />
+			</div>
+
+			<!-- Charts -->
+			<div v-for="(chartData, index) in chartsData" :key="index" class="mt-8">
+				<h4 class="text-gray-700 mb-2">{{ metrics[index].label }}</h4>
+				<Chart type="line" :data="chartData" :options="chartsOptions[index]" class="h-36" />
+			</div>
 		</div>
+		
+		<!-- No data available message -->
+		<div v-else class="mt-5 text-gray-500">No data available for the selected period.</div>
 	</div>
 </template>
 

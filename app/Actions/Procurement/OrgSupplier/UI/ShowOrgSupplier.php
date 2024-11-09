@@ -17,6 +17,7 @@ use App\Enums\UI\SupplyChain\SupplierTabsEnum;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\OrgSupplierResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
+use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\Models\Procurement\OrgAgent;
@@ -100,12 +101,15 @@ class ShowOrgSupplier extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
-                        $this->canEdit && $orgSupplier->owner_type == 'Organisation' ? [
+                        $this->canEdit ? [
                             'type'  => 'button',
                             'style' => 'create',
                             'route' => [
-                                'name'       => 'grp.org.procurement.org_suppliers.show.purchase_orders.create',
-                                'parameters' => array_values($request->route()->originalParameters())
+                                'name'       => 'grp.models.org-supplier.purchase-order.store',
+                                'parameters' => [
+                                    'orgSupplier' => $orgSupplier->id
+                                ],
+                                'method'     => 'post'
                             ],
                             'label' => __('purchase order')
                         ] : false,
@@ -153,8 +157,8 @@ class ShowOrgSupplier extends OrgAction
                     : Inertia::lazy(fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($orgSupplier))),
 
                 SupplierTabsEnum::PURCHASE_ORDERS->value => $this->tab == SupplierTabsEnum::PURCHASE_ORDERS->value ?
-                    fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($orgSupplier))
-                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($orgSupplier))),
+                    fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::run($orgSupplier))
+                    : Inertia::lazy(fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::run($orgSupplier))),
 
                 SupplierTabsEnum::DELIVERIES->value => $this->tab == SupplierTabsEnum::DELIVERIES->value ?
                     fn () => StockDeliveryResource::collection(IndexStockDeliveries::run($orgSupplier))
@@ -165,7 +169,7 @@ class ShowOrgSupplier extends OrgAction
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($orgSupplier)))
             ]
         )->table(IndexOrgSupplierProducts::make()->tableStructure(parent: $orgSupplier, prefix: SupplierTabsEnum::SUPPLIER_PRODUCTS->value))
-            ->table(IndexPurchaseOrders::make()->tableStructure())
+            ->table(IndexPurchaseOrders::make()->tableStructure(prefix:SupplierTabsEnum::PURCHASE_ORDERS->value))
             ->table(IndexStockDeliveries::make()->tableStructure())
             ->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value));
     }
