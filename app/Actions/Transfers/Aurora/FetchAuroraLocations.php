@@ -80,10 +80,9 @@ class FetchAuroraLocations extends FetchAuroraAction
         return DB::connection('aurora')
             ->table('Location Dimension')
             ->select('Location Key as source_id')
-            ->orderBy('source_id')
-            ->when(app()->environment('testing'), function ($query) {
-                return $query->limit(20);
-            });
+            ->orderBy('source_id');
+
+
     }
 
 

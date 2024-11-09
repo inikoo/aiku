@@ -13,7 +13,9 @@ use App\Models\Discounts\Offer;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraOffers extends FetchAuroraAction
 {
@@ -46,10 +48,26 @@ class FetchAuroraOffers extends FetchAuroraAction
                         modelData: $offerData['offer'],
                         hydratorsDelay: 60,
                         strict: false,
+                        audit: false
                     );
 
                     $this->recordNew($organisationSource);
-                } catch (Exception $e) {
+                    Offer::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $offer,
+                        Arr::except($offerData['offer'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+
+                    $this->recordNew($organisationSource);
+
+                    $sourceData = explode(':', $offer->source_id);
+                    DB::connection('aurora')->table('Deal Dimension')
+                        ->where('Deal Key', $sourceData[1])
+                        ->update(['aiku_id' => $offer->id]);
+
+
+
+                } catch (Exception|Throwable $e) {
                     $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'store');
 
                     return null;

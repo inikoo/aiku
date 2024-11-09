@@ -12,6 +12,7 @@ use App\Actions\Discounts\OfferCampaign\Hydrators\OfferCampaignHydrateOffers;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOffers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOffers;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Discounts\Offer\OfferStateEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
@@ -20,15 +21,16 @@ use App\Models\CRM\Customer;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
 use App\Rules\IUnique;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
 class StoreOffer extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
+    use WithNoStrictRules;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(OfferCampaign $offerCampaign, null|Shop|Product|ProductCategory|Customer $trigger, array $modelData): Offer
     {
         data_set($modelData, 'group_id', $offerCampaign->group_id);
@@ -39,11 +41,12 @@ class StoreOffer extends OrgAction
             data_set($modelData, 'trigger_type', class_basename($trigger));
             data_set($modelData, 'trigger_id', $trigger->id);
         }
-
-        /** @var Offer $offer */
-        $offer = $offerCampaign->offers()->create($modelData);
-        $offer->stats()->create();
-
+        $offer = DB::transaction(function () use ($offerCampaign, $modelData) {
+            /** @var Offer $offer */
+            $offer = $offerCampaign->offers()->create($modelData);
+            $offer->stats()->create();
+            return $offer;
+        });
         GroupHydrateOffers::dispatch($offerCampaign->group)->delay($this->hydratorsDelay);
         OrganisationHydrateOffers::dispatch($offerCampaign->organisation)->delay($this->hydratorsDelay);
         ShopHydrateOffers::dispatch($offerCampaign->shop)->delay($this->hydratorsDelay);
@@ -80,16 +83,21 @@ class StoreOffer extends OrgAction
         ];
         if (!$this->strict) {
             $rules['start_at']   = ['sometimes', 'nullable', 'date'];
-            $rules['fetched_at'] = ['sometimes', 'date'];
-            $rules['source_id']  = ['sometimes', 'string', 'max:255'];
-            $rules['created_at'] = ['sometimes', 'date'];
+            $rules = $this->noStrictStoreRules($rules);
         }
 
         return $rules;
     }
 
-    public function action(OfferCampaign $offerCampaign, null|Shop|Product|ProductCategory|Customer $trigger, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Offer
+    /**
+     * @throws \Throwable
+     */
+    public function action(OfferCampaign $offerCampaign, null|Shop|Product|ProductCategory|Customer $trigger, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Offer
     {
+        if (!$audit) {
+            Offer::disableAuditing();
+        }
+        $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
 
