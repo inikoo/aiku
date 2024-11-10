@@ -95,6 +95,7 @@ class StoreProduction extends OrgAction
 
         ];
         if (!$this->strict) {
+            $rules['sources']   = ['sometimes', 'nullable', 'array'];
             $rules['opened_at'] = ['sometimes', 'nullable', 'date'];
             $rules['closed_at'] = ['sometimes', 'nullable', 'date'];
             $rules['state']     = ['sometimes', Rule::enum(ProductionStateEnum::class)];
@@ -112,7 +113,7 @@ class StoreProduction extends OrgAction
         if (!$audit) {
             Production::disableAuditing();
         }
-        $this->asAction = true;
+        $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($organisation, $modelData);
@@ -137,7 +138,7 @@ class StoreProduction extends OrgAction
         return Redirect::route('grp.org.productions.index');
     }
 
-    public string $commandSignature = 'production:create {organisation : organisation slug} {code} {name} {--source_id=} {--state=} {--created_at=} {--opened_at=} {--closed_at=}';
+    public string $commandSignature = 'production:create {organisation : organisation slug} {code} {name} {--state=} {--created_at=} {--opened_at=} {--closed_at=} {--source=*} ';
 
     public function asCommand(Command $command): int
     {
@@ -166,9 +167,11 @@ class StoreProduction extends OrgAction
             $this->strict       = false;
         }
 
-        if ($command->option('source_id')) {
-            $this->strict           = false;
-            $modelData['source_id'] = $command->option('source_id');
+        if ($command->option('source')) {
+            $this->strict         = false;
+            $modelData['sources'] = [
+                'supplier' => $command->option('source')
+            ];
         }
 
         if ($command->option('created_at')) {
@@ -192,7 +195,6 @@ class StoreProduction extends OrgAction
         try {
             $this->initialisation($organisation, $modelData);
             $production = $this->handle($organisation, $this->validatedData);
-
         } catch (Exception|Throwable $e) {
             $command->error($e->getMessage());
 

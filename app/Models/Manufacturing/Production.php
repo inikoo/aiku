@@ -33,12 +33,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property WarehouseStateEnum $state
  * @property array $settings
  * @property array $data
- * @property string $opened_at
- * @property string $closed_at
+ * @property string|null $opened_at
+ * @property string|null $closed_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
- * @property string|null $source_id
+ * @property array $sources
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\Artefact> $artefacts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
@@ -48,6 +48,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\RawMaterial> $rawMaterials
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
  * @property-read \App\Models\Manufacturing\ProductionStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, StockDelivery> $stockDeliveries
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Production newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Production newQuery()
@@ -68,12 +69,14 @@ class Production extends Model implements Auditable
     protected $casts = [
         'state'    => WarehouseStateEnum::class,
         'data'     => 'array',
-        'settings' => 'array'
+        'settings' => 'array',
+        'sources'  => 'array',
     ];
 
     protected $attributes = [
         'data'     => '{}',
         'settings' => '{}',
+        'sources'  => '{}',
     ];
 
     protected $guarded = [];

@@ -29,7 +29,7 @@ return new class () extends Migration {
             $table->datetimeTz('closed_at')->nullable();
             $table->timestampsTz();
             $table->softDeletesTz();
-            $table->string('source_id')->nullable()->unique();
+            $table->jsonb('sources');
             $table->unique(['group_id','code']);
         });
     }

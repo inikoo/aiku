@@ -29,6 +29,17 @@ class FetchAuroraStockDelivery extends FetchAurora
         );
 
         if (!$orgParent) {
+
+            if ($this->auroraModelData->{'Supplier Delivery Parent'} == 'Suppler') {
+                $supplierData = DB::connection('aurora')->table('Supplier Dimension')
+                    ->select('aiku_ignore')
+                    ->where('Supplier Key', $this->auroraModelData->{'Supplier Delivery Parent Key'})->first();
+                if ($supplierData && $supplierData->aiku_ignore == 'Yes') {
+                    return;
+                }
+            }
+
+
             print "Error No parent found ".$this->auroraModelData->{'Supplier Delivery Parent'}."  ".$this->auroraModelData->{'Supplier Delivery Parent Key'}." ".$this->auroraModelData->{'Supplier Delivery Parent Name'}." \n";
             return;
         }
