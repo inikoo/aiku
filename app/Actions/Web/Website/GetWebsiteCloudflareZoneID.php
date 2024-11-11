@@ -33,15 +33,15 @@ class GetWebsiteCloudflareZoneID extends OrgAction
     public function handle(Website $website, array $modelData): array
     {
 
-        $groupSettigns = $website->group->settings;
-        $apiToken = Arr::get($groupSettigns, 'cloudflare.apiToken');
+        $groupSettings = $website->group->settings;
+        $apiToken = Arr::get($groupSettings, 'cloudflare.apiToken');
         if (!$apiToken) {
             $apiToken = env('CLOUDFLARE_ANALYTICS_API_TOKEN'); // from env cause group not stored api token yet
             if (!$apiToken) {
                 dd('api token not found');
             }
-            data_set($groupSettigns, 'cloudflare.apiToken', $apiToken);
-            $website->group->update(['settings' => $groupSettigns]);
+            data_set($groupSettings, 'cloudflare.apiToken', $apiToken);
+            $website->group->update(['settings' => $groupSettings]);
         }
 
         data_set($modelData, "apiToken", $apiToken);

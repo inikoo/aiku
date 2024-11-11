@@ -34,7 +34,6 @@ class WebsitesResource extends JsonResource
             $fulfilment_slug = $shop->fulfilment->slug;
         }
 
-
         return [
             'slug'              => $this->slug,
             'code'              => $this->code,
@@ -47,6 +46,10 @@ class WebsitesResource extends JsonResource
             'status'            => $this->status,
             'shop_type'         => $this->shop_type,
             'shop_slug'         => $this->shop_slug,
+            'routeUniqueVisitor'    => [
+                'name' => "grp.json.website.unique-visitors",
+                'parameters' => [$this->resource->slug]
+            ],
             'fulfilment_slug'   => $fulfilment_slug
         ];
     }
