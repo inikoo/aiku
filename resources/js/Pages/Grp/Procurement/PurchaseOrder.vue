@@ -27,12 +27,14 @@ import Popover from "@/Components/Popover.vue"
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
 import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
 import { Currency } from "@/types/LayoutRules"
-import NeedToPay from '@/Components/Utils/NeedToPay.vue'
-import OrderSummary from '@/Components/Summary/OrderSummary.vue'
+import Modal from '@/Components/Utils/Modal.vue'
+import NeedToPay from "@/Components/Utils/NeedToPay.vue"
+import OrderSummary from "@/Components/Summary/OrderSummary.vue"
+import Timeline from "@/Components/Utils/Timeline.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faExclamationTriangle as fadExclamationTriangle } from "@fad"
-import { faExclamationTriangle, faExclamation } from "@fas"
+import { faExclamationTriangle, faExclamation, faPencil } from "@fas"
 import {
 	faStickyNote,
 	faPaperclip,
@@ -62,7 +64,8 @@ library.add(
 	faExclamation,
 	faTruck,
 	faFilePdf,
-	faPaperclip
+	faPaperclip,
+	faPencil
 )
 
 const props = defineProps<{
@@ -105,6 +108,7 @@ const component = computed(() => {
 
 const isLoadingButton = ref<string | boolean>(false)
 const isModalUploadOpen = ref(false)
+const isSubmitNoteLoading = ref(false)
 
 // Section: add notes (on popup pageheading)
 const errorNote = ref("")
@@ -112,7 +116,7 @@ const noteToSubmit = ref({
 	selectedNote: "",
 	value: "",
 })
-const onSubmitNote = async (closePopup: Function) => {
+const onSubmitNote2 = async (closePopup: Function) => {
 	try {
 		router.patch(
 			route(props.routes.updateOrderRoute.name, props.routes.updateOrderRoute.parameters),
@@ -181,47 +185,47 @@ const box_stats = ref({
 				label: "Items",
 				quantity: 0,
 				price_base: "Multiple",
-				price_total: "78.20"
-			}
+				price_total: "78.20",
+			},
 		],
 		[
 			{
 				label: "Charges",
 				information: "",
-				price_total: "0"
+				price_total: "0",
 			},
 			{
 				label: "Shipping",
 				information: "",
-				price_total: "0"
-			}
+				price_total: "0",
+			},
 		],
 		[
 			{
 				label: "Net",
 				information: "",
-				price_total: "78.20"
+				price_total: "78.20",
 			},
 			{
 				label: "Tax 20%",
 				information: "",
-				price_total: "13.68"
-			}
+				price_total: "13.68",
+			},
 		],
 		[
 			{
 				label: "Total",
-				price_total: "91.88"
-			}
-		]
+				price_total: "91.88",
+			},
+		],
 	],
 	currency: {
 		id: 23,
 		code: "GBP",
 		name: "British Pound",
-		symbol: "£"
-	}
-});
+		symbol: "£",
+	},
+})
 
 const currency = ref({
 	data: {
@@ -231,6 +235,75 @@ const currency = ref({
 		symbol: "£",
 	},
 })
+
+const data = ref({
+	data: {
+		id: 1,
+		reference: "6900",
+		state: "dispatched",
+		state_label: "Dispatched",
+		state_icon: {
+			tooltip: "Dispatched",
+			icon: "fal fa-shipping-fast",
+			class: "text-gray-500",
+			color: "purple",
+			app: {
+				name: "check-double",
+				type: "font-awesome-5",
+			},
+		},
+	},
+})
+
+const timelines = ref({
+	creating: {
+		label: "Creating",
+		tooltip: "Creating",
+		key: "creating",
+		timestamp: "2003-08-28T01:30:00.000000Z",
+	},
+	submitted: {
+		label: "Submitted",
+		tooltip: "Submitted",
+		key: "submitted",
+		timestamp: null,
+	},
+	in_warehouse: {
+		label: "In Warehouse",
+		tooltip: "In Warehouse",
+		key: "in_warehouse",
+		timestamp: "2003-08-28 09:30:00+08",
+	},
+	handling: {
+		label: "Handling",
+		tooltip: "Handling",
+		key: "handling",
+		timestamp: null,
+	},
+	packed: {
+		label: "Packed",
+		tooltip: "Packed",
+		key: "packed",
+		timestamp: null,
+	},
+	finalised: {
+		label: "Finalized",
+		tooltip: "Finalized",
+		key: "finalised",
+		timestamp: "2003-08-28 09:30:00+08",
+	},
+	dispatched: {
+		label: "Dispatched",
+		tooltip: "Dispatched",
+		key: "dispatched",
+		timestamp: "2003-08-28 17:30:00+08",
+	},
+})
+const isModalOpen = ref(false)
+const notes = ref("hahaha")
+const noteModalValue = ref(notes)
+const fallbackBgColor = "#f9fafb" // Background
+const fallbackColor = "#374151"
 </script>
 
 <template>
@@ -310,34 +383,16 @@ const currency = ref({
 		<AlertMessage :alert />
 	</div>
 
-	<!-- Section: Box Note -->
-	<div class="relative">
-		<Transition name="headlessui">
-			<div
-				v-if="notes?.note_list?.some((item) => !!item?.note?.trim())"
-				class="p-2 grid sm:grid-cols-3 gap-y-2 gap-x-2 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
-				<BoxNote
-					v-for="(note, index) in notes.note_list"
-					:key="index + note.label"
-					:noteData="note"
-					:updateRoute="routes.updateOrderRoute" />
-			</div>
-		</Transition>
-	</div>
-
-	<Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
-	<!--  <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab" :detachRoute="attachmentRoutes.detachRoute" /> -->
-
-	<!-- Section: Box Note -->
-	<!-- <div class="grid grid-cols-3 h-fit lg:max-h-64 w-full lg:justify-center border-b border-gray-300">
-        <BoxNote v-for="(note, index) in notes_data" :key="index+note.label" :noteData="note"
-            :updateRoute="updateRoute" />
-    </div> -->
-
 	<!-- Section: Timeline -->
-	<!--   <div v-if="props.data?.data?.state != 'in-process'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
-        <Timeline :options="props.data?.data?.timeline" :state="props.data?.data?.state" :slidesPerView="6" />
-    </div> -->
+	<div
+		v-if="data?.data?.state != 'in-process'"
+		class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
+		<Timeline
+			v-if="timelines"
+			:options="timelines"
+			:state="data?.data?.state"
+			:slidesPerView="6" />
+	</div>
 
 	<div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
 		<BoxStatPallet class="py-2 px-3" icon="fal fa-user">
@@ -502,49 +557,53 @@ const currency = ref({
 					{{ box_stats?.products.estimated_weight || 0 }} kilograms
 				</dd>
 			</div>
+			<div class="relative flex items-start w-full gap-x-1">
+				<dt class="flex-none pt-0.5">
+					<FontAwesomeIcon
+						icon="fal fa-sticky-note"
+						fixed-width
+						aria-hidden="true"
+						class="text-gray-500" />
+				</dt>
 
-			<div
-				v-if="delivery_note"
-				class="mt-1 flex items-center w-full flex-none justify-between">
-				<Link
-					:href="
-						route(
-							routes.delivery_note.deliveryNoteRoute.name,
-							routes.delivery_note.deliveryNoteRoute.parameters
-						)
-					"
-					class="flex items-center gap-3 gap-x-1.5 primaryLink cursor-pointer">
-					<dt class="flex-none">
+				<!-- Section: Note -->
+				<div
+					class="relative h-full flex flex-col items-center w-full p-4 bg-white rounded-lg border border-gray-200"
+					:style="{
+						backgroundColor: fallbackBgColor,
+						color: fallbackColor,
+					}">
+					<!-- Edit Icon in Corner -->
+					<div
+						v-if="notes"
+						@click="isModalOpen = true"
+						v-tooltip="trans('Edit note')"
+						class="absolute top-2 right-2 group cursor-pointer w-fit h-5 flex items-center">
 						<FontAwesomeIcon
-							icon="fal fa-truck"
+							icon="fas fa-pencil"
+							size="xs"
+							class="group-hover:text-gray-600 text-gray-500"
 							fixed-width
-							aria-hidden="true"
-							class="text-gray-500" />
-					</dt>
-					<dd class="text-gray-500" v-tooltip="trans('Delivery Note')">
-						{{ delivery_note?.reference }}
-					</dd>
-				</Link>
-				<a
-					:href="
-						route(
-							routes.delivery_note.deliveryNotePdfRoute.name,
-							routes.delivery_note.deliveryNotePdfRoute.parameters
-						)
-					"
-					as="a"
-					target="_blank"
-					class="flex items-center">
-					<button class="flex items-center">
-						<dt class="flex-none">
-							<FontAwesomeIcon
-								:icon="faFilePdf"
-								fixed-width
-								aria-hidden="true"
-								class="text-gray-500 hover:text-indigo-500 transition-colors duration-200" />
-						</dt>
-					</button>
-				</a>
+							aria-hidden="true" />
+					</div>
+
+					<!-- Note Text -->
+					<p
+						class="text-xs md:text-sm break-words w-full"
+						:style="{
+							color: fallbackColor,
+						}">
+						<template v-if="notes">{{ notes }}</template>
+						<span
+							v-else
+							class="italic opacity-75 animate-pulse"
+							:style="{
+								color: fallbackColor + '55',
+							}">
+							{{ trans("No note added") }}
+						</span>
+					</p>
+				</div>
 			</div>
 		</BoxStatPallet>
 
@@ -563,6 +622,18 @@ const currency = ref({
 		</BoxStatPallet>
 	</div>
 
+	<Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
+
+	<div class="pb-12">
+		<component
+			:is="component"
+			:data="props[currentTab as keyof typeof props]"
+			:tab="currentTab"
+			:updateRoute="routes.updateOrderRoute"
+			:state="data?.data?.state"
+			:detachRoute="attachmentRoutes?.detachRoute" />
+	</div>
+
 	<UploadAttachment
 		v-model="isModalUploadOpen"
 		scope="attachment"
@@ -572,4 +643,21 @@ const currency = ref({
 		}"
 		progressDescription="Adding Pallet Deliveries"
 		:attachmentRoutes="attachmentRoutes" />
+		
+		<Modal :isOpen="isModalOpen" @onClose="() => (isModalOpen = false, noteModalValue = notes)">
+		<div class="min-h-72 max-h-96 px-2 overflow-auto">
+            <div class="text-xl font-semibold mb-2">{{ notes }}'s note</div>
+			<div class="relative isolate">
+                <div v-if="noteModalValue" @click="() => noteModalValue = ''" class="z-10 absolute top-1 right-1 text-red-400 hover:text-red-600 text-xxs cursor-pointer">
+                    Clear
+                </div>
+                <PureTextarea v-model="noteModalValue" counter :rows="6" maxLength="5000" />
+            </div>
+
+            <div class="flex justify-end gap-x-2 mt-3">
+                <Button label="cancel" @click="() => (isModalOpen = false, noteModalValue = notes)" :style="'tertiary'" />
+                <Button label="Save"  :loading="isSubmitNoteLoading" :disabled="noteModalValue == notes" />
+            </div>
+		</div>
+	</Modal>
 </template>
