@@ -23,7 +23,6 @@ use App\Actions\Mail\EmailTemplate\GetSeededEmailTemplates;
 use App\Actions\Mail\Mailshot\GetMailshotMergeTags;
 use App\Actions\Web\Website\GetWebsiteCloudflareUniqueVisitors;
 use App\Actions\Web\Website\GetWebsiteGoogleCloud;
-use App\Actions\Procurement\OrgSupplierProducts\Json\GetOrgSupplierProducts;
 use Illuminate\Support\Facades\Route;
 
 Route::get('fulfilment/{fulfilment}/delivery/{scope}/services', [GetFulfilmentServices::class, 'inPalletDelivery'])->name('fulfilment.delivery.services.index');
@@ -56,7 +55,4 @@ Route::get('organisation/{organisation}/employees/packers', GetPackers::class)->
 Route::get('organisation/{organisation}/employees/pickers', GetPickers::class)->name('employees.pickers');
 
 Route::get('website/{website}/unique-visitors', GetWebsiteCloudflareUniqueVisitors::class)->name('website.unique-visitors');
-Route::get('website/{website}/analytics-gcp', GetWebsiteGoogleCloud::class)->name('website.analytics-gcp');
-
-Route::get('org-agent/{orgAgent}/org-supplier-products', [GetOrgSupplierProducts::class, 'inOrgAgent'])->name('org-agent.org-supplier-products');
-Route::get('org-supplier/{orgSupplier}/org-supplier-products', [GetOrgSupplierProducts::class, 'inOrgSupplier'])->name('org-supplier.org-supplier-products');
+Route::get('webpage/{webpage}/analytics-gcp', GetWebsiteGoogleCloud::class)->name('webpage.analytics-gcp');
