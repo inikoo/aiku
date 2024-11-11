@@ -11,8 +11,6 @@ namespace App\Actions\Web\Website;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
-use App\Models\Catalogue\Shop;
-use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Exception;
 use Google\Client;
@@ -84,10 +82,15 @@ class GetWebsiteGoogleCloud extends OrgAction
         return $res->getRows();
     }
 
-    public function asController(Organisation $organisation, Shop $shop, Website $website, ActionRequest $request): array
+    public function asController(Website $website, ActionRequest $request): array
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($website->shop, $request);
         return $this->action($website, $this->validatedData);
+    }
+
+    public function jsonResponse($data): array
+    {
+        return $data;
     }
 
     public function rules(): array

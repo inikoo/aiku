@@ -21,6 +21,8 @@ use App\Actions\Mail\EmailTemplate\GetEmailTemplateCompiledLayout;
 use App\Actions\Mail\EmailTemplate\GetOutboxEmailTemplates;
 use App\Actions\Mail\EmailTemplate\GetSeededEmailTemplates;
 use App\Actions\Mail\Mailshot\GetMailshotMergeTags;
+use App\Actions\Web\Website\GetWebsiteCloudflareUniqueVisitors;
+use App\Actions\Web\Website\GetWebsiteGoogleCloud;
 use Illuminate\Support\Facades\Route;
 
 Route::get('fulfilment/{fulfilment}/delivery/{scope}/services', [GetFulfilmentServices::class, 'inPalletDelivery'])->name('fulfilment.delivery.services.index');
@@ -51,3 +53,6 @@ Route::get('shop/{shop}/catalogue/{scope}/collections', GetCollections::class)->
 
 Route::get('organisation/{organisation}/employees/packers', GetPackers::class)->name('employees.packers');
 Route::get('organisation/{organisation}/employees/pickers', GetPickers::class)->name('employees.pickers');
+
+Route::get('website/{website}/unique-visitors', GetWebsiteCloudflareUniqueVisitors::class)->name('website.unique-visitors');
+Route::get('website/{website}/analytics-gcp', GetWebsiteGoogleCloud::class)->name('website.analytics-gcp');
