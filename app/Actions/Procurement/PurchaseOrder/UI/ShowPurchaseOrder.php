@@ -10,6 +10,9 @@ namespace App\Actions\Procurement\PurchaseOrder\UI;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
+use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
+use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
 use App\Actions\Procurement\PurchaseOrderTransaction\UI\IndexPurchaseOrderTransactions;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
@@ -19,6 +22,9 @@ use App\Http\Resources\Helpers\CurrencyResource;
 use App\Http\Resources\History\HistoryResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\PurchaseOrderTransactionResource;
+use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgPartner;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -40,7 +46,28 @@ class ShowPurchaseOrder extends OrgAction
     {
         $this->initialisation($organisation, $request)->withTab(PurchaseOrderTabsEnum::values());
 
-        return $purchaseOrder;
+        return $this->handle($purchaseOrder);
+    }
+
+    public function inOrgSupplier(Organisation $organisation, OrgSupplier $orgSupplier, PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
+    {
+        $this->initialisation($organisation, $request)->withTab(PurchaseOrderTabsEnum::values());
+
+        return $this->handle($purchaseOrder);
+    }
+
+    public function inOrgAgent(Organisation $organisation, OrgAgent $orgAgent, PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
+    {
+        $this->initialisation($organisation, $request)->withTab(PurchaseOrderTabsEnum::values());
+
+        return $this->handle($purchaseOrder);
+    }
+
+    public function inOrgPartner(Organisation $organisation, OrgPartner $orgPartner, PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
+    {
+        $this->initialisation($organisation, $request)->withTab(PurchaseOrderTabsEnum::values());
+
+        return $this->handle($purchaseOrder);
     }
 
     public function maya(Organisation $organisation, PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
@@ -251,35 +278,107 @@ class ShowPurchaseOrder extends OrgAction
         return new PurchaseOrderResource($purchaseOrder);
     }
 
-    public function getBreadcrumbs(PurchaseOrder $purchaseOrder, string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(PurchaseOrder $purchaseOrder, string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        return array_merge(
-            (new ShowProcurementDashboard())->getBreadcrumbs($routeParameters),
-            [
+        $headCrumb = function (PurchaseOrder $purchaseOrder, array $routeParameters, string $suffix) {
+            return [
                 [
+
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
-                            'route' => [
-                                'name'       => 'grp.org.procurement.purchase_orders.index',
-                                'parameters' => $routeParameters['organisation']
-                            ],
-                            'label' => __('Purchase order')
+                            'route' => $routeParameters['index'],
+                            'label' => __('Purchase Orders')
                         ],
                         'model' => [
-                            'route' => [
-                                'name'       => 'grp.org.procurement.purchase_orders.show',
-                                'parameters' => $routeParameters
-                            ],
+                            'route' => $routeParameters['model'],
                             'label' => $purchaseOrder->reference,
                         ],
+
                     ],
-                    'suffix'         => $suffix,
+                    'suffix'         => $suffix
 
                 ],
-            ]
-        );
+            ];
+        };
+
+        return match ($routeName) {
+            'grp.org.procurement.purchase_orders.show',
+            => array_merge(
+                (new ShowProcurementDashboard())->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $purchaseOrder,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.procurement.purchase_orders.index',
+                            'parameters' => Arr::except($routeParameters, ['purchaseOrder'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.procurement.purchase_orders.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.procurement.org_agents.show.purchase-orders.show'
+            => array_merge(
+                (new ShowOrgAgent())->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $purchaseOrder,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.procurement.org_agents.show.purchase-orders.index',
+                            'parameters' => Arr::except($routeParameters, ['purchaseOrder'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.procurement.org_agents.show.purchase-orders.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.procurement.org_suppliers.show.purchase-orders.show'
+            => array_merge(
+                (new ShowOrgSupplier())->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $purchaseOrder,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.procurement.org_suppliers.show',
+                            'parameters' => Arr::except($routeParameters, ['purchaseOrder'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.procurement.org_suppliers.show.purchase-orders.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.procurement.org_partners.show.purchase-orders.show'
+            => array_merge(
+                (new ShowOrgPartner())->getBreadcrumbs($purchaseOrder->parent, $routeParameters),
+                $headCrumb(
+                    $purchaseOrder,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.procurement.org_partners.show.purchase-orders.index',
+                            'parameters' => Arr::except($routeParameters, ['purchaseOrder'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.procurement.org_partners.show.purchase-orders.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
     }
+
 
     public function getPrevious(PurchaseOrder $purchaseOrder, ActionRequest $request): ?array
     {
@@ -312,7 +411,43 @@ class ShowPurchaseOrder extends OrgAction
                     ]
 
                 ]
-            ]
+            ],
+            'grp.org.procurement.org_agents.show.purchase-orders.show' => [
+                'label' => $purchaseOrder->reference,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'  => $purchaseOrder->organisation->slug,
+                        'orgAgent'     => $purchaseOrder->parent->slug,
+                        'purchaseOrder' => $purchaseOrder->slug
+                    ]
+
+                ]
+            ],
+            'grp.org.procurement.org_suppliers.show.purchase-orders.show' => [
+                'label' => $purchaseOrder->reference,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'  => $purchaseOrder->organisation->slug,
+                        'orgSupplier'   => $purchaseOrder->parent->slug,
+                        'purchaseOrder' => $purchaseOrder->slug
+                    ]
+
+                ]
+            ],
+            'grp.org.procurement.org_partners.show.purchase-orders.show' => [
+                'label' => $purchaseOrder->reference,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'  => $purchaseOrder->organisation->slug,
+                        'orgPartner'    => $purchaseOrder->parent->id,
+                        'purchaseOrder' => $purchaseOrder->slug
+                    ]
+
+                ]
+            ],
         };
     }
 }

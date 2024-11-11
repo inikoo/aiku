@@ -625,6 +625,12 @@ Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->gro
 Route::name('org-supplier.')->prefix('org-supplier/{orgSupplier:id}')->group(function () {
     Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgSupplier'])->name('purchase-order.store');
 });
+Route::name('org-agent.')->prefix('org-agent/{orgAgent:id}')->group(function () {
+    Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgAgent'])->name('purchase-order.store');
+});
+Route::name('org-partner.')->prefix('org-partner/{orgPartner:id}')->group(function () {
+    Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgPartner'])->name('purchase-order.store');
+});
 
 require __DIR__."/models/inventory/location_org_stock.php";
 require __DIR__."/models/ordering/order.php";
