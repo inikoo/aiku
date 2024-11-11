@@ -180,7 +180,10 @@ class ShowPurchaseOrder extends OrgAction
                 'timelines'   => $finalTimeline,
 
                 'box_stats'      => [
-                    'orderer'      => $orderer,
+                    'orderer'      => [
+                        'type' => $purchaseOrder->parent_type,
+                        'data' => $orderer
+                    ],
                     'mid_block'      => [
                         'gross_weight' => $purchaseOrder->gross_weight,
                         'net_weight'   => $purchaseOrder->net_weight,
