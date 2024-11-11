@@ -52,6 +52,7 @@ class GetOrgSupplierProducts extends OrgAction
             $queryBuilder->where('org_supplier_products.organisation_id', $this->organisation->id);
         }
 
+        $queryBuilder->where('org_supplier_products.is_available', true);
 
         return $queryBuilder
             ->defaultSort('supplier_products.code')
