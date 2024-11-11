@@ -26,8 +26,9 @@ import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import Popover from "@/Components/Popover.vue"
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
 import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
+import { Timeline as TSTimeline } from "@/types/Timeline"
 import { Currency } from "@/types/LayoutRules"
-import Modal from '@/Components/Utils/Modal.vue'
+import Modal from "@/Components/Utils/Modal.vue"
 import NeedToPay from "@/Components/Utils/NeedToPay.vue"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
@@ -92,6 +93,28 @@ const props = defineProps<{
 	}
 	attachments?: {}
 	attachmentRoutes?: {}
+	timelines: {
+		[key: string]: TSTimeline
+	}
+	box_stats: {
+		orderer: {
+			data: {
+				code: string
+				company_name: string
+				contact_name: string
+				email: string
+				name: string
+			}
+			type: string
+		}
+		mid_block: {
+			gross_weight: string
+			net_weight: string
+			note: string
+			delivery_status: string
+		}
+		order_summary: {}
+	}
 }>()
 
 const currentTab = ref(props.tabs.current)
@@ -144,88 +167,7 @@ const onSubmitNote2 = async (closePopup: Function) => {
 }
 console.log(props)
 
-const box_stats = ref({
-	customer: {
-		reference: "#0011",
-		contact_name: "andi",
-		company_name: "riot",
-		email: "andi@gmail.com",
-		phone: "087673273723",
-		addresses: {
-			delivery: "hahah",
-			billing: "28382",
-		},
-	},
-	products: {
-		payment: {
-			routes: {
-				fetch_payment_accounts: {
-					name: "grp.json.shop.payment-accounts",
-					parameters: {
-						shop: "uk",
-					},
-				},
-				submit_payment: {
-					name: "grp.models.order.payment.store",
-					parameters: {
-						order: 1,
-						customer: 1,
-					},
-				},
-			},
-			total_amount: 91.88,
-			paid_amount: 0,
-			pay_amount: 91.88,
-		},
-		estimated_weight: 0,
-	},
-	order_summary: [
-		[
-			{
-				label: "Items",
-				quantity: 0,
-				price_base: "Multiple",
-				price_total: "78.20",
-			},
-		],
-		[
-			{
-				label: "Charges",
-				information: "",
-				price_total: "0",
-			},
-			{
-				label: "Shipping",
-				information: "",
-				price_total: "0",
-			},
-		],
-		[
-			{
-				label: "Net",
-				information: "",
-				price_total: "78.20",
-			},
-			{
-				label: "Tax 20%",
-				information: "",
-				price_total: "13.68",
-			},
-		],
-		[
-			{
-				label: "Total",
-				price_total: "91.88",
-			},
-		],
-	],
-	currency: {
-		id: 23,
-		code: "GBP",
-		name: "British Pound",
-		symbol: "£",
-	},
-})
+
 
 const currency = ref({
 	data: {
@@ -255,53 +197,11 @@ const data = ref({
 	},
 })
 
-const timelines = ref({
-	creating: {
-		label: "Creating",
-		tooltip: "Creating",
-		key: "creating",
-		timestamp: "2003-08-28T01:30:00.000000Z",
-	},
-	submitted: {
-		label: "Submitted",
-		tooltip: "Submitted",
-		key: "submitted",
-		timestamp: null,
-	},
-	in_warehouse: {
-		label: "In Warehouse",
-		tooltip: "In Warehouse",
-		key: "in_warehouse",
-		timestamp: "2003-08-28 09:30:00+08",
-	},
-	handling: {
-		label: "Handling",
-		tooltip: "Handling",
-		key: "handling",
-		timestamp: null,
-	},
-	packed: {
-		label: "Packed",
-		tooltip: "Packed",
-		key: "packed",
-		timestamp: null,
-	},
-	finalised: {
-		label: "Finalized",
-		tooltip: "Finalized",
-		key: "finalised",
-		timestamp: "2003-08-28 09:30:00+08",
-	},
-	dispatched: {
-		label: "Dispatched",
-		tooltip: "Dispatched",
-		key: "dispatched",
-		timestamp: "2003-08-28 17:30:00+08",
-	},
-})
 const isModalOpen = ref(false)
 const notes = ref("hahaha")
 const noteModalValue = ref(notes)
+console.log(props)
+
 const fallbackBgColor = "#f9fafb" // Background
 const fallbackColor = "#374151"
 </script>
@@ -309,69 +209,9 @@ const fallbackColor = "#374151"
 <template>
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead">
-		<template #otherBefore>
-			<!-- Section: Add notes -->
-			<Popover v-if="!notes?.note_list?.some((item) => !!item?.note?.trim())">
-				<template #button="{ open }">
-					<Button icon="fal fa-sticky-note" type="tertiary" label="Add notes" />
-				</template>
-				<template #content="{ close: closed }">
-					<div class="w-[350px]">
-						<span class="text-xs px-1 my-2">{{ trans("Select type note") }}: </span>
-						<div class="">
-							<PureMultiselect
-								v-model="noteToSubmit.selectedNote"
-								@update:modelValue="() => (errorNote = '')"
-								:placeholder="trans('Select type note')"
-								required
-								:options="[
-									{ label: 'Public note', value: 'public_notes' },
-									{ label: 'Private note', value: 'internal_notes' },
-								]"
-								valueProp="value" />
-
-							<!-- <p v-if="get(formAddService, ['errors', 'service_id'])" class="mt-2 text-sm text-red-500">
-                                {{ formAddService.errors.service_id }}
-                            </p> -->
-						</div>
-
-						<div class="mt-3">
-							<span class="text-xs px-1 my-2">{{ trans("Note") }}: </span>
-							<PureTextarea
-								v-model="noteToSubmit.value"
-								:placeholder="trans('Note')"
-								@keydown.enter="() => onSubmitNote(closed)" />
-						</div>
-
-						<p v-if="errorNote" class="mt-2 text-sm text-red-600">*{{ errorNote }}</p>
-
-						<div class="flex justify-end mt-3">
-							<Button
-								@click="() => onSubmitNote(closed)"
-								:style="'save'"
-								:loading="isLoadingButton === 'submitNote'"
-								:disabled="!noteToSubmit.value"
-								label="Save"
-								full />
-						</div>
-
-						<!-- Loading: fetching service list -->
-						<div
-							v-if="isLoadingButton === 'submitNote'"
-							class="bg-white/50 absolute inset-0 flex place-content-center items-center">
-							<FontAwesomeIcon
-								icon="fad fa-spinner-third"
-								class="animate-spin text-5xl"
-								fixed-width
-								aria-hidden="true" />
-						</div>
-					</div>
-				</template>
-			</Popover>
-		</template>
+	
 		<template #other>
 			<Button
-				v-if="currentTab === 'attachments'"
 				@click="() => (isModalUploadOpen = true)"
 				label="Attach"
 				icon="upload" />
@@ -397,12 +237,9 @@ const fallbackColor = "#374151"
 	<div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
 		<BoxStatPallet class="py-2 px-3" icon="fal fa-user">
 			<!-- Field: Reference Number -->
-			<Link
-				as="a"
-				v-if="box_stats?.customer.reference"
-				v-tooltip="trans('Reference')"
-				:href="'route(box_stats?.customer.route.name, box_stats?.customer.route.parameters)'"
-				class="pl-1 flex items-center w-fit flex-none gap-x-2 cursor-pointer primaryLink">
+			<div
+				v-if="box_stats?.orderer.data.code"
+				class="pl-1 flex items-center w-fit flex-none gap-x-2 ">
 				<dt class="flex-none">
 					<FontAwesomeIcon
 						icon="fal fa-user"
@@ -410,12 +247,12 @@ const fallbackColor = "#374151"
 						fixed-width
 						aria-hidden="true" />
 				</dt>
-				<dd class="text-sm text-gray-500">#{{ box_stats?.customer.reference }}</dd>
-			</Link>
+				<dd class="text-sm text-gray-500">{{ box_stats?.orderer.data.code }}</dd>
+			</div>
 
 			<!-- Field: Contact name -->
 			<div
-				v-if="box_stats?.customer.contact_name"
+				v-if="box_stats?.orderer.data.name"
 				v-tooltip="trans('Contact name')"
 				class="pl-1 flex items-center w-full flex-none gap-x-2">
 				<dt class="flex-none">
@@ -425,12 +262,12 @@ const fallbackColor = "#374151"
 						fixed-width
 						aria-hidden="true" />
 				</dt>
-				<dd class="text-sm text-gray-500">{{ box_stats?.customer.contact_name }}</dd>
+				<dd class="text-sm text-gray-500">{{ box_stats?.orderer.data.name }}</dd>
 			</div>
 
 			<!-- Field: Company name -->
 			<div
-				v-if="box_stats?.customer.company_name"
+				v-if="box_stats?.orderer.data.company_name"
 				v-tooltip="trans('Company name')"
 				class="pl-1 flex items-center w-full flex-none gap-x-2">
 				<dt class="flex-none">
@@ -440,12 +277,12 @@ const fallbackColor = "#374151"
 						fixed-width
 						aria-hidden="true" />
 				</dt>
-				<dd class="text-sm text-gray-500">{{ box_stats?.customer.company_name }}</dd>
+				<dd class="text-sm text-gray-500">{{ box_stats?.orderer.data.company_name }}</dd>
 			</div>
 
 			<!-- Field: Email -->
 			<div
-				v-if="box_stats?.customer.email"
+				v-if="box_stats?.orderer.data.email"
 				class="pl-1 flex items-center w-full flex-none gap-x-2">
 				<dt v-tooltip="trans('Email')" class="flex-none">
 					<FontAwesomeIcon
@@ -455,16 +292,16 @@ const fallbackColor = "#374151"
 						aria-hidden="true" />
 				</dt>
 				<a
-					:href="`mailto:${box_stats?.customer.email}`"
+					:href="`mailto:${box_stats?.orderer.data.email}`"
 					v-tooltip="'Click to send email'"
 					class="text-sm text-gray-500 hover:text-gray-700 truncate"
-					>{{ box_stats?.customer.email }}</a
+					>{{ box_stats?.orderer.data.email }}</a
 				>
 			</div>
 
 			<!-- Field: Phone -->
 			<div
-				v-if="box_stats?.customer.phone"
+				v-if="box_stats?.orderer.data.contact_name"
 				class="pl-1 flex items-center w-full flex-none gap-x-2">
 				<dt v-tooltip="trans('Phone')" class="flex-none">
 					<FontAwesomeIcon
@@ -474,76 +311,16 @@ const fallbackColor = "#374151"
 						aria-hidden="true" />
 				</dt>
 				<a
-					:href="`tel:${box_stats?.customer.phone}`"
+					:href="`tel:${box_stats?.orderer.data.contact_name}`"
 					v-tooltip="'Click to make a phone call'"
 					class="text-sm text-gray-500 hover:text-gray-700"
-					>{{ box_stats?.customer.phone }}</a
+					>{{ box_stats?.orderer.data.contact_name }}</a
 				>
-			</div>
-
-			<!-- Field: Billing Address -->
-			<div
-				v-if="box_stats?.customer?.addresses?.billing?.formatted_address"
-				class="pl-1 flex items w-full flex-none gap-x-2"
-				v-tooltip="trans('Billing address')">
-				<dt class="flex-none">
-					<FontAwesomeIcon
-						icon="fal fa-dollar-sign"
-						class="text-gray-400"
-						fixed-width
-						aria-hidden="true" />
-				</dt>
-				<dd
-					class="w-full text-gray-500 text-xs relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50"
-					v-html="box_stats?.customer.addresses.billing.formatted_address"></dd>
-			</div>
-
-			<!-- Field: Shipping Address -->
-			<div
-				v-if="box_stats?.customer?.addresses?.delivery?.formatted_address"
-				class="mt-2 pl-1 flex items w-full flex-none gap-x-2"
-				v-tooltip="trans('Shipping address')">
-				<dt class="flex-none">
-					<FontAwesomeIcon
-						icon="fal fa-shipping-fast"
-						class="text-gray-400"
-						fixed-width
-						aria-hidden="true" />
-				</dt>
-				<dd
-					class="w-full text-gray-500 text-xs relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50"
-					v-html="box_stats?.customer.addresses.delivery.formatted_address"></dd>
 			</div>
 		</BoxStatPallet>
 
 		<!-- Box: Product stats -->
 		<BoxStatPallet class="py-4 pl-1.5 pr-3" icon="fal fa-user">
-			<div class="relative flex items-start w-full flex-none gap-x-1">
-				<dt class="flex-none pt-0.5">
-					<FontAwesomeIcon
-						icon="fal fa-dollar-sign"
-						fixed-width
-						aria-hidden="true"
-						class="text-gray-500" />
-				</dt>
-
-				<NeedToPay
-					@click="
-						() =>
-							box_stats.products.payment.pay_amount > 0
-								? ((isOpenModalPayment = true), fetchPaymentMethod())
-								: false
-					"
-					:totalAmount="box_stats.products.payment.total_amount"
-					:paidAmount="box_stats.products.payment.paid_amount"
-					:payAmount="box_stats.products.payment.pay_amount"
-					:class="[
-						box_stats.products.payment.pay_amount
-							? 'hover:bg-gray-100 cursor-pointer'
-							: '',
-					]"
-					:currencyCode="currency.code" />
-			</div>
 
 			<div class="mt-1 flex items-center w-full flex-none gap-x-1.5">
 				<dt class="flex-none">
@@ -554,7 +331,7 @@ const fallbackColor = "#374151"
 						class="text-gray-500" />
 				</dt>
 				<dd class="text-gray-500 sep" v-tooltip="trans('Estimated weight of all products')">
-					{{ box_stats?.products.estimated_weight || 0 }} kilograms
+					{{ box_stats?.mid_block.estimated_weight || 0 }} kilograms
 				</dd>
 			</div>
 			<div class="relative flex items-start w-full gap-x-1">
@@ -575,7 +352,7 @@ const fallbackColor = "#374151"
 					}">
 					<!-- Edit Icon in Corner -->
 					<div
-						v-if="notes"
+						v-if="box_stats?.mid_block.note"
 						@click="isModalOpen = true"
 						v-tooltip="trans('Edit note')"
 						class="absolute top-2 right-2 group cursor-pointer w-fit h-5 flex items-center">
@@ -593,7 +370,7 @@ const fallbackColor = "#374151"
 						:style="{
 							color: fallbackColor,
 						}">
-						<template v-if="notes">{{ notes }}</template>
+						<template v-if="notes">{{ box_stats?.mid_block.note }}</template>
 						<span
 							v-else
 							class="italic opacity-75 animate-pulse"
@@ -643,21 +420,30 @@ const fallbackColor = "#374151"
 		}"
 		progressDescription="Adding Pallet Deliveries"
 		:attachmentRoutes="attachmentRoutes" />
-		
-		<Modal :isOpen="isModalOpen" @onClose="() => (isModalOpen = false, noteModalValue = notes)">
-		<div class="min-h-72 max-h-96 px-2 overflow-auto">
-            <div class="text-xl font-semibold mb-2">{{ notes }}'s note</div>
-			<div class="relative isolate">
-                <div v-if="noteModalValue" @click="() => noteModalValue = ''" class="z-10 absolute top-1 right-1 text-red-400 hover:text-red-600 text-xxs cursor-pointer">
-                    Clear
-                </div>
-                <PureTextarea v-model="noteModalValue" counter :rows="6" maxLength="5000" />
-            </div>
 
-            <div class="flex justify-end gap-x-2 mt-3">
-                <Button label="cancel" @click="() => (isModalOpen = false, noteModalValue = notes)" :style="'tertiary'" />
-                <Button label="Save"  :loading="isSubmitNoteLoading" :disabled="noteModalValue == notes" />
-            </div>
+	<Modal :isOpen="isModalOpen" @onClose="() => ((isModalOpen = false), (noteModalValue = notes))">
+		<div class="min-h-72 max-h-96 px-2 overflow-auto">
+			<div class="text-xl font-semibold mb-2">{{ notes }}'s note</div>
+			<div class="relative isolate">
+				<div
+					v-if="noteModalValue"
+					@click="() => (noteModalValue = '')"
+					class="z-10 absolute top-1 right-1 text-red-400 hover:text-red-600 text-xxs cursor-pointer">
+					Clear
+				</div>
+				<PureTextarea v-model="noteModalValue" counter :rows="6" maxLength="5000" />
+			</div>
+
+			<div class="flex justify-end gap-x-2 mt-3">
+				<Button
+					label="cancel"
+					@click="() => ((isModalOpen = false), (noteModalValue = notes))"
+					:style="'tertiary'" />
+				<Button
+					label="Save"
+					:loading="isSubmitNoteLoading"
+					:disabled="noteModalValue == notes" />
+			</div>
 		</div>
 	</Modal>
 </template>
