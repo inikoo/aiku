@@ -10,6 +10,7 @@ namespace App\Actions\Procurement\PurchaseOrder;
 use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydratePurchaseOrders;
+use App\Actions\Procurement\OrgPartner\Hydrators\OrgPartnerHydratePurchaseOrders;
 use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydratePurchaseOrders;
 use App\Actions\Procurement\WithNoStrictProcurementOrderRules;
 use App\Actions\Procurement\WithPrepareDeliveryStoreFields;
@@ -41,6 +42,7 @@ class StorePurchaseOrder extends OrgAction
 
     public function handle(OrgSupplier|OrgAgent|OrgPartner $parent, array $modelData): PurchaseOrder
     {
+        // dd($parent);
         $modelData = $this->prepareDeliveryStoreFields($parent, $modelData);
         if (!Arr::get($modelData, 'reference')) {
             data_set(
@@ -58,7 +60,7 @@ class StorePurchaseOrder extends OrgAction
         if (!Arr::get($modelData, 'currency_id')) {
             data_set($modelData, 'currency_id', $parent->organisation->currency_id);
         }
-
+        // dd($parent);
         /** @var PurchaseOrder $purchaseOrder */
         $purchaseOrder = $parent->purchaseOrders()->create($modelData);
 
@@ -68,8 +70,11 @@ class StorePurchaseOrder extends OrgAction
         } elseif (class_basename($parent) == 'OrgAgent') {
             OrgAgentHydratePurchaseOrders::dispatch($parent)->delay($this->hydratorsDelay);
             AgentHydratePurchaseOrders::dispatch($parent->agent)->delay($this->hydratorsDelay);
+        } elseif (class_basename($parent) == 'OrgPartner') {
+            OrgPartnerHydratePurchaseOrders::dispatch($parent)->delay($this->hydratorsDelay);
+            OrganisationHydratePurchaseOrders::dispatch($parent->organisation)->delay($this->hydratorsDelay);
         }
-
+        
         OrganisationHydratePurchaseOrders::dispatch($purchaseOrder->organisation)->delay($this->hydratorsDelay);
 
         return $purchaseOrder;
@@ -166,12 +171,23 @@ class StorePurchaseOrder extends OrgAction
         return $this->handle($orgSupplier, $this->validatedData);
     }
 
+    public function inOrgPartner(OrgPartner $orgPartner, ActionRequest $request): PurchaseOrder
+    {
+        // dd($orgPartner);
+        $this->parent = $orgPartner;
+        $this->initialisation($orgPartner->organisation, $request);
+
+        return $this->handle($orgPartner, $this->validatedData);
+    }
+
     public function htmlResponse(PurchaseOrder $purchaseOrder)
     {
         if ($this->parent instanceof OrgAgent) {
-            return Redirect::route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]);
+            return Redirect::route('grp.org.procurement.org_agents.show.purchase-orders.show', [$purchaseOrder->organisation->slug, $this->parent->slug, $purchaseOrder->slug]);
         } elseif ($this->parent instanceof OrgSupplier) {
-            return Redirect::route('grp.org.procurement.purchase_orders.show', [$purchaseOrder->organisation->slug, $purchaseOrder->slug]);
+            return Redirect::route('grp.org.procurement.org_suppliers.show.purchase-orders.show', [$purchaseOrder->organisation->slug, $this->parent->slug, $purchaseOrder->slug]);
+        } elseif ($this->parent instanceof OrgPartner)  {
+            return Redirect::route('grp.org.procurement.org_partners.show.purchase-orders.show', [$purchaseOrder->organisation->slug, $this->parent->slug, $purchaseOrder->slug]);
         }
     }
 }
