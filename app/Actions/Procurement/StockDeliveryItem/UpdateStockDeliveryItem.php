@@ -32,6 +32,27 @@ class UpdateStockDeliveryItem
             'unit_quantity' => ['sometimes', 'required', 'numeric', 'gt:0'],
             'unit_price'    => ['sometimes', 'required', 'numeric'],
         ];
+        if (!$this->strict) {
+            $rules['state'] = ['sometimes','required', Rule::enum(StockDeliveryItemStateEnum::class)];
+            $rules['unit_quantity_checked'] = ['sometimes', 'numeric', 'gte:0'];
+            $rules['unit_quantity_placed'] = ['sometimes', 'numeric', 'gte:0'];
+            $rules = $this->noStrictUpdateRules($rules);
+        }
+
+        return $rules;
+    }
+
+    public function action(StockDeliveryItem $stockDeliveryItem, array $modelData, int $hydratorsDelay = 0, bool $strict = true): StockDeliveryItem
+    {
+
+        $this->asAction      = true;
+        $this->strict        = $strict;
+
+        $this->hydratorsDelay = $hydratorsDelay;
+
+        $this->initialisation($stockDeliveryItem->organisation, $modelData);
+
+        return $this->handle($stockDeliveryItem, $this->validatedData);
     }
 
     public function asController(StockDeliveryItem $stockDeliveryItem, ActionRequest $request): StockDeliveryItem

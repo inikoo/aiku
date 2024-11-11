@@ -10,6 +10,7 @@ namespace App\Actions\SupplyChain\SupplierProduct;
 use App\Actions\GrpAction;
 use App\Actions\Procurement\OrgSupplierProducts\UpdateOrgSupplierProduct;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydrateSupplierProducts;
+use App\Actions\SupplyChain\HistoricSupplierProduct\StoreHistoricSupplierProduct;
 use App\Actions\SupplyChain\Supplier\Hydrators\SupplierHydrateSupplierProducts;
 use App\Actions\SupplyChain\SupplierProduct\Search\SupplierProductRecordSearch;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSupplierProducts;
@@ -47,11 +48,19 @@ class UpdateSupplierProduct extends GrpAction
         $supplierProduct = $this->update($supplierProduct, $modelData, ['data', 'settings']);
 
 
-        /** @noinspection PhpStatementHasEmptyBodyInspection */
         if (!$skipHistoric and $supplierProduct->wasChanged(
-            ['price', 'code', 'name', 'units']
+            [ 'code', 'cbm', 'units_per_pack','units_per_pack']
         )) {
-            //todo create HistoricSupplierProduct and update current_historic_asset_id if
+
+
+            $historicProduct = StoreHistoricSupplierProduct::make()->action($supplierProduct, [
+                'status' => true,
+            ]);
+            $supplierProduct->update(
+                [
+                    'current_historic_supplier_product_id' => $historicProduct->id
+                ]
+            );
         }
 
         if (!$skipHistoric and $supplierProduct->wasChanged(

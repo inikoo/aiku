@@ -320,7 +320,10 @@ trait WithAuroraParsers
         if ($historicSupplierProduct) {
             return $historicSupplierProduct;
         }
-
+        $historicSupplierProduct = HistoricSupplierProduct::whereJsonContains('sources->historic_supplier_parts', $organisationID.':'.$productKey)->first();
+        if ($historicSupplierProduct) {
+            return $historicSupplierProduct;
+        }
 
         return FetchAuroraHistoricSupplierProducts::run($this->organisationSource, $productKey);
     }
@@ -339,12 +342,19 @@ trait WithAuroraParsers
     public function parseSupplierProduct(string $sourceId): ?SupplierProduct
     {
         $supplierProduct = SupplierProduct::where('source_id', $sourceId)->first();
-        if (!$supplierProduct) {
-            $sourceData      = explode(':', $sourceId);
-            $supplierProduct = FetchAuroraSupplierProducts::run($this->organisationSource, $sourceData[1]);
+        if ($supplierProduct) {
+            return $supplierProduct;
         }
 
-        return $supplierProduct;
+        $supplierProduct = SupplierProduct::whereJsonContains('sources->supplier_parts', $sourceId)->first();
+        if ($supplierProduct) {
+            return $supplierProduct;
+        }
+
+
+        $sourceData = explode(':', $sourceId);
+
+        return FetchAuroraSupplierProducts::run($this->organisationSource, $sourceData[1]);
     }
 
     public function parseAsset(string $sourceId): Product
@@ -694,7 +704,7 @@ trait WithAuroraParsers
         return $payment;
     }
 
-    public function parseTradeUnit($sourceSlug, $sourceId): TradeUnit
+    public function parseTradeUnit($sourceSlug, $sourceId): ?TradeUnit
     {
         $tradeUnit = TradeUnit::withTrashed()->where('source_slug', $sourceSlug)->first();
         if (!$tradeUnit) {

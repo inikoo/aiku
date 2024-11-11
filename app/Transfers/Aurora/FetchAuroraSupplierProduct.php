@@ -82,6 +82,8 @@ class FetchAuroraSupplierProduct extends FetchAurora
         };
 
 
+
+
         if ($this->auroraModelData->{'Supplier Part From'} == '0000-00-00 00:00:00') {
             $created_at = null;
         } else {
@@ -98,7 +100,6 @@ class FetchAuroraSupplierProduct extends FetchAurora
         };
 
         $partReference      = $this->cleanTradeUnitReference($auroraPartData->{'Part Reference'});
-        $sourceSlugInterOrg = $supplier->source_slug.':'.$this->auroraModelData->{'Supplier Part Packages Per Carton'}.':'.$auroraPartData->{'Part Units Per Package'}.':'.Str::kebab(strtolower($partReference));
 
 
         $sourceSlug = $supplier->source_slug.':'.Str::kebab(strtolower($partReference));
@@ -136,11 +137,17 @@ class FetchAuroraSupplierProduct extends FetchAurora
                 'created_at'            => $created_at,
 
                 'source_slug'           => $sourceSlug,
-                'source_slug_inter_org' => $sourceSlugInterOrg,
                 'source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Key'},
                 'fetched_at'            => now(),
                 'last_fetched_at'       => now()
             ];
+
+
+        if ($this->auroraModelData->{'Supplier Part Carton CBM'}) {
+            $this->parsedData['supplierProduct']['cbm'] = $this->auroraModelData->{'Supplier Part Carton CBM'};
+        }
+
+
 
         $this->parsedData['historicSupplierProductSourceID'] = $this->auroraModelData->{'Supplier Part Historic Key'};
     }
