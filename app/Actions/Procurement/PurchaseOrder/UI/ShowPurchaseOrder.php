@@ -118,13 +118,28 @@ class ShowPurchaseOrder extends OrgAction
         );
 
         $orderer = [];
+        $productRoute = [];
         if($purchaseOrder->parent instanceof OrgAgent)
         {
             $orderer = OrgAgentResource::make($purchaseOrder->parent)->toArray($request);
+            $productRoute = [
+                'method'     => 'get',
+                'name'       => 'grp.json.org-agent.org-supplier-products',
+                'parameters' => [
+                    'orgAgent' => $purchaseOrder->parent->slug,
+                ]
+            ];
         } 
         elseif ($purchaseOrder->parent instanceof OrgSupplier)
         {
             $orderer = OrgSupplierResource::make($purchaseOrder->parent)->toArray($request);
+            $productRoute = [
+                'method'     => 'get',
+                'name'       => 'grp.json.org-supplier.org-supplier-products',
+                'parameters' => [
+                    'orgSupplier' => $purchaseOrder->parent->slug,
+                ]
+            ];
         }
         // dd($orderer);
         return Inertia::render(
@@ -163,13 +178,7 @@ class ShowPurchaseOrder extends OrgAction
                             'purchaseOrder' => $purchaseOrder->id,
                         ]
                     ],
-                   /*  'products_list'    => [
-                        'name'       => 'grp.json.shop.catalogue.order.products',
-                        'parameters' => [
-                            'shop'  => $purchaseOrder->shop->slug,
-                            'scope' => $purchaseOrder->slug
-                        ]
-                    ], */
+                    'products_list'    => $productRoute,
                 ],
                 // 'alert'   => [  // TODO
                 //     'status'        => 'danger',
