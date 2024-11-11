@@ -26,7 +26,8 @@ class OrgAgentResource extends JsonResource
             'slug'                         => $this->slug,
             'code'                         => $this->agent->code,
             'name'                         => $this->agent->name,
-            'location'                     => json_decode($this->agent->location),
+            'email'                        => $this->agent->organisation->email,
+            'phone'                        => $this->agent->organisation->phone,
             'number_org_suppliers'         => $this->stats->number_org_suppliers,
             'number_org_supplier_products' => $this->stats->number_org_supplier_products,
             'number_purchase_orders'       => $this->stats->number_purchase_orders

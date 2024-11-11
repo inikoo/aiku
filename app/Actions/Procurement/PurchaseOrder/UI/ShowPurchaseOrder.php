@@ -20,6 +20,8 @@ use App\Enums\UI\Procurement\PurchaseOrderTabsEnum;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Procurement\OrgAgentResource;
+use App\Http\Resources\Procurement\OrgSupplierResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\PurchaseOrderTransactionResource;
 use App\Models\Procurement\OrgAgent;
@@ -115,6 +117,16 @@ class ShowPurchaseOrder extends OrgAction
             ]
         );
 
+        $orderer = [];
+        if($purchaseOrder->parent instanceof OrgAgent)
+        {
+            $orderer = OrgAgentResource::make($purchaseOrder->parent)->toArray($request);
+        } 
+        elseif ($purchaseOrder->parent instanceof OrgSupplier)
+        {
+            $orderer = OrgSupplierResource::make($purchaseOrder->parent)->toArray($request);
+        }
+        // dd($orderer);
         return Inertia::render(
             'Procurement/PurchaseOrder',
             [
@@ -146,9 +158,9 @@ class ShowPurchaseOrder extends OrgAction
                 'routes'      => [
                     'updatePurchaseOrderRoute' => [
                         'method'     => 'patch',
-                        'name'       => 'grp.models.order.update',
+                        'name'       => 'grp.models.purchase-order.update',
                         'parameters' => [
-                            'order' => $purchaseOrder->id,
+                            'purchaseOrder' => $purchaseOrder->id,
                         ]
                     ],
                    /*  'products_list'    => [
@@ -168,80 +180,53 @@ class ShowPurchaseOrder extends OrgAction
                 'timelines'   => $finalTimeline,
 
                 'box_stats'      => [
-                    // 'customer'      => array_merge(
-                    //     CustomerResource::make($order->customer)->getArray(),
-                    //     [
-                    //         'addresses' => [
-                    //             'delivery' => AddressResource::make($order->deliveryAddress ?? new Address()),
-                    //             'billing'  => AddressResource::make($order->billingAddress ?? new Address())
-                    //         ],
-                    //     ]
-                    // ),
-                    'products'      => [
-                        // 'payment'          => [
-                        //     'routes'       => [
-                        //         'fetch_payment_accounts' => [
-                        //             'name'       => 'grp.json.shop.payment-accounts',
-                        //             'parameters' => [
-                        //                 'shop' => $order->shop->slug
-                        //             ]
-                        //         ],
-                        //         'submit_payment'         => [
-                        //             'name'       => 'grp.models.order.payment.store',
-                        //             'parameters' => [
-                        //                 'order'    => $order->id,
-                        //                 'customer' => $order->customer_id,
-                        //             ]
-                        //         ]
-
-                        //     ],
-                        //     'total_amount' => (float) $order->total_amount,
-                        //     'paid_amount'  => (float) $order->payment_amount,
-                        //     'pay_amount'   => $roundedDiff,
-                        // ],
-                        // 'estimated_weight' => $estWeight
+                    'orderer'      => $orderer,
+                    'mid_block'      => [
+                        'gross_weight' => $purchaseOrder->gross_weight,
+                        'net_weight'   => $purchaseOrder->net_weight,
+                        'note'          => $purchaseOrder->note,
+                        'delivery_status' => $purchaseOrder->delivery_status,
                     ],
-
-                    // 'delivery_status' => OrderStateEnum::stateIcon($order->state->value),
+                    
                     'order_summary' => [
-                        // [
-                        //     [
-                        //         'label'       => 'Items',
-                        //         'quantity'    => $purchaseOrder->number,
-                        //         'price_base'  => 'Multiple',
-                        //         'price_total' => $order->net_amount
-                        //     ],
-                        // ],
-                        // [
-                        //     [
-                        //         'label'       => 'Charges',
-                        //         'information' => '',
-                        //         'price_total' => '0'
-                        //     ],
-                        //     [
-                        //         'label'       => 'Shipping',
-                        //         'information' => '',
-                        //         'price_total' => '0'
-                        //     ]
-                        // ],
-                        // [
-                        //     [
-                        //         'label'       => 'Net',
-                        //         'information' => '',
-                        //         'price_total' => $order->net_amount
-                        //     ],
-                        //     [
-                        //         'label'       => 'Tax 20%',
-                        //         'information' => '',
-                        //         'price_total' => $order->tax_amount
-                        //     ]
-                        // ],
-                        // [
-                        //     [
-                        //         'label'       => 'Total',
-                        //         'price_total' => $order->total_amount
-                        //     ]
-                        // ],
+                        [
+                            [
+                                'label'       => 'Transactions',
+                                'quantity'    => $purchaseOrder->purchaseOrderTransactions()->count(),
+                                'price_base'  => 'Multiple',
+                                'price_total' => $purchaseOrder->cost_items
+                            ],
+                        ],
+                        [
+                            [
+                                'label'       => 'Extra',
+                                'information' => '',
+                                'price_total' => $purchaseOrder->cost_extra
+                            ],
+                            [
+                                'label'       => 'Shipping',
+                                'information' => '',
+                                'price_total' => $purchaseOrder->cost_shipping
+                            ]
+                        ],
+                        [
+                            [
+                                'label'       => 'Duties',
+                                'information' => '',
+                                'price_total' => $purchaseOrder->cost_duties
+                            ],
+                            [
+                                'label'       => 'Tax',
+                                'information' => '',
+                                'price_total' => $purchaseOrder->cost_tax
+                            ]
+                        ],
+                        [
+                            [
+                                'label'       => 'Total',
+                                'price_total' => $purchaseOrder->cost_total
+                            ]
+                        ],
                         'currency' => CurrencyResource::make($purchaseOrder->currency),
                     ],
                 ],
@@ -252,11 +237,11 @@ class ShowPurchaseOrder extends OrgAction
                     'navigation' => PurchaseOrderTabsEnum::navigation()
                 ],
 
-                PurchaseOrderTabsEnum::SHOWCASE->value => $this->tab == PurchaseOrderTabsEnum::SHOWCASE->value ?
-                    fn () => new PurchaseOrderResource(($purchaseOrder))
-                    : Inertia::lazy(fn () => new PurchaseOrderResource(($purchaseOrder))),
+                // PurchaseOrderTabsEnum::SHOWCASE->value => $this->tab == PurchaseOrderTabsEnum::SHOWCASE->value ?
+                //     fn () => new PurchaseOrderResource(($purchaseOrder))
+                //     : Inertia::lazy(fn () => new PurchaseOrderResource(($purchaseOrder))),
 
-                PurchaseOrderTabsEnum::ITEMS->value => $this->tab == PurchaseOrderTabsEnum::ITEMS->value ?
+                PurchaseOrderTabsEnum::TRANSACTIONS->value => $this->tab == PurchaseOrderTabsEnum::TRANSACTIONS->value ?
                     fn () => PurchaseOrderTransactionResource::collection(IndexPurchaseOrderTransactions::run($purchaseOrder))
                     : Inertia::lazy(fn () => PurchaseOrderTransactionResource::collection(IndexPurchaseOrderTransactions::run($purchaseOrder))),
 
@@ -268,7 +253,7 @@ class ShowPurchaseOrder extends OrgAction
                     fn () => AttachmentsResource::collection(IndexAttachments::run($purchaseOrder))
                     : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($purchaseOrder)))
             ]
-        )->table(IndexPurchaseOrderTransactions::make()->tableStructure(prefix: PurchaseOrderTabsEnum::ITEMS->value))
+        )->table(IndexPurchaseOrderTransactions::make()->tableStructure(prefix: PurchaseOrderTabsEnum::TRANSACTIONS->value))
             ->table(IndexAttachments::make()->tableStructure(prefix: PurchaseOrderTabsEnum::ATTACHMENTS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: PurchaseOrderTabsEnum::HISTORY->value));
     }

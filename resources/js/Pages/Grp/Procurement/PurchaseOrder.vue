@@ -76,7 +76,7 @@ const props = defineProps<{
 		navigation: {}
 	}
 	showcase: {}
-	items: {}
+	transactions: {}
 	history: {}
 	alert?: {
 		status: string
@@ -99,7 +99,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 const component = computed(() => {
 	const components: Component = {
 		history: TableHistories,
-		items: TablePurchaseOrderTransactions,
+		transactions: TablePurchaseOrderTransactions,
 		attachments: TableAttachments,
 	}
 

@@ -32,8 +32,7 @@ class UpdateStateToConfirmedPurchaseOrder
 
         if (in_array($purchaseOrder->state, [PurchaseOrderStateEnum::SUBMITTED])) {
             $purchaseOrder->purchaseOrderTransactions()->update($data);
-
-            $data[$purchaseOrder->state->value . '_at'] = null;
+            
             $data['confirmed_at']                       = now();
 
             $purchaseOrder = $this->update($purchaseOrder, $data);

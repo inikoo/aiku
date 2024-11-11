@@ -15,8 +15,8 @@ enum PurchaseOrderTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE            = 'showcase';
-    case ITEMS               = 'items';
+    // case SHOWCASE            = 'showcase';
+    case TRANSACTIONS        = 'transactions';
     case HISTORY             = 'history';
     case ATTACHMENTS         = 'attachments';
 
@@ -25,14 +25,14 @@ enum PurchaseOrderTabsEnum: string
     {
         return match ($this) {
 
-            PurchaseOrderTabsEnum::ITEMS  => [
-                'title' => __('items'),
+            PurchaseOrderTabsEnum::TRANSACTIONS  => [
+                'title' => __('transactions'),
                 'icon'  => 'fal fa-bars',
             ],
-            PurchaseOrderTabsEnum::SHOWCASE => [
-                'title' => __('purchase orders'),
-                'icon'  => 'fal fa-info-circle',
-            ],
+            // PurchaseOrderTabsEnum::SHOWCASE => [
+            //     'title' => __('purchase orders'),
+            //     'icon'  => 'fal fa-info-circle',
+            // ],
             PurchaseOrderTabsEnum::HISTORY     => [
                 'title' => __('history'),
                 'icon'  => 'fal fa-clock',
