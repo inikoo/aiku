@@ -59,12 +59,12 @@ class StorePurge extends OrgAction
     public function afterValidator(Validator $validator): void
     {
         $dateThreshold = Carbon::now()->subDays(30);
-        $numberEligblePurge = $this->shop->orders()
+        $numberEligiblePurge = $this->shop->orders()
         ->where('updated_at', '<', $dateThreshold)
         ->where('state', OrderStateEnum::CREATING)
         ->count();
 
-        if ($this->strict && $numberEligblePurge == 0) {
+        if ($this->strict && $numberEligiblePurge == 0) {
             $message = __("There Are No Eligble Orders to Purge");
             $validator->errors()->add('purge', $message);
         }
