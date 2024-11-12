@@ -147,6 +147,8 @@ interface SourceOrganisationService
 
     public function fetchOffer($id);
 
+    public function fetchOfferComponent($id);
+
     public function fetchDeletedUser($id);
 
     public function fetchUser($id);

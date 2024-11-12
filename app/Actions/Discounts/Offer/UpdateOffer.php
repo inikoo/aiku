@@ -12,6 +12,7 @@ use App\Actions\Discounts\OfferCampaign\Hydrators\OfferCampaignHydrateOffers;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOffers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOffers;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Catalogue\OfferResource;
 use App\Models\Discounts\Offer;
@@ -21,7 +22,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdateOffer extends OrgAction
 {
     use WithActionUpdate;
-
+    use WithNoStrictRules;
 
     private Offer $offer;
 
@@ -81,10 +82,8 @@ class UpdateOffer extends OrgAction
         ];
 
         if (!$this->strict) {
+            $rules = $this->noStrictUpdateRules($rules);
             $rules['start_at']        = ['sometimes', 'nullable', 'date'];
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
-            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
-            $rules['created_at']      = ['sometimes', 'date'];
         }
 
         return $rules;

@@ -27,6 +27,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraHistoricSupplierProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraMailshots;
 use App\Actions\Transfers\Aurora\FetchAuroraOfferCampaigns;
+use App\Actions\Transfers\Aurora\FetchAuroraOffers;
 use App\Actions\Transfers\Aurora\FetchAuroraOrders;
 use App\Actions\Transfers\Aurora\FetchAuroraPallets;
 use App\Actions\Transfers\Aurora\FetchAuroraPaymentAccounts;
@@ -62,6 +63,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\CRM\WebUser;
+use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
 use App\Models\Dispatching\Shipper;
 use App\Models\Fulfilment\Pallet;
@@ -756,6 +758,21 @@ trait WithAuroraParsers
         }
 
         return $adjustment;
+    }
+
+    public function parseOffer($sourceId): ?Offer
+    {
+        if (!$sourceId) {
+            return null;
+        }
+
+        $offer = Offer::withTrashed()->where('source_id', $sourceId)->first();
+        if (!$offer) {
+            $sourceData    = explode(':', $sourceId);
+            $offer = FetchAuroraOffers::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $offer;
     }
 
     public function parseOfferCampaign($sourceId): ?OfferCampaign

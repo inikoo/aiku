@@ -374,6 +374,11 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchOfferComponent($id): ?array
+    {
+        return null;
+    }
+
     public function fetchCustomerNote($id): ?array
     {
         return null;

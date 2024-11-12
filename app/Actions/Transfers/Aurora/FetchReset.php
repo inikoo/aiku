@@ -148,6 +148,12 @@ class FetchReset
                 DB::connection('aurora')->table('Deal Campaign Dimension')
                     ->update([$aikuIdField => null]);
 
+                DB::connection('aurora')->table('Deal Dimension')
+                    ->update([$aikuIdField => null]);
+
+                DB::connection('aurora')->table('Deal Component Dimension')
+                    ->update([$aikuIdField => null]);
+
 
                 $command->line('✅ warehouses');
 

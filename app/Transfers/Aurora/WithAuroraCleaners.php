@@ -238,5 +238,15 @@ trait WithAuroraCleaners
     }
 
 
+    protected function cleanOfferCode($code)
+    {
+        $code = preg_replace('/-/', '', $code);
+        $code = preg_replace('/%/', 'off', $code);
+        $code = preg_replace('/\s|@|\$|§|}|€|!/', '', $code);
+        $code = preg_replace('/3\/2/', '3x2', $code);
+        $code = preg_replace('/\//', '-', $code);
+        $code = preg_replace('/\+/', 'plus', $code);
+        return $code;
+    }
 
 }
