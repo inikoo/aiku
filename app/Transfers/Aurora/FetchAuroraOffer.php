@@ -80,16 +80,7 @@ class FetchAuroraOffer extends FetchAurora
             $name = $this->auroraModelData->{'Deal Name Label'};
         }
 
-
-
-        $code = preg_replace('/-/', '', $name);
-        $code = preg_replace('/%/', 'off', $code);
-        $code = preg_replace('/\s|@|\$|§|}|€|!/', '', $code);
-        $code = preg_replace('/3\/2/', '3x2', $code);
-        $code = preg_replace('/\//', '-', $code);
-        $code = preg_replace('/\+/', 'plus', $code);
-
-
+        $code = $this->cleanOfferCode($name);
 
         $code = Abbreviate::run($code, maximumLength: 32);
         $code = strtolower($code);

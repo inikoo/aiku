@@ -111,14 +111,13 @@ class StoreSupplierProduct extends GrpAction
             'name'         => ['required', 'string', 'max:255'],
             'state'        => ['sometimes', 'required', Rule::enum(SupplierProductStateEnum::class)],
             'is_available' => ['sometimes', 'required', 'boolean'],
-            'cost'         => ['required']
+            'cost'         => ['required'],
+            'cbm'          => ['sometimes', 'nullable', 'numeric'],
         ];
 
         if (!$this->strict) {
             $rules                           = $this->noStrictStoreRules($rules);
             $rules['source_slug']            = ['sometimes', 'nullable', 'string'];
-            $rules['source_slug_inter_org']  = ['sometimes', 'nullable', 'string'];
-            $rules['source_organisation_id'] = ['sometimes', 'nullable'];
         }
 
         return $rules;

@@ -9,6 +9,7 @@ namespace App\Transfers;
 
 use App\Models\Accounting\Invoice;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\StockDelivery;
 use App\Transfers\Aurora\FetchAuroraCustomer;
 use App\Transfers\Aurora\FetchAuroraProspect;
 use App\Transfers\Aurora\FetchAuroraShop;
@@ -359,6 +360,11 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchStockDeliveryItem($id, StockDelivery $stockDelivery): ?array
+    {
+        return null;
+    }
+
     public function fetchHistoricSupplierProduct($id): ?array
     {
         return null;
@@ -370,6 +376,11 @@ class WowsbarOrganisationService implements SourceOrganisationService
     }
 
     public function fetchOffer($id): ?array
+    {
+        return null;
+    }
+
+    public function fetchOfferComponent($id): ?array
     {
         return null;
     }

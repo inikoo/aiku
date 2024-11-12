@@ -16,25 +16,18 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-
-            $table->string('slug')->unique()->collation('und_ns');
-
             $table->unsignedInteger('supplier_product_id')->nullable()->index();
             $table->foreign('supplier_product_id')->references('id')->on('supplier_products');
             $table->boolean('status')->index();
             $table->string('code')->nullable();
-            $table->string('name', 255)->nullable();
-            $table->decimal('cost', 18, 4)->comment('unit cost');
-
-            $table->unsignedInteger('units_per_pack')->nullable();
-            $table->unsignedInteger('units_per_carton')->nullable();
-            $table->decimal('cbm', 18, 4)->nullable();
-
-            $table->unsignedSmallInteger('currency_id')->nullable();
-            $table->foreign('currency_id')->references('id')->on('currencies');
+            $table->unsignedInteger('units_per_pack');
+            $table->unsignedInteger('units_per_carton');
+            $table->decimal('cbm', 18, 4)->nullable()->comment('carton cubic meters');
             $table->timestampsTz();
-            $table->softDeletesTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->string('source_id')->nullable()->unique();
+            $table->jsonb('sources');
         });
     }
 

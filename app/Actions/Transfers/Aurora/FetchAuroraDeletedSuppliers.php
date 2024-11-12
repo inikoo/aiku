@@ -14,7 +14,7 @@ class FetchAuroraDeletedSuppliers extends FetchAuroraAction
 {
     use FetchSuppliersTrait;
 
-    public string $commandSignature = 'fetch:deleted-suppliers {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:deleted_suppliers {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
     public function fetch($organisationSource, $organisationSourceId)
     {

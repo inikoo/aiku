@@ -8,12 +8,14 @@
 namespace App\Actions\SupplyChain\HistoricSupplierProduct;
 
 use App\Actions\GrpAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\SupplyChain\HistoricSupplierProduct;
 
 class UpdateHistoricSupplierProduct extends GrpAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
     public function handle(HistoricSupplierProduct $historicSupplierProduct, array $modelData): HistoricSupplierProduct
     {
@@ -23,13 +25,14 @@ class UpdateHistoricSupplierProduct extends GrpAction
 
     public function rules(): array
     {
-        $rules = [
-        ];
-
-
+        $rules = [];
         if (!$this->strict) {
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
-            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
+            $rules['units_per_pack']   = ['sometimes', 'required', 'numeric'];
+            $rules['units_per_carton'] = ['sometimes', 'required', 'numeric'];
+            $rules['cbm']              = ['sometimes', 'required', 'numeric'];
+
+
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;
@@ -37,9 +40,9 @@ class UpdateHistoricSupplierProduct extends GrpAction
 
     public function action(HistoricSupplierProduct $historicSupplierProduct, array $modelData, int $hydratorsDelay = 0, bool $strict = true): HistoricSupplierProduct
     {
-        $this->strict          = $strict;
-        $this->asAction        = true;
-        $this->hydratorsDelay  = $hydratorsDelay;
+        $this->strict         = $strict;
+        $this->asAction       = true;
+        $this->hydratorsDelay = $hydratorsDelay;
 
         $this->initialisation($historicSupplierProduct->group, $modelData);
 

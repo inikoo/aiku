@@ -27,6 +27,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraHistoricSupplierProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraMailshots;
 use App\Actions\Transfers\Aurora\FetchAuroraOfferCampaigns;
+use App\Actions\Transfers\Aurora\FetchAuroraOffers;
 use App\Actions\Transfers\Aurora\FetchAuroraOrders;
 use App\Actions\Transfers\Aurora\FetchAuroraPallets;
 use App\Actions\Transfers\Aurora\FetchAuroraPaymentAccounts;
@@ -62,6 +63,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\CRM\WebUser;
+use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
 use App\Models\Dispatching\Shipper;
 use App\Models\Fulfilment\Pallet;
@@ -81,6 +83,7 @@ use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
+use App\Models\Manufacturing\Production;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\ShippingZone;
@@ -320,7 +323,10 @@ trait WithAuroraParsers
         if ($historicSupplierProduct) {
             return $historicSupplierProduct;
         }
-
+        $historicSupplierProduct = HistoricSupplierProduct::whereJsonContains('sources->historic_supplier_parts', $organisationID.':'.$productKey)->first();
+        if ($historicSupplierProduct) {
+            return $historicSupplierProduct;
+        }
 
         return FetchAuroraHistoricSupplierProducts::run($this->organisationSource, $productKey);
     }
@@ -339,12 +345,19 @@ trait WithAuroraParsers
     public function parseSupplierProduct(string $sourceId): ?SupplierProduct
     {
         $supplierProduct = SupplierProduct::where('source_id', $sourceId)->first();
-        if (!$supplierProduct) {
-            $sourceData      = explode(':', $sourceId);
-            $supplierProduct = FetchAuroraSupplierProducts::run($this->organisationSource, $sourceData[1]);
+        if ($supplierProduct) {
+            return $supplierProduct;
         }
 
-        return $supplierProduct;
+        $supplierProduct = SupplierProduct::whereJsonContains('sources->supplier_parts', $sourceId)->first();
+        if ($supplierProduct) {
+            return $supplierProduct;
+        }
+
+
+        $sourceData = explode(':', $sourceId);
+
+        return FetchAuroraSupplierProducts::run($this->organisationSource, $sourceData[1]);
     }
 
     public function parseAsset(string $sourceId): Product
@@ -694,7 +707,7 @@ trait WithAuroraParsers
         return $payment;
     }
 
-    public function parseTradeUnit($sourceSlug, $sourceId): TradeUnit
+    public function parseTradeUnit($sourceSlug, $sourceId): ?TradeUnit
     {
         $tradeUnit = TradeUnit::withTrashed()->where('source_slug', $sourceSlug)->first();
         if (!$tradeUnit) {
@@ -748,6 +761,21 @@ trait WithAuroraParsers
         return $adjustment;
     }
 
+    public function parseOffer($sourceId): ?Offer
+    {
+        if (!$sourceId) {
+            return null;
+        }
+
+        $offer = Offer::withTrashed()->where('source_id', $sourceId)->first();
+        if (!$offer) {
+            $sourceData    = explode(':', $sourceId);
+            $offer = FetchAuroraOffers::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $offer;
+    }
+
     public function parseOfferCampaign($sourceId): ?OfferCampaign
     {
         if (!$sourceId) {
@@ -791,7 +819,7 @@ trait WithAuroraParsers
         return $upload;
     }
 
-    public function parseProcurementOrderParent($auroraParentType, $sourceId): null|OrgAgent|OrgSupplier|OrgPartner
+    public function parseProcurementOrderParent($auroraParentType, $sourceId): null|OrgAgent|OrgSupplier|OrgPartner|Production
     {
         $sourceData = explode(':', $sourceId);
 
@@ -803,6 +831,12 @@ trait WithAuroraParsers
 
             return OrgAgent::where('organisation_id', $sourceData[0])->where('agent_id', $parent->id)->first();
         } else {
+            $orgPartner = Production::whereJsonContains('sources->suppliers', $sourceId)->first();
+            if ($orgPartner) {
+                return $orgPartner;
+            }
+
+
             $orgPartner = OrgPartner::whereJsonContains('sources->suppliers', $sourceId)
                 ->first();
             if ($orgPartner) {

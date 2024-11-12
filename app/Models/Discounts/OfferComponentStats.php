@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 11 Sept 2024 20:14:25 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Sun, 10 Nov 2024 12:20:49 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  *
  * @property int $id
- * @property int $offer_id
+ * @property int $offer_component_id
  * @property string|null $first_used_at
  * @property string|null $last_used_at
  * @property int $number_customers
@@ -24,20 +24,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Discounts\Offer $offer
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferStats query()
+ * @property-read \App\Models\Discounts\OfferComponent $offerComponent
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferComponentStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferComponentStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferComponentStats query()
  * @mixin \Eloquent
  */
-class OfferStats extends Model
+class OfferComponentStats extends Model
 {
-    protected $table = 'offer_stats';
+    protected $table = 'offer_component_stats';
 
     protected $guarded = [];
 
-    public function offer(): BelongsTo
+    public function offerComponent(): BelongsTo
     {
-        return $this->belongsTo(Offer::class);
+        return $this->belongsTo(OfferComponent::class);
     }
 }

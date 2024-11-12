@@ -11,6 +11,7 @@ use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderDeliveryStatusEnum;
 use App\Models\Helpers\Currency;
+use App\Models\Manufacturing\Production;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraPurchaseOrder extends FetchAurora
@@ -47,6 +48,9 @@ class FetchAuroraPurchaseOrder extends FetchAurora
             $this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Parent Key'}
         );
 
+        if ($orgParent instanceof Production) {
+            return;
+        }
 
         if (!$orgParent) {
             print "Error No parent found ".$this->auroraModelData->{'Purchase Order Parent'}."  ".$this->auroraModelData->{'Purchase Order Parent Key'}." ".$this->auroraModelData->{'Purchase Order Parent Name'}."  \n";

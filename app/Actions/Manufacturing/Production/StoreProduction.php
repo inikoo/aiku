@@ -170,7 +170,7 @@ class StoreProduction extends OrgAction
         if ($command->option('source')) {
             $this->strict         = false;
             $modelData['sources'] = [
-                'supplier' => $command->option('source')
+                'suppliers' => $command->option('source')
             ];
         }
 

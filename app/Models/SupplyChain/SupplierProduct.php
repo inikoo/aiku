@@ -51,6 +51,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id
  * @property int|null $units_per_pack units per pack
  * @property int|null $units_per_carton units per carton
+ * @property string|null $cbm carton cubic meters
  * @property array $settings
  * @property array $data
  * @property string|null $activated_at
@@ -62,9 +63,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_slug
- * @property string|null $source_slug_inter_org
- * @property string|null $source_organisation_id
  * @property string|null $source_id
+ * @property array $sources
  * @property-read \App\Models\SupplyChain\Agent|null $agent
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
@@ -98,6 +98,7 @@ class SupplierProduct extends Model implements Auditable
         'cost'                   => 'decimal:4',
         'data'                   => 'array',
         'settings'               => 'array',
+        'sources'                   => 'array',
         'status'                 => 'boolean',
         'state'                  => SupplierProductStateEnum::class,
         'trade_unit_composition' => SupplierProductTradeUnitCompositionEnum::class,
@@ -108,6 +109,7 @@ class SupplierProduct extends Model implements Auditable
     protected $attributes = [
         'data'     => '{}',
         'settings' => '{}',
+        'sources'     => '{}',
     ];
 
     protected $guarded = [];

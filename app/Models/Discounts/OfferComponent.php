@@ -7,11 +7,17 @@
 
 namespace App\Models\Discounts;
 
+use App\Enums\Discounts\OfferComponent\OfferComponentStateEnum;
+use App\Models\Traits\HasHistory;
+use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -19,14 +25,35 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Deals\OfferComponent
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property int $shop_id
  * @property int $offer_campaign_id
+ * @property int $offer_id
+ * @property OfferComponentStateEnum $state
+ * @property bool $status
  * @property string $slug
  * @property string $code
- * @property string $name
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $trigger_scope
+ * @property string $trigger_type
+ * @property string|null $trigger_id
+ * @property string|null $target_type
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $start_at
+ * @property \Illuminate\Support\Carbon|null $end_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
+ * @property string|null $source_id
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\Discounts\Offer $offer
+ * @property-read \App\Models\Discounts\OfferCampaign $offerCampaign
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Catalogue\Shop $shop
+ * @property-read \App\Models\Discounts\OfferComponentStats|null $stats
  * @method static \Database\Factories\Discounts\OfferComponentFactory factory($count = null, $state = [])
  * @method static Builder<static>|OfferComponent newModelQuery()
  * @method static Builder<static>|OfferComponent newQuery()
@@ -36,15 +63,21 @@ use Spatie\Sluggable\SlugOptions;
  * @method static Builder<static>|OfferComponent withoutTrashed()
  * @mixin Eloquent
  */
-class OfferComponent extends Model
+class OfferComponent extends Model implements Auditable
 {
     use SoftDeletes;
-
     use HasSlug;
     use HasFactory;
+    use HasHistory;
+    use InShop;
 
     protected $casts = [
-        'data' => 'array'
+        'data'  => 'array',
+        'state' => OfferComponentStateEnum::class,
+        'begin_at'        => 'datetime',
+        'end_at'          => 'datetime',
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
     protected $attributes = [
@@ -52,6 +85,17 @@ class OfferComponent extends Model
     ];
 
     protected $guarded = [];
+
+    public function generateTags(): array
+    {
+        return ['discounts'];
+    }
+
+    protected array $auditInclude = [
+        'code',
+        'name',
+        'state',
+    ];
 
     public function getSlugOptions(): SlugOptions
     {
@@ -66,4 +110,20 @@ class OfferComponent extends Model
     {
         return 'slug';
     }
+
+    public function offerCampaign(): BelongsTo
+    {
+        return $this->belongsTo(OfferCampaign::class);
+    }
+
+    public function offer(): BelongsTo
+    {
+        return $this->belongsTo(Offer::class);
+    }
+
+    public function stats(): HasOne
+    {
+        return $this->hasOne(OfferComponentStats::class);
+    }
+
 }

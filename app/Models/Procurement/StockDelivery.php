@@ -60,6 +60,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
+ * @property bool $is_costed
+ * @property array $cost_data
  * @property string|null $cost_items
  * @property string|null $cost_extra
  * @property string|null $cost_shipping
@@ -106,6 +108,7 @@ class StockDelivery extends Model implements HasMedia, Auditable
 
     protected $casts = [
         'data'  => 'array',
+        'cost_data'       => 'array',
         'state' => StockDeliveryStateEnum::class,
         'status' => StockDeliveryStatusEnum::class,
         'fetched_at'         => 'datetime',
@@ -114,6 +117,7 @@ class StockDelivery extends Model implements HasMedia, Auditable
 
     protected $attributes = [
         'data' => '{}',
+        'cost_data' => '{}',
     ];
 
     protected $guarded = [];
