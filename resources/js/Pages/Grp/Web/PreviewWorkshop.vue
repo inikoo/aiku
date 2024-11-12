@@ -12,7 +12,7 @@ import axios from 'axios'
 import debounce from 'lodash/debounce'
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 import { socketWeblock, SocketHeaderFooter } from '@/Composables/SocketWebBlock'
-import { sendMessageToParent } from '@/Composables/Workshop'
+import { sendMessageToParent, iframeToParent } from '@/Composables/Workshop'
 import RenderHeaderMenu from './RenderHeaderMenu.vue'
 import { usePage, router } from '@inertiajs/vue3'
 import { useColorTheme } from '@/Composables/useStockList'
