@@ -1,9 +1,10 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Mon, 17 Apr 2023 10:48:24 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
- */
+ * author Arya Permana - Kirin
+ * created on 12-11-2024-10h-35m
+ * github: https://github.com/KirinZero0
+ * copyright 2024
+*/
 
 namespace App\Actions\Procurement\PurchaseOrder;
 
@@ -17,7 +18,7 @@ use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class UpdatePurchaseOrderStateToSubmitted extends OrgAction
+class UpdatePurchaseOrderStateToCancelled extends OrgAction
 {
     use WithActionUpdate;
     use AsAction;
@@ -32,12 +33,12 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
     public function handle(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
         $data = [
-            'state' => PurchaseOrderStateEnum::SUBMITTED
+            'state' => PurchaseOrderStateEnum::CANCELLED
         ];
 
         $purchaseOrder->purchaseOrderTransactions()->update($data);
 
-        $data['submitted_at'] = now();
+        $data['cancelled_at'] = now();
 
         $purchaseOrder = $this->update($purchaseOrder, $data);
 
@@ -54,14 +55,6 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
 
         return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
     }
-
-    public function afterValidator(Validator $validator): void
-    {
-        if (!in_array($this->purchaseOrder->state, [PurchaseOrderStateEnum::IN_PROCESS, PurchaseOrderStateEnum::CONFIRMED])) {
-            $validator->errors()->add('state', __('Purchase order can only be submitted if it is in process'));
-        }
-    }
-
 
     public function action(PurchaseOrder $purchaseOrder): PurchaseOrder
     {
