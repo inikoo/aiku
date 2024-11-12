@@ -36,11 +36,11 @@ class GetOrgAgentShowcase
                 ],
                 [
                     'label' => __('suppliers'),
-                    'count' => $orgAgent->stats->number_suppliers
+                    'count' => $orgAgent->stats->number_org_suppliers
                 ],
                 [
                     'label' => __('products'),
-                    'count' => $orgAgent->stats->number_supplier_products
+                    'count' => $orgAgent->stats->number_org_supplier_products
                 ],
                 [
                     'label' => __('deliveries'),

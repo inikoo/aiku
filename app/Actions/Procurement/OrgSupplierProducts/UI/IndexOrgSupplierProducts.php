@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\OrgSupplierProducts\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
+use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\OrgSupplierProductsResource;
 use App\InertiaTable\InertiaTable;
@@ -28,6 +29,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexOrgSupplierProducts extends OrgAction
 {
+    use WithOrgAgentSubNavigation;
     private OrgSupplier|OrgAgent|Organisation $parent;
 
     public function handle(Organisation|OrgAgent|OrgSupplier $parent, $prefix = null): LengthAwarePaginator
@@ -47,10 +49,10 @@ class IndexOrgSupplierProducts extends OrgAction
 
 
         if (class_basename($parent) == 'OrgAgent') {
-            $queryBuilder->leftJoin('org_agents', 'org_agents.id', 'org_supplier_products.agent_id');
+            $queryBuilder->leftJoin('org_agents', 'org_agents.id', 'org_supplier_products.org_agent_id');
             //$queryBuilder->leftJoin('agents', 'agents.id', 'org_agents.agent_id');
 
-            $queryBuilder->where('org_supplier_products.agent_id', $parent->id);
+            $queryBuilder->where('org_supplier_products.org_agent_id', $parent->id);
             $queryBuilder->addSelect('org_agents.slug as org_agent_slug');
         } elseif (class_basename($parent) == 'OrgSupplier') {
             $queryBuilder->where('org_supplier_products.org_supplier_id', $parent->id);
@@ -127,6 +129,33 @@ class IndexOrgSupplierProducts extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $orgSupplierProducts, ActionRequest $request): Response
     {
+        $subNavigation = null;
+        $title = __('supplier products');
+        $model = '';
+        $icon  = [
+            'icon'  => ['fal', 'fa-box-usd'],
+            'title' => __('supplier products')
+        ];
+        $afterTitle = null;
+        $iconRight = null;
+
+        if ($this->parent instanceof OrgAgent) {
+            $subNavigation = $this->getOrgAgentNavigation($this->parent);
+            $title = $this->parent->agent->organisation->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-people-arrows'],
+                'title' => __('supplier products')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-box-usd',
+            ];
+            $afterTitle = [
+
+                'label'     => __('Supplier Products')
+            ];
+        }
+
         return Inertia::render(
             'Procurement/OrgSupplierProducts',
             [
@@ -136,7 +165,12 @@ class IndexOrgSupplierProducts extends OrgAction
                 ),
                 'title'       => __('supplier products'),
                 'pageHead'    => [
-                    'title' => __('supplier products'),
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'subNavigation' => $subNavigation,
                 ],
                 'data'        => OrgSupplierProductsResource::collection($orgSupplierProducts),
 
@@ -174,16 +208,13 @@ class IndexOrgSupplierProducts extends OrgAction
             ),
 
 
-            'grp.org.procurement.org_agents.show.org_supplier_products.index' =>
+            'grp.org.procurement.org_agents.show.supplier_products.index' =>
             array_merge(
-                (new ShowOrgAgent())->getBreadcrumbs($routeParameters['supplierProduct']),
+                (new ShowOrgAgent())->getBreadcrumbs($routeParameters),
                 $headCrumb(
                     [
-                        'name'       => 'grp.org.procurement.org_agents.show.org_supplier_products.index',
-                        'parameters' =>
-                            [
-                                $routeParameters['supplierProduct']->slug
-                            ]
+                        'name'       => 'grp.org.procurement.org_agents.show.supplier_products.index',
+                        'parameters' => $routeParameters
                     ]
                 )
             ),
