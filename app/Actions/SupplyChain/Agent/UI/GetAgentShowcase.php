@@ -27,16 +27,7 @@ class GetAgentShowcase
                 [
                     'label' => __('products'),
                     'count' => $agent->stats->number_supplier_products
-                ],
-                [
-                    'label' => __('purchase orders'),
-                    'count' => $agent->stats->number_purchase_orders
-                ],
-                [
-                    'label' => __('deliveries'),
-                    'count' => $agent->stats->number_stock_deliveries
-                ],
-
+                ]
             ]
         ];
     }
