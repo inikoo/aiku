@@ -11,17 +11,20 @@ use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Helpers\Country\UI\GetCountriesOptions;
 use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
 use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\AddressResource;
+use App\Models\Procurement\OrgAgent;
 use App\Models\SupplyChain\Agent;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditOrgAgent extends InertiaAction
+class EditOrgAgent extends OrgAction
 {
-    public function handle(Agent $agent): Agent
+    public function handle(OrgAgent $orgAgent): OrgAgent
     {
-        return $agent;
+        return $orgAgent;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -31,14 +34,14 @@ class EditOrgAgent extends InertiaAction
         return $request->user()->hasPermissionTo("procurement.view");
     }
 
-    public function asController(Agent $agent, ActionRequest $request): Agent
+    public function asController(Organisation $organisation, OrgAgent $orgAgent, ActionRequest $request): OrgAgent
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
-        return $this->handle($agent);
+        return $this->handle($orgAgent);
     }
 
-    public function htmlResponse(Agent $agent, ActionRequest $request): Response
+    public function htmlResponse(OrgAgent $orgAgent, ActionRequest $request): Response
     {
         return Inertia::render(
             'EditModel',
@@ -48,11 +51,11 @@ class EditOrgAgent extends InertiaAction
                     $request->route()->originalParameters()
                 ),
                 'navigation'  => [
-                    'previous' => $this->getPrevious($agent, $request),
-                    'next'     => $this->getNext($agent, $request),
+                    'previous' => $this->getPrevious($orgAgent, $request),
+                    'next'     => $this->getNext($orgAgent, $request),
                 ],
                 'pageHead'    => [
-                    'title'   => $agent->code,
+                    'title'   => $orgAgent->agent->code,
                     'actions' => [
                         [
                             'type'  => 'button',

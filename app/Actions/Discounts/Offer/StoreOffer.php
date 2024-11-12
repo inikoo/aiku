@@ -13,6 +13,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOffers;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOffers;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Actions\Traits\WithStoreOffer;
 use App\Enums\Discounts\Offer\OfferStateEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
@@ -27,24 +28,20 @@ use Illuminate\Validation\Rule;
 class StoreOffer extends OrgAction
 {
     use WithNoStrictRules;
+    use WithStoreOffer;
 
     /**
      * @throws \Throwable
      */
     public function handle(OfferCampaign $offerCampaign, null|Shop|Product|ProductCategory|Customer $trigger, array $modelData): Offer
     {
-        data_set($modelData, 'group_id', $offerCampaign->group_id);
-        data_set($modelData, 'organisation_id', $offerCampaign->organisation_id);
-        data_set($modelData, 'shop_id', $offerCampaign->shop_id);
 
-        if ($trigger) {
-            data_set($modelData, 'trigger_type', class_basename($trigger));
-            data_set($modelData, 'trigger_id', $trigger->id);
-        }
+        $modelData = $this->prepareOfferData($offerCampaign, $trigger, $modelData);
         $offer = DB::transaction(function () use ($offerCampaign, $modelData) {
             /** @var Offer $offer */
             $offer = $offerCampaign->offers()->create($modelData);
             $offer->stats()->create();
+
             return $offer;
         });
         GroupHydrateOffers::dispatch($offerCampaign->group)->delay($this->hydratorsDelay);
@@ -78,11 +75,13 @@ class StoreOffer extends OrgAction
             'end_at'       => ['sometimes', 'nullable', 'date'],
             'type'         => ['required', 'string'],
             'trigger_type' => ['sometimes', Rule::in(['Order'])],
-            'state'        => ['sometimes', Rule::enum(OfferStateEnum::class)],
-            'status'       => ['sometimes', 'boolean'],
         ];
         if (!$this->strict) {
-            $rules['start_at']   = ['sometimes', 'nullable', 'date'];
+            $rules['start_at']  = ['sometimes', 'nullable', 'date'];
+            $rules['finish_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['state']     = ['sometimes', Rule::enum(OfferStateEnum::class)];
+
+
             $rules = $this->noStrictStoreRules($rules);
         }
 

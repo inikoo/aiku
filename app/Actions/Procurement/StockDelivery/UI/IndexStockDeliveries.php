@@ -137,11 +137,45 @@ class IndexStockDeliveries extends OrgAction
     public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
     {
         $subNavigation = null;
+        $title = __('Supplier Deliveries');
+        $model = '';
+        $icon  = [
+            'icon'  => ['fal', 'fa-truck-container'],
+            'title' => __('supplier deliveries')
+        ];
+        $afterTitle = null;
+        $iconRight = null;
 
         if ($this->parent instanceof OrgAgent) {
             $subNavigation = $this->getOrgAgentNavigation($this->parent);
+            $title = $this->parent->agent->organisation->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-people-arrows'],
+                'title' => __('supplier deliveries')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-truck-container',
+            ];
+            $afterTitle = [
+
+                'label'     => __('Supplier Deliveries')
+            ];
         } elseif ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
+            $title = $this->parent->partner->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-users-class'],
+                'title' => __('supplier deliveries')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-truck-container',
+            ];
+            $afterTitle = [
+
+                'label'     => __('Supplier Deliveries')
+            ];
         }
         return Inertia::render(
             'Procurement/StockDeliveries',
@@ -149,7 +183,11 @@ class IndexStockDeliveries extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => __('supplier deliveries'),
                 'pageHead'    => [
-                    'title'  => __('supplier deliveries'),
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
                     'create' => $this->canEdit && $request->route()->getName() == 'grp.org.procurement.stock_deliveries.index' ? [
                         'route' => [
                             'name'       => 'grp.org.procurement.stock_deliveries.create',

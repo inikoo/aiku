@@ -7,11 +7,18 @@
  *
 */
 
+use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Purge\StorePurge;
 use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
+use App\Actions\Ordering\Transaction\StoreTransaction;
+use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Purge\PurgeTypeEnum;
+use App\Models\Catalogue\HistoricAsset;
+use App\Models\Helpers\Address;
+use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;
 use App\Models\Ordering\ShippingZoneSchema;
+use App\Models\Ordering\Transaction;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -31,6 +38,13 @@ beforeEach(function () {
         $this->shop
     ) = createShop();
 
+    list(
+        $this->tradeUnit,
+        $this->product
+    ) = createProduct($this->shop);
+
+    $this->customer = createCustomer($this->shop);
+
     $shippingZoneSchema = ShippingZoneSchema::first();
     if (!$shippingZoneSchema) {
         $shippingZoneSchema = StoreShippingZoneSchema::make()->action($this->shop, ShippingZoneSchema::factory()->definition());
@@ -38,13 +52,45 @@ beforeEach(function () {
     $this -> shippingZoneSchema = $shippingZoneSchema;
 
     $purge = Purge::where('shop_id', $this->shop->id)->first();
+    // dd($purge);
     if (!$purge) {
+        $billingAddress  = new Address(Address::factory()->definition());
+        $deliveryAddress = new Address(Address::factory()->definition());
+
+        $modelData = Order::factory()->definition();
+        data_set($modelData, 'billing_address', $billingAddress);
+        data_set($modelData, 'delivery_address', $deliveryAddress);
+
+        $order = StoreOrder::make()->action(parent:$this->customer, modelData:$modelData);
+
+
+        $transactionData = Transaction::factory()->definition();
+        $historicAsset   = $this->product->historicAsset;
+        // expect($historicAsset)->toBeInstanceOf(HistoricAsset::class);
+        $transaction = StoreTransaction::make()->action($order, $historicAsset, $transactionData);
+
+        $order->refresh();
+
+        // expect($order)->toBeInstanceOf(Order::class)
+        // ->and($order->state)->toBe(OrderStateEnum::CREATING)
+        //     ->and($order->stats->number_transactions)->toBe(1)
+        //     ->and($order->stats->number_transactions_at_creation)->toBe(1);
+        // expect($transaction)->toBeInstanceOf(Transaction::class);
+
+        $this->customer->refresh();
+        $shop = $order->shop;
+        $shop->refresh();
+        $order->update([
+            'updated_at' => Date::now()->subDays(40)->toDateString()
+        ]);
+
         $purge = StorePurge::make()->action($this->shop, [
             'type' => PurgeTypeEnum::MANUAL,
             'scheduled_at' => now()
         ]);
     }
     $this->purge = $purge;
+    // dd($purge);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -52,7 +98,6 @@ beforeEach(function () {
     );
     actingAs($this->user);
 });
-
 
 
 test('UI index asset shipping', function () {

@@ -72,7 +72,7 @@ class FetchReset
                 DB::connection('aurora')->table('Barcode Dimension')
                     ->update(
                         [
-                            $aikuIdField      => null,
+                            $aikuIdField => null,
                         ]
                     );
 
@@ -146,6 +146,12 @@ class FetchReset
                     ->update([$aikuIdField => null]);
 
                 DB::connection('aurora')->table('Deal Campaign Dimension')
+                    ->update([$aikuIdField => null]);
+
+                DB::connection('aurora')->table('Deal Dimension')
+                    ->update([$aikuIdField => null]);
+
+                DB::connection('aurora')->table('Deal Component Dimension')
                     ->update([$aikuIdField => null]);
 
 
@@ -258,7 +264,10 @@ class FetchReset
                     ->update([$aikuIdField => null]);
 
                 DB::connection('aurora')->table('Purchase Order Transaction Fact')
-                    ->update([$aikuIdField => null]);
+                    ->update([
+                        'aiku_po_id' => null,
+                        'aiku_sd_id' => null,
+                    ]);
 
                 $command->line("✅ supplier products and PO \t".$this->stepTime());
 
@@ -328,33 +337,30 @@ class FetchReset
                     ->update([$aikuIdField => null]);
 
 
-
                 DB::connection('aurora')->table('Inventory Transaction Fact')
                     ->whereNotNull($aikuIdField)
                     ->update(
                         [
-                        $aikuIdField      => null,
+                            $aikuIdField => null,
 
-                    ]
+                        ]
                     );
 
                 DB::connection('aurora')->table('Inventory Transaction Fact')
                     ->whereNotNull('aiku_dn_item_id')
                     ->update(
                         [
-                        'aiku_dn_item_id' => null,
-                    ]
+                            'aiku_dn_item_id' => null,
+                        ]
                     );
 
                 DB::connection('aurora')->table('Inventory Transaction Fact')
                     ->whereNotNull('aiku_picking_id')
                     ->update(
                         [
-                        'aiku_picking_id' => null
-                    ]
+                            'aiku_picking_id' => null
+                        ]
                     );
-
-
 
 
                 $command->line("✅ delivery notes \t\t".$this->stepTime());
@@ -384,7 +390,6 @@ class FetchReset
                     ->update([$aikuIdField => null]);
 
                 $command->line("✅ post rooms \t\t".$this->stepTime());
-
             }
         }
 

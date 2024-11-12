@@ -15,6 +15,7 @@ use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierTabsEnum;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Procurement\OrgSupplierProductsResource;
 use App\Http\Resources\Procurement\OrgSupplierResource;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\Http\Resources\Procurement\StockDeliveryResource;
@@ -150,10 +151,9 @@ class ShowOrgSupplier extends OrgAction
                     fn () => GetOrgSupplierShowcase::run($orgSupplier)
                     : Inertia::lazy(fn () => GetOrgSupplierShowcase::run($orgSupplier)),
 
-
                 SupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($orgSupplier))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($orgSupplier))),
+                    fn () => OrgSupplierProductsResource::collection(IndexOrgSupplierProducts::run($orgSupplier))
+                    : Inertia::lazy(fn () => OrgSupplierProductsResource::collection(IndexOrgSupplierProducts::run($orgSupplier))),
 
                 SupplierTabsEnum::PURCHASE_ORDERS->value => $this->tab == SupplierTabsEnum::PURCHASE_ORDERS->value ?
                     fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::run($orgSupplier))

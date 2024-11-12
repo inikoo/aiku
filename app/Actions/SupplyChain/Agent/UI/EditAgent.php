@@ -10,15 +10,17 @@ namespace App\Actions\SupplyChain\Agent\UI;
 use App\Actions\Helpers\Country\UI\GetAddressData;
 use App\Actions\Helpers\Country\UI\GetCountriesOptions;
 use App\Actions\Helpers\Currency\UI\GetCurrenciesOptions;
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Actions\Procurement\Marketplace\Agent\UI\RemoveMarketplaceAgent;
 use App\Http\Resources\Helpers\AddressResource;
 use App\Models\SupplyChain\Agent;
+use App\Models\SysAdmin\Organisation;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditAgent extends InertiaAction
+class EditAgent extends OrgAction
 {
     public function handle(Agent $agent): Agent
     {
@@ -27,16 +29,17 @@ class EditAgent extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
 
-        return $request->user()->hasPermissionTo("procurement.view");
+        return $request->user()->hasPermissionTo('supply-chain.edit');
     }
 
-    public function asController(Agent $agent, ActionRequest $request): Agent
+    public function asController(Organisation $organisation, Agent $agent, ActionRequest $request): RedirectResponse|Agent
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
+
         return $this->handle($agent);
     }
+
 
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
@@ -45,6 +48,7 @@ class EditAgent extends InertiaAction
             [
                 'title'       => __('edit marketplace agent'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $agent,
                     $request->route()->originalParameters()
                 ),
                 'navigation'                              => [
@@ -78,15 +82,15 @@ class EditAgent extends InertiaAction
                                     'label' => __('code'),
                                     'value' => $agent->code
                                 ],
-                                'company_name' => [
+                                'name' => [
                                     'type'  => 'input',
-                                    'label' => __('company_name'),
-                                    'value' => $agent->company_name
+                                    'label' => __('Name'),
+                                    'value' => $agent->organisation->name
                                 ],
                                 'email'        => [
                                     'type'    => 'input',
                                     'label'   => __('email'),
-                                    'value'   => $agent->email,
+                                    'value'   => $agent->organisation->email,
                                     'options' => [
                                         'inputType' => 'email'
                                     ]
@@ -94,7 +98,7 @@ class EditAgent extends InertiaAction
                                 'address'      => [
                                     'type'    => 'address',
                                     'label'   => __('Address'),
-                                    'value'   => AddressResource::make($agent->getAddress())->getArray(),
+                                    'value'   => AddressResource::make($agent->organisation->address)->getArray(),
                                     'options' => [
                                         'countriesAddressData' => GetAddressData::run()
 
@@ -125,30 +129,30 @@ class EditAgent extends InertiaAction
                                 ],
                             ]
                         ],
-                        [
-                            'title'     => __('delete'),
-                            'icon'      => 'fa-light fa-trash-alt',
-                            'operation' => [
-                                [
-                                    'component' => 'removeModelAction',
-                                    'data'      => RemoveMarketplaceAgent::make()->getAction(
-                                        route:[
-                                            'name'       => 'grp.models.marketplace-agent.delete',
-                                            'parameters' => array_values($request->route()->originalParameters())
-                                        ]
-                                    )
-                                ],
+                        // [
+                        //     'title'     => __('delete'),
+                        //     'icon'      => 'fa-light fa-trash-alt',
+                        //     'operation' => [
+                        //         [
+                        //             'component' => 'removeModelAction',
+                        //             'data'      => RemoveMarketplaceAgent::make()->getAction(
+                        //                 route:[
+                        //                     'name'       => 'grp.models.marketplace-agent.delete',
+                        //                     'parameters' => array_values($request->route()->originalParameters())
+                        //                 ]
+                        //             )
+                        //         ],
 
 
-                            ]
-                        ],
+                        //     ]
+                        // ],
 
                     ],
 
                     'args' => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.marketplace-agent.update',
-                            'parameters' => $agent->slug
+                            'name'       => 'grp.models.agent.update',
+                            'parameters' => $agent->id
 
                         ],
                     ]
@@ -158,9 +162,10 @@ class EditAgent extends InertiaAction
     }
 
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(Agent $agent, array $routeParameters): array
     {
         return ShowAgent::make()->getBreadcrumbs(
+            $agent,
             routeParameters: $routeParameters,
             suffix: '('.__('Editing').')'
         );
@@ -187,6 +192,7 @@ class EditAgent extends InertiaAction
         }
 
         return match ($routeName) {
+            'grp.supply-chain.agents.edit',
             'grp.org.procurement.marketplace.agents.edit' => [
                 'label' => $agent->name,
                 'route' => [

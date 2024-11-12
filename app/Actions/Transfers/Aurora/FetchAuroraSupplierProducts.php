@@ -22,7 +22,8 @@ use Throwable;
 
 class FetchAuroraSupplierProducts extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:supplier-products {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new}  {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:supplier_products {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new}  {--d|db_suffix=}';
+
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
@@ -47,128 +48,119 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                     ]
                 );
             }
+
+
+            $this->updateSupplierProductSources($supplierProduct, $supplierProductData['supplierProduct']['source_id']);
+
         }
 
 
         return $supplierProduct;
     }
 
-
     public function fetchSupplierProduct($supplierProductData, $organisationSource)
     {
+        $supplierProduct = null;
         if ($supplierProductData) {
-            $found = false;
-            $supplierProduct = null;
-            if ($baseSupplierProduct = SupplierProduct::withTrashed()
-                ->where(
-                    'source_slug',
-                    $supplierProductData['supplierProduct']['source_slug']
-                )
-                ->first()) {
-                $found = true;
+            $isPrincipal = false;
 
 
-                if ($supplierProduct = SupplierProduct::withTrashed()
-                    ->where('source_id', $supplierProductData['supplierProduct']['source_id'])
-                    ->first()) {
-                    try {
-                        $supplierProduct = UpdateSupplierProduct::make()->action(
-                            supplierProduct: $supplierProduct,
-                            modelData: $supplierProductData['supplierProduct'],
-                            skipHistoric: true,
-                            hydratorsDelay: $this->hydratorsDelay,
-                            strict: false,
-                            audit: false
-                        );
-                        $this->recordChange($organisationSource, $supplierProduct->wasChanged());
-                    } catch (Exception $e) {
-                        $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct', 'update');
-
-                        return null;
-                    }
-                }
-
-
-                if (!$supplierProduct) {
-                    $sourceData = explode(':', $baseSupplierProduct->source_id);
-                    if ($sourceData[0] == $organisationSource->getOrganisation()->id) {
-                        $this->recordFetchError($organisationSource, $supplierProductData, 'SupplierProduct', 'fetching', ['msg' => "Error supplier product has same code in same org"]);
-
-                        return null;
-                    }
-                }
-            }
-
-            if (!$found) {
-                if ($baseSupplierProduct = SupplierProduct::withTrashed()
-                    ->where(
-                        'source_slug',
-                        $supplierProductData['supplierProduct']['source_slug_inter_org']
-                    )
-                    ->where('source_organisation_id', '!=', $organisationSource->getOrganisation()->id)
-                    ->first()) {
-                    $found = true;
-                }
-            }
-
-
-            if (!$found) {
-                $supplierProductData['supplierProduct']['source_organisation_id'] = $organisationSource->getOrganisation()->id;
+            if ($supplierProduct = SupplierProduct::withTrashed()->where('source_id', $supplierProductData['supplierProduct']['source_id'])->first()) {
                 try {
-                    $supplierProduct = StoreSupplierProduct::make()->action(
-                        supplier: $supplierProductData['supplier'],
+                    $supplierProduct = UpdateSupplierProduct::make()->action(
+                        supplierProduct: $supplierProduct,
                         modelData: $supplierProductData['supplierProduct'],
                         skipHistoric: true,
                         hydratorsDelay: $this->hydratorsDelay,
                         strict: false,
                         audit: false
                     );
-                    $this->recordNew($organisationSource);
-
-                    SupplierProduct::enableAuditing();
-                    $this->saveMigrationHistory(
-                        $supplierProduct,
-                        Arr::except($supplierProductData['supplierProduct'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                    );
-                } catch (Exception|Throwable $e) {
-                    $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct');
+                    $this->recordChange($organisationSource, $supplierProduct->wasChanged());
+                    $isPrincipal = true;
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct', 'update');
 
                     return null;
                 }
-
-                $historicSupplierProduct = FetchAuroraHistoricSupplierProducts::run($organisationSource, $supplierProductData['historicSupplierProductSourceID']);
-                $supplierProduct->updateQuietly(['current_historic_supplier_product_id' => $historicSupplierProduct->id]);
             }
 
 
-            $tradeUnit = $supplierProductData['trade_unit'];
+            $supplierProduct = SupplierProduct::withTrashed()->whereJsonContains('sources->supplier_parts', $supplierProductData['supplierProduct']['source_id'])->first();
+
+            if (!$supplierProduct) {
+                $supplierProduct = SupplierProduct::withTrashed()->where('source_slug', $supplierProductData['supplierProduct']['source_slug'])->first();
+
+            }
 
 
-            if ($supplierProduct) {
+
+
+
+
+            if (!$supplierProduct) {
+
+                if (SupplierProduct::withTrashed()->where('supplier_id', $supplierProductData['supplier']->id)->where('code', $supplierProductData['supplierProduct']['code'])->exists()) {
+                    data_set($supplierProductData, 'supplierProduct.code', $supplierProductData['supplierProduct']['code'].'-duplicated-'.uniqid());
+
+
+                }
+
+
+                //try {
+                $supplierProduct = StoreSupplierProduct::make()->action(
+                    supplier: $supplierProductData['supplier'],
+                    modelData: $supplierProductData['supplierProduct'],
+                    skipHistoric: true,
+                    hydratorsDelay: $this->hydratorsDelay,
+                    strict: false,
+                    audit: false
+                );
+                $this->recordNew($organisationSource);
+
+                SupplierProduct::enableAuditing();
+                $this->saveMigrationHistory(
+                    $supplierProduct,
+                    Arr::except($supplierProductData['supplierProduct'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
+                $isPrincipal = true;
+
+                //                } catch (Exception|Throwable $e) {
+                //                    $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct');
+                //
+                //                    return null;
+                //                }
+            }
+
+            if ($supplierProduct && $isPrincipal) {
+
+                $historicSupplierProduct = FetchAuroraHistoricSupplierProducts::run($organisationSource, $supplierProductData['historicSupplierProductSourceID']);
+                $supplierProduct->updateQuietly(['current_historic_supplier_product_id' => $historicSupplierProduct->id]);
+
+
+                $tradeUnit = $supplierProductData['trade_unit'];
                 SyncSupplierProductTradeUnits::run($supplierProduct, [
                     $tradeUnit->id => [
                         'quantity' => $supplierProductData['supplierProduct']['units_per_pack']
                     ]
                 ]);
-
-
-                $sourceData = explode(':', $supplierProduct->source_id);
-                DB::connection('aurora')->table('Supplier Part Dimension')
-                    ->where('Supplier Part Key', $sourceData[1])
-                    ->update(['aiku_id' => $supplierProduct->id]);
-
-                return $supplierProduct;
-            } else {
-                $sourceData = explode(':', $baseSupplierProduct->source_id);
-                DB::connection('aurora')->table('Supplier Part Dimension')
-                    ->where('Supplier Part Key', $sourceData[1])
-                    ->update(['aiku_id' => $baseSupplierProduct->id]);
-
-                return $baseSupplierProduct;
             }
         }
 
-        return null;
+        return $supplierProduct;
+    }
+
+
+    public function updateSupplierProductSources(SupplierProduct $supplierProduct, string $source): void
+    {
+        $sources   = Arr::get($supplierProduct->sources, 'supplier_parts', []);
+        $sources[] = $source;
+        $sources   = array_unique($sources);
+
+        $supplierProduct->updateQuietly([
+            'sources' => [
+                'supplier_parts' => $sources,
+            ]
+        ]);
     }
 
     public function getModelsQuery(): Builder

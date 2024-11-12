@@ -113,7 +113,7 @@ class GetWebsiteGoogleCloud extends OrgAction
         return $this->handle($website, $validatedData);
     }
 
-    public string $commandSignature = "gcp:search-result {website?} {--saveSecret}";
+    public string $commandSignature = "gcp-website:search-result {website?} {--saveSecret}";
 
     /**
      * @throws \Exception
@@ -128,11 +128,9 @@ class GetWebsiteGoogleCloud extends OrgAction
                 /** @var Website $website */
                 $website = Website::where("slug", $command->argument("website"))->firstOrFail();
             } catch (Exception) {
-                $command->error("Website not found");
+                $command->error("website not found");
                 exit();
             }
-
-            $this->action($website, []);
 
             $command->line("Website ".$website->slug." fetched");
 

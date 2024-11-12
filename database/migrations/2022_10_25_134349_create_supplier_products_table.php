@@ -31,8 +31,7 @@ return new class () extends Migration {
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->unsignedSmallInteger('agent_id')->nullable()->index();
             $table->foreign('agent_id')->references('id')->on('agents');
-
-            $table->unsignedSmallInteger('stock_id')->nullable()->nullable();
+            $table->unsignedInteger('stock_id')->nullable()->nullable();
             $table->foreign('stock_id')->references('id')->on('stocks');
             $table->string('state')->index()->default(SupplierProductStateEnum::IN_PROCESS->value);
             $table->boolean('is_available')->index()->default(true);
@@ -41,6 +40,7 @@ return new class () extends Migration {
             $table->foreign('currency_id')->references('id')->on('currencies');
             $table->unsignedInteger('units_per_pack')->nullable()->comment('units per pack');
             $table->unsignedInteger('units_per_carton')->nullable()->comment('units per carton');
+            $table->decimal('cbm', 18, 4)->nullable()->comment('carton cubic meters');
             $table->jsonb('settings');
             $table->jsonb('data');
             $table->dateTimeTz('activated_at')->nullable();
@@ -51,9 +51,8 @@ return new class () extends Migration {
             $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();
             $table->string('source_slug')->index()->nullable();
-            $table->string('source_slug_inter_org')->index()->nullable();
-            $table->string('source_organisation_id')->index()->nullable();
             $table->string('source_id')->nullable()->unique();
+            $table->jsonb('sources');
             $table->unique(['supplier_id', 'code']);
         });
         DB::statement('CREATE INDEX ON supplier_products USING gin (name gin_trgm_ops) ');

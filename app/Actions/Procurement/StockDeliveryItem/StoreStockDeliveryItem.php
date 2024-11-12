@@ -7,19 +7,67 @@
 
 namespace App\Actions\Procurement\StockDeliveryItem;
 
+use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Actions\Traits\WithStoreProcurementOrderItem;
+use App\Enums\Procurement\StockDeliveryItem\StockDeliveryItemStateEnum;
+use App\Models\Inventory\OrgStock;
 use App\Models\Procurement\StockDelivery;
 use App\Models\Procurement\StockDeliveryItem;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Models\SupplyChain\HistoricSupplierProduct;
+use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 
-class StoreStockDeliveryItem
+class StoreStockDeliveryItem extends OrgAction
 {
-    use AsAction;
+    use WithNoStrictRules;
+    use WithStoreProcurementOrderItem;
 
-    public function handle(StockDelivery $stockDelivery, array $modelData): StockDeliveryItem
+    public function handle(StockDelivery $stockDelivery, HistoricSupplierProduct|OrgStock $item, array $modelData): StockDeliveryItem
     {
+
+        $modelData = $this->prepareProcurementOrderItem($stockDelivery, $item, $modelData);
+
+
+        if (Arr::has($modelData, 'gross_amount')) {
+            data_set($modelData, 'grp_gross_amount', Arr::get($modelData, 'gross_amount', 0) * Arr::get($modelData, 'grp_exchange', 1));
+            data_set($modelData, 'org_gross_amount', Arr::get($modelData, 'gross_amount', 0) * Arr::get($modelData, 'org_exchange', 1));
+        }
+
+
         /** @var StockDeliveryItem $stockDeliveryItem */
         $stockDeliveryItem = $stockDelivery->items()->create($modelData);
 
         return $stockDeliveryItem;
     }
+
+    public function rules(): array
+    {
+        $rules = [
+            'unit_quantity' => ['required', 'numeric', 'gte:0'],
+
+        ];
+
+        if (!$this->strict) {
+            $rules['state'] = ['sometimes','required', Rule::enum(StockDeliveryItemStateEnum::class)];
+            $rules['unit_quantity_checked'] = ['sometimes', 'numeric', 'gte:0'];
+            $rules['unit_quantity_placed'] = ['sometimes', 'numeric', 'gte:0'];
+            $rules = $this->noStrictStoreRules($rules);
+        }
+
+
+        return $rules;
+    }
+
+    public function action(StockDelivery $stockDelivery, HistoricSupplierProduct|OrgStock $item, array $modelData, int $hydratorsDelay = 0, bool $strict = true): StockDeliveryItem
+    {
+        $this->asAction       = true;
+        $this->strict = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+
+        $this->initialisation($stockDelivery->organisation, $modelData);
+
+        return $this->handle($stockDelivery, $item, $this->validatedData);
+    }
+
 }

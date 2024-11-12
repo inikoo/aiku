@@ -31,19 +31,35 @@ class FetchAuroraHistoricSupplierProduct extends FetchAurora
             $units = 1;
         }
 
+        $packagesPerCarton = $this->auroraModelData->{'Supplier Part Historic Packages Per Carton'};
+        if (!$packagesPerCarton) {
+            $packagesPerCarton = 1;
+        }
+        $units_per_carton = $units * $packagesPerCarton;
+        if ($units_per_carton == 0) {
+            $units_per_carton = 1;
+        }
+
         $this->parsedData['historic_supplier_product'] = [
-            'code'      => $this->auroraModelData->{'Supplier Part Historic Reference'},
-            'unit_cost' => $this->auroraModelData->{'Supplier Part Historic Unit Cost'},
-            'units'     => $units,
-            'status'    => $status,
-            'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Historic Key'}
+            'code'             => $this->auroraModelData->{'Supplier Part Historic Reference'},
+            'units_per_pack'   => $units,
+            'units_per_carton' => $units_per_carton,
+            'status'           => $status,
+            'source_id'        => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Historic Key'},
+            'fetched_at'       => now(),
+            'last_fetched_at'  => now(),
         ];
+
+
+        if ($this->auroraModelData->{'Supplier Part Historic Carton CBM'}) {
+            $this->parsedData['historic_supplier_product']['cbm'] = $this->auroraModelData->{'Supplier Part Historic Carton CBM'};
+        }
+
     }
 
 
     protected function fetchData($id): object|null
     {
-
         return DB::connection('aurora')
             ->table('Supplier Part Historic Dimension')
             ->leftJoin(

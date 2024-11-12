@@ -118,11 +118,11 @@ class ShowPurchaseOrder extends OrgAction
         );
 
         $orderer = [];
-        $productRoute = [];
+        $productListRoute = [];
         if($purchaseOrder->parent instanceof OrgAgent)
         {
             $orderer = OrgAgentResource::make($purchaseOrder->parent)->toArray($request);
-            $productRoute = [
+            $productListRoute = [
                 'method'     => 'get',
                 'name'       => 'grp.json.org-agent.org-supplier-products',
                 'parameters' => [
@@ -133,13 +133,128 @@ class ShowPurchaseOrder extends OrgAction
         elseif ($purchaseOrder->parent instanceof OrgSupplier)
         {
             $orderer = OrgSupplierResource::make($purchaseOrder->parent)->toArray($request);
-            $productRoute = [
+            $productListRoute = [
                 'method'     => 'get',
                 'name'       => 'grp.json.org-supplier.org-supplier-products',
                 'parameters' => [
                     'orgSupplier' => $purchaseOrder->parent->slug,
                 ]
             ];
+        }
+
+        $actions = [];
+        if ($this->canEdit) {
+            $actions = match ($purchaseOrder->state) {
+                PurchaseOrderStateEnum::IN_PROCESS => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'secondary',
+                        'icon'    => 'fal fa-plus',
+                        'key'     => 'add-products',
+                        'label'   => __('add products'),
+                        'tooltip' => __('Add products'),
+                        'route'   => [
+                            'name'       => 'grp.models.order.transaction.store',
+                            'parameters' => [
+                                'purchaseOrder' => $purchaseOrder->id,
+                            ]
+                        ]
+                    ],
+                    ($purchaseOrder->purchaseOrderTransactions()->count() > 0) ?
+                        [
+                            'type'    => 'button',
+                            'style'   => 'save',
+                            'tooltip' => __('submit'),
+                            'label'   => __('submit'),
+                            'key'     => 'action',
+                            'route'   => [
+                                'method'     => 'patch',
+                                'name'       => 'grp.models.purchase-order.submit',
+                                'parameters' => [
+                                    'purchaseOrder' => $purchaseOrder->id
+                                ]
+                            ]
+                        ] : [],
+                ],
+                PurchaseOrderStateEnum::SUBMITTED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Confirm'),
+                        'label'   => __('Confirm'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.purchase-order.confirm',
+                            'parameters' => [
+                                'purchaseOrder' => $purchaseOrder->id
+                            ]
+                        ]
+                    ],
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Cancel'),
+                        'label'   => __('Cancel'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.purchase-order.cancel',
+                            'parameters' => [
+                                'purchaseOrder' => $purchaseOrder->id
+                            ]
+                        ]
+                    ],
+
+                ],
+                PurchaseOrderStateEnum::CONFIRMED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Settle'),
+                        'label'   => __('Settle'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.purchase-order.settle',
+                            'parameters' => [
+                                'purchaseOrder' => $purchaseOrder->id
+                            ]
+                        ]
+                    ],
+                    [
+                        'type'    => 'button',
+                        'style'   => 'delete',
+                        'tooltip' => __('Cancel'),
+                        'label'   => __('Cancel'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.purchase-order.cancel',
+                            'parameters' => [
+                                'purchaseOrder' => $purchaseOrder->id
+                            ]
+                        ]
+                    ],
+                ],
+                PurchaseOrderStateEnum::SETTLED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Not Received'),
+                        'label'   => __('Not Received'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.purchase-order.not-received',
+                            'parameters' => [
+                                'purchaseOrder' => $purchaseOrder->id
+                            ]
+                        ]
+                    ]
+                ],
+                default => []
+            };
         }
         // dd($orderer);
         return Inertia::render(
@@ -168,6 +283,7 @@ class ShowPurchaseOrder extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
+                    'actions' => $actions
 
                 ],
                 'routes'      => [
@@ -178,7 +294,7 @@ class ShowPurchaseOrder extends OrgAction
                             'purchaseOrder' => $purchaseOrder->id,
                         ]
                     ],
-                    'products_list'    => $productRoute,
+                    'products_list'    => $productListRoute,
                 ],
                 // 'alert'   => [  // TODO
                 //     'status'        => 'danger',

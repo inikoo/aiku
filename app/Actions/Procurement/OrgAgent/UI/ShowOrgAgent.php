@@ -83,50 +83,42 @@ class ShowOrgAgent extends OrgAction
                         'label' => __('purchase order')
                     ] : false,
                     'actions'       => [
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'edit',
-                            'route' => [
-                                'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ] : false,
-                        $this->canDelete ? [
-                            'type'  => 'button',
-                            'style' => 'delete',
-                            'route' => [
-                                'name'       => 'grp.org.procurement.org_agents.remove',
-                                'parameters' => array_values($request->route()->originalParameters())
-                            ]
-                        ] : false,
+                        // $this->canDelete ? [
+                        //     'type'  => 'button',
+                        //     'style' => 'delete',
+                        //     'route' => [
+                        //         'name'       => 'grp.org.procurement.org_agents.remove',
+                        //         'parameters' => array_values($request->route()->originalParameters())
+                        //     ]
+                        // ] : false,
                     ],
 
-                    'meta' => [
-                        [
-                            'name'     => trans_choice('supplier|suppliers', $orgAgent->stats->number_org_suppliers),
-                            'number'   => $orgAgent->stats->number_org_suppliers,
-                            'href'     => [
-                                'grp.org.procurement.org_agents.show.org_suppliers.index',
-                                $orgAgent->organisation->slug
-                            ],
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-person-dolly',
-                                'tooltip' => __('suppliers')
-                            ]
-                        ],
-                        [
-                            'name'     => trans_choice('product|products', $orgAgent->stats->number_org_supplier_products),
-                            'number'   => $orgAgent->stats->number_org_supplier_products,
-                            'href'     => [
-                                'grp.org.procurement.org_agents.show.org_suppliers.index',
-                                $orgAgent->organisation->slug
-                            ],
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-box-usd',
-                                'tooltip' => __('products')
-                            ]
-                        ]
-                    ]
+                    // 'meta' => [
+                    //     [
+                    //         'name'     => trans_choice('supplier|suppliers', $orgAgent->stats->number_org_suppliers),
+                    //         'number'   => $orgAgent->stats->number_org_suppliers,
+                    //         'href'     => [
+                    //             'grp.org.procurement.org_agents.show.org_suppliers.index',
+                    //             $orgAgent->organisation->slug
+                    //         ],
+                    //         'leftIcon' => [
+                    //             'icon'    => 'fal fa-person-dolly',
+                    //             'tooltip' => __('suppliers')
+                    //         ]
+                    //     ],
+                    //     [
+                    //         'name'     => trans_choice('product|products', $orgAgent->stats->number_org_supplier_products),
+                    //         'number'   => $orgAgent->stats->number_org_supplier_products,
+                    //         'href'     => [
+                    //             'grp.org.procurement.org_agents.show.org_suppliers.index',
+                    //             $orgAgent->organisation->slug
+                    //         ],
+                    //         'leftIcon' => [
+                    //             'icon'    => 'fal fa-box-usd',
+                    //             'tooltip' => __('products')
+                    //         ]
+                    //     ]
+                    // ]
 
                 ],
                 'tabs'        => [
@@ -138,30 +130,10 @@ class ShowOrgAgent extends OrgAction
                     fn () => GetOrgAgentShowcase::run($orgAgent)
                     : Inertia::lazy(fn () => GetOrgAgentShowcase::run($orgAgent)),
 
-                OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value => $this->tab == OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value
-                    ?
-                    fn () => OrgSupplierProductsResource::collection(
-                        IndexOrgSupplierProducts::run(
-                            parent: $orgAgent,
-                            prefix: OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value
-                        )
-                    )
-                    : Inertia::lazy(fn () => OrgSupplierProductsResource::collection(
-                        IndexOrgSupplierProducts::run(
-                            parent: $orgAgent,
-                            prefix: OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value
-                        )
-                    )),
-
                 OrgAgentTabsEnum::HISTORY->value => $this->tab == OrgAgentTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($orgAgent))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($orgAgent)))
             ]
-        )->table(
-            IndexOrgSupplierProducts::make()->tableStructure(
-                parent: $orgAgent,
-                prefix: OrgAgentTabsEnum::ORG_SUPPLIER_PRODUCTS->value
-            )
         )->table(IndexHistory::make()->tableStructure(prefix: OrgAgentTabsEnum::HISTORY->value));
     }
 

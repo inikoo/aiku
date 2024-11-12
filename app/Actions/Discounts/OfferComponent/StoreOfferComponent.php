@@ -1,42 +1,90 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 21 Jun 2023 08:04:13 Malaysia Time, Pantai Lembeng, Bali, Id
+ * Created: Wed, 21 Jun 2023 08:04:13 Malaysia Time, Pantai Lembeng, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Discounts\OfferComponent;
 
-use App\Models\Discounts\OfferCampaign;
+use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Actions\Traits\WithStoreOffer;
+use App\Enums\Discounts\OfferComponent\OfferComponentStateEnum;
+use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferComponent;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
+use App\Rules\IUnique;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
-class StoreOfferComponent
+class StoreOfferComponent extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
+    use WithNoStrictRules;
+    use WithStoreOffer;
 
-    public function handle(OfferCampaign $offerCampaign, array $modelData): OfferComponent
+
+    /**
+     * @throws \Throwable
+     */
+    public function handle(Offer $offer, $trigger, array $modelData): OfferComponent
     {
-        /** @var OfferComponent */
-        return $offerCampaign->offerComponent()->create($modelData);
+        $modelData = $this->prepareOfferData($offer, $trigger, $modelData);
+        data_set($modelData, 'offer_campaign_id', $offer->offer_campaign_id);
+
+
+        return DB::transaction(function () use ($offer, $modelData) {
+            /** @var $offerComponent OfferComponent */
+            $offerComponent = $offer->offerComponents()->create($modelData);
+            $offerComponent->stats()->create();
+
+            return $offerComponent;
+        });
     }
 
     public function rules(): array
     {
-        return [
-            'code' => ['required', 'unique:offer_components', 'between:2,9', 'alpha'],
-            'name' => ['required', 'max:250', 'string'],
-            'data' => ['sometimes', 'required']
+        $rules = [
+            'code'         => [
+                'required',
+                new IUnique(
+                    table: 'offer_components',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                    ]
+                ),
+
+                'max:64',
+                'alpha_dash'
+            ],
+            'data'          => ['sometimes', 'required'],
+            'start_at'      => ['sometimes', 'date'],
+            'end_at'        => ['sometimes', 'nullable', 'date'],
+            'trigger_scope' => ['required', 'max:250', 'string'],
+
         ];
+        if (!$this->strict) {
+            $rules['state']    = ['required', Rule::enum(OfferComponentStateEnum::class)];
+            $rules['start_at'] = ['sometimes', 'nullable', 'date'];
+            $rules             = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
     }
 
-    public function action(OfferCampaign $offerCampaign, array $modelData): OfferComponent
+    /**
+     * @throws \Throwable
+     */
+    public function action(Offer $offer, $trigger, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): OfferComponent
     {
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        if (!$audit) {
+            OfferComponent::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
 
-        return $this->handle($offerCampaign, $validatedData);
+        $this->initialisationFromShop($offer->shop, $modelData);
+
+        return $this->handle($offer, $trigger, $this->validatedData);
     }
 }

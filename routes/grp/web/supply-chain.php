@@ -6,6 +6,7 @@
  */
 
 use App\Actions\SupplyChain\Agent\UI\CreateAgent;
+use App\Actions\SupplyChain\Agent\UI\EditAgent;
 use App\Actions\SupplyChain\Agent\UI\IndexAgents;
 use App\Actions\SupplyChain\Agent\UI\ShowAgent;
 use App\Actions\SupplyChain\Supplier\ExportSuppliers;
@@ -26,6 +27,7 @@ Route::prefix("agents")->name("agents.")->group(
     function () {
         Route::get('', IndexAgents::class)->name('index');
         Route::get('create', CreateAgent::class)->name('create');
+        Route::get('{agent}/edit', EditAgent::class)->name('edit');
         Route::get('{agent}', ShowAgent::class)->name('show');
 
         Route::prefix('{agent}')->as('show')->group(function () {

@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Throwable;
 
-class FetchPurchaseOrderTransactions
+class FetchAuroraPurchaseOrderTransactions
 {
     use AsAction;
 
@@ -43,23 +43,24 @@ class FetchPurchaseOrderTransactions
                     return null;
                 }
             } else {
-                try {
-                    $purchaseOrderTransaction = StorePurchaseOrderTransaction::make()->action(
-                        purchaseOrder: $purchaseOrder,
-                        item: $transactionData['item'],
-                        modelData: $transactionData['purchase_order_transaction'],
-                        strict: false
-                    );
+                //  try {
+                $purchaseOrderTransaction = StorePurchaseOrderTransaction::make()->action(
+                    purchaseOrder: $purchaseOrder,
+                    item: $transactionData['item'],
+                    modelData: $transactionData['purchase_order_transaction'],
+                    hydratorsDelay: 60,
+                    strict: false
+                );
 
-                    $sourceData = explode(':', $purchaseOrderTransaction->source_id);
-                    DB::connection('aurora')->table('Purchase Order Transaction Fact')
-                        ->where('Purchase Order Transaction Fact Key', $sourceData[1])
-                        ->update(['aiku_id' => $purchaseOrderTransaction->id]);
-                } catch (Exception|Throwable $e) {
-                    $this->recordError($organisationSource, $e, $transactionData['historic_supplier_product'], 'PurchaseOrderTransaction', 'store');
-
-                    return null;
-                }
+                $sourceData = explode(':', $purchaseOrderTransaction->source_id);
+                DB::connection('aurora')->table('Purchase Order Transaction Fact')
+                    ->where('Purchase Order Transaction Fact Key', $sourceData[1])
+                    ->update(['aiku_po_id' => $purchaseOrderTransaction->id]);
+                //                } catch (Exception|Throwable $e) {
+                //                    $this->recordError($organisationSource, $e, $transactionData['historic_supplier_product'], 'PurchaseOrderTransaction', 'store');
+                //
+                //                    return null;
+                //                }
             }
 
             return $purchaseOrderTransaction;

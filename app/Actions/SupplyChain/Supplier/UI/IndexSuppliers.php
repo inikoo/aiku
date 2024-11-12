@@ -40,7 +40,7 @@ class IndexSuppliers extends GrpAction
                 ],
 
                 'engine' => function ($query, $elements) {
-                    $query->whereIn('state', $elements);
+                    $query->where('status', array_pop($elements) === 'active');
                 }
 
             ],

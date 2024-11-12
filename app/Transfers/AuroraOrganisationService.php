@@ -9,6 +9,7 @@ namespace App\Transfers;
 
 use App\Models\Accounting\Invoice;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\StockDelivery;
 use App\Transfers\Aurora\FetchAuroraAdjustment;
 use App\Transfers\Aurora\FetchAuroraAgent;
 use App\Transfers\Aurora\FetchAuroraArtefact;
@@ -48,6 +49,7 @@ use App\Transfers\Aurora\FetchAuroraNoProductInvoiceTransaction;
 use App\Transfers\Aurora\FetchAuroraNoProductTransaction;
 use App\Transfers\Aurora\FetchAuroraOffer;
 use App\Transfers\Aurora\FetchAuroraOfferCampaign;
+use App\Transfers\Aurora\FetchAuroraOfferComponent;
 use App\Transfers\Aurora\FetchAuroraOrder;
 use App\Transfers\Aurora\FetchAuroraOrganisation;
 use App\Transfers\Aurora\FetchAuroraOrgStockMovement;
@@ -68,6 +70,7 @@ use App\Transfers\Aurora\FetchAuroraShippingZoneSchema;
 use App\Transfers\Aurora\FetchAuroraShop;
 use App\Transfers\Aurora\FetchAuroraStock;
 use App\Transfers\Aurora\FetchAuroraStockDelivery;
+use App\Transfers\Aurora\FetchAuroraStockDeliveryItem;
 use App\Transfers\Aurora\FetchAuroraStockFamily;
 use App\Transfers\Aurora\FetchAuroraSupplier;
 use App\Transfers\Aurora\FetchAuroraSupplierProduct;
@@ -429,7 +432,12 @@ class AuroraOrganisationService implements SourceOrganisationService
 
     public function fetchPurchaseOrderTransaction($id, PurchaseOrder $purchaseOrder): ?array
     {
-        return (new fetchAuroraPurchaseOrderTransaction($this))->fetchAuroraPurchaseOrderTransaction($id, $purchaseOrder);
+        return (new FetchAuroraPurchaseOrderTransaction($this))->fetchAuroraPurchaseOrderTransaction($id, $purchaseOrder);
+    }
+
+    public function fetchStockDeliveryItem($id, StockDelivery $stockDelivery): ?array
+    {
+        return (new FetchAuroraStockDeliveryItem($this))->fetchAuroraStockDeliveryItem($id, $stockDelivery);
     }
 
     public function fetchOfferCampaign($id): ?array
@@ -440,6 +448,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchOffer($id): ?array
     {
         return (new FetchAuroraOffer($this))->fetch($id);
+    }
+
+    public function fetchOfferComponent($id): ?array
+    {
+        return (new FetchAuroraOfferComponent($this))->fetch($id);
     }
 
     public function fetchCustomerNote($id): ?array

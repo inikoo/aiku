@@ -249,7 +249,8 @@ class ShowSupplier extends GrpAction
             'grp.supply-chain.agents.show.suppliers.show' =>
             array_merge(
                 (new ShowAgent())->getBreadcrumbs(
-                    ['agent' => $routeParameters['agent']]
+                    $supplier->agent,
+                    $routeParameters
                 ),
                 $headCrumb(
                     $supplier,

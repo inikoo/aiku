@@ -17,9 +17,6 @@ class FetchAuroraSupplierProduct extends FetchAurora
 
     protected function parseModel(): void
     {
-
-
-
         if ($this->auroraModelData->aiku_ignore == 'Yes') {
             return;
         }
@@ -82,6 +79,10 @@ class FetchAuroraSupplierProduct extends FetchAurora
         };
 
 
+        if ($auroraSupplierData->{'Supplier Type'} == 'Archived') {
+            $state = SupplierProductStateEnum::DISCONTINUED;
+        }
+
         if ($this->auroraModelData->{'Supplier Part From'} == '0000-00-00 00:00:00') {
             $created_at = null;
         } else {
@@ -97,12 +98,17 @@ class FetchAuroraSupplierProduct extends FetchAurora
             default => strtolower($auroraPartData->{'Part Stock Status'})
         };
 
-        $partReference      = $this->cleanTradeUnitReference($auroraPartData->{'Part Reference'});
-        $sourceSlugInterOrg = $supplier->source_slug.':'.$this->auroraModelData->{'Supplier Part Packages Per Carton'}.':'.$auroraPartData->{'Part Units Per Package'}.':'.Str::kebab(strtolower($partReference));
+        $supplierPartReference = Str::kebab(strtolower($this->cleanTradeUnitReference($this->auroraModelData->{'Supplier Part Reference'})));
 
+        $partReference = Str::kebab(strtolower($this->cleanTradeUnitReference($auroraPartData->{'Part Reference'})));
 
-        $sourceSlug = $supplier->source_slug.':'.Str::kebab(strtolower($partReference));
+        if ($supplierPartReference == $partReference) {
+            $composedReference = $partReference;
+        } else {
+            $composedReference = $supplierPartReference.'__'.$partReference;
+        }
 
+        $sourceSlug = $supplier->source_slug.':'.$composedReference;
 
         $name = $this->auroraModelData->{'Supplier Part Description'};
         if ($name == '') {
@@ -113,7 +119,6 @@ class FetchAuroraSupplierProduct extends FetchAurora
         $code = $this->auroraModelData->{'Supplier Part Reference'};
         // $code = str_replace('&', 'and', $code);
         // $code =$this->cleanTradeUnitReference($code);
-
 
 
         $this->parsedData['supplierProduct'] =
@@ -131,16 +136,20 @@ class FetchAuroraSupplierProduct extends FetchAurora
                 'stock_quantity_status' => $stock_quantity_status,
                 'stock_id'              => $stock->id,
 
-                'data'                  => $data,
-                'settings'              => $settings,
-                'created_at'            => $created_at,
+                'data'       => $data,
+                'settings'   => $settings,
+                'created_at' => $created_at,
 
-                'source_slug'           => $sourceSlug,
-                'source_slug_inter_org' => $sourceSlugInterOrg,
-                'source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Key'},
-                'fetched_at'            => now(),
-                'last_fetched_at'       => now()
+                'source_slug'     => $sourceSlug,
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Key'},
+                'fetched_at'      => now(),
+                'last_fetched_at' => now()
             ];
+
+
+        if ($this->auroraModelData->{'Supplier Part Carton CBM'}) {
+            $this->parsedData['supplierProduct']['cbm'] = $this->auroraModelData->{'Supplier Part Carton CBM'};
+        }
 
         $this->parsedData['historicSupplierProductSourceID'] = $this->auroraModelData->{'Supplier Part Historic Key'};
     }

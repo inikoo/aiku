@@ -58,7 +58,7 @@ class UpdatePurchaseOrderStateToSubmitted extends OrgAction
     public function afterValidator(Validator $validator): void
     {
         if (!in_array($this->purchaseOrder->state, [PurchaseOrderStateEnum::IN_PROCESS, PurchaseOrderStateEnum::CONFIRMED])) {
-            $validator->errors()->add('status', __('Purchase order can only be submitted if it is in creating or confirmed state'));
+            $validator->errors()->add('state', __('Purchase order can only be submitted if it is in process'));
         }
     }
 
