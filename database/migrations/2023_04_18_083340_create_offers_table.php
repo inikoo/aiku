@@ -28,15 +28,15 @@ return new class () extends Migration {
             $table->string('code');
             $table->string('name');
             $table->string('type')->index();
-            ;
             $table->string('trigger_type')->index();
             $table->unsignedBigInteger('trigger_id')->nullable();
             $table->jsonb('allowances');
             $table->jsonb('data');
             $table->jsonb('settings');
+
+            $table->timestampsTz();
             $table->datetimeTz('start_at')->nullable();
             $table->datetimeTz('end_at')->nullable();
-            $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();

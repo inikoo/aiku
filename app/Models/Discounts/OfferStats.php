@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Discounts\Offer|null $asset
+ * @property-read \App\Models\Discounts\Offer $offer
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferStats query()
@@ -36,7 +36,7 @@ class OfferStats extends Model
 
     protected $guarded = [];
 
-    public function asset(): BelongsTo
+    public function offer(): BelongsTo
     {
         return $this->belongsTo(Offer::class);
     }
