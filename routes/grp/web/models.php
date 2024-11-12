@@ -152,6 +152,7 @@ use App\Actions\Ordering\Purge\StorePurge;
 use App\Actions\Ordering\Purge\UpdatePurge;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
+use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Group\UpdateGroupSettings;
@@ -632,7 +633,11 @@ Route::name('org-agent.')->prefix('org-agent/{orgAgent:id}')->group(function () 
 Route::name('org-partner.')->prefix('org-partner/{orgPartner:id}')->group(function () {
     Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgPartner'])->name('purchase-order.store');
 });
-Route::patch('/purchase-order/{purchaseOrder:id}/update', UpdatePurchaseOrder::class)->name('purchase-order.update');
+
+Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->group(function () {
+    Route::patch('update', UpdatePurchaseOrder::class)->name('update');
+    Route::post('transactions/{item:id}/store', StorePurchaseOrderTransaction::class)->name('transaction.store');
+});
 
 require __DIR__."/models/inventory/location_org_stock.php";
 require __DIR__."/models/ordering/order.php";

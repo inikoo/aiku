@@ -59,7 +59,8 @@ class GetOrgSupplierProducts extends OrgAction
             ->select([
                 'org_supplier_products.id',
                 'supplier_products.code',
-                'supplier_products.name'
+                'supplier_products.name',
+                'supplier_products.current_historic_supplier_product_id as historic_id'
             ])
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])

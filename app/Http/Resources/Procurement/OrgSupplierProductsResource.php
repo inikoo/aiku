@@ -22,6 +22,8 @@ class OrgSupplierProductsResource extends JsonResource
     public function toArray($request): array
     {
         return [
+            'id'            => $this->id ?? null,
+            'historic_id'   => $this->historic_id ?? null,
             'code'          => $this->code,
             'name'          => $this->name,
             'slug'          => $this->slug,
