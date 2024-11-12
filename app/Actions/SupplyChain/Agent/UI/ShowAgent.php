@@ -49,6 +49,7 @@ class ShowAgent extends GrpAction
 
     public function htmlResponse(Agent $agent, ActionRequest $request): Response
     {
+
         return Inertia::render(
             'SupplyChain/Agent',
             [
@@ -178,6 +179,8 @@ class ShowAgent extends GrpAction
     public function getBreadcrumbs(Agent $agent, array $routeParameters, $suffix = null): array
     {
 
+        // dd($routeParameters);
+
         return array_merge(
             ShowSupplyChainDashboard::make()->getBreadcrumbs(),
             [
@@ -198,7 +201,7 @@ class ShowAgent extends GrpAction
                             'label' => $agent->organisation->code,
                         ],
                     ],
-                    'suffix'         => $suffix,
+                    'suffix' => $suffix,
 
                 ],
             ]
