@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, IframeHTMLAttributes } from 'vue'
+import { ref, watch, IframeHTMLAttributes, onMounted } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -16,6 +16,9 @@ import ScreenView from "@/Components/ScreenView.vue"
 import Image from '@/Components/Image.vue'
 import HeaderListModal from '@/Components/CMS/Fields/ListModal.vue'
 import { trans } from "laravel-vue-i18n"
+import { getBlueprint } from '@/Composables/getBlueprintWorkshop'
+import { setIframeView } from "@/Composables/Workshop"
+import ProgressSpinner from 'primevue/progressspinner';
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -42,7 +45,6 @@ const props = defineProps<{
 const previewMode = ref(false)
 const isModalOpen = ref(false)
 const usedTemplates = ref(isArray(props.data.footer) ? null : props.data.footer)
-const tabsBar = ref(0)
 const isLoading = ref(false)
 const comment = ref('')
 const iframeClass = ref('w-full h-full')
@@ -61,6 +63,7 @@ const iframeSrc = ref(
 const onPickTemplate = (footer: Object) => {
     isModalOpen.value = false
     usedTemplates.value = footer
+    isIframeLoading.value = true
 }
 
 const onPublish = async (action: routeType, popover: Function) => {
@@ -88,20 +91,17 @@ const onPublish = async (action: routeType, popover: Function) => {
 
 
 const autoSave = async (data: Object) => {
-   /*  try {
-        const response = await axios.patch(
-            route(props.autosaveRoute.name, props.autosaveRoute.parameters),
-            { layout: data }
-        )
-    } catch (error: any) {
-        console.error('error', error)
-    } */
     router.patch(
         route(props.autosaveRoute.name, props.autosaveRoute.parameters),
         { layout: data },
         {
             onFinish: () => {
                 saveCancelToken.value = null
+                sendToIframe({ key: 'reload', value: {} })
+                if(isIframeLoading.value){
+                    isIframeLoading.value = false
+                 /*    location.reload(); */
+                }
             },
             onCancelToken: (cancelToken) => {
                 saveCancelToken.value = cancelToken.cancel
@@ -124,20 +124,6 @@ const autoSave = async (data: Object) => {
 
 const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
 
-const setIframeView = (view: String) => {
-    if (view === 'mobile') {
-        iframeClass.value = 'w-[375px] h-[667px] mx-auto';
-    } else if (view === 'tablet') {
-        iframeClass.value = 'w-[768px] h-[1024px] mx-auto';
-    } else {
-        iframeClass.value = 'w-full h-full';
-    }
-}
-
-const openFullScreenPreview = () => {
-    window.open(iframeSrc.value + '&isInWorkshop=true', '_blank')
-}
-
 const handleIframeError = () => {
     console.error('Failed to load iframe content.');
 }
@@ -158,6 +144,20 @@ const sendToIframe = (data: any) => {
     _iframe.value?.contentWindow.postMessage(data, '*')
 }
 
+const handleIframeMessage = (event: MessageEvent) => {
+    if (event.origin !== window.location.origin) return;
+    const { data } = event;
+
+    if (data.key === 'autosave') {
+        if (saveCancelToken.value) saveCancelToken.value()
+        usedTemplates.value = data.value
+    }
+};
+
+onMounted(() => {
+    window.addEventListener('message', handleIframeMessage);
+});
+
 </script>
 
 <template>
@@ -172,19 +172,7 @@ const sendToIframe = (data: any) => {
     <div class="h-[84vh] grid grid-flow-row-dense grid-cols-4">
         <div v-if="usedTemplates" class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
             <div class="flex h-full">
-                <div class="w-[10%] bg-slate-200 ">
-                    <div v-for="(tab, index) in usedTemplates.blueprint"
-                        class="py-2 px-3 cursor-pointer transition duration-300 ease-in-out transform hover:scale-105"
-                        :title="tab.name" @click="tabsBar = index"
-                        :class="[tabsBar == tab.key ? 'bg-gray-300/70' : 'hover:bg-gray-200/60']" v-tooltip="tab.name">
-                        <FontAwesomeIcon :icon="tab.icon" :class="[tabsBar == index ? 'text-indigo-300' : '']"
-                            aria-hidden='true' />
-                    </div>
-                </div>
-                <div class="w-[90%]">
-                    <SideEditor v-model="usedTemplates.data.fieldValue"
-                        :bluprint="usedTemplates.blueprint[tabsBar].blueprint" />
-                </div>
+                <SideEditor v-model="usedTemplates.data.fieldValue" :bluprint="getBlueprint(usedTemplates.code)" />
             </div>
         </div>
 
@@ -193,7 +181,7 @@ const sendToIframe = (data: any) => {
                 <div v-if="usedTemplates?.data" class="w-full h-full">
                     <div class="flex justify-between bg-slate-200 border border-b-gray-300">
                         <div class="flex">
-                            <ScreenView @screenView="setIframeView" />
+                            <ScreenView @screenView="(e) => iframeClass = setIframeView(e)" />
                             <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
                                 @click="openFullScreenPreview">
                                 <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />
@@ -219,12 +207,19 @@ const sendToIframe = (data: any) => {
                         </div>
                     </div>
 
-                    <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
+                    <div v-if="isIframeLoading" class="loading-overlay">
+                        <ProgressSpinner />
+                    </div>
+
+                    <iframe :src="iframeSrc" :title="props.title" :class="[iframeClass]" @error="handleIframeError"
+                        @load="isIframeLoading = false" ref="_iframe" />
+
+                   <!--  <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
                         <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
                     </div>
                     <iframe :src="iframeSrc" :title="props.title" ref="_iframe"
                         :class="[iframeClass, isIframeLoading ? 'hidden' : '']" @error="handleIframeError"
-                        @load="isIframeLoading = false" />
+                        @load="isIframeLoading = false" /> -->
                 </div>
                 <div v-else>
                     <EmptyState
@@ -258,4 +253,36 @@ const sendToIframe = (data: any) => {
 </template>
 
 
-<style scss></style>
+<style scoped lang="scss">
+:deep(.loading-overlay) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 1000;
+}
+
+:deep(.spinner) {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 4px solid #3498db;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+</style>
