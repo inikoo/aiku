@@ -345,6 +345,19 @@ class IndexOrgStocks extends OrgAction
         if ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
             $organisation = $this->parent->partner;
+            $title = $this->parent->partner->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-users-class'],
+                'title' => __('SKUs')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-box',
+            ];
+            $afterTitle = [
+
+                'label'     => __('SKUs')
+            ];
         } elseif ($this->parent instanceof OrgAgent) {
             $subNavigation = $this->getOrgAgentNavigation($this->parent);
             $organisation = $this->parent->agent->organisation;

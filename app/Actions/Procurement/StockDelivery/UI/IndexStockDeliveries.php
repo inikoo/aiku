@@ -163,6 +163,19 @@ class IndexStockDeliveries extends OrgAction
             ];
         } elseif ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
+            $title = $this->parent->partner->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-users-class'],
+                'title' => __('supplier deliveries')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-truck-container',
+            ];
+            $afterTitle = [
+
+                'label'     => __('Supplier Deliveries')
+            ];
         }
         return Inertia::render(
             'Procurement/StockDeliveries',

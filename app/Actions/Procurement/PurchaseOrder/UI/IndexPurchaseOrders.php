@@ -204,6 +204,19 @@ class IndexPurchaseOrders extends OrgAction
                     'label' => __('purchase order')
                 ]
             ];
+            $title = $this->parent->partner->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-users-class'],
+                'title' => __('purchase orders')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-clipboard-list',
+            ];
+            $afterTitle = [
+
+                'label'     => __('Purchase Orders')
+            ];
         } 
         // dd($this->parent);
         return Inertia::render(
