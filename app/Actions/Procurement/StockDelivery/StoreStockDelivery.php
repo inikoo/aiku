@@ -13,6 +13,7 @@ use App\Actions\Procurement\WithNoStrictProcurementOrderRules;
 use App\Actions\Procurement\WithPrepareDeliveryStoreFields;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
+use App\Models\Manufacturing\Production;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
@@ -29,9 +30,9 @@ class StoreStockDelivery extends OrgAction
     use WithNoStrictProcurementOrderRules;
 
 
-    private OrgSupplier|OrgAgent|OrgPartner $parent;
+    private OrgSupplier|OrgAgent|OrgPartner|Production $parent;
 
-    public function handle(OrgSupplier|OrgAgent|OrgPartner $parent, array $modelData): StockDelivery
+    public function handle(OrgSupplier|OrgAgent|OrgPartner|Production $parent, array $modelData): StockDelivery
     {
         data_set($modelData, 'organisation_id', $this->organisation->id);
         data_set($modelData, 'group_id', $this->organisation->group_id);
@@ -98,7 +99,7 @@ class StoreStockDelivery extends OrgAction
         }
     }
 
-    public function action(OrgSupplier|OrgAgent|OrgPartner $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): StockDelivery
+    public function action(OrgSupplier|OrgAgent|OrgPartner|Production $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): StockDelivery
     {
         if (!$audit) {
             StockDelivery::disableAuditing();

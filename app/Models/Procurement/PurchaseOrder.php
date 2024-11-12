@@ -61,6 +61,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $currency_id
  * @property string|null $grp_exchange
  * @property string|null $org_exchange
+ * @property bool $is_costed
+ * @property array $cost_data
  * @property string|null $cost_items
  * @property string|null $cost_extra
  * @property string|null $cost_shipping
@@ -117,25 +119,28 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
 
 
     protected $casts = [
-        'data'               => 'array',
-        'state'              => PurchaseOrderStateEnum::class,
-        'delivery_status'    => PurchaseOrderDeliveryStatusEnum::class,
-        'date'               => 'datetime',
-        'submitted_at'       => 'datetime',
-        'confirmed_at'       => 'datetime',
-        'manufactured_at'    => 'datetime',
-        'dispatched_at'      => 'datetime',
-        'received_at'        => 'datetime',
-        'checked_at'         => 'datetime',
-        'settled_at'         => 'datetime',
-        'cancelled_at'       => 'datetime',
-        'fetched_at'         => 'datetime',
-        'last_fetched_at'    => 'datetime',
+        'data'            => 'array',
+        'cost_data'       => 'array',
+        'state'           => PurchaseOrderStateEnum::class,
+        'delivery_status' => PurchaseOrderDeliveryStatusEnum::class,
+        'date'            => 'datetime',
+        'submitted_at'    => 'datetime',
+        'confirmed_at'    => 'datetime',
+        'manufactured_at' => 'datetime',
+        'dispatched_at'   => 'datetime',
+        'received_at'     => 'datetime',
+        'checked_at'      => 'datetime',
+        'settled_at'      => 'datetime',
+        'cancelled_at'    => 'datetime',
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
 
     protected $attributes = [
-        'data' => '{}',
+        'data'      => '{}',
+        'cost_data' => '{}',
+
     ];
 
     protected $guarded = [];

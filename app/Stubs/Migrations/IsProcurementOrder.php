@@ -70,6 +70,10 @@ trait IsProcurementOrder
         $table->decimal('grp_exchange', 16, 4)->nullable();
         $table->decimal('org_exchange', 16, 4)->nullable();
 
+        $table->boolean('is_costed')->default(false)->index();
+        $table->jsonb('cost_data');
+
+
         $table->decimal('cost_items', 16)->default(null)->nullable();
         $table->decimal('cost_extra', 16)->default(null)->nullable();
         $table->decimal('cost_shipping', 16)->default(null)->nullable();

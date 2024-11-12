@@ -22,7 +22,8 @@ use Throwable;
 
 class FetchAuroraSupplierProducts extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:supplier-products {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new}  {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:supplier_products {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new}  {--d|db_suffix=}';
+
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
@@ -87,35 +88,47 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
             $supplierProduct = SupplierProduct::withTrashed()->whereJsonContains('sources->supplier_parts', $supplierProductData['supplierProduct']['source_id'])->first();
 
             if (!$supplierProduct) {
-                $supplierProduct = SupplierProduct::withTrashed()->where('source_slug', $supplierProductData['supplierProduct']['source_id'])->first();
+                $supplierProduct = SupplierProduct::withTrashed()->where('source_slug', $supplierProductData['supplierProduct']['source_slug'])->first();
 
             }
 
 
+
+
+
+
             if (!$supplierProduct) {
-                try {
-                    $supplierProduct = StoreSupplierProduct::make()->action(
-                        supplier: $supplierProductData['supplier'],
-                        modelData: $supplierProductData['supplierProduct'],
-                        skipHistoric: true,
-                        hydratorsDelay: $this->hydratorsDelay,
-                        strict: false,
-                        audit: false
-                    );
-                    $this->recordNew($organisationSource);
 
-                    SupplierProduct::enableAuditing();
-                    $this->saveMigrationHistory(
-                        $supplierProduct,
-                        Arr::except($supplierProductData['supplierProduct'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                    );
-                    $isPrincipal = true;
+                if (SupplierProduct::withTrashed()->where('supplier_id', $supplierProductData['supplier']->id)->where('code', $supplierProductData['supplierProduct']['code'])->exists()) {
+                    data_set($supplierProductData, 'supplierProduct.code', $supplierProductData['supplierProduct']['code'].'-duplicated-'.uniqid());
 
-                } catch (Exception|Throwable $e) {
-                    $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct');
 
-                    return null;
                 }
+
+
+                //try {
+                $supplierProduct = StoreSupplierProduct::make()->action(
+                    supplier: $supplierProductData['supplier'],
+                    modelData: $supplierProductData['supplierProduct'],
+                    skipHistoric: true,
+                    hydratorsDelay: $this->hydratorsDelay,
+                    strict: false,
+                    audit: false
+                );
+                $this->recordNew($organisationSource);
+
+                SupplierProduct::enableAuditing();
+                $this->saveMigrationHistory(
+                    $supplierProduct,
+                    Arr::except($supplierProductData['supplierProduct'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
+                $isPrincipal = true;
+
+                //                } catch (Exception|Throwable $e) {
+                //                    $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct');
+                //
+                //                    return null;
+                //                }
             }
 
             if ($supplierProduct && $isPrincipal) {

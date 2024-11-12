@@ -8,6 +8,7 @@
 namespace App\Models\Manufacturing;
 
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
+use App\Models\Procurement\StockDelivery;
 use App\Models\SysAdmin\Role;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
@@ -131,5 +132,11 @@ class Production extends Model implements Auditable
     {
         return $this->hasMany(JobOrder::class);
     }
+
+    public function stockDeliveries(): MorphMany
+    {
+        return $this->morphMany(StockDelivery::class, 'parent');
+    }
+
 
 }

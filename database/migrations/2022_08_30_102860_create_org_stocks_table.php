@@ -33,6 +33,7 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index()->collation('und_ns');
             $table->string('name', 255)->nullable();
+            $table->decimal('unit_cost', 16)->nullable();
             $table->decimal('unit_value', 16)->nullable();
             $table->decimal('unit_commercial_value', 16)->default(0);
 

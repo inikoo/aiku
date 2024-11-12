@@ -9,6 +9,7 @@ namespace App\Transfers;
 
 use App\Models\Accounting\Invoice;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\StockDelivery;
 use App\Transfers\Aurora\FetchAuroraAdjustment;
 use App\Transfers\Aurora\FetchAuroraAgent;
 use App\Transfers\Aurora\FetchAuroraArtefact;
@@ -69,6 +70,7 @@ use App\Transfers\Aurora\FetchAuroraShippingZoneSchema;
 use App\Transfers\Aurora\FetchAuroraShop;
 use App\Transfers\Aurora\FetchAuroraStock;
 use App\Transfers\Aurora\FetchAuroraStockDelivery;
+use App\Transfers\Aurora\FetchAuroraStockDeliveryItem;
 use App\Transfers\Aurora\FetchAuroraStockFamily;
 use App\Transfers\Aurora\FetchAuroraSupplier;
 use App\Transfers\Aurora\FetchAuroraSupplierProduct;
@@ -430,7 +432,12 @@ class AuroraOrganisationService implements SourceOrganisationService
 
     public function fetchPurchaseOrderTransaction($id, PurchaseOrder $purchaseOrder): ?array
     {
-        return (new fetchAuroraPurchaseOrderTransaction($this))->fetchAuroraPurchaseOrderTransaction($id, $purchaseOrder);
+        return (new FetchAuroraPurchaseOrderTransaction($this))->fetchAuroraPurchaseOrderTransaction($id, $purchaseOrder);
+    }
+
+    public function fetchStockDeliveryItem($id, StockDelivery $stockDelivery): ?array
+    {
+        return (new FetchAuroraStockDeliveryItem($this))->fetchAuroraStockDeliveryItem($id, $stockDelivery);
     }
 
     public function fetchOfferCampaign($id): ?array

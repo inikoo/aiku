@@ -19,7 +19,7 @@ use Throwable;
 
 class FetchAuroraDeletedSupplierProducts extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:deleted-supplier-products {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:deleted_supplier_products {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?SupplierProduct
@@ -64,7 +64,7 @@ class FetchAuroraDeletedSupplierProducts extends FetchAuroraAction
                             ->where('Supplier Part Deleted Key', $sourceData[1])
                             ->update(['aiku_id' => $supplierProduct->id]);
                     } catch (Exception|Throwable $e) {
-                        dd($e->getMessage());
+                        // dd($e->getMessage());
                         $this->recordError($organisationSource, $e, $supplierDeletedProductData['supplierProduct'], 'DeletedSupplierProduct');
 
                         return null;

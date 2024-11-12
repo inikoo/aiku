@@ -18,6 +18,8 @@ class FetchAuroraStockDelivery extends FetchAurora
     protected function parseModel(): void
     {
 
+
+
         if ($this->auroraModelData->{'Supplier Delivery Parent'} == 'Order') {
             return;
         }

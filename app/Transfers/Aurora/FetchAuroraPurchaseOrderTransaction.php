@@ -20,25 +20,17 @@ class FetchAuroraPurchaseOrderTransaction extends FetchAurora
             return;
         }
 
-
-
         if ($purchaseOrder->parent_type == 'OrgPartner') {
             $item = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Part SKU'});
         } else {
             $item = $this->parseHistoricSupplierProduct($this->organisation->id, $this->auroraModelData->{'Supplier Part Historic Key'});
-
             if (!$item) {
                 $item = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Part SKU'});
             }
-
         }
 
-
-
         if (!$item) {
-
             print "PO  ".$this->auroraModelData->{'Purchase Order Key'}."  Transaction Item not found   ".$this->auroraModelData->{'Purchase Order Transaction Fact Key'}."  \n";
-
 
             return;
         }

@@ -9,6 +9,7 @@ namespace App\Transfers;
 
 use App\Models\Accounting\Invoice;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\StockDelivery;
 use App\Transfers\Aurora\FetchAuroraCustomer;
 use App\Transfers\Aurora\FetchAuroraProspect;
 use App\Transfers\Aurora\FetchAuroraShop;
@@ -355,6 +356,11 @@ class WowsbarOrganisationService implements SourceOrganisationService
     }
 
     public function fetchPurchaseOrderTransaction($id, PurchaseOrder $purchaseOrder): ?array
+    {
+        return null;
+    }
+
+    public function fetchStockDeliveryItem($id, StockDelivery $stockDelivery): ?array
     {
         return null;
     }

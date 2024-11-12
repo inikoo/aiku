@@ -11,6 +11,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Ordering\Order;
 use App\Models\Procurement\PurchaseOrder;
+use App\Models\Procurement\StockDelivery;
 use App\Models\SysAdmin\Organisation;
 
 interface SourceOrganisationService
@@ -142,6 +143,8 @@ interface SourceOrganisationService
     public function fetchAdjustment($id);
 
     public function fetchPurchaseOrderTransaction($id, PurchaseOrder $purchaseOrder);
+
+    public function fetchStockDeliveryItem($id, StockDelivery $stockDelivery);
 
     public function fetchOfferCampaign($id);
 

@@ -7,30 +7,38 @@
 
 namespace App\Actions\Procurement\StockDeliveryItem;
 
+use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Procurement\StockDeliveryItem\StockDeliveryItemStateEnum;
 use App\Http\Resources\Procurement\StockDeliveryItemResource;
 use App\Models\Procurement\StockDeliveryItem;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateStockDeliveryItem
+class UpdateStockDeliveryItem extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
     public function handle(StockDeliveryItem $stockDeliveryItem, array $modelData): StockDeliveryItem
     {
         return $this->update($stockDeliveryItem, $modelData, ['data']);
     }
 
-    //    public function authorize(ActionRequest $request): bool
-    //    {
-    //        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
-    //    }
+    public function authorize(ActionRequest $request): bool
+    {
+        if ($this->asAction) {
+            return true;
+        }
+        $this->canEdit = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
 
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
+    }
     public function rules(): array
     {
-        return [
-            'unit_quantity' => ['sometimes', 'required', 'numeric', 'gt:0'],
-            'unit_price'    => ['sometimes', 'required', 'numeric'],
+        $rules = [
+            'unit_quantity' => ['sometimes', 'required', 'numeric', 'gte:0'],
         ];
         if (!$this->strict) {
             $rules['state'] = ['sometimes','required', Rule::enum(StockDeliveryItemStateEnum::class)];
@@ -57,8 +65,8 @@ class UpdateStockDeliveryItem
 
     public function asController(StockDeliveryItem $stockDeliveryItem, ActionRequest $request): StockDeliveryItem
     {
-        $request->validate();
-        return $this->handle($stockDeliveryItem, $request->all());
+        $this->initialisation($stockDeliveryItem->organisation, $request);
+        return $this->handle($stockDeliveryItem, $this->validatedData);
     }
 
     public function jsonResponse(StockDeliveryItem $stockDeliveryItem): StockDeliveryItemResource

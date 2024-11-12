@@ -83,6 +83,7 @@ use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
+use App\Models\Manufacturing\Production;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\ShippingZone;
@@ -818,7 +819,7 @@ trait WithAuroraParsers
         return $upload;
     }
 
-    public function parseProcurementOrderParent($auroraParentType, $sourceId): null|OrgAgent|OrgSupplier|OrgPartner
+    public function parseProcurementOrderParent($auroraParentType, $sourceId): null|OrgAgent|OrgSupplier|OrgPartner|Production
     {
         $sourceData = explode(':', $sourceId);
 
@@ -830,6 +831,12 @@ trait WithAuroraParsers
 
             return OrgAgent::where('organisation_id', $sourceData[0])->where('agent_id', $parent->id)->first();
         } else {
+            $orgPartner = Production::whereJsonContains('sources->suppliers', $sourceId)->first();
+            if ($orgPartner) {
+                return $orgPartner;
+            }
+
+
             $orgPartner = OrgPartner::whereJsonContains('sources->suppliers', $sourceId)
                 ->first();
             if ($orgPartner) {
