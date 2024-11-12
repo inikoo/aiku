@@ -47,7 +47,6 @@ class StoreAgent extends GrpAction
         data_set($modelData, 'timezone_id', $group->timezone_id, overwrite: false);
         data_set($modelData, 'language_id', $group->language_id, overwrite: false);
 
-
         $agent = DB::transaction(function () use ($group, $modelData) {
             $organisation = StoreOrganisation::make()->action(
                 $group,
@@ -75,8 +74,6 @@ class StoreAgent extends GrpAction
 
         GroupHydrateAgents::dispatch($group)->delay($this->hydratorsDelay);
         AgentHydrateUniversalSearch::dispatch($agent)->delay($this->hydratorsDelay);
-
-
         return $agent;
     }
 
@@ -101,10 +98,10 @@ class StoreAgent extends GrpAction
             'phone'        => ['nullable', new Phone()],
             'address'      => ['required', new ValidAddress()],
 
-            'currency_id' => ['required', 'exists:currencies,id'],
-            'country_id'  => ['required', 'exists:countries,id'],
-            'timezone_id' => ['required', 'exists:timezones,id'],
-            'language_id' => ['required', 'exists:languages,id'],
+            'currency_id' => ['sometimes', 'exists:currencies,id'],
+            'country_id'  => ['sometimes', 'exists:countries,id'],
+            'timezone_id' => ['sometimes', 'exists:timezones,id'],
+            'language_id' => ['sometimes', 'exists:languages,id'],
 
         ];
 
@@ -118,7 +115,6 @@ class StoreAgent extends GrpAction
 
         return $rules;
     }
-
 
     /**
      * @throws \Throwable
