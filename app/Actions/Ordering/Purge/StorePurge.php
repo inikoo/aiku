@@ -17,6 +17,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Purge;
 use Carbon\Carbon;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class StorePurge extends OrgAction
@@ -53,6 +54,20 @@ class StorePurge extends OrgAction
         }
 
         return true;
+    }
+
+    public function afterValidator(Validator $validator): void
+    {
+        $dateThreshold = Carbon::now()->subDays(30);
+        $numberEligiblePurge = $this->shop->orders()
+        ->where('updated_at', '<', $dateThreshold)
+        ->where('state', OrderStateEnum::CREATING)
+        ->count();
+
+        if ($this->strict && $numberEligiblePurge == 0) {
+            $message = __("There Are No Eligble Orders to Purge");
+            $validator->errors()->add('purge', $message);
+        }
     }
 
     public function rules()

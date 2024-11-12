@@ -71,12 +71,10 @@ class IndexPurchaseOrderTransactions extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('procurement.edit');
-        return
-            (
-                $request->user()->tokenCan('root') or
-                $request->user()->hasPermissionTo('procurement.view')
-            );
+        $this->canEdit   = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+        $this->canDelete = $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.edit");
+
+        return $request->user()->hasPermissionTo("procurement.{$this->organisation->id}.view");
     }
 
     public function asController(PurchaseOrder $purchaseOrder, ActionRequest $request): LengthAwarePaginator

@@ -694,12 +694,12 @@ class ShowOrder extends OrgAction
                     'parameters' => [
                         'organisation' => $this->organisation->slug,
                         'shop'         => $order->shop->slug,
-                        'purge'        => $this->parent->slug,
+                        'customer'     => $this->parent->slug,
                         'order'        => $order->slug
-                    ]
-
-                ]
-            ],
+                        ]
+                        
+                        ]
+                    ],
             'grp.org.shops.show.ordering.purges.order' => [
                 'label' => $order->reference,
                 'route' => [
@@ -707,7 +707,7 @@ class ShowOrder extends OrgAction
                     'parameters' => [
                         'organisation' => $this->organisation->slug,
                         'shop'         => $order->shop->slug,
-                        'customer'     => $this->parent->slug,
+                        'purge'        => $this->parent->slug,
                         'order'        => $order->slug
                     ]
 

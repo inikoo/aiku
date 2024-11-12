@@ -49,16 +49,14 @@ class IndexPurchaseOrders extends OrgAction
 
         $query = QueryBuilder::for(PurchaseOrder::class);
         if (class_basename($parent) == 'OrgAgent') {
-            $query->leftJoin('org_agents', 'org_agents.id', 'purchase_orders.parent_id');
             $query->where('purchase_orders.parent_type', 'OrgAgent')->where('purchase_orders.parent_id', $parent->id);
             $query->with('parent');
         } elseif (class_basename($parent) == 'OrgSupplier') {
-            $query->leftJoin('suppliers', 'suppliers.id', 'purchase_orders.parent_id');
             $query->where('purchase_orders.parent_type', 'OrgSupplier')->where('purchase_orders.parent_id', $parent->id);
             $query->with('parent');
         } elseif (class_basename($parent) == 'OrgPartner') {
-            $query->where('purchase_orders.organisation_id', $parent->partner->id);
-            $query->addSelect(['parent_id', 'parent_type']);
+            $query->where('purchase_orders.parent_type', 'OrgPartner')->where('purchase_orders.parent_id', $parent->id);
+            $query->with('parent');
         } else {
             $query->where('purchase_orders.organisation_id', $parent->id);
             $query->with('parent');
@@ -148,14 +146,45 @@ class IndexPurchaseOrders extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $purchaseOrders, ActionRequest $request): Response
     {
+        // dd($purchaseOrders);
         $subNavigation = null;
-
+        $actions = [];
         if ($this->parent instanceof OrgAgent) {
             $subNavigation = $this->getOrgAgentNavigation($this->parent);
+            $actions =
+            [
+                [
+                    'type'  => 'button',
+                    'style' => 'create',
+                    'route' => [
+                        'name'       => 'grp.models.org-agent.purchase-order.store',
+                        'parameters' => [
+                            'orgAgent' => $this->parent->id
+                        ],
+                        'method'     => 'post'
+                    ],
+                    'label' => __('purchase order')
+                ]
+            ];
         } elseif ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
-        }
-
+            $actions = 
+            [
+                [
+                    'type'  => 'button',
+                    'style' => 'create',
+                    'route' => [
+                        'name'       => 'grp.models.org-partner.purchase-order.store',
+                        'parameters' => [
+                            'orgPartner' => $this->parent->id
+                        ],
+                        'method'     => 'post'
+                    ],
+                    'label' => __('purchase order')
+                ]
+            ];
+        } 
+        // dd($this->parent);
         return Inertia::render(
             'Procurement/PurchaseOrders',
             [
@@ -166,6 +195,7 @@ class IndexPurchaseOrders extends OrgAction
                     'icon'    => ['fal', 'fa-clipboard-list'],
                     'title'   => __('purchase orders'),
                     'subNavigation' => $subNavigation,
+                    'actions' => $actions
                 ],
                 'data'        => PurchaseOrdersResource::collection($purchaseOrders),
             ]

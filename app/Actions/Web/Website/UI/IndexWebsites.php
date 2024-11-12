@@ -104,10 +104,9 @@ class IndexWebsites extends OrgAction
             }
         }
 
-
         return $queryBuilder
             ->defaultSort('websites.code')
-            ->select(['websites.code', 'websites.name', 'websites.slug', 'websites.domain', 'status', 'websites.state','websites.shop_id',
+            ->select(['websites.id', 'websites.code', 'websites.slug', 'websites.name', 'websites.slug', 'websites.domain', 'websites.status', 'websites.state','websites.shop_id',
                       'shops.type as shop_type', 'shops.slug as shop_slug'])
             ->leftJoin('shops', 'websites.shop_id', 'shops.id')
             ->allowedSorts([ 'code', 'name','domain','state'])
@@ -215,7 +214,6 @@ class IndexWebsites extends OrgAction
                 ];
             }
         }
-
 
 
         return Inertia::render(

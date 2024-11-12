@@ -10,6 +10,9 @@ namespace App\Actions\Procurement\PurchaseOrder\UI;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
+use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
+use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
 use App\Actions\Procurement\PurchaseOrderTransaction\UI\IndexPurchaseOrderTransactions;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\Procurement\PurchaseOrder\PurchaseOrderStateEnum;
@@ -17,8 +20,13 @@ use App\Enums\UI\Procurement\PurchaseOrderTabsEnum;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\Helpers\CurrencyResource;
 use App\Http\Resources\History\HistoryResource;
+use App\Http\Resources\Procurement\OrgAgentResource;
+use App\Http\Resources\Procurement\OrgSupplierResource;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Http\Resources\Procurement\PurchaseOrderTransactionResource;
+use App\Models\Procurement\OrgAgent;
+use App\Models\Procurement\OrgPartner;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\PurchaseOrder;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
@@ -40,7 +48,28 @@ class ShowPurchaseOrder extends OrgAction
     {
         $this->initialisation($organisation, $request)->withTab(PurchaseOrderTabsEnum::values());
 
-        return $purchaseOrder;
+        return $this->handle($purchaseOrder);
+    }
+
+    public function inOrgSupplier(Organisation $organisation, OrgSupplier $orgSupplier, PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
+    {
+        $this->initialisation($organisation, $request)->withTab(PurchaseOrderTabsEnum::values());
+
+        return $this->handle($purchaseOrder);
+    }
+
+    public function inOrgAgent(Organisation $organisation, OrgAgent $orgAgent, PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
+    {
+        $this->initialisation($organisation, $request)->withTab(PurchaseOrderTabsEnum::values());
+
+        return $this->handle($purchaseOrder);
+    }
+
+    public function inOrgPartner(Organisation $organisation, OrgPartner $orgPartner, PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
+    {
+        $this->initialisation($organisation, $request)->withTab(PurchaseOrderTabsEnum::values());
+
+        return $this->handle($purchaseOrder);
     }
 
     public function maya(Organisation $organisation, PurchaseOrder $purchaseOrder, ActionRequest $request): PurchaseOrder
@@ -88,6 +117,146 @@ class ShowPurchaseOrder extends OrgAction
             ]
         );
 
+        $orderer = [];
+        $productListRoute = [];
+        if($purchaseOrder->parent instanceof OrgAgent)
+        {
+            $orderer = OrgAgentResource::make($purchaseOrder->parent)->toArray($request);
+            $productListRoute = [
+                'method'     => 'get',
+                'name'       => 'grp.json.org-agent.org-supplier-products',
+                'parameters' => [
+                    'orgAgent' => $purchaseOrder->parent->slug,
+                ]
+            ];
+        } 
+        elseif ($purchaseOrder->parent instanceof OrgSupplier)
+        {
+            $orderer = OrgSupplierResource::make($purchaseOrder->parent)->toArray($request);
+            $productListRoute = [
+                'method'     => 'get',
+                'name'       => 'grp.json.org-supplier.org-supplier-products',
+                'parameters' => [
+                    'orgSupplier' => $purchaseOrder->parent->slug,
+                ]
+            ];
+        }
+
+        $actions = [];
+        if ($this->canEdit) {
+            $actions = match ($purchaseOrder->state) {
+                PurchaseOrderStateEnum::IN_PROCESS => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'secondary',
+                        'icon'    => 'fal fa-plus',
+                        'key'     => 'add-products',
+                        'label'   => __('add products'),
+                        'tooltip' => __('Add products'),
+                        'route'   => [
+                            'name'       => 'grp.models.order.transaction.store',
+                            'parameters' => [
+                                'purchaseOrder' => $purchaseOrder->id,
+                            ]
+                        ]
+                    ],
+                    ($purchaseOrder->purchaseOrderTransactions()->count() > 0) ?
+                        [
+                            'type'    => 'button',
+                            'style'   => 'save',
+                            'tooltip' => __('submit'),
+                            'label'   => __('submit'),
+                            'key'     => 'action',
+                            'route'   => [
+                                'method'     => 'patch',
+                                'name'       => 'grp.models.purchase-order.submit',
+                                'parameters' => [
+                                    'purchaseOrder' => $purchaseOrder->id
+                                ]
+                            ]
+                        ] : [],
+                ],
+                PurchaseOrderStateEnum::SUBMITTED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Confirm'),
+                        'label'   => __('Confirm'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.purchase-order.confirm',
+                            'parameters' => [
+                                'purchaseOrder' => $purchaseOrder->id
+                            ]
+                        ]
+                    ],
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Cancel'),
+                        'label'   => __('Cancel'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.purchase-order.cancel',
+                            'parameters' => [
+                                'purchaseOrder' => $purchaseOrder->id
+                            ]
+                        ]
+                    ],
+
+                ],
+                PurchaseOrderStateEnum::CONFIRMED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Settle'),
+                        'label'   => __('Settle'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.purchase-order.settle',
+                            'parameters' => [
+                                'purchaseOrder' => $purchaseOrder->id
+                            ]
+                        ]
+                    ],
+                    [
+                        'type'    => 'button',
+                        'style'   => 'delete',
+                        'tooltip' => __('Cancel'),
+                        'label'   => __('Cancel'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.purchase-order.cancel',
+                            'parameters' => [
+                                'purchaseOrder' => $purchaseOrder->id
+                            ]
+                        ]
+                    ],
+                ],
+                PurchaseOrderStateEnum::SETTLED => [
+                    [
+                        'type'    => 'button',
+                        'style'   => 'save',
+                        'tooltip' => __('Not Received'),
+                        'label'   => __('Not Received'),
+                        'key'     => 'action',
+                        'route'   => [
+                            'method'     => 'patch',
+                            'name'       => 'grp.models.purchase-order.not-received',
+                            'parameters' => [
+                                'purchaseOrder' => $purchaseOrder->id
+                            ]
+                        ]
+                    ]
+                ],
+                default => []
+            };
+        }
+        // dd($orderer);
         return Inertia::render(
             'Procurement/PurchaseOrder',
             [
@@ -114,23 +283,18 @@ class ShowPurchaseOrder extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
+                    'actions' => $actions
 
                 ],
                 'routes'      => [
                     'updatePurchaseOrderRoute' => [
                         'method'     => 'patch',
-                        'name'       => 'grp.models.order.update',
+                        'name'       => 'grp.models.purchase-order.update',
                         'parameters' => [
-                            'order' => $purchaseOrder->id,
+                            'purchaseOrder' => $purchaseOrder->id,
                         ]
                     ],
-                   /*  'products_list'    => [
-                        'name'       => 'grp.json.shop.catalogue.order.products',
-                        'parameters' => [
-                            'shop'  => $purchaseOrder->shop->slug,
-                            'scope' => $purchaseOrder->slug
-                        ]
-                    ], */
+                    'products_list'    => $productListRoute,
                 ],
                 // 'alert'   => [  // TODO
                 //     'status'        => 'danger',
@@ -141,80 +305,56 @@ class ShowPurchaseOrder extends OrgAction
                 'timelines'   => $finalTimeline,
 
                 'box_stats'      => [
-                    // 'customer'      => array_merge(
-                    //     CustomerResource::make($order->customer)->getArray(),
-                    //     [
-                    //         'addresses' => [
-                    //             'delivery' => AddressResource::make($order->deliveryAddress ?? new Address()),
-                    //             'billing'  => AddressResource::make($order->billingAddress ?? new Address())
-                    //         ],
-                    //     ]
-                    // ),
-                    'products'      => [
-                        // 'payment'          => [
-                        //     'routes'       => [
-                        //         'fetch_payment_accounts' => [
-                        //             'name'       => 'grp.json.shop.payment-accounts',
-                        //             'parameters' => [
-                        //                 'shop' => $order->shop->slug
-                        //             ]
-                        //         ],
-                        //         'submit_payment'         => [
-                        //             'name'       => 'grp.models.order.payment.store',
-                        //             'parameters' => [
-                        //                 'order'    => $order->id,
-                        //                 'customer' => $order->customer_id,
-                        //             ]
-                        //         ]
-
-                        //     ],
-                        //     'total_amount' => (float) $order->total_amount,
-                        //     'paid_amount'  => (float) $order->payment_amount,
-                        //     'pay_amount'   => $roundedDiff,
-                        // ],
-                        // 'estimated_weight' => $estWeight
+                    'orderer'      => [
+                        'type' => $purchaseOrder->parent_type,
+                        'data' => $orderer
                     ],
-
-                    // 'delivery_status' => OrderStateEnum::stateIcon($order->state->value),
+                    'mid_block'      => [
+                        'gross_weight' => $purchaseOrder->gross_weight,
+                        'net_weight'   => $purchaseOrder->net_weight,
+                        'note'          => $purchaseOrder->note,
+                        'delivery_status' => $purchaseOrder->delivery_status,
+                    ],
+                    
                     'order_summary' => [
-                        // [
-                        //     [
-                        //         'label'       => 'Items',
-                        //         'quantity'    => $purchaseOrder->number,
-                        //         'price_base'  => 'Multiple',
-                        //         'price_total' => $order->net_amount
-                        //     ],
-                        // ],
-                        // [
-                        //     [
-                        //         'label'       => 'Charges',
-                        //         'information' => '',
-                        //         'price_total' => '0'
-                        //     ],
-                        //     [
-                        //         'label'       => 'Shipping',
-                        //         'information' => '',
-                        //         'price_total' => '0'
-                        //     ]
-                        // ],
-                        // [
-                        //     [
-                        //         'label'       => 'Net',
-                        //         'information' => '',
-                        //         'price_total' => $order->net_amount
-                        //     ],
-                        //     [
-                        //         'label'       => 'Tax 20%',
-                        //         'information' => '',
-                        //         'price_total' => $order->tax_amount
-                        //     ]
-                        // ],
-                        // [
-                        //     [
-                        //         'label'       => 'Total',
-                        //         'price_total' => $order->total_amount
-                        //     ]
-                        // ],
+                        [
+                            [
+                                'label'       => 'Transactions',
+                                'quantity'    => $purchaseOrder->purchaseOrderTransactions()->count(),
+                                'price_base'  => 'Multiple',
+                                'price_total' => $purchaseOrder->cost_items
+                            ],
+                        ],
+                        [
+                            [
+                                'label'       => 'Extra',
+                                'information' => '',
+                                'price_total' => $purchaseOrder->cost_extra
+                            ],
+                            [
+                                'label'       => 'Shipping',
+                                'information' => '',
+                                'price_total' => $purchaseOrder->cost_shipping
+                            ]
+                        ],
+                        [
+                            [
+                                'label'       => 'Duties',
+                                'information' => '',
+                                'price_total' => $purchaseOrder->cost_duties
+                            ],
+                            [
+                                'label'       => 'Tax',
+                                'information' => '',
+                                'price_total' => $purchaseOrder->cost_tax
+                            ]
+                        ],
+                        [
+                            [
+                                'label'       => 'Total',
+                                'price_total' => $purchaseOrder->cost_total
+                            ]
+                        ],
                         'currency' => CurrencyResource::make($purchaseOrder->currency),
                     ],
                 ],
@@ -225,11 +365,11 @@ class ShowPurchaseOrder extends OrgAction
                     'navigation' => PurchaseOrderTabsEnum::navigation()
                 ],
 
-                PurchaseOrderTabsEnum::SHOWCASE->value => $this->tab == PurchaseOrderTabsEnum::SHOWCASE->value ?
-                    fn () => new PurchaseOrderResource(($purchaseOrder))
-                    : Inertia::lazy(fn () => new PurchaseOrderResource(($purchaseOrder))),
+                // PurchaseOrderTabsEnum::SHOWCASE->value => $this->tab == PurchaseOrderTabsEnum::SHOWCASE->value ?
+                //     fn () => new PurchaseOrderResource(($purchaseOrder))
+                //     : Inertia::lazy(fn () => new PurchaseOrderResource(($purchaseOrder))),
 
-                PurchaseOrderTabsEnum::ITEMS->value => $this->tab == PurchaseOrderTabsEnum::ITEMS->value ?
+                PurchaseOrderTabsEnum::TRANSACTIONS->value => $this->tab == PurchaseOrderTabsEnum::TRANSACTIONS->value ?
                     fn () => PurchaseOrderTransactionResource::collection(IndexPurchaseOrderTransactions::run($purchaseOrder))
                     : Inertia::lazy(fn () => PurchaseOrderTransactionResource::collection(IndexPurchaseOrderTransactions::run($purchaseOrder))),
 
@@ -241,7 +381,7 @@ class ShowPurchaseOrder extends OrgAction
                     fn () => AttachmentsResource::collection(IndexAttachments::run($purchaseOrder))
                     : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($purchaseOrder)))
             ]
-        )->table(IndexPurchaseOrderTransactions::make()->tableStructure(prefix: PurchaseOrderTabsEnum::ITEMS->value))
+        )->table(IndexPurchaseOrderTransactions::make()->tableStructure(prefix: PurchaseOrderTabsEnum::TRANSACTIONS->value))
             ->table(IndexAttachments::make()->tableStructure(prefix: PurchaseOrderTabsEnum::ATTACHMENTS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: PurchaseOrderTabsEnum::HISTORY->value));
     }
@@ -251,35 +391,107 @@ class ShowPurchaseOrder extends OrgAction
         return new PurchaseOrderResource($purchaseOrder);
     }
 
-    public function getBreadcrumbs(PurchaseOrder $purchaseOrder, string $routeName, array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(PurchaseOrder $purchaseOrder, string $routeName, array $routeParameters, string $suffix = ''): array
     {
-        return array_merge(
-            (new ShowProcurementDashboard())->getBreadcrumbs($routeParameters),
-            [
+        $headCrumb = function (PurchaseOrder $purchaseOrder, array $routeParameters, string $suffix) {
+            return [
                 [
+
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
-                            'route' => [
-                                'name'       => 'grp.org.procurement.purchase_orders.index',
-                                'parameters' => $routeParameters['organisation']
-                            ],
-                            'label' => __('Purchase order')
+                            'route' => $routeParameters['index'],
+                            'label' => __('Purchase Orders')
                         ],
                         'model' => [
-                            'route' => [
-                                'name'       => 'grp.org.procurement.purchase_orders.show',
-                                'parameters' => $routeParameters
-                            ],
+                            'route' => $routeParameters['model'],
                             'label' => $purchaseOrder->reference,
                         ],
+
                     ],
-                    'suffix'         => $suffix,
+                    'suffix'         => $suffix
 
                 ],
-            ]
-        );
+            ];
+        };
+
+        return match ($routeName) {
+            'grp.org.procurement.purchase_orders.show',
+            => array_merge(
+                (new ShowProcurementDashboard())->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $purchaseOrder,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.procurement.purchase_orders.index',
+                            'parameters' => Arr::except($routeParameters, ['purchaseOrder'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.procurement.purchase_orders.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.procurement.org_agents.show.purchase-orders.show'
+            => array_merge(
+                (new ShowOrgAgent())->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $purchaseOrder,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.procurement.org_agents.show.purchase-orders.index',
+                            'parameters' => Arr::except($routeParameters, ['purchaseOrder'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.procurement.org_agents.show.purchase-orders.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.procurement.org_suppliers.show.purchase-orders.show'
+            => array_merge(
+                (new ShowOrgSupplier())->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $purchaseOrder,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.procurement.org_suppliers.show',
+                            'parameters' => Arr::except($routeParameters, ['purchaseOrder'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.procurement.org_suppliers.show.purchase-orders.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.procurement.org_partners.show.purchase-orders.show'
+            => array_merge(
+                (new ShowOrgPartner())->getBreadcrumbs($purchaseOrder->parent, $routeParameters),
+                $headCrumb(
+                    $purchaseOrder,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.procurement.org_partners.show.purchase-orders.index',
+                            'parameters' => Arr::except($routeParameters, ['purchaseOrder'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.procurement.org_partners.show.purchase-orders.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
     }
+
 
     public function getPrevious(PurchaseOrder $purchaseOrder, ActionRequest $request): ?array
     {
@@ -312,7 +524,43 @@ class ShowPurchaseOrder extends OrgAction
                     ]
 
                 ]
-            ]
+            ],
+            'grp.org.procurement.org_agents.show.purchase-orders.show' => [
+                'label' => $purchaseOrder->reference,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'  => $purchaseOrder->organisation->slug,
+                        'orgAgent'     => $purchaseOrder->parent->slug,
+                        'purchaseOrder' => $purchaseOrder->slug
+                    ]
+
+                ]
+            ],
+            'grp.org.procurement.org_suppliers.show.purchase-orders.show' => [
+                'label' => $purchaseOrder->reference,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'  => $purchaseOrder->organisation->slug,
+                        'orgSupplier'   => $purchaseOrder->parent->slug,
+                        'purchaseOrder' => $purchaseOrder->slug
+                    ]
+
+                ]
+            ],
+            'grp.org.procurement.org_partners.show.purchase-orders.show' => [
+                'label' => $purchaseOrder->reference,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'  => $purchaseOrder->organisation->slug,
+                        'orgPartner'    => $purchaseOrder->parent->id,
+                        'purchaseOrder' => $purchaseOrder->slug
+                    ]
+
+                ]
+            ],
         };
     }
 }

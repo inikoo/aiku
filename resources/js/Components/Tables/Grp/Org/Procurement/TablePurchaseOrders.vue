@@ -22,10 +22,18 @@ function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
             return route(
                 'grp.org.procurement.purchase_orders.show',
                 [route().params['organisation'], purchaseOrder.slug])
-        case 'grp.org.procurement.agents.show':
+        case 'grp.org.procurement.org_agents.show.purchase-orders.index':
             return route(
-                'grp.org.procurement.agents.show.purchase_orders.show',
-                [route().params['organisation'], route().params['agent'], purchaseOrder.slug])
+                'grp.org.procurement.org_agents.show.purchase-orders.show',
+                [route().params['organisation'], route().params['orgAgent'], purchaseOrder.slug])
+        case 'grp.org.procurement.org_suppliers.show':
+            return route(
+                'grp.org.procurement.org_suppliers.show.purchase-orders.show',
+                [route().params['organisation'], route().params['orgSupplier'], purchaseOrder.slug])
+        case 'grp.org.procurement.org_partners.show.purchase-orders.index':
+            return route(
+                'grp.org.procurement.org_partners.show.purchase-orders.show',
+                [route().params['organisation'], route().params['orgPartner'], purchaseOrder.slug])
         default:
             return ''
     }
@@ -65,7 +73,7 @@ function AgentRoute(purchaseOrder: PurchaseOrder) {
 </script>
 
 <template>
-    <!-- <pre>{{ data.data }}</pre> -->
+    
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: purchaseOrder }">
             <Link :href="PurchaseOrderRoute(purchaseOrder)" class="primaryLink">

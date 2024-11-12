@@ -151,6 +151,13 @@ use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Purge\StorePurge;
 use App\Actions\Ordering\Purge\UpdatePurge;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToCancelled;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToConfirmed;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToNotReceived;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSettled;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
+use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Group\UpdateGroupSettings;
@@ -624,6 +631,22 @@ Route::name('stock-delivery.')->prefix('stock-delivery/{stockDelivery:id}')->gro
 
 Route::name('org-supplier.')->prefix('org-supplier/{orgSupplier:id}')->group(function () {
     Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgSupplier'])->name('purchase-order.store');
+});
+Route::name('org-agent.')->prefix('org-agent/{orgAgent:id}')->group(function () {
+    Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgAgent'])->name('purchase-order.store');
+});
+Route::name('org-partner.')->prefix('org-partner/{orgPartner:id}')->group(function () {
+    Route::post('purchase-order/store', [StorePurchaseOrder::class, 'inOrgPartner'])->name('purchase-order.store');
+});
+
+Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->group(function () {
+    Route::patch('update', UpdatePurchaseOrder::class)->name('update');
+    Route::patch('submit', UpdatePurchaseOrderStateToSubmitted::class)->name('submit');
+    Route::patch('confirm', UpdatePurchaseOrderStateToConfirmed::class)->name('confirm');
+    Route::patch('settle', UpdatePurchaseOrderStateToSettled::class)->name('settle');
+    Route::patch('cancel', UpdatePurchaseOrderStateToCancelled::class)->name('cancel');
+    Route::patch('not-received', UpdatePurchaseOrderStateToNotReceived::class)->name('not-received');
+    Route::post('transactions/{item:id}/store', StorePurchaseOrderTransaction::class)->name('transaction.store');
 });
 
 require __DIR__."/models/inventory/location_org_stock.php";

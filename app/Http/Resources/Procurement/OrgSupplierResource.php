@@ -20,7 +20,9 @@ class OrgSupplierResource extends JsonResource
         return [
             'code'                     => $orgSupplier->supplier->code,
             'name'                     => $orgSupplier->supplier->name,
-
+            'contact_name'             => $orgSupplier->supplier->contact_name,
+            'company_name'             => $orgSupplier->supplier->company_name,
+            'email'                    => $orgSupplier->supplier->email,
         ];
     }
 }
