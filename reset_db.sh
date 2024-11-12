@@ -17,7 +17,6 @@ DB_COLLATE="${2:-$DB_COLLATE}"
 PHP="${3:-PHP}"
 
 DB=aiku
-BACKUP_DB=aiku_elasticserch_backup
 DB_SUFFIX=_base
 
 echo -e "🧼 Cleaning storage"
@@ -25,5 +24,3 @@ rm -rf storage/app/media
 echo -e "✨ Resetting databases ${DB}"
 dropdb --force --if-exists ${DB}
 createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${DB}
-dropdb --force --if-exists ${BACKUP_DB}
-createdb --template=template0 --lc-collate="${DB_COLLATE}" --lc-ctype="${DB_COLLATE}" ${BACKUP_DB}
