@@ -41,6 +41,18 @@ trait WithOrgAgentSubNavigation
                 ],
             ],
             [
+                "number"   => $parent->stats->number_org_supplier_products,
+                "label"    => __("Products"),
+                "href"     => [
+                    "name"       => "grp.org.procurement.org_agents.show.supplier_products.index",
+                    "parameters" => [$parent->organisation->slug, $parent->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-box-usd"],
+                    "tooltip" => __("Products"),
+                ],
+            ],
+            [
                 "number"   => $parent->stats->number_purchase_orders,
                 "label"    => __("Purchase Orders"),
                 "href"     => [

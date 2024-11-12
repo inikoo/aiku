@@ -333,6 +333,14 @@ class IndexOrgStocks extends OrgAction
     public function htmlResponse(LengthAwarePaginator $stocks, ActionRequest $request): Response
     {
         $subNavigation = null;
+        $title = __('SKUs');
+        $model = '';
+        $icon  = [
+            'icon'  => ['fal', 'fa-box'],
+            'title' => __('SKUs')
+        ];
+        $afterTitle = null;
+        $iconRight = null;
 
         if ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
@@ -340,13 +348,23 @@ class IndexOrgStocks extends OrgAction
         } elseif ($this->parent instanceof OrgAgent) {
             $subNavigation = $this->getOrgAgentNavigation($this->parent);
             $organisation = $this->parent->agent->organisation;
+            $title = $this->parent->agent->organisation->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-people-arrows'],
+                'title' => __('SKUs')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-box',
+            ];
+            $afterTitle = [
+
+                'label'     => __('SKUs')
+            ];
         } else {
             $subNavigation = $this->getOrgStocksSubNavigation();
             $organisation = $this->parent;
         }
-
-
-        $title = __("SKUs");
 
         if ($this->bucket == 'current') {
             $title = __('Current SKUs');
@@ -363,10 +381,11 @@ class IndexOrgStocks extends OrgAction
                 'title'       => $title,
                 'pageHead'    => [
                     'title'         => $title,
-                    'icon'          => [
-                        'icon'  => ['fal', 'fa-box'],
-                        'title' => __('SKU')
-                    ],
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'subNavigation' => $subNavigation,
                     'actions_xx'    => [
                         $this->canEdit ? [
                             'type'    => 'button',

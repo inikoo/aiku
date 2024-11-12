@@ -184,9 +184,30 @@ class IndexOrgSuppliers extends OrgAction
     public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
     {
         $subNavigation = null;
+        $title = __('suppliers');
+        $model = '';
+        $icon  = [
+            'icon'  => ['fal', 'fa-person-dolly'],
+            'title' => __('suppliers')
+        ];
+        $afterTitle = null;
+        $iconRight = null;
 
         if ($this->parent instanceof OrgAgent) {
             $subNavigation = $this->getOrgAgentNavigation($this->parent);
+            $title = $this->parent->agent->organisation->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-people-arrows'],
+                'title' => __('suppliers')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-person-dolly',
+            ];
+            $afterTitle = [
+
+                'label'     => __('Suppliers')
+            ];
         }
         return Inertia::render(
             'Procurement/OrgSuppliers',
@@ -197,9 +218,11 @@ class IndexOrgSuppliers extends OrgAction
                 ),
                 'title'       => __('suppliers'),
                 'pageHead'    => [
-                    'model'   => __('Procurement'),
-                    'icon'    => ['fal', 'fa-person-dolly'],
-                    'title'   => __('suppliers'),
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
                 ],
                 'data'        => OrgSuppliersResource::collection($suppliers),

@@ -149,6 +149,14 @@ class IndexPurchaseOrders extends OrgAction
         // dd($purchaseOrders);
         $subNavigation = null;
         $actions = [];
+        $title = __('purchase orders');
+        $model =  __('Procurement');
+        $icon  = [
+            'icon'  => ['fal', 'fa-clipboard-list'],
+            'title' => __('purchase orders')
+        ];
+        $afterTitle = null;
+        $iconRight = null;
         if ($this->parent instanceof OrgAgent) {
             $subNavigation = $this->getOrgAgentNavigation($this->parent);
             $actions =
@@ -165,6 +173,19 @@ class IndexPurchaseOrders extends OrgAction
                     ],
                     'label' => __('purchase order')
                 ]
+            ];
+            $title = $this->parent->agent->organisation->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-people-arrows'],
+                'title' => __('purchase orders')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-clipboard-list',
+            ];
+            $afterTitle = [
+
+                'label'     => __('Purchase Orders')
             ];
         } elseif ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
@@ -191,9 +212,11 @@ class IndexPurchaseOrders extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => __('purchase orders'),
                 'pageHead'    => [
-                    'model'   => __('Procurement'),
-                    'icon'    => ['fal', 'fa-clipboard-list'],
-                    'title'   => __('purchase orders'),
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
                     'subNavigation' => $subNavigation,
                     'actions' => $actions
                 ],
