@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import { cloneDeep } from 'lodash'
+import axios from 'axios'
+import Popover from 'primevue/popover';
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faShieldAlt, faTimes, faTrash } from "@fas"
@@ -18,20 +20,23 @@ const props = defineProps<{
 const emits = defineEmits<{
     (e: 'update:modelValue', value: {}): void
 }>();
+
 const payments = ref([])
+const _addop = ref(null);
+const _editop = ref(null);
+
 const GetPayment = async () => {
     try {
         const response = await axios.get(
             route('grp.org.accounting.org-payment-service-providers.index', { organisation: route().params['organisation'] }),
         )
-
         if (response && response.data && response.data.data) {
-            const ini = response.data.data.map((item) => ({
+            const results = response.data.data.map((item) => ({
                 name: item.name,
                 value: item.name,
                 image: item.logo
             }))
-            payments.value = ini
+            payments.value = results
         } else {
             console.error('Invalid response format', response)
         }
@@ -40,35 +45,36 @@ const GetPayment = async () => {
     }
 }
 
-const addPayments = () => {
-    let data = cloneDeep(props.modelValue.data);
-    data.push(
-        {
-            name: "checkout",
-            value: "checkout",
-            image:  "https://www.linqto.com/wp-content/uploads/2023/04/logo_2021-11-05_19-04-11.530.png",
-        },
-    );
-    emits('update:modelValue', { data: data });
+const addPayments = (value: { name: string, image: string }) => {
+    const data = cloneDeep(props.modelValue);
+    data.push({ name: value.name, value: value.name, image: value.image });
+    emits('update:modelValue', data);
+    _addop.value.hide();
 };
 
-const updatePayment = (index: number, value: any) => {
-    let data = cloneDeep(props.modelValue.data);
-    data[index] = {
-        name: value.name,
-        value: value.name,
-        image: value.image
-    };
-    emits('update:modelValue', { data });
+const updatePayment = (index: number, value: { name: string, image: string, value : string }) => {
+    const data = cloneDeep(props.modelValue);
+    data[index] = { name: value.name, value: value.name, image: value.image };
+    emits('update:modelValue', data);
+    _editop.value[index].hide();
 };
 
-const deleteSocial = (event, index) => {
+const deleteSocial = (event: Event, index: number) => {
     event.stopPropagation();
     event.preventDefault();
-    let set = cloneDeep(props.modelValue.data);
-    set.splice(index, 1)
-    emits('update:modelValue', { data: set });
-}
+    const data = cloneDeep(props.modelValue);
+    data.splice(index, 1);
+    emits('update:modelValue', data);
+};
+
+const toggleAdd = (event: Event) => {
+    _addop.value?.toggle(event);
+};
+
+const toggleEdit = (event: Event, index : Number) => {
+    console.log(_editop.value)
+    _editop.value[index].toggle(event);
+};
 
 onMounted(() => {
     GetPayment()
@@ -77,46 +83,52 @@ onMounted(() => {
 </script>
 
 <template>
-    <div>
-        <div v-for="(item, index) of modelValue.data" :key="index" class="p-1">
-            <div class="flex">
-                <PureMultiselect :modelValue="item" :options="payments" :object="true" :required="true"
-                    @update:modelValue="value => updatePayment(index, value)">
-                    <template v-slot:label="{ value }">
-                        <div
-                            class="flex items-center  rounded-lg  w-full  p-2 m-2 mr-0">
-                            <img class="w-12 h-12 rounded-full object-contain object-center group-hover:opacity-75"
-                                :src="value.image" alt="avatar">
-                            <div class="ml-4">
-                                {{ value.name }}
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-center">
-                    <FontAwesomeIcon :icon="['fas', 'trash']"
-                        class="text-red-500 hover:text-red-600 cursor-pointer p-3 transition-transform transform hover:scale-110"
-                        @click="(e) => deleteSocial(e, index)" />
-                </div>
+  <div>
+        <div v-for="(item, index) in modelValue" :key="index" class="flex justify-center w-full">
+            <div @click="(e)=>toggleEdit(e,index)" :style="{ backgroundColor: props.background || '#f9f9f9' }"
+                class="relative flex flex-col items-center border border-gray-300 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 w-full max-w-xs p-4 m-2 transform hover:-translate-y-1">
+                <!-- Delete Button -->
+                <button @click="(e) => deleteSocial(e, index)"
+                    class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-sm text-xs  p-1 focus:outline-none shadow-md transition-all duration-200"
+                    aria-label="Delete">
+                    <FontAwesomeIcon :icon="['fas', 'trash']" />
+                </button>
 
-                    </template>
-
-                    <template v-slot:option="{ option }">
-                        <div
-                            class="flex items-center border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow w-full bg-gray-200 p-2 m-2">
-                            <img class="w-12 h-12 rounded-full object-contain object-center group-hover:opacity-75"
-                                :src="option.image" alt="avatar">
-                            <div class="ml-4">
-                                {{ option.name }}
-                            </div>
-                        </div>
-
-
-                    </template>
-                </PureMultiselect>
+                <img v-if="item.image" class="h-auto max-h-7 md:max-h-8 max-w-full w-fit" :src="item.image"
+                    alt="avatar" />
             </div>
-
-        </div>
-        <Button type="dashed" icon="fal fa-plus" label="Add Payments Method" full size="s" class="mt-2"
-            @click="addPayments" />
+            <Popover ref="_editop">
+                <div class="grid grid-cols-5 gap-6">
+                    <div v-for="icon in payments" :key="icon.value" class="pr-4">
+                        <div @click="() => updatePayment(index,icon)" :style="{ backgroundColor: props.background }"
+                            class="flex flex-col items-center border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow w-full p-4 m-2">
+                            <img class="w-12 h-12 rounded-full object-contain object-center mb-2 group-hover:opacity-75"
+                                :src="icon.image" alt="avatar">
+                            <div class="text-center truncate" style="max-width: 150px;">
+                                {{ icon.name }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </Popover>
+            </div>
+        <Button type="dashed" icon="fal fa-plus" label="Add Payments Method" full size="s" class="mt-2" @click="toggleAdd" />
+        
+        <Popover ref="_addop">
+            <div class="grid grid-cols-5 gap-6">
+                <div v-for="icon in payments" :key="icon.value" class="pr-4">
+                    {{ icon }}
+                    <div @click="() => addPayments(icon)" :style="{ backgroundColor: props.background }"
+                        class="flex flex-col items-center border-2 border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow w-full p-4 m-2">
+                        <img class="w-12 h-12 rounded-full object-contain object-center mb-2 group-hover:opacity-75"
+                            :src="icon.image" alt="avatar">
+                        <div class="text-center truncate text-white" style="max-width: 150px;">
+                            {{ icon.name }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </Popover>
     </div>
 </template>
 

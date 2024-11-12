@@ -6,7 +6,7 @@
   -->
 
 <script setup lang="ts">
-import { getComponent } from '@/Components/Fulfilment/Website/BlocksList'
+import { getComponent } from '@/Composables/getWorkshopComponents'
 import BrowserView from '@/Components/Pure/BrowserView.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faHome, faSignIn } from '@fal'

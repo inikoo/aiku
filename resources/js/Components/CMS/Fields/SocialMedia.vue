@@ -1,20 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import Button from '@/Components/Elements/Buttons/Button.vue'
-import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 import { cloneDeep } from 'lodash'
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
-/* import Popover from '@/Components/Popover.vue' */
 import PureInput from '@/Components/Pure/PureInput.vue'
 import Popover from 'primevue/popover';
+import draggable from "vuedraggable";
 
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { faShieldAlt, faTimes } from "@fas"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
+import { faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faFacebook} from "@fortawesome/free-brands-svg-icons";
 
-library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faTimes)
+library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faTimes, faFacebook)
 
 const props = defineProps<{
     modelValue: any,
@@ -25,116 +23,154 @@ const emits = defineEmits<{
 }>();
 
 
+const op = ref();
+const _addop = ref();
+const openIndex = ref<number | null>(null); // Track the currently open disclosure
 const icons = [
-    { 
-			label: "Facebook",
-			value: ['fab', 'facebook-f'],
-	},
-    { 
-			label: "Instagram",
-			value: "fab fa-instagram",
-	},
-    { 
-			label: "Tik Tok",
-			value: "fab fa-tiktok",
-	},
-    { 
-			label: "Pinterest",
-			value: "fab fa-pinterest",
-	},
-    { 
-			label: "Youtube",
-			value: "fab fa-youtube",
-	},
-    { 
-			label: "Linkedin",
-			value: "fab fa-linkedin-in",
-	},
-
+    {
+        type: "Facebook",
+        value: "fab fa-facebook",
+    },
+    {
+        type: "Instagram",
+        value: "fab fa-instagram",
+    },
+    {
+        type: "Tik Tok",
+        value: "fab fa-tiktok",
+    },
+    {
+        type: "Pinterest",
+        value: "fab fa-pinterest",
+    },
+    {
+        type: "Youtube",
+        value: "fab fa-youtube",
+    },
+    {
+        type: "Linkedin",
+        value: "fab fa-linkedin-in",
+    },
 ];
 
-const add = () => {
-    let data = cloneDeep(props.modelValue);
-    data.push(
-        { 
-			label: "Facebook",
-			icon : ['fab', 'facebook-f'],
-			link : ""
-		}
+const AddItem = (icon) => {
+    let set = cloneDeep(props.modelValue);
+    set.push(
+        {
+            type: icon.type,
+            icon: icon.value,
+            link: ""
+        }
     );
-    emits('update:modelValue',  data );
+    emits('update:modelValue', set);
+    _addop.value.hide();
 };
-
 
 const changeIcon = (icon, data, index) => {
     let set = cloneDeep(props.modelValue);
     set[index] = {
-        label: icon.label,
+        type: icon.type,
         icon: icon.value,
         link: data.link
     }
-    emits('update:modelValue',set);
+    emits('update:modelValue', set);
 }
 
-const deleteSocial = (event,index) => {
+const deleteSocial = (event, index) => {
     event.stopPropagation();
     event.preventDefault();
     let set = cloneDeep(props.modelValue);
-    set.splice(index,1)
-    emits('update:modelValue',set);
-}
-const _popover = ref();
-
-const toggle = (event) => {
-    _popover.value[0].toggle(event);
+    set.splice(index, 1)
+    emits('update:modelValue', set);
 }
 
+const toggle = (event: any) => {
+    op.value.toggle(event);
+}
+
+const toggleAdd = (event: any) => {
+    _addop.value.toggle(event);
+}
+
+const handleDisclosureToggle = (index) => {
+    if (openIndex.value === index) {
+        openIndex.value = null;
+    } else {
+        openIndex.value = index;
+    }
+};
 </script>
 
 <template>
-    <div>
-        <div v-for="(item, index) of modelValue" :key="index" class="p-1">
-            <Disclosure v-slot="{ open }">
-                <DisclosureButton :class="!open ? 'rounded-lg' : 'rounded-t-lg'"
-                    class="flex w-full justify-between bg-slate-200  px-4 py-2 text-left text-sm font-medium  hover:bg-purple-200 focus:outline-none focus-visible:ring focus-visible:ring-purple-500/75">
-                    <span class="font-medium text-sm">{{ item.label }}</span>
-                    <FontAwesomeIcon :icon="['fas', 'times']" class="text-red-500 p-1"
-                        @click="(e)=>deleteSocial(e,index)" />
-                </DisclosureButton>
-                <DisclosurePanel class="px-4 pb-2 pt-4 text-sm text-gray-500 bg-slate-100 rounded-b-lg">
-                    <div>
-                        <div class="p-1">
-                            <span class="text-xs  my-2"> Icon : </span>
-                            <Button type="dashed" :full="true" @click="toggle">
-                                <FontAwesomeIcon :icon="item.icon"></FontAwesomeIcon>
-                            </Button>
-                            <Popover ref="_popover">
-                                <div class="grid grid-cols-3 gap-6 p-1">
-                                    <div v-for="icon in icons" :key="icon.label"
-                                        @click="() => changeIcon(icon, item, index)"
-                                        class="cursor-pointer flex flex-col items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-200">
-                                        <FontAwesomeIcon :icon="icon.value" class="text-xl mb-2"></FontAwesomeIcon>
-                                        <span class="text-xs font-medium text-gray-700">{{ icon.label }}</span>
+    <div class="p-4">
+        <draggable :list="props.modelValue" handle=".handle"
+            @update:list="(e) => { props.modelValue = e, emits('update:modelValue', props.modelValue) }">
+            <template #item="{ element: item, index: index }">
+                <div class="grid grid-cols-1 md:cursor-default space-y-2 border-b pb-3 md:border-none">
+                    <div class="flex items-center text-xl font-semibold leading-6">
+                        <!-- Drag Handle Icon -->
+                        <FontAwesomeIcon icon="fal fa-bars" class="handle cursor-grab pr-3 mr-2 text-gray-500" />
+
+                        <div class="relative w-full">
+                            <!-- Toggle Button -->
+                            <button @click="handleDisclosureToggle(index)"
+                                :class="openIndex === index ? 'rounded-t-md' : 'rounded-md'"
+                                class="flex w-full justify-between items-center bg-gray-100 px-4 py-2 text-left text-sm font-medium text-gray-700">
+                                <span class="font-medium">{{ item.type }}</span>
+                                <FontAwesomeIcon :icon="['fas', 'times']"
+                                    class="text-red-500 p-1 hover:text-red-600 transition duration-150"
+                                    @click.stop="(e) => deleteSocial(e, index)" />
+                            </button>
+
+                            <!-- Disclosure Content -->
+                            <div v-if="openIndex === index"
+                                class="px-4 pb-3 pt-4 text-sm bg-gray-50 rounded-b-md shadow-md">
+                                <div class="space-y-4">
+                                    <!-- Icon Selection -->
+                                    <div>
+                                        <span class="block text-xs font-semibold text-gray-500">Icon:</span>
+                                        <Button type="dashed" @click="toggle" :full="true"
+                                            class="w-full mt-1 text-center bg-white border border-gray-300 rounded-lg shadow-sm">
+                                            <FontAwesomeIcon :icon="item.icon" />
+                                        </Button>
+                                        <Popover ref="op"
+                                            class="p-2 bg-white border border-gray-300 rounded-lg shadow-lg">
+                                            <div class="grid grid-cols-3 gap-4 p-2">
+                                                <div v-for="icon in icons" :key="icon.type"
+                                                    @click="() => changeIcon(icon, item, index)"
+                                                    class="cursor-pointer flex flex-col items-center p-2 border border-gray-200 rounded-lg hover:bg-gray-100 transition duration-200">
+                                                    <FontAwesomeIcon :icon="icon.value"
+                                                        class="text-xl mb-1 text-gray-600 hover:text-gray-800 transition duration-150" />
+                                                    <span class="text-xs font-medium text-gray-600">{{ icon.type
+                                                        }}</span>
+                                                </div>
+                                            </div>
+                                        </Popover>
+                                    </div>
+
+                                    <!-- Link Input -->
+                                    <div>
+                                        <span class="block text-xs font-semibold text-gray-500 mb-2">Link:</span>
+                                        <PureInput v-model="item.link" placeholder="Link"/>
                                     </div>
                                 </div>
-                            </Popover>
-                        </div>
-
-                        <div class="p-1">
-                            <span class="text-xs  my-2"> Label : </span>
-                            <PureInput v-model="item.label" placeholder="Label" />
-                        </div>
-
-                        <div class="p-1">
-                            <span class="text-xs  my-2">Link : </span>
-                            <PureInput v-model="item.link" placeholder="Link" />
+                            </div>
                         </div>
                     </div>
-                </DisclosurePanel>
-            </Disclosure>
+                </div>
 
-        </div>
-        <Button type="dashed" icon="fal fa-plus" label="Add Social Media" full size="s" class="mt-2" @click="add" />
+            </template>
+        </draggable>
+        <Button type="dashed" icon="fal fa-plus" label="Add Social Media" full size="s" class="mt-2" @click="toggleAdd" />
+        <Popover ref="_addop">
+            <div class="grid grid-cols-3 gap-6 p-1">
+                <div v-for="icon in icons" :key="icon.type" @click="() => AddItem(icon)"
+                    class="cursor-pointer flex flex-col items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-200">
+                    <FontAwesomeIcon :icon="icon.value" class="text-xl mb-2"></FontAwesomeIcon>
+                    <span class="text-xs font-medium text-gray-700">{{ icon.type }}</span>
+                </div>
+            </div>
+        </Popover>
     </div>
 </template>
 
