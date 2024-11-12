@@ -16,8 +16,6 @@ enum AgentTabsEnum: string
     use HasTabs;
 
     case SHOWCASE            = 'showcase';
-    case SUPPLIERS           = 'suppliers';
-    case SUPPLIER_PRODUCTS   = 'supplier_products';
     case HISTORY             = 'history';
 
 
@@ -33,14 +31,6 @@ enum AgentTabsEnum: string
                 'icon'  => 'fal fa-clock',
                 'type'  => 'icon',
                 'align' => 'right',
-            ],
-            AgentTabsEnum::SUPPLIERS  => [
-                'title' => __('suppliers'),
-                'icon'  => 'fal fa-person-dolly',
-            ],
-            AgentTabsEnum::SUPPLIER_PRODUCTS => [
-                'title' => __('products'),
-                'icon'  => 'fal fa-box-usd',
             ],
             AgentTabsEnum::SHOWCASE => [
                 'title' => __('Agent'),

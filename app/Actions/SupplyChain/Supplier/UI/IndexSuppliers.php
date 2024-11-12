@@ -8,6 +8,8 @@
 namespace App\Actions\SupplyChain\Supplier\UI;
 
 use App\Actions\GrpAction;
+use App\Actions\SupplyChain\Agent\UI\ShowAgent;
+use App\Actions\SupplyChain\Agent\WithAgentSubNavigation;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Http\Resources\SupplyChain\SuppliersResource;
 use App\InertiaTable\InertiaTable;
@@ -25,6 +27,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexSuppliers extends GrpAction
 {
+    use WithAgentSubNavigation;
     private array $elementGroups;
 
     private mixed $parent;
@@ -185,18 +188,45 @@ class IndexSuppliers extends GrpAction
 
     public function htmlResponse(LengthAwarePaginator $suppliers, ActionRequest $request): Response
     {
+        $subNavigation = null;
+        $title = __('suppliers');
+        $model = '';
+        $icon  = [
+            'icon'  => ['fal', 'fa-person-dolly'],
+            'title' => __('suppliers')
+        ];
+        $afterTitle = null;
+        $iconRight = null;
+
+        if ($this->parent instanceof Agent) {
+            $subNavigation = $this->getAgentNavigation($this->parent);
+            $title = $this->parent->organisation->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-people-arrows'],
+                'title' => __('suppliers')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-person-dolly',
+            ];
+            $afterTitle = [
+
+                'label'     => __('Suppliers')
+            ];
+        }
+
         return Inertia::render(
             'SupplyChain/Suppliers',
             [
-                'breadcrumbs' => $this->getBreadcrumbs($request->route()->originalParameters()),
+                'breadcrumbs' => $this->getBreadcrumbs($request->route()->getName(), $request->route()->originalParameters()),
                 'title'       => __('suppliers'),
                 'pageHead'    => [
-                    'icon'    =>
-                        [
-                            'icon'  => ['fal', 'fa-person-dolly'],
-                            'title' => __('suppliers')
-                        ],
-                    'title' => __('suppliers'),
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'subNavigation' => $subNavigation,
                 ],
                 'data'        => SuppliersResource::collection($suppliers),
 
@@ -205,10 +235,25 @@ class IndexSuppliers extends GrpAction
         )->table($this->tableStructure($this->parent));
     }
 
-    public function getBreadcrumbs(array $routeParameters): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters): array
     {
-        return
-            array_merge(
+        return match ($routeName) {
+            'grp.supply-chain.agents.show.suppliers.index' => array_merge(
+                ShowAgent::make()->getBreadcrumbs($this->parent, $routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name' => 'grp.supply-chain.suppliers.index'
+                            ],
+                            'label' => __('Suppliers'),
+                            'icon'  => 'fal fa-bars'
+                        ]
+                    ]
+                ]
+            ),
+            default => array_merge(
                 ShowSupplyChainDashboard::make()->getBreadcrumbs(),
                 [
                     [
@@ -222,6 +267,7 @@ class IndexSuppliers extends GrpAction
                         ]
                     ]
                 ]
-            );
+            )
+        };
     }
 }
