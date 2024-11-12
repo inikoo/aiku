@@ -158,7 +158,6 @@ use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToNotReceived;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSettled;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
 use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
-use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SysAdmin\Group\UpdateGroupSettings;
 use App\Actions\SysAdmin\Guest\DeleteGuest;
@@ -199,7 +198,6 @@ Route::get('/profile/app-login-qrcode', GetProfileAppLoginQRCode::class)->name('
 Route::patch('notification/{notification}', MarkNotificationAsRead::class)->name('notifications.read');
 Route::patch('notifications', MarkAllNotificationAsRead::class)->name('notifications.all.read');
 
-Route::post('/agent/', StoreAgent::class)->name('agent.store');
 
 Route::prefix('employee/{employee:id}')->name('employee.')->group(function () {
     Route::post('attachment/attach', [AttachAttachmentToModel::class, 'inEmployee'])->name('attachment.attach');
@@ -726,9 +724,7 @@ Route::post('/stock-family/{stockFamily:id}/stock', [StoreStock::class,'inStockF
 Route::patch('/stock-family/{stockFamily:id}/stock/{stock:id}', [UpdateStock::class,'inStockFamily'])->name('stock-family.stock.update');
 Route::delete('/stock-family/{stockFamily:id}/stock/{stock:id}', [DeleteStock::class, 'inStockFamily'])->name('stock-family.stock.delete');
 
-Route::patch('/agent/{agent:id}', UpdateAgent::class)->name('agent.update');
-Route::post('/agent/{agent:id}/purchase-order', [StorePurchaseOrder::class, 'inAgent'])->name('agent.purchase-order.store');
-Route::delete('/agent/{agent:id}', DeleteAgent::class)->name('agent.delete');
+
 
 
 
@@ -736,9 +732,7 @@ Route::patch('/supplier/{supplier:id}', UpdateSupplier::class)->name('supplier.u
 Route::delete('/supplier/{supplier:id}', DeleteSupplier::class)->name('supplier.delete');
 
 
-Route::post('/agent/{agent:id}/supplier', [StoreSupplier::class, 'inAgent'])->name('agent.supplier.store');
-Route::post('/agent/{supplier:id}/purchase-order', [StorePurchaseOrder::class, 'inSupplier'])->name('supplier.purchase-order.store');
-Route::post('/supplier/{supplier:id}/purchase-order', [StorePurchaseOrder::class, 'inSupplier'])->name('supplier.purchase-order.store');
+
 
 
 Route::post('/provider', StoreOrgPaymentServiceProvider::class)->name('payment-service-provider.store');
