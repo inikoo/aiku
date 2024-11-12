@@ -12,12 +12,15 @@ use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
 use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
 use App\Actions\Procurement\OrgPartner\WithOrgPartnerSubNavigation;
+use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
+use App\Actions\Procurement\OrgSupplier\WithOrgSupplierSubNavigation;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\Warehouse;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
+use App\Models\Procurement\OrgSupplier;
 use App\Models\Procurement\StockDelivery;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
@@ -33,7 +36,8 @@ class IndexStockDeliveries extends OrgAction
 {
     use WithOrgAgentSubNavigation;
     use WithOrgPartnerSubNavigation;
-    private Warehouse|Organisation|OrgAgent|OrgPartner $parent;
+    use WithOrgSupplierSubNavigation;
+    private Warehouse|Organisation|OrgAgent|OrgPartner|OrgSupplier $parent;
 
     public function handle($prefix = null): LengthAwarePaginator
     {
@@ -53,6 +57,8 @@ class IndexStockDeliveries extends OrgAction
             $query->where('stock_deliveries.organisation_id', $this->parent->agent->organisation->id);
         } elseif ($this->parent instanceof OrgPartner) {
             $query->where('stock_deliveries.organisation_id', $this->parent->partner->id);
+        } elseif ($this->parent instanceof OrgSupplier) {
+            $query->where('stock_deliveries.parent_type', 'OrgSupplier')->where('stock_deliveries.parent_id', $this->parent->id);
         }
 
         return $query
@@ -119,6 +125,14 @@ class IndexStockDeliveries extends OrgAction
         return $this->handle();
     }
 
+    public function inOrgSupplier(Organisation $organisation, OrgSupplier $orgSupplier, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->parent = $orgSupplier;
+        $this->initialisation($organisation, $request);
+
+        return $this->handle();
+    }
+
 
     public function maya(Organisation $organisation, ActionRequest $request): LengthAwarePaginator
     {
@@ -167,6 +181,21 @@ class IndexStockDeliveries extends OrgAction
             $model = '';
             $icon  = [
                 'icon'  => ['fal', 'fa-users-class'],
+                'title' => __('supplier deliveries')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-truck-container',
+            ];
+            $afterTitle = [
+
+                'label'     => __('Supplier Deliveries')
+            ];
+        } elseif ($this->parent instanceof OrgSupplier) {
+            $subNavigation = $this->getOrgSupplierNavigation($this->parent);
+            $title = $this->parent->supplier->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-person-dolly'],
                 'title' => __('supplier deliveries')
             ];
             $iconRight    = [
@@ -231,6 +260,22 @@ class IndexStockDeliveries extends OrgAction
                         'simple' => [
                             'route' => [
                                 'name'       => 'grp.org.procurement.org_agents.show.stock-deliveries.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Stock deliveries'),
+                            'icon'  => 'fal fa-bars'
+                        ]
+                    ]
+                ]
+            ),
+            'grp.org.procurement.org_suppliers.show.stock_deliveries.index' => array_merge(
+                ShowOrgSupplier::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.procurement.org_suppliers.show.stock_deliveries.index',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Stock deliveries'),

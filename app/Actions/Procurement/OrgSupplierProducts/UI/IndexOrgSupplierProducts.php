@@ -10,6 +10,8 @@ namespace App\Actions\Procurement\OrgSupplierProducts\UI;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
+use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
+use App\Actions\Procurement\OrgSupplier\WithOrgSupplierSubNavigation;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\OrgSupplierProductsResource;
 use App\InertiaTable\InertiaTable;
@@ -30,6 +32,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexOrgSupplierProducts extends OrgAction
 {
     use WithOrgAgentSubNavigation;
+    use WithOrgSupplierSubNavigation;
     private OrgSupplier|OrgAgent|Organisation $parent;
 
     public function handle(Organisation|OrgAgent|OrgSupplier $parent, $prefix = null): LengthAwarePaginator
@@ -154,6 +157,21 @@ class IndexOrgSupplierProducts extends OrgAction
 
                 'label'     => __('Supplier Products')
             ];
+        } elseif ($this->parent instanceof OrgSupplier) {
+            $subNavigation = $this->getOrgSupplierNavigation($this->parent);
+            $title = $this->parent->supplier->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-person-dolly'],
+                'title' => __('supplier products')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-box-usd',
+            ];
+            $afterTitle = [
+
+                'label'     => __('Supplier Products')
+            ];
         }
 
         return Inertia::render(
@@ -214,6 +232,16 @@ class IndexOrgSupplierProducts extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.procurement.org_agents.show.supplier_products.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.org.procurement.org_suppliers.show.supplier_products.index' =>
+            array_merge(
+                (new ShowOrgSupplier())->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.procurement.org_suppliers.show.supplier_products.index',
                         'parameters' => $routeParameters
                     ]
                 )
