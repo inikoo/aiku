@@ -13,6 +13,7 @@ use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\UI\WithInertia;
 use App\Actions\Web\ExternalLink\UI\IndexExternalLinks;
 use App\Actions\Web\HasWorkshopAction;
+use App\Actions\Web\Webpage\GetWebpageGoogleCloud;
 use App\Actions\Web\Website\UI\ShowWebsite;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\UI\Web\WebpageTabsEnum;
@@ -251,7 +252,9 @@ class ShowWebpage extends OrgAction
                             prefix: 'webpages'
                         )
                     )),
-
+                WebpageTabsEnum::ANALYTICS->value => $this->tab == WebpageTabsEnum::ANALYTICS->value ?
+                fn () => GetWebpageGoogleCloud::make()->action($webpage, $request->only(['startDate', 'endDate', 'dimensions', 'searchType']))
+                : Inertia::lazy(fn () => GetWebpageGoogleCloud::make()->action($webpage, $request->only(['startDate', 'endDate', 'dimensions', 'searchType'])))
 
                 /*
                 WebpageTabsEnum::CHANGELOG->value => $this->tab == WebpageTabsEnum::CHANGELOG->value ?
