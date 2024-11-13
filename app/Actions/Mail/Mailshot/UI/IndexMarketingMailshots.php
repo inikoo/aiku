@@ -1,7 +1,7 @@
 <?php
 /*
  * author Arya Permana - Kirin
- * created on 13-11-2024-10h-35m
+ * created on 13-11-2024-11h-34m
  * github: https://github.com/KirinZero0
  * copyright 2024
 */
@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Http\Resources\Mail\MailshotResource;
+use App\Http\Resources\Mail\MarketingMailshotsResource;
 use App\Http\Resources\Mail\NewsletterMailshotsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
@@ -28,7 +29,7 @@ use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
 
-class IndexNewsletterMailshots extends OrgAction
+class IndexMarketingMailshots extends OrgAction
 {
     use HasUIMailshots;
     use HasCatalogueAuthorisation;
@@ -57,7 +58,7 @@ class IndexNewsletterMailshots extends OrgAction
                                 $query->where('mailshots.post_room_id', $parent->id);
                             }
                         });
-        $queryBuilder->where('outboxes.type', OutboxTypeEnum::NEWSLETTER->value);
+        $queryBuilder->where('outboxes.type', OutboxTypeEnum::MARKETING->value);
         return $queryBuilder
             ->defaultSort('mailshots.id')
             ->select([
@@ -141,7 +142,7 @@ class IndexNewsletterMailshots extends OrgAction
                         ]
                     ],
                 ],
-                'data' => NewsletterMailshotsResource::collection($mailshots),
+                'data' => MarketingMailshotsResource::collection($mailshots),
             ]
         )->table($this->tableStructure($this->parent));
     }

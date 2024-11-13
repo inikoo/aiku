@@ -8,6 +8,7 @@
 use App\Actions\Mail\Mailshot\UI\CreateMailshot;
 use App\Actions\Mail\Mailshot\UI\EditMailshot;
 use App\Actions\Mail\Mailshot\UI\IndexMailshots;
+use App\Actions\Mail\Mailshot\UI\IndexMarketingMailshots;
 use App\Actions\Mail\Mailshot\UI\IndexNewsletterMailshots;
 use App\Actions\Mail\Mailshot\UI\ShowMailshot;
 use App\Actions\UI\Dropshipping\Marketing\ShowMarketingDashboard;
@@ -27,7 +28,7 @@ Route::name("newsletters.")->prefix('newsletters')
     });
 Route::name("mailshots.")->prefix('mailshots')
     ->group(function () {
-        Route::get('', [IndexMailshots::class, 'inShop'])->name('index');
+        Route::get('', [IndexMarketingMailshots::class, 'inShop'])->name('index');
         Route::get('create', CreateMailshot::class)->name('create');
         Route::get('{mailshot}', [ShowMailshot::class, 'inShop'])->name('show');
         Route::get('{mailshot}/edit', EditMailshot::class)->name('edit');
