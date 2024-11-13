@@ -112,6 +112,8 @@ class StoreSupplierProduct extends GrpAction
             'state'        => ['sometimes', 'required', Rule::enum(SupplierProductStateEnum::class)],
             'is_available' => ['sometimes', 'required', 'boolean'],
             'cost'         => ['required'],
+            'units_per_pack'         => ['sometimes', 'nullable'],
+            'units_per_carton'         => ['sometimes', 'nullable'],
             'cbm'          => ['sometimes', 'nullable', 'numeric'],
         ];
 
