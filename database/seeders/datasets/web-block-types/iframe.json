@@ -4,42 +4,7 @@
 	"code": "iframe",
 	"name": "I Frame",
 	"icon": ["fal", "paperclip"],
-	"blueprint": [
-		{
-			"name": "Link",
-			"key":  "link",
-			"type": "text",
-			"props_data": {
-				"placeholder" : "https://"
-			}
-		},
-		{
-			"name": "Properties",
-			"key": ["container", "properties"],
-			"replaceForm": [
-				{
-					"key": ["container", "properties","dimension"],
-					"type": "dimension",
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties","padding"],
-					"type": "padding",
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties","margin"],
-					"type": "margin",
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties","border"],
-					"type": "border",
-					"props_data": {}
-				}
-			]
-		}
-	],
+	"blueprint": [],
 	"data": {
 		"fieldValue": {
 			"link": null,

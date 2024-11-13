@@ -29,11 +29,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 defineOptions({ layout: WebPreview })
 const props = defineProps<{
     webpage?: RootWebpage
-    webBlockTypes?: Root
     header: Object,
     footer: Object,
     navigation: Object,
-    autosaveRoute: routeType
 }>()
 
 const debouncedSendUpdateBlock = debounce((block) => updateData(block), 5000, { leading: false, trailing: true })

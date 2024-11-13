@@ -6,6 +6,7 @@ export interface Daum {
   id: number
   name: string
   scope: string
+  show:Boolean
   webBlockTypes: WebBlockType[]
 }
 

@@ -19,6 +19,7 @@ import Drawer from "primevue/drawer"
 import Toggle from "@/Components/Pure/Toggle.vue"
 import { setIframeView } from "@/Composables/Workshop"
 import ProgressSpinner from 'primevue/progressspinner';
+import Button from "@/Components/Elements/Buttons/Button.vue"
 
 import { Root, Daum } from "@/types/webBlockTypes"
 import { Root as RootWebpage } from "@/types/webpageTypes"
@@ -71,14 +72,24 @@ const _iframe = ref<IframeHTMLAttributes | null>(null)
 const isLoadingblock = ref<string | null>(null)
 const isSavingBlock = ref(false)
 const isAddBlockLoading = ref<string | null>(null)
+const addBlockCancelToken = ref<Function | null>(null)
+const orderBlockCancelToken = ref<Function | null>(null)
+const deleteBlockCancelToken = ref<Function | null>(null)
 
 const addNewBlock = async (block: Daum) => {
+	if (addBlockCancelToken.value) addBlockCancelToken.value()
 	router.post(
 		route(props.webpage.add_web_block_route.name, props.webpage.add_web_block_route.parameters),
 		{ web_block_type_id: block.id },
 		{
 			onStart: () => (isAddBlockLoading.value = "addBlock" + block.id),
-			onFinish: () => (isAddBlockLoading.value = null),
+			onFinish: () => {
+				addBlockCancelToken.value = null
+				isAddBlockLoading.value = null
+			},
+			onCancelToken: (cancelToken) => {
+                addBlockCancelToken.value = cancelToken.cancel
+            },
 			onSuccess:(e) => { 
 				data.value = e.props.webpage 
 				sendToIframe({ key: 'reload', value: {} })
@@ -95,26 +106,6 @@ const addNewBlock = async (block: Daum) => {
 }
 
 const sendBlockUpdate = async (block: Daum) => {
-/* 	try {
-        isLoadingblock.value = "deleteBlock" + block.id
-        isSavingBlock.value = true
-		const response = router.patch(
-			route(props.webpage.update_model_has_web_blocks_route.name, {
-				modelHasWebBlocks: block.id,
-			}),
-			{
-				layout: block.web_block.layout,
-				show_logged_in: block.visibility.in,
-				show_logged_out: block.visibility.out,
-				show: block.show,
-			}
-		)
-	} catch (error: any) {
-		console.error("error", error)
-	} finally {
-		isLoadingblock.value = null
-        isSavingBlock.value = null
-	} */
 	router.patch(
 		route(props.webpage.update_model_has_web_blocks_route.name, {
 			modelHasWebBlocks: block.id,
@@ -151,23 +142,19 @@ const sendBlockUpdate = async (block: Daum) => {
 }
 
 const sendOrderBlock = async (block: Object) => {
-/* 	try {
-		const response = await router.post(
-			route(
-				props.webpage.reorder_web_blocks_route.name,
-				props.webpage.reorder_web_blocks_route.parameters
-			),
-			{ positions: block }
-		)
-	} catch (error: any) {
-		console.error("error", error)
-	} */
+	if (orderBlockCancelToken.value) orderBlockCancelToken.value()
 	router.post(
 		route(props.webpage.reorder_web_blocks_route.name,props.webpage.reorder_web_blocks_route.parameters),
 		{ positions: block },
         {
             onStart: () => {},
-            onFinish: () => isLoadingblock.value = null,
+            onFinish: () => {
+				isLoadingblock.value = null
+				orderBlockCancelToken.value = null
+			},
+			onCancelToken: (cancelToken) => {
+                orderBlockCancelToken.value = cancelToken.cancel
+            },
 			onSuccess:(e) => { 
 				data.value = e.props.webpage 
 				sendToIframe({ key: 'reload', value: {} })
@@ -184,25 +171,18 @@ const sendOrderBlock = async (block: Object) => {
 }
 
 const sendDeleteBlock = async (block: Daum) => {
-	/* try {
-        isLoading.value = "deleteBlock" + block.id
-		const response = await axios.delete(
-			route(props.webpage.delete_model_has_web_blocks_route.name, {
-				modelHasWebBlocks: block.id,
-			})
-		)
-		const set = { ...response.data.data }
-		data.value = set
-	} catch (error: any) {
-		console.error("error", error)
-	} finally {
-		isLoadingblock.value = null
-	} */
+	if (deleteBlockCancelToken.value) deleteBlockCancelToken.value()
 	router.delete(
         route(props.webpage.delete_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
         {
             onStart: () => isLoadingblock.value = 'deleteBlock' + block.id,
-            onFinish: () => isLoadingblock.value = null,
+            onFinish: () => {
+				isLoadingblock.value = null
+				orderBlockCancelToken.value = null
+			},
+			onCancelToken: (cancelToken) => {
+                deleteBlockCancelToken.value = cancelToken.cancel
+            },
 			onSuccess:(e) => { 
 				data.value = e.props.webpage 
 				sendToIframe({ key: 'reload', value: {} })
@@ -256,9 +236,16 @@ const openFullScreenPreview = () => {
 	window.open(iframeSrc + '&isInWorkshop=true', "_blank")
 }
 
+const setHideBlock = (block : Daum) => {
+	block.show = !block.show 
+	isLoadingblock.value = "deleteBlock" + block.id,
+	sendBlockUpdate(block)
+}
+
 const sendToIframe = (data: any) => {
 	_iframe.value?.contentWindow.postMessage(data, "*")
 }
+
 
 watch(isPreviewMode, (newVal) => {
     sendToIframe({ key: 'isPreviewMode', value: newVal })
@@ -304,7 +291,7 @@ onUnmounted(() => {
 
 	<div class="grid grid-cols-5 h-[84vh]">
 		<!-- Section: Side editor -->
-		<div class="col-span-1 lg:block hidden h-full border-2 bg-gray-200 px-3 py-1 overflow-auto">
+		<div class="col-span-1 lg:block hidden h-full border-2 bg-gray-200 px-3 py-1">
 			<WebpageSideEditor
 				v-model="isModalBlockList"
 				:isLoadingblock
@@ -314,7 +301,9 @@ onUnmounted(() => {
 				@update="sendBlockUpdate"
 				@delete="sendDeleteBlock"
 				@add="addNewBlock"
-				@order="sendOrderBlock" />
+				@order="sendOrderBlock" 
+				@setVisible="setHideBlock"
+			/>
 		</div>
 
 		<!-- Section: Preview -->
@@ -340,8 +329,7 @@ onUnmounted(() => {
 							@delete="sendDeleteBlock"
 							@add="addNewBlock"
 							@order="sendOrderBlock"
-							@openBlockList="
-								() => {
+							@openBlockList=" () => {
 									;(openDrawer = false), (isModalBlockList = true)
 								}
 							" />

@@ -41,6 +41,7 @@ const emits = defineEmits<{
     (e: 'update', value: Daum): void
     (e: 'order', value: Object): void
     (e: 'openBlockList', value: Boolean): void
+    (e: 'setVisible', value: Object): void
 }>()
 
 
@@ -49,7 +50,6 @@ const sendNewBlock = async (block: Daum) => {
 }
 
 const sendBlockUpdate = async (block: Daum) => {
-    console.log(block)
     emits('update', block)
 }
 
@@ -85,12 +85,13 @@ const openModalBlockList = () => {
     emits('openBlockList', !modelModalBlocklist.value)
 }
 
-const setShowBlock = (e,value) => {
+const setShowBlock = (e : Event, value : Object) => {
     e.stopPropagation()
-    value.show = !value.show 
-    onUpdatedBlock(value)
+    e.preventDefault()
+    emits('setVisible', value)
+    /* value.show = !value.show 
+    onUpdatedBlock(value) */
 }
-
 
 defineExpose({
     modelModalBlocklist
@@ -101,11 +102,11 @@ const selectedBlockOpenPanel = ref<number | null>(null)
 </script>
 
 <template>
-    <div class="flex justify-between">
+    <!--  <div class="flex justify-between">
         <h2 class="text-sm font-semibold leading-6">{{trans('Blocks')}} </h2>
         <Button icon="fas fa-plus" type="dashed" size="xs" @click="openModalBlockList" />
-    </div>
-    <div>
+    </div> -->
+    <div class="flex flex-col container overflow-auto">
         <template v-if="webpage?.layout?.web_blocks.length > 0 || isAddBlockLoading">
             <draggable :list="webpage.layout.web_blocks" handle=".handle" @change="onChangeOrderBlock"
                 ghost-class="ghost" group="column" itemKey="column_id" class="mt-2 space-y-1">
@@ -119,53 +120,38 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                                     <FontAwesomeIcon icon="fal fa-bars" class="handle text-sm cursor-grab pr-3 mr-2" />
                                 </div>
                                 <h3 class="lg:text-sm text-xs capitalize font-medium select-none">
-                                    {{ element.name ||  element.type }}
+                                    {{ element.name || element.type }}
                                 </h3>
                             </div>
 
-                            <div
-								class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer">
-								<div>
-									<LoadingIcon
-										v-if="isLoadingblock === 'deleteBlock' + element.id"
-										class="text-gray-400" />
+                            <div class="p-1.5 text-base text-gray-400 hover:text-red-500 cursor-pointer">
+                                <div>
+                                    <LoadingIcon v-if="isLoadingblock === 'deleteBlock' + element.id"
+                                        class="text-gray-400" />
 
-									<div v-else class="flex gap-4">
+                                    <div v-else class="flex gap-4">
                                         <div>
-                                            <FontAwesomeIcon
-                                                v-tooltip="'show this block'"
-                                                v-if="!element.show"
+                                            <FontAwesomeIcon v-tooltip="'show this block'" v-if="!element.show"
                                                 icon="fal fa-eye-slash"
-                                                class="text-base sm:text-lg md:text-xl lg:text-2xl"
-                                                fixed-width
-                                                aria-hidden="true"
-                                                @click="(e) => setShowBlock(e, element)" />
-                                            <FontAwesomeIcon
-                                                v-tooltip="'hide this block'"
-                                                v-else
-                                                icon="fal fa-eye"
-                                                class="text-base sm:text-lg md:text-xl lg:text-2xl"
-                                                fixed-width
-                                                aria-hidden="true"
-                                                @click="(e) => setShowBlock(e, element)" />
+                                                class="text-base sm:text-lg md:text-xl lg:text-2xl" fixed-width
+                                                aria-hidden="true" @click="(e) => setShowBlock(e, element)" />
+                                            <FontAwesomeIcon v-tooltip="'hide this block'" v-else icon="fal fa-eye"
+                                                class="text-base sm:text-lg md:text-xl lg:text-2xl" fixed-width
+                                                aria-hidden="true" @click="(e) => setShowBlock(e, element)" />
                                         </div>
 
-										<FontAwesomeIcon
-											v-if="!element.show"
-											icon="fal fa-times"
-											v-tooltip="'Delete this block'"
-											class="text-base sm:text-lg md:text-xl lg:text-2xl"
-											fixed-width
-											aria-hidden="true"
-											@click="
+                                        <FontAwesomeIcon v-if="!element.show" icon="fal fa-times"
+                                            v-tooltip="'Delete this block'"
+                                            class="text-base sm:text-lg md:text-xl lg:text-2xl" fixed-width
+                                            aria-hidden="true" @click="
 												(e) => {
 													e.stopPropagation(), 
                                                     sendDeleteBlock(element)
 												}
 											" />
-									</div>
-								</div>
-							</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Section: Properties panel -->
@@ -173,14 +159,12 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                             :when="selectedBlockOpenPanel === index">
                             <div class="p-2">
                                 <div class="px-2">
-                                    <VisibleCheckmark v-model="element.visibility" @update:modelValue="onUpdatedBlock(element)"/>
+                                    <VisibleCheckmark v-model="element.visibility"
+                                        @update:modelValue="onUpdatedBlock(element)" />
                                 </div>
-                                <SideEditor 
-                                    v-model="element.web_block.layout.data.fieldValue"
-                                    :blueprint="getBlueprint(element.type)"
-                                    @update:modelValue="onUpdatedBlock(element)" 
-                                    :uploadImageRoute="{...webpage.images_upload_route, parameters : { modelHasWebBlocks: element.id }}"
-                                />
+                                <SideEditor v-model="element.web_block.layout.data.fieldValue"
+                                    :blueprint="getBlueprint(element.type)" @update:modelValue="onUpdatedBlock(element)"
+                                    :uploadImageRoute="{...webpage.images_upload_route, parameters : { modelHasWebBlocks: element.id }}" />
                             </div>
                         </Collapse>
                     </div>
@@ -194,18 +178,26 @@ const selectedBlockOpenPanel = ref<number | null>(null)
             <font-awesome-icon :icon="['fal', 'browser']" class="mx-auto h-12 w-12 text-gray-400" />
             <span class="mt-2 block text-sm font-semibold text-gray-600">You don't have any blocks</span>
         </div>
-
-        <Button label="add new block" class="mt-3" full type="dashed" @click="openModalBlockList">
-            <div class="text-gray-500">
-                <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
-                {{ trans('Add block') }}
-            </div>
-        </Button>
-
     </div>
+
+    <Button label="add new block" class="mt-3" full type="dashed" @click="openModalBlockList">
+        <div class="text-gray-500">
+            <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
+            {{ trans('Add block') }}
+        </div>
+    </Button>
 
 
     <Modal :isOpen="modelModalBlocklist" @onClose="openModalBlockList">
         <BlockList :onPickBlock="onPickBlock" :webBlockTypes="webBlockTypes" scope="webpage" />
     </Modal>
 </template>
+
+
+<style lang="scss" scoped>
+.container {
+    min-height: 10px;
+    max-height: 78vh;
+}
+
+</style>

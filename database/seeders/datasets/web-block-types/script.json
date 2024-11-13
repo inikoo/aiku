@@ -9,14 +9,7 @@
 		"out": true
 	},
 	"icon": ["fal", "code"],
-	"blueprint": [
-		{
-			"name": "Script",
-			"key": "value",
-			"type": ["script"],
-			"props_data": {}
-		}
-	],
+	"blueprint": [],
 	"data": {
 		"fieldValue": {
 			"value": "hello world",
