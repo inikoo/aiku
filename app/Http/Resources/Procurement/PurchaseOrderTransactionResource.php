@@ -22,14 +22,14 @@ class PurchaseOrderTransactionResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'code'          => $this->supplierProduct->code,
-            'name'          => $this->supplierProduct->name,
-            'unit_quantity' => $this->unit_quantity,
-            'unit_price'    => $this->unit_price,
-            'unit_cost'     => $this->supplierProduct->cost,
-            'state'         => $this->supplierProduct->state,
-            'created_at'    => $this->created_at,
-            'updated_at'    => $this->updated_at,
+            'code'              => $this->supplierProduct->code,
+            'name'              => $this->supplierProduct->name,
+            'quantity_ordered'  => intval($this->quantity_ordered),
+            'unit_cost'         => intval($this->supplierProduct->cost),
+            'total_cost'        => intval($this->supplierProduct->cost * $this->quantity_ordered),
+            'state'             => $this->supplierProduct->state,
+            'created_at'        => $this->created_at,
+            'updated_at'        => $this->updated_at,
         ];
     }
 }
