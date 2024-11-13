@@ -53,7 +53,7 @@ class StoreWarehouseArea extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
     }
 
     public function rules(): array
@@ -113,7 +113,7 @@ class StoreWarehouseArea extends OrgAction
 
     public function htmlResponse(WarehouseArea $warehouseArea): RedirectResponse
     {
-        return Redirect::route('grp.org.warehouses.show.infrastructure.warehouse-areas.index', $warehouseArea->warehouse->slug);
+        return Redirect::route('grp.org.warehouses.show.infrastructure.warehouse-areas.index', [$this->organisation, $warehouseArea->warehouse]);
     }
 
 }
