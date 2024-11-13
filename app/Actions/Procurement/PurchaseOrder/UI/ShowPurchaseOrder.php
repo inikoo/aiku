@@ -119,8 +119,7 @@ class ShowPurchaseOrder extends OrgAction
 
         $orderer = [];
         $productListRoute = [];
-        if($purchaseOrder->parent instanceof OrgAgent)
-        {
+        if ($purchaseOrder->parent instanceof OrgAgent) {
             $orderer = OrgAgentResource::make($purchaseOrder->parent)->toArray($request);
             $productListRoute = [
                 'method'     => 'get',
@@ -129,9 +128,7 @@ class ShowPurchaseOrder extends OrgAction
                     'orgAgent' => $purchaseOrder->parent->slug,
                 ]
             ];
-        } 
-        elseif ($purchaseOrder->parent instanceof OrgSupplier)
-        {
+        } elseif ($purchaseOrder->parent instanceof OrgSupplier) {
             $orderer = OrgSupplierResource::make($purchaseOrder->parent)->toArray($request);
             $productListRoute = [
                 'method'     => 'get',
@@ -315,7 +312,7 @@ class ShowPurchaseOrder extends OrgAction
                         'note'          => $purchaseOrder->note,
                         'delivery_status' => $purchaseOrder->delivery_status,
                     ],
-                    
+
                     'order_summary' => [
                         [
                             [

@@ -192,7 +192,7 @@ class IndexPurchaseOrders extends OrgAction
             ];
         } elseif ($this->parent instanceof OrgPartner) {
             $subNavigation = $this->getOrgPartnerNavigation($this->parent);
-            $actions = 
+            $actions =
             [
                 [
                     'type'  => 'button',
@@ -222,7 +222,7 @@ class IndexPurchaseOrders extends OrgAction
             ];
         } elseif ($this->parent instanceof OrgSupplier) {
             $subNavigation = $this->getOrgSupplierNavigation($this->parent);
-            $actions = 
+            $actions =
             [
                 [
                     'type'  => 'button',

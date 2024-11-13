@@ -74,7 +74,7 @@ class StorePurchaseOrder extends OrgAction
             OrgPartnerHydratePurchaseOrders::dispatch($parent)->delay($this->hydratorsDelay);
             OrganisationHydratePurchaseOrders::dispatch($parent->organisation)->delay($this->hydratorsDelay);
         }
-        
+
         OrganisationHydratePurchaseOrders::dispatch($purchaseOrder->organisation)->delay($this->hydratorsDelay);
 
         return $purchaseOrder;
@@ -186,7 +186,7 @@ class StorePurchaseOrder extends OrgAction
             return Redirect::route('grp.org.procurement.org_agents.show.purchase-orders.show', [$purchaseOrder->organisation->slug, $this->parent->slug, $purchaseOrder->slug]);
         } elseif ($this->parent instanceof OrgSupplier) {
             return Redirect::route('grp.org.procurement.org_suppliers.show.purchase-orders.show', [$purchaseOrder->organisation->slug, $this->parent->slug, $purchaseOrder->slug]);
-        } elseif ($this->parent instanceof OrgPartner)  {
+        } elseif ($this->parent instanceof OrgPartner) {
             return Redirect::route('grp.org.procurement.org_partners.show.purchase-orders.show', [$purchaseOrder->organisation->slug, $this->parent->slug, $purchaseOrder->slug]);
         }
     }
