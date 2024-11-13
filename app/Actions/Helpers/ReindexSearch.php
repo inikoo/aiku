@@ -216,7 +216,7 @@ class ReindexSearch extends HydrateModel
 
 
         $command->line('Product categories');
-        $command->call('product-category:search');
+        $command->call('product_category:search');
 
         $command->line('Customers');
         $command->call('customer:search');

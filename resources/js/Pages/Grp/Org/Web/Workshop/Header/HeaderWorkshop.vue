@@ -14,6 +14,7 @@ import ScreenView from "@/Components/ScreenView.vue"
 import HeaderListModal from '@/Components/CMS/Fields/ListModal.vue'
 import { getBlueprint } from '@/Composables/getBlueprintWorkshop'
 import { setIframeView } from '@/Composables/Workshop'
+import ProgressSpinner from 'primevue/progressspinner';
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -281,9 +282,13 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
+                <!-- <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
                     <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />
-                </div>
+                </div> -->
+
+                <div v-if="isIframeLoading" class="loading-overlay">
+                        <ProgressSpinner />
+                    </div>
 
                 <!-- Workshop Preview -->
                 <iframe
@@ -325,4 +330,36 @@ onMounted(() => {
 </template>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+:deep(.loading-overlay) {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.8);
+    z-index: 1000;
+}
+
+:deep(.spinner) {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top: 4px solid #3498db;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+</style>

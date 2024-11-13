@@ -52,17 +52,16 @@ export default {
 				icon: "far fa-dot-circle",
 				tooltip: "Action",
 			},
-            type: "button",
-			/* replaceForm: [
+			replaceForm: [
 				{
 					key: ["visible"],
-					type: ["VisibleLoggedIn"],
+					type: "VisibleLoggedIn",
 				},
 				{
-					key: ["button_1"],
-					type: ["button"],
+					key: [],
+					type: "button",
 				},
-			], */
+			],
 		},
 		{
 			name: "Register",
@@ -71,17 +70,16 @@ export default {
 				icon: "far fa-dot-circle",
 				tooltip: "Action",
 			},
-            type: "button",
-		/* 	replaceForm: [
+			replaceForm: [
 				{
-					key: ["button_2", "visible"],
-					type: ["VisibleLoggedIn"],
+					key: ["visible"],
+					type: "VisibleLoggedIn",
 				},
 				{
-					key: ["button_2"],
-					type: ["button"],
+					key: [],
+					type: "button",
 				},
-			], */
+			],
 		},
 		{
 			name: "Button 3",
@@ -90,17 +88,16 @@ export default {
 				icon: "far fa-dot-circle",
 				tooltip: "Action",
 			},
-            type: "button",
-			/* replaceForm: [
+			replaceForm: [
 				{
-					key: ["button_3", "visible"],
-					type: ["VisibleLoggedIn"],
+					key: ["visible"],
+					type: "VisibleLoggedIn",
 				},
 				{
-					key: ["button_3"],
-					type: ["button"],
+					key: [],
+					type: "button",
 				},
-			], */
+			],
 		},
 		{
 			name: "Button 4",
@@ -109,17 +106,16 @@ export default {
 				icon: "far fa-dot-circle",
 				tooltip: "Action",
 			},
-            type: "button",
-			/* replaceForm: [
+			replaceForm: [
 				{
-					key: ["button_4", "visible"],
-					type: ["VisibleLoggedIn"],
+					key: ["visible"],
+					type: "VisibleLoggedIn",
 				},
 				{
-					key: ["button_4"],
-					type: ["button"],
+					key: [],
+					type: "button",
 				},
-			], */
+			],
 		},
 		{
 			name: "Button 5",
@@ -128,17 +124,16 @@ export default {
 				icon: "far fa-dot-circle",
 				tooltip: "Action",
 			},
-            type: "button",
-		/* 	replaceForm: [
+			replaceForm: [
 				{
-					key: ["button_5", "visible"],
-					type: ["VisibleLoggedIn"],
+					key: ["visible"],
+					type: "VisibleLoggedIn",
 				},
 				{
 					key: ["button_5"],
-					type: ["button"],
+					type: "button",
 				},
-			], */
+			],
 		},
 		{
 			name: "Button 6",
@@ -147,18 +142,15 @@ export default {
 				icon: "far fa-dot-circle",
 				tooltip: "Action",
 			},
-            type: "button",
-			/* replaceForm: [
+			replaceForm: [
 				{
-					key: ["button_6", "visible"],
-					type: ["VisibleLoggedIn"],
+					key: ["visible"],
+					type: "VisibleLoggedIn",
 				},
 				{
-					key: ["button_6"],
-					type: ["button"],
+					type: 'button',
 				},
 			],
-			props_data: {}, */
 		},
 	],
 }
