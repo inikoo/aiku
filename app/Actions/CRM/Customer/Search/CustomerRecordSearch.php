@@ -46,7 +46,7 @@ class CustomerRecordSearch
                         'tooltip'   => __('reference')
                     ],
                     'icon'      => [
-                        'icon' => 'fal fa-file-invoice-dollar',
+                        'icon' => 'fal fa-user',
                     ],
                     'meta'      => [
                         [
