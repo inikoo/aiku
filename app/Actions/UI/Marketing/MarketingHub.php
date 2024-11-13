@@ -69,7 +69,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('post room'),
                                 'icon'  => ['fal', 'fa-mailbox'],
-                                'href'  => ['grp.marketing.post_rooms.index'],
+                                'route'  => ['grp.marketing.post_rooms.index'],
                                 'index' => [
                                     'number' => $routeParameters['shop']
                                 ]
@@ -78,7 +78,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('outboxes'),
                                 'icon'  => ['fal', 'fa-inbox-out'],
-                                'href'  => ['grp.marketing.outboxes.index'],
+                                'route'  => ['grp.marketing.outboxes.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -87,7 +87,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('mailshots'),
                                 'icon'  => ['fal', 'fa-mail-bulk'],
-                                'href'  => ['grp.marketing.mailshots.index'],
+                                'route'  => ['grp.marketing.mailshots.index'],
                                 'index' => [
                                     'number' => $this->outbox
 
@@ -97,7 +97,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('dispatched emails'),
                                 'icon'  => ['fal', 'fa-envelope'],
-                                'href'  => ['grp.marketing.dispatched-emails.index'],
+                                'route'  => ['grp.marketing.dispatched-emails.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -112,7 +112,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('post room'),
                                 'icon'  => ['fal', 'fa-mailbox'],
-                                'href'  => ['grp.marketing.post_rooms.index'],
+                                'route'  => ['grp.marketing.post_rooms.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -121,7 +121,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('outboxes'),
                                 'icon'  => ['fal', 'fa-inbox-out'],
-                                'href'  => ['grp.marketing.outboxes.index'],
+                                'route'  => ['grp.marketing.outboxes.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]
@@ -130,7 +130,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('mailshots'),
                                 'icon'  => ['fal', 'fa-mail-bulk'],
-                                'href'  => ['grp.marketing.mailshots.index'],
+                                'route'  => ['grp.marketing.mailshots.index'],
                                 'index' => [
                                     'number' => $this->outbox
 
@@ -140,7 +140,7 @@ class MarketingHub extends InertiaAction
                             [
                                 'name'  => __('dispatched emails'),
                                 'icon'  => ['fal', 'fa-envelope'],
-                                'href'  => ['grp.marketing.dispatched-emails.index'],
+                                'route'  => ['grp.marketing.dispatched-emails.index'],
                                 'index' => [
                                     'number' => $this->outbox
                                 ]

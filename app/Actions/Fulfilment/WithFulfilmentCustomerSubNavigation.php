@@ -19,7 +19,7 @@ trait WithFulfilmentCustomerSubNavigation
 
         $subNavigation[] = [
             'isAnchor' => true,
-            'href' => [
+            'route' => [
                 'name'      => 'grp.org.fulfilments.show.crm.customers.show',
                 'parameters' => $request->route()->originalParameters()
 
@@ -36,7 +36,7 @@ trait WithFulfilmentCustomerSubNavigation
 
         if ($fulfilmentCustomer->pallets_storage && $fulfilmentCustomer->rentalAgreement()->where('state', RentalAgreementStateEnum::ACTIVE)->exists()) {
             $subNavigation[] = [
-                'href' => [
+                'route' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.web-users.index',
                     'parameters' => $request->route()->originalParameters()
 
@@ -51,7 +51,7 @@ trait WithFulfilmentCustomerSubNavigation
 
             ];
             $subNavigation[] = [
-                'href' => [
+                'route' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.pallets.index',
                     'parameters' => $request->route()->originalParameters()
 
@@ -69,7 +69,7 @@ trait WithFulfilmentCustomerSubNavigation
             if ($fulfilmentCustomer->items_storage) {
 
                 $subNavigation[] = [
-                    'href' => [
+                    'route' => [
                         'name'      => 'grp.org.fulfilments.show.crm.customers.show.stored-items.index',
                         'parameters' => $request->route()->originalParameters()
                     ],
@@ -86,7 +86,7 @@ trait WithFulfilmentCustomerSubNavigation
             }
 
             $subNavigation[] = [
-                'href' => [
+                'route' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.pallet_deliveries.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
@@ -101,7 +101,7 @@ trait WithFulfilmentCustomerSubNavigation
             ];
 
             $subNavigation[] = [
-                'href' => [
+                'route' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.recurring_bills.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
@@ -128,7 +128,7 @@ trait WithFulfilmentCustomerSubNavigation
 
 
             $subNavigation[] = [
-                'href' => [
+                'route' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.pallet_returns.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
@@ -147,7 +147,7 @@ trait WithFulfilmentCustomerSubNavigation
         if ($fulfilmentCustomer->rentalAgreement()->exists()) {
 
             $subNavigation[] = [
-                'href' => [
+                'route' => [
                     'name'      => 'grp.org.fulfilments.show.crm.customers.show.invoices.index',
                     'parameters' => $request->route()->originalParameters()
                 ],

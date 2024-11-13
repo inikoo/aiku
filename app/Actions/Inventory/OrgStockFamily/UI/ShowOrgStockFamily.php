@@ -75,7 +75,7 @@ class ShowOrgStockFamily extends OrgAction
                         [
                             'name'     => trans_choice('stock | stocks', $orgStockFamily->stats->number_org_stocks),
                             'number'   => $orgStockFamily->stats->number_org_stocks,
-                            'href'     => [
+                            'route'     => [
                                 'name'       => 'grp.org.warehouses.show.inventory.org_stock_families.show.org_stocks.index',
                                 'parameters' => $request->route()->originalParameters()
                             ],

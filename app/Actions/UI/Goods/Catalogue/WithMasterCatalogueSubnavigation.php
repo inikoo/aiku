@@ -16,7 +16,7 @@ trait WithMasterCatalogueSubnavigation
     {
         return [
             [
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.goods.catalogue.shops.index',
                     'parameters' => []
                 ],
@@ -28,7 +28,7 @@ trait WithMasterCatalogueSubnavigation
             [
                 'label'    => __('Products'),
 
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.goods.catalogue.products.index',
                     'parameters' => []
                 ],
@@ -45,7 +45,7 @@ trait WithMasterCatalogueSubnavigation
 
         return [
             [
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.goods.catalogue.shops.index',
                     'parameters' => []
                 ],
@@ -58,7 +58,7 @@ trait WithMasterCatalogueSubnavigation
                 'isAnchor' => true,
                 'label'    => __($masterShop->name),
 
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.goods.catalogue.shops.show',
                     'parameters' => [
                         'masterShop' => $masterShop->slug
@@ -75,7 +75,7 @@ trait WithMasterCatalogueSubnavigation
             [
                 'number'   => 0,
                 'label'    => __('Departments'),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.goods.catalogue.shops.show.departments.index',
                     'parameters' => [
                         'masterShop' => $masterShop->slug
@@ -89,7 +89,7 @@ trait WithMasterCatalogueSubnavigation
             [
                 'number'   => 0,
                 'label'    => __('Sub Departments'),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.goods.catalogue.shops.show.sub-departments.index',
                     'parameters' => [
                         'masterShop' => $masterShop->slug
@@ -103,7 +103,7 @@ trait WithMasterCatalogueSubnavigation
             [
                 'number'   => 0,
                 'label'    => __('Families'),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.goods.catalogue.shops.show.families.index',
                     'parameters' => [
                         'masterShop' => $masterShop->slug
@@ -119,7 +119,7 @@ trait WithMasterCatalogueSubnavigation
                 'number'   => 0,
                 'align'    => 'right',
                 'label'    => __('Products'),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.goods.catalogue.shops.show.products.index',
                     'parameters' => [
                         'masterShop' => $masterShop->slug

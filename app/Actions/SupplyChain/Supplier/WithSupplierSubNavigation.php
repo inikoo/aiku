@@ -20,7 +20,7 @@ trait WithSupplierSubNavigation
                 "isAnchor" => true,
                 "label"    => __($parent->slug),
 
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.supply-chain.suppliers.show",
                     "parameters" => [$parent->slug],
                 ],
@@ -32,7 +32,7 @@ trait WithSupplierSubNavigation
             [
                 "number"   => $parent->stats->number_supplier_products,
                 "label"    => __("Products"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.supply-chain.suppliers.supplier_products.index",
                     "parameters" => [$parent->slug],
                 ],
@@ -45,7 +45,7 @@ trait WithSupplierSubNavigation
             // [
             //     "number"   => $parent->stats->number_purchase_orders,
             //     "label"    => __("Purchase Orders"),
-            //     "href"     => [
+            //     "route"     => [
             //         "name"       => "grp.org.procurement.org_suppliers.show.purchase_orders.index",
             //         "parameters" => [$parent->organisation->slug, $parent->slug],
             //     ],
@@ -57,7 +57,7 @@ trait WithSupplierSubNavigation
             // [
             //     "number"   => $parent->stats->number_stock_deliveries,
             //     "label"    => __("Stock Deliveries"),
-            //     "href"     => [
+            //     "route"     => [
             //         "name"       => "grp.org.procurement.org_suppliers.show.stock_deliveries.index",
             //         "parameters" => [$parent->organisation->slug, $parent->slug],
             //     ],

@@ -102,7 +102,10 @@ test('create supplier product', function ($supplier) {
         'code'    => 'ABC',
         'name'    => 'ABC Asset',
         'cost'    => 200,
-        'stock_id' => $this->stocks[0]->id
+        'stock_id' => $this->stocks[0]->id,
+        'units_per_pack' => 10,
+        'units_per_carton' => 100
+
     ];
 
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, $arrayData);
@@ -177,7 +180,9 @@ test('add more items to purchase order', function (PurchaseOrder $purchaseOrder)
         'code'    => 'product-2',
         'name'    => 'Product 2',
         'cost'    => 100,
-        'stock_id' => $this->stocks[1]->id
+        'stock_id' => $this->stocks[1]->id,
+        'units_per_pack' => 50,
+        'units_per_carton' => 200
     ]);
     StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
 
@@ -188,7 +193,9 @@ test('add more items to purchase order', function (PurchaseOrder $purchaseOrder)
         'code'    => 'product-3',
         'name'    => 'Product 3',
         'cost'    => 150,
-        'stock_id' => $this->stocks[2]->id
+        'stock_id' => $this->stocks[2]->id,
+        'units_per_pack' => 5,
+        'units_per_carton' => 50
     ]);
     StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
     $purchaseOrderTransaction3 = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, PurchaseOrderTransaction::factory()->definition());
@@ -209,8 +216,14 @@ test('delete purchase order', function () {
     );
     $orgSupplier     = StoreOrgSupplier::make()->action($this->organisation, $supplier);
 
-    $supplierProductData = SupplierProduct::factory()->definition();
-    data_set($supplierProductData, 'stock_id', $this->stocks[0]->id);
+    $supplierProductData = [
+        'code'    => 'ABCDE',
+        'name'    => 'ABCDE Asset',
+        'cost'    => 200,
+        'stock_id' => $this->stocks[0]->id,
+        'units_per_pack' => 10,
+        'units_per_carton' => 100
+    ];
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, $supplierProductData);
     StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
 
@@ -324,11 +337,27 @@ test('create supplier delivery', function (OrgSupplier $orgSupplier) {
 
 
 test('create supplier delivery items', function (StockDelivery $stockDelivery) {
-    $supplier = StoreStockDeliveryItem::run($stockDelivery, StockDeliveryItem::factory()->definition());
+    $supplier        = StoreSupplier::make()->action(
+        parent: $this->group,
+        modelData: Supplier::factory()->definition()
+    );
+    $orgSupplier     = StoreOrgSupplier::make()->action($this->organisation, $supplier);
+    $supplierProductData = [
+        'code'    => 'ABCDE',
+        'name'    => 'ABCDE Asset',
+        'cost'    => 200,
+        'stock_id' => $this->stocks[0]->id,
+        'units_per_pack' => 10,
+        'units_per_carton' => 100
+    ];
+    $supplierProduct = StoreSupplierProduct::make()->action($supplier, $supplierProductData);
+    $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
+
+    $supplier = StoreStockDeliveryItem::run($stockDelivery, $orgSupplierProduct->supplierProduct->historicSupplierProduct, StockDeliveryItem::factory()->definition());
 
     expect($supplier->stock_delivery_id)->toBe($stockDelivery->id);
-
-    return $supplier;
+    $stockDelivery->refresh();
+    return $stockDelivery;
 })->depends('create supplier delivery');
 
 test('create supplier delivery items by selected purchase order', function (StockDelivery $stockDelivery, $items) {
@@ -336,7 +365,7 @@ test('create supplier delivery items by selected purchase order', function (Stoc
     expect($supplier)->toBeArray();
 
     return $supplier;
-})->depends('create supplier delivery', 'add item to purchase order');
+})->depends('create supplier delivery items', 'add item to purchase order');
 
 test('change supplier delivery state to dispatch from creating', function (StockDelivery $stockDelivery) {
     expect($stockDelivery)->toBeInstanceOf(StockDelivery::class)
@@ -370,7 +399,8 @@ test('change state to received from checked supplier delivery', function ($stock
     expect($stockDelivery->state)->toEqual(StockDeliveryStateEnum::RECEIVED);
 })->depends('create supplier delivery');
 
-test('check supplier delivery items not correct', function ($stockDeliveryItem) {
+test('check supplier delivery items not correct', function (StockDelivery $stockDelivery) {
+    $stockDeliveryItem = $stockDelivery->items()->first();
     $stockDeliveryItem = UpdateStateToCheckedStockDeliveryItem::make()->action($stockDeliveryItem, [
         'unit_quantity_checked' => 2
     ]);

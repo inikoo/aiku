@@ -19,7 +19,6 @@ class StockDeliveryItemFactory extends Factory
         return [
             'group_id'            => $supplierProduct->group_id,
             'supplier_product_id' => $supplierProduct->id,
-            'unit_price'          => fake()->numberBetween(100, 10000),
             'unit_quantity'       => fake()->numberBetween(1, 100)
         ];
     }

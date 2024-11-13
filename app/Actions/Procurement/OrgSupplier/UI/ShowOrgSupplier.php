@@ -102,7 +102,7 @@ class ShowOrgSupplier extends OrgAction
                     //     [
                     //         'name'     => trans_choice('Purchases|Sales', $orgSupplier->stats->number_open_purchase_orders),
                     //         'number'   => $orgSupplier->stats->number_open_purchase_orders,
-                    //         'href'     => [
+                    //         'route'     => [
                     //             'grp.org.procurement.org_supplier_products.show',
                     //             $orgSupplier->slug
                     //         ],
@@ -114,7 +114,7 @@ class ShowOrgSupplier extends OrgAction
                     //     [
                     //         'name'     => trans_choice('product|products', $orgSupplier->stats->number_supplier_products),
                     //         'number'   => $orgSupplier->stats->number_supplier_products,
-                    //         'href'     => [
+                    //         'route'     => [
                     //             'grp.org.procurement.org_supplier_products.show',
                     //             $orgSupplier->slug
                     //         ],

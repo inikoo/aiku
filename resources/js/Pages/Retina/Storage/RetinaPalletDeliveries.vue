@@ -47,7 +47,7 @@ function palletDeliveryRoute(palletDelivery: PalletDelivery) {
 const handleClick = (action: Action) => {
     if (action.disabled) openModal.value = true
     else {
-        const href = action.route?.name ? route(action.route?.name, action.route?.parameters) : action.href?.name ? route(action.href?.name, action.href?.parameters) : '#'
+        const href = action.route?.name ? route(action.route?.name, action.route?.parameters) : action.route?.name ? route(action.route?.name, action.route?.parameters) : '#'
         const method = action.route?.method ?? 'get'
         router[method](
             href,

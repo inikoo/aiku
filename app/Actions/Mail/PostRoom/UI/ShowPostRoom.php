@@ -56,7 +56,7 @@ class ShowPostRoom extends InertiaAction
                         [
                             'name'     => trans_choice('outbox | outboxes', $this->postRoom->stats->id),
                             'number'   => $this->postRoom->stats->id,
-                            'href'     => [
+                            'route'     => [
                                 'mail.post_rooms.show.outboxes.index',
                                 $this->postRoom->id
                             ],
@@ -68,7 +68,7 @@ class ShowPostRoom extends InertiaAction
                         [
                             'name'     => trans_choice('mailshot | mailshots', $this->postRoom->stats->number_mailshots),
                             'number'   => $this->postRoom->stats->number_mailshots,
-                            'href'     => [
+                            'route'     => [
                                 'mail.post_rooms.show.mailshots.index',
                                 $this->postRoom->id
                             ],
@@ -80,7 +80,7 @@ class ShowPostRoom extends InertiaAction
                         [
                             'name'     => trans_choice('dispatched email | dispatched emails', $this->postRoom->stats->number_dispatched_emails),
                             'number'   => $this->postRoom->stats->number_dispatched_emails,
-                            'href'     => [
+                            'route'     => [
                                 'mail.post_rooms.show.dispatched-emails.index',
                                 $this->postRoom->id
                             ],

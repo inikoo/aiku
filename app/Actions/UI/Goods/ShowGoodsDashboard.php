@@ -56,7 +56,7 @@ class ShowGoodsDashboard extends GrpAction
                         [
                             'name'  => __('SKUs families'),
                             'icon'  => ['fal', 'fa-boxes-alt'],
-                            'href'  => [
+                            'route'  => [
                                 'name'       => 'grp.goods.stock-families.index',
                                 'parameters' => []
                             ],
@@ -68,7 +68,7 @@ class ShowGoodsDashboard extends GrpAction
                         [
                             'name'  => 'SKUs',
                             'icon'  => ['fal', 'fa-box'],
-                            'href'  => [
+                            'route'  => [
                                 'name'       => 'grp.goods.stocks.index',
                                 'parameters' => []
                             ],
@@ -80,7 +80,7 @@ class ShowGoodsDashboard extends GrpAction
                         [
                             'name'  => 'Catalogue',
                             'icon'  => ['fal', 'fa-books'],
-                            'href'  => [
+                            'route'  => [
                                 'name'       => 'grp.goods.catalogue.shops.index',
                                 'parameters' => []
                             ],

@@ -52,7 +52,7 @@ class WebsitesDashboard extends OrgAction
                         [
                             'name'  => __('websites'),
                             'icon'  => ['fal', 'fa-globe'],
-                            'href'  => ['grp.org.shops.show.web.websites.index'],
+                            'route'  => ['grp.org.shops.show.web.websites.index'],
                             'index' => [
                                 'number' => $organisation->webStats->number_websites
                             ]

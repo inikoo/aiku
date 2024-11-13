@@ -43,8 +43,8 @@ class StoreHistoricSupplierProduct extends GrpAction
             'code'             => ['sometimes','required', 'string', 'max:255'],
             'name'             => ['sometimes','required', 'string', 'max:255'],
             'status'           => ['required', 'boolean'],
-            'units_per_pack'   => ['required', 'numeric'],
-            'units_per_carton' => ['required', 'numeric'],
+            'units_per_pack'   => ['sometimes', 'required', 'numeric'],
+            'units_per_carton' => ['sometimes', 'required', 'numeric'],
             'cbm'              => ['sometimes','nullable', 'numeric']
         ];
 

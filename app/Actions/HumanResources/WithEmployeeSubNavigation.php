@@ -18,7 +18,7 @@ trait WithEmployeeSubNavigation
 
         $subNavigation[] = [
             'isAnchor' => true,
-            'href' => [
+            'route' => [
                 'name'      => 'grp.org.hr.employees.show',
                 'parameters' => $request->route()->originalParameters()
             ],
@@ -32,7 +32,7 @@ trait WithEmployeeSubNavigation
 
 
         $subNavigation[] = [
-            'href' => [
+            'route' => [
                 'name'      => 'grp.org.hr.employees.show.positions.index',
                 'parameters' => $request->route()->originalParameters()
 
@@ -48,7 +48,7 @@ trait WithEmployeeSubNavigation
         ];
 
         $subNavigation[] = [
-            'href' => [
+            'route' => [
                 'name'      => 'grp.org.hr.employees.show.timesheets.index',
                 'parameters' => $request->route()->originalParameters()
 
