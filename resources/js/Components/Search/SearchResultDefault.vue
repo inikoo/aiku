@@ -94,7 +94,7 @@ const isLoading = ref(false)
                     </template>
                 </div> -->
 
-				<div class="flex flex-col py-1 sm:flex-row gap-y-1.5 gap-x-3 font-semibold">
+				<div class="flex flex-col py-1 sm:flex-row gap-y-1.5 gap-x-3 ">
 					<icon :data="data?.icon" size="xs" />
 
 					<h2
