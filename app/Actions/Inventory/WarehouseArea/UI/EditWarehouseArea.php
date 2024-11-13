@@ -7,14 +7,15 @@
 
 namespace App\Actions\Inventory\WarehouseArea\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditWarehouseArea extends InertiaAction
+class EditWarehouseArea extends OrgAction
 {
     public function handle(WarehouseArea $warehouseArea): WarehouseArea
     {
@@ -23,30 +24,17 @@ class EditWarehouseArea extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('inventory.warehouse-areas.edit');
-        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
     }
 
-    public function asController(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+
+    public function asController(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
-        $this->initialisation($request);
+        $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($warehouseArea);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
-    {
-        $this->initialisation($request);
-        return $this->handle($warehouseArea);
-    }
-
-    public function inOrganisation(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
-    {
-        $this->initialisation($request);
-
-        return $this->handle($warehouseArea);
-    }
 
     public function htmlResponse(WarehouseArea $warehouseArea, ActionRequest $request): Response
     {
@@ -57,17 +45,17 @@ class EditWarehouseArea extends InertiaAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'navigation' => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($warehouseArea, $request),
                     'next'     => $this->getNext($warehouseArea, $request),
                 ],
                 'pageHead'    => [
-                    'title'     => $warehouseArea->name,
-                    'icon'      => [
+                    'title'   => $warehouseArea->name,
+                    'icon'    => [
                         'title' => __('warehouses areas'),
                         'icon'  => 'fal fa-map-signs'
                     ],
-                    'actions'   => [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',
@@ -78,7 +66,7 @@ class EditWarehouseArea extends InertiaAction
                         ]
                     ]
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' => [
                         [
                             'title'  => __('id'),
@@ -97,9 +85,9 @@ class EditWarehouseArea extends InertiaAction
                         ]
 
                     ],
-                    'args' => [
+                    'args'      => [
                         'updateRoute' => [
-                            'name'      => 'grp.models.warehouse-area.update',
+                            'name'       => 'grp.models.warehouse-area.update',
                             'parameters' => $warehouseArea->id
 
                         ],
@@ -125,6 +113,7 @@ class EditWarehouseArea extends InertiaAction
                 $query->where('warehouse_id', $warehouseArea->warehouse_id);
             }
         })->orderBy('code', 'desc')->first();
+
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
@@ -146,21 +135,12 @@ class EditWarehouseArea extends InertiaAction
         }
 
         return match ($routeName) {
-            'grp.oms.warehouse-areas.edit' => [
+            'grp.org.warehouses.show.infrastructure.warehouse-areas.edit' => [
                 'label' => $warehouseArea->name,
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'warehouseArea' => $warehouseArea->slug
-                    ]
-
-                ]
-            ],
-            'grp.oms.warehouses.show.warehouse-areas.edit' => [
-                'label' => $warehouseArea->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
+                        'organisation' => $warehouseArea->warehouse->organisation->slug,
                         'warehouse'     => $warehouseArea->warehouse->slug,
                         'warehouseArea' => $warehouseArea->slug
                     ]

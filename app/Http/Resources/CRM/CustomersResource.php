@@ -25,6 +25,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $invoiced_org_net_amount
  * @property mixed $invoiced_grp_net_amount
  * @property mixed $number_invoices_type_invoice
+ * @property mixed $number_current_portfolios
+ * @property mixed $currency_code
  */
 class CustomersResource extends JsonResource
 {
@@ -48,6 +50,7 @@ class CustomersResource extends JsonResource
             'invoiced_net_amount'          => $this->invoiced_net_amount,
             'invoiced_org_net_amount'      => $this->invoiced_org_net_amount,
             'invoiced_grp_net_amount'      => $this->invoiced_grp_net_amount,
+            'currency_code'                => $this->currency_code,
         ];
     }
 }

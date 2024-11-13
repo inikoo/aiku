@@ -35,7 +35,6 @@ class CustomerResource extends JsonResource
             'phone'                  => $customer->phone,
             'created_at'             => $customer->created_at,
             'number_current_clients' => $this->number_current_clients,
-            'created_at'             => $customer->created_at,
         ];
     }
 }
