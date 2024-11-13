@@ -9,6 +9,7 @@ namespace App\Actions\SupplyChain\SupplierProduct\UI;
 
 use App\Actions\GrpAction;
 use App\Actions\SupplyChain\Agent\UI\ShowAgent;
+use App\Actions\SupplyChain\Agent\WithAgentSubNavigation;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Http\Resources\SupplyChain\SupplierProductsResource;
@@ -28,6 +29,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexSupplierProducts extends GrpAction
 {
+    use WithAgentSubNavigation;
     private Group|Agent|Supplier $scope;
 
     public function authorize(ActionRequest $request): bool
@@ -162,6 +164,32 @@ class IndexSupplierProducts extends GrpAction
 
     public function htmlResponse(LengthAwarePaginator $supplier_products, ActionRequest $request): Response
     {
+        $subNavigation = null;
+        $title = __('supplier products');
+        $model = '';
+        $icon  = [
+            'icon'  => ['fal', 'fa-box-usd'],
+            'title' => __('supplier products')
+        ];
+        $afterTitle = null;
+        $iconRight = null;
+
+        if ($this->scope instanceof Agent) {
+            $subNavigation = $this->getAgentNavigation($this->scope);
+            $title = $this->scope->organisation->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-people-arrows'],
+                'title' => __('supplier products')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-box-usd',
+            ];
+            $afterTitle = [
+
+                'label'     => __('Supplier Products')
+            ];
+        }
         return Inertia::render(
             'SupplyChain/SupplierProducts',
             [
@@ -172,7 +200,12 @@ class IndexSupplierProducts extends GrpAction
                 ),
                 'title'       => __('supplier_products'),
                 'pageHead'    => [
-                    'title' => __('supplier products'),
+                    'title'         => $title,
+                    'icon'          => $icon,
+                    'model'         => $model,
+                    'afterTitle'    => $afterTitle,
+                    'iconRight'     => $iconRight,
+                    'subNavigation' => $subNavigation,
                 ],
                 'data'        => SupplierProductsResource::collection($supplier_products),
 
@@ -216,10 +249,7 @@ class IndexSupplierProducts extends GrpAction
                 $headCrumb(
                     [
                         'name'       => 'grp.supply-chain.agents.show.supplier_products.index',
-                        'parameters' =>
-                            [
-                                $routeParameters['supplierProduct']->slug
-                            ]
+                        'parameters' => $routeParameters
                     ]
                 )
             ),

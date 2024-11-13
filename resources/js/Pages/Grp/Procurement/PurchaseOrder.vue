@@ -4,7 +4,7 @@
   -  Copyright (c) 2022, Raul A Perusquia Flores
   -->
 <script setup lang="ts">
-import { Head, router } from "@inertiajs/vue3"
+import { Head, router, useForm } from "@inertiajs/vue3"
 import PageHeading from "@/Components/Headings/PageHeading.vue"
 import Tabs from "@/Components/Navigation/Tabs.vue"
 import { computed, defineAsyncComponent, ref } from "vue"
@@ -22,6 +22,7 @@ import PureMultiselect from "@/Components/Pure/PureMultiselect.vue"
 import PureTextarea from "@/Components/Pure/PureTextarea.vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
 import AlertMessage from "@/Components/Utils/AlertMessage.vue"
+import PureMultiselectInfiniteScroll from "@/Components/Pure/PureMultiselectInfiniteScroll.vue"
 import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import Popover from "@/Components/Popover.vue"
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
@@ -29,7 +30,8 @@ import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
 import { Timeline as TSTimeline } from "@/types/Timeline"
 import { Currency } from "@/types/LayoutRules"
 import Modal from "@/Components/Utils/Modal.vue"
-import NeedToPay from "@/Components/Utils/NeedToPay.vue"
+import PureInput from "@/Components/Pure/PureInput.vue"
+import axios from "axios"
 import OrderSummary from "@/Components/Summary/OrderSummary.vue"
 import Timeline from "@/Components/Utils/Timeline.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
@@ -49,6 +51,9 @@ import {
 	faTruck,
 	faFilePdf,
 } from "@fal"
+import { Action } from "@/types/Action"
+import { get } from "lodash"
+import { faPlus } from "@far"
 library.add(
 	faStickyNote,
 	faPaperclip,
@@ -66,7 +71,8 @@ library.add(
 	faTruck,
 	faFilePdf,
 	faPaperclip,
-	faPencil
+	faPencil,
+	faPlus
 )
 
 const props = defineProps<{
@@ -128,55 +134,72 @@ const component = computed(() => {
 
 	return components[currentTab.value]
 })
+const isModalOpen = ref(false)
+const noteModalValue = ref(props.box_stats.mid_block.note)
 
 const isLoadingButton = ref<string | boolean>(false)
 const isModalUploadOpen = ref(false)
 const isSubmitNoteLoading = ref(false)
 
-// Section: add notes (on popup pageheading)
-const errorNote = ref("")
-const noteToSubmit = ref({
-	selectedNote: "",
-	value: "",
-})
-const onSubmitNote2 = async (closePopup: Function) => {
+//submit notes
+const onSubmitNote = async () => {
+	isSubmitNoteLoading.value = true
 	try {
-		router.patch(
+		const response = await axios.patch(
 			route(props.routes.updateOrderRoute.name, props.routes.updateOrderRoute.parameters),
 			{
-				[noteToSubmit.value.selectedNote]: noteToSubmit.value.value,
+				[props.box_stats.mid_block.note]: noteModalValue.value,
 			},
 			{
 				headers: { "Content-Type": "application/json" },
-				onStart: () => (isLoadingButton.value = "submitNote"),
-				onError: (error: any) => (errorNote.value = error),
-				onFinish: () => (isLoadingButton.value = false),
-				onSuccess: () => {
-					closePopup(), (noteToSubmit.value.selectedNote = "")
-					noteToSubmit.value.value = ""
-				},
 			}
 		)
+		props.box_stats.mid_block.note = noteModalValue.value
 	} catch (error) {
 		notify({
-			title: trans("Something went wrong"),
-			text: trans("Failed to update the note, try again."),
+			title: "Failed",
+			text: "Failed to update the note, try again.",
 			type: "error",
 		})
 	}
+
+	isSubmitNoteLoading.value = false
+	isModalOpen.value = false
 }
-console.log(props)
 
+// Tabs: Products
+const formProducts = useForm({ historic_id: null, quantity_ordered: 1 })
+const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
+	isLoadingButton.value = "addProducts"
 
-
-const currency = ref({
-	data: {
-		id: 23,
-		code: "GBP",
-		name: "British Pound",
-		symbol: "£",
-	},
-})
+	formProducts
+		.post(
+			route(data.route?.name || "#", {
+				...data.route?.parameters,
+				historicSupplierProduct: formProducts.historic_id,
+			}),
+			{
+				preserveScroll: true,
+				onSuccess: () => {
+					closedPopover()
+					formProducts.reset()
+				},
+				onError: (errors) => {
+					console.log(errors,'errorss');
+					
+					notify({
+						title: trans("Something went wrong."),
+						text: trans("Failed to add service, please try again."),
+						type: "error",
+					})
+				},
+				onFinish: () => {
+					isLoadingButton.value = false
+				},
+			}
+		)
+		
+}
 
 const data = ref({
 	data: {
@@ -197,11 +220,6 @@ const data = ref({
 	},
 })
 
-const isModalOpen = ref(false)
-const notes = ref("hahaha")
-const noteModalValue = ref(notes)
-console.log(props)
-
 const fallbackBgColor = "#f9fafb" // Background
 const fallbackColor = "#374151"
 </script>
@@ -209,12 +227,109 @@ const fallbackColor = "#374151"
 <template>
 	<Head :title="capitalize(title)" />
 	<PageHeading :data="pageHead">
-	
-		<template #other>
-			<Button
-				@click="() => (isModalUploadOpen = true)"
-				label="Attach"
-				icon="upload" />
+		<template #button-add-products="{ action }">
+			<div class="relative">
+				<Popover>
+					<template #button="{ open }">
+						<Button
+							:style="action.style"
+							:label="action.label"
+							:icon="action.icon"
+							:key="`ActionButton${action.label}${action.style}`"
+							:tooltip="action.tooltip" />
+					</template>
+
+					<template #content="{ close: closed }">
+						<div class="w-[350px]">
+							<div class="text-xs px-1 my-2">{{ trans("Products") }}:</div>
+							<div class="">
+								<PureMultiselectInfiniteScroll
+									v-model="formProducts.historic_id"
+									:fetchRoute="routes.products_list"
+									:placeholder="trans('Select Products')"
+									>
+									<template #singlelabel="{ value }">
+										<div class="w-full text-left pl-4">
+											{{ value.name }}
+											
+										</div>
+									</template>
+
+									<template #option="{ option, isSelected, isPointed }">
+										<div
+											class="w-full flex items-center justify-between gap-x-3">
+											<div
+												:class="
+													isSelected(option)
+														? option.stock
+															? ''
+															: 'text-indigo-200'
+														: option.stock
+														? ''
+														: 'text-gray-400'
+												">
+												{{ option.name }}
+											
+											</div>
+
+											<FontAwesomeIcon
+												v-if="option.stock === 0"
+												v-tooltip="trans('No stock')"
+												icon="fas fa-exclamation-triangle"
+												class="text-red-500"
+												fixed-width
+												aria-hidden="true" />
+											<FontAwesomeIcon
+												v-else-if="option.stock < 10"
+												icon="fas fa-exclamation"
+												class="text-yellow-500"
+												fixed-width
+												aria-hidden="true" />
+										</div>
+									</template>
+								</PureMultiselectInfiniteScroll>
+
+								<p
+									v-if="get(formProducts, ['errors', 'historic_id'])"
+									class="mt-2 text-sm text-red-500">
+									{{ formProducts.errors.historic_id }}
+								</p>
+							</div>
+
+							<div class="mt-4">
+								<div class="text-xs px-1 my-2">{{ trans("Quantity") }}:</div>
+								<PureInput
+									v-model="formProducts.quantity_ordered"
+									:placeholder="trans('Quantity')"
+									@keydown.enter="() => onSubmitAddProducts(action, closed)" />
+								<p
+									v-if="get(formProducts, ['errors', 'quantity_ordered'])"
+									class="mt-2 text-sm text-red-600">
+									{{ formProducts.errors.quantity_ordered }}
+								</p>
+							</div>
+
+							<div class="flex justify-end mt-4">
+								<Button
+									@click="() => onSubmitAddProducts(action, closed)"
+									:style="'save'"
+									:loading="isLoadingButton == 'addProducts'"
+									:disabled="
+										!formProducts.historic_id ||
+										formProducts.quantity_ordered < 1
+									"
+									label="Save"
+									full />
+							</div>
+
+							<!-- Loading: fetching service list -->
+							<!-- <div v-if="isLoadingData === 'addProducts'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
+                                <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
+                            </div> -->
+						</div>
+					</template>
+				</Popover>
+			</div>
 		</template>
 	</PageHeading>
 
@@ -239,7 +354,7 @@ const fallbackColor = "#374151"
 			<!-- Field: Reference Number -->
 			<div
 				v-if="box_stats?.orderer.data.code"
-				class="pl-1 flex items-center w-fit flex-none gap-x-2 ">
+				class="pl-1 flex items-center w-fit flex-none gap-x-2">
 				<dt class="flex-none">
 					<FontAwesomeIcon
 						icon="fal fa-user"
@@ -321,7 +436,6 @@ const fallbackColor = "#374151"
 
 		<!-- Box: Product stats -->
 		<BoxStatPallet class="py-4 pl-1.5 pr-3" icon="fal fa-user">
-
 			<div class="mt-1 flex items-center w-full flex-none gap-x-1.5">
 				<dt class="flex-none">
 					<FontAwesomeIcon
@@ -331,7 +445,7 @@ const fallbackColor = "#374151"
 						class="text-gray-500" />
 				</dt>
 				<dd class="text-gray-500 sep" v-tooltip="trans('Estimated weight of all products')">
-					{{ box_stats?.mid_block.estimated_weight || 0 }} kilograms
+					{{ box_stats?.mid_block.net_weight || 0 }} kilograms
 				</dd>
 			</div>
 			<div class="relative flex items-start w-full gap-x-1">
@@ -351,18 +465,35 @@ const fallbackColor = "#374151"
 						color: fallbackColor,
 					}">
 					<!-- Edit Icon in Corner -->
-					<div
-						v-if="box_stats?.mid_block.note"
-						@click="isModalOpen = true"
-						v-tooltip="trans('Edit note')"
-						class="absolute top-2 right-2 group cursor-pointer w-fit h-5 flex items-center">
-						<FontAwesomeIcon
-							icon="fas fa-pencil"
-							size="xs"
-							class="group-hover:text-gray-600 text-gray-500"
-							fixed-width
-							aria-hidden="true" />
-					</div>
+				
+						<div
+							v-if="box_stats.mid_block.note"
+							@click="isModalOpen = true"
+							v-tooltip="trans('Edit note')"
+							class="absolute top-2 right-2 group cursor-pointer w-fit h-5 flex items-center">
+							<FontAwesomeIcon
+								icon="fas fa-pencil"
+								size="xs"
+								class="group-hover:text-gray-600 text-gray-500"
+								fixed-width
+								aria-hidden="true" />
+						</div>
+
+						<div
+							v-else="!box_stats.mid_block.note"
+							@click="isModalOpen = true"
+							class="absolute top-2 right-2 group cursor-pointer w-fit h-5 flex items-center">
+							<FontAwesomeIcon
+								v-tooltip="trans('Add note')"
+								icon="far fa-plus"
+								class=""
+								fixed-width
+								aria-hidden="true"
+								:style="{
+									color: fallbackColor,
+								}" />
+						</div>
+					
 
 					<!-- Note Text -->
 					<p
@@ -421,9 +552,11 @@ const fallbackColor = "#374151"
 		progressDescription="Adding Pallet Deliveries"
 		:attachmentRoutes="attachmentRoutes" />
 
-	<Modal :isOpen="isModalOpen" @onClose="() => ((isModalOpen = false), (noteModalValue = notes))">
+	<Modal
+		:isOpen="isModalOpen"
+		@onClose="() => ((isModalOpen = false), (noteModalValue = box_stats?.mid_block.note))">
 		<div class="min-h-72 max-h-96 px-2 overflow-auto">
-			<div class="text-xl font-semibold mb-2">{{ notes }}'s note</div>
+			<div class="text-xl font-semibold mb-2">{{ box_stats?.mid_block.note }}'s note</div>
 			<div class="relative isolate">
 				<div
 					v-if="noteModalValue"
@@ -431,18 +564,26 @@ const fallbackColor = "#374151"
 					class="z-10 absolute top-1 right-1 text-red-400 hover:text-red-600 text-xxs cursor-pointer">
 					Clear
 				</div>
-				<PureTextarea v-model="noteModalValue" counter :rows="6" maxLength="5000" />
+				<PureTextarea
+					v-model="noteModalValue"
+					
+					:rows="6"
+					@keydown.ctrl.enter="() => onSubmitNote()"
+					maxLength="5000" />
 			</div>
 
 			<div class="flex justify-end gap-x-2 mt-3">
 				<Button
 					label="cancel"
-					@click="() => ((isModalOpen = false), (noteModalValue = notes))"
+					@click="
+						() => ((isModalOpen = false), (noteModalValue = box_stats?.mid_block.note))
+					"
 					:style="'tertiary'" />
 				<Button
 					label="Save"
+					@click="() => onSubmitNote()"
 					:loading="isSubmitNoteLoading"
-					:disabled="noteModalValue == notes" />
+					:disabled="noteModalValue == box_stats?.mid_block.note" />
 			</div>
 		</div>
 	</Modal>

@@ -8,15 +8,11 @@
 namespace App\Actions\Inventory\Warehouse\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\Inventory\Location\UI\IndexLocations;
-use App\Actions\Inventory\WarehouseArea\UI\IndexWarehouseAreas;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\UI\Inventory\WarehouseTabsEnum;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Inventory\LocationResource;
-use App\Http\Resources\Inventory\WarehouseAreaResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Tag\TagResource;
 use App\Models\Helpers\Tag;
@@ -128,73 +124,13 @@ class ShowWarehouse extends OrgAction
                     fn () => GetWarehouseShowcase::run($warehouse)
                     : Inertia::lazy(fn () => GetWarehouseShowcase::run($warehouse)),
 
-                WarehouseTabsEnum::WAREHOUSE_AREAS->value => $this->tab == WarehouseTabsEnum::WAREHOUSE_AREAS->value
-                    ?
-                    fn () => WarehouseAreaResource::collection(
-                        IndexWarehouseAreas::run(
-                            parent: $warehouse,
-                            prefix: WarehouseTabsEnum::WAREHOUSE_AREAS->value
-                        )
-                    )
-                    : Inertia::lazy(fn () => WarehouseAreaResource::collection(
-                        IndexWarehouseAreas::run(
-                            parent: $warehouse,
-                            prefix: WarehouseTabsEnum::WAREHOUSE_AREAS->value
-                        )
-                    )),
 
-                WarehouseTabsEnum::LOCATIONS->value => $this->tab == WarehouseTabsEnum::LOCATIONS->value
-                    ?
-                    fn () => LocationResource::collection(
-                        IndexLocations::run(
-                            parent: $warehouse,
-                            prefix:  WarehouseTabsEnum::LOCATIONS->value
-                        )
-                    )
-                    : Inertia::lazy(fn () => LocationResource::collection(
-                        IndexLocations::run(
-                            parent: $warehouse,
-                            prefix:  WarehouseTabsEnum::LOCATIONS->value
-                        )
-                    )),
 
                 WarehouseTabsEnum::HISTORY->value => $this->tab == WarehouseTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($warehouse))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($warehouse)))
 
             ]
-        )->table(
-            IndexWarehouseAreas::make()->tableStructure(
-                parent: $warehouse,
-                prefix: WarehouseTabsEnum::WAREHOUSE_AREAS->value
-                /* modelOperations: [
-                      'createLink' => $this->canEdit ? [
-                          'route' => [
-                              'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.create',
-                              'parameters' => array_values([$warehouse->slug])
-                          ],
-                          'label' => __('area'),
-                          'style' => 'create'
-                      ] : false,
-                  ],
-                  prefix: 'warehouse_areas' */
-            )
-        )->table(
-            IndexLocations::make()->tableStructure(
-                parent: $warehouse,
-
-                /* modelOperations: [
-                    'createLink' => $this->canEdit ? [
-                        'route' => [
-                            'name'       => 'grp.org.warehouses.show.infrastructure.locations.create',
-                            'parameters' => array_values([$warehouse->slug])
-                        ],
-                        'label' => __('location'),
-                        'style' => 'create'
-                    ] : false
-                ], */
-                prefix: WarehouseTabsEnum::LOCATIONS->value
-            )
         )->table(IndexHistory::make()->tableStructure(prefix: WarehouseTabsEnum::HISTORY->value));
     }
 

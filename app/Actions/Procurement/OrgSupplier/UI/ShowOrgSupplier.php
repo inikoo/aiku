@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\OrgSupplier\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgSupplier\WithOrgSupplierSubNavigation;
 use App\Actions\Procurement\OrgSupplierProducts\UI\IndexOrgSupplierProducts;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
@@ -29,6 +30,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowOrgSupplier extends OrgAction
 {
+    use WithOrgSupplierSubNavigation;
     public function handle(OrgSupplier $orgSupplier): OrgSupplier
     {
         return $orgSupplier;
@@ -84,6 +86,7 @@ class ShowOrgSupplier extends OrgAction
                             'title' => __('supplier')
                         ],
                     'title'   => $orgSupplier->supplier->name,
+                    'subNavigation' => $this->getOrgSupplierNavigation($orgSupplier),
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
@@ -101,45 +104,33 @@ class ShowOrgSupplier extends OrgAction
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ] : false,
-                        $this->canEdit ? [
-                            'type'  => 'button',
-                            'style' => 'create',
-                            'route' => [
-                                'name'       => 'grp.models.org-supplier.purchase-order.store',
-                                'parameters' => [
-                                    'orgSupplier' => $orgSupplier->id
-                                ],
-                                'method'     => 'post'
-                            ],
-                            'label' => __('purchase order')
-                        ] : false,
                     ],
-                    'meta'    => [
-                        [
-                            'name'     => trans_choice('Purchases|Sales', $orgSupplier->stats->number_open_purchase_orders),
-                            'number'   => $orgSupplier->stats->number_open_purchase_orders,
-                            'href'     => [
-                                'grp.org.procurement.org_supplier_products.show',
-                                $orgSupplier->slug
-                            ],
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-person-dolly',
-                                'tooltip' => __('sales')
-                            ]
-                        ],
-                        [
-                            'name'     => trans_choice('product|products', $orgSupplier->stats->number_supplier_products),
-                            'number'   => $orgSupplier->stats->number_supplier_products,
-                            'href'     => [
-                                'grp.org.procurement.org_supplier_products.show',
-                                $orgSupplier->slug
-                            ],
-                            'leftIcon' => [
-                                'icon'    => 'fal fa-box-usd',
-                                'tooltip' => __('products')
-                            ]
-                        ],
-                    ]
+                    // 'meta'    => [
+                    //     [
+                    //         'name'     => trans_choice('Purchases|Sales', $orgSupplier->stats->number_open_purchase_orders),
+                    //         'number'   => $orgSupplier->stats->number_open_purchase_orders,
+                    //         'href'     => [
+                    //             'grp.org.procurement.org_supplier_products.show',
+                    //             $orgSupplier->slug
+                    //         ],
+                    //         'leftIcon' => [
+                    //             'icon'    => 'fal fa-person-dolly',
+                    //             'tooltip' => __('sales')
+                    //         ]
+                    //     ],
+                    //     [
+                    //         'name'     => trans_choice('product|products', $orgSupplier->stats->number_supplier_products),
+                    //         'number'   => $orgSupplier->stats->number_supplier_products,
+                    //         'href'     => [
+                    //             'grp.org.procurement.org_supplier_products.show',
+                    //             $orgSupplier->slug
+                    //         ],
+                    //         'leftIcon' => [
+                    //             'icon'    => 'fal fa-box-usd',
+                    //             'tooltip' => __('products')
+                    //         ]
+                    //     ],
+                    // ]
 
                 ],
                 'tabs'        => [
@@ -151,26 +142,11 @@ class ShowOrgSupplier extends OrgAction
                     fn () => GetOrgSupplierShowcase::run($orgSupplier)
                     : Inertia::lazy(fn () => GetOrgSupplierShowcase::run($orgSupplier)),
 
-                SupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => OrgSupplierProductsResource::collection(IndexOrgSupplierProducts::run($orgSupplier))
-                    : Inertia::lazy(fn () => OrgSupplierProductsResource::collection(IndexOrgSupplierProducts::run($orgSupplier))),
-
-                SupplierTabsEnum::PURCHASE_ORDERS->value => $this->tab == SupplierTabsEnum::PURCHASE_ORDERS->value ?
-                    fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::run($orgSupplier))
-                    : Inertia::lazy(fn () => PurchaseOrdersResource::collection(IndexPurchaseOrders::run($orgSupplier))),
-
-                SupplierTabsEnum::DELIVERIES->value => $this->tab == SupplierTabsEnum::DELIVERIES->value ?
-                    fn () => StockDeliveryResource::collection(IndexStockDeliveries::run($orgSupplier))
-                    : Inertia::lazy(fn () => StockDeliveryResource::collection(IndexStockDeliveries::run($orgSupplier))),
-
                 SupplierTabsEnum::HISTORY->value => $this->tab == SupplierTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($orgSupplier))
                     : Inertia::lazy(fn () => HistoryResource::collection(IndexHistory::run($orgSupplier)))
             ]
-        )->table(IndexOrgSupplierProducts::make()->tableStructure(parent: $orgSupplier, prefix: SupplierTabsEnum::SUPPLIER_PRODUCTS->value))
-            ->table(IndexPurchaseOrders::make()->tableStructure(prefix:SupplierTabsEnum::PURCHASE_ORDERS->value))
-            ->table(IndexStockDeliveries::make()->tableStructure())
-            ->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value));
+        )->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value));
     }
 
 

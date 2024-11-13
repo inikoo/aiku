@@ -17,8 +17,6 @@ enum WarehouseTabsEnum: string
 
     case SHOWCASE        = 'showcase';
     case DASHBOARD       = 'dashboard';
-    case WAREHOUSE_AREAS = 'warehouse_areas';
-    case LOCATIONS       = 'locations';
     case HISTORY         = 'history';
 
 
@@ -29,14 +27,6 @@ enum WarehouseTabsEnum: string
             WarehouseTabsEnum::DASHBOARD => [
                 'title' => __('stats'),
                 'icon'  => 'fal fa-chart-line',
-            ],
-            WarehouseTabsEnum::WAREHOUSE_AREAS => [
-                'title' => __('warehouse areas'),
-                'icon'  => 'fal fa-map-signs',
-            ],
-            WarehouseTabsEnum::LOCATIONS => [
-                'title' => __('locations'),
-                'icon'  => 'fal fa-inventory',
             ],
             WarehouseTabsEnum::HISTORY => [
                 'align' => 'right',

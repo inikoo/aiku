@@ -24,13 +24,13 @@ trait HasSupplyChainFields
                 'fields' => [
                     'code' => [
                         'type'    => 'input',
-                        'label'   => __('code '),
+                        'label'   => __('code'),
                         'value'   => '',
                         'required' => true
                     ],
-                    'company_name' => [
+                    'name' => [
                         'type'    => 'input',
-                        'label'   => __('company'),
+                        'label'   => __('name'),
                         'value'   => '',
                         'required' => true
                     ],

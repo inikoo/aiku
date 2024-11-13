@@ -154,7 +154,7 @@ class ShowPurchaseOrder extends OrgAction
                         'label'   => __('add products'),
                         'tooltip' => __('Add products'),
                         'route'   => [
-                            'name'       => 'grp.models.order.transaction.store',
+                            'name'       => 'grp.models.purchase-order.transaction.store',
                             'parameters' => [
                                 'purchaseOrder' => $purchaseOrder->id,
                             ]

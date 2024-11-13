@@ -12,6 +12,8 @@ use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
 use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
 use App\Actions\Procurement\OrgPartner\WithOrgPartnerSubNavigation;
+use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
+use App\Actions\Procurement\OrgSupplier\WithOrgSupplierSubNavigation;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Http\Resources\Procurement\PurchaseOrdersResource;
 use App\InertiaTable\InertiaTable;
@@ -33,6 +35,7 @@ class IndexPurchaseOrders extends OrgAction
 {
     use WithOrgAgentSubNavigation;
     use WithOrgPartnerSubNavigation;
+    use WithOrgSupplierSubNavigation;
     private Organisation|OrgAgent|OrgSupplier|OrgPartner $parent;
 
     public function handle(Organisation|OrgAgent|OrgSupplier|OrgPartner $parent, $prefix = null): LengthAwarePaginator
@@ -217,7 +220,37 @@ class IndexPurchaseOrders extends OrgAction
 
                 'label'     => __('Purchase Orders')
             ];
-        } 
+        } elseif ($this->parent instanceof OrgSupplier) {
+            $subNavigation = $this->getOrgSupplierNavigation($this->parent);
+            $actions = 
+            [
+                [
+                    'type'  => 'button',
+                    'style' => 'create',
+                    'route' => [
+                        'name'       => 'grp.models.org-supplier.purchase-order.store',
+                        'parameters' => [
+                            'orgSupplier' => $this->parent->id
+                        ],
+                        'method'     => 'post'
+                    ],
+                    'label' => __('purchase order')
+                ]
+            ];
+            $title = $this->parent->supplier->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-person-dolly'],
+                'title' => __('purchase orders')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-clipboard-list',
+            ];
+            $afterTitle = [
+
+                'label'     => __('Purchase Orders')
+            ];
+        }
         // dd($this->parent);
         return Inertia::render(
             'Procurement/PurchaseOrders',
@@ -265,6 +298,22 @@ class IndexPurchaseOrders extends OrgAction
                         'simple' => [
                             'route' => [
                                 'name'       => 'grp.org.procurement.org_agents.show.purchase-orders.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Purchase Orders'),
+                            'icon'  => 'fal fa-bars'
+                        ]
+                    ]
+                ]
+            ),
+            'grp.org.procurement.org_suppliers.show.purchase_orders.index' => array_merge(
+                ShowOrgSupplier::make()->getBreadcrumbs($routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.procurement.org_suppliers.show.purchase_orders.index',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Purchase Orders'),

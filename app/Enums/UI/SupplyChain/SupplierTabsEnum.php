@@ -18,9 +18,6 @@ enum SupplierTabsEnum: string
 
     case SHOWCASE           = 'showcase';
     case PURCHASES_SALES    = 'purchase_sales';
-    case SUPPLIER_PRODUCTS  = 'supplier_products';
-    case PURCHASE_ORDERS    = 'purchase_orders';
-    case DELIVERIES         = 'deliveries';
     case HISTORY            = 'history';
 
 
@@ -41,20 +38,6 @@ enum SupplierTabsEnum: string
                 'title' => __('purchases/sales'),
                 'icon'  => 'fal fa-money-bill',
             ],
-            SupplierTabsEnum::SUPPLIER_PRODUCTS => [
-                'title' => __('products'),
-                'icon'  => 'fal fa-box-usd',
-            ],
-
-            SupplierTabsEnum::PURCHASE_ORDERS => [
-                'title' => __('purchase orders'),
-                'icon'  => 'fal fa-clipboard',
-            ],
-            SupplierTabsEnum::DELIVERIES => [
-                'title' => __('deliveries'),
-                'icon'  => 'fal fa-truck',
-            ],
-
             SupplierTabsEnum::SHOWCASE => [
                 'title' => __('supplier'),
                 'icon'  => 'fas fa-info-circle',

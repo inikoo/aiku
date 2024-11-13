@@ -644,7 +644,7 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::patch('settle', UpdatePurchaseOrderStateToSettled::class)->name('settle');
     Route::patch('cancel', UpdatePurchaseOrderStateToCancelled::class)->name('cancel');
     Route::patch('not-received', UpdatePurchaseOrderStateToNotReceived::class)->name('not-received');
-    Route::post('transactions/{item:id}/store', StorePurchaseOrderTransaction::class)->name('transaction.store');
+    Route::post('transactions/{historicSupplierProduct:id}/store', StorePurchaseOrderTransaction::class)->name('transaction.store')->withoutScopedBindings();
 });
 
 require __DIR__."/models/inventory/location_org_stock.php";
