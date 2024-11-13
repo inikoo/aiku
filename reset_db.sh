@@ -17,7 +17,7 @@ DB_COLLATE="${2:-$DB_COLLATE}"
 PHP="${3:-PHP}"
 
 DB=aiku
-DB_SUFFIX=_base
+DB_SUFFIX=
 
 echo -e "🧼 Cleaning storage"
 rm -rf storage/app/media
