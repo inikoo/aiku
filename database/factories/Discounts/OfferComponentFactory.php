@@ -18,7 +18,8 @@ class OfferComponentFactory extends Factory
     {
         return [
             'code' => fake()->lexify,
-            'name' => fake()->name
+            'name' => fake()->name,
+            'trigger_scope' => 'NA'
         ];
     }
 }

@@ -171,7 +171,7 @@ function countModelTypes(data) {
                             </div>
                             
                             <!-- Section: Results -->
-                            <TransitionGroup name="list" tag="ul" v-if="resultsSearch?.length" class="border-t-2 border-slate-300">
+                            <TransitionGroup name="list" tag="ul" v-if="resultsSearch?.length" class="border-t-2 pt-4 border-slate-300">
                                 <template v-for="(result, resultIdx) in resultsSearch"
                                     :key="result.model_type + result.model_id">
                                     <li v-if="selectedTab ? result.model_type === selectedTab : true"

@@ -77,12 +77,12 @@ const isLoading = ref(false)
 		@finish="() => emits('finishVisit', false)">
 		<div
 			v-if="isLoading"
-			class="fixed inset-0 bottom-0 bg-black/50 flex flex-col gap-y-4 justify-center items-center text-white cursor-default">
+			class="fixed inset-0 bottom-0 bg-black/50 flex flex-col  justify-center items-center text-white cursor-default">
 			<LoadingIcon class="text-6xl" />
 			<LoadingText />
 		</div>
 
-		<div class="w-full flex leading-none py-1 justify-between gap-x-3 tracking-tight">
+		<div class="w-full flex leading-none justify-between tracking-tight">
 			<div class="">
 				<!--    <div v-if="data?.container" v-tooltip="data?.container?.tooltip" class="w-fit text-xs text-gray-400 flex items-end leading-none">
                     <template v-if="data?.container?.key === 'address'">
@@ -113,9 +113,9 @@ const isLoading = ref(false)
 					<!-- Section: After Title -->
 					<div class="flex gap-x-2 items-center">
 						<div
-							v-if="data?.afterTitle"
+							v-if="data?.description"
 							class="text-gray-400 font-normal text-base leading-none">
-							{{ data?.afterTitle.label }}
+							{{ data?.description.label }}
 						</div>
 					</div>
 
@@ -162,7 +162,7 @@ const isLoading = ref(false)
 							<template v-else>{{ meta.label }}</template>
 						</div>
 
-						<div class="last:hidden px-2">•</div>
+						<div v-if="meta.label" class="last:hidden px-2">•</div>
 					</template>
 				</div>
 			</div>

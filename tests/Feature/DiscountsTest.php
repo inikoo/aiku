@@ -85,13 +85,12 @@ test('update offer', function ($offer) {
     expect($offer->name)->toBe('New Name A');
 })->depends('create offer');
 
-test('create offer component', function (Shop $shop) {
-    $offerCampaign  = $shop->offerCampaigns()->first();
-    $offerComponent = StoreOfferComponent::make()->action($offerCampaign, OfferComponent::factory()->definition());
+test('create offer component', function (Offer $offer) {
+    $offerComponent = StoreOfferComponent::make()->action($offer, $offer->shop, OfferComponent::factory()->definition());
     $this->assertModelExists($offerComponent);
 
     return $offerComponent;
-})->depends('create shop');
+})->depends('create offer');
 
 test('update offer component', function ($offerComponent) {
     $offerComponent = UpdateOfferComponent::make()->action($offerComponent, OfferComponent::factory()->definition());

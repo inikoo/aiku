@@ -163,7 +163,7 @@ class ShowFamily extends OrgAction
 
 
             ]
-        )->table(IndexCustomers::make()->tableStructure(parent: $family, prefix: FamilyTabsEnum::CUSTOMERS->value))
+        )->table(IndexCustomers::make()->tableStructure(parent: $family->shop, prefix: FamilyTabsEnum::CUSTOMERS->value))
             ->table(IndexMailshots::make()->tableStructure($family));
 
     }
