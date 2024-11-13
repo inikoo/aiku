@@ -4,50 +4,7 @@
 	"code": "header-1",
 	"name": "Header 1",
 	"component": "header",
-	"blueprint": [
-		{
-			"name": "Container",
-			"icon": {
-				"icon": "fal fa-rectangle-wide",
-				"tooltip": "Container"
-			},
-			"key": ["container", "properties"],
-			"type": ["properties"],
-			"props_data": {}
-		},
-		{
-			"name": "Logo",
-			"key": "logo",
-			"replaceForm": [
-				{
-					"key": ["logo", "visible"],
-					"type": ["VisibleLoggedIn"]
-				},
-				{
-					"key": "logo",
-					"type": "upload_image"
-				}
-			]
-		},
-		{
-			"name": "Button 1",
-			"key": "button_1",
-			"replaceForm": [
-				{
-					"key": ["button_1", "visible"],
-					"type": "VisibleLoggedIn"
-				},
-				{
-					"key": ["button_1", "text"],
-					"type": "editorhtml"
-				},
-				{
-					"key": ["button_1", "properties"],
-					"type": "properties"
-				}
-			]
-		}
-	],
+	"blueprint": [],
 	"data": {
 		"fieldValue": {
 			"container": {

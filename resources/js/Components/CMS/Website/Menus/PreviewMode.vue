@@ -8,8 +8,8 @@
 
 import draggable from "vuedraggable";
 import Button from '@/Components/Elements/Buttons/Button.vue';
-import { data as dataHeader, bluprintForm as bluprintFormHeader} from '@/Components/Websites/Header/HeaderTemplates/Header1/descriptor'
-import { getRenderComponent  as getRenderComponentHeader} from "@/Components/CMS/Website/Headers/Content"
+/* import { data as dataHeader, bluprintForm as bluprintFormHeader} from '@/Components/Websites/Header/HeaderTemplates/Header1/descriptor'
+import { getRenderComponent  as getRenderComponentHeader} from "@/Components/CMS/Website/Headers/Content" */
 import { getComponent } from "@/Components/CMS/Website/Menus/Content"
 
 
@@ -30,7 +30,7 @@ const props = withDefaults(defineProps<{
 });
 
 
-const header = props.headerData ? props.headerData : { key : "header1" , data : dataHeader, bluprint : bluprintFormHeader }
+const header = props.headerData ? props.headerData : { key : "header1" , data : dataHeader, bluprint : [] }
 
 
 </script>

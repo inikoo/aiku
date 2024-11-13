@@ -1,9 +1,8 @@
 <script setup lang='ts'>
-import { getComponent as getComponentsHeader } from '@/Components/CMS/Website/Headers/Content'
 import NavigationMenu from './MenuRender.vue'
 import { routeType } from "@/types/route"
 import IrisLoginInformation from '@/Layouts/Iris/IrisLoginInformation.vue'
-import { getTopbarComponent } from '@/Components/CMS/Website/TopBars/TopbarList'
+import { getComponent } from '@/Composables/getWorkshopComponents'
 
 const props = defineProps<{
     data: {
@@ -75,6 +74,11 @@ const props = defineProps<{
     loginMode:Boolean
     previewMode:Boolean
 }>()
+
+const emits = defineEmits<{
+    (e: 'update:modelValue', value: string | number): void
+}>()
+
 </script>
 
 <template>
@@ -83,24 +87,26 @@ const props = defineProps<{
         <!-- Section: TopBars -->
         <component
             v-if="data?.topBar?.data.fieldValue"
-            :is="getTopbarComponent(data?.topBar.code)"
+            :is="getComponent(data?.topBar.code)"
             v-model="data.topBar.data.fieldValue"
             :loginMode="loginMode"
             :previewMode="previewMode"
             :uploadImageRoute="null"
             :colorThemed="colorThemed"
+            @update:model-value="(e)=>emits('update:modelValue', e)"
         />
 
 
         <!-- Section: Header -->
         <component
             v-if="data?.header?.code"
-            :is="getComponentsHeader(data?.header?.code)"
+            :is="getComponent(data?.header?.code)"
             v-model="data.header.data.fieldValue"
             :loginMode="loginMode"
             :previewMode="previewMode"
             :uploadImageRoute="null"
             :colorThemed="colorThemed"
+            @update:model-value="(e)=>emits('update:modelValue', e)"
         />
 
 
