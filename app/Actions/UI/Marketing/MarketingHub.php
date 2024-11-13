@@ -175,7 +175,7 @@ class MarketingHub extends InertiaAction
                     ],
                 ]
             ),
-            'grp.marketing.shops.show.hub', 'grp.org.shops.show.marketing.mailshots.index' =>
+            'grp.marketing.shops.show.hub', 'grp.org.shops.show.marketing.mailshots.index', 'grp.org.shops.show.marketing.newsletters.index' =>
             array_merge(
                 ShowDashboard::make()->getBreadcrumbs(),
                 [

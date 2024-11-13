@@ -34,7 +34,6 @@ class ShowWarehouseArea extends OrgAction
             return true; //Auth pls
         }
         $this->canEdit   = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
 
         return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.view");
     }
@@ -73,7 +72,6 @@ class ShowWarehouseArea extends OrgAction
                     'next'     => $this->getNext($warehouseArea, $request),
                 ],
                 'pageHead'                             => [
-                    'model'     => __('warehouse area'),
                     'icon'      =>
                         [
                             'icon'  => ['fal', 'fa-map-signs'],
@@ -93,7 +91,6 @@ class ShowWarehouseArea extends OrgAction
                                 ]
                             ]
                             : null,
-                        $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],
                     'meta'    => [

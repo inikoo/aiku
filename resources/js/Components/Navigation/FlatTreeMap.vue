@@ -88,8 +88,8 @@ const isLoading = ref<string | boolean>(false)
                             class="group/sub px-2 flex gap-x-0.5 items-center font-normal"
                             v-tooltip="capitalize(subData.icon?.tooltip)"
                         >
-                            <FontAwesomeIcon :icon="subData.icon?.icon" class="md:opacity-50 group-hover/sub:opacity-100" :class="subData.icon?.class" fixed-width :title="subData.icon?.tooltip" aria-hidden="true" />
-                            <span class="text-gray-400 group-hover/sub:text-gray-700 font-semibold">
+                            <FontAwesomeIcon :icon="subData.icon?.icon" class="" :class="subData.icon?.class" fixed-width :title="subData.icon?.tooltip" aria-hidden="true" />
+                            <span class=" ">
                                 {{ locale.number(subData.count) }}
                             </span>
                         </Link>

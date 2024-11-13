@@ -8,13 +8,16 @@
 namespace App\Actions\Inventory\WarehouseArea\UI;
 
 use App\Actions\OrgAction;
+use App\Actions\OrgAction;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
+class EditWarehouseArea extends OrgAction
 class EditWarehouseArea extends OrgAction
 {
     public function handle(WarehouseArea $warehouseArea): WarehouseArea
@@ -59,17 +62,17 @@ class EditWarehouseArea extends OrgAction
                 'breadcrumbs' => $this->getBreadcrumbs(
                     $request->route()->originalParameters()
                 ),
-                'navigation' => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($warehouseArea, $request),
                     'next'     => $this->getNext($warehouseArea, $request),
                 ],
                 'pageHead'    => [
-                    'title'     => $warehouseArea->name,
-                    'icon'      => [
+                    'title'   => $warehouseArea->name,
+                    'icon'    => [
                         'title' => __('warehouses areas'),
                         'icon'  => 'fal fa-map-signs'
                     ],
-                    'actions'   => [
+                    'actions' => [
                         [
                             'type'  => 'button',
                             'style' => 'exitEdit',
@@ -80,7 +83,7 @@ class EditWarehouseArea extends OrgAction
                         ]
                     ]
                 ],
-                'formData' => [
+                'formData'    => [
                     'blueprint' => [
                         "properties" => [
                             'label' => __('properties'),
@@ -99,9 +102,9 @@ class EditWarehouseArea extends OrgAction
                         ]
 
                     ],
-                    'args' => [
+                    'args'      => [
                         'updateRoute' => [
-                            'name'      => 'grp.models.warehouse-area.update',
+                            'name'       => 'grp.models.warehouse-area.update',
                             'parameters' => $warehouseArea->id
 
                         ],
@@ -127,6 +130,7 @@ class EditWarehouseArea extends OrgAction
                 $query->where('warehouse_id', $warehouseArea->warehouse_id);
             }
         })->orderBy('code', 'desc')->first();
+
         return $this->getNavigation($previous, $request->route()->getName());
     }
 
@@ -149,7 +153,7 @@ class EditWarehouseArea extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.oms.warehouse-areas.edit' => [
+            'grp.org.warehouses.show.infrastructure.warehouse-areas.edit' => [
                 'label' => $warehouseArea->name,
                 'route' => [
                     'name'       => $routeName,

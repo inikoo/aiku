@@ -97,7 +97,7 @@ class IndexCustomers extends OrgAction
 
 
         return $queryBuilder
-            ->defaultSort('customers.slug')
+            ->defaultSort('-created_at')
             ->select([
                 'customers.location',
                 'customers.reference',
@@ -113,7 +113,8 @@ class IndexCustomers extends OrgAction
                 'customer_stats.invoiced_org_net_amount',
                 'customer_stats.invoiced_grp_net_amount',
                 'customer_stats.currency_id',
-                'platforms.name as platform_name'
+                'platforms.name as platform_name',
+                'currencies.code as currency_code',
             ])
             ->leftJoin('model_has_platforms', function ($join) {
                 $join->on('customers.id', '=', 'model_has_platforms.model_id')
@@ -122,6 +123,9 @@ class IndexCustomers extends OrgAction
             ->leftJoin('platforms', 'model_has_platforms.platform_id', '=', 'platforms.id')
             ->leftJoin('customer_dropshipping_stats', 'customers.id', 'customer_dropshipping_stats.customer_id')
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
+            ->leftJoin('shops', 'customers.shop_id', 'shops.id')
+            ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
+
             ->allowedSorts([
                 'reference',
                 'name',
@@ -141,13 +145,18 @@ class IndexCustomers extends OrgAction
             ->withQueryString();
     }
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure(Organisation|Shop $parent, ?array $modelOperations = null, $prefix = null): Closure
     {
         return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
                     ->pageName($prefix.'Page');
+            }
+
+            $isDropshipping = false;
+            if ($parent instanceof Shop and $parent->type == ShopTypeEnum::DROPSHIPPING) {
+                $isDropshipping = true;
             }
 
             $table
@@ -207,18 +216,21 @@ class IndexCustomers extends OrgAction
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false, searchable: true)
-                ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_current_clients', label: __('Clients'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'number_current_portfolios', label: __('Portfolios'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'platforms', label: __('Platforms'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'last_invoiced_at', label: __('last invoice'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'created_at', label: __('since'), canBeHidden: false, sortable: true, searchable: true);
+
+
+            if ($isDropshipping) {
+                $table->column(key: 'number_current_clients', label: __('Clients'), canBeHidden: false, sortable: true, searchable: true)
+                    ->column(key: 'number_current_portfolios', label: __('Portfolios'), canBeHidden: false, sortable: true, searchable: true)
+                    ->column(key: 'platforms', label: __('Platforms'), canBeHidden: false, sortable: true, searchable: true);
+                }
+
+            $table->column(key: 'last_invoiced_at', label: __('last invoice'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_invoices_type_invoice', label: __('invoices'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'invoiced_net_amount', label: __('sales'), canBeHidden: false, sortable: true, searchable: true);
 
+            $table->defaultSort('-created_at');
 
-            if (class_basename($parent) == 'Shop' and $parent->type == 'dropshipping') {
-                $table->column(key: 'number_current_clients', label: __('clients'), canBeHidden: false, sortable: true);
-            }
         };
     }
 

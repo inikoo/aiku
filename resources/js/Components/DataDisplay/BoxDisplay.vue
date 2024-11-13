@@ -60,16 +60,15 @@ const props = defineProps<{
 							<div
 								v-for="(item, index) in box.orther_counts"
 								:key="index"
-								class="text-sm  border rounded px-2 py-2 font-normal">
-								<div>
-									<FontAwesomeIcon
-										v-tooltip="item.icon.title"
-										:icon="item.icon.icon"
-										:class="item.icon.class"
-										fixed-width
-										aria-hidden="true" />
-									{{ item.count || 0 }}
-								</div>
+								class="text-sm border rounded px-2 py-2 font-normal flex justify-between items-center">
+								<!-- Count on the left, icon on the right -->
+								<span>{{ item.count || 0 }}</span>
+								<FontAwesomeIcon
+									v-tooltip="item.icon.title"
+									:icon="item.icon.icon"
+									:class="item.icon.class"
+									fixed-width
+									aria-hidden="true" />
 							</div>
 						</div>
 					</div>

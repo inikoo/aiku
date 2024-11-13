@@ -73,6 +73,9 @@ function shopRoute(customer: FulfilmentCustomer) {
         <template #cell(created_at)="{ item: customer }">
             <div class="text-gray-500">{{ useFormatTime(customer["created_at"], { localeCode: locale.language.code, formatTime: "Ymd" }) }}</div>
         </template>
+        <template #cell(invoiced_net_amount)="{ item: customer }">
+            <div class="text-gray-500">{{ useLocaleStore().currencyFormat( customer.currency_code, customer.invoiced_net_amount) }}</div>
+        </template>
     </Table>
 </template>
 
