@@ -47,12 +47,12 @@ class NewsletterMailshotsResource extends JsonResource
             'state_label'          => $mailshot->state->labels()[$mailshot->state->value],
             'state_icon'           => $mailshot->state->stateIcon()[$mailshot->state->value],
             'sent'                 => $mailshot->sent,
-            'delivered'            => $mailshot->delivered,
-            'hard_bounce'          => $mailshot->hard_bounce,
-            'soft_bounce'          => $mailshot->soft_bounce,
-            'opened'               => $mailshot->opened,
-            'clicked'              => $mailshot->clicked,
-            'spam'                 => $mailshot->spam,
+            'delivered'            => percentage($mailshot->delivered, $mailshot->dispatched_emails),
+            'hard_bounce'          => percentage($mailshot->hard_bounce, $mailshot->dispatched_emails),
+            'soft_bounce'          => percentage($mailshot->soft_bounce, $mailshot->dispatched_emails),
+            'opened'               => percentage($mailshot->opened, $mailshot->delivered),
+            'clicked'              => percentage($mailshot->clicked, $mailshot->delivered),
+            'spam'                 => percentage($mailshot->spam, $mailshot->delivered),
             // 'percentage_bounced'   => $mailshot->start_sending_at ?
             //     percentage($numberBounced, $this->number_dispatched_emails) : null,
 
