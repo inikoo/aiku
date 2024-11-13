@@ -74,9 +74,7 @@ class Media extends BaseMedia
     public function getBase64Image(): string
     {
         $path   = GetImgProxyUrl::run($this->getImage());
-        $type   = pathinfo($path, PATHINFO_EXTENSION);
         $data   = file_get_contents($path);
-
         return base64_encode($data);
     }
 
