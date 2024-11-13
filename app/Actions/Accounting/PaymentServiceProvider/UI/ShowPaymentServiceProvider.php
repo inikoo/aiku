@@ -89,7 +89,7 @@ class ShowPaymentServiceProvider extends OrgAction
                         [
                             'name'     => trans_choice('account | accounts', $paymentServiceProvider->stats->number_payment_accounts),
                             'number'   => $paymentServiceProvider->stats->number_payment_accounts,
-                            'href'     => [
+                            'route'     => [
                                 'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.index',
                                 'parameters' => [
                                     $this->organisation->slug,
@@ -104,7 +104,7 @@ class ShowPaymentServiceProvider extends OrgAction
                         [
                             'name'     => trans_choice('payment | payments', $paymentServiceProvider->stats->number_payments),
                             'number'   => $paymentServiceProvider->stats->number_payments,
-                            'href'     => [
+                            'route'     => [
                                 'name'       => 'grp.org.accounting.org-payment-service-providers.show.payments.index',
                                 'parameters' => [
                                     $this->organisation->slug,

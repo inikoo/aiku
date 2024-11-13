@@ -22,13 +22,13 @@ trait WithWebUserMeta
                     'tooltip' => __('Web user')
                 ],
                 'label' => __('Add web user'),
-                'href' => [
+                'route' => [
                     'name'      => $request->route()->getName().'.web-users.create',
                     'parameters' => $request->route()->originalParameters()
                 ]
             ],
             1 => [
-                'href' => [
+                'route' => [
                     'name'      => $request->route()->getName().'.web-users.show',
                     'parameters' => array_merge_recursive($request->route()->originalParameters(), ['webUser' => $customer->webUsers->first()->slug])
 

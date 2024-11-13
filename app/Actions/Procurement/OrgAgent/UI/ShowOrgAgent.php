@@ -95,7 +95,7 @@ class ShowOrgAgent extends OrgAction
                     //     [
                     //         'name'     => trans_choice('supplier|suppliers', $orgAgent->stats->number_org_suppliers),
                     //         'number'   => $orgAgent->stats->number_org_suppliers,
-                    //         'href'     => [
+                    //         'route'     => [
                     //             'grp.org.procurement.org_agents.show.org_suppliers.index',
                     //             $orgAgent->organisation->slug
                     //         ],
@@ -107,7 +107,7 @@ class ShowOrgAgent extends OrgAction
                     //     [
                     //         'name'     => trans_choice('product|products', $orgAgent->stats->number_org_supplier_products),
                     //         'number'   => $orgAgent->stats->number_org_supplier_products,
-                    //         'href'     => [
+                    //         'route'     => [
                     //             'grp.org.procurement.org_agents.show.org_suppliers.index',
                     //             $orgAgent->organisation->slug
                     //         ],

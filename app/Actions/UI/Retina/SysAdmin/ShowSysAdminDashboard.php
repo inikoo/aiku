@@ -39,7 +39,7 @@ class ShowSysAdminDashboard extends RetinaAction
                     [
                         'name' => __('users'),
                         'stat' => $this->customer->stats->number_current_web_users,
-                        'href' => ['name' => 'retina.sysadmin.web-users.index']
+                        'route' => ['name' => 'retina.sysadmin.web-users.index']
                     ],
 
                 ]

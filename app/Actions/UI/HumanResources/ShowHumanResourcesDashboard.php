@@ -60,7 +60,7 @@ class ShowHumanResourcesDashboard
                     [
                         'name' => __('employees'),
                         'stat' => $this->organisation->humanResourcesStats->number_employees_state_working,
-                        'href' => [
+                        'route' => [
                             'name'       => 'grp.org.hr.employees.index',
                             'parameters' => array_merge(
                                 [
@@ -75,7 +75,7 @@ class ShowHumanResourcesDashboard
                     [
                         'name' => __('working places'),
                         'stat' => $this->organisation->humanResourcesStats->number_workplaces,
-                        'href' => [
+                        'route' => [
                             'name'       => 'grp.org.hr.workplaces.index',
                             'parameters' => $request->route()->originalParameters()
                         ]
@@ -83,7 +83,7 @@ class ShowHumanResourcesDashboard
                     [
                         'name' => __('responsabilities'),
                         'stat' => $this->organisation->humanResourcesStats->number_job_positions,
-                        'href' => [
+                        'route' => [
                             'name'       => 'grp.org.hr.job_positions.index',
                             'parameters' => $request->route()->originalParameters()
                         ]

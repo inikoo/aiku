@@ -19,7 +19,7 @@ trait WithOrgAgentSubNavigation
                 "isAnchor" => true,
                 "label"    => __($parent->slug),
 
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.procurement.org_agents.show",
                     "parameters" => [$parent->organisation->slug, $parent->slug],
                 ],
@@ -31,7 +31,7 @@ trait WithOrgAgentSubNavigation
             [
                 "number"   => $parent->stats->number_org_suppliers,
                 "label"    => __("Suppliers"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.procurement.org_agents.show.suppliers.index",
                     "parameters" => [$parent->organisation->slug, $parent->slug],
                 ],
@@ -43,7 +43,7 @@ trait WithOrgAgentSubNavigation
             [
                 "number"   => $parent->stats->number_org_supplier_products,
                 "label"    => __("Products"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.procurement.org_agents.show.supplier_products.index",
                     "parameters" => [$parent->organisation->slug, $parent->slug],
                 ],
@@ -55,7 +55,7 @@ trait WithOrgAgentSubNavigation
             [
                 "number"   => $parent->stats->number_purchase_orders,
                 "label"    => __("Purchase Orders"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.procurement.org_agents.show.purchase-orders.index",
                     "parameters" => [$parent->organisation->slug, $parent->slug],
                 ],
@@ -67,7 +67,7 @@ trait WithOrgAgentSubNavigation
             [
                 "number"   => $parent->agent->organisation->inventoryStats->number_org_stocks,
                 "label"    => __("Org Stocks"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.procurement.org_agents.show.org-stocks.index",
                     "parameters" => [$parent->organisation->slug, $parent->slug],
                 ],
@@ -79,7 +79,7 @@ trait WithOrgAgentSubNavigation
             [
                 "number"   => $parent->agent->organisation->inventoryStats->number_deliveries,
                 "label"    => __("Stock Deliveries"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.procurement.org_agents.show.stock-deliveries.index",
                     "parameters" => [$parent->organisation->slug, $parent->slug],
                 ],

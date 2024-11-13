@@ -115,7 +115,7 @@ class ShowSupplier extends GrpAction
                         [
                             'name'     => trans_choice('Purchases|Sales', $supplier->stats->number_open_purchase_orders),
                             'number'   => $supplier->stats->number_open_purchase_orders,
-                            'href'     => [
+                            'route'     => [
                                 'grp.supply-chain.supplier_products.show',
                                 $supplier->slug
                             ],
@@ -127,7 +127,7 @@ class ShowSupplier extends GrpAction
                         [
                             'name'     => trans_choice('product|products', $supplier->stats->number_supplier_products),
                             'number'   => $supplier->stats->number_supplier_products,
-                            'href'     => [
+                            'route'     => [
                                 'grp.supply-chain.supplier_products.show',
                                 $supplier->slug
                             ],

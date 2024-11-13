@@ -260,7 +260,7 @@ class IndexStocks extends GrpAction
             [
                 'label'  => __('Active'),
                 'root'   => 'grp.goods.stocks.active_stocks.',
-                'href'   => [
+                'route'   => [
                     'name'       => 'grp.goods.stocks.active_stocks.index',
                     'parameters' => []
                 ],
@@ -269,7 +269,7 @@ class IndexStocks extends GrpAction
             [
                 'label'  => __('In process'),
                 'root'   => 'grp.goods.stocks.in_process_stocks.',
-                'href'   => [
+                'route'   => [
                     'name'       => 'grp.goods.stocks.in_process_stocks.index',
                     'parameters' => []
                 ],
@@ -278,7 +278,7 @@ class IndexStocks extends GrpAction
             [
                 'label'  => __('Discounting'),
                 'root'   => 'grp.goods.stocks.discontinuing_stocks.',
-                'href'   => [
+                'route'   => [
                     'name'       => 'grp.goods.stocks.discontinuing_stocks.index',
                     'parameters' => []
                 ],
@@ -287,7 +287,7 @@ class IndexStocks extends GrpAction
             [
                 'label'  => __('Discontinued'),
                 'root'   => 'grp.goods.stocks.discontinued_stocks.',
-                'href'   => [
+                'route'   => [
                     'name'       => 'grp.goods.stocks.discontinued_stocks.index',
                     'parameters' => []
                 ],
@@ -298,7 +298,7 @@ class IndexStocks extends GrpAction
                 'icon'   => 'fal fa-bars',
                 'root'   => 'grp.goods.stocks.index',
                 'align'  => 'right',
-                'href'   => [
+                'route'   => [
                     'name'       => 'grp.goods.stocks.index',
                     'parameters' => []
                 ],

@@ -73,7 +73,7 @@ class PayOrder extends OrgAction
     public function htmlResponse(Payment $payment, ActionRequest $request): Response|null
     {
         if (Arr::exists($payment->data, 'links')) {
-            return Inertia::location(Arr::get($payment->data, 'links')[1]['href']);
+            return Inertia::location(Arr::get($payment->data, 'links')[1]['route' ]);
         }
 
         return null;

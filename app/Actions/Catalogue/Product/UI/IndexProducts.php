@@ -300,7 +300,7 @@ class IndexProducts extends OrgAction
             [
                 'label'  => __('Current'),
                 'root'   => 'grp.org.shops.show.catalogue.products.current_products.',
-                'href'   => [
+                'route'   => [
                     'name'       => 'grp.org.shops.show.catalogue.products.current_products.index',
                     'parameters' => [
                         $this->organisation->slug,
@@ -313,7 +313,7 @@ class IndexProducts extends OrgAction
             [
                 'label'  => __('In Process'),
                 'root'   => 'grp.org.shops.show.catalogue.products.in_process_products.',
-                'href'   => [
+                'route'   => [
                     'name'       => 'grp.org.shops.show.catalogue.products.in_process_products.index',
                     'parameters' => [
                         $this->organisation->slug,
@@ -325,7 +325,7 @@ class IndexProducts extends OrgAction
             [
                 'label'  => __('Discontinued'),
                 'root'   => 'grp.org.shops.show.catalogue.products.discontinued_products.',
-                'href'   => [
+                'route'   => [
                     'name'       => 'grp.org.shops.show.catalogue.products.discontinued_products.index',
                     'parameters' => [
                         $this->organisation->slug,
@@ -339,7 +339,7 @@ class IndexProducts extends OrgAction
                 'label'  => __('All'),
                 'icon'   => 'fal fa-bars',
                 'root'   => 'grp.org.shops.show.catalogue.products.all_products.',
-                'href'   => [
+                'route'   => [
                     'name'       => 'grp.org.shops.show.catalogue.products.all_products.index',
                     'parameters' => [
                         $this->organisation->slug,

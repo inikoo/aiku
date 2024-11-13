@@ -18,7 +18,7 @@ trait WithShippingZoneSchemaSubNavigation
             [
                 'isAnchor' => true,
                 'label'    => __('Schemas'),
-                'href'     => [
+                'route'     => [
                         'name'       => 'grp.org.shops.show.assets.shipping.index',
                         'parameters' => [$this->organisation->slug, $shop->slug]
                     ],
@@ -31,7 +31,7 @@ trait WithShippingZoneSchemaSubNavigation
         if ($shop->currentShippingZoneSchema) {
             $current = [
                 'label'    => __('Current'),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.shops.show.assets.shipping.show',
                     'parameters' => [$this->organisation->slug, $shop->slug, $shop->currentShippingZoneSchema->slug]
                 ],
@@ -46,7 +46,7 @@ trait WithShippingZoneSchemaSubNavigation
         if ($shop->discountShippingZoneSchema) {
             $discount = [
                 'label'    => __('Discount'),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.shops.show.assets.shipping.show',
                     'parameters' => [$this->organisation->slug, $shop->slug, $shop->discountShippingZoneSchema->slug]
                 ],

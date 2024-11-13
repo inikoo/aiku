@@ -25,18 +25,18 @@ const props = defineProps<{
         }
         name: string
         description?: string
-        href: routeType
+        route: routeType
         icon: string | string[]
         shortName: string
         rightSubLink: {
             icon: string
-            href: routeType
+            route: routeType
             tooltip: string
         }
         sub_data: {
             icon: Icon
             count: number | null
-            href: routeType
+            route: routeType
         }[]
     }[]
     mode?: string
@@ -53,8 +53,8 @@ const isLoading = ref<string | boolean>(false)
             <li v-for="(node, nodeIdx) in nodes" :key="node.name" class="relative flex flex-1 items-center">
                 <!-- Main Tree -->
                 <component
-                    :is="node.href?.name ? Link : 'div'"
-                    :href="node.href?.name ? route(node.href.name, node.href.parameters) : ''"
+                    :is="node.route?.name ? Link : 'div'"
+                    :href="node.route?.name ? route(node.route.name, node.route.parameters) : ''"
                     class="group/node flex flex-col md:flex-row w-full items-start md:items-center justify-between pr-10"
                     @start="() => isLoading = 'node' + nodeIdx"
                     @finish="() => isLoading = false"
@@ -83,14 +83,14 @@ const isLoading = ref<string | boolean>(false)
                     <div v-if="node.sub_data?.length" class="py-2 px-3 md:px-0 text-sm text-gray-500 flex gap-x-3 gap-y-0.5 justify-end items-center flex-wrap">
                         <Link
                             v-for="subData in node.sub_data"
-                            :is="subData.href?.name ? Link : 'div'"
-                            :href="subData.href?.name ? route(subData.href.name, subData.href.parameters) : ''"
+                            :is="subData.route?.name ? Link : 'div'"
+                            :href="subData.route?.name ? route(subData.route.name, subData.route.parameters) : ''"
                             class="group/sub px-2 flex gap-x-0.5 items-center font-normal"
                             v-tooltip="capitalize(subData.icon?.tooltip)"
                         >
                             <FontAwesomeIcon :icon="subData.icon?.icon" class="" :class="subData.icon?.class" fixed-width :title="subData.icon?.tooltip" aria-hidden="true" />
                             <span class=" ">
-                                {{ locale.number(subData.count) }}
+                                {{ locale.number(subData.count || 0) }}
                             </span>
                         </Link>
                     </div>
@@ -100,8 +100,8 @@ const isLoading = ref<string | boolean>(false)
                 <!-- Sublink on right each section (Marketplace) -->
                 <div v-if="node.rightSubLink" class="pr-4 " :title="capitalize(node.rightSubLink.tooltip)">
                     <component
-                        :is="node.rightSubLink?.href?.name ? Link : 'div'"
-                        :href="node.href?.name ? route(node.rightSubLink.href.name, node.rightSubLink.href.parameters) : ''"
+                        :is="node.rightSubLink?.route?.name ? Link : 'div'"
+                        :href="node.route?.name ? route(node.rightSubLink.route.name, node.rightSubLink.route.parameters) : ''"
                         @start="() => isLoading = 'subLink' + nodeIdx"
                         @finish="() => isLoading = false"
                         class="w-9 h-9 flex justify-center items-center specialBox">
