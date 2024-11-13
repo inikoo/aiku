@@ -69,6 +69,7 @@ class IndexMarketingMailshots extends OrgAction
                 'mailshots.subject',
                 'outboxes.slug as outboxes_slug',
                 'post_rooms.id as post_room_id',
+                'mailshot_stats.number_dispatched_emails as dispatched_emails',
                 'mailshot_stats.number_dispatched_emails_state_sent as sent',
                 'mailshot_stats.number_dispatched_emails_state_delivered as delivered',
                 'mailshot_stats.number_dispatched_emails_state_hard_bounce as hard_bounce',
