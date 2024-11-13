@@ -7,7 +7,9 @@
 
 namespace App\Actions\Catalogue\ProductCategory\Search;
 
+use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
+use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Models\Catalogue\ProductCategory;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -38,20 +40,45 @@ class ProductCategoryRecordSearch
                 'haystack_tier_2'   => $productCategory->name,
                 'result'            => [
 
-                    'title'      => $productCategory->code,
-                    'afterTitle' => [
+
+                    'code' => [
+                        'label' => $productCategory->code,
+                    ],
+
+                    'description' => [
                         'label' => $productCategory->name,
                     ],
-                    'icon'       =>
-                        match ($productCategory->type) {
+                    'stats'       => match ($productCategory->type) {
+                        ProductCategoryTypeEnum::DEPARTMENT, ProductCategoryTypeEnum::SUB_DEPARTMENT => [
+                            [
+                                'label' => __('Families'),
+                                'icon'  => 'fal fa-folder',
+                                'value' => $productCategory->stats->number_current_families,
+                            ],
+                            [
+                                'label' => __('Products'),
+                                'icon'  => 'fal fa-cube',
+                                'value' => $productCategory->stats->number_current_products
+                            ]
+                        ],
+                        ProductCategoryTypeEnum::FAMILY => [
+                            [
+                                'label' => __('Products'),
+                                'icon'  => 'fal fa-cube',
+                                'value' => $productCategory->stats->number_current_products
+                            ]
+                        ]
+                    },
+                    'icon'        => match ($productCategory->type) {
                             ProductCategoryTypeEnum::FAMILY => [
                                 'icon' => 'fal fa-folder',
                             ],
                             default => [
                                 'icon' => 'fal fa-folder-tree',
                             ],
+                        },
+                    'state_icon' => $productCategory->state->stateIcon()[$productCategory->state->value]
 
-                        }
 
                 ]
             ]
