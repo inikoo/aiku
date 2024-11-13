@@ -49,7 +49,7 @@ class StoreModelHasWebBlock extends OrgAction
         );
         UpdateWebpageContent::run($webpage->refresh());
 
-      /*   BroadcastPreviewWebpage::dispatch($webpage); */
+        /*   BroadcastPreviewWebpage::dispatch($webpage); */
 
         return $modelHasWebBlock;
     }

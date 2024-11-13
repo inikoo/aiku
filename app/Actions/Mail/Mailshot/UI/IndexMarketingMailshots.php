@@ -13,7 +13,6 @@ use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Enums\Mail\Outbox\OutboxTypeEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\MarketingMailshotsResource;
-use App\Http\Resources\Mail\NewsletterMailshotsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Mail\Mailshot;

@@ -27,7 +27,7 @@ class ReorderWebBlocks extends GrpAction
 
         UpdateWebpageContent::run($webpage->refresh());
 
-      /*   BroadcastPreviewWebpage::dispatch($webpage); */
+        /*   BroadcastPreviewWebpage::dispatch($webpage); */
 
         return $webpage;
     }

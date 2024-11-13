@@ -341,7 +341,7 @@ class FetchAuroraWebBlocks extends OrgAction
 
         UpdateWebpageContent::run($webpage->refresh());
 
-      /*   BroadcastPreviewWebpage::dispatch($webpage); */
+        /*   BroadcastPreviewWebpage::dispatch($webpage); */
     }
 
     private function postExternalLinks(WebBlock $webBlock, Webpage $webpage, &$layout)

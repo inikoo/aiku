@@ -49,6 +49,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $deleted_at
  * @property string|null $source_id
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read HistoricSupplierProduct|null $historicSupplierProduct
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Procurement\PurchaseOrder $purchaseOrder
  * @property-read SupplierProduct|null $supplierProduct

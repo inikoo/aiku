@@ -7,7 +7,6 @@
 
 use App\Actions\Mail\Mailshot\UI\CreateMailshot;
 use App\Actions\Mail\Mailshot\UI\EditMailshot;
-use App\Actions\Mail\Mailshot\UI\IndexMailshots;
 use App\Actions\Mail\Mailshot\UI\IndexMarketingMailshots;
 use App\Actions\Mail\Mailshot\UI\IndexNewsletterMailshots;
 use App\Actions\Mail\Mailshot\UI\ShowMailshot;

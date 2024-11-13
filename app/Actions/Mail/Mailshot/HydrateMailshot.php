@@ -10,10 +10,7 @@ namespace App\Actions\Mail\Mailshot;
 
 use App\Actions\HydrateModel;
 use App\Actions\Mail\Mailshot\Hydrators\MailshotHydrateEmails;
-use App\Actions\Mail\Outbox\Hydrators\OutboxHydrateEmails;
-use App\Actions\Mail\Outbox\Hydrators\OutboxHydrateMailshots;
 use App\Models\Mail\Mailshot;
-use App\Models\Mail\Outbox;
 use Illuminate\Support\Collection;
 
 class HydrateMailshot extends HydrateModel

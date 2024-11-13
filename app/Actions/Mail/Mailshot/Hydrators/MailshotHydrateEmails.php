@@ -12,9 +12,7 @@ use App\Actions\Traits\WithEnumStats;
 use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
 use App\Models\Mail\DispatchedEmail;
 use App\Models\Mail\Mailshot;
-use App\Models\Mail\Outbox;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class MailshotHydrateEmails

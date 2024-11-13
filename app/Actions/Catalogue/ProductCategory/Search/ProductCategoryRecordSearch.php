@@ -7,9 +7,7 @@
 
 namespace App\Actions\Catalogue\ProductCategory\Search;
 
-use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
-use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Models\Catalogue\ProductCategory;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -70,13 +68,13 @@ class ProductCategoryRecordSearch
                         ]
                     },
                     'icon'        => match ($productCategory->type) {
-                            ProductCategoryTypeEnum::FAMILY => [
-                                'icon' => 'fal fa-folder',
-                            ],
-                            default => [
-                                'icon' => 'fal fa-folder-tree',
-                            ],
-                        },
+                        ProductCategoryTypeEnum::FAMILY => [
+                            'icon' => 'fal fa-folder',
+                        ],
+                        default => [
+                            'icon' => 'fal fa-folder-tree',
+                        ],
+                    },
                     'state_icon' => $productCategory->state->stateIcon()[$productCategory->state->value]
 
 

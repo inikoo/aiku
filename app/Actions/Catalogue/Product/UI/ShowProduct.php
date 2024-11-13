@@ -119,11 +119,13 @@ class ShowProduct extends OrgAction
                 ],
                 'pageHead'    => [
                     'title'   => $product->code,
-                    'model'   => __('Product'),
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-cube'],
                             'title' => __('product')
+                        ],
+                    'afterTitle' => [
+                       'label' => $product->name
                         ],
                     'actions' => [
                         $product->webpage ?

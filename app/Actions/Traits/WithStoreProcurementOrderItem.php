@@ -36,7 +36,7 @@ trait WithStoreProcurementOrderItem
             if (!Arr::has($modelData, 'net_amount')) {
                 $unitCost = $orgSupplierProduct->supplierProduct->cost;
                 $quantity = $procurementOrder instanceof PurchaseOrder ? $modelData['quantity_ordered'] : $modelData['unit_quantity'];
-                
+
                 data_set(
                     $modelData,
                     'net_amount',

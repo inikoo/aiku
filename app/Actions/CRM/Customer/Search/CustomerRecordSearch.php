@@ -7,7 +7,6 @@
 
 namespace App\Actions\CRM\Customer\Search;
 
-use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Models\CRM\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
 
