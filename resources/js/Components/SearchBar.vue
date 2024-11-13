@@ -175,7 +175,7 @@ function countModelTypes(data) {
                                 <template v-for="(result, resultIdx) in resultsSearch"
                                     :key="result.model_type + result.model_id">
                                     <li v-if="selectedTab ? result.model_type === selectedTab : true"
-                                        class="bg-white hover:bg-slate-50 py-3 pl-6 ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 cursor-pointer"
+                                        class="bg-white hover:bg-slate-100 hover:border-l-8 hover:border-yellow-500 transition-all duration-75 pt-1 pb-0.5 pl-6 ring-white/60 ring-offset-2 ring-offset-blue-400 focus:outline-none focus:ring-2 cursor-pointer"
                                     >
                                         <!-- <SearchResultPallet v-if="result.model_type == 'Pallet'" :data="result.model" /> -->
                                         <!-- <SearchResultCustomer v-else-if="result.model_type == 'Customer'" :data="result.model" />
