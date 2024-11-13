@@ -93,12 +93,18 @@ class FetchAuroraSupplierProduct extends FetchAurora
         $data['original_code']      = $this->auroraModelData->{'Supplier Part Reference'} ?? '';
 
 
+        $supplierProductCode=$this->auroraModelData->{'Supplier Part Reference'} ?? 'missing-code-'.$this->auroraModelData->{'Supplier Part Key'};
+
+
         $stock_quantity_status = match ($auroraPartData->{'Part Stock Status'}) {
             'Out_Of_Stock', 'Error' => 'out-of-stock',
             default => strtolower($auroraPartData->{'Part Stock Status'})
         };
 
-        $supplierPartReference = Str::kebab(strtolower($this->cleanTradeUnitReference($this->auroraModelData->{'Supplier Part Reference'})));
+
+
+
+        $supplierPartReference = Str::kebab(strtolower($this->cleanTradeUnitReference($supplierProductCode)));
 
         $partReference = Str::kebab(strtolower($this->cleanTradeUnitReference($auroraPartData->{'Part Reference'})));
 
@@ -112,14 +118,11 @@ class FetchAuroraSupplierProduct extends FetchAurora
 
         $name = $this->auroraModelData->{'Supplier Part Description'};
         if ($name == '') {
-            $name = $this->auroraModelData->{'Supplier Part Reference'};
+            $name = $supplierProductCode;
         }
 
 
-        $code = $this->auroraModelData->{'Supplier Part Reference'};
-        // $code = str_replace('&', 'and', $code);
-        // $code =$this->cleanTradeUnitReference($code);
-
+        $code = $supplierProductCode;
 
         $this->parsedData['supplierProduct'] =
             [
