@@ -111,7 +111,7 @@ const layout = inject('layout', layoutStructure)
                                     item.href?.name
                                         ? $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
                                             ? 'text-gray-600 font-medium'
-                                            : 'underline text-gray-600 hover:text-gray-700'
+                                            : 'text-gray-600 hover:text-gray-700'
                                         : 'text-gray-500'
                                 ]" class="first:pl-0 px-1 flex gap-x-1 items-center">
                                 <FontAwesomeIcon v-if="item.leftIcon" :title="item.leftIcon.tooltip" fixed-width
