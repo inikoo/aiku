@@ -122,11 +122,10 @@ class FetchAuroraSupplierProduct extends FetchAurora
         }
 
 
-        $code = $supplierProductCode;
 
         $this->parsedData['supplierProduct'] =
             [
-                'code' => $code,
+                'code' => $supplierProductCode,
                 'name' => $name,
 
                 'cost'             => round($this->auroraModelData->{'Supplier Part Unit Cost'} ?? 0, 2),

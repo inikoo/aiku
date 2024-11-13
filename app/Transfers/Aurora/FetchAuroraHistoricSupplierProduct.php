@@ -39,9 +39,10 @@ class FetchAuroraHistoricSupplierProduct extends FetchAurora
         if ($units_per_carton == 0) {
             $units_per_carton = 1;
         }
+        $supplierProductCode=$this->auroraModelData->{'Supplier Part Historic Reference'} ?? 'missing-code-'.$this->auroraModelData->{'Supplier Part Historic Supplier Part Key'};
 
         $this->parsedData['historic_supplier_product'] = [
-            'code'             => $this->auroraModelData->{'Supplier Part Historic Reference'},
+            'code'             => $supplierProductCode,
             'units_per_pack'   => $units,
             'units_per_carton' => $units_per_carton,
             'status'           => $status,
