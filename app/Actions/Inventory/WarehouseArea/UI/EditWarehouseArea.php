@@ -8,16 +8,13 @@
 namespace App\Actions\Inventory\WarehouseArea\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\OrgAction;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
-use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditWarehouseArea extends OrgAction
 class EditWarehouseArea extends OrgAction
 {
     public function handle(WarehouseArea $warehouseArea): WarehouseArea
@@ -147,21 +144,11 @@ class EditWarehouseArea extends OrgAction
 
     private function getNavigation(?WarehouseArea $warehouseArea, string $routeName): ?array
     {
-        // dd($routeName);
         if (!$warehouseArea) {
             return null;
         }
 
         return match ($routeName) {
-            'grp.org.warehouses.show.infrastructure.warehouse-areas.edit' => [
-                'label' => $warehouseArea->name,
-                'route' => [
-                    'name'       => $routeName,
-                    'parameters' => [
-                        'warehouseArea' => $warehouseArea->slug
-                    ]
-                ]
-            ],
             'grp.org.warehouses.show.infrastructure.warehouse-areas.edit' => [
                 'label' => $warehouseArea->name,
                 'route' => [
