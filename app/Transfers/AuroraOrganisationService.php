@@ -30,7 +30,7 @@ use App\Transfers\Aurora\FetchAuroraDeletedSupplier;
 use App\Transfers\Aurora\FetchAuroraDeletedSupplierProduct;
 use App\Transfers\Aurora\FetchAuroraDeletedUser;
 use App\Transfers\Aurora\FetchAuroraDeliveryNote;
-use App\Transfers\Aurora\FetchAuroraDeliveryNoteTransaction;
+use App\Transfers\Aurora\FetchAuroraDeliveryNoteItem;
 use App\Transfers\Aurora\FetchAuroraDepartment;
 use App\Transfers\Aurora\FetchAuroraDispatchedEmail;
 use App\Transfers\Aurora\FetchAuroraEmailTrackingEvent;
@@ -221,7 +221,7 @@ class AuroraOrganisationService implements SourceOrganisationService
 
     public function fetchDeliveryNoteTransaction($id, DeliveryNote $deliveryNote): ?array
     {
-        return (new FetchAuroraDeliveryNoteTransaction($this))->fetchDeliveryNoteTransaction($id, $deliveryNote);
+        return (new FetchAuroraDeliveryNoteItem($this))->fetchDeliveryNoteTransaction($id, $deliveryNote);
     }
 
     public function fetchInvoiceTransaction($id, Invoice $invoice, bool $isFulfilment): ?array

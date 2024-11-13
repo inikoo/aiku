@@ -16,7 +16,6 @@ class FetchAuroraStockDeliveryItem extends FetchAurora
     protected function parseStockDeliveryItem(StockDelivery $stockDelivery): void
     {
 
-
         $item = null;
         if ($stockDelivery->parent_type == 'OrgPartner' || $stockDelivery->parent_type == 'Production') {
 
@@ -25,10 +24,7 @@ class FetchAuroraStockDeliveryItem extends FetchAurora
             }
 
         } else {
-            //print_r($this->auroraModelData);
-            //print $stockDelivery->parent_type;
             $item = $this->parseHistoricSupplierProduct($this->organisation->id, $this->auroraModelData->{'Supplier Part Historic Key'});
-            //print "xx";
             if (!$item) {
                 $item = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Part SKU'});
             }
@@ -40,8 +36,7 @@ class FetchAuroraStockDeliveryItem extends FetchAurora
             return;
         }
 
-        //print "----------------------------\n";
-        //print_r($item);
+
 
         $this->parsedData['item'] = $item;
 
