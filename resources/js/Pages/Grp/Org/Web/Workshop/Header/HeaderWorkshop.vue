@@ -12,6 +12,8 @@ import Publish from '@/Components/Publish.vue'
 import { debounce } from 'lodash'
 import ScreenView from "@/Components/ScreenView.vue"
 import HeaderListModal from '@/Components/CMS/Fields/ListModal.vue'
+import { getBlueprint } from '@/Composables/getBlueprintWorkshop'
+import { setIframeView } from '@/Composables/Workshop'
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -74,6 +76,8 @@ const tabs = [
 const keySidebar = ref(0)
 const selectedTab = ref(tabs[0])
 const saveCancelToken = ref<Function | null>(null)
+const isPreviewLoggedIn = ref(false)
+const _iframe = ref<IframeHTMLAttributes | null>(null)
 
 const onSelectBlock = (selectedBlock: object) => {
     const selectedKey = selectedTab.value.key;
@@ -115,36 +119,6 @@ const onPublish = async (action: routeType, popover: Function) => {
             }
         }
     )
-
-    // try {
-    //     // Ensure action is defined and has necessary properties
-    //     if (!action || !action.method || !action.name || !action.parameters) {
-    //         throw new Error('Invalid action parameters')
-    //     }
-
-    //     isLoading.value = true
-
-    //     // Make sure route and axios are defined and used correctly
-    //     const response = await axios[action.method](route(action.name, action.parameters), {
-    //         comment: comment.value,
-    //         layout: usedTemplates.value
-    //     })
-    //     popover.close()
-    // } catch (error) {
-    //     // Ensure the error is logged properly
-    //     console.error('Error:', error)
-
-    //     // Ensure the error notification is user-friendly
-    //     const errorMessage = error.response?.data?.message || error.message || 'Unknown error occurred'
-    //     notify({
-    //         title: 'Something went wrong.',
-    //         text: errorMessage,
-    //         type: 'error',
-    //     })
-    // } finally {
-    //     // Ensure loading state is updated
-    //     isLoading.value = false
-    // }
 }
 
 // Method: auto save
@@ -159,6 +133,7 @@ const autoSave = async (data: {}) => {
             onFinish: () => {
                 isLoadingSave.value = false,
                 saveCancelToken.value = null
+                sendToIframe({ key: 'reload', value: {} })
             },
             onProgress: (progress) => {
                 onProgress.value = progress
@@ -181,17 +156,8 @@ const autoSave = async (data: {}) => {
         }
     )
 }
-const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
 
-const setIframeView = (view: String) => {
-    if (view === 'mobile') {
-        iframeClass.value = 'w-[375px] h-[667px] mx-auto';
-    } else if (view === 'tablet') {
-        iframeClass.value = 'w-[768px] h-[1024px] mx-auto';
-    } else {
-        iframeClass.value = 'w-full h-full';
-    }
-}
+const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, { leading: false, trailing: true })
 
 const openFullScreenPreview = () => {
     window.open(iframeSrc+ '?isInWorkshop=true', '_blank')
@@ -201,15 +167,11 @@ const handleIframeError = () => {
     console.error('Failed to load iframe content.');
 }
 
-
-// If fieldvalue have changes, then auto save
 watch(usedTemplates, (newVal) => {
     if (newVal) {
-        // If still on progress saving, cancel the save
         if (saveCancelToken.value) {
             saveCancelToken.value()
         }
-
         debouncedSendUpdate(toRaw(newVal))
     }
 }, { deep: true })
@@ -221,20 +183,22 @@ const selectedWebBlock = computed(() => {
 
 
 const isModalOpen = ref(false)
-onMounted(() => {
-    window.addEventListener('message', (event) => {
-        if (event.data === 'openModalBlockList') {
-            isModalOpen.value = true
-        }
-    })
-})
-
-const isPreviewLoggedIn = ref(false)
-// Section Iframe
-const _iframe = ref<IframeHTMLAttributes | null>(null)
 const sendToIframe = (data: any) => {
     _iframe.value?.contentWindow.postMessage(data, '*')
 }
+
+onMounted(() => {
+    window.addEventListener('message', (event) => {
+        if (event.origin !== window.location.origin) return;
+        const { data } = event;
+        if (event.data === 'openModalBlockList') {
+            isModalOpen.value = true
+        } else if (data.key === 'autosave') {
+            if (saveCancelToken.value) saveCancelToken.value()
+            usedTemplates.value = data.value
+        }
+    })
+})
 
 </script>
 
@@ -290,7 +254,7 @@ const sendToIframe = (data: any) => {
                         v-if="usedTemplates?.[selectedTab.key]?.data.fieldValue"
                         :key="keySidebar"
                         v-model="usedTemplates[selectedTab.key].data.fieldValue"
-                        :bluprint="usedTemplates[selectedTab.key].blueprint" 
+                        :bluprint="getBlueprint(usedTemplates[selectedTab.key].code)" 
                         :uploadImageRoute="uploadImageRoute" 
                     />
                 </div>
@@ -303,7 +267,7 @@ const sendToIframe = (data: any) => {
                 <!-- Section: Screenview -->
                 <div class="flex justify-between max-w-7xl mx-auto bg-slate-200 border border-b-gray-300 pr-6">
                     <div class="flex">
-                        <ScreenView @screenView="setIframeView" />
+                        <ScreenView @screenView="(e)=> iframeClass = setIframeView(e)" />
                         <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
                             @click="openFullScreenPreview">
                             <FontAwesomeIcon :icon='faExternalLink' aria-hidden='true' />

@@ -24,8 +24,9 @@ const props = defineProps<{
     loginMode: boolean
     previewMode: boolean
     uploadImageRoute: routeType
-    isEditing?: boolean
-    colorThemed?: Object
+    colorThemed?: {
+        color: Array
+    }
 }>()
 
 const selectedColor = props.colorThemed?.color
@@ -64,10 +65,10 @@ const toggle = (event) => {
             <div class="w-full grid grid-cols-3 items-center gap-6">
                 <!-- Logo -->
                 <div :style="getStyles(modelValue.logo.properties)">
-
                     <img v-if="!modelValue.logo.source" :src="modelValue?.logo?.url" :alt="modelValue?.logo?.alt"
                         :style="{ width: `${modelValue.logo.width}%` }" />
-                    <Image v-else :alt="modelValue?.logo?.alt" :src="modelValue?.logo?.source" :style="{ width: `${modelValue.logo.width}%` }"></Image>
+                    <Image v-else :alt="modelValue?.logo?.alt" :src="modelValue?.logo?.source"
+                        :style="{ width: `${modelValue.logo.width}%` }"></Image>
                 </div>
 
                 <!-- Search Bar -->
@@ -82,12 +83,11 @@ const toggle = (event) => {
                 <div class="justify-self-end w-fit">
                     <button :style="getStyles(modelValue.button_1.properties)"
                         class="flex items-center justify-center px-4 py-2 bg-gold-500 text-white rounded-md shadow-md hover:bg-gold-600 transition duration-300 w-fit"
-                        v-if="viewVisible(loginMode,modelValue.button_1.visible)">
-                        <Editor v-model="modelValue.button_1.text" :editable="false" />
+                        v-if="viewVisible(loginMode, modelValue.button_1.visible)">
+                        <Editor v-model="modelValue.button_1.text" :editable="true"
+                            @update:model-value="(e) => { modelValue.button_1.text = e, emits('update:modelValue', modelValue) }" />
                     </button>
                 </div>
-
-
             </div>
         </div>
 

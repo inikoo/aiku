@@ -17,9 +17,7 @@ import RenderHeaderMenu from './RenderHeaderMenu.vue'
 import { usePage, router } from '@inertiajs/vue3'
 import { useColorTheme } from '@/Composables/useStockList'
 import { cloneDeep } from 'lodash'
-import { notify } from '@kyvg/vue3-notification';
 import Toggle from '@/Components/Pure/Toggle.vue';
-import Divider from 'primevue/divider';
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage, WebBlock } from '@/types/webpageTypes'
@@ -79,7 +77,7 @@ const ShowWebpage = (activityItem) => {
     } else return false
 }
 
-const updateDataFooter = (newVal) => {
+const updateData = (newVal) => {
     sendMessageToParent('autosave', newVal)
 }
 
@@ -96,9 +94,10 @@ onMounted(() => {
         if (event.data.key === 'isPreviewMode') isPreviewMode.value = event.data.value
         if (event.data.key === 'reload') {
             router.reload({
-                only: ['footer'],
+                only: ['footer','header'],
                 onSuccess: () => {
-                    Object.assign(layout.footer, toRaw(props.footer.footer));
+                    if(props.footer?.footer) Object.assign(layout.footer, toRaw(props.footer.footer));
+                    if(props.header?.data) Object.assign(layout.header, toRaw(props.header.data));
                 }
             });
         }
@@ -128,10 +127,17 @@ provide('isPreviewMode', isPreviewMode)
     </div>
 
     <div class="container max-w-7xl mx-auto shadow-xl">
-       <!--  <div class="relative">
-            <RenderHeaderMenu v-if="header?.data" :data="layout.header" :menu="layout?.navigation"
-                :colorThemed="layout?.colorThemed" :previewMode="isPreviewMode" :loginMode="isPreviewLoggedIn" />
-        </div> -->
+        <div class="relative">
+            <RenderHeaderMenu 
+                v-if="header?.data" 
+                :data="layout.header" 
+                :menu="layout?.navigation"
+                :colorThemed="layout?.colorThemed" 
+                :previewMode="false" 
+                :loginMode="isPreviewLoggedIn" 
+                @update:model-value="() => {updateData(layout.header)}" 
+            />
+        </div>
 
         <div v-if="data" class="relative">
             <div class="container max-w-7xl mx-auto">
@@ -182,7 +188,7 @@ provide('isPreviewMode', isPreviewMode)
             v-model="layout.footer.data.fieldValue"
             :previewMode="route().current() == 'grp.websites.preview' ? true : isPreviewMode"
             :colorThemed="layout.colorThemed" 
-            @update:model-value="() => {updateDataFooter(layout.footer)}" 
+            @update:model-value="() => {updateData(layout.footer)}" 
         />
     </div>
 </template>

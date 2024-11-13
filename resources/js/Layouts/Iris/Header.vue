@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { getRenderComponent } from "@/Components/CMS/Website/Headers/Content"
+import { getComponent } from "@/Composables/getWorkshopComponents"
 import NavigationMenu from '@/Layouts/Iris/NavigationMenu.vue'
 import { routeType } from "@/types/route"
 
@@ -24,7 +24,7 @@ const props = defineProps<{
 <template>
     <div>
         <component 
-            :is="getRenderComponent(data?.header?.key)" 
+            :is="getComponent(data?.header?.key)" 
             :loginMode="false" 
             :loginRoute="data?.data?.loginRoute" 
             :data="data.header" 

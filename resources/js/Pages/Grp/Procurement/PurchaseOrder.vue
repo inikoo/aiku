@@ -176,7 +176,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
 		.post(
 			route(data.route?.name || "#", {
 				...data.route?.parameters,
-				item: formProducts.historic_id,
+				historicSupplierProduct: formProducts.historic_id,
 			}),
 			{
 				preserveScroll: true,
