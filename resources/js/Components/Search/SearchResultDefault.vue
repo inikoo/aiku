@@ -72,17 +72,17 @@ const isLoading = ref(false)
 		:is="data?.route?.name ? Link : 'div'"
 		as="a"
 		:href="data?.route?.name ? route(data?.route.name, data?.route.parameters) : ''"
-		class="flex  gap-x-2 items-center"
+		class="flex   items-center"
 		@start="() => (isLoading = true)"
 		@finish="() => emits('finishVisit', false)">
 		<div
 			v-if="isLoading"
-			class="fixed inset-0 bottom-0 bg-black/50 flex flex-col gap-y-4 justify-center items-center text-white cursor-default">
+			class="fixed inset-0 bottom-0 bg-black/50 flex flex-col  justify-center items-center text-white cursor-default">
 			<LoadingIcon class="text-6xl" />
 			<LoadingText />
 		</div>
 
-		<div class="w-full flex leading-none py-1 justify-between gap-x-3 tracking-tight">
+		<div class="w-full flex leading-none justify-between tracking-tight">
 			<div class="">
 				<!--    <div v-if="data?.container" v-tooltip="data?.container?.tooltip" class="w-fit text-xs text-gray-400 flex items-end leading-none">
                     <template v-if="data?.container?.key === 'address'">
@@ -94,7 +94,7 @@ const isLoading = ref(false)
                     </template>
                 </div> -->
 
-				<div class="flex flex-col py-1 sm:flex-row gap-y-1.5 gap-x-3 ">
+				<div class="flex flex-col sm:flex-row  ">
 					<icon :data="data?.icon" size="xs" />
 
 					<h2
@@ -112,9 +112,9 @@ const isLoading = ref(false)
 					<!-- Section: After Title -->
 					<div class="flex gap-x-2 items-center">
 						<div
-							v-if="data?.afterTitle"
+							v-if="data?.description"
 							class="text-gray-400 font-normal text-base leading-none">
-							{{ data?.afterTitle.label }}
+							{{ data?.description.label }}
 						</div>
 					</div>
 					<div
@@ -124,11 +124,11 @@ const isLoading = ref(false)
 				</div>
 
 				<!-- Section: mini Tabs -->
-				<div v-if="data?.meta?.length" class="flex sm:flex-wrap sm:gap-y-0.5 text-sm">
+				<div v-if="data?.meta?.length" class="flex sm:flex-wrap text-sm">
 					<template v-for="meta in data?.meta">
 						<div
 							v-tooltip="meta.tooltip"
-							class="flex items-center gap-x-1 text-gray-400">
+							class="flex items-center text-gray-400">
 							<FontAwesomeIcon
 								v-if="meta.icon"
 								:icon="meta.icon"
@@ -157,7 +157,7 @@ const isLoading = ref(false)
 							<template v-else>{{ meta.label }}</template>
 						</div>
 
-						<div class="last:hidden px-2">•</div>
+						<div v-if="meta.label" class="last:hidden px-2">•</div>
 					</template>
 				</div>
 			</div>
