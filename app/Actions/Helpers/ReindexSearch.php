@@ -24,6 +24,7 @@ use App\Actions\Fulfilment\RecurringBill\Search\ReindexRecurringBillSearch;
 use App\Actions\Fulfilment\Rental\Search\ReindexRentalSearch;
 use App\Actions\Fulfilment\StoredItem\Search\ReindexStoredItem;
 use App\Actions\Fulfilment\StoredItemAudit\Search\ReindexStoredItemAuditSearch;
+use App\Actions\HumanResources\ClockingMachine\Search\ReindexClockingMachineSearch;
 use App\Actions\HumanResources\Employee\Search\ReindexEmployeeSearch;
 use App\Actions\HydrateModel;
 use App\Actions\Inventory\Location\Search\ReindexLocationSearch;
@@ -50,6 +51,7 @@ use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Fulfilment\StoredItemAudit;
+use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
@@ -127,6 +129,9 @@ class ReindexSearch extends HydrateModel
     {
         foreach (Employee::withTrashed()->get() as $model) {
             ReindexEmployeeSearch::run($model);
+        }
+        foreach (ClockingMachine::withTrashed()->get() as $model) {
+            ReindexClockingMachineSearch::run($model);
         }
     }
 

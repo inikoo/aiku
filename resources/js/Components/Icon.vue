@@ -5,8 +5,8 @@
   -->
 
 <script setup lang="ts">
-import {capitalize} from '@/Composables/capitalize.js';
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import { capitalize } from '@/Composables/capitalize.js'
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 const props = defineProps<{
     data: {
@@ -20,12 +20,7 @@ const props = defineProps<{
 
 <template>
 
-    <FontAwesomeIcon
-        v-tooltip="title ? title : capitalize(data.tooltip ?? '')"
-        aria-hidden="true"
-        :icon="data.icon"
-        :class="data.class"
-        fixed-width
-    />
+    <FontAwesomeIcon v-if="data?.icon" v-tooltip="title ? title : capitalize(data.tooltip ?? '')" aria-hidden="true"
+        :icon="data.icon" :class="data.class" fixed-width />
 
 </template>

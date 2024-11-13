@@ -43,9 +43,11 @@ class EmployeeRecordSearch
                             'employee'     => $employee->slug,
                         ]
                     ],
-                    'title'      => $employee->contact_name,
-                    'afterTitle' => [
-                        'label' => '('.$employee->worker_number.')',
+                    'description'      => [
+                        'label' => $employee->contact_name,
+                    ],
+                    'code' => [
+                        'label' => $employee->worker_number,
                     ],
                     'icon'       => [
                         'icon' => 'fal fa-user-hard-hat'
