@@ -10,16 +10,13 @@ namespace App\Actions\SupplyChain\Supplier\UI;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
-use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
-use App\Actions\Procurement\StockDelivery\UI\IndexStockDeliveries;
 use App\Actions\SupplyChain\Agent\UI\ShowAgent;
+use App\Actions\SupplyChain\Supplier\WithSupplierSubNavigation;
 use App\Actions\SupplyChain\SupplierProduct\UI\IndexSupplierProducts;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Enums\UI\SupplyChain\SupplierTabsEnum;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
 use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Procurement\PurchaseOrderResource;
-use App\Http\Resources\Procurement\StockDeliveryResource;
 use App\Http\Resources\SupplyChain\SupplierProductResource;
 use App\Http\Resources\SupplyChain\SupplierResource;
 use App\Models\SupplyChain\Agent;
@@ -31,6 +28,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class ShowSupplier extends GrpAction
 {
+    use WithSupplierSubNavigation;
     public function handle(Supplier $supplier): Supplier
     {
         return $supplier;
@@ -85,6 +83,7 @@ class ShowSupplier extends GrpAction
                             'title' => __('supplier')
                         ],
                     'title'   => $supplier->name,
+                    'subNavigation' => $this->getSupplierNavigation($supplier),
                     'actions' => [
                         $this->canEdit ? [
                             'type'  => 'button',
@@ -173,17 +172,6 @@ class ShowSupplier extends GrpAction
                     )
                     : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))),
 
-                SupplierTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == SupplierTabsEnum::SUPPLIER_PRODUCTS->value ?
-                    fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))
-                    : Inertia::lazy(fn () => SupplierProductResource::collection(IndexSupplierProducts::run($supplier))),
-
-                SupplierTabsEnum::PURCHASE_ORDERS->value => $this->tab == SupplierTabsEnum::PURCHASE_ORDERS->value ?
-                    fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplier))
-                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($supplier))),
-
-                SupplierTabsEnum::DELIVERIES->value => $this->tab == SupplierTabsEnum::DELIVERIES->value ?
-                    fn () => StockDeliveryResource::collection(IndexStockDeliveries::run($supplier))
-                    : Inertia::lazy(fn () => StockDeliveryResource::collection(IndexStockDeliveries::run($supplier))),
 
                 SupplierTabsEnum::HISTORY->value => $this->tab == SupplierTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($supplier))
@@ -194,9 +182,6 @@ class ShowSupplier extends GrpAction
                     : Inertia::lazy(fn () => AttachmentsResource::collection(IndexAttachments::run($supplier)))
             ]
         )->table(IndexSupplierProducts::make()->tableStructure())
-            ->table(IndexSupplierProducts::make()->tableStructure())
-            ->table(IndexPurchaseOrders::make()->tableStructure())
-            ->table(IndexStockDeliveries::make()->tableStructure())
             ->table(IndexAttachments::make()->tableStructure(SupplierTabsEnum::ATTACHMENTS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value));
     }
@@ -228,6 +213,7 @@ class ShowSupplier extends GrpAction
         };
 
         return match ($routeName) {
+            'grp.supply-chain.suppliers.supplier_products.index',
             'grp.supply-chain.suppliers.show' =>
             array_merge(
                 ShowSupplyChainDashboard::make()->getBreadcrumbs(),

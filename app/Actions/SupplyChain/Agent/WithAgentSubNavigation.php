@@ -53,42 +53,6 @@ trait WithAgentSubNavigation
                     "tooltip" => __("Products"),
                 ],
             ],
-            // [
-            //     "number"   => $parent->stats->number_purchase_orders,
-            //     "label"    => __("Purchase Orders"),
-            //     "href"     => [
-            //         "name"       => "grp.org.procurement.org_agents.show.purchase-orders.index",
-            //         "parameters" => [$parent->organisation->slug, $parent->slug],
-            //     ],
-            //     "leftIcon" => [
-            //         "icon"    => ["fal", "fa-clipboard"],
-            //         "tooltip" => __("Purchase Orders"),
-            //     ],
-            // ],
-            // [
-            //     "number"   => $parent->agent->organisation->inventoryStats->number_org_stocks,
-            //     "label"    => __("Org Stocks"),
-            //     "href"     => [
-            //         "name"       => "grp.org.procurement.org_agents.show.org-stocks.index",
-            //         "parameters" => [$parent->organisation->slug, $parent->slug],
-            //     ],
-            //     "leftIcon" => [
-            //         "icon"    => ["fal", "fa-box"],
-            //         "tooltip" => __("Org Stocks"),
-            //     ],
-            // ],
-            // [
-            //     "number"   => $parent->agent->organisation->inventoryStats->number_deliveries,
-            //     "label"    => __("Stock Deliveries"),
-            //     "href"     => [
-            //         "name"       => "grp.org.procurement.org_agents.show.stock-deliveries.index",
-            //         "parameters" => [$parent->organisation->slug, $parent->slug],
-            //     ],
-            //     "leftIcon" => [
-            //         "icon"    => ["fal", "fa-truck-container"],
-            //         "tooltip" => __("Stock Deliveries"),
-            //     ],
-            // ],
 
         ];
     }
