@@ -51,14 +51,14 @@ enum CustomerStateEnum: string
                 'class'   => 'text-emerald-500',
                 'color'   => 'emerald',
             ],
-            'discontinuing' => [
-                'tooltip' => __('Discontinuing'),
+            'losing' => [
+                'tooltip' => __('Losing'),
                 'icon'    => 'fas fa-circle',
                 'class'   => 'text-orange-500',
                 'color'   => 'orange',
             ],
-            'discontinued'  => [
-                'tooltip' => __('Discontinued'),
+            'lost'  => [
+                'tooltip' => __('Lost'),
                 'icon'    => 'fas fa-circle',
                 'class'   => 'text-red-500',
                 'color'   => 'red',
