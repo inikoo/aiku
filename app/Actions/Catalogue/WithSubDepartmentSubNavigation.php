@@ -17,7 +17,7 @@ trait WithSubDepartmentSubNavigation
             [
                 'isAnchor'   => true,
                 'label'    => __('Sub-department'),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.shops.show.catalogue.departments.show.sub-departments.show',
                     'parameters' => [$this->organisation->slug, $subDepartment->shop->slug, $subDepartment->parent->slug, $subDepartment->slug]
                 ],
@@ -29,7 +29,7 @@ trait WithSubDepartmentSubNavigation
             [
                 'label'    => __('Families'),
                 'number'   => $subDepartment->stats->number_families,
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.shops.show.catalogue.departments.show.sub-departments.show.family.index',
                     'parameters' => [$this->organisation->slug, $this->shop->slug, $subDepartment->department->slug, $subDepartment->slug]
                 ],

@@ -18,7 +18,7 @@ const props = defineProps<{
 const isLoading = ref(false)
 
 const handleClick = (action: Action) => {
-    const href = action.route?.name ? route(action.route?.name, action.route?.parameters) : action.href?.name ? route(action.href?.name, action.href?.parameters) : '#'
+    const href = action.route?.name ? route(action.route?.name, action.route?.parameters) : action.route?.name ? route(action.route?.name, action.route?.parameters) : '#'
     const method = action.route?.method || 'get'
     const data = action.route?.method !== 'get' ? props.dataToSubmit : null
 
@@ -57,7 +57,7 @@ const handleClick = (action: Action) => {
         class="first:rounded-l last:rounded-r overflow-hidden ring-1 ring-gray-300 flex">
         <slot v-for="(button, index) in action.buttonGroup" :name="'button' + index">
             <Link
-                :href="button.route?.name ? route(button.route?.name, button.route?.parameters) : action.href?.name ? route(action.href?.name, action.href?.parameters) : '#'"
+                :href="button.route?.name ? route(button.route?.name, button.route?.parameters) : action.route?.name ? route(action.route?.name, action.route?.parameters) : '#'"
                 class=""
                 :method="button.route?.method || 'get'"
                 as="a"

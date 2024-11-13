@@ -85,7 +85,7 @@ class ShowStockFamily extends GrpAction
                         [
                             'name'     => trans_choice('stock | stocks', $stockFamily->stats->number_stocks),
                             'number'   => $stockFamily->stats->number_stocks,
-                            'href'     => [
+                            'route'     => [
                                 'name'       => 'grp.goods.stock-families.show.stocks.index',
                                 'parameters' => $stockFamily->slug
                             ],

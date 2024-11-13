@@ -4,55 +4,7 @@
 	"name": "Call to action 1",
 	"scope": "webpage",
 	"icon": ["fal", "rectangle-wide"],
-	"blueprint": [
-		{
-			"name": "Properties",
-			"key": ["container", "properties"],
-			"replaceForm": [
-				{
-					"key": ["container", "properties", "background"],
-					"type": ["background"],
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties", "padding"],
-					"type": ["padding"],
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties", "margin"],
-					"type": ["margin"],
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties", "border"],
-					"type": ["border"],
-					"props_data": {}
-				}
-			]
-		},
-		{
-			"name": "Button",
-			"key": ["button"],
-			"type": ["button"],
-			"props_data": {}
-		},
-		{
-			"name": "Image",
-			"key":  "image",
-			"replaceForm": [
-				{
-					"key": ["image", "visible"],
-					"type": ["VisibleLoggedIn"]
-				},
-				{
-					"key":  ["image"],
-					"type": "upload_image",
-					"props_data": {}
-				}
-			]
-		}
-	],
+	"blueprint": [],
 	"data": {
 		"fieldValue": {
 			"text": "<h2><span style='font-size: 14px; color: rgb(196, 0, 255)'><strong>Award winning support </strong></span></h2><h2><span style='color: rgb(255, 255, 255)'><strong>We’re here to help</strong></span></h2><p><span style='color: rgb(209, 213, 219)'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Et, egestas tempus tellus etiam sed. Quam a scelerisque amet ullamcorper eu enim et fermentum, augue. Aliquet amet volutpat quisque ut interdum tincidunt duis.</span></p>",

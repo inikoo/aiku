@@ -4,7 +4,7 @@
 	"code": "menu-1",
 	"name": "Menu 1",
 	"component": "menu",
-	"blueprint": {},
+	"blueprint": [],
 	"data": {
 		"fieldValue" : {
 			"navigation": [

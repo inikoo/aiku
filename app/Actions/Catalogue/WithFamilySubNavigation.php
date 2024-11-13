@@ -80,7 +80,7 @@ trait WithFamilySubNavigation
             [
                 'isAnchor'   => true,
                 'label'    => __('Family'),
-                'href'     => $familyRoute,
+                'route'     => $familyRoute,
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-stream'],
                     'tooltip' => __('family')
@@ -90,7 +90,7 @@ trait WithFamilySubNavigation
             [
                 'label'    => __('Products'),
                 'number'   => $family->stats->number_products,
-                'href'     => $productRoute,
+                'route'     => $productRoute,
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-cube'],
                     'tooltip' => __('products')

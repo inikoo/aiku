@@ -25,7 +25,7 @@ trait WithWebpageSubNavigation
 
         return [
             [
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.shops.show.web.webpages.show",
                     "parameters" => [
                         $shop->organisation->slug,
@@ -43,7 +43,7 @@ trait WithWebpageSubNavigation
                 "isAnchor" => true,
                 "label"    => __("Structure"),
 
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.shops.show.web.webpages.tree",
                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                 ],
@@ -55,7 +55,7 @@ trait WithWebpageSubNavigation
             [
                 "number"   => $website->webStats->number_webpages_type_catalogue,
                 "label"    => __("Catalogue"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.shops.show.web.webpages.index.type.catalogue",
                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                 ],
@@ -67,7 +67,7 @@ trait WithWebpageSubNavigation
             [
                 "number"   => $website->webStats->number_webpages_type_content,
                 "label"    => __("Content"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.shops.show.web.webpages.index.type.content",
                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                 ],
@@ -79,7 +79,7 @@ trait WithWebpageSubNavigation
             [
                 "number"   => $website->webStats->number_webpages_type_info,
                 "label"    => __("Info"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.shops.show.web.webpages.index.type.info",
                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                 ],
@@ -91,7 +91,7 @@ trait WithWebpageSubNavigation
             [
                 "number"   => $website->webStats->number_webpages_type_operations,
                 "label"    => __("Operations"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.shops.show.web.webpages.index.type.operations",
                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                 ],
@@ -104,7 +104,7 @@ trait WithWebpageSubNavigation
             [
                 "number"   => $website->webStats->number_webpages_type_blog,
                 "label"    => __("Blog"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.shops.show.web.webpages.index.type.blog",
                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                 ],
@@ -118,7 +118,7 @@ trait WithWebpageSubNavigation
                 "number"   => $website->webStats->number_webpages,
                 "align"    => "right",
                 "label"    => __("All"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.shops.show.web.webpages.index",
                     "parameters" => [$shop->organisation->slug, $shop->slug, $shop->website->slug],
                 ],

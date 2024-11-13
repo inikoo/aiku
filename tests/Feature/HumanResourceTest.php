@@ -216,8 +216,8 @@ test('can show hr dashboard', function () {
         $page
             ->component('Org/HumanResources/HumanResourcesDashboard')
             ->has('breadcrumbs', 2)
-            ->where('stats.0.stat', 1)->where('stats.0.href.name', 'grp.org.hr.employees.index')
-            ->where('stats.1.stat', 2)->where('stats.1.href.name', 'grp.org.hr.workplaces.index');
+            ->where('stats.0.stat', 1)->where('stats.0.route.name', 'grp.org.hr.employees.index')
+            ->where('stats.1.stat', 2)->where('stats.1.route.name', 'grp.org.hr.workplaces.index');
     });
 });
 
@@ -265,8 +265,8 @@ test('can show employee', function () {
         $page
             ->component('Org/HumanResources/Employee')
             ->has('breadcrumbs', 3)
-            ->where('pageHead.meta.1.href.name', 'grp.org.sysadmin.users.show')
-            ->where('pageHead.meta.1.href.parameters', $employee->alias)
+            ->where('pageHead.meta.1.route.name', 'grp.org.sysadmin.users.show')
+            ->where('pageHead.meta.1.route.parameters', $employee->alias)
             ->has('tabs.navigation', 7);
     });
 })->todo();

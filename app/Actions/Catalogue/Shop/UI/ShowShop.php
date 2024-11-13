@@ -90,7 +90,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('customers'),
                             'icon'  => ['fal', 'fa-user'],
-                            'href'  => ['grp.org.shops.show.crm.customers.index', $shop->slug],
+                            'route'  => ['grp.org.shops.show.crm.customers.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->crmStats->number_customers
                             ]
@@ -98,7 +98,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('prospects'),
                             'icon'  => ['fal', 'fa-user'],
-                            'href'  => ['grp.crm.shops.show.prospects.index', $shop->slug],
+                            'route'  => ['grp.crm.shops.show.prospects.index', $shop->slug],
                             'index' => [
                                 'number' => 'TBD'// $shop->stats->number_customers
                             ]
@@ -108,7 +108,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('departments'),
                             'icon'  => ['fal', 'fa-folder-tree'],
-                            'href'  => ['shops.show.departments.index', $shop->slug],
+                            'route'  => ['shops.show.departments.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_departments
                             ]
@@ -117,7 +117,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('families'),
                             'icon'  => ['fal', 'fa-folder'],
-                            'href'  => ['shops.show.families.index', $shop->slug],
+                            'route'  => ['shops.show.families.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_families
                             ]
@@ -126,7 +126,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('products'),
                             'icon'  => ['fal', 'fa-cube'],
-                            'href'  => ['shops.show.products.index', $shop->slug],
+                            'route'  => ['shops.show.products.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->stats->number_products
                             ]
@@ -136,7 +136,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('orders'),
                             'icon'  => ['fal', 'fa-shopping-cart'],
-                            'href'  => ['grp.crm.shops.show.orders.index', $shop->slug],
+                            'route'  => ['grp.crm.shops.show.orders.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->salesStats->number_orders
                             ]
@@ -144,7 +144,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('invoices'),
                             'icon'  => ['fal', 'fa-file-invoice'],
-                            'href'  => ['grp.crm.shops.show.invoices.index', $shop->slug],
+                            'route'  => ['grp.crm.shops.show.invoices.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->salesStats->number_invoices
                             ]
@@ -152,7 +152,7 @@ class ShowShop extends OrgAction
                         [
                             'name'  => __('delivery-notes'),
                             'icon'  => ['fal', 'fa-sticky-note'],
-                            'href'  => ['grp.crm.shops.show.delivery-notes.index', $shop->slug],
+                            'route'  => ['grp.crm.shops.show.delivery-notes.index', $shop->slug],
                             'index' => [
                                 'number' => $shop->salesStats->number_deliveries
                             ]

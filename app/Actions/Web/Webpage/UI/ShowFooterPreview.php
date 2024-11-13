@@ -30,12 +30,12 @@ class ShowFooterPreview extends OrgAction
             'Web/PreviewWorkshop',
             [
                 'footer' => GetWebsiteWorkshopFooter::run($website),
-                'autosaveRoute' => [
+               /*  'autosaveRoute' => [
                     'name' => 'grp.models.website.autosave.footer',
                     'parameters' => [
                         'website' => $website->id
                     ],
-                ]
+                ] */
             ]
         );
     }

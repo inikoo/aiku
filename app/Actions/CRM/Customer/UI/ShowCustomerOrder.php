@@ -74,7 +74,7 @@ class ShowCustomerOrder extends OrgAction
 
         if ($request->route()->getName() == 'customers.show') {
             $shopMeta = [
-                'href'     => ['shops.show', $customerClient->customer->shop->slug],
+                'route'     => ['shops.show', $customerClient->customer->shop->slug],
                 'name'     => $customerClient->customer->shop->code,
                 'leftIcon' => [
                     'icon'    => 'fal fa-store-alt',

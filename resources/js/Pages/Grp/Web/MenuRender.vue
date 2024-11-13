@@ -17,7 +17,6 @@ const props = defineProps<{
     colorThemed: object
 }>()
 
-console.log('menu2',props)
 </script>
 
 

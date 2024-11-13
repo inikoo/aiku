@@ -7,22 +7,6 @@
 <script setup lang="ts">
 import {capitalize} from '@/Composables/capitalize.js';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {
-    faSeedling,
-    faBroadcastTower,
-    faImage,
-    faSparkles,
-    faRocket,
-    faDoNotEnter,
-    faClipboardCheck,
-    faCheck,
-    faSpellCheck,
-    faCheckDouble, faTruck, faHandshakeAltSlash,
-    faPallet, faBox, faBoxes,
-    faSortSizeUp, faTimes
-} from '@fal'
-import { library } from "@fortawesome/fontawesome-svg-core"
-library.add(faSeedling, faBroadcastTower, faImage, faSparkles, faRocket, faDoNotEnter, faClipboardCheck, faCheck, faSpellCheck, faCheckDouble, faTruck, faHandshakeAltSlash,  faPallet, faBox, faBoxes, faSortSizeUp, faTimes)
 
 const props = defineProps<{
     data: {
@@ -35,13 +19,13 @@ const props = defineProps<{
 </script>
 
 <template>
-<!-- 
+
     <FontAwesomeIcon
         v-tooltip="title ? title : capitalize(data.tooltip ?? '')"
         aria-hidden="true"
         :icon="data.icon"
         :class="data.class"
         fixed-width
-    /> -->
+    />
 
 </template>

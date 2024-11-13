@@ -19,7 +19,7 @@ trait WithCustomerSubNavigation
             [
                 'isAnchor'   => true,
                 'label'    => __('Customer'),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show',
                     'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
                 ],
@@ -30,7 +30,7 @@ trait WithCustomerSubNavigation
             ],
 
             [
-                'href' => [
+                'route' => [
                     'name'       => 'grp.org.shops.show.crm.customers.show.web-users.index',
                     'parameters' => $request->route()->originalParameters()
 
@@ -46,7 +46,7 @@ trait WithCustomerSubNavigation
             [
                 'label'    => __('Orders'),
                 'number'   => $customer->orders()->count(),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show.orders.index',
                     'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
                 ],
@@ -64,7 +64,7 @@ trait WithCustomerSubNavigation
             [
                 'isAnchor' => true,
                 'label'    => __('Customer'),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show',
                     'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
                 ],
@@ -74,7 +74,7 @@ trait WithCustomerSubNavigation
                 ]
             ],
             [
-                'href' => [
+                'route' => [
                     'name'       => 'grp.org.shops.show.crm.customers.show.web-users.index',
                     'parameters' => $request->route()->originalParameters()
 
@@ -90,7 +90,7 @@ trait WithCustomerSubNavigation
             [
                 'label'    => __('Clients'),
                 'number'   => $customer->stats->number_clients,
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.index',
                     'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
                 ],
@@ -102,7 +102,7 @@ trait WithCustomerSubNavigation
             [
                 'label'    => __('Portfolio'),
                 'number'   => $customer->portfolios()->count(),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show.portfolios.index',
                     'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
                 ],
@@ -114,7 +114,7 @@ trait WithCustomerSubNavigation
             [
                 'label'    => __('Orders'),
                 'number'   => $customer->stats->number_orders,
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show.orders.index',
                     'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
                 ],
@@ -132,7 +132,7 @@ trait WithCustomerSubNavigation
             [
                 'isAnchor' => true,
                 'label'    => __('Client'),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.show',
                     'parameters' => [$this->organisation->slug, $customerClient->shop->slug, $customerClient->customer->slug, $customerClient->ulid]
                 ],
@@ -144,7 +144,7 @@ trait WithCustomerSubNavigation
             [
                 'label'    => __('Orders'),
                 'number'   => $customerClient->orders()->count(),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.shops.show.crm.customers.show.customer-clients.orders.index',
                     'parameters' => [$this->organisation->slug, $customerClient->shop->slug, $customerClient->customer->slug, $customerClient->ulid]
                 ],

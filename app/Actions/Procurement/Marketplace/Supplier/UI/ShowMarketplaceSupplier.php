@@ -91,7 +91,7 @@ class ShowMarketplaceSupplier extends InertiaAction
                     ],
                     'meta'  => [
                         [
-                            'href'     => match (true) {
+                            'route'     => match (true) {
                                 $supplier->agent_id > 0 => ['grp.org.procurement.marketplace.org_agents.show.org_suppliers.show.org_supplier_products.index',[ $supplier->agent->slug, $supplier->slug]],
                                 default                 => ['grp.org.procurement.marketplace.org_suppliers.show.org_supplier_products.index', $supplier->slug],
                             },

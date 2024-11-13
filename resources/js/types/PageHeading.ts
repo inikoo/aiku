@@ -25,7 +25,7 @@ export interface PageHeading {
         label?: string
         number?: number | string
         leftIcon?: Icon
-        href?: routeType
+        route?: routeType
     }[]
     model: string  // Define the type page ('Pallet Delivery' or 'Pallet Returns', etc)
     icon: {

@@ -26,7 +26,7 @@ class NotificationsResource extends JsonResource
             'id'         => $this->id,
             'title'      => Arr::get($this->data, 'title'),
             'body'       => Arr::get($this->data, 'body'),
-            'href'       => Arr::get($this->data, 'route'),
+            'route'       => Arr::get($this->data, 'route'),
             'created_at' => $this->created_at,
             'read'       => (bool) $this->read_at
         ];

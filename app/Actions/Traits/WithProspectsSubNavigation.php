@@ -16,7 +16,7 @@ trait WithProspectsSubNavigation
         $meta = [];
 
         $meta[] = [
-            'href'     => [
+            'route'     => [
                 'name'       => 'grp.org.shops.show.crm.prospects.index',
                 'parameters' => array_merge(
                     $request->route()->originalParameters(),
@@ -37,7 +37,7 @@ trait WithProspectsSubNavigation
 
         if ($this->parent->crmStats->number_prospects > 0) {
             $meta[] = [
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.shops.show.crm.prospects.mailshots.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
@@ -51,7 +51,7 @@ trait WithProspectsSubNavigation
         }
 
         $meta[] = [
-            // 'href'     => [
+            // 'route'     => [
             //     'name'       => 'grp.org.shops.show.crm.prospects.lists.index',
             //     'parameters' => $request->route()->originalParameters()
             // ],
@@ -64,7 +64,7 @@ trait WithProspectsSubNavigation
         ];
 
         $meta[] = [
-            'href'     => [
+            'route'     => [
                 'name'       => 'grp.org.shops.show.crm.prospects.tags.index',
                 'parameters' => $request->route()->originalParameters()
             ],

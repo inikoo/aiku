@@ -24,7 +24,7 @@ trait WithPalletsSubNavigation
                     'number'   => $parent->stats->number_pallets_status_receiving +
                         $parent->stats->number_pallets_status_storing             +
                         $parent->stats->number_pallets_status_returning,
-                    'href'     => [
+                    'route'     => [
                         'name'       => 'grp.org.fulfilments.show.operations.pallets.current.index',
                         'parameters' => $request->route()->originalParameters()
                     ],
@@ -37,7 +37,7 @@ trait WithPalletsSubNavigation
                     'label'    => __('Damaged'),
                     'align'    => 'right',
                     'number'   => $parent->stats->number_pallets_state_damaged,
-                    'href'     => [
+                    'route'     => [
                         'name'       => 'grp.org.fulfilments.show.operations.pallets.damaged.index',
                         'parameters' => $request->route()->originalParameters()
                     ],
@@ -47,7 +47,7 @@ trait WithPalletsSubNavigation
                     'label'    => __('Lost'),
                     'align'    => 'right',
                     'number'   => $parent->stats->number_pallets_state_lost,
-                    'href'     => [
+                    'route'     => [
                         'name'       => 'grp.org.fulfilments.show.operations.pallets.lost.index',
                         'parameters' => $request->route()->originalParameters()
                     ],
@@ -57,7 +57,7 @@ trait WithPalletsSubNavigation
                     'label'    => __('Returned'),
                     'align'    => 'right',
                     'number'   => $parent->stats->number_pallets_state_dispatched,
-                    'href'     => [
+                    'route'     => [
                         'name'       => 'grp.org.fulfilments.show.operations.pallets.returned.index',
                         'parameters' => $request->route()->originalParameters()
                     ],
@@ -74,7 +74,7 @@ trait WithPalletsSubNavigation
                 'number'   => $parent->stats->number_pallets_status_receiving +
                     $parent->stats->number_pallets_status_storing             +
                     $parent->stats->number_pallets_status_returning,
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.warehouses.show.inventory.pallets.current.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
@@ -87,7 +87,7 @@ trait WithPalletsSubNavigation
                 'label'    => __('Damaged'),
                 'align'    => 'right',
                 'number'   => $parent->stats->number_pallets_state_damaged,
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.warehouses.show.inventory.pallets.damaged.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
@@ -97,7 +97,7 @@ trait WithPalletsSubNavigation
                 'label'    => __('Lost'),
                 'align'    => 'right',
                 'number'   => $parent->stats->number_pallets_state_lost,
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.warehouses.show.inventory.pallets.lost.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
@@ -107,7 +107,7 @@ trait WithPalletsSubNavigation
                 'label'    => __('Returned'),
                 'align'    => 'right',
                 'number'   => $parent->stats->number_pallets_state_dispatched,
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.warehouses.show.inventory.pallets.returned.index',
                     'parameters' => $request->route()->originalParameters()
                 ],

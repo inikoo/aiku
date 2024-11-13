@@ -4,78 +4,7 @@
 	"code": "bento-grid-1",
 	"name": "Three column bento grid",
 	"icon": ["fal", "rectangle-wide"],
-	"blueprint": [
-		{
-			"name": "Properties",
-			"key": ["container", "properties"],
-			"replaceForm": [
-				{
-					"key": ["container", "properties", "background"],
-					"type": ["background"],
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties", "padding"],
-					"type": ["padding"],
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties", "margin"],
-					"type": ["margin"],
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties", "border"],
-					"type": ["border"],
-					"props_data": {}
-				}
-			]
-		},
-		{
-			"name": "Column 1",
-			"key": ["column1"],
-			"replaceForm": [
-				{
-					"key": ["column1"],
-					"type": "upload_image",
-					"props_data": {}
-				}
-			]
-		},
-		{
-			"name": "Column 2",
-			"key": ["column2"],
-			"replaceForm": [
-				{
-					"key": ["column2"],
-					"type": "upload_image",
-					"props_data": {}
-				}
-			]
-		},
-		{
-			"name": "Column 3",
-			"key": ["column3"],
-			"replaceForm": [
-				{
-					"key": ["column3"],
-					"type": "upload_image",
-					"props_data": {}
-				}
-			]
-		},
-		{
-			"name": "Column 4",
-			"key": ["column4"],
-			"replaceForm": [
-				{
-					"key": ["column4"],
-					"type": "upload_image",
-					"props_data": {}
-				}
-			]
-		}
-	],
+	"blueprint": [],
 	"data": {
 		"fieldValue": {
 				"title": "<h3 style=\"text-align: center\"><span style=\"color: #a200ff\"><strong>Dep</strong></span><span style=\"color: #9900ff\"><strong>loy faster</strong></span></h3><h1 style=\"text-align: center\"><strong>Everything you need to deploy your app.</strong></h1>",

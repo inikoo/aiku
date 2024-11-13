@@ -4,7 +4,7 @@
 	"code": "categories",
 	"name": "Categories",
 	"icon": ["fal", "bars"],
-	"blueprint" : {},
+	"blueprint" : [],
 	"data": {
 		"fieldValue": {
 			"value": {}
