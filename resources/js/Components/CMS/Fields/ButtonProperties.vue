@@ -62,7 +62,7 @@ watch(compModel, () => {
 
     <div  class="border-t border-gray-300 bg-gray-100 pb-3">
         <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Link') }}</div>
-        <div class="px-3">
+        <div class="px-3" v-if="model?.link">
             <Link v-model="model.link" />
             <!-- <PureInput v-model="model.link" /> -->
         </div>
