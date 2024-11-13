@@ -86,6 +86,7 @@ class ShowPurchaseOrder extends OrgAction
 
     public function htmlResponse(PurchaseOrder $purchaseOrder, ActionRequest $request): Response
     {
+        // dd($purchaseOrder->id);
         $this->validateAttributes();
 
         $timeline = [];
@@ -193,7 +194,7 @@ class ShowPurchaseOrder extends OrgAction
                     ],
                     [
                         'type'    => 'button',
-                        'style'   => 'save',
+                        'style'   => 'delete',
                         'tooltip' => __('Cancel'),
                         'label'   => __('Cancel'),
                         'key'     => 'action',
@@ -240,7 +241,7 @@ class ShowPurchaseOrder extends OrgAction
                 PurchaseOrderStateEnum::SETTLED => [
                     [
                         'type'    => 'button',
-                        'style'   => 'save',
+                        'style'   => 'delete',
                         'tooltip' => __('Not Received'),
                         'label'   => __('Not Received'),
                         'key'     => 'action',
