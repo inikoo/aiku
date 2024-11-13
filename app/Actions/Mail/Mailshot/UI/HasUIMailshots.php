@@ -9,13 +9,14 @@ namespace App\Actions\Mail\Mailshot\UI;
 
 use App\Actions\Mail\PostRoom\UI\ShowPostRoom;
 use App\Actions\UI\Marketing\MarketingHub;
+use App\Models\Catalogue\Shop;
 use App\Models\Mail\Outbox;
 use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Organisation;
 
 trait HasUIMailshots
 {
-    public function getBreadcrumbs(string $routeName, array $routeParameters, Outbox|PostRoom|Organisation $parent): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, Outbox|PostRoom|Organisation|Shop $parent): array
     {
         $headCrumb = function (array $routeParameters = []) use ($routeName) {
             return [
@@ -41,7 +42,24 @@ trait HasUIMailshots
                                 'name'       => 'grp.org.shops.show.marketing.mailshots.index',
                                 'parameters' => $routeParameters
                             ],
-                            'label' => __('mailshots'),
+                            'label' => __('Mailshots'),
+                            'icon'  => 'fal fa-bars'
+                        ],
+                    ],
+                ]
+            ),
+            'grp.org.shops.show.marketing.newsletters.index' =>
+            array_merge(
+                (new MarketingHub())->getBreadcrumbs($routeName, $routeParameters),
+                [
+                    [
+                        'type'   => 'simple',
+                        'simple' => [
+                            'route' => [
+                                'name'       => 'grp.org.shops.show.marketing.newsletters.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'label' => __('Newsletter'),
                             'icon'  => 'fal fa-bars'
                         ],
                     ],
