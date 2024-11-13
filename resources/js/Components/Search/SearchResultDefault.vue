@@ -77,37 +77,30 @@ const isLoading = ref(false)
 		@finish="() => emits('finishVisit', false)">
 		<div
 			v-if="isLoading"
-			class="fixed inset-0 bottom-0 bg-black/50 flex flex-col  justify-center items-center text-white cursor-default">
+			class="fixed inset-0 bottom-0 bg-black/50 flex flex-col justify-center items-center text-white cursor-default">
 			<LoadingIcon class="text-6xl" />
 			<LoadingText />
 		</div>
 
 		<div class="w-full flex leading-none justify-between tracking-tight">
 			<div class="">
-				<!--    <div v-if="data?.container" v-tooltip="data?.container?.tooltip" class="w-fit text-xs text-gray-400 flex items-end leading-none">
-                    <template v-if="data?.container?.key === 'address'">
-                        <AddressLocation :data="data?.container?.label" />
-                    </template>
-                    
-                    <template v-else>
-                        {{ data?.container?.label }}
-                    </template>
-                </div> -->
 
-				<div class=" flex py-1 flex-row items-center gap-y-1.5">
+				<div class="flex py-1 flex-row items-center gap-y-1.5">
 					<Icon :data="data?.icon" class="text-gray-400 mr-1" />
 
 					<h2
 						:class="data?.noCapitalise ? '' : 'capitalize'"
-						class=" leading-none text-base mr-2">
-						<span v-if="data?.model" class="leading-none text-gray-400 mr-2 block sm:inline">
+						class="leading-none text-base mr-2">
+						<span
+							v-if="data?.model"
+							class="leading-none text-gray-400 mr-2 block sm:inline">
 							{{ data?.model }}
 						</span>
-						<span class="leading-none inline-block text-sm whitespace-nowrap font-bold">
+						<span class="leading-none inline-block text-sm whitespace-nowrap ">
 							{{ useTruncate(data?.code.label || "", 30) }}
 						</span>
 					</h2>
-					
+
 					<Icon :data="data?.state_icon" size="2xs" class="" />
 
 					<!-- Section: After Title -->
@@ -126,12 +119,14 @@ const isLoading = ref(false)
 				</div>
 
 				<!-- Section: mini Tabs -->
-				<div v-if="data?.meta?.length" class="flex items-center pr-4 sm:pr-0 flex-wrap sm:gap-y-0.5 text-sm">
+				<div
+					v-if="data?.meta?.length"
+					class="flex items-center pr-4 sm:pr-0 flex-wrap sm:gap-y-0.5 text-sm">
 					<template v-for="meta in data?.meta">
 						<div
+							v-if="meta.label"
 							v-tooltip="meta.tooltip"
-							class="flex items-center gap-x-1 text-gray-400 text-xs"
-						>
+							class="flex items-center gap-x-1 text-gray-400 text-xs">
 							<FontAwesomeIcon
 								v-if="meta.icon"
 								:icon="meta.icon"
@@ -142,19 +137,18 @@ const isLoading = ref(false)
 							<template v-if="meta.type === 'date'">
 								{{ useFormatTime(meta.label) }}
 							</template>
-							
-							<template v-else-if="meta.type === 'currency'" >
+
+							<template v-else-if="meta.type === 'currency'">
 								{{ meta.label }}
 								{{ locale.currencyFormat(meta.code || "usd", meta.amount) }}
-							</template >
+							</template>
 
-							<template v-else-if="meta.type === 'number'" >
+							<template v-else-if="meta.type === 'number'">
 								{{ meta.label }} {{ locale.number(meta.number) }}
 								<span v-if="meta.afterLabel">
 									{{ meta.afterLabel }}
 								</span>
-							</template
-							>
+							</template>
 							<template v-else-if="meta.type === 'address'">
 								<AddressLocation :data="meta.label" />
 							</template>
@@ -166,8 +160,9 @@ const isLoading = ref(false)
 					</template>
 				</div>
 			</div>
-            <div v-if="data?.image"
-				class="border-[2px]  border-gray-400 text-gray-500 rounded-md h-10 aspect-square flex items-center justify-center">
+			<div
+				v-if="data?.image"
+				class="border-[2px] border-gray-400 text-gray-500 rounded-md h-10 aspect-square flex items-center justify-center">
 				<Image :src="data?.image" />
 			</div>
 		</div>
