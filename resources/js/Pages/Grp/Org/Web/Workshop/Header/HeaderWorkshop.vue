@@ -254,7 +254,7 @@ onMounted(() => {
                         v-if="usedTemplates?.[selectedTab.key]?.data.fieldValue"
                         :key="keySidebar"
                         v-model="usedTemplates[selectedTab.key].data.fieldValue"
-                        :bluprint="getBlueprint(usedTemplates[selectedTab.key].code)" 
+                        :blueprint="getBlueprint(usedTemplates[selectedTab.key].code)" 
                         :uploadImageRoute="uploadImageRoute" 
                     />
                 </div>

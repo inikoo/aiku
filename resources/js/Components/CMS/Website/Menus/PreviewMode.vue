@@ -30,7 +30,7 @@ const props = withDefaults(defineProps<{
 });
 
 
-const header = props.headerData ? props.headerData : { key : "header1" , data : dataHeader, bluprint : [] }
+const header = props.headerData ? props.headerData : { key : "header1" , data : dataHeader, blueprint : [] }
 
 
 </script>

@@ -64,7 +64,7 @@ onMounted(() => {
 
 	active.value = data.value[0] || null
 })
-console.log("ssd", data.value)
+
 </script>
 
 <template>
