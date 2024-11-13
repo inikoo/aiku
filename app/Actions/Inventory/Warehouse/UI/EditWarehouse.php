@@ -75,7 +75,7 @@ class EditWarehouse extends OrgAction
                             'type'  => 'button',
                             'style' => 'cancel',
                             'route' => [
-                                'name'       => preg_replace('/edit$/', 'show', $request->route()->getName()),
+                                'name'       => preg_replace('/edit$/', 'dashboard', $request->route()->getName()),
                                 'parameters' => array_values($request->route()->originalParameters())
                             ]
                         ]

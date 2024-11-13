@@ -17,6 +17,7 @@ import Modal from "@/Components/Utils/Modal.vue"
 import BlockList from '@/Components/CMS/Webpage/BlockList.vue'
 import VisibleCheckmark from '@/Components/CMS/Fields/VisibleCheckmark.vue';
 import SideEditor from '@/Components/Workshop/SideEditor.vue'
+import { getBlueprint } from '@/Composables/getBlueprintWorkshop'
 
 import { Root, Daum } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
@@ -174,10 +175,9 @@ const selectedBlockOpenPanel = ref<number | null>(null)
                                 <div class="px-2">
                                     <VisibleCheckmark v-model="element.visibility" @update:modelValue="onUpdatedBlock(element)"/>
                                 </div>
-                              
                                 <SideEditor 
                                     v-model="element.web_block.layout.data.fieldValue"
-                                    :bluprint="element?.web_block?.layout?.blueprint"
+                                    :blueprint="getBlueprint(element.type)"
                                     @update:modelValue="onUpdatedBlock(element)" 
                                     :uploadImageRoute="{...webpage.images_upload_route, parameters : { modelHasWebBlocks: element.id }}"
                                 />

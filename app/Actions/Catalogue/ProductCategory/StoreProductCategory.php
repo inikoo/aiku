@@ -7,7 +7,7 @@
 
 namespace App\Actions\Catalogue\ProductCategory;
 
-use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
+use App\Actions\Catalogue\ProductCategory\Search\ProductCategoryRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
@@ -61,7 +61,7 @@ class StoreProductCategory extends OrgAction
             return $productCategory;
         });
 
-        ProductCategoryHydrateUniversalSearch::dispatch($productCategory);
+        ProductCategoryRecordSearch::dispatch($productCategory);
 
         $this->productCategoryHydrators($productCategory);
 

@@ -44,7 +44,7 @@ class DeleteModelHasWebBlocks extends OrgAction
         }
 
         UpdateWebpageContent::run($modelHasWebBlocks->webpage);
-        BroadcastPreviewWebpage::dispatch($modelHasWebBlocks->webpage);
+        /* BroadcastPreviewWebpage::dispatch($modelHasWebBlocks->webpage); */
 
         return $modelHasWebBlocks;
     }

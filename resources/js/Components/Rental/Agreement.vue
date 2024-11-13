@@ -195,7 +195,7 @@ const onSavedAgreement = (updateAll: boolean) => {
             <TabPanels class="mt-2">
                 <TabPanel v-for="(tab, idx) in tabs" :key="idx" class="p-3 focus:outline-none">
                     <slot name="table" :data="{ p: props, tab: tab }">
-                        <RentalTable v-bind="props" :bluprint="tab.tableBluprint" :initalForm="cloneData" />
+                        <RentalTable v-bind="props" :blueprint="tab.tableBluprint" :initalForm="cloneData" />
                     </slot>
 
                 </TabPanel>

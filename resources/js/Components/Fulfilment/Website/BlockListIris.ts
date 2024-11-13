@@ -1,20 +1,20 @@
 import type { Component } from 'vue'
 
-import WowsbarBanner from '@/Components/CMS/Webpage/WowsbarBannerIris.vue'
-import Text from '@/Components/CMS/Webpage/TextContentIris.vue'
-import CTA from '@/Components/CMS/Webpage/CTAIris.vue'
-import Image from '@/Components/CMS/Webpage/ImageIris.vue'
-import CTA2 from '@/Components/CMS/Webpage/CTA2Iris.vue'
-import CTA3 from '@/Components/CMS/Webpage/CTA3Iris.vue'
-import Gallery from '@/Components/CMS/Webpage/GalleryIris.vue'
-import Iframe from '@/Components/CMS/Webpage/IframeIris.vue'
-import BentoGrid from '@/Components/CMS/Webpage/BentoGridIris.vue'
+import WowsbarBanner from '@/Components/CMS/Webpage/WowsbarBanner/WowsbarBannerIris.vue'
+import Text from '@/Components/CMS/Webpage/Text/TextContentIris.vue'
+import CTA from '@/Components/CMS/Webpage/CTA/CTAIris.vue'
+import Image from '@/Components/CMS/Webpage/Image/ImageIris.vue'
+import CTA2 from '@/Components/CMS/Webpage/CTA2/CTA2Iris.vue'
+import CTA3 from '@/Components/CMS/Webpage/CTA3/CTA3Iris.vue'
+import Gallery from '@/Components/CMS/Webpage/Gallery/GalleryIris.vue'
+import Iframe from '@/Components/CMS/Webpage/Iframe/IframeIris.vue'
+import BentoGrid from '@/Components/CMS/Webpage/BentoGrid/BentoGridIris.vue'
 import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
-import Department from '@/Components/CMS/Webpage/DepartmentIris.vue'
-import Overview from '@/Components/CMS/Webpage/OverviewIris.vue'
-import Script from '@/Components/CMS/Webpage/ScriptIris.vue'
-import CtaAurora1 from "@/Components/CMS/Webpage/CtaAurora1Iris.vue"
-import Overview2 from "@/Components/CMS/Webpage/Overview2Iris.vue"
+import Department from '@/Components/CMS/Webpage/Department/DepartmentIris.vue'
+import Overview from '@/Components/CMS/Webpage/Overview/OverviewIris.vue'
+import Script from '@/Components/CMS/Webpage/Script/ScriptIris.vue'
+import CtaAurora1 from "@/Components/CMS/Webpage/CTAAurora1/CtaAurora1Iris.vue"
+import Overview2 from "@/Components/CMS/Webpage/Overview2/Overview2Iris.vue"
 
 export const getComponent = (componentName: string) => {
     const components: Component = {

@@ -10,6 +10,7 @@ namespace App\Actions\Helpers;
 use App\Actions\Accounting\Invoice\Search\ReindexInvoiceSearch;
 use App\Actions\Accounting\TopUp\Search\ReindexTopUpSearch;
 use App\Actions\Catalogue\Product\Search\ReindexProductSearch;
+use App\Actions\Catalogue\ProductCategory\Search\ReindexProductCategorySearch;
 use App\Actions\Catalogue\Service\Search\ReindexServiceSearch;
 use App\Actions\CRM\Customer\Search\ReindexCustomerSearch;
 use App\Actions\CRM\Prospect\Search\ReindexProspectSearch;
@@ -35,6 +36,7 @@ use App\Actions\Web\Website\Search\ReindexWebsiteSearch;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\TopUp;
 use App\Models\Catalogue\Product;
+use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
@@ -170,6 +172,9 @@ class ReindexSearch extends HydrateModel
 
     public function reindexCatalogue(): void
     {
+        foreach (ProductCategory::withTrashed()->get() as $model) {
+            ReindexProductCategorySearch::run($model);
+        }
         foreach (Product::withTrashed()->get() as $model) {
             ReindexProductSearch::run($model);
         }
@@ -183,7 +188,6 @@ class ReindexSearch extends HydrateModel
         foreach (Order::withTrashed()->get() as $model) {
             ReindexOrdersSearch::run($model);
         }
-
     }
 
     public function reindexDispatching(): void
@@ -191,7 +195,6 @@ class ReindexSearch extends HydrateModel
         foreach (DeliveryNote::withTrashed()->get() as $model) {
             ReindexDeliveryNotesSearch::run($model);
         }
-
     }
 
     public string $commandSignature = 'search:reindex';
@@ -205,7 +208,6 @@ class ReindexSearch extends HydrateModel
 
         $command->line('Workplaces');
         $command->call('workplace:search');
-
 
 
         $command->line('Product categories');

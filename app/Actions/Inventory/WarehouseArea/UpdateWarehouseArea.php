@@ -12,6 +12,7 @@ use App\Actions\Inventory\WarehouseArea\Search\WarehouseAreaRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Inventory\WarehouseAreaResource;
+use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
@@ -36,7 +37,7 @@ class UpdateWarehouseArea extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
     }
 
     public function rules(): array
@@ -83,7 +84,7 @@ class UpdateWarehouseArea extends OrgAction
         return $this->handle($warehouseArea, $this->validatedData);
     }
 
-    public function asController(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    public function asController(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
         $this->warehouseArea = $warehouseArea;
         $this->initialisation($warehouseArea->organisation, $request);

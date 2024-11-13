@@ -6,7 +6,7 @@ const props = defineProps<{
     data: {
         key: string,
         data: object,
-        bluprint: object
+        blueprint: object
     }
     colorThemed: object
 }>()

@@ -15,6 +15,7 @@ import ScreenView from "@/Components/ScreenView.vue"
 import { debounce } from "lodash"
 import EmptyState from '@/Components/Utils/EmptyState.vue'
 import HeaderListModal from '@/Components/CMS/Fields/ListModal.vue'
+import { setIframeView } from "@/Composables/Workshop"
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from "@/types/PageHeading"
@@ -133,16 +134,6 @@ const autoSave = async (data: object) => {
   }
 }
 
-const setIframeView = (view: String) => {
-  if (view === "mobile") {
-    iframeClass.value = "w-[375px] h-[667px] mx-auto"
-  } else if (view === "tablet") {
-    iframeClass.value = "w-[768px] h-[1024px] mx-auto"
-  } else {
-    iframeClass.value = "w-full h-full"
-  }
-}
-
 const openFullScreenPreview = () => {
   window.open(iframeSrc.value, "_blank")
 }
@@ -151,7 +142,6 @@ const openFullScreenPreview = () => {
 const handleIframeError = () => {
   console.error('Failed to load iframe content.');
 }
-
 
 const debouncedSendUpdate = debounce((data) => autoSave(data), 1000, {
   leading: false,
@@ -212,7 +202,7 @@ watch(
       <div class="h-full w-full bg-slate-100">
         <div class="flex justify-between bg-slate-200 border border-b-gray-300">
           <div class="flex">
-            <ScreenView @screenView="setIframeView" />
+            <ScreenView @screenView="(e)=>iframeClass = setIframeView(e)" />
             <div class="py-1 px-2 cursor-pointer" title="Desktop view" v-tooltip="'Preview'"
               @click="openFullScreenPreview">
               <FontAwesomeIcon :icon="faExternalLink" aria-hidden="true" />

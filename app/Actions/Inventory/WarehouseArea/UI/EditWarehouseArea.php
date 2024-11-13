@@ -24,20 +24,34 @@ class EditWarehouseArea extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo("inventory.{$this->warehouse->id}.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
+        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
     }
 
-
-    public function asController(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    public function asController(Organisation $organisation, $shop, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisation($warehouseArea->organisation, $request);
 
         return $this->handle($warehouseArea);
     }
 
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    {
+        $this->initialisationFromWarehouse($warehouse, $request);
+        return $this->handle($warehouseArea);
+    }
+
+    public function inOrganisation(Organisation $organisation, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    {
+        $this->initialisation($organisation, $request);
+
+        return $this->handle($warehouseArea);
+    }
 
     public function htmlResponse(WarehouseArea $warehouseArea, ActionRequest $request): Response
     {
+        // dd($warehouseArea);
         return Inertia::render(
             'EditModel',
             [
@@ -68,8 +82,8 @@ class EditWarehouseArea extends OrgAction
                 ],
                 'formData'    => [
                     'blueprint' => [
-                        [
-                            'title'  => __('id'),
+                        "properties" => [
+                            'label' => __('properties'),
                             'fields' => [
                                 'code' => [
                                     'type'  => 'input',
@@ -78,7 +92,7 @@ class EditWarehouseArea extends OrgAction
                                 ],
                                 'name' => [
                                     'type'  => 'input',
-                                    'label' => __('label'),
+                                    'label' => __('name'),
                                     'value' => $warehouseArea->name
                                 ],
                             ]
@@ -87,7 +101,7 @@ class EditWarehouseArea extends OrgAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.warehouse-area.update',
+                            'name'       => 'grp.models.warehouse.warehouse-area.update',
                             'parameters' => $warehouseArea->id
 
                         ],
@@ -140,7 +154,18 @@ class EditWarehouseArea extends OrgAction
                 'route' => [
                     'name'       => $routeName,
                     'parameters' => [
-                        'organisation' => $warehouseArea->warehouse->organisation->slug,
+                        $this->organisation,
+                        $warehouseArea->warehouse,
+                        $warehouseArea->slug
+                    ]
+
+                ]
+            ],
+            'grp.oms.warehouses.show.warehouse-areas.edit' => [
+                'label' => $warehouseArea->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
                         'warehouse'     => $warehouseArea->warehouse->slug,
                         'warehouseArea' => $warehouseArea->slug
                     ]

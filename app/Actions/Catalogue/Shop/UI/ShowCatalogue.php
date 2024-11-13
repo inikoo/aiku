@@ -103,16 +103,6 @@ class ShowCatalogue extends OrgAction
                             'icon'  => 'fal fa-folder-tree',
                             'value' => $shop->stats->number_current_departments,
                         ],
-                        // [
-                        //     'label' => __('Active Departments'),
-                        //     'icon'  => 'fal fa-folder-tree',
-                        //     'value' => $shop->stats->number_departments_state_active,
-                        // ],
-                        // [
-                        //     'label' => __('Discontinued Departments'),
-                        //     'icon'  => 'fal fa-folder-tree',
-                        //     'value' => $shop->stats->number_departments_state_discontinued,
-                        // ],
                         [
                             'label' => __('Discontinuing Departments'),
                             'icon'  => 'fal fa-folder-tree',
@@ -126,11 +116,6 @@ class ShowCatalogue extends OrgAction
 
                     ],
                     'sub_departments' => [
-                        // [
-                        //     'label' => __('Sub Departments'),
-                        //     'icon'  => 'fal fa-folder-tree',
-                        //     'value' => $shop->stats->number_sub_departments,
-                        // ],
                         [
                             'label' => __('Current Sub Departments'),
                             'icon'  => 'fal fa-folder-tree',

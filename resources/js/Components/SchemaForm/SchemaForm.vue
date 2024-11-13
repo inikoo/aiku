@@ -15,7 +15,7 @@ const props = defineProps({
          default: useForm({}), // Initialize an empty form
          required: false,
      }, */
-    bluprint: {
+    blueprint: {
         type: Array, // Change type to Array for blueprint
         default: [], // Initialize with an empty array
         required: true,
@@ -37,7 +37,7 @@ const emits = defineEmits<{
 
 const setFormValues = () => {
     const initialFormData = {};
-    for (const f of props.bluprint) {
+    for (const f of props.blueprint) {
         for (const field in f.fields) {
             initialFormData[field] = null;
         }
@@ -73,7 +73,7 @@ const onCancel = (e) => {
     // Initialize form data with default values from blueprint fields
     if (Object.keys(form.data()).length === 0) {
         const initialFormData = {};
-        for (const f of props.bluprint) {
+        for (const f of props.blueprint) {
             for (const field in f.fields) {
                 initialFormData[field] = null; // Set default value to null, change as needed
             }
@@ -87,7 +87,7 @@ const onCancel = (e) => {
 
 <template>
     <div class="">
-        <div v-for="item in bluprint" :key="item.title">
+        <div v-for="item in blueprint" :key="item.title">
             <div class="mb-3 text-2xl font-medium text-gray-500 capitalize"><span>{{ item.title }}</span></div>
             <hr class="my-5 h-0.5 border-t-0 bg-neutral-100 dark:bg-white/10" />
             <div class="mb-5 flex flex-wrap">

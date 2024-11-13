@@ -66,7 +66,7 @@ const props = defineProps<{
     menu: {
         key: string,
         data: object,
-        bluprint: object
+        blueprint: object
     }
     colorThemed: {
         color: string[]
