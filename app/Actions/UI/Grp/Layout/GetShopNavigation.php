@@ -222,6 +222,7 @@ class GetShopNavigation
                             "label"   => __("newsletters"),
                             "tooltip" => __("newsletters"),
                             "icon"    => ["fal", "fa-newspaper"],
+                            'root'    => 'grp.org.shops.show.marketing.newsletters.',
                             "route"   => [
                                 "name"       => "grp.org.shops.show.marketing.newsletters.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
