@@ -10,6 +10,8 @@ namespace App\Actions\SupplyChain\SupplierProduct\UI;
 use App\Actions\GrpAction;
 use App\Actions\SupplyChain\Agent\UI\ShowAgent;
 use App\Actions\SupplyChain\Agent\WithAgentSubNavigation;
+use App\Actions\SupplyChain\Supplier\UI\ShowSupplier;
+use App\Actions\SupplyChain\Supplier\WithSupplierSubNavigation;
 use App\Actions\SupplyChain\UI\ShowSupplyChainDashboard;
 use App\Enums\SupplyChain\SupplierProduct\SupplierProductStateEnum;
 use App\Http\Resources\SupplyChain\SupplierProductsResource;
@@ -30,6 +32,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexSupplierProducts extends GrpAction
 {
     use WithAgentSubNavigation;
+    use WithSupplierSubNavigation;
     private Group|Agent|Supplier $scope;
 
     public function authorize(ActionRequest $request): bool
@@ -189,6 +192,21 @@ class IndexSupplierProducts extends GrpAction
 
                 'label'     => __('Supplier Products')
             ];
+        } elseif ($this->scope instanceof Supplier) {
+            $subNavigation = $this->getSupplierNavigation($this->scope);
+            $title = $this->scope->name;
+            $model = '';
+            $icon  = [
+                'icon'  => ['fal', 'fa-person-dolly'],
+                'title' => __('supplier products')
+            ];
+            $iconRight    = [
+                'icon' => 'fal fa-box-usd',
+            ];
+            $afterTitle = [
+
+                'label'     => __('Supplier Products')
+            ];
         }
         return Inertia::render(
             'SupplyChain/SupplierProducts',
@@ -241,7 +259,16 @@ class IndexSupplierProducts extends GrpAction
                     ]
                 ),
             ),
-
+            'grp.supply-chain.suppliers.supplier_products.index' =>
+            array_merge(
+                ShowSupplier::make()->getBreadcrumbs($scope, $routeName, $routeParameters),
+                $headCrumb(
+                    [
+                        'name' => 'grp.supply-chain.suppliers.supplier_products.index',
+                        'parameters' => $routeParameters
+                    ]
+                ),
+            ),
 
             'grp.supply-chain.agents.show.supplier_products.index' =>
             array_merge(

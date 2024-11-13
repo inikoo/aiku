@@ -8,6 +8,8 @@
 use App\Actions\Mail\Mailshot\UI\CreateMailshot;
 use App\Actions\Mail\Mailshot\UI\EditMailshot;
 use App\Actions\Mail\Mailshot\UI\IndexMailshots;
+use App\Actions\Mail\Mailshot\UI\IndexMarketingMailshots;
+use App\Actions\Mail\Mailshot\UI\IndexNewsletterMailshots;
 use App\Actions\Mail\Mailshot\UI\ShowMailshot;
 use App\Actions\UI\Dropshipping\Marketing\ShowMarketingDashboard;
 use App\Stubs\UIDummies\CreateDummy;
@@ -19,14 +21,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('', ShowMarketingDashboard::class)->name('dashboard');
 Route::name("newsletters.")->prefix('newsletters')
     ->group(function () {
-        Route::get('', IndexDummies::class)->name('index');
+        Route::get('', [IndexNewsletterMailshots::class, 'inShop'])->name('index');
         Route::get('create', CreateDummy::class)->name('create');
         Route::get('{mailshot}', ShowDummy::class)->name('show');
         Route::get('{mailshot}/edit', EditDummy::class)->name('edit');
     });
 Route::name("mailshots.")->prefix('mailshots')
     ->group(function () {
-        Route::get('', [IndexMailshots::class, 'inShop'])->name('index');
+        Route::get('', [IndexMarketingMailshots::class, 'inShop'])->name('index');
         Route::get('create', CreateMailshot::class)->name('create');
         Route::get('{mailshot}', [ShowMailshot::class, 'inShop'])->name('show');
         Route::get('{mailshot}/edit', EditMailshot::class)->name('edit');

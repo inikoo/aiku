@@ -697,7 +697,7 @@ class ShowOrder extends OrgAction
                         'customer'     => $this->parent->slug,
                         'order'        => $order->slug
                         ]
-                        
+
                         ]
                     ],
             'grp.org.shops.show.ordering.purges.order' => [

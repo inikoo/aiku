@@ -86,6 +86,7 @@ class ShowPurchaseOrder extends OrgAction
 
     public function htmlResponse(PurchaseOrder $purchaseOrder, ActionRequest $request): Response
     {
+        // dd($purchaseOrder->id);
         $this->validateAttributes();
 
         $timeline = [];
@@ -119,8 +120,7 @@ class ShowPurchaseOrder extends OrgAction
 
         $orderer = [];
         $productListRoute = [];
-        if($purchaseOrder->parent instanceof OrgAgent)
-        {
+        if ($purchaseOrder->parent instanceof OrgAgent) {
             $orderer = OrgAgentResource::make($purchaseOrder->parent)->toArray($request);
             $productListRoute = [
                 'method'     => 'get',
@@ -129,9 +129,7 @@ class ShowPurchaseOrder extends OrgAction
                     'orgAgent' => $purchaseOrder->parent->slug,
                 ]
             ];
-        } 
-        elseif ($purchaseOrder->parent instanceof OrgSupplier)
-        {
+        } elseif ($purchaseOrder->parent instanceof OrgSupplier) {
             $orderer = OrgSupplierResource::make($purchaseOrder->parent)->toArray($request);
             $productListRoute = [
                 'method'     => 'get',
@@ -193,7 +191,7 @@ class ShowPurchaseOrder extends OrgAction
                     ],
                     [
                         'type'    => 'button',
-                        'style'   => 'save',
+                        'style'   => 'delete',
                         'tooltip' => __('Cancel'),
                         'label'   => __('Cancel'),
                         'key'     => 'action',
@@ -240,7 +238,7 @@ class ShowPurchaseOrder extends OrgAction
                 PurchaseOrderStateEnum::SETTLED => [
                     [
                         'type'    => 'button',
-                        'style'   => 'save',
+                        'style'   => 'delete',
                         'tooltip' => __('Not Received'),
                         'label'   => __('Not Received'),
                         'key'     => 'action',
@@ -315,7 +313,7 @@ class ShowPurchaseOrder extends OrgAction
                         'note'          => $purchaseOrder->note,
                         'delivery_status' => $purchaseOrder->delivery_status,
                     ],
-                    
+
                     'order_summary' => [
                         [
                             [

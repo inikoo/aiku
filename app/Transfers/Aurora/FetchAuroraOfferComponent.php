@@ -75,13 +75,13 @@ class FetchAuroraOfferComponent extends FetchAurora
 
 
         $code = Abbreviate::run($this->auroraModelData->{'Deal Component Trigger'});
-        if($this->auroraModelData->{'Deal Component Terms Type'}!=null){
+        if ($this->auroraModelData->{'Deal Component Terms Type'} != null) {
             $code .= Abbreviate::run($this->auroraModelData->{'Deal Component Terms Type'});
         }
-        if($this->auroraModelData->{'Deal Component Allowance Type'}!=null){
+        if ($this->auroraModelData->{'Deal Component Allowance Type'} != null) {
             $code .= Abbreviate::run($this->auroraModelData->{'Deal Component Allowance Type'});
         }
-        if($this->auroraModelData->{'Deal Component Allowance Target'}!=null){
+        if ($this->auroraModelData->{'Deal Component Allowance Target'} != null) {
             $code .= Abbreviate::run($this->auroraModelData->{'Deal Component Allowance Target'});
         }
 

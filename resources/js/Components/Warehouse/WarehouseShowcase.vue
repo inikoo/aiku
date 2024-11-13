@@ -8,12 +8,13 @@
 import SimpleBox from "@/Components/DataDisplay/SimpleBox.vue"
 const props = defineProps<{
     data?: {}
+    link?:any
 }>()
 </script>
 
 
 <template>
-    <SimpleBox v-if="data" :data="data"/>
+    <SimpleBox v-if="data" :data="data" :link="link"/>
     <div v-else>
         Warehouse Showcase
     </div>
