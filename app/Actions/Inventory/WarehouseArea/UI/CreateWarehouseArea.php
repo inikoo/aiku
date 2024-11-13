@@ -7,13 +7,14 @@
 
 namespace App\Actions\Inventory\WarehouseArea\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class CreateWarehouseArea extends InertiaAction
+class CreateWarehouseArea extends OrgAction
 {
     public function handle(Warehouse $warehouse, ActionRequest $request): Response
     {
@@ -44,7 +45,6 @@ class CreateWarehouseArea extends InertiaAction
                         [
                             'title'  => __('ID/Name'),
                             'fields' => [
-
                                 'code' => [
                                     'type'        => 'input',
                                     'label'       => __('code'),
@@ -64,8 +64,8 @@ class CreateWarehouseArea extends InertiaAction
 
                     ],
                     'route'     => [
-                        'name'      => 'grp.models.warehouse.warehouse-area.store',
-                        'arguments' => $warehouse->id
+                        'name'       => 'grp.models.warehouse.warehouse-area.store',
+                        'parameters' => $warehouse->id
                     ]
                 ],
 
@@ -75,13 +75,13 @@ class CreateWarehouseArea extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        return $request->user()->hasPermissionTo('inventory.warehouse-areas.edit');
+        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
     }
 
 
-    public function asController(Warehouse $warehouse, ActionRequest $request): Response
+    public function asController(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): Response
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($warehouse, $request);
     }

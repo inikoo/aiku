@@ -101,7 +101,7 @@ class EditWarehouseArea extends OrgAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.warehouse-area.update',
+                            'name'       => 'grp.models.warehouse.warehouse-area.update',
                             'parameters' => $warehouseArea->id
 
                         ],

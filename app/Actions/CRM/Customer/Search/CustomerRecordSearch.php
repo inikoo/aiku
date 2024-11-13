@@ -7,6 +7,7 @@
 
 namespace App\Actions\CRM\Customer\Search;
 
+use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Models\CRM\Customer;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -20,6 +21,7 @@ class CustomerRecordSearch
     {
         if ($customer->trashed()) {
             $customer->universalSearch()->delete();
+
             return;
         }
 
@@ -35,55 +37,54 @@ class CustomerRecordSearch
                 'haystack_tier_1'   => trim($customer->email.' '.$customer->contact_name.' '.$customer->company_name),
                 'haystack_tier_2'   => trim($customer->internal_notes.' '.$customer->warehouse_internal_notes.' '.$customer->warehouse_public_notes),
 
-                'result'            => [
-                    // 'route'     => $route,
-                    'container' => [
+                'result' => [
+
+                    'icon'        => [
+                        'icon' => 'fal fa-user',
+                    ],
+                    'code'        => [
+                        'label'   => $customer->reference,
+                        'tooltip' => __('reference')
+                    ],
+                    'description' => [
+                        'label' => $customer->name
+                    ],
+                    'container'   => [
                         'label' => $customer->shop->name,
                     ],
-                    'title'        => $customer->name,
-                    'afterTitle'   => [
-                        'label'     => '(#' . $customer->reference . ')',
-                        'tooltip'   => __('reference')
-                    ],
-                    'icon'      => [
-                        'icon' => 'fal fa-file-invoice-dollar',
-                    ],
-                    'meta'      => [
+
+                    'state_icon' => $customer->state->stateIcon()[$customer->state->value],
+
+                    'meta' => [
                         [
-                            'key'   => 'state',
-                            'label' => $customer->state
+                            'key'     => 'created_date',
+                            'type'    => 'date',
+                            'label'   => $customer->created_at,
+                            'tooltip' => __('Created at')
                         ],
                         [
-                            'key'       => 'created_date',
-                            'type'      => 'date',
-                            'label'     => $customer->created_at,
-                            'tooltip'   => __('Created at')
+                            'key'     => 'address',
+                            'type'    => 'address',
+                            'label'   => $customer->location,
+                            'tooltip' => __('Location')
                         ],
                         [
-                            'key'       => 'address',
-                            'type'      => 'address',
-                            'label'     => $customer->location,
-                            'tooltip'   => __('Location')
+                            'key'     => 'contact_name',
+                            'label'   => $customer->contact_name,
+                            'tooltip' => __('Contact name')
                         ],
                         [
-                            'key'   => 'contact_name',
-                            // 'type'  => 'address',
-                            'label'     => $customer->contact_name,
-                            'tooltip'   => __('Contact name')
+                            'key'     => 'email',
+                            'label'   => $customer->email,
+                            'tooltip' => __('Email')
                         ],
+
                         [
-                            'key'   => 'email',
-                            // 'type'  => 'address',
-                            'label'     => $customer->email,
-                            'tooltip'   => __('Email')
+                            'key'     => 'phone',
+                            'label'   => $customer->phone,
+                            'tooltip' => __('Phone')
                         ],
-                        // [
-                        //     'key'    => 'total',
-                        //     'type'   => 'currency',
-                        //     'code'   => $customer->currency->code,
-                        //     'label'  => 'Total: ',
-                        //     'amount' => $customer->total_amount
-                        // ],
+
                     ],
                 ]
             ]
