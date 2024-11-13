@@ -17,7 +17,7 @@ const props = defineProps<{
     data: {
         slug: string
         state: string
-        status: string
+        status: stringW
         created_at: string
         updated_at: string
     }

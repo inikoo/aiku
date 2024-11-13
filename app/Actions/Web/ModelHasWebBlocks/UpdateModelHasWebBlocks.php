@@ -31,8 +31,8 @@ class UpdateModelHasWebBlocks extends OrgAction
         $modelHasWebBlocks->refresh();
         UpdateWebpageContent::run($modelHasWebBlocks->webpage);
 
-        BroadcastPreviewWebpage::dispatch($modelHasWebBlocks->webpage);
-        BroadcastPreviewHeaderFooter::dispatch($modelHasWebBlocks->website);
+        /* BroadcastPreviewWebpage::dispatch($modelHasWebBlocks->webpage);
+        BroadcastPreviewHeaderFooter::dispatch($modelHasWebBlocks->website); */
 
         return $modelHasWebBlocks;
 
