@@ -68,7 +68,7 @@ const isLoading = ref<string | boolean>(false)
                         </p>
 
                         <!-- Bars and count -->
-                        <span class="font-medium whitespace-nowrap text-gray-400 group-hover/node:text-gray-600">
+                        <span class="font-medium whitespace-nowrap text-gray-500 group-hover/node:text-gray-700">
                             <FontAwesomeIcon icon="fal fa-bars" class="mr-1" fixed-width />
                             <span v-if="node.index?.number">{{ locale.number(node.index.number) }}</span>
                             <FontAwesomeIcon v-else icon="fal fa-empty-set" fixed-width />
