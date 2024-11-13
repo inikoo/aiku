@@ -18,7 +18,7 @@ use Throwable;
 
 class FetchAuroraDispatchedEmails extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:dispatched_emails {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--w|with=* : Accepted values: events}';
+    public string $commandSignature = 'fetch:dispatched_emails {organisations?*} {--s|source_id=} {--N|only_new : Fetch only new} {--d|db_suffix=} {--w|with=* : Accepted values: events copies all}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?DispatchedEmail
@@ -66,7 +66,7 @@ class FetchAuroraDispatchedEmails extends FetchAuroraAction
         }
 
 
-        if ($dispatchedEmail && in_array('events', $this->with)) {
+        if ($dispatchedEmail &&  (in_array('events', $this->with)  or in_array('full', $this->with))) {
             $sourceData = explode(':', $dispatchedEmail->source_id);
 
             foreach (
@@ -77,6 +77,21 @@ class FetchAuroraDispatchedEmails extends FetchAuroraAction
                     ->get() as $eventData
             ) {
                 FetchAuroraEmailTrackingEvents::run($organisationSource, $eventData->source_id);
+            }
+        }
+
+        if ($dispatchedEmail &&  (in_array('copies', $this->with)  or in_array('full', $this->with))) {
+
+            $sourceData = explode(':', $dispatchedEmail->source_id);
+
+            foreach (
+                DB::connection('aurora')
+                    ->table('Email Tracking Email Copy')
+                    ->select('Email Tracking Email Copy Key as source_id')
+                    ->where('Email Tracking Email Copy Key', $sourceData[1])
+                    ->get() as $eventData
+            ) {
+                FetchAuroraEmailCopies::run($organisationSource, $eventData->source_id);
             }
         }
 

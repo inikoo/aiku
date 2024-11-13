@@ -17,7 +17,13 @@ class FetchAuroraEmailTrackingEvent extends FetchAurora
         if (!$this->auroraModelData->{'Email Tracking Event Type'}) {
             return;
         }
+        $dispatchedEmail = $this->parseDispatchedEmail($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Event Tracking Key'});
 
+        if (!$dispatchedEmail) {
+            return;
+        }
+
+        $this->parsedData['dispatchedEmail'] = $dispatchedEmail;
 
         //enum('Sent','Rejected by SES','Send','Read','Hard Bounce','Soft Bounce','Spam','Delivered','Opened','Clicked','Send to SES Error')
         $type = match ($this->auroraModelData->{'Email Tracking Event Type'}) {
@@ -26,11 +32,7 @@ class FetchAuroraEmailTrackingEvent extends FetchAurora
             default => Str::kebab($this->auroraModelData->{'Email Tracking Event Type'})
         };
 
-        $this->parsedData['dispatchedEmail'] = $this->parseDispatchedEmail($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Event Tracking Key'});
 
-        if (!$this->parsedData['dispatchedEmail']) {
-            return;
-        }
 
         $data = [];
 

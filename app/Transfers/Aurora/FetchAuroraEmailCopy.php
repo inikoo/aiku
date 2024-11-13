@@ -13,15 +13,21 @@ class FetchAuroraEmailCopy extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $this->parsedData['dispatchedEmail'] = $this->parseDispatchedEmail($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Copy Key'});
+        $body = gzuncompress($this->auroraModelData->{'Email Tracking Email Copy Compressed Body'});
+        if ($body == '') {
+            return;
+        }
+        $dispatchedEmail = $this->parseDispatchedEmail($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Copy Key'});
 
-        if (!$this->parsedData['dispatchedEmail']) {
+        if (!$dispatchedEmail) {
             return;
         }
 
+        $this->parsedData['dispatchedEmail'] = $dispatchedEmail;
+
         $this->parsedData['emailCopy'] = [
             'subject'         => $this->auroraModelData->{'Email Tracking Email Copy Subject'},
-            'body'            => gzuncompress($this->auroraModelData->{'Email Tracking Email Copy Compressed Body'}),
+            'body'            => $body,
             'fetched_at'      => now(),
             'last_fetched_at' => now(),
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Copy Key'},
