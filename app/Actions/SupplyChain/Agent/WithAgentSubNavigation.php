@@ -20,7 +20,7 @@ trait WithAgentSubNavigation
                 "isAnchor" => true,
                 "label"    => __($parent->slug),
 
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.supply-chain.agents.show",
                     "parameters" => [$parent->slug],
                 ],
@@ -32,7 +32,7 @@ trait WithAgentSubNavigation
             [
                 "number"   => $parent->stats->number_suppliers,
                 "label"    => __("Suppliers"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.supply-chain.agents.show.suppliers.index",
                     "parameters" => [$parent->slug],
                 ],
@@ -44,7 +44,7 @@ trait WithAgentSubNavigation
             [
                 "number"   => $parent->stats->number_supplier_products,
                 "label"    => __("Products"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.supply-chain.agents.show.supplier_products.index",
                     "parameters" => [$parent],
                 ],

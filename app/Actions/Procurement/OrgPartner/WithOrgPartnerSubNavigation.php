@@ -19,7 +19,7 @@ trait WithOrgPartnerSubNavigation
                 "isAnchor" => true,
                 "label"    => __($parent->partner->slug),
 
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.procurement.org_partners.show",
                     "parameters" => [$parent->organisation->slug, $parent->id],
                 ],
@@ -31,7 +31,7 @@ trait WithOrgPartnerSubNavigation
             [
                 "number"   => $parent->partner->procurementStats->number_purchase_orders,
                 "label"    => __("Purchase Orders"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.procurement.org_partners.show.purchase-orders.index",
                     "parameters" => [$parent->organisation->slug, $parent->id],
                 ],
@@ -43,7 +43,7 @@ trait WithOrgPartnerSubNavigation
             [
                 "number"   => $parent->partner->inventoryStats->number_current_org_stocks,
                 "label"    => __("Org Stocks"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.procurement.org_partners.show.org-stocks.index",
                     "parameters" => [$parent->organisation->slug, $parent->id],
                 ],
@@ -55,7 +55,7 @@ trait WithOrgPartnerSubNavigation
             [
                 "number"   => $parent->partner->inventoryStats->number_deliveries,
                 "label"    => __("Stock Deliveries"),
-                "href"     => [
+                "route"     => [
                     "name"       => "grp.org.procurement.org_partners.show.stock-deliveries.index",
                     "parameters" => [$parent->organisation->slug, $parent->id],
                 ],

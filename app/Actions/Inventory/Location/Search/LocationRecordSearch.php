@@ -20,6 +20,7 @@ class LocationRecordSearch
     {
         if ($location->trashed()) {
             $location->universalSearch()->delete();
+
             return;
         }
 
@@ -36,61 +37,37 @@ class LocationRecordSearch
                 'keyword'           => $location->barcode,
                 'keyword_2'         => $location->code,
                 'result'            => [
-                    'route'     => [
-                        'name'          => 'grp.org.warehouses.show.infrastructure.locations.show',
-                        'parameters'    => [
+                    'route' => [
+                        'name'       => 'grp.org.warehouses.show.infrastructure.locations.show',
+                        'parameters' => [
                             $location->organisation->slug,
                             $location->warehouse->slug,
                             $location->slug,
                         ]
                     ],
-                    'container' => [
-                        'label' => $location->warehouse->name,
-                    ],
-                    'title'        => $location->code,
-                    // 'afterTitle'   => [
-                    //     'label'     => '(#' . $location->reference . ')',
-                    //     'tooltip'   => __('reference')
-                    // ],
-                    'icon'      => [
+
+                    'code' => $location->code,
+                    'icon' => [
                         'icon' => 'fal fa-inventory',
                     ],
-                    'meta'      => [
+                    'meta' => [
                         [
-                            'key'       => 'status',
-                            'label'     => $location->status,
-                            'tooltip'   => __('Tooltip')
+                            'key'     => 'stock_slots',
+                            'type'    => 'number',
+                            'number'  => $location->stats->number_org_stock_slots,
+                            'tooltip' => __('Sku Slots'),
+                            'warning' => $location->stats->number_empty_stock_slots > 0 ? [
+                                'tooltip' => __('Empty Slots'),
+                                'number'  => $location->stats->number_empty_stock_slots,
+                            ] : null,
+
                         ],
-                        [
-                            'key'       => 'created_date',
-                            'type'      => 'date',
-                            'label'     => $location->created_at,
-                            'tooltip'   => __('Created at')
-                        ],
-                        [
-                            'key'        => 'stock_value',
-                            'type'       => 'number',
-                            'number'     => $location->stock_value,
-                            'tooltip'    => __('Stock exist')
-                        ],
-                        // [
-                        //     'key'       => 'address',
-                        //     'type'      => 'address',
-                        //     'label'     => $location->location,
-                        //     'tooltip'   => __('Location')
-                        // ],
-                        // [
-                        //     'key'   => 'contact_name',
-                        //     // 'type'  => 'address',
-                        //     'label'     => $location->contact_name,
-                        //     'tooltip'   => __('Contact name')
-                        // ],
-                        // [
-                        //     'key'   => 'email',
-                        //     // 'type'  => 'address',
-                        //     'label'     => $location->email,
-                        //     'tooltip'   => __('Email')
-                        // ],
+                        $location->stock_value ? [
+                            'key'     => 'stock_value',
+                            'type'    => 'number',
+                            'number'  => $location->stock_value,
+                            'tooltip' => __('Stock value')
+                        ] : null,
                     ],
                 ]
             ]

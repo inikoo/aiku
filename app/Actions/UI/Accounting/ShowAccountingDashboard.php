@@ -100,7 +100,7 @@ class ShowAccountingDashboard extends OrgAction
                                 [
                                     'name'  => __('accounts'),
                                     'icon'  => ['fal', 'fa-money-check-alt'],
-                                    'href'  => [
+                                    'route'  => [
                                         'name'       => 'grp.org.accounting.shops.show.payment-accounts.index',
                                         'parameters' => $parameters
                                     ],
@@ -112,7 +112,7 @@ class ShowAccountingDashboard extends OrgAction
                                 [
                                     'name'  => __('payments'),
                                     'icon'  => ['fal', 'fa-coins'],
-                                    'href'  => [
+                                    'route'  => [
                                         'name'       => 'grp.org.accounting.shops.show.payments.index',
                                         'parameters' => $parameters
                                     ],
@@ -124,7 +124,7 @@ class ShowAccountingDashboard extends OrgAction
                                 [
                                     'name'  => __('invoices'),
                                     'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                                    'href'  => [
+                                    'route'  => [
                                         'name'       => 'grp.org.accounting.shops.show.invoices.index',
                                         'parameters' => $parameters
                                     ],
@@ -142,7 +142,7 @@ class ShowAccountingDashboard extends OrgAction
                                 [
                                     'name'         => __('accounts'),
                                     'icon'         => ['fal', 'fa-money-check-alt'],
-                                    'href'         => [
+                                    'route'         => [
                                         'name'       => 'grp.org.accounting.payment-accounts.index',
                                         'parameters' => $parameters
                                     ],
@@ -153,7 +153,7 @@ class ShowAccountingDashboard extends OrgAction
                                         'tooltip'    => __('payment methods'),
                                         'icon'       => ['fal', 'fa-cash-register'],
                                         'labelStyle' => 'bordered',
-                                        'href'       => [
+                                        'route'       => [
                                             'name'       => 'grp.org.accounting.org-payment-service-providers.index',
                                             'parameters' => $parameters
                                         ],
@@ -164,7 +164,7 @@ class ShowAccountingDashboard extends OrgAction
                                 [
                                     'name'  => __('payments'),
                                     'icon'  => ['fal', 'fa-coins'],
-                                    'href'  => [
+                                    'route'  => [
                                         'name'       => 'grp.org.accounting.payments.index',
                                         'parameters' => $parameters
                                     ],
@@ -177,7 +177,7 @@ class ShowAccountingDashboard extends OrgAction
                                 [
                                     'name'  => __('invoices'),
                                     'icon'  => ['fal', 'fa-file-invoice-dollar'],
-                                    'href'  => [
+                                    'route'  => [
                                         'name'       => 'grp.org.accounting.invoices.index',
                                         'parameters' => $parameters
                                     ],

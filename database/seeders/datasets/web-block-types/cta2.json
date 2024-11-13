@@ -4,40 +4,7 @@
 	"slug": "cta2",
 	"name": "Call to action 2",
 	"icon": ["fal", "rectangle-wide"],
-	"blueprint": [
-		{
-			"name": "Properties",
-			"key": ["container", "properties"],
-			"replaceForm": [
-				{
-					"key": ["container", "properties", "background"],
-					"type": ["background"],
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties", "padding"],
-					"type": ["padding"],
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties", "margin"],
-					"type": ["margin"],
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties", "border"],
-					"type": ["border"],
-					"props_data": {}
-				}
-			]
-		},
-		{
-			"name": "Button",
-			"key": ["button"],
-			"type": ["button"],
-			"props_data": {}
-		}
-	],
+	"blueprint": [],
 	"data": {
 		"fieldValue": {
 			"headline": "<h2><strong><span style='color: #FFFFFF'>Boost your productivity today</span></strong></h2>",

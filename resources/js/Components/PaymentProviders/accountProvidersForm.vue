@@ -38,7 +38,7 @@ const props = defineProps<{
 <template>
     <div class="p-2">
         <Schemaform
-            :bluprint="provider?.formData?.blueprint"
+            :blueprint="provider?.formData?.blueprint"
             :route="route(provider?.formData?.route.name, {organisation : props.organisation_id, ...provider?.formData?.route.parameters})"
             @onSuccess="()=>props.onCloseModal()"
             @onCancel="()=>props.onCloseModal()"

@@ -87,7 +87,7 @@ class ShowWarehouse extends OrgAction
                         [
                             'name'     => trans_choice('warehouse area|warehouse areas', $warehouse->stats->number_warehouse_areas),
                             'number'   => $warehouse->stats->number_warehouse_areas,
-                            'href'     => [
+                            'route'     => [
                                 'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
                                 'parameters' => array_merge($routeParameters, [$warehouse->slug])
                             ],
@@ -99,7 +99,7 @@ class ShowWarehouse extends OrgAction
                         [
                             'name'     => trans_choice('location|locations', $warehouse->stats->number_locations),
                             'number'   => $warehouse->stats->number_locations,
-                            'href'     => [
+                            'route'     => [
                                 'name'       => 'grp.org.warehouses.show.infrastructure.locations.index',
                                 'parameters' => array_merge($routeParameters, [$warehouse->slug])
                             ],

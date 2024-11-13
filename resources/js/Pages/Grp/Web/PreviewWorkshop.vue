@@ -8,10 +8,9 @@
 import { getComponent } from '@/Composables/getWorkshopComponents'
 import { ref, onMounted, onUnmounted, reactive, provide, toRaw} from 'vue'
 import WebPreview from "@/Layouts/WebPreview.vue";
-import axios from 'axios'
 import debounce from 'lodash/debounce'
 import EmptyState from "@/Components/Utils/EmptyState.vue"
-import { socketWeblock, SocketHeaderFooter } from '@/Composables/SocketWebBlock'
+/* import { socketWeblock } from '@/Composables/SocketWebBlock' */
 import { sendMessageToParent, iframeToParent } from '@/Composables/Workshop'
 import RenderHeaderMenu from './RenderHeaderMenu.vue'
 import { usePage, router } from '@inertiajs/vue3'
@@ -19,8 +18,8 @@ import { useColorTheme } from '@/Composables/useStockList'
 import { cloneDeep } from 'lodash'
 import Toggle from '@/Components/Pure/Toggle.vue';
 
-import { Root, Daum } from '@/types/webBlockTypes'
-import { Root as RootWebpage, WebBlock } from '@/types/webpageTypes'
+import { Root } from '@/types/webBlockTypes'
+import { Root as RootWebpage } from '@/types/webpageTypes'
 import { routeType } from '@/types/route'
 import { trans } from 'laravel-vue-i18n'
 import Button from '@/Components/Elements/Buttons/Button.vue'
@@ -30,16 +29,14 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 defineOptions({ layout: WebPreview })
 const props = defineProps<{
     webpage?: RootWebpage
-    webBlockTypes?: Root
     header: Object,
     footer: Object,
     navigation: Object,
-    autosaveRoute: routeType
 }>()
 
-const debouncedSendUpdateBlock = debounce((block) => sendBlockUpdate(block), 5000, { leading: false, trailing: true })
+const debouncedSendUpdateBlock = debounce((block) => updateData(block), 5000, { leading: false, trailing: true })
 const data = ref(cloneDeep(props.webpage))
-const socketConnectionWebpage = props.webpage ? socketWeblock(props.webpage.slug) : null;
+/* const socketConnectionWebpage = props.webpage ? socketWeblock(props.webpage.slug) : null; */
 /* const socketLayout = SocketHeaderFooter(route().params['website']); */
 const isPreviewLoggedIn = ref(false)
 const isPreviewMode = ref(false)
@@ -51,12 +48,11 @@ const layout = reactive({
     colorThemed: usePage().props?.iris?.color ? usePage().props?.iris?.color : { color: [...useColorTheme[2]] }
 });
 
-
-const onUpdatedBlock = (block: Daum) => {
+/* const onUpdatedBlock = (block: Daum) => {
     debouncedSendUpdateBlock(block)
-}
+} */
 
-const sendBlockUpdate = async (block: WebBlock) => {
+/* const sendBlockUpdate = async (block: WebBlock) => {
     try {
         const response = await axios.patch(
             route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
@@ -68,7 +64,7 @@ const sendBlockUpdate = async (block: WebBlock) => {
         console.error('error', error)
     }
 }
-
+ */
 const ShowWebpage = (activityItem) => {
     if (activityItem?.web_block?.layout && activityItem.show) {
         if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
@@ -82,22 +78,22 @@ const updateData = (newVal) => {
 }
 
 onMounted(() => {
-    if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { data.value = { ...value } });
+ /*    if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { data.value = { ...value } }); */
  /*    if (socketLayout) socketLayout.actions.subscribe((value) => {
         layout.header = value.header.data;
         layout.footer = value.footer.footer;
         layout.navigation = value.navigation;
     }); */
-
     window.addEventListener('message', (event) => {
         if (event.data.key === 'isPreviewLoggedIn') isPreviewLoggedIn.value = event.data.value
         if (event.data.key === 'isPreviewMode') isPreviewMode.value = event.data.value
         if (event.data.key === 'reload') {
             router.reload({
-                only: ['footer','header'],
+                only: ['footer','header','webpage'],
                 onSuccess: () => {
                     if(props.footer?.footer) Object.assign(layout.footer, toRaw(props.footer.footer));
                     if(props.header?.data) Object.assign(layout.header, toRaw(props.header.data));
+                    if(props.webpage) data.value = props.webpage
                 }
             });
         }
@@ -105,7 +101,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    if (socketConnectionWebpage) socketConnectionWebpage.actions.unsubscribe();
+/*     if (socketConnectionWebpage) socketConnectionWebpage.actions.unsubscribe(); */
 /*     if (socketLayout) socketLayout.actions.unsubscribe(); */
 });
 
@@ -151,10 +147,9 @@ provide('isPreviewMode', isPreviewMode)
                                     :properties="activityItem?.web_block?.layout?.data?.properties"
                                     v-bind="activityItem" v-model="activityItem.web_block.layout.data.fieldValue"
                                     :isEditable="true" :style="{ width: '100%' }"
-                                    @autoSave="() => onUpdatedBlock(activityItem)" />
+                                    @autoSave="() => debouncedSendUpdateBlock(activityItem)" />
                             </section>
                         </TransitionGroup>
-
                     </div>
                     <div v-else class="py-8">
                         <div v-if="!isInWorkshop" class="mx-auto">

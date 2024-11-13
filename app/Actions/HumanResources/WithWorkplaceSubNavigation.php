@@ -17,7 +17,7 @@ trait WithWorkplaceSubNavigation
             [
                 'isAnchor' => true,
                 'label'    => __('Workplace'),
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.hr.workplaces.show',
                     'parameters' => [$this->organisation->slug, $workplace->slug]
                 ],
@@ -29,7 +29,7 @@ trait WithWorkplaceSubNavigation
             [
                 'label'    => __('Clocking machines'),
                 'number'   => $workplace->stats->number_clocking_machines,
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.hr.workplaces.show.clocking_machines.index',
                     'parameters' => [$this->organisation->slug, $workplace->slug]
                 ],
@@ -41,7 +41,7 @@ trait WithWorkplaceSubNavigation
             [
                 'label'    => __('Clockings'),
                 'number'   => $workplace->stats->number_clockings,
-                'href'     => [
+                'route'     => [
                     'name'       => 'grp.org.hr.workplaces.show.clockings.index',
                     'parameters' => [$this->organisation->slug, $workplace->slug]
                 ],

@@ -476,8 +476,8 @@ test('can show hr dashboard', function (Guest $guest) {
         $page
             ->component('SysAdmin/SysAdminDashboard')
             ->has('breadcrumbs', 2)
-            ->where('stats.0.stat', 2)->where('stats.0.href.name', 'grp.sysadmin.users.index')
-            ->where('stats.1.stat', 2)->where('stats.1.href.name', 'grp.sysadmin.guests.index');
+            ->where('stats.0.stat', 2)->where('stats.0.route.name', 'grp.sysadmin.users.index')
+            ->where('stats.1.stat', 2)->where('stats.1.route.name', 'grp.sysadmin.guests.index');
     });
 
     return $guest;

@@ -96,8 +96,8 @@ const layout = inject('layout', layoutStructure)
                 <div v-if="stat.metas?.length" class="-ml-2 py-2 text-sm text-gray-500 flex gap-x-3 gap-y-0.5 items-center flex-wrap">
                     <component
                         v-for="meta in stat.metas"
-                        :is="meta.href?.name ? Link : 'div'"
-                        :href="meta.href?.name ? route(meta.href.name, meta.href.parameters) : ''"
+                        :is="meta.route?.name ? Link : 'div'"
+                        :href="meta.route?.name ? route(meta.route.name, meta.route.parameters) : ''"
                         class="group/sub px-2 flex gap-x-0.5 items-center font-normal"
                         v-tooltip="capitalize(meta.tooltip) || capitalize(meta.icon?.tooltip)"
                     >

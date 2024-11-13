@@ -288,7 +288,7 @@ class IndexOrgStocks extends OrgAction
             [
                 'label'  => __('Current'),
                 'root'   => 'grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.',
-                'href'   => [
+                'route'   => [
                     'name'       => 'grp.org.warehouses.show.inventory.org_stocks.current_org_stocks.index',
                     'parameters' => [
                         $this->organisation->slug,
@@ -302,7 +302,7 @@ class IndexOrgStocks extends OrgAction
             [
                 'label'  => __('Discontinued'),
                 'root'   => 'grp.org.warehouses.show.inventory.org_stocks.discontinued_org_stocks.',
-                'href'   => [
+                'route'   => [
                     'name'       => 'grp.org.warehouses.show.inventory.org_stocks.discontinued_org_stocks.index',
                     'parameters' => [
                         $this->organisation->slug,
@@ -316,7 +316,7 @@ class IndexOrgStocks extends OrgAction
                 'label'  => __('All'),
                 'icon'   => 'fal fa-bars',
                 'root'   => 'grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.',
-                'href'   => [
+                'route'   => [
                     'name'       => 'grp.org.warehouses.show.inventory.org_stocks.all_org_stocks.index',
                     'parameters' => [
                         $this->organisation->slug,

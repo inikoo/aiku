@@ -7,7 +7,7 @@
 
 namespace App\Actions\Catalogue\ProductCategory;
 
-use App\Actions\Catalogue\ProductCategory\Hydrators\ProductCategoryHydrateUniversalSearch;
+use App\Actions\Catalogue\ProductCategory\Search\ProductCategoryRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
@@ -34,7 +34,7 @@ class UpdateProductCategory extends OrgAction
     {
         $productCategory = $this->update($productCategory, $modelData, ['data']);
 
-        ProductCategoryHydrateUniversalSearch::dispatch($productCategory);
+        ProductCategoryRecordSearch::dispatch($productCategory);
 
         if ($productCategory->wasChanged('state')) {
             $this->productCategoryHydrators($productCategory);

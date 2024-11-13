@@ -4,59 +4,9 @@
 	"code": "overview_aurora",
 	"name": "Overview Aurora",
 	"icon": ["fal", "text"],
-	"blueprint": [
-		{
-			"name": "Properties",
-			"key": ["container", "properties"],
-			"replaceForm": [
-				{
-					"key": ["container", "properties", "dimension"],
-					"type": "dimension",
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties", "padding"],
-					"type": "padding",
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties", "margin"],
-					"type": "margin",
-					"props_data": {}
-				},
-				{
-					"key": ["container", "properties", "border"],
-					"type": "border",
-					"props_data": {}
-				}
-			]
-		},
-		{
-			"name": "Setting",
-			"key": ["texts"],
-			"replaceForm": [
-				{
-					"key": ["texts"],
-					"type": "overview_form",
-					"name": "Text",
-					"props_data": {
-						"type" : "text"
-					}
-				},
-				{
-					"key": ["images"],
-					"type": "overview_form",
-					"name": "Images",
-					"props_data": {
-						"type" : "images"
-					}
-				}
-			]
-		}
-	],
+	"blueprint": [],
 	"data": {
 		"fieldValue": {
-			
 				"texts": {
 				  "values": [
 					{

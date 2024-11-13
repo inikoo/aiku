@@ -48,7 +48,7 @@ class ShowOverviewHub extends GrpAction
                                     [
                                         'name'         => __('providers'),
                                         'icon'         => ['fal', 'fa-cash-register'],
-                                        'href'         => [
+                                        'route'         => [
                                             'name'       => 'grp.overview.accounting.payment-service-providers.index',
                                             'parameters' => []
                                         ],

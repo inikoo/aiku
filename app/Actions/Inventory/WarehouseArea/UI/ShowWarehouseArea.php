@@ -97,7 +97,7 @@ class ShowWarehouseArea extends OrgAction
                         [
                             'name'     => trans_choice('location|locations', $warehouseArea->stats->number_locations),
                             'number'   => $warehouseArea->stats->number_locations,
-                            'href'     => [
+                            'route'     => [
                                 'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index',
                                 'parameters' => $request->route()->originalParameters()
                             ],

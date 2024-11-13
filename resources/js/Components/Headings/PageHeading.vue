@@ -106,10 +106,10 @@ const layout = inject('layout', layoutStructure)
                     class="w-fit flex flex-col sm:mt-0 sm:flex-row items-end sm:flex-wrap sm:gap-x-0.5 sm:gap-y-0.5 text-gray-500 text-sm">
                     <template v-for="item in data.meta">
                         <slot :name="`tabs-${item.key}`" :data="item">
-                            <component :is="item.href?.name ? Link : 'div'"
-                                :href="item.href?.name ? route(item.href.name, item.href.parameters) : '#'" :class="[
-                                    item.href?.name
-                                        ? $page.url.startsWith((route(item.href.name, item.href.parameters)).replace(new RegExp(originUrl, 'g'), ''))
+                            <component :is="item.route?.name ? Link : 'div'"
+                                :href="item.route?.name ? route(item.route.name, item.route.parameters) : '#'" :class="[
+                                    item.route?.name
+                                        ? $page.url.startsWith((route(item.route.name, item.route.parameters)).replace(new RegExp(originUrl, 'g'), ''))
                                             ? 'text-gray-600 font-medium'
                                             : 'text-gray-600 hover:text-gray-700'
                                         : 'text-gray-500'

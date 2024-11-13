@@ -14,7 +14,7 @@ import { routeType } from "@/types/route"
 defineProps<{
     stats: {
         name: string
-        href?: routeType
+        route?: routeType
         stat?: number
     }[]
 }>()
@@ -28,7 +28,7 @@ const locale = useLocaleStore();
             <div v-for="item in stats" :key="item.name" class="overflow-hidden rounded-lg bg-white px-4 py-5 shadow sm:p-6">
                 <dt class="truncate text-sm font-medium text-gray-500 capitalize">{{ item.name }}</dt>
                 <dd class="mt-1 text-3xl font-semibold tracking-tight text-gray-600">
-                    <Link v-if="item.href" :href="route(item.href.name, item.href.parameters)"
+                    <Link v-if="item.route" :href="route(item.route.name, item.route.parameters)"
                         :class="[`inline-block primaryLink`]">
                     {{ locale.number(item.stat ?? 0) }}
                     </Link>

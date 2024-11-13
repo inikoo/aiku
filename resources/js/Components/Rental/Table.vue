@@ -27,7 +27,7 @@ library.add(faExclamationCircle, faCheckCircle, faSpinnerThird, faCopy, faTrash,
 const props = defineProps<{
     form: any
     initalForm : any
-    bluprint: any
+    blueprint: any
     fieldName: string
     options?: any
     fieldData?: {
@@ -50,7 +50,7 @@ const currency = (inject('layout', layoutStructure))?.group?.currency
 const onSelectAllRows = (input) => {
     const value = []
     if (input.target.checked) {
-        props.form[props.fieldName][props.bluprint.key].forEach((item) => value.push(item.id))
+        props.form[props.fieldName][props.blueprint.key].forEach((item) => value.push(item.id))
     }
     bulkData.value = value
 }
@@ -58,7 +58,7 @@ const onSelectAllRows = (input) => {
 
 
 const onBulkDiscount = (close: Function) => {
-    for (const item of props.form[props.fieldName][props.bluprint.key]) {
+    for (const item of props.form[props.fieldName][props.blueprint.key]) {
     
         if (bulkData.value.includes(item.id)) {
             item.percentage_off = bulkDiscInput.value
@@ -73,18 +73,18 @@ const onBulkDiscount = (close: Function) => {
 
 const showEdited = () => {
     const edited = []
-    props.form[props.fieldName][props.bluprint.key].map((item, index) => {
+    props.form[props.fieldName][props.blueprint.key].map((item, index) => {
         if (item.price != item.agreed_price) edited.push(item)
     })
-    props.form[props.fieldName][props.bluprint.key] = edited
+    props.form[props.fieldName][props.blueprint.key] = edited
 }
 
 const showAll = () => {
     // Create a map of initial items keyed by their unique identifier (e.g., slug)
-    const initialMap = new Map(props.fieldData[props.bluprint.key].data.map(item => [item.slug, item]));
+    const initialMap = new Map(props.fieldData[props.blueprint.key].data.map(item => [item.slug, item]));
 
     // Update the initial map with edited items
-    props.form[props.fieldName][props.bluprint.key].forEach(item => {
+    props.form[props.fieldName][props.blueprint.key].forEach(item => {
         initialMap.set(item.slug, item);
     });
 
@@ -92,7 +92,7 @@ const showAll = () => {
     const edited = Array.from(initialMap.values());
 
     // Update the form field with the sorted array that retains the initial order
-    props.form[props.fieldName][props.bluprint.key] = edited;
+    props.form[props.fieldName][props.blueprint.key] = edited;
 };
 
 
@@ -103,25 +103,25 @@ const showAll = () => {
 
     <div class="h-9 flex  items-center justify-between mb-3">
         <!-- Button: Show all or only show edited field  -->
-        <div v-if="bluprint.checkbox" class="flex items-center gap-x-3">
+        <div v-if="blueprint.checkbox" class="flex items-center gap-x-3">
             <div @click="() => showEdited()"
                 class="text-base leading-none font-medium cursor-pointer select-none"
-                :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? 'text-gray-400' : 'text-indigo-500'"
+                :class="props.fieldData[props.blueprint.key].data.length == props.form[props.fieldName][props.blueprint.key].length ? 'text-gray-400' : 'text-indigo-500'"
             >
                 Modified
             </div>
             <Switch
-                @click="() => props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? showEdited() : showAll()"
-                :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? '' : ''"
+                @click="() => props.fieldData[props.blueprint.key].data.length == props.form[props.fieldName][props.blueprint.key].length ? showEdited() : showAll()"
+                :class="props.fieldData[props.blueprint.key].data.length == props.form[props.fieldName][props.blueprint.key].length ? '' : ''"
                 class="pr-1 relative inline-flex h-5 aspect-[2/1] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors bg-white ring-1 ring-slate-300 duration-200 shadow ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
             >
                 <!-- <span class="sr-only">Use setting</span> -->
-                <span aria-hidden="true" :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? 'translate-x-5 bg-indigo-500' : 'translate-x-0 bg-slate-300'"
+                <span aria-hidden="true" :class="props.fieldData[props.blueprint.key].data.length == props.form[props.fieldName][props.blueprint.key].length ? 'translate-x-5 bg-indigo-500' : 'translate-x-0 bg-slate-300'"
                     class="pointer-events-none inline-block h-full w-1/2 transform rounded-full  shadow-lg ring-0 transition duration-200 ease-in-out" />
             </Switch>
             <div @click="() => showAll()"
                 class="text-base leading-none font-medium cursor-pointer select-none"
-                :class="props.fieldData[props.bluprint.key].data.length == props.form[props.fieldName][props.bluprint.key].length ? 'text-indigo-500' : ' text-gray-400'"
+                :class="props.fieldData[props.blueprint.key].data.length == props.form[props.fieldName][props.blueprint.key].length ? 'text-indigo-500' : ' text-gray-400'"
             >
                 Show All
             </div>
@@ -160,16 +160,16 @@ const showAll = () => {
     <div class="-mx-4 -my-2 sm:-mx-6 lg:-mx-8">
         <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div class="overflow-visible shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-                <table class="min-w-full divide-y divide-gray-300" :key="bluprint.key">
+                <table class="min-w-full divide-y divide-gray-300" :key="blueprint.key">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th  v-if="bluprint.checkbox" scope="col" class="px-3 py-4  pr-3 text-left text-sm font-semibold flex justify-center">
+                            <th  v-if="blueprint.checkbox" scope="col" class="px-3 py-4  pr-3 text-left text-sm font-semibold flex justify-center">
                                 <input type="checkbox"
                                     class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600"
-                                    :checked="form[fieldName][bluprint.key].length && (bulkData.length == form[fieldName][bluprint.key].length)"
+                                    :checked="form[fieldName][blueprint.key].length && (bulkData.length == form[fieldName][blueprint.key].length)"
                                     @change="onSelectAllRows" />
                             </th>
-                            <th v-for="e in props.bluprint.column" cope="col"
+                            <th v-for="e in props.blueprint.column" cope="col"
                                 class="px-3 py-3.5 text-left text-sm font-semibold">
                                 {{ e.title }}
                             </th>
@@ -177,14 +177,14 @@ const showAll = () => {
                     </thead>
 
                     <tbody class="divide-y divide-gray-200 bg-white">
-                        <tr v-for="(itemData, index) in form[fieldName][bluprint.key]" :key="itemData.email"
-                        :class="[itemData.agreed_price == initalForm[fieldName][bluprint.key][index]['agreed_price'] ? 'bg-white' : 'bg-indigo-100']">                      
+                        <tr v-for="(itemData, index) in form[fieldName][blueprint.key]" :key="itemData.email"
+                        :class="[itemData.agreed_price == initalForm[fieldName][blueprint.key][index]['agreed_price'] ? 'bg-white' : 'bg-indigo-100']">                      
                             <!-- Column: Selector -->
-                            <td  v-if="bluprint.checkbox" class="whitespace-nowrap px-3 py-4 text-sm  text-center w-20">
+                            <td  v-if="blueprint.checkbox" class="whitespace-nowrap px-3 py-4 text-sm  text-center w-20">
                                 <input type="checkbox" :id="itemData.id" :value="itemData.id" v-model="bulkData"
                                     class="h-6 w-6 rounded cursor-pointer border-gray-300 hover:border-indigo-500 text-indigo-600 focus:ring-gray-600" />
                             </td>
-                            <td v-for="column in props.bluprint.column" :key="column.key"
+                            <td v-for="column in props.blueprint.column" :key="column.key"
                                 :class="`whitespace-nowrap px-3 py-4 text-sm ${column.class}`">
 
                                 <div v-if="!column.type || column.type == 'text'">
@@ -212,8 +212,8 @@ const showAll = () => {
                                             </div>
                                         </template>
                                     </PureInputNumber>
-                                    <p v-if="get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${column.key}`])" class="mt-2 text-sm text-red-600">
-                                        {{ get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${column.key}`]) }}
+                                    <p v-if="get(form, ['errors', `${fieldName}.${blueprint.key}.${index}.${column.key}`])" class="mt-2 text-sm text-red-600">
+                                        {{ get(form, ['errors', `${fieldName}.${blueprint.key}.${index}.${column.key}`]) }}
                                     </p>
                                 </div>
 
@@ -234,8 +234,8 @@ const showAll = () => {
                                         </template>
                                     </PureInputNumber>
 
-                                    <p v-if="get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${column.key}`])" class="mt-2 text-sm text-red-600">
-                                        {{ get(form, ['errors', `${fieldName}.${bluprint.key}.${index}.${column.key}`]) }}
+                                    <p v-if="get(form, ['errors', `${fieldName}.${blueprint.key}.${index}.${column.key}`])" class="mt-2 text-sm text-red-600">
+                                        {{ get(form, ['errors', `${fieldName}.${blueprint.key}.${index}.${column.key}`]) }}
                                     </p>
                                 </div>
 
@@ -243,7 +243,7 @@ const showAll = () => {
                         </tr>
                     </tbody>
                 </table>
-                <div v-if="form[fieldName]?.[bluprint?.key]?.length == 0">
+                <div v-if="form[fieldName]?.[blueprint?.key]?.length == 0">
                     <EmptyState />
                 </div>
             </div>

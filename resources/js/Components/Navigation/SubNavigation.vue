@@ -22,7 +22,7 @@ interface SubNav {
     }
     align: "left" | "right"
     root?: string
-    href: routeType
+    route: routeType
     label: string
     number: string
 }
@@ -35,7 +35,7 @@ const isLoading = ref<string | boolean | number>(false)
 const locale = inject("locale", aikuLocaleStructure)
 
 const isSubNavActive = (subNav: SubNav) => {
-    return layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') || layout.currentRoute === subNav.href?.name
+    return layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') || layout.currentRoute === subNav.route?.name
 }
 
 // const originUrl = location.origin
@@ -48,20 +48,20 @@ const isSubNavActive = (subNav: SubNav) => {
         <!-- <div v-if="dataNavigation.length && false"
     class="py-1 flex items-center transition-all"
     :class="[
-        layout.currentRoute === dataNavigation[0]?.href?.name ? 'text-indigo-500 px-2 bg-white rounded-t-md rounded-tl-none sm:border sm:border-transparent sm:border-r-gray-300' : 'tabSubNav -ml-2 md:ml-0'
+        layout.currentRoute === dataNavigation[0]?.route?.name ? 'text-indigo-500 px-2 bg-white rounded-t-md rounded-tl-none sm:border sm:border-transparent sm:border-r-gray-300' : 'tabSubNav -ml-2 md:ml-0'
     ]"
 >
-    <component :is="dataNavigation[0].href?.name ? Link : 'div'"
+    <component :is="dataNavigation[0].route?.name ? Link : 'div'"
         class="flex items-center py-1.5 px-3 rounded transition-all"
-        :href="dataNavigation[0].href.name ? route(dataNavigation[0].href.name, dataNavigation[0].href.parameters) : '#'"
+        :href="dataNavigation[0].route.name ? route(dataNavigation[0].route.name, dataNavigation[0].route.parameters) : '#'"
         @start="() => isLoading = 'home'"
         @finish="() => isLoading = false"
         :class="[
-            layout.currentRoute === dataNavigation[0].href.name ? `` : `bg-gray-100 hover:bg-gray-200 text-gray-600`
+            layout.currentRoute === dataNavigation[0].route.name ? `` : `bg-gray-100 hover:bg-gray-200 text-gray-600`
         ]"
         :style="{
-            backgroundColor: layout.currentRoute === dataNavigation[0].href.name ? layout?.app?.theme[4] + '22' : '',
-            color: layout.currentRoute === dataNavigation[0].href.name ? `color-mix(in srgb, ${layout?.app?.theme[4]} 50%, black)` : ''
+            backgroundColor: layout.currentRoute === dataNavigation[0].route.name ? layout?.app?.theme[4] + '22' : '',
+            color: layout.currentRoute === dataNavigation[0].route.name ? `color-mix(in srgb, ${layout?.app?.theme[4]} 50%, black)` : ''
         }"
     >
         <div v-if="dataNavigation[0].leftIcon" class="pr-1">
@@ -93,8 +93,8 @@ const isSubNavActive = (subNav: SubNav) => {
         <div class="w-full flex">
             <TransitionGroup>
                 <template v-for="subNav, itemIdx in dataNavigation" :key="'subNav' + itemIdx">
-                    <component v-if="subNav.align !== 'right'" :is="subNav.href?.name ? Link : 'div'"
-                        :href="subNav.href?.name ? route(subNav.href.name, subNav.href.parameters) : '#'"
+                    <component v-if="subNav.align !== 'right'" :is="subNav.route?.name ? Link : 'div'"
+                        :href="subNav.route?.name ? route(subNav.route.name, subNav.route.parameters) : '#'"
                         @start="() => isLoading = itemIdx" @finish="() => isLoading = false"
                         class="group pt-2 pb-1.5 px-3 flex w-fit items-center gap-x-2" :class="[
                             isSubNavActive(subNav) ? subNav.isAnchor ? 'anchorSubnavActive mr-3' : 'tabSubNavActive' : subNav.isAnchor ? 'anchorSubnavNotActive mr-3' : 'tabSubNav',
@@ -112,7 +112,7 @@ const isSubNavActive = (subNav: SubNav) => {
                             <span class="leading-none text-sm xl:text-base">{{ subNav.label }}</span>
                             <div v-if="typeof subNav.number == 'number'"
                                 class="inline-flex items-center w-fit rounded-full px-2 py-0.5 text-xs font-medium tabular-nums"
-                                :class="layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') || layout.currentRoute === subNav.href?.name ? 'bg-indigo-100 ' : 'bg-gray-200 '">
+                                :class="layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') || layout.currentRoute === subNav.route?.name ? 'bg-indigo-100 ' : 'bg-gray-200 '">
                                 {{ locale.number(subNav.number || 0) }}
                             </div>
                         </div>
@@ -125,11 +125,11 @@ const isSubNavActive = (subNav: SubNav) => {
         <div class="flex">
             <TransitionGroup>
                 <template v-for="subNav, itemIdx in dataNavigation" :key="'subNav' + itemIdx">
-                    <component v-if="subNav.align === 'right'" :is="subNav.href?.name ? Link : 'div'"
-                        :href="subNav.href?.name ? route(subNav.href.name, subNav.href.parameters) : '#'"
+                    <component v-if="subNav.align === 'right'" :is="subNav.route?.name ? Link : 'div'"
+                        :href="subNav.route?.name ? route(subNav.route.name, subNav.route.parameters) : '#'"
                         @start="() => isLoading = itemIdx" @finish="() => isLoading = false"
                         class="group py-1.5 px-3 flex items-center gap-x-2 transition-all" :class="[
-                            layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') || layout.currentRoute === subNav.href?.name ? 'tabSubNavActive' : 'tabSubNav',
+                            layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') || layout.currentRoute === subNav.route?.name ? 'tabSubNavActive' : 'tabSubNav',
                         ]">
 
                         <div class="flex items-center">
@@ -145,7 +145,7 @@ const isSubNavActive = (subNav: SubNav) => {
                             <span class="leading-none font-medium text-base">{{ subNav.label }}</span>
                             <div v-if="typeof subNav.number == 'number'"
                                 class="inline-flex items-center w-fit rounded-full px-2 py-0.5 text-xs font-medium tabular-nums"
-                                :class="layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') || layout.currentRoute === subNav.href?.name ? 'bg-indigo-100 ' : 'bg-gray-200 '">
+                                :class="layout.currentRoute.includes(subNav.root || 'xxxxxxxxxxxxxxxxxxxxxxxxxxx') || layout.currentRoute === subNav.route?.name ? 'bg-indigo-100 ' : 'bg-gray-200 '">
                                 {{ locale.number(subNav.number || 0) }}
                             </div>
                         </div>

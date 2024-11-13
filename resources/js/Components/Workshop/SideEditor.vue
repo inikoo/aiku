@@ -40,7 +40,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faRectangleWide, faDotCircle)
 
 const props = defineProps<{
-    bluprint: Array
+    blueprint: Array
     uploadImageRoute?: routeType
 }>()
 
@@ -135,7 +135,7 @@ onMounted(() => {
 <template>
    <Accordion v-model:value="openPanel" class="w-full">
         <AccordionPanel 
-            v-for="(field, index) of bluprint.filter((item)=>item.type != 'hidden')" 
+            v-for="(field, index) of blueprint.filter((item)=>item.type != 'hidden')" 
             :key="index" 
             :value="index"
         >
@@ -153,8 +153,8 @@ onMounted(() => {
                             <div v-if="form.type != 'hidden'">
                                 <div class="my-2 text-xs font-semibold">{{ form?.name }}</div>
                                 <component :is="getComponent(form.type)" :key="form.key"
-                                    :modelValue="getFormValue(modelValue, [...field.key, ...form.key])"
-                                    @update:modelValue="newValue => setFormValue(modelValue, [...field.key, ...form.key], newValue)"
+                                    :modelValue="getFormValue(modelValue, [...field.key, ...get(form,'key',[])])"
+                                    @update:modelValue="newValue => setFormValue(modelValue, [...field.key, ...get(form,'key',[])], newValue)"
                                     :uploadRoutes="uploadImageRoute" v-bind="{ ...form?.props_data, background }" />
                             </div>
                         </div>

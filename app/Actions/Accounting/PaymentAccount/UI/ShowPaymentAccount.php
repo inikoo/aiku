@@ -102,7 +102,7 @@ class ShowPaymentAccount extends OrgAction
                         [
                             'name'     => trans_choice('payment | payments', $paymentAccount->stats->number_payments),
                             'number'   => $paymentAccount->stats->number_payments,
-                            'href'     => match ($request->route()->getName()) {
+                            'route'     => match ($request->route()->getName()) {
                                 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show' => [
                                     'name'       => 'grp.org.accounting.org-payment-service-providers.show.payment-accounts.show.payments.index',
                                     'parameters' => [$paymentAccount->organisation->slug, $paymentAccount->orgPaymentServiceProvider->slug, $paymentAccount->slug]

@@ -114,7 +114,6 @@ function onSave() {
 watch(
   () => props.modelValue,
   (newValue) => {
-    console.log("Model value changed", newValue)
     emits("autoSave")
   },
   { deep: true }
@@ -171,7 +170,7 @@ watch(
 			<div>Image URL</div>
 			<div>100 x 250</div>
 		</div>
-		<IconField>
+		<IconField v-if="modelValue?.url">
 			<InputIcon>
 				<FontAwesomeIcon :icon="faLink" />
 			</InputIcon>
@@ -179,7 +178,7 @@ watch(
 		</IconField>
 	</div>
 
-	<div class="mt-8">
+	<div v-if="modelValue?.alt" class="mt-8">
 		<div class="flex justify-between mb-2 text-gray-500 text-xs font-semibold">
 			<div>Alternate Text</div>
 		</div>
