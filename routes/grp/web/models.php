@@ -494,7 +494,7 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
 });
 
 Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function () {
-    Route::patch('/', UpdateWarehouse::class)->name('warehouse.update');
+    Route::patch('/', UpdateWarehouse::class)->name('update');
     Route::post('areas/upload', [ImportWarehouseArea::class, 'inWarehouse'])->name('warehouse-areas.upload');
 
     Route::patch('pallet/{pallet:id}/locations', [UpdatePalletLocation::class, 'inWarehouse'])->name('pallets.location.update')->withoutScopedBindings();
@@ -648,6 +648,7 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
 });
 
 require __DIR__."/models/inventory/location_org_stock.php";
+require __DIR__."/models/inventory/org_warehouse_area.php";
 require __DIR__."/models/ordering/order.php";
 require __DIR__."/models/stock/stock.php";
 require __DIR__."/models/accounting/invoice.php";

@@ -7,14 +7,15 @@
 
 namespace App\Actions\Inventory\WarehouseArea\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
+use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class EditWarehouseArea extends InertiaAction
+class EditWarehouseArea extends OrgAction
 {
     public function handle(WarehouseArea $warehouseArea): WarehouseArea
     {
@@ -23,13 +24,13 @@ class EditWarehouseArea extends InertiaAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo('inventory.warehouse-areas.edit');
-        return $request->user()->hasPermissionTo("inventory.warehouses.edit");
+        $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
+        return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
     }
 
-    public function asController(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    public function asController(Organisation $organisation, $shop, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
-        $this->initialisation($request);
+        $this->initialisation($warehouseArea->organisation, $request);
 
         return $this->handle($warehouseArea);
     }
@@ -37,19 +38,20 @@ class EditWarehouseArea extends InertiaAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
-        $this->initialisation($request);
+        $this->initialisationFromWarehouse($warehouse, $request);
         return $this->handle($warehouseArea);
     }
 
-    public function inOrganisation(WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
+    public function inOrganisation(Organisation $organisation, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
     {
-        $this->initialisation($request);
+        $this->initialisation($organisation, $request);
 
         return $this->handle($warehouseArea);
     }
 
     public function htmlResponse(WarehouseArea $warehouseArea, ActionRequest $request): Response
     {
+        // dd($warehouseArea);
         return Inertia::render(
             'EditModel',
             [
@@ -80,8 +82,8 @@ class EditWarehouseArea extends InertiaAction
                 ],
                 'formData' => [
                     'blueprint' => [
-                        [
-                            'title'  => __('id'),
+                        "properties" => [
+                            'label' => __('properties'),
                             'fields' => [
                                 'code' => [
                                     'type'  => 'input',
@@ -90,7 +92,7 @@ class EditWarehouseArea extends InertiaAction
                                 ],
                                 'name' => [
                                     'type'  => 'input',
-                                    'label' => __('label'),
+                                    'label' => __('name'),
                                     'value' => $warehouseArea->name
                                 ],
                             ]
@@ -141,6 +143,7 @@ class EditWarehouseArea extends InertiaAction
 
     private function getNavigation(?WarehouseArea $warehouseArea, string $routeName): ?array
     {
+        // dd($routeName);
         if (!$warehouseArea) {
             return null;
         }
@@ -152,6 +155,17 @@ class EditWarehouseArea extends InertiaAction
                     'name'       => $routeName,
                     'parameters' => [
                         'warehouseArea' => $warehouseArea->slug
+                    ]
+                ]
+            ],
+            'grp.org.warehouses.show.infrastructure.warehouse-areas.edit' => [
+                'label' => $warehouseArea->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        $this->organisation,
+                        $warehouseArea->warehouse,
+                        $warehouseArea->slug
                     ]
 
                 ]
