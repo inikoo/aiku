@@ -33,6 +33,7 @@ use App\Transfers\Aurora\FetchAuroraDeliveryNote;
 use App\Transfers\Aurora\FetchAuroraDeliveryNoteItem;
 use App\Transfers\Aurora\FetchAuroraDepartment;
 use App\Transfers\Aurora\FetchAuroraDispatchedEmail;
+use App\Transfers\Aurora\FetchAuroraEmailCopy;
 use App\Transfers\Aurora\FetchAuroraEmailTrackingEvent;
 use App\Transfers\Aurora\FetchAuroraEmployee;
 use App\Transfers\Aurora\FetchAuroraFamily;
@@ -358,6 +359,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchEmailTrackingEvent($id): ?array
     {
         return (new FetchAuroraEmailTrackingEvent($this))->fetch($id);
+    }
+
+    public function fetchEmailCopy($id): ?array
+    {
+        return (new FetchAuroraEmailCopy($this))->fetch($id);
     }
 
     public function fetchPurchaseOrder($id): ?array

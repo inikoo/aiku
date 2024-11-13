@@ -425,5 +425,10 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchEmailCopy($id): ?array
+    {
+        return null;
+    }
+
 
 }

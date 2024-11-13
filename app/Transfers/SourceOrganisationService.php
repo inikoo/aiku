@@ -116,6 +116,8 @@ interface SourceOrganisationService
 
     public function fetchEmailTrackingEvent($id);
 
+    public function fetchEmailCopy($id);
+
     public function initialisation(Organisation $organisation);
 
     public function fetchPurchaseOrder($id);
