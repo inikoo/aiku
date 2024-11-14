@@ -41,6 +41,7 @@ use App\Models\Fulfilment\Rental;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
+use App\Models\Helpers\Feedback;
 use App\Models\Helpers\Language;
 use App\Models\Helpers\Media;
 use App\Models\Helpers\SerialReference;
@@ -722,6 +723,11 @@ class Organisation extends Model implements HasMedia, Auditable
     {
         return $this->hasMany(ModelSubscribedToOutbox::class)
                     ->whereNull('unsubscribed_at');
+    }
+
+    public function feedbacks(): MorphMany
+    {
+        return $this->morphMany(Feedback::class, 'origin');
     }
 
 }
