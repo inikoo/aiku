@@ -130,6 +130,9 @@ class ShowCustomer extends OrgAction
                         'icon'  => ['fal', 'fa-user'],
                         'title' => __('customer')
                     ],
+                    'afterTitle'    => [
+                        'label' => '#' . $customer->reference,
+                    ],
                     'meta'          => array_filter([
                         $shopMeta,
                         $webUsersMeta
@@ -140,7 +143,7 @@ class ShowCustomer extends OrgAction
                             'type'    => 'button',
                             'style'   => 'edit',
                             'tooltip' => __('Edit Customer'),
-                            'label'   => __('Edit Customer'),
+                            // 'label'   => __('Edit Customer'),
                             'route'   => [
                                 'name'       => 'grp.org.shops.show.crm.customers.edit',
                                 'parameters' => array_values($request->route()->originalParameters())

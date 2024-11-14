@@ -74,6 +74,19 @@ class FetchAuroraOrders extends FetchAuroraAction
                 ) {
                     FetchAuroraInvoices::run($organisationSource, $invoice->source_id, true);
                 }
+
+
+                foreach (
+                    DB::connection('aurora')
+                        ->table('Order Sent Email Bridge')
+                        ->where('Order Sent Email Order Key', $sourceData[1])
+                        ->select('Order Sent Email Bridge Key as source_id')
+                        ->orderBy('Order Sent Email Bridge Key')->get() as $orderHasDispatchedEmail
+                ) {
+                    FetchAuroraOrderDispatchedEmails::run($organisationSource, $orderHasDispatchedEmail->source_id, true);
+                }
+
+
             }
 
 

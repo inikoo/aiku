@@ -32,7 +32,7 @@ class WarehouseAreaRecordSearch
                 'organisation_slug' => $warehouseArea->organisation->slug,
                 'warehouse_id'      => $warehouseArea->warehouse_id,
                 'warehouse_slug'    => $warehouseArea->warehouse->slug,
-                'sections'          => ['inventory'],
+                'sections'          => ['infrastructure'],
                 'haystack_tier_1'   => trim($warehouseArea->code.' '.$warehouseArea->name),
                 'keyword'           => $warehouseArea->code,
                 'result'            => [
@@ -44,26 +44,20 @@ class WarehouseAreaRecordSearch
                             $warehouseArea->slug
                         ]
                     ],
-                    'container' => [
-                        'label' => $warehouseArea->warehouse->name,
+                    'description'      => [
+                        'label' => $warehouseArea->name,
                     ],
-                    'title'     => $warehouseArea->name,
+                    'code' => [
+                        'label' => $warehouseArea->code,
+                    ],
                     'icon'      => [
                         'icon' => 'fal fa-map-signs',
                     ],
-                    // 'aaa'       => $warehouseArea,
                     'meta'      => [
                         [
-                            'key'       => 'created_date',
-                            'type'      => 'date',
-                            'label'     => $warehouseArea->created_at,
-                            'tooltip'   => __('Created at')
-                        ],
-                        [
-                            'key'    => 'unit_quantity',
                             'type'   => 'number',
-                            'label'  => __('Unit quantity') . ': ',
-                            'number' => $warehouseArea->unit_quantity
+                            'label'  => __('Number locations') . ': ',
+                            'number' => (int) $warehouseArea->stats->number_locations_status_operational
                         ],
 
                     ],

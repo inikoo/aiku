@@ -29,9 +29,9 @@ class ProspectQuerySeeder
     {
         $data = [
             [
-                'slug'       => 'prospects-not-contacted',
+                'seed_code'       => 'prospects-not-contacted',
                 'name'       => 'Prospects not contacted',
-                'model_type' => class_basename(Prospect::class),
+                'model' => class_basename(Prospect::class),
                 'constrains' => [
                     'can_contact_by' =>
                         [
@@ -46,9 +46,9 @@ class ProspectQuerySeeder
                 ],
             ],
             [
-                'slug'       => 'prospects-last-contacted',
+                'seed_code'       => 'prospects-last-contacted',
                 'name'       => 'Prospects last contacted (within interval)',
-                'model_type' => class_basename(Prospect::class),
+                'model' => class_basename(Prospect::class),
                 'constrains' => [
                     'can_contact_by'          =>
                         [
@@ -68,15 +68,12 @@ class ProspectQuerySeeder
         ];
 
         foreach ($data as $queryData) {
-            $queryData['is_seeded']   = true;
-            $queryData['parent_type'] = 'Shop';
-            $queryData['parent_id']   = $shop->id;
             $queryData['model_type']  = 'Prospect';
 
-            if ($query = Query::where('slug', $queryData['slug'])->where('is_seeded', true)->first()) {
+            if ($query = Query::where('seed_code', $queryData['seed_code'])->where('shop_id', $shop->id)->first()) {
                 UpdateQuery::make()->action($query, $queryData);
             } else {
-                $query = StoreQuery::make()->action($queryData);
+                $query = StoreQuery::make()->action($shop, $queryData);
             }
             QueryHydrateCount::run($query);
         }

@@ -168,4 +168,8 @@ interface SourceOrganisationService
 
     public function fetchTopUp($id);
 
+    public function fetchQuery($id);
+
+    public function fetchOrderDispatchedEmail($id);
+
 }

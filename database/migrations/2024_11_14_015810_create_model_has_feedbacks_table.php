@@ -11,7 +11,9 @@ return new class extends Migration
     {
         Schema::create('model_has_feedbacks', function (Blueprint $table) {
             $table->id();
-            $table->morphs('model');
+            $table->unsignedBigInteger('model_id');
+            $table->string('model_type');
+            $table->index(['model_id', 'model_type']);
             $table->unsignedSmallInteger('feedback_id')->index();
             $table->foreign('feedback_id')->references('id')->on('feedbacks');
             $table->timestampsTz();

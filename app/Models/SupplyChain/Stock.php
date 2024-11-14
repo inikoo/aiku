@@ -9,6 +9,7 @@ namespace App\Models\SupplyChain;
 
 use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Enums\SupplyChain\Stock\StockTradeUnitCompositionEnum;
+use App\Models\Goods\Ingredient;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Media;
@@ -199,5 +200,10 @@ class Stock extends Model implements HasMedia, Auditable
     public function barcode(): MorphToMany
     {
         return $this->morphToMany(Barcode::class, 'mode', 'model_has_barcodes')->withTimestamps();
+    }
+
+    public function ingredients(): MorphToMany
+    {
+        return $this->morphToMany(Ingredient::class, 'model', 'model_has_ingredients')->withTimestamps();
     }
 }

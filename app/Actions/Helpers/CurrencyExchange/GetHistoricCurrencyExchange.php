@@ -87,7 +87,9 @@ class GetHistoricCurrencyExchange
 
     public function asCommand(Command $command): int
     {
-        $baseCurrency   = Currency::where('code', $command->argument('base_currency_code'))->firstOrFail();
+        /** @var Currency $baseCurrency */
+        $baseCurrency = Currency::where('code', $command->argument('base_currency_code'))->firstOrFail();
+        /** @var Currency $targetCurrency */
         $targetCurrency = Currency::where('code', $command->argument('target_currency_code'))->firstOrFail();
         $date           = Carbon::parse($command->argument('date'));
 

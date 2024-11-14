@@ -41,8 +41,10 @@ use App\Models\Fulfilment\Rental;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
+use App\Models\Helpers\Feedback;
 use App\Models\Helpers\Language;
 use App\Models\Helpers\Media;
+use App\Models\Helpers\Query;
 use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\Timezone;
 use App\Models\Helpers\Upload;
@@ -144,6 +146,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\OrganisationDiscountsStats|null $discountsStats
  * @property-read \App\Models\SysAdmin\OrganisationDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, Employee> $employees
+ * @property-read LaravelCollection<int, Feedback> $feedbacks
  * @property-read LaravelCollection<int, FulfilmentCustomer> $fulfilmentCustomers
  * @property-read \App\Models\SysAdmin\OrganisationFulfilmentStats|null $fulfilmentStats
  * @property-read LaravelCollection<int, Fulfilment> $fulfilments
@@ -186,6 +189,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Prospect> $prospects
  * @property-read LaravelCollection<int, PurchaseOrder> $purchaseOrders
  * @property-read LaravelCollection<int, Purge> $purges
+ * @property-read LaravelCollection<int, Query> $queries
  * @property-read LaravelCollection<int, RawMaterial> $rawMaterials
  * @property-read LaravelCollection<int, RecurringBill> $recurringBills
  * @property-read LaravelCollection<int, Redirect> $redirects
@@ -722,6 +726,16 @@ class Organisation extends Model implements HasMedia, Auditable
     {
         return $this->hasMany(ModelSubscribedToOutbox::class)
                     ->whereNull('unsubscribed_at');
+    }
+
+    public function feedbacks(): MorphMany
+    {
+        return $this->morphMany(Feedback::class, 'origin');
+    }
+
+    public function queries(): HasMany
+    {
+        return $this->hasMany(Query::class);
     }
 
 }

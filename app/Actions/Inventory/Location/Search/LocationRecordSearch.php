@@ -32,7 +32,7 @@ class LocationRecordSearch
                 'organisation_slug' => $location->organisation->slug,
                 'warehouse_id'      => $location->warehouse_id,
                 'warehouse_slug'    => $location->warehouse->slug,
-                'sections'          => ['inventory'],
+                'sections'          => ['infrastructure'],
                 'haystack_tier_1'   => $location->code,
                 'keyword'           => $location->barcode,
                 'keyword_2'         => $location->code,
@@ -45,14 +45,14 @@ class LocationRecordSearch
                             $location->slug,
                         ]
                     ],
-
-                    'code' => $location->code,
+                    'code' => [
+                        'label' => $location->code
+                    ],
                     'icon' => [
                         'icon' => 'fal fa-inventory',
                     ],
                     'meta' => [
                         [
-                            'key'     => 'stock_slots',
                             'type'    => 'number',
                             'number'  => $location->stats->number_org_stock_slots,
                             'tooltip' => __('Sku Slots'),
@@ -63,7 +63,6 @@ class LocationRecordSearch
 
                         ],
                         $location->stock_value ? [
-                            'key'     => 'stock_value',
                             'type'    => 'number',
                             'number'  => $location->stock_value,
                             'tooltip' => __('Stock value')

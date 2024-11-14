@@ -18,6 +18,7 @@ use App\Models\HumanResources\JobPosition;
 use App\Models\SysAdmin\Organisation;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -40,7 +41,7 @@ class IndexJobPositions extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereAnyWordStartWith('job_positions.name', $value)
-                    ->orWhereStartWith('job_positions.slug', $value);
+                    ->orWhereStartWith('job_positions.code', $value);
             });
         });
 
@@ -48,7 +49,12 @@ class IndexJobPositions extends OrgAction
         $queryBuilder->leftJoin('job_position_stats', 'job_positions.id', 'job_position_stats.job_position_id');
         $queryBuilder->select(['code', 'job_positions.slug', 'name', 'number_employees_currently_working']);
         if ($parent instanceof Organisation) {
-            $queryBuilder->where('organisation_id', $parent->id);
+
+            $queryBuilder->where(function (Builder $query) use ($parent) {
+                $query->where('organisation_id', $parent->id)->orWhere('organisation_id', null);
+            });
+
+
         } else {
             $queryBuilder->leftJoin('employee_has_job_positions', 'job_positions.id', 'employee_has_job_positions.job_position_id');
             $queryBuilder->where('employee_id', $parent->id);
@@ -116,7 +122,7 @@ class IndexJobPositions extends OrgAction
             } else {
                 $table->column(key: 'share', label: __('Share'), canBeHidden: false, sortable: true, searchable: true);
             }
-            $table->defaultSort('slug');
+            $table->defaultSort('code');
         };
     }
 

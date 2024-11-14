@@ -10,7 +10,7 @@ import { routeType } from '@/types/route'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faLink} from '@far'
-import { faSync, faCalendarAlt, faEnvelope, faPhone, faMapMarkerAlt } from '@fal'
+import { faSync, faCalendarAlt, faEnvelope, faPhone, faMapMarkerAlt, faMale } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import AddressLocation from '@/Components/Elements/Info/AddressLocation.vue'
 import { trans } from 'laravel-vue-i18n'
@@ -18,8 +18,9 @@ import { ref } from 'vue'
 import Modal from '@/Components/Utils/Modal.vue'
 import ModalAddress from '@/Components/Utils/ModalAddress.vue'
 import { Address, AddressManagement } from '@/types/PureComponent/Address'
+import Tag from '@/Components/Tag.vue'
 
-library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faMapMarkerAlt)
+library.add(faLink, faSync, faCalendarAlt, faEnvelope, faPhone, faMapMarkerAlt, faMale)
 
 interface CustomerDropshipping {
     slug: string
@@ -33,6 +34,8 @@ interface CustomerDropshipping {
     created_at: string
     number_current_clients: number | null
     address: Address
+    is_dropshipping: boolean
+    state: string
 }
 
 const props = defineProps<{
@@ -51,6 +54,7 @@ const isModalAddress = ref(false)
 
 <template>
     <!-- Section: Stats box -->
+     <!-- <pre>{{ data?.customer }}</pre> -->
     <div class="px-4 py-5 md:px-6 lg:px-8 grid grid-cols-2 gap-x-8 gap-y-3">
         
         <!-- Section: Profile box -->
@@ -59,14 +63,22 @@ const isModalAddress = ref(false)
                 <dl class="flex flex-wrap">
                     <!-- Profile: Header -->
                     <div class="flex w-full py-6">
-                        <div class="flex-auto pl-6">
+                        <div v-if="data?.customer.is_dropshipping" class="flex-auto pl-6">
                             <dt class="text-sm text-gray-500">{{ trans('Total Clients') }}</dt>
                             <dd class="mt-1 text-base font-semibold leading-6">{{ data?.customer?.number_current_clients || 0 }}</dd>
                         </div>
-                        <div class="flex-none self-end px-6 pt-4">
-                            <dt class="sr-only">Reference</dt>
-                            <dd class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                                {{ data?.customer?.reference }}
+                        
+                        <div class="flex-none self-end px-6">
+                            <dt class="sr-only">state</dt>
+                            <dd class="capitalize">
+                                <Tag :label="data?.customer?.state"
+                                    :theme="data?.customer?.state === 'active'
+                                        ? 3
+                                        : data?.customer?.state === 'lost'
+                                            ? 7
+                                            : 99
+                                    "
+                                />
                             </dd>
                         </div>
                     </div>
@@ -77,7 +89,7 @@ const isModalAddress = ref(false)
                         <div v-if="data?.customer?.contact_name" class="flex items-center w-full flex-none gap-x-4 px-6">
                             <dt v-tooltip="trans('Contact name')" class="flex-none">
                                 <span class="sr-only">Contact name</span>
-                                <FontAwesomeIcon icon='fal fa-user' class='text-gray-400' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon icon='fal fa-male' class='text-gray-400' fixed-width aria-hidden='true' />
                             </dt>
                             <dd class="text-gray-500">{{ data?.customer?.contact_name }}</dd>
                         </div>
@@ -108,7 +120,9 @@ const isModalAddress = ref(false)
                                 <span class="sr-only">Email</span>
                                 <FontAwesomeIcon icon='fal fa-envelope' class='text-gray-400' fixed-width aria-hidden='true' />
                             </dt>
-                            <dd class="text-gray-500">{{ data?.customer?.email }}</dd>
+                            <dd class="text-gray-500">
+                                <a :href="`mailto:${data.customer.email}`">{{ data?.customer?.email }}</a>
+                            </dd>
                         </div>
                         
                         <!-- Field: Phone -->
@@ -117,7 +131,9 @@ const isModalAddress = ref(false)
                                 <span class="sr-only">Phone</span>
                                 <FontAwesomeIcon icon='fal fa-phone' class='text-gray-400' fixed-width aria-hidden='true' />
                             </dt>
-                            <dd class="text-gray-500">{{ data?.customer?.phone }}</dd>
+                            <dd class="text-gray-500">
+                                <a :href="`tel:${data.customer.email}`">{{ data?.customer?.phone }}</a>
+                            </dd>
                         </div>
                         
                         <!-- Field: Address -->
@@ -141,9 +157,8 @@ const isModalAddress = ref(false)
                 </dl>
             </div>
         </div>
-
-
     </div>
+
     <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
         <ModalAddress
             :addresses="data.addresses"
