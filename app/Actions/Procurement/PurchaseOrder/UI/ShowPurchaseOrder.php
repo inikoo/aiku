@@ -299,7 +299,6 @@ class ShowPurchaseOrder extends OrgAction
                 //     'title'         => 'Dummy Alert from BE',
                 //     'description'   => 'Dummy description'
                 // ],
-                'notes'       => $purchaseOrder->notes ?? '',
                 'timelines'   => $finalTimeline,
 
                 'box_stats'      => [
@@ -310,7 +309,7 @@ class ShowPurchaseOrder extends OrgAction
                     'mid_block'      => [
                         'gross_weight' => $purchaseOrder->gross_weight,
                         'net_weight'   => $purchaseOrder->net_weight,
-                        'note'          => $purchaseOrder->note,
+                        'notes'          => $purchaseOrder->notes,
                         'delivery_status' => $purchaseOrder->delivery_status,
                     ],
 
