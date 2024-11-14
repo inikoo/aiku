@@ -10,7 +10,7 @@ namespace App\Enums\Helpers\Feedback;
 
 use App\Enums\EnumHelperTrait;
 
-enum FeedbackOriginEnum: string
+enum FeedbackOriginSourceEnum: string
 {
     use EnumHelperTrait;
 
