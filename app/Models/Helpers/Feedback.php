@@ -9,6 +9,7 @@
 namespace App\Models\Helpers;
 
 use App\Models\Inventory\Warehouse;
+use App\Models\Ordering\Transaction;
 use App\Models\SysAdmin\User;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
@@ -16,6 +17,7 @@ use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -56,6 +58,11 @@ class Feedback extends Model implements Auditable
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
+    }
+
+    public function transaction(): MorphToMany
+    {
+        return $this->morphedByMany(Transaction::class, 'model', 'model_has_feedbacks');
     }
 
 
