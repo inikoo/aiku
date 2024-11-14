@@ -41,6 +41,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
+ * @property array $source_constrains
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
@@ -69,6 +70,7 @@ class Query extends Model implements Auditable
         'constrains'          => 'array',
         'compiled_constrains' => 'array',
         'informatics'         => 'array',
+        'source_constrains'          => 'array',
         'is_seeded'           => 'boolean',
         'has_arguments'       => 'boolean'
     ];
@@ -76,6 +78,7 @@ class Query extends Model implements Auditable
     protected $attributes = [
         'constrains'          => '{}',
         'compiled_constrains' => '{}',
+        'source_constrains'          => '{}',
     ];
 
     protected $guarded = [];

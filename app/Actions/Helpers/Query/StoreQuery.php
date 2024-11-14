@@ -71,9 +71,8 @@ class StoreQuery extends OrgAction
                 'string',
                 new IUnique(
                     table: 'queries',
-                    extraConditions:
-                        $this->parent instanceof Organisation
-                            ? [
+                    extraConditions: $this->parent instanceof Organisation
+                        ? [
                             [
                                 'column' => 'organisation_id',
                                 'value'  => $this->parent->id
@@ -83,7 +82,7 @@ class StoreQuery extends OrgAction
                                 'value'  => $this->model
                             ]
                         ]
-                            : [
+                        : [
                             [
                                 'column' => 'shop_id',
                                 'value'  => $this->parent->id
@@ -95,15 +94,16 @@ class StoreQuery extends OrgAction
                         ],
                 ),
             ],
-            'model' => ['required', 'string'],
+            'model'      => ['required', 'string'],
             'constrains' => ['required', 'array'],
             'seed_code'  => ['sometimes', 'string'],
             'is_static'  => ['sometimes', 'boolean'],
         ];
 
         if (!$this->strict) {
-            $rules['constrains'] = ['sometimes','nullable','array'];
-            $rules = $this->noStrictStoreRules($rules);
+            $rules['source_constrains'] = ['required', 'array'];
+            $rules['constrains'] = ['sometimes', 'nullable', 'array'];
+            $rules               = $this->noStrictStoreRules($rules);
         }
 
         return $rules;

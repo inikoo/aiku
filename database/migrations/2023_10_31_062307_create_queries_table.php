@@ -35,6 +35,7 @@ return new class () extends Migration {
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
             $this->softDeletes($table);
+            $table->jsonb('source_constrains');
             $table->string('source_id')->nullable()->unique();
         });
     }

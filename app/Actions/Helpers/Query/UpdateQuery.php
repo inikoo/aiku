@@ -32,6 +32,7 @@ class UpdateQuery extends OrgAction
         if (Arr::exists($modelData, 'constrains')) {
             data_set($modelData, 'compiled_constrains', $this->compileConstrains($modelData['constrains']));
         }
+
         return $this->update($query, $modelData);
     }
 
@@ -47,7 +48,7 @@ class UpdateQuery extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'code'               => [
+            'code'       => [
                 'sometimes',
                 'required',
                 'max:255',
@@ -55,13 +56,17 @@ class UpdateQuery extends OrgAction
                 new IUnique(
                     table: 'queries',
                     extraConditions: [
-                        $this->query->shop->id ? [
-                            ['column' => 'organisation_id',
-                             'value' => $this->query->organisation_id
+                        $this->query->shop->id
+                            ? [
+                            [
+                                'column' => 'organisation_id',
+                                'value'  => $this->query->organisation_id
                             ]
-                        ] : [
-                            ['column' => 'shop_id',
-                             'value' => $this->query->shop_id
+                        ]
+                            : [
+                            [
+                                'column' => 'shop_id',
+                                'value'  => $this->query->shop_id
                             ]
                         ],
                         [
@@ -77,8 +82,8 @@ class UpdateQuery extends OrgAction
         ];
 
         if (!$this->strict) {
-
-            $rules = $this->noStrictUpdateRules($rules);
+            $rules['source_constrains'] = ['sometimes', 'required', 'array'];
+            $rules                      = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;
@@ -91,7 +96,7 @@ class UpdateQuery extends OrgAction
             Query::disableAuditing();
         }
         $this->asAction       = true;
-        $this->query       = $query;
+        $this->query          = $query;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($query->organisation, $modelData);
 

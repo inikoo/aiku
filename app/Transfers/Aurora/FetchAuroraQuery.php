@@ -26,14 +26,15 @@ class FetchAuroraQuery extends FetchAurora
         $this->parsedData['shop'] = $shop;
 
         $this->parsedData['query'] = [
-            'name'            => $this->auroraModelData->{'List Name'},
-            'model'           => 'Customer',
-            'constrains'      => [],
-            'created_at'      => $this->parseDatetime($this->auroraModelData->{'List Creation Date'}),
-            'is_static'       => $isStatic,
-            'fetched_at'      => now(),
-            'last_fetched_at' => now(),
-            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'List Key'},
+            'name'              => $this->auroraModelData->{'List Name'},
+            'model'             => 'Customer',
+            'constrains'        => [],
+            'source_constrains' => json_decode($this->auroraModelData->{'List Metadata'}, true),
+            'created_at'        => $this->parseDatetime($this->auroraModelData->{'List Creation Date'}),
+            'is_static'         => $isStatic,
+            'fetched_at'        => now(),
+            'last_fetched_at'   => now(),
+            'source_id'         => $this->organisation->id.':'.$this->auroraModelData->{'List Key'},
         ];
     }
 
