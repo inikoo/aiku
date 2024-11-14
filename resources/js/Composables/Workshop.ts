@@ -27,9 +27,9 @@ export const viewVisible = (mode = true , visibilty = 'all') =>{
 
 export const setIframeView = (view: String) => {
     if (view === 'mobile') {
-        return 'w-[375px] h-[667px] mx-auto';
+        return 'w-[375px] h-full mx-auto';
     } else if (view === 'tablet') {
-        return 'w-[768px] h-[1024px] mx-auto';
+        return 'w-[768px] h-full mx-auto';
     } else {
         return 'w-full h-full';
     }

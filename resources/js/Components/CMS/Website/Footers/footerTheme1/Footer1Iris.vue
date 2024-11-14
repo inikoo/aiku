@@ -1,350 +1,288 @@
 <script setup lang="ts">
-import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import { getStyles } from '@/Composables/styles'
+import { FieldValue } from '@/types/Website/Website/footer1'
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faShieldAlt, faPlus, faTrash, faAngleUp, faAngleDown } from "@fas"
-import { faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn } from "@fortawesome/free-brands-svg-icons"
+import { faShieldAlt, faPlus, faTrash, faAngleUp, faAngleDown, faTriangle } from "@fas"
+import { faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faFacebook } from "@fortawesome/free-brands-svg-icons"
 import { faBars } from '@fal'
 
-library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faBars, faPlus, faTrash)
+library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn, faShieldAlt, faBars, faPlus, faTrash, faFacebook)
 
 const props = defineProps<{
-    modelValue: {
-        container: {
-            properties: {}
-        }
-        column: {
-            column_1: {
-                data: {
-                    data: {
-                        name: string
-                    }[]
-                    name: string
-                }[]
-            }
-            column_2: {
-                data: {
-                    data: {
-                        name: string
-                    }[]
-                    name: string
-                }[]
-            }
-            column_3: {
-                data: {
-                    data: {
-                        name: string
-                    }[]
-                    name: string
-                }[]
-            }
-            column_4: {
-                data: {
-                    data: {
-                        name: string
-                    }[]
-                    name: string
-                    textBox1: string
-                    textBox2: string
-                    textBox3: string
-                }
-            }
-        }
-        socialData: {
-            link: string
-            icon: string
-        }[]
-        copyRight: string
-        PaymentData: {
-            data: {
-                image: string
-                key: string
-                name: string
-            }[]
-        }
-    }
-}>()
+    modelValue: FieldValue,
+    keyTemplate: String
+    previewMode: Boolean
+    colorThemed?: Object
+}>();
 
 </script>
 
 <template>
-    <div id="app" class="py-24 md:px-7" :style="getStyles(modelValue.container.properties)">
-        <div class="">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-8">
-                <div class="px-4 md:px-0 grid gap-y-2 md:gap-y-6 h-fit">
-                    <div class="px-4 md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
-                        <div v-for="(item, index) in modelValue.column['column_1']['data']">
-                            <div class="">
-                                <div
-                                    class="hidden md:block grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
-                                    <div class="flex">
-                                        <div class="w-fit">
-                                            <span class="text-xl font-semibold w-fit leading-6">
-                                                <div v-html="item.name" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div v-for="(sub, subIndex) in item.data">
-                                            <ul class="hidden md:block space-y-1">
-                                                <li>
-                                                    <div class="flex items-center gap-2">
-                                                        <div class="w-full" >
-                                                            <span class="text-sm block">
-                                                                <div v-html="sub.name" />
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="block md:hidden">
-                                    <Disclosure v-slot="{ open }">
-                                        <DisclosureButton
-                                            class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none w-full">
-                                            <div class="flex justify-between">
-                                                <div class="flex ">
-                                                    <div class="w-fit">
-                                                        <span class="text-xl font-semibold leading-6">
-                                                            <div v-html="item.name" />
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <FontAwesomeIcon :icon="open ? faAngleDown : faAngleUp" class="w-3 h-3" />
-                                                </div>
-                                            </div>
-                                        </DisclosureButton>
+    <div id="app" class="-mx-2 md:mx-0 pb-24 pt-4 md:pt-8 md:px-16 text-white"
+        :style="getStyles(modelValue?.container?.properties)">
+        <div
+            class="w-full flex flex-col md:flex-row gap-4 md:gap-8 pt-2 pb-4 md:pb-6 mb-4 md:mb-10 border-0 border-b border-solid border-gray-700">
+            <div class="flex-1 flex items-center justify-center md:justify-start ">
+                <!--     <img v-if="modelValue?.logo?.source && !isObject(modelValue.logo?.source)" :src="modelValue.logo.source"
+                    :alt="modelValue.logo.alt" class="h-auto max-h-20 w-auto min-w-16" />
+                <img v-else :src="modelValue?.logo?.source?.original" :alt="modelValue.logo.alt"
+                    class="h-auto max-h-20 w-auto min-w-16"> -->
+            </div>
 
-                                        <DisclosurePanel>
-                                            <div>
-                                                <div>
-                                                    <div v-for="(sub, subIndex) in item.data">
-                                                        <ul class="block space-y-1">
-                                                            <li>
-                                                                <div class="flex items-center">
-                                                                    <div class="w-full">
-                                                                        <span class="text-sm block">
-                                                                            <div v-html="sub.name" />
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </DisclosurePanel>
-                                    </Disclosure>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div v-if="modelValue?.email"
+                class="relative group flex-1 flex justify-center md:justify-start items-center">
+                <a style="font-size: 17px">{{ modelValue?.email }}</a>
+                <div
+                    class="p-1 absolute -left-2 -top-2 text-yellow-500 cursor-pointer group-hover:top-1 opacity-0 group-hover:opacity-100 transition-all">
+                    <FontAwesomeIcon icon='fas fa-arrow-square-left' class='' fixed-width aria-hidden='true' />
                 </div>
+            </div>
 
-
-                <div class="px-4 md:px-0 grid gap-y-2 md:gap-y-6 h-fit">
-                    <div class="px-4 md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
-                        <div v-for="(item, index) in modelValue.column['column_2']['data']">
-                            <div>
-                                <div class="hidden md:block grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
-                                    <div class="flex">
-                                        <div class="w-full">
-                                            <span class="text-xl font-semibold w-fit leading-6">
-                                                <div v-html="item.name" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div v-for="(sub, subIndex) in item.data">
-                                            <ul class="hidden md:block space-y-1">
-                                                <li>
-                                                    <div class="flex items-center">
-                                                        <div class="w-full">
-                                                            <span class="text-sm block">
-                                                                <div v-html="sub.name" />
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="block md:hidden">
-                                    <Disclosure v-slot="{ open }">
-                                        <DisclosureButton
-                                            class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none w-full">
-                                            <div class="flex justify-between">
-                                                <div class="flex ">
-                                                    <div class="w-fit">
-                                                        <span class="text-xl font-semibold leading-6">
-                                                            <div v-html="item.name" />
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <FontAwesomeIcon :icon="open ? faAngleDown : faAngleUp" class="w-3 h-3" />
-                                                </div>
-                                            </div>
-                                        </DisclosureButton>
-
-                                        <DisclosurePanel>
-                                            <div>
-                                                <div>
-                                                    <div v-for="(sub, subIndex) in item.data">
-                                                        <ul class="block space-y-1">
-                                                            <li>
-                                                                <div class="flex items-center">
-                                                                    <div class="w-full">
-                                                                        <span class="text-sm block">
-                                                                            <div v-html="sub.name"
-                                                                                :toogle="['link']" />
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </DisclosurePanel>
-                                    </Disclosure>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="px-4 md:px-0 grid gap-y-2 md:gap-y-6 h-fit">
-                    <div class="hidden md:block px-4 md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
-                        <div v-for="(item, index) in modelValue.column['column_3']['data']">
-                            <div>
-                                <div class="grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
-                                    <div class="flex">
-                                        <div class="w-full">
-                                            <span class="text-xl font-semibold w-fit leading-6">
-                                                <div v-html="item.name" />
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div v-for="(sub, subIndex) in item.data">
-                                            <ul class="hidden md:block space-y-1">
-                                                <li>
-                                                    <div class="flex items-center">
-                                                        <div class="w-full">
-                                                            <span class="text-sm block">
-                                                                <div v-html="sub.name" />
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="block md:hidden">
-                                    <Disclosure v-slot="{ open }">
-                                        <DisclosureButton
-                                            class="asdzxc grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none w-full">
-                                            <div class="flex justify-between">
-                                                <div class="flex ">
-                                                    <div class="w-fit">
-                                                        <span class="text-xl font-semibold leading-6">
-                                                            <div v-html="item.name" />
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <FontAwesomeIcon :icon="open ? faAngleDown : faAngleUp" class="w-3 h-3" />
-                                                </div>
-                                            </div>
-                                        </DisclosureButton>
-
-                                        <DisclosurePanel>
-                                            <div>
-                                                <div>
-                                                    <div v-for="(sub, subIndex) in item.data">
-                                                        <ul class="block space-y-1">
-                                                            <li>
-                                                                <div class="flex items-center">
-                                                                    <div class="w-full">
-                                                                        <span class="text-sm block">
-                                                                            <div v-html="sub.name" />
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </DisclosurePanel>
-                                    </Disclosure>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div v-if="modelValue?.whatsapp?.number"
+                class="relative group flex-1 flex gap-x-1.5 justify-center md:justify-start items-center">
+                <a class="flex gap-x-2 items-center">
+                    <FontAwesomeIcon class="text-[#00EE52]" icon="fab fa-whatsapp" style="font-size: 22px" />
+                    <span style="font-size: 17px">{{ modelValue?.whatsapp?.number }}</span>
+                </a>
 
                 <div
-                    class="md:hidden mb-6 md:mb-5 bg-[#9c7c64] md:bg-transparent text-center md:text-left pt-4 pb-6 space-y-4 md:py-0 md:space-y-0">
-                    <h2 class="text-xl tracking-wider font-semibold md:mt-8 md:mb-4">Get Social with Us!</h2>
-                    <div class="flex md:space-x-6 md:mb-4 justify-around md:justify-start">
-                        <a v-for="item of modelValue.socialData" target="_blank" :key="item.icon"
-                            :href="item.link">
-                            <font-awesome-icon :icon="item.icon" class="text-2xl" />
-                        </a>
+                    class="p-1 absolute -left-2 -top-2 text-yellow-500 cursor-pointer group-hover:top-0 opacity-0 group-hover:opacity-100 transition-all">
+                    <FontAwesomeIcon icon='fas fa-arrow-square-left' class='' fixed-width aria-hidden='true' />
+                </div>
+            </div>
+
+            <div class="group relative flex-1 flex flex-col items-center md:items-end justify-center">
+                <a v-for="phone of modelValue.phone.numbers" style="font-size: 17px">
+                    {{ phone }}
+                </a>
+
+                <span class="" style="font-size: 15px">{{ modelValue.phone.caption }}</span>
+
+                <div
+                    class="p-1 absolute -left-0 -top-2 text-yellow-500 cursor-pointer group-hover:-top-4 opacity-0 group-hover:opacity-100 transition-all">
+                    <FontAwesomeIcon icon='fas fa-arrow-square-left' class='' fixed-width aria-hidden='true' />
+                </div>
+            </div>
+        </div>
+
+
+        <div class=" grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-8">
+            <!--  column 1 -->
+            <div class="md:px-0 grid gap-y-3 md:gap-y-6 h-fit">
+                <div class="md:px-0 grid gap-y-3 md:gap-y-6 h-fit">
+                    <div class="md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
+                        <!-- Desktop -->
+                        <section v-for="item in modelValue.columns.column_1.data">
+                            <div
+                                class="hidden md:block grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
+                                <div class="flex text-xl font-semibold w-fit leading-6">
+                                    <div v-html="item.name" />
+                                </div>
+
+                                <div>
+                                    <ul class="hidden md:block space-y-3">
+                                        <li v-for="link in item.data" class="flex w-full items-center gap-2">
+                                            <div class="text-sm block">
+                                                <div v-html="link.name" />
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- Mobile  -->
+                            <div class="block md:hidden">
+                                <Disclosure v-slot="{ open }" class="m-2">
+                                    <div :class="open ? 'bg-[rgba(240,240,240,0.15)] rounded' : ''">
+                                        <DisclosureButton
+                                            class="p-2 md:p-0 transition-all flex justify-between cursor-default  w-full">
+                                            <div class="flex justify-between w-full">
+                                                <span
+                                                    class="mb-2 md:mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
+                                                    <div v-html="item.name"></div>
+                                                </span>
+                                                <div>
+                                                    <FontAwesomeIcon :icon="faTriangle"
+                                                        :class="['w-2 h-2 transition-transform', open ? 'rotate-180' : '']" />
+                                                </div>
+                                            </div>
+                                        </DisclosureButton>
+
+                                        <DisclosurePanel class="p-2 md:p-0 transition-all cursor-default w-full">
+                                            <ul class="block space-y-4 pl-0 md:pl-[2.2rem]">
+                                                <li v-for="menu of item.data" :key="menu.name"
+                                                    class="flex items-center text-sm">
+                                                    <div v-html="menu.name"></div>
+                                                </li>
+                                            </ul>
+                                        </DisclosurePanel>
+                                    </div>
+                                </Disclosure>
+                            </div>
+                        </section>
                     </div>
                 </div>
 
-                <div class="flex flex-col flex-col-reverse gap-y-6 md:block">
-                    <div>
-                        <div class="flex flex-wrap -mx-4">
-                            <div v-for="payment in modelValue.PaymentData.data" :key="payment.key"
-                                class="w-full md:w-1/3 px-4 mb-8">
-                                <div class="flex items-center justify-center md:justify-start space-x-4">
-                                    <img :src="payment.image" :alt="payment.name" class="px-1 h-4">
+            </div>
+
+            <!--    column 2 -->
+            <div class="md:px-0 grid gap-y-3 md:gap-y-6 h-fit">
+                <div class="md:px-0 grid gap-y-3 md:gap-y-6 h-fit">
+                    <div class="md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
+                        <!-- Desktop -->
+                        <section v-for="item in modelValue.columns.column_2.data">
+                            <div
+                                class="hidden md:block grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
+                                <div class="flex text-xl font-semibold w-fit leading-6">
+                                    <div v-html="item.name" />
+                                </div>
+
+                                <div>
+                                    <ul class="hidden md:block space-y-3">
+                                        <li v-for="link in item.data" class="flex w-full items-center gap-2">
+                                            <div class="text-sm block">
+                                                <div v-html="link.name" />
+                                            </div>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
-                        </div>
-                        <address
-                            class="mt-10 md:mt-0 not-italic mb-4 text-center md:text-left text-xs md:text-sm text-gray-300">
-                            <div v-html="modelValue.column.column_4.data.textBox1" />
-                        </address>
+                            <!-- Mobile  -->
+                            <div class="block md:hidden">
+                                <Disclosure v-slot="{ open }" class="m-2">
+                                    <div :class="open ? 'bg-[rgba(240,240,240,0.15)] rounded' : ''">
+                                        <DisclosureButton
+                                            class="p-2 md:p-0 transition-all flex justify-between cursor-default  w-full">
+                                            <div class="flex justify-between w-full">
+                                                <span
+                                                    class="mb-2 md:mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
+                                                    <div v-html="item.name"></div>
+                                                </span>
+                                                <div>
+                                                    <FontAwesomeIcon :icon="faTriangle"
+                                                        :class="['w-2 h-2 transition-transform', open ? 'rotate-180' : '']" />
+                                                </div>
+                                            </div>
+                                        </DisclosureButton>
 
-                        <div class="flex justify-center gap-x-8 text-gray-300 md:block">
-                            <div v-html="modelValue.column.column_4.data.textBox2" />
-                        </div>
-                        <div
-                            class="hidden md:block mb-6 md:mb-5 bg-[#9c7c64] md:bg-transparent text-center md:text-left pt-4 pb-6 space-y-4 md:py-0 md:space-y-0">
-                            <h2 class="text-xl tracking-wider font-semibold md:mt-8 md:mb-4">Get Social with Us!</h2>
-                            <div class="flex md:space-x-6 md:mb-4 justify-around md:justify-start">
-                                <a v-for="item of modelValue.socialData" :key="item.icon" target="_blank"
-                                    :href="item.link"><font-awesome-icon :icon="item.icon" class="text-2xl" /></a>
+                                        <DisclosurePanel class="p-2 md:p-0 transition-all cursor-default w-full">
+                                            <ul class="block space-y-4 pl-0 md:pl-[2.2rem]">
+                                                <li v-for="menu of item.data" :key="menu.name"
+                                                    class="flex items-center text-sm">
+                                                    <div v-html="menu.name"></div>
+                                                </li>
+                                            </ul>
+                                        </DisclosurePanel>
+                                    </div>
+                                </Disclosure>
                             </div>
-                        </div>
+                        </section>
                     </div>
-                    <div
-                        class="border-b border-gray-500 md:border-none flex items-center space-x-2 px-5 pb-4 md:pb-0 md:px-0">
-                        <i class="text-4xl md:text-3xl fab fa-whatsapp text-green-500"></i>
-                        <span class="w-10/12 md:w-full md:text-sm">
-                            <div v-html="modelValue.column.column_4.data.textBox3" />
-                        </span>
+                </div>
+
+            </div>
+
+            <!--    column 3 -->
+            <div class="md:px-0 grid gap-y-3 md:gap-y-6 h-fit">
+                <div class="md:px-0 grid gap-y-3 md:gap-y-6 h-fit">
+                    <div class="md:px-0 grid grid-cols-1 gap-y-2 md:gap-y-6 h-fit">
+                        <!-- Desktop -->
+                        <section v-for="item in modelValue.columns.column_3.data">
+                            <div
+                                class="hidden md:block grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
+                                <div class="flex text-xl font-semibold w-fit leading-6">
+                                    <div v-html="item.name" />
+                                </div>
+
+                                <div>
+                                    <ul class="hidden md:block space-y-3">
+                                        <li v-for="link in item.data" class="flex w-full items-center gap-2">
+                                            <div class="text-sm block">
+                                                <div v-html="link.name" />
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <!-- Mobile  -->
+                            <div class="block md:hidden">
+                                <Disclosure v-slot="{ open }" class="m-2">
+                                    <div :class="open ? 'bg-[rgba(240,240,240,0.15)] rounded' : ''">
+                                        <DisclosureButton
+                                            class="p-2 md:p-0 transition-all flex justify-between cursor-default  w-full">
+                                            <div class="flex justify-between w-full">
+                                                <span
+                                                    class="mb-2 md:mb-0 pl-0 md:pl-[2.2rem] text-xl font-semibold leading-6">
+                                                    <div v-html="item.name"></div>
+                                                </span>
+                                                <div>
+                                                    <FontAwesomeIcon :icon="faTriangle"
+                                                        :class="['w-2 h-2 transition-transform', open ? 'rotate-180' : '']" />
+                                                </div>
+                                            </div>
+                                        </DisclosureButton>
+
+                                        <DisclosurePanel class="p-2 md:p-0 transition-all cursor-default w-full">
+                                            <ul class="block space-y-4 pl-0 md:pl-[2.2rem]">
+                                                <li v-for="menu of item.data" :key="menu.name"
+                                                    class="flex items-center text-sm">
+                                                    <div v-html="menu.name"></div>
+                                                </li>
+                                            </ul>
+                                        </DisclosurePanel>
+                                    </div>
+                                </Disclosure>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+
+            </div>
+
+            <!--  column 4 -->
+            <div class="flex flex-col flex-col-reverse gap-y-6 md:block">
+                <div>
+                    <address
+                        class="mt-10 md:mt-0 not-italic mb-4 text-center md:text-left text-xs md:text-sm text-gray-300">
+                        <div v-html="modelValue.columns.column_4.data.textBox1"></div>
+                    </address>
+
+                    <div class="flex justify-center gap-x-8 text-gray-300 md:block">
+                        <div v-html="modelValue.columns.column_4.data.textBox2"></div>
+                    </div>
+
+                    <div class="w-full mt-8">
+                        <div v-html="modelValue.paymentData.label"></div>
+                    </div>
+
+                    <div class="flex flex-col items-center gap-y-6 mt-4">
+                        <img v-for="item of modelValue.paymentData.data" :src="item.value" :alt="item.name"
+                            class="h-auto max-h-6 md:max-h-8 max-w-full w-full object-contain">
                     </div>
                 </div>
             </div>
 
-            <div class="text-[10px] md:text-base border-t mt-8 pb-2 pt-2 md:pb-0 md:pt-4 text-center">
-                <div v-html="modelValue.copyRight" />
+        </div>
+        <div
+            class="mt-8 w-full border-0 border-t border-solid border-gray-700 flex flex-col md:flex-row-reverse justify-between pt-6 items-center gap-y-8">
+            <div class="grid gap-y-2 text-center md:text-left">
+                <h2 style="margin-bottom: 0px; font-size: inherit; font-weight: inherit"
+                    class="hidden text-center tracking-wider">
+                    <div v-html="modelValue.columns.column_4.data.textBox4"></div>
+                </h2>
+
+                <div class="flex gap-x-6 justify-center">
+                    <a v-for="socmed of modelValue.socialMedia" target="_blank" :href="socmed.link">
+                        <FontAwesomeIcon :icon="socmed.icon" class="text-4xl md:text-2xl"></FontAwesomeIcon>
+                    </a>
+                </div>
+            </div>
+
+            <div id="footer_copyright"
+                class="text-[13px] leading-5 md:text-[12px] text-center w-[60%] md:w-fit mx-auto md:mx-0">
+                <div v-html="modelValue.copyright"></div>
             </div>
         </div>
     </div>

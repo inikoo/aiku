@@ -1,5 +1,6 @@
 import type { Component } from 'vue'
 
+//Components
 import WowsbarBanner from '@/Components/CMS/Webpage/WowsbarBanner/WowsbarBannerWorkshop.vue'
 import ProductPage from '@/Components/CMS/Webpage/ProductPage.vue'
 import Text from '@/Components/CMS/Webpage/Text/TextContentWorkshop.vue'
@@ -17,7 +18,7 @@ import Overview from '@/Components/CMS/Webpage/Overview/OverviewWorkshop.vue'
 import Script from '@/Components/CMS/Webpage/Script/ScriptWorkShop.vue'
 import  CtaAurora1 from "@/Components/CMS/Webpage/CTAAurora1/CtaAurora1Workshop.vue"
 import Overview2 from "@/Components/CMS/Webpage/Overview2/Overview2Workshop.vue"
-import Footer1 from '@/Components/CMS/Website/Footers/footerTheme1/Footer1Workshop.vue'
+import Footer1 from '@/Components/CMS/Website/Footers/footerTheme1/Footer1Iris.vue'
 import Topbar1 from '@/Components/CMS/Website/TopBars/Template/Topbar1/Topbar1.vue'
 import Topbar2 from '@/Components/CMS/Website/TopBars/Template/Topbar2/Topbar2.vue'
 import Topbar3 from '@/Components/CMS/Website/TopBars/Template/Topbar3/Topbar3.vue'
@@ -28,7 +29,7 @@ import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
 export const getComponent = (componentName: string) => {
     const components: Component = {
         'footer-1': Footer1,
-        'banner': WowsbarBanner,
+     /*    'banner': WowsbarBanner,
         "bento-grid-1": BentoGrid,
         "bricks": Gallery,
         'cta1': CTA,
@@ -48,7 +49,7 @@ export const getComponent = (componentName: string) => {
         'top-bar-1': Topbar1,
         'top-bar-2': Topbar2,
         'top-bar-3': Topbar3,
-        'header-1': Header1,
+        'header-1': Header1, */
     }
     return components[componentName] ?? NotFoundComponents
 }
