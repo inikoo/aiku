@@ -102,7 +102,7 @@ beforeEach(function () {
 
 test('UI index asset shipping', function () {
     $this->withoutExceptionHandling();
-    $response = get(route('grp.org.shops.show.assets.shipping.index', [$this->organisation->slug, $this->shop]));
+    $response = get(route('grp.org.shops.show.billables.shipping.index', [$this->organisation->slug, $this->shop]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Catalogue/Shippings')
@@ -120,7 +120,7 @@ test('UI index asset shipping', function () {
 
 test('UI create asset shipping', function () {
     $this->withoutExceptionHandling();
-    $response = get(route('grp.org.shops.show.assets.shipping.create', [$this->organisation->slug, $this->shop]));
+    $response = get(route('grp.org.shops.show.billables.shipping.create', [$this->organisation->slug, $this->shop]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('CreateModel')
@@ -138,7 +138,7 @@ test('UI create asset shipping', function () {
 
 test('UI show asset shipping', function () {
     $this->withoutExceptionHandling();
-    $response = get(route('grp.org.shops.show.assets.shipping.show', [$this->organisation->slug, $this->shop, $this->shippingZoneSchema]));
+    $response = get(route('grp.org.shops.show.billables.shipping.show', [$this->organisation->slug, $this->shop, $this->shippingZoneSchema]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Catalogue/ShippingZoneSchema')
@@ -157,7 +157,7 @@ test('UI show asset shipping', function () {
 
 test('UI edit asset shipping', function () {
     $this->withoutExceptionHandling();
-    $response = get(route('grp.org.shops.show.assets.shipping.edit', [$this->organisation->slug, $this->shop, $this->shippingZoneSchema]));
+    $response = get(route('grp.org.shops.show.billables.shipping.edit', [$this->organisation->slug, $this->shop, $this->shippingZoneSchema]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('EditModel')

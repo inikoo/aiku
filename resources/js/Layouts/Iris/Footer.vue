@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { getComponent, getDescriptor } from '@/Components/CMS/Website/Footers/Content'
+import { getComponent } from '@/Composables/getWorkshopComponents'
 
 
 const props = defineProps<{

@@ -4,45 +4,42 @@
   - Copyright (c) 2023, Raul A Perusquia Flores
   -->
 
-  <script setup lang="ts">
-  import {Link} from "@inertiajs/vue3";
-  import Table from "@/Components/Table/Table.vue";
-  import type {Links, Meta} from "@/types/Table";
-  
-  defineProps<{
+<script setup lang="ts">
+import { Link } from "@inertiajs/vue3"
+import Table from "@/Components/Table/Table.vue"
+import type { Links, Meta } from "@/types/Table"
+
+defineProps<{
     data: {
-      data: {}
-      links: Links
-      meta: Meta
+        data: {}
+        links: Links
+        meta: Meta
     },
     tab?: string
-  }>();
-  
-  
-  function shopRoute(schema: {}) {
+}>()
+
+
+function shopRoute(schema: {}) {
     console.log(route().current())
     switch (route().current()) {
-      case "grp.org.shops.show.assets.shipping.index":
-        return route(
-            "grp.org.shops.show.assets.shipping.show",
-            [route().params["organisation"],route().params["shop"], schema.slug]);
-      default:
-        return null;
+        case "grp.org.shops.show.billables.shipping.index":
+            return route(
+                "grp.org.shops.show.billables.shipping.show",
+                [route().params["organisation"], route().params["shop"], schema.slug])
+        default:
+            return null
     }
-  }
-  
-  
-  </script>
-  
-  <template>
+}
+
+
+</script>
+
+<template>
     <Table :resource="data" :name="tab" class="mt-5">
-      <template #cell(name)="{ item: schema }">
-        <Link :href="shopRoute(schema)" class="primaryLink">
-        {{ schema["name"] }}
-      </Link>
-      </template>
+        <template #cell(name)="{ item: schema }">
+            <Link :href="shopRoute(schema)" class="primaryLink">
+            {{ schema["name"] }}
+            </Link>
+        </template>
     </Table>
-  </template>
-  
-  
-  
+</template>

@@ -82,7 +82,7 @@ class StoreShippingZoneSchema extends OrgAction
 
     public function htmlResponse(ShippingZoneSchema $shippingZoneSchema): RedirectResponse
     {
-        return Redirect::route('grp.org.shops.show.assets.shipping.show', [
+        return Redirect::route('grp.org.shops.show.billables.shipping.show', [
             'organisation'       => $shippingZoneSchema->organisation->slug,
             'shop'               => $shippingZoneSchema->shop->slug,
             'shippingZoneSchema' => $shippingZoneSchema->slug

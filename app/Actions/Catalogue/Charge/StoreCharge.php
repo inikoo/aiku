@@ -167,7 +167,7 @@ class StoreCharge extends OrgAction
 
     public function htmlResponse(Charge $charge): RedirectResponse
     {
-        return Redirect::route('grp.org.shops.show.assets.charges.show', [
+        return Redirect::route('grp.org.shops.show.billables.charges.show', [
             'organisation' => $charge->organisation->slug,
             'shop'         => $charge->shop->slug,
             'charge'       => $charge->slug

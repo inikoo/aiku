@@ -90,11 +90,8 @@ const props = defineProps<{
 		title?: string
 		description?: string
 	}
-	notes: {
-		note_list: BoxNoteTS[]
-	}
 	routes: {
-		updateOrderRoute: routeType
+		updatePurchaseOrderRoute: routeType
 		products_list: routeType
 	}
 	attachments?: {}
@@ -116,7 +113,7 @@ const props = defineProps<{
 		mid_block: {
 			gross_weight: string
 			net_weight: string
-			note: string
+			notes: string
 			delivery_status: string
 		}
 		order_summary: {}
@@ -144,18 +141,21 @@ const isSubmitNoteLoading = ref(false)
 //submit notes
 const onSubmitNote = async () => {
 	isSubmitNoteLoading.value = true
+
 	try {
 		const response = await axios.patch(
-			route(props.routes.updateOrderRoute.name, props.routes.updateOrderRoute.parameters),
+			route(props.routes.updatePurchaseOrderRoute.name, props.routes.updatePurchaseOrderRoute.parameters),
 			{
-				[props.box_stats.mid_block.note]: noteModalValue.value,
+				notes: noteModalValue.value,
 			},
 			{
 				headers: { "Content-Type": "application/json" },
 			}
 		)
-		props.box_stats.mid_block.note = noteModalValue.value
+		props.box_stats.mid_block.notes = noteModalValue.value
 	} catch (error) {
+	console.log(error,'faf');
+	
 		notify({
 			title: "Failed",
 			text: "Failed to update the note, try again.",
@@ -166,6 +166,7 @@ const onSubmitNote = async () => {
 	isSubmitNoteLoading.value = false
 	isModalOpen.value = false
 }
+console.log(props);
 
 // Tabs: Products
 const formProducts = useForm({ historic_id: null, quantity_ordered: 1 })
@@ -200,25 +201,8 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
 		)
 		
 }
+console.log(props.box_stats);
 
-const data = ref({
-	data: {
-		id: 1,
-		reference: "6900",
-		state: "dispatched",
-		state_label: "Dispatched",
-		state_icon: {
-			tooltip: "Dispatched",
-			icon: "fal fa-shipping-fast",
-			class: "text-gray-500",
-			color: "purple",
-			app: {
-				name: "check-double",
-				type: "font-awesome-5",
-			},
-		},
-	},
-})
 
 const fallbackBgColor = "#f9fafb" // Background
 const fallbackColor = "#374151"
@@ -345,7 +329,6 @@ const fallbackColor = "#374151"
 		<Timeline
 			v-if="timelines"
 			:options="timelines"
-			:state="data?.data?.state"
 			:slidesPerView="6" />
 	</div>
 
@@ -467,7 +450,7 @@ const fallbackColor = "#374151"
 					<!-- Edit Icon in Corner -->
 				
 						<div
-							v-if="box_stats.mid_block.note"
+							v-if="box_stats.mid_block.notes"
 							@click="isModalOpen = true"
 							v-tooltip="trans('Edit note')"
 							class="absolute top-2 right-2 group cursor-pointer w-fit h-5 flex items-center">
@@ -480,7 +463,7 @@ const fallbackColor = "#374151"
 						</div>
 
 						<div
-							v-else="!box_stats.mid_block.note"
+							v-else
 							@click="isModalOpen = true"
 							class="absolute top-2 right-2 group cursor-pointer w-fit h-5 flex items-center">
 							<FontAwesomeIcon
@@ -501,7 +484,7 @@ const fallbackColor = "#374151"
 						:style="{
 							color: fallbackColor,
 						}">
-						<template v-if="notes">{{ box_stats?.mid_block.note }}</template>
+						<template v-if="box_stats?.mid_block.notes">{{ box_stats?.mid_block.notes }}</template>
 						<span
 							v-else
 							class="italic opacity-75 animate-pulse"
@@ -556,7 +539,7 @@ const fallbackColor = "#374151"
 		:isOpen="isModalOpen"
 		@onClose="() => ((isModalOpen = false), (noteModalValue = box_stats?.mid_block.note))">
 		<div class="min-h-72 max-h-96 px-2 overflow-auto">
-			<div class="text-xl font-semibold mb-2">{{ box_stats?.mid_block.note }}'s note</div>
+			<div class="text-xl font-semibold mb-2">{{ box_stats?.mid_block.notes }}'s note</div>
 			<div class="relative isolate">
 				<div
 					v-if="noteModalValue"
@@ -576,14 +559,14 @@ const fallbackColor = "#374151"
 				<Button
 					label="cancel"
 					@click="
-						() => ((isModalOpen = false), (noteModalValue = box_stats?.mid_block.note))
+						() => ((isModalOpen = false), (noteModalValue = box_stats?.mid_block.notes))
 					"
 					:style="'tertiary'" />
 				<Button
 					label="Save"
 					@click="() => onSubmitNote()"
 					:loading="isSubmitNoteLoading"
-					:disabled="noteModalValue == box_stats?.mid_block.note" />
+					:disabled="noteModalValue == box_stats?.mid_block.notes" />
 			</div>
 		</div>
 	</Modal>
