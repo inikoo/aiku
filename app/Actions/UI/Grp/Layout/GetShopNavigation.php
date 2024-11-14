@@ -100,11 +100,11 @@ class GetShopNavigation
             ];
 
             $navigation["assets"] = [
-                "root"  => "grp.org.shops.show.assets.",
+                "root"  => "grp.org.shops.show.billables.",
                 "icon"  => ["fal", "fa-ballot"],
                 "label" => __("Billables"),
                 "route" => [
-                    "name"       => 'grp.org.shops.show.assets.dashboard',
+                    "name"       => 'grp.org.shops.show.billables.dashboard',
                     "parameters" => [$shop->organisation->slug, $shop->slug],
                 ],
                 "topMenu" => [
@@ -112,9 +112,9 @@ class GetShopNavigation
                         [
                             "tooltip" => __("shop"),
                             "icon"    => ["fal", "fa-store-alt"],
-                            'root'    => 'grp.org.shops.show.assets.dashboard',
+                            'root'    => 'grp.org.shops.show.billables.dashboard',
                             "route"   => [
-                                "name"       => 'grp.org.shops.show.assets.dashboard',
+                                "name"       => 'grp.org.shops.show.billables.dashboard',
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -122,9 +122,9 @@ class GetShopNavigation
                             "label"   => __("Shipping"),
                             "tooltip" => __("Shipping"),
                             "icon"    => ["fal", "fa-shipping-fast"],
-                            'root'    => 'grp.org.shops.show.assets.shipping.',
+                            'root'    => 'grp.org.shops.show.billables.shipping.',
                             "route"   => [
-                                "name"       => "grp.org.shops.show.assets.shipping.index",
+                                "name"       => "grp.org.shops.show.billables.shipping.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -132,9 +132,9 @@ class GetShopNavigation
                             "label"   => __("Charges"),
                             "tooltip" => __("Charges"),
                             "icon"    => ["fal", "fa-charging-station"],
-                            'root'    => 'grp.org.shops.show.assets.charges.',
+                            'root'    => 'grp.org.shops.show.billables.charges.',
                             "route"   => [
-                                "name"       => "grp.org.shops.show.assets.charges.index",
+                                "name"       => "grp.org.shops.show.billables.charges.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
@@ -142,9 +142,9 @@ class GetShopNavigation
                             "label"   => __("Services"),
                             "tooltip" => __("Services"),
                             "icon"    => ["fal", "fa-concierge-bell"],
-                            'root'    => 'grp.org.shops.show.assets.services.',
+                            'root'    => 'grp.org.shops.show.billables.services.',
                             "route"   => [
-                                "name"       => "grp.org.shops.show.assets.services.index",
+                                "name"       => "grp.org.shops.show.billables.services.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],

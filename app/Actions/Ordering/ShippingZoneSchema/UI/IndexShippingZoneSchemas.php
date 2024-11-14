@@ -217,7 +217,7 @@ class IndexShippingZoneSchemas extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.shops.show.assets.shipping.index' =>
+            'grp.org.shops.show.billables.shipping.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(

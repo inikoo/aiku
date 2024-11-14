@@ -123,7 +123,7 @@ class ShowShippingZoneSchema extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.org.shops.show.assets.shipping.show' =>
+            'grp.org.shops.show.billables.shipping.show' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(
@@ -166,7 +166,7 @@ class ShowShippingZoneSchema extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.shops.show.assets.shipping.show' => [
+            'grp.org.shops.show.billables.shipping.show' => [
                 'label' => $shippingZoneSchema->name,
                 'route' => [
                     'name'       => $routeName,

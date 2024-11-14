@@ -71,7 +71,7 @@ class ShowAssetDashboard extends OrgAction
                         'type'   => 'simple',
                         'simple' => [
                             'route' => [
-                                'name'       => 'grp.org.shops.show.assets.dashboard',
+                                'name'       => 'grp.org.shops.show.billables.dashboard',
                                 'parameters' => $routeParameters
                             ],
                             'label' => __('Assets')
