@@ -261,9 +261,9 @@ onMounted(() => {
 		const { data } = event;
 		if (event.data === "openModalBlockList") {
 			isModalBlockList.value = true
-		} /* else if (data.key === 'autosave') {
+		} else if (data.key === 'autosave') {
 			sendBlockUpdate(data.value)
-		} */
+		}
 	})
 })
 

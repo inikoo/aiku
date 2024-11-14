@@ -54,6 +54,7 @@ import {
 import { Action } from "@/types/Action"
 import { get } from "lodash"
 import { faPlus } from "@far"
+import { PalletDelivery } from "@/types/Pallet"
 library.add(
 	faStickyNote,
 	faPaperclip,
@@ -82,6 +83,9 @@ const props = defineProps<{
 		current: string
 		navigation: {}
 	}
+	data?: {
+        data: PalletDelivery
+    }
 	showcase: {}
 	transactions: {}
 	history: {}
@@ -166,7 +170,6 @@ const onSubmitNote = async () => {
 	isSubmitNoteLoading.value = false
 	isModalOpen.value = false
 }
-console.log(props);
 
 // Tabs: Products
 const formProducts = useForm({ historic_id: null, quantity_ordered: 1 })
@@ -201,7 +204,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
 		)
 		
 }
-console.log(props.box_stats);
+console.log(props);
 
 
 const fallbackBgColor = "#f9fafb" // Background
@@ -329,6 +332,7 @@ const fallbackColor = "#374151"
 		<Timeline
 			v-if="timelines"
 			:options="timelines"
+			:state="props.data?.data?.state"
 			:slidesPerView="6" />
 	</div>
 

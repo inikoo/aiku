@@ -13,6 +13,7 @@ use App\Models\CRM\Customer;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
+use App\Models\Helpers\Feedback;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Ordering\Order;
 use App\Models\SysAdmin\Group;
@@ -30,6 +31,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -211,6 +213,11 @@ class Invoice extends Model implements Auditable
     public function recurringBill(): BelongsTo
     {
         return $this->belongsTo(RecurringBill::class);
+    }
+
+    public function feedbacks(): MorphMany
+    {
+        return $this->morphMany(Feedback::class, 'origin');
     }
 
 }

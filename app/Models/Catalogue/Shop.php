@@ -60,6 +60,7 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
+use App\Models\Web\CustomerPoll;
 use App\Models\Web\Redirect;
 use App\Models\Web\Website;
 use Eloquent;
@@ -572,5 +573,10 @@ class Shop extends Model implements HasMedia, Auditable
     {
         return $this->hasMany(ModelSubscribedToOutbox::class)
                     ->whereNull('unsubscribed_at');
+    }
+
+    public function customerPolls(): HasMany
+    {
+        return $this->hasMany(CustomerPoll::class);
     }
 }

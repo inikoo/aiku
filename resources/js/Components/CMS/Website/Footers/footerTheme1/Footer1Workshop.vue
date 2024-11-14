@@ -13,7 +13,7 @@ import { FieldValue } from '@/types/Website/Website/footer1'
 
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
-import { faShieldAlt, faPlus, faTrash, faAngleUp, faAngleDown } from "@fas"
+import { faShieldAlt, faPlus, faTrash, faAngleUp, faAngleDown, faTriangle } from "@fas"
 import { faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinkedinIn } from "@fortawesome/free-brands-svg-icons";
 import { faBars } from '@fal'
 
@@ -143,8 +143,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
 
 
 <template>
-    <div id="app" class="-mx-2 md:mx-0 pb-24 pt-4 md:pt-8 md:px-16 text-white"
-        :style="getStyles(modelValue?.container?.properties)">
+    <div id="app" class="-mx-2 md:mx-0 pb-24 pt-4 md:pt-8 md:px-16 text-white" :style="getStyles(modelValue?.container?.properties)">
         <div
             class="w-full flex flex-col md:flex-row gap-4 md:gap-8 pt-2 pb-4 md:pb-6 mb-4 md:mb-10 border-0 border-b border-solid border-gray-700">
             <div class="flex-1 flex items-center justify-center md:justify-start ">
