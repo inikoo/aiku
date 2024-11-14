@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrderTransaction;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\PurchaseOrder\CalculatePurchaseOrderTotalAmounts;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithStoreProcurementOrderItem;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
@@ -30,6 +31,8 @@ class StorePurchaseOrderTransaction extends OrgAction
 
         /** @var PurchaseOrderTransaction $purchaseOrderTransaction */
         $purchaseOrderTransaction = $purchaseOrder->purchaseOrderTransactions()->create($modelData);
+
+        CalculatePurchaseOrderTotalAmounts::run($purchaseOrder);
 
         return $purchaseOrderTransaction;
     }

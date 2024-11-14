@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrderTransaction;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\PurchaseOrder\CalculatePurchaseOrderTotalAmounts;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
@@ -22,6 +23,7 @@ class UpdatePurchaseOrderTransaction extends OrgAction
     public function handle(PurchaseOrderTransaction $purchaseOrderTransaction, array $modelData): PurchaseOrderTransaction
     {
         return $this->update($purchaseOrderTransaction, $modelData, ['data']);
+        CalculatePurchaseOrderTotalAmounts::run($purchaseOrder);
     }
 
     public function authorize(ActionRequest $request): bool
