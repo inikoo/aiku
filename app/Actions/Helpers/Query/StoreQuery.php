@@ -98,9 +98,11 @@ class StoreQuery extends OrgAction
             'model' => ['required', 'string'],
             'constrains' => ['required', 'array'],
             'seed_code'  => ['sometimes', 'string'],
+            'is_static'  => ['sometimes', 'boolean'],
         ];
 
         if (!$this->strict) {
+            $rules['constrains'] = ['sometimes','nullable','array'];
             $rules = $this->noStrictStoreRules($rules);
         }
 

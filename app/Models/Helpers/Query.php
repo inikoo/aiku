@@ -7,11 +7,12 @@
 
 namespace App\Models\Helpers;
 
+use App\Models\CRM\Customer;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -27,6 +28,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $name
  * @property string $model
+ * @property string $is_static
  * @property array $constrains
  * @property array $compiled_constrains
  * @property bool $has_arguments
@@ -41,10 +43,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $delete_comment
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read Model|\Eloquent $parent
- * @property-read Model|\Eloquent $scope
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Query newModelQuery()
@@ -93,13 +94,14 @@ class Query extends Model implements Auditable
         return 'slug';
     }
 
-    public function scope(): MorphTo
+
+    public function customers(): MorphToMany
     {
-        return $this->morphTo();
+        return $this->morphedByMany(Customer::class, 'model', 'query_has_models', )->withTimestamps();
     }
 
-    public function parent(): MorphTo
-    {
-        return $this->morphTo();
-    }
+
+
+
+
 }

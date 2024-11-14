@@ -73,6 +73,7 @@ class UpdateQuery extends OrgAction
                 ),
             ],
             'constrains' => ['sometimes', 'array'],
+            'is_static'  => ['sometimes', 'boolean'],
         ];
 
         if (!$this->strict) {
