@@ -19,7 +19,7 @@ trait WithShippingZoneSchemaSubNavigation
                 'isAnchor' => true,
                 'label'    => __('Schemas'),
                 'route'     => [
-                        'name'       => 'grp.org.shops.show.assets.shipping.index',
+                        'name'       => 'grp.org.shops.show.billables.shipping.index',
                         'parameters' => [$this->organisation->slug, $shop->slug]
                     ],
                     'leftIcon' => [
@@ -32,7 +32,7 @@ trait WithShippingZoneSchemaSubNavigation
             $current = [
                 'label'    => __('Current'),
                 'route'     => [
-                    'name'       => 'grp.org.shops.show.assets.shipping.show',
+                    'name'       => 'grp.org.shops.show.billables.shipping.show',
                     'parameters' => [$this->organisation->slug, $shop->slug, $shop->currentShippingZoneSchema->slug]
                 ],
                 'leftIcon' => [
@@ -47,7 +47,7 @@ trait WithShippingZoneSchemaSubNavigation
             $discount = [
                 'label'    => __('Discount'),
                 'route'     => [
-                    'name'       => 'grp.org.shops.show.assets.shipping.show',
+                    'name'       => 'grp.org.shops.show.billables.shipping.show',
                     'parameters' => [$this->organisation->slug, $shop->slug, $shop->discountShippingZoneSchema->slug]
                 ],
                 'leftIcon' => [

@@ -123,7 +123,7 @@ class EditCharge extends OrgAction
 
 
         return match ($routeName) {
-            'grp.org.shops.show.assets.charges.edit' => [
+            'grp.org.shops.show.billables.charges.edit' => [
                 'label' => $charge->name,
                 'route' => [
                     'name'       => $routeName,

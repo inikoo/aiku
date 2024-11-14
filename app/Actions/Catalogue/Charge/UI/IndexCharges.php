@@ -173,13 +173,13 @@ class IndexCharges extends OrgAction
                         'title' => __('charges')
                     ],
                     'actions'   => [
-                        $this->canEdit && $request->route()->getName() == 'grp.org.shops.show.assets.charges.index' ? [
+                        $this->canEdit && $request->route()->getName() == 'grp.org.shops.show.billables.charges.index' ? [
                             'type'    => 'button',
                             'style'   => 'create',
                             'tooltip' => __('new charge'),
                             'label'   => __('charge'),
                             'route'   => [
-                                'name'       => 'grp.org.shops.show.assets.charges.create',
+                                'name'       => 'grp.org.shops.show.billables.charges.create',
                                 'parameters' => $request->route()->originalParameters()
                             ]
                         ] : false,
@@ -207,7 +207,7 @@ class IndexCharges extends OrgAction
         };
 
         return match ($routeName) {
-            'grp.org.shops.show.assets.charges.index' =>
+            'grp.org.shops.show.billables.charges.index' =>
             array_merge(
                 ShowShop::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(

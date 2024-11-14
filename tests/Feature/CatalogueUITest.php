@@ -408,7 +408,7 @@ test('UI create product', function () {
 });
 
 test('UI Index Charges', function () {
-    $response = get(route('grp.org.shops.show.assets.charges.index', [$this->organisation->slug, $this->shop->slug]));
+    $response = get(route('grp.org.shops.show.billables.charges.index', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -420,7 +420,7 @@ test('UI Index Charges', function () {
 });
 
 test('UI create Charges', function () {
-    $response = get(route('grp.org.shops.show.assets.charges.create', [$this->organisation->slug, $this->shop->slug]));
+    $response = get(route('grp.org.shops.show.billables.charges.create', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -433,7 +433,7 @@ test('UI create Charges', function () {
 });
 
 test('UI show Charges', function () {
-    $response = get(route('grp.org.shops.show.assets.charges.show', [$this->organisation->slug, $this->shop->slug, $this->charge->slug]));
+    $response = get(route('grp.org.shops.show.billables.charges.show', [$this->organisation->slug, $this->shop->slug, $this->charge->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -451,7 +451,7 @@ test('UI show Charges', function () {
 });
 
 test('UI edit Charges', function () {
-    $response = get(route('grp.org.shops.show.assets.charges.edit', [$this->organisation->slug, $this->shop->slug, $this->charge->slug]));
+    $response = get(route('grp.org.shops.show.billables.charges.edit', [$this->organisation->slug, $this->shop->slug, $this->charge->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page

@@ -30,17 +30,20 @@ const props = defineProps<{
 			title: string
 			tooltip?: string
 		}
-		iconRight?: {
+		state_icon?: {
 			tooltip?: string
 			icon: string
 			class: string
+			color: string
 		}
 		image?: any
 		model: string
-		title: string
+		description: {
+			label:string
+		}
 		code?: {
 			label: string
-			class?: string
+			Tooltip?: string
 		}
 		meta?: {
 			key: string
@@ -77,7 +80,7 @@ const isLoading = ref(false)
 		@finish="() => emits('finishVisit', false)">
 		<div
 			v-if="isLoading"
-			class="fixed inset-0 bottom-0 bg-black/50 flex flex-col justify-center items-center text-white cursor-default">
+			class="fixed w-full inset-0 bottom-0 bg-black/50 flex flex-col justify-center items-center text-white cursor-default">
 			<LoadingIcon class="text-6xl" />
 			<LoadingText />
 		</div>
