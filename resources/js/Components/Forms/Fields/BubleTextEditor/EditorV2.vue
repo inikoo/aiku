@@ -295,7 +295,7 @@ defineExpose({
     <div id="tiptap" class="divide-y divide-gray-400">
         <BubbleMenu ref="_bubbleMenu" :editor="editorInstance" :tippy-options="{ duration: 100 }"
             v-if="editorInstance && !showDialog">
-            <section id="tiptap-toolbar" class="bg-gray-100 rounded-xl border border-gray-300 divide-x divide-gray-400">
+            <section id="tiptap-toolbar" class="bg-gray-100 flex items-center rounded-xl border border-gray-300 divide-x divide-gray-400">
                 <TiptapToolbarGroup>
                     <TiptapToolbarButton v-if="toogle.includes('undo')" label="Undo"
                         @click="editorInstance?.chain().focus().undo().run()"
