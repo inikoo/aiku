@@ -19,8 +19,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $body
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $fetched_at
- * @property string|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
  * @property-read \App\Models\Mail\DispatchedEmail $dispatchedEmail
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailCopy newModelQuery()

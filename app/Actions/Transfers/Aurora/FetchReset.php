@@ -393,6 +393,10 @@ class FetchReset
                     ->whereNotNull($aikuIdField)
                     ->update([$aikuIdField => null]);
 
+                DB::connection('aurora')->table('Order Sent Email Bridge')
+                    ->whereNotNull($aikuIdField)
+                    ->update([$aikuIdField => null]);
+
                 $command->line("✅ post rooms \t\t".$this->stepTime());
             }
         }
