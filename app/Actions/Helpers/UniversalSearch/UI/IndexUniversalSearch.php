@@ -104,7 +104,8 @@ class IndexUniversalSearch extends InertiaAction
             'shops.show.ordering.' => ['ordering'],
             'shops.show.web.' => ['web'],
             'shops.show.crm.' => ['crm'],
-            'hr.' => ['hr']
+            'hr.' => ['hr'],
+            'warehouses.' => ['infrastructure']
         ];
 
         if (empty($route)) {
@@ -116,59 +117,6 @@ class IndexUniversalSearch extends InertiaAction
                 return $result;
             }
         }
-
-        // if (str_starts_with($route, 'accounting.')) {
-        //     return ['accounting'];
-        // }
-        // if (str_starts_with($route, 'productions.')) {
-        //     return ['productions'];
-        // }
-        // if (str_starts_with($route, 'fulfilments.')) {
-        //     return ['fulfilments'];
-        // }
-        // if (str_starts_with($route, 'procurement.')) {
-        //     return ['procurement'];
-        // }
-        // if (str_starts_with($route, 'reports.')) {
-        //     return ['reports'];
-        // }
-        // if (str_starts_with($route, 'shops.show.assets.')) {
-        //     return ['assets'];
-        // }
-        // if (str_starts_with($route, 'shops.show.catalogue.')) {
-        //     return ['catalogue'];
-        // }
-        // if (str_starts_with($route, 'shops.show.mail.')) {
-        //     return ['mail'];
-        // }
-        // if (str_starts_with($route, 'shops.show.marketing.')) {
-        //     return ['marketing'];
-        // }
-        // if (str_starts_with($route, 'show.discounts.')) {
-        //     return ['discounts'];
-        // }
-        // if (str_starts_with($route, 'shops.show.ordering.')) {
-        //     return ['ordering'];
-        // }
-        // if (str_starts_with($route, 'shops.show.dashboard')) {
-        //     return ['dashboard'];
-        // }
-        // if (str_starts_with($route, 'show')) {
-        //     return ['show'];
-        // }
-        // if (str_starts_with($route, 'warehouses.')) {
-        //     return ['warehouses'];
-        // }
-        // if (str_starts_with($route, 'shops.show.web.')) {
-        //     return ['web'];
-        // }
-        // if (str_starts_with($route, 'shops.show.crm.')) {
-        //     return ['crm'];
-        // }
-
-        // if (str_starts_with($route, 'hr.')) {
-        //     return ['hr'];
-        // }
 
 
         return null;
