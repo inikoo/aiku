@@ -23,8 +23,6 @@ class QueryHydrateCount
     {
         $queryBuilder = GetQueryEloquentQueryBuilder::run($query);
 
-        //print($queryBuilder->toSql()."\n");
-
         $numberItems = $queryBuilder->count();
 
         $query->update(
@@ -40,7 +38,7 @@ class QueryHydrateCount
 
     public function byModelType(string $modelType): void
     {
-        foreach (Query::where('model_type', $modelType)->get() as $query) {
+        foreach (Query::where('model    ', $modelType)->get() as $query) {
             $this->handle($query);
         }
     }

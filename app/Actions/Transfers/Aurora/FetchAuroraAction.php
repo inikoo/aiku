@@ -77,7 +77,8 @@ class FetchAuroraAction extends FetchAction
             'fetch:stock-deliveries',
             'fetch:mailshot',
             'fetch:dispatched_emails',
-            'fetch:email_tracking_events'
+            'fetch:email_tracking_events',
+            'fetch:queries',
         ])) {
             $this->onlyNew = (bool)$command->option('only_new');
         }
