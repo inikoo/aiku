@@ -11,6 +11,7 @@ use App\Enums\HumanResources\JobPosition\JobPositionScopeEnum;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Role;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -55,6 +56,7 @@ class JobPosition extends Model implements Auditable
 {
     use HasSlug;
     use HasHistory;
+    use HasUniversalSearch;
     use inOrganisation;
 
 
