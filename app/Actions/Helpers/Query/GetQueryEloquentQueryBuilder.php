@@ -24,10 +24,10 @@ class GetQueryEloquentQueryBuilder
      */
     public function handle(Query $query, ?array $customArguments = null): QueryBuilder
     {
-        if ($query->model_type == 'Prospect') {
+        if ($query->model == 'Prospect') {
             $class = Prospect::class;
         } else {
-            throw new \Exception('Unknown model type: '.$query->model_type);
+            throw new \Exception('Unknown model type: '.$query->model);
         }
 
         return $this->buildQuery(

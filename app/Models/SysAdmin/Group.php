@@ -39,6 +39,7 @@ use App\Models\Fulfilment\Rental;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Currency;
+use App\Models\Helpers\Query;
 use App\Models\Helpers\Upload;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
@@ -166,6 +167,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Product> $products
  * @property-read LaravelCollection<int, PurchaseOrder> $purchaseOrders
  * @property-read LaravelCollection<int, Purge> $purges
+ * @property-read LaravelCollection<int, Query> $queries
  * @property-read LaravelCollection<int, RawMaterial> $rawMaterials
  * @property-read LaravelCollection<int, RecurringBill> $recurringBills
  * @property-read LaravelCollection<int, Redirect> $redirects
@@ -709,4 +711,10 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(ModelSubscribedToOutbox::class)
                     ->whereNull('unsubscribed_at');
     }
+
+    public function queries(): HasMany
+    {
+        return $this->hasMany(Query::class);
+    }
+
 }

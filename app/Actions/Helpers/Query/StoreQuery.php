@@ -8,25 +8,33 @@
 namespace App\Actions\Helpers\Query;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateQueries;
+use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Query;
+use App\Models\SysAdmin\Organisation;
+use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreQuery
+class StoreQuery extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
     use WithQueryCompiler;
+    use WithNoStrictRules;
 
-    private bool $asAction = false;
+
+    private Organisation|Shop $parent;
+
+    private mixed $model;
+
 
     /**
      * @throws \Exception
      */
-    public function handle(array $modelData): Query
+    public function handle(Organisation|Shop $parent, array $modelData): Query
     {
+        data_set($modelData, 'group_id', $this->organisation->group_id);
+        data_set($modelData, 'organisation_id', $this->organisation->id);
         data_set($modelData, 'compiled_constrains', $this->compileConstrains($modelData['constrains']));
 
         $modelData['has_arguments'] = false;
@@ -34,11 +42,12 @@ class StoreQuery
             $modelData['has_arguments'] = true;
         }
 
-
         /** @var Query $query */
-        $query = Query::create($modelData);
-        if ($query->parent_type == 'Shop') {
-            ShopHydrateQueries::dispatch($query->parent);
+        $query = $parent->queries()->create($modelData);
+
+
+        if ($parent instanceof Shop) {
+            ShopHydrateQueries::dispatch($query->parent)->delay($this->hydratorsDelay);
         }
 
         return $query;
@@ -50,41 +59,78 @@ class StoreQuery
             return true;
         }
 
-        return $request->user()->hasPermissionTo("crm.prospects.edit");
+        return false;
     }
 
     public function rules(): array
     {
-        return [
-            'name'        => ['required', 'string', 'max:255'],
-            'parent_type' => ['required', 'string'],
-            'parent_id'   => ['required', 'integer'],
-            'model_type'  => ['required', 'string'],
-            'constrains'  => ['required', 'array'],
-            'is_seeded'   => ['sometimes', 'boolean'],
-            'slug'        => ['sometimes', 'string'],
+        $rules = [
+            'name'       => [
+                'required',
+                'max:255',
+                'string',
+                new IUnique(
+                    table: 'queries',
+                    extraConditions:
+                        $this->parent instanceof Organisation
+                            ? [
+                            [
+                                'column' => 'organisation_id',
+                                'value'  => $this->parent->id
+                            ],
+                            [
+                                'column' => 'model',
+                                'value'  => $this->model
+                            ]
+                        ]
+                            : [
+                            [
+                                'column' => 'shop_id',
+                                'value'  => $this->parent->id
+                            ],
+                            [
+                                'column' => 'model',
+                                'value'  => $this->model
+                            ]
+                        ],
+                ),
+            ],
+            'model' => ['required', 'string'],
+            'constrains' => ['required', 'array'],
+            'seed_code'  => ['sometimes', 'string'],
         ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
     }
 
     /**
      * @throws \Exception
      */
-    public function action(array $objectData): Query
+    public function action(Organisation|Shop $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Query
     {
-        $this->asAction = true;
-        $this->setRawAttributes($objectData);
-        $validatedData = $this->validateAttributes();
+        if (!$audit) {
+            Query::disableAuditing();
+        }
+        $this->parent = $parent;
+        $this->model  = Arr::get($modelData, 'model', 'Error');
 
-        return $this->handle($validatedData);
+
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+
+        if (class_basename($parent) == 'Shop') {
+            $this->initialisationFromShop($parent, $modelData);
+        } else {
+            $this->initialisation($parent, $modelData);
+        }
+
+        return $this->handle($parent, $this->validatedData);
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function asController(ActionRequest $request): Query
-    {
-        $request->validate();
 
-        return $this->handle($request->validated());
-    }
 }

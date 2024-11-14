@@ -35,6 +35,7 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Issue;
+use App\Models\Helpers\Query;
 use App\Models\Helpers\SerialReference;
 use App\Models\Helpers\TaxNumber;
 use App\Models\Helpers\Timezone;
@@ -138,6 +139,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read ShippingZoneSchema|null $currentShippingZoneSchema
+ * @property-read LaravelCollection<int, CustomerPoll> $customerPolls
  * @property-read LaravelCollection<int, Customer> $customers
  * @property-read LaravelCollection<int, DeliveryNote> $deliveryNotes
  * @property-read ShippingZoneSchema|null $discountShippingZoneSchema
@@ -169,6 +171,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Product> $products
  * @property-read LaravelCollection<int, Prospect> $prospects
  * @property-read LaravelCollection<int, Purge> $purges
+ * @property-read LaravelCollection<int, Query> $queries
  * @property-read LaravelCollection<int, Redirect> $redirects
  * @property-read LaravelCollection<int, Rental> $rentals
  * @property-read LaravelCollection<int, Role> $roles
@@ -579,4 +582,10 @@ class Shop extends Model implements HasMedia, Auditable
     {
         return $this->hasMany(CustomerPoll::class);
     }
+
+    public function queries(): HasMany
+    {
+        return $this->hasMany(Query::class);
+    }
+
 }

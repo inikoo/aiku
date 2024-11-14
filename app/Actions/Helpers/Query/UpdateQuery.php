@@ -7,22 +7,22 @@
 
 namespace App\Actions\Helpers\Query;
 
+use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Helpers\Query;
+use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class UpdateQuery
+class UpdateQuery extends OrgAction
 {
-    use AsAction;
-    use WithAttributes;
     use WithActionUpdate;
     use WithQueryCompiler;
+    use WithNoStrictRules;
 
-    private bool $asAction = false;
 
+    private Query $query;
 
     /**
      * @throws \Exception
@@ -41,34 +41,61 @@ class UpdateQuery
             return true;
         }
 
-        return $request->user()->hasPermissionTo("crm.prospects.edit");
+        return false;
     }
 
     public function rules(): array
     {
-        return [
-            'name'       => ['sometimes', 'string'],
+        $rules = [
+            'code'               => [
+                'sometimes',
+                'required',
+                'max:255',
+                'string',
+                new IUnique(
+                    table: 'queries',
+                    extraConditions: [
+                        $this->query->shop->id ? [
+                            ['column' => 'organisation_id',
+                             'value' => $this->query->organisation_id
+                            ]
+                        ] : [
+                            ['column' => 'shop_id',
+                             'value' => $this->query->shop_id
+                            ]
+                        ],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->query->id
+                        ]
+                    ]
+                ),
+            ],
             'constrains' => ['sometimes', 'array'],
         ];
+
+        if (!$this->strict) {
+
+            $rules = $this->noStrictUpdateRules($rules);
+        }
+
+        return $rules;
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function action(Query $query, array $objectData): Query
+    public function action(Query $query, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Query
     {
-        $this->asAction  = true;
-        $this->setRawAttributes($objectData);
-        $validatedData = $this->validateAttributes();
-        return $this->handle($query, $validatedData);
+        $this->strict = $strict;
+        if (!$audit) {
+            Query::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->query       = $query;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisation($query->organisation, $modelData);
+
+        return $this->handle($query, $this->validatedData);
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function asController(Query $query, ActionRequest $request): Query
-    {
-        $request->validate();
-        return $this->handle($query, $request->validated());
-    }
+
 }
