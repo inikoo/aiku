@@ -172,4 +172,6 @@ interface SourceOrganisationService
 
     public function fetchOrderDispatchedEmail($id);
 
+    public function fetchIngredient($id);
+
 }

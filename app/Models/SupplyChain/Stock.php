@@ -73,6 +73,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Media|null $image
  * @property-read MediaCollection<int, Media> $images
+ * @property-read Collection<int, Ingredient> $ingredients
  * @property-read MediaCollection<int, Media> $media
  * @property-read Collection<int, OrgStock> $orgStocks
  * @property-read \App\Models\SupplyChain\StockStats|null $stats
