@@ -74,6 +74,7 @@ const ShowWebpage = (activityItem) => {
 }
 
 const updateData = (newVal) => {
+    console.log('iniii')
     sendMessageToParent('autosave', newVal)
 }
 
