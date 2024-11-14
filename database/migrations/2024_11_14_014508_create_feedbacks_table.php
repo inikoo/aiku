@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->unsignedSmallInteger('user_id')->index();
             $table->foreign('user_id')->references('id')->on('users');
-            $table->morphs('origin');
+            $table->nullableMorphs('origin');
             $table->dateTimeTz('date');
             $table->boolean('supplier');
             $table->boolean('picker');
