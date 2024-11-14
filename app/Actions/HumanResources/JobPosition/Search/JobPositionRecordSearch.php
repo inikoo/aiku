@@ -45,28 +45,30 @@ class JobPositionRecordSearch
             'haystack_tier_1'   => trim($jobPosition->name . ' ' . $jobPosition->code),
             'result'            => [
             'route'      => [
-            'name'       => 'grp.org.hr.job_positions.show',
-            'parameters' => [
-                'organisation' => $organisation->slug,
-                'jobPosition'  => $jobPosition->slug,
+                'name'       => 'grp.org.hr.job_positions.show',
+                'parameters' => [
+                    'organisation' => $organisation->slug,
+                    'jobPosition'  => $jobPosition->slug,
                 ]
             ],
             'code' => [
-            'label' => $jobPosition->name,
+                'label' => $jobPosition->name,
             ],
             'icon'       => [
-            'icon' => 'fal fa-clipboard-list-check'
+                'icon' => 'fal fa-clipboard-list-check'
             ],
             'meta'       => [
                     $jobPosition->stats->number_employees_currently_working > 0 ?
                     [
-                    'label'   => $jobPosition->stats->number_employees_currently_working,
-                    'tooltip' => __('employees')
+                    'type'   => 'number',
+                    'label' => __('employees') . ": ",
+                    'number'   => (int) $jobPosition->stats->number_employees_currently_working,
                     ] : [],
                     $jobPosition->stats->number_guests_status_active > 0 ?
                     [
-                    'label'   => $jobPosition->stats->number_guests_status_active,
-                    'tooltip' => __('guests')
+                    'type'   => 'number',
+                    'label' => __('guests') . ": ",
+                    'number'   => (int) $jobPosition->stats->number_guests_status_active,
                     ] : [],
                 ]
             ]
