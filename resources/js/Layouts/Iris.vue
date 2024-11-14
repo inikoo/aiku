@@ -18,23 +18,24 @@ const layout = useIrisLayoutStore()
 
 provide('layout', layout)
 
-/* const header = usePage().props?.iris?.header ? usePage().props?.iris?.header : { key : "header1" , data : headerData, blueprint : bluprintFormHeader } */
-/* const navigation =  usePage().props?.iris?.menu ? usePage().props?.iris?.menu : { key : "menu1" , data : navigationData } */
+const header = usePage().props?.iris?.header
+const navigation =  usePage().props?.iris?.menu
 const footer =  usePage().props?.iris?.footer
 const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color :  {color : [...useColorTheme[2]]}
-console.log( 'propsasdasdasdasd',usePage().props);
+
+console.log('inislds',usePage().props?.iris)
 
 </script>
 
 <template>
-    <div class="relative">
+    <div class="relative editor-class">
         <ScreenWarning v-if="layout.app.environment === 'staging'" />
         <div :class="[colorThemed.layout === 'blog' ? 'container max-w-7xl mx-auto shadow-xl' : '']" :style="{ fontFamily: colorThemed.fontFamily}">
-            <IrisLoginInformation />
-            <!--    <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation"/> -->
+        <!--     <IrisLoginInformation /> -->
+            <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation"/>
 
             <!-- Main Content -->
-            <main class="text-gray-700 max-w-7xl mx-auto shadow-xl">
+            <main>
                 <slot />
             </main>
              <Footer :data="footer" :colorThemed="colorThemed"/>
@@ -49,9 +50,88 @@ console.log( 'propsasdasdasdasd',usePage().props);
     </notifications>
 </template>
 
-<style>
-@font-face {
+<style lang="scss">
+/* @font-face {
     font-family: 'Raleway';
     src: url("@/Assets/raleway.woff2");
+} */
+
+
+.editor-class {
+    @apply flex flex-col;
 }
+
+.editor-class p {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: isolate;
+}
+
+.editor-class h1 {
+    @apply text-4xl font-semibold;
+}
+
+.editor-class h2 {
+    @apply text-3xl font-semibold;
+}
+
+.editor-class h3 {
+    @apply text-2xl font-semibold;
+}
+
+.editor-class ol,
+.editor-class ul {
+    @apply ml-8 list-outside mt-2;
+}
+
+.editor-class ol {
+    @apply list-decimal;
+}
+
+.editor-class ul {
+    @apply list-disc;
+}
+
+.editor-class ol li,
+.editor-class ul li {
+    @apply mt-2 first:mt-0;
+}
+
+.editor-class blockquote {
+    @apply italic border-l-4 border-gray-300 p-4 py-2 ml-6 mt-6 mb-2 bg-gray-50;
+}
+
+.editor-class a {
+    @apply hover:underline text-blue-600 cursor-pointer;
+}
+
+.editor-class hr {
+    @apply border-gray-400 my-4;
+}
+
+.editor-class table {
+    @apply border border-gray-400 table-fixed border-collapse w-full my-4;
+}
+
+.editor-class table th,
+.editor-class table td {
+    @apply border border-gray-400 py-2 px-4 text-left relative;
+}
+
+.editor-class table th {
+    @apply bg-blue-100 font-semibold;
+}
+
+.editor-class .tableWrapper {
+    @apply overflow-auto;
+}
+
+.editor-class p:empty::after {
+    content: "\00A0";
+}
+
+
 </style>

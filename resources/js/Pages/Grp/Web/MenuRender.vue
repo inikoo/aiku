@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { getComponent } from "@/Components/CMS/Website/Menus/Content"
+import { getComponent } from "@/Composables/getWorkshopComponents"
 
 import { faBox, faDollarSign, faHome as fasHome, faUserPlus, faSignIn } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'

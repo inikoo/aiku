@@ -30,10 +30,10 @@ const selectedColor = props.colorThemed?.color
 <template>
     <!-- Main Nav -->
     <div class="bg-white shadow-md border-b-2 border-gray-700" :style="{ borderColor : selectedColor[0]}">
-        <div class="container mx-auto flex flex-col justify-between items-center">
+        <div class="flex flex-col justify-between items-center">
 
             <!-- Section: Navigation list horizontal -->
-            <nav class="relative flex text-sm text-gray-600">
+            <nav class="relative flex text-sm text-gray-600 w-full">
                 <div v-for="(navigation, idxNavigation) in navigations" href="#" class="group w-full ">
                     <div
                         class="px-5 hover:bg-gray-200 hover:text-orange-500 flex items-center justify-center gap-x-1 h-full cursor-pointer">

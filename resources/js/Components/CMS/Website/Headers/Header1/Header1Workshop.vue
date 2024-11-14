@@ -61,7 +61,7 @@ const toggle = (event) => {
 
 <template>
     <div class="shadow-sm" :style="getStyles(modelValue.container.properties)">
-        <div class="container mx-auto flex flex-col justify-between items-center py-4 px-6">
+        <div class="flex flex-col justify-between items-center py-4 px-6">
             <div class="w-full grid grid-cols-3 items-center gap-6">
                 <!-- Logo -->
                 <div :style="getStyles(modelValue.logo.properties)">
@@ -84,7 +84,7 @@ const toggle = (event) => {
                     <button :style="getStyles(modelValue.button_1.properties)"
                         class="flex items-center justify-center px-4 py-2 bg-gold-500 text-white rounded-md shadow-md hover:bg-gold-600 transition duration-300 w-fit"
                         v-if="viewVisible(loginMode, modelValue.button_1.visible)">
-                        <Editor v-model="modelValue.button_1.text" :editable="true"
+                        <Editor v-model="modelValue.button_1.text" :editable="previewMode"
                             @update:model-value="(e) => { modelValue.button_1.text = e, emits('update:modelValue', modelValue) }" />
                     </button>
                 </div>

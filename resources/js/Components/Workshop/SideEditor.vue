@@ -151,7 +151,7 @@ onMounted(() => {
                     <template v-if="field.replaceForm">
                         <div v-for="form in field.replaceForm">
                             <div v-if="form.type != 'hidden'">
-                                <div class="my-2 text-xs font-semibold">{{ form?.name }}</div>
+                                <div class="my-2 text-xs font-semibold">{{ get(form,'label','') }}</div>
                                 <component :is="getComponent(form.type)" :key="form.key"
                                     :modelValue="getFormValue(modelValue, [...field.key, ...get(form,'key',[])])"
                                     @update:modelValue="newValue => setFormValue(modelValue, [...field.key, ...get(form,'key',[])], newValue)"
@@ -160,7 +160,7 @@ onMounted(() => {
                         </div>
                     </template>
                     <template v-else>
-                        <div class="my-2 text-xs font-semibold">{{ field?.name }}</div>
+                        <div class="my-2 text-xs font-semibold">{{ get(field,'label','') }}</div>
                         <component :is="getComponent(field.type)" :key="field.key"
                             :modelValue="getFormValue(modelValue, field.key)"
                             @update:modelValue="newValue => setFormValue(modelValue, field.key, newValue)"

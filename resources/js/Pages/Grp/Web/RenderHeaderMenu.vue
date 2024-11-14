@@ -1,7 +1,5 @@
 <script setup lang='ts'>
 import NavigationMenu from './MenuRender.vue'
-import { routeType } from "@/types/route"
-import IrisLoginInformation from '@/Layouts/Iris/IrisLoginInformation.vue'
 import { getComponent } from '@/Composables/getWorkshopComponents'
 
 const props = defineProps<{
@@ -66,7 +64,6 @@ const props = defineProps<{
     menu: {
         key: string,
         data: object,
-        blueprint: object
     }
     colorThemed: {
         color: string[]
