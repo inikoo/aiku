@@ -9,6 +9,7 @@
 namespace App\Models\Web;
 
 use App\Enums\Web\CustomerPoll\CustomerPollTypeEnum;
+use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -36,6 +37,8 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class CustomerPoll extends Model
 {
+    use InShop;
+    
     protected $casts = [
         'type' => CustomerPollTypeEnum::class
     ];
