@@ -36,6 +36,7 @@ use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Fulfilment\Rental;
+use App\Models\Goods\Ingredient;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Currency;
@@ -708,5 +709,10 @@ class Group extends Authenticatable implements Auditable, HasMedia
     {
         return $this->hasMany(ModelSubscribedToOutbox::class)
                     ->whereNull('unsubscribed_at');
+    }
+
+    public function ingredients() : HasMany 
+    {
+        return $this->hasMany(Ingredient::class);
     }
 }
