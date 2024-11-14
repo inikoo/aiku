@@ -5,9 +5,6 @@ import IrisLoginInformation from '@/Layouts/Iris/IrisLoginInformation.vue'
 
 import Footer from '@/Layouts/Iris/Footer.vue'
 import { useColorTheme } from '@/Composables/useStockList'
-import { data as headerData, bluprintForm as bluprintFormHeader} from '@/Components/Websites/Header/HeaderTemplates/Header1/descriptor'
-import { data as footerData, bluprintForm as bluprintFormFooter } from '@/Components/Websites/Footer/FooterTemplates/Footer1/descriptor'
-import { navigation as navigationData } from '@/Components/Websites/Menu/Descriptor'
 import { usePage } from '@inertiajs/vue3'
 import ScreenWarning from '@/Components/Utils/ScreenWarning.vue'
 import { provide } from 'vue'
@@ -19,14 +16,13 @@ initialiseIrisApp()
 const props = defineProps<{}>()
 const layout = useIrisLayoutStore()
 
-// const layout = inject('layout', useIrisLayoutStore())
 provide('layout', layout)
 
-/* const header = usePage().props?.iris?.header ? usePage().props?.iris?.header : { key : "header1" , data : headerData, blueprint : bluprintFormHeader }
-const footer =  usePage().props?.iris?.footer ? usePage().props?.iris?.footer :  { key : "footer1" , data : footerData, blueprint : bluprintFormFooter }
-const navigation =  usePage().props?.iris?.menu ? usePage().props?.iris?.menu : { key : "menu1" , data : navigationData } */
+/* const header = usePage().props?.iris?.header ? usePage().props?.iris?.header : { key : "header1" , data : headerData, blueprint : bluprintFormHeader } */
+/* const navigation =  usePage().props?.iris?.menu ? usePage().props?.iris?.menu : { key : "menu1" , data : navigationData } */
+const footer =  usePage().props?.iris?.footer
 const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color :  {color : [...useColorTheme[2]]}
-console.log( 'propsasdasdasdasd',colorThemed);
+console.log( 'propsasdasdasdasd',usePage().props);
 
 </script>
 
@@ -37,13 +33,11 @@ console.log( 'propsasdasdasdasd',colorThemed);
             <IrisLoginInformation />
             <!--    <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation"/> -->
 
-
             <!-- Main Content -->
             <main class="text-gray-700 max-w-7xl mx-auto shadow-xl">
                 <slot />
             </main>
-
-<!--              <Footer :data="footer" :colorThemed="colorThemed"/>-->
+             <Footer :data="footer" :colorThemed="colorThemed"/>
         </div>
     </div>
 
