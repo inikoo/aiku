@@ -30,6 +30,12 @@ return new class extends Migration
             $table->boolean('customer');
             $table->boolean('other');
             $table->text('message');
+            $table->jsonb('data');
+            $table->dateTimeTz('audited_at')->nullable();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->string('source_id')->nullable()->unique();
+            $table->softDeletesTz();
             $table->timestampsTz();
         });
     }
