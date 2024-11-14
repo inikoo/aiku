@@ -162,8 +162,13 @@ class TradeUnit extends Model implements HasMedia, Auditable
             ->withTimestamps();
     }
 
-    public function ingredients(): BelongsToMany
+    // public function ingredients(): BelongsToMany
+    // {
+    //     return $this->belongsToMany(Ingredient::class, 'trade_unit_has_ingredients');
+    // }
+
+    public function ingredients(): MorphToMany
     {
-        return $this->belongsToMany(Ingredient::class, 'trade_unit_has_ingredients');
+        return $this->morphToMany(Ingredient::class, 'model', 'model_has_ingredients')->withTimestamps();
     }
 }

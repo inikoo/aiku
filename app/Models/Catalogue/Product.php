@@ -10,6 +10,7 @@ namespace App\Models\Catalogue;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Models\CRM\Favourite;
+use App\Models\Goods\Ingredient;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\OrgStock;
 use App\Models\Reminder\BackInStockReminder;
@@ -267,6 +268,11 @@ class Product extends Model implements Auditable, HasMedia
     public function backInStockReminders(): HasMany
     {
         return $this->hasMany(BackInStockReminder::class);
+    }
+
+    public function ingredients(): MorphToMany
+    {
+        return $this->morphToMany(Ingredient::class, 'model', 'model_has_ingredients')->withTimestamps();
     }
 
 }
