@@ -50,7 +50,7 @@ class IndexJobPositions extends OrgAction
         $queryBuilder->select(['code', 'job_positions.slug', 'name', 'number_employees_currently_working']);
         if ($parent instanceof Organisation) {
 
-            $queryBuilder->where(function (Builder $query) use($parent) {
+            $queryBuilder->where(function (Builder $query) use ($parent) {
                 $query->where('organisation_id', $parent->id)->orWhere('organisation_id', null);
             });
 

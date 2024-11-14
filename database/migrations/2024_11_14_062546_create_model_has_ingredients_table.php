@@ -9,13 +9,13 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::create('model_has_feedbacks', function (Blueprint $table) {
+        Schema::create('model_has_ingredients', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('model_id');
             $table->string('model_type');
             $table->index(['model_id', 'model_type']);
-            $table->unsignedSmallInteger('feedback_id')->index();
-            $table->foreign('feedback_id')->references('id')->on('feedbacks');
+            $table->unsignedSmallInteger('ingredient_id')->index();
+            $table->foreign('ingredient_id')->references('id')->on('ingredients');
             $table->timestampsTz();
         });
     }
@@ -23,6 +23,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('model_has_feedbacks');
+        Schema::dropIfExists('model_has_ingredients');
     }
 };

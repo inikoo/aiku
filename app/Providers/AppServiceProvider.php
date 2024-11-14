@@ -32,7 +32,7 @@ class AppServiceProvider extends ServiceProvider
         }
 
         $this->app->singleton(BasicShopifyAPI::class, function ($app) {
-            $opts = app(Options::class); // Or retrieve as needed
+            $opts    = app(Options::class); // Or retrieve as needed
             $tsClass = config('shopify-app.api_time_store');
             $lsClass = config('shopify-app.api_limit_store');
             $sdClass = config('shopify-app.api_deferrer');
@@ -156,6 +156,8 @@ class AppServiceProvider extends ServiceProvider
                 'Outbox'                        => 'App\Models\Mail\Outbox',
                 'SenderEmail'                   => 'App\Models\Mail\SenderEmail',
                 'SesNotification'               => 'App\Models\Mail\SesNotification',
+                'EmailCopy'                     => 'App\Models\Mail\EmailCopy',
+
 
                 // Catalogue
                 'Shop'                          => 'App\Models\Catalogue\Shop',

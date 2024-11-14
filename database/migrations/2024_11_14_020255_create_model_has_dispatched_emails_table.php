@@ -11,7 +11,9 @@ return new class extends Migration
     {
         Schema::create('model_has_dispatched_emails', function (Blueprint $table) {
             $table->id();
-            $table->morphs('model');
+            $table->unsignedBigInteger('model_id');
+            $table->string('model_type');
+            $table->index(['model_id', 'model_type']);
             $table->unsignedSmallInteger('dispatched_email_id')->index();
             $table->foreign('dispatched_email_id')->references('id')->on('dispatched_emails');
             $table->timestampsTz();

@@ -25,7 +25,9 @@ class CustomerRecordSearch
         }
 
         $customer->universalSearch()->updateOrCreate(
-            [],
+            [
+
+            ],
             [
                 'group_id'          => $customer->group_id,
                 'organisation_id'   => $customer->organisation_id,
