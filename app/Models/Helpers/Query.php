@@ -7,8 +7,14 @@
 
 namespace App\Models\Helpers;
 
+use App\Models\CRM\Customer;
+use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -16,36 +22,55 @@ use Spatie\Sluggable\SlugOptions;
  * App\Models\Helpers\Query
  *
  * @property int $id
- * @property string $parent_type
- * @property int $parent_id
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property int|null $shop_id
  * @property string $slug
  * @property string $name
- * @property string $model_type
+ * @property string $model
+ * @property string $is_static
  * @property array $constrains
  * @property array $compiled_constrains
  * @property bool $has_arguments
- * @property bool $is_seeded
+ * @property string|null $seed_code
  * @property int|null $number_items
  * @property string|null $counted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $deleted_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $delete_comment
- * @property-read Model|\Eloquent $parent
- * @property-read Model|\Eloquent $scope
+ * @property array $source_constrains
+ * @property string|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Customer> $customers
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Catalogue\Shop|null $shop
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Query newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Query newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Query onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Query query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Query withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Query withoutTrashed()
  * @mixin \Eloquent
  */
-class Query extends Model
+class Query extends Model implements Auditable
 {
     use HasSlug;
+    use SoftDeletes;
+    use HasUniversalSearch;
+    use HasHistory;
+    use HasSlug;
+    use InShop;
 
     protected $casts = [
         'constrains'          => 'array',
         'compiled_constrains' => 'array',
         'informatics'         => 'array',
+        'source_constrains'          => 'array',
         'is_seeded'           => 'boolean',
         'has_arguments'       => 'boolean'
     ];
@@ -53,6 +78,7 @@ class Query extends Model
     protected $attributes = [
         'constrains'          => '{}',
         'compiled_constrains' => '{}',
+        'source_constrains'          => '{}',
     ];
 
     protected $guarded = [];
@@ -71,13 +97,14 @@ class Query extends Model
         return 'slug';
     }
 
-    public function scope(): MorphTo
+
+    public function customers(): MorphToMany
     {
-        return $this->morphTo();
+        return $this->morphedByMany(Customer::class, 'model', 'query_has_models', )->withTimestamps();
     }
 
-    public function parent(): MorphTo
-    {
-        return $this->morphTo();
-    }
+
+
+
+
 }

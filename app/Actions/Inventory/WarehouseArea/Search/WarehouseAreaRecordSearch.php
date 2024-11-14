@@ -32,7 +32,7 @@ class WarehouseAreaRecordSearch
                 'organisation_slug' => $warehouseArea->organisation->slug,
                 'warehouse_id'      => $warehouseArea->warehouse_id,
                 'warehouse_slug'    => $warehouseArea->warehouse->slug,
-                'sections'          => ['inventory'],
+                'sections'          => ['infrastructure'],
                 'haystack_tier_1'   => trim($warehouseArea->code.' '.$warehouseArea->name),
                 'keyword'           => $warehouseArea->code,
                 'result'            => [
@@ -44,10 +44,12 @@ class WarehouseAreaRecordSearch
                             $warehouseArea->slug
                         ]
                     ],
-                    'container' => [
-                        'label' => $warehouseArea->warehouse->name,
+                    'description'      => [
+                        'label' => $warehouseArea->name,
                     ],
-                    'title'     => $warehouseArea->name,
+                    'code' => [
+                        'label' => $warehouseArea->code,
+                    ],
                     'icon'      => [
                         'icon' => 'fal fa-map-signs',
                     ],

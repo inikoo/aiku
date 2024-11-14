@@ -52,6 +52,7 @@ use App\Transfers\Aurora\FetchAuroraOffer;
 use App\Transfers\Aurora\FetchAuroraOfferCampaign;
 use App\Transfers\Aurora\FetchAuroraOfferComponent;
 use App\Transfers\Aurora\FetchAuroraOrder;
+use App\Transfers\Aurora\FetchAuroraOrderDispatchedEmail;
 use App\Transfers\Aurora\FetchAuroraOrganisation;
 use App\Transfers\Aurora\FetchAuroraOrgStockMovement;
 use App\Transfers\Aurora\FetchAuroraPallet;
@@ -64,6 +65,7 @@ use App\Transfers\Aurora\FetchAuroraProductHasOrgStock;
 use App\Transfers\Aurora\FetchAuroraProspect;
 use App\Transfers\Aurora\FetchAuroraPurchaseOrder;
 use App\Transfers\Aurora\FetchAuroraPurchaseOrderTransaction;
+use App\Transfers\Aurora\FetchAuroraQuery;
 use App\Transfers\Aurora\FetchAuroraService;
 use App\Transfers\Aurora\FetchAuroraShipper;
 use App\Transfers\Aurora\FetchAuroraShippingZone;
@@ -499,6 +501,17 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchTopUp($id): ?array
     {
         return (new FetchAuroraTopUp($this))->fetch($id);
+    }
+
+    public function fetchQuery($id): ?array
+    {
+        return (new FetchAuroraQuery($this))->fetch($id);
+    }
+
+    public function fetchOrderDispatchedEmail($id): ?array
+    {
+        return (new FetchAuroraOrderDispatchedEmail($this))->fetch($id);
+
     }
 
 

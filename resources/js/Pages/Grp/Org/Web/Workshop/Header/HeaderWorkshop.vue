@@ -264,7 +264,7 @@ onMounted(() => {
 
 
         <div :class="usedTemplates ? 'col-span-8' : 'col-span-10'" class="w-full">
-            <div v-if="usedTemplates" class="h-full w-full bg-white">
+            <div v-if="usedTemplates" class="bg-white h-full">
                 <!-- Section: Screenview -->
                 <div class="flex justify-between max-w-7xl mx-auto bg-slate-200 border border-b-gray-300 pr-6">
                     <div class="flex">
@@ -295,7 +295,7 @@ onMounted(() => {
                     ref="_iframe"
                     :src="iframeSrc"
                     :title="props.title"
-                    :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
+                    :class="iframeClass"
                     @error="handleIframeError"
                     @load="isIframeLoading = false"
                 />

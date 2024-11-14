@@ -14,6 +14,7 @@ use App\Models\Catalogue\HistoricAsset;
 use App\Models\CRM\Customer;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Catalogue\Shop;
+use App\Models\Helpers\Feedback;
 use App\Models\Traits\InCustomer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -131,6 +133,11 @@ class Transaction extends Model
     public function historicAsset(): BelongsTo
     {
         return $this->belongsTo(HistoricAsset::class);
+    }
+
+    public function feedbacks(): MorphToMany
+    {
+        return $this->morphToMany(Feedback::class, 'model', 'model_has_feedbacks');
     }
 
 

@@ -13,6 +13,7 @@ use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\Helpers\Address;
+use App\Models\Helpers\Feedback;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Warehouse;
@@ -32,6 +33,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -220,6 +222,11 @@ class DeliveryNote extends Model implements Auditable
     public function fixedAddresses(): MorphToMany
     {
         return $this->morphToMany(Address::class, 'model', 'model_has_fixed_addresses')->withTimestamps();
+    }
+
+    public function feedbacks(): MorphMany
+    {
+        return $this->morphMany(Feedback::class, 'origin');
     }
 
 

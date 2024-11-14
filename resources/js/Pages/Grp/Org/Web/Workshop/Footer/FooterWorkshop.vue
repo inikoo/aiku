@@ -154,6 +154,10 @@ const handleIframeMessage = (event: MessageEvent) => {
     }
 };
 
+const openFullScreenPreview = () => {
+    window.open(iframeSrc+ '?isInWorkshop=true', '_blank')
+}
+
 onMounted(() => {
     window.addEventListener('message', handleIframeMessage);
 });
@@ -210,9 +214,13 @@ onMounted(() => {
                     <div v-if="isIframeLoading" class="loading-overlay">
                         <ProgressSpinner />
                     </div>
-
-                    <iframe :src="iframeSrc" :title="props.title" :class="[iframeClass]" @error="handleIframeError"
-                        @load="isIframeLoading = false" ref="_iframe" />
+                    <iframe 
+                        :src="iframeSrc" 
+                        :title="props.title" 
+                        :class="[iframeClass, isIframeLoading ? 'hidden' : '']"
+                        @error="handleIframeError"
+                        @load="isIframeLoading = false" 
+                        ref="_iframe" />
 
                    <!--  <div v-if="isIframeLoading" class="flex justify-center items-center w-full h-64 p-12 bg-white">
                         <FontAwesomeIcon icon="fad fa-spinner-third" class="animate-spin w-6" aria-hidden="true" />

@@ -30,17 +30,20 @@ const props = defineProps<{
 			title: string
 			tooltip?: string
 		}
-		iconRight?: {
+		state_icon?: {
 			tooltip?: string
 			icon: string
 			class: string
+			color: string
 		}
 		image?: any
 		model: string
-		title: string
+		description: {
+			label:string
+		}
 		code?: {
 			label: string
-			class?: string
+			Tooltip?: string
 		}
 		meta?: {
 			key: string

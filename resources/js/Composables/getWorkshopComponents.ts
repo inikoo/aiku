@@ -1,6 +1,5 @@
 import type { Component } from 'vue'
 
-//Components
 import WowsbarBanner from '@/Components/CMS/Webpage/WowsbarBanner/WowsbarBannerWorkshop.vue'
 import ProductPage from '@/Components/CMS/Webpage/ProductPage.vue'
 import Text from '@/Components/CMS/Webpage/Text/TextContentWorkshop.vue'

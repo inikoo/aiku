@@ -1,24 +1,25 @@
 <script setup lang='ts'>
-import { getComponent, getDescriptor } from '@/Components/CMS/Website/Footers/Content'
+import { getComponent } from '@/Composables/getIrisComponents'
+
+import { Root } from '@/types/Website/Website/footer1'
 
 
 const props = defineProps<{
-    data: {
-        key: string,
-        data: object,
-        blueprint: object
-    }
+    data: Root
     colorThemed: object
 }>()
 
-console.log('footer data', props)
 
 </script>
 
 <template>
-    <div v-if="data?.data?.footer">
-        <component :is="getComponent(data.code)" v-model="data.data.footer" :keyTemplate="data.code" :previewMode="true"
-            :colorThemed="colorThemed" />
+    <div>
+        <component 
+            :is="getComponent(data.code)" 
+            v-model="data.data.fieldValue" 
+            :keyTemplate="data.code" 
+            :previewMode="true"
+            :colorThemed="colorThemed" 
+        />
     </div>
-
 </template>

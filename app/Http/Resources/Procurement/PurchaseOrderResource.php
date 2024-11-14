@@ -30,9 +30,13 @@ class PurchaseOrderResource extends JsonResource
 
 
         return [
+            'id'         => $purchaseOrder->id,
             'number'     => $purchaseOrder->reference,
             'slug'       => $purchaseOrder->slug,
             'date'       => $purchaseOrder->date,
+            'state'         => $purchaseOrder->state->value,
+            'state_label'   => $purchaseOrder->state->labels()[$purchaseOrder->state->value],
+            'state_icon'    => $purchaseOrder->state->stateIcon()[$purchaseOrder->state->value],
             'created_at' => $purchaseOrder->created_at,
             'updated_at' => $purchaseOrder->updated_at,
         ];

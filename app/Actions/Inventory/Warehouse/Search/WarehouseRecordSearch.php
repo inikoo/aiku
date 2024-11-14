@@ -30,7 +30,7 @@ class WarehouseRecordSearch
                 'group_id'          => $warehouse->group_id,
                 'organisation_id'   => $warehouse->organisation_id,
                 'organisation_slug' => $warehouse->organisation->slug,
-                'sections'          => ['inventory'],
+                'sections'          => ['infrastructure'],
                 'haystack_tier_1'   => trim($warehouse->name.' '.$warehouse->code),
                 'keyword'           => $warehouse->code,
                 'result'            => [
@@ -41,18 +41,20 @@ class WarehouseRecordSearch
                             $warehouse->slug,
                         ]
                     ],
-                    'container'     => [
-                        'key'     => 'address',
-                        'label'   => $warehouse->location,
+                    'description'      => [
+                        'label' => $warehouse->name,
                     ],
-                    'title'     => $warehouse->name,
+                    'code' => [
+                        'label' => $warehouse->code,
+                    ],
                     'icon'      => [
                         'icon' => 'fal fa-warehouse',
                     ],
                     'meta'      => [
                         [
                             'key'   => 'state',
-                            'label' => $warehouse->state
+                            'label' => $warehouse->state,
+                            'tooltip' => 'State'
                         ],
                         [
                             'key'       => 'created_date',
