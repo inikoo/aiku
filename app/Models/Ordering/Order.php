@@ -20,6 +20,7 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\TaxCategory;
 use App\Models\Helpers\UniversalSearch;
+use App\Models\Mail\DispatchedEmail;
 use App\Models\ShopifyUserHasFulfilment;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -272,4 +273,11 @@ class Order extends Model implements HasMedia, Auditable
     {
         return $this->belongsTo(TaxCategory::class);
     }
+
+    public function dispatchedEmails(): MorphToMany
+    {
+        return $this->morphToMany(DispatchedEmail::class, 'model', 'model_has_dispatched_emails')->withTimestamps();
+    }
+
+
 }

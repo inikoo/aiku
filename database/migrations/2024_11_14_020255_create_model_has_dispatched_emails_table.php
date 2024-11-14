@@ -14,7 +14,15 @@ return new class extends Migration
             $table->morphs('model');
             $table->unsignedSmallInteger('dispatched_email_id')->index();
             $table->foreign('dispatched_email_id')->references('id')->on('dispatched_emails');
+            $table->unsignedSmallInteger('outbox_id')->index();
+            $table->foreign('outbox_id')->references('id')->on('outboxes');
+
+
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->string('source_id')->nullable()->unique();
+
         });
     }
 

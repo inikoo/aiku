@@ -11,7 +11,6 @@ namespace App\Actions\Goods\Ingredient;
 use App\Actions\GrpAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Goods\Ingredient;
-use App\Models\SysAdmin\Group;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateIngredient extends GrpAction
