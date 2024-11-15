@@ -37,6 +37,7 @@ import { Color } from '@tiptap/extension-color'
 import FontSize from 'tiptap-extension-font-size'
 /* import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue' */
 import ColorPicker from 'primevue/colorpicker';
+import Dialog from 'primevue/dialog';
 
 import {
     faUndo,
@@ -61,7 +62,9 @@ import {
     faFileVideo,
     faPaintBrushAlt,
     faText,
-    faTextSize
+    faTextSize,
+    faDraftingCompass,
+    faExternalLink
 } from "@far"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
@@ -70,6 +73,8 @@ import TiptapLinkDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapLi
 import TiptapVideoDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapVideoDialog.vue"
 /* import TiptapTableDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapTableDialog.vue" */
 import TiptapImageDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapImageDialog.vue"
+import { Plugin } from "prosemirror-state"
+import CustomLink from "./CustomLink/CustomLink.vue"
 
 const props = withDefaults(defineProps<{
     modelValue: string,
@@ -102,6 +107,8 @@ const showAddYoutubeDialog = ref<boolean>(false)
 const showAddTableDialog = ref<boolean>(false)
 const showAddImageDialog = ref<boolean>(false)
 const showLinkDialog = ref<boolean>()
+const CustomLinkConfirm = ref(false)
+const attrsCustomLink = ref<Object>(null)
 
 const editorInstance = useEditor({
     content: props.modelValue,
@@ -116,8 +123,40 @@ const editorInstance = useEditor({
         Document,
         Text,
         History,
-        customLink.configure({
-            openOnClick: false,
+        customLink.extend({
+            addProseMirrorPlugins() {
+                return [
+                    new Plugin({
+                        props: {
+                            handleClick(view, pos, event) {
+                                const linkMark = view.state.schema.marks.link
+                                const { tr } = view.state
+                                const attrs = tr.doc
+                                    .nodeAt(pos)
+                                    ?.marks.find((mark) => mark.type === linkMark)?.attrs
+
+                                if (attrs) {
+
+                                    // Prevent default link click behavior
+                                    event.preventDefault()
+
+                                    // Check if workshop URL exists
+                                    if (attrs.workshop) {
+                                        // Show a custom popup/modal with options
+                                        CustomLinkConfirm.value = true
+                                        attrsCustomLink.value = attrs
+                                    } else {
+                                        // No workshop, just open the regular URL
+                                        window.open(attrs.href, "_blank")
+                                    }
+                                    return true
+                                }
+                                return false
+                            },
+                        },
+                    }),
+                ]
+            },
         }),
         Heading.configure({
             levels: [1, 2, 3],
@@ -133,7 +172,7 @@ const editorInstance = useEditor({
         BulletList,
         OrderedList,
         Link.configure({
-        openOnClick: false,
+            openOnClick: false,
         }),
         HardBreak.extend({
             addKeyboardShortcuts() {
@@ -258,7 +297,7 @@ const onEditorClick = () => {
 }
 
 defineExpose({
-    editor : editorInstance
+    editor: editorInstance
 })
 
 </script>
@@ -267,7 +306,8 @@ defineExpose({
     <div id="tiptap" class="divide-y divide-gray-400">
         <BubbleMenu ref="_bubbleMenu" :editor="editorInstance" :tippy-options="{ duration: 100 }"
             v-if="editorInstance && !showDialog">
-            <section id="tiptap-toolbar" class="bg-gray-100 flex items-center rounded-xl border border-gray-300 divide-x divide-gray-400">
+            <section id="tiptap-toolbar"
+                class="bg-gray-100 flex items-center rounded-xl border border-gray-300 divide-x divide-gray-400">
                 <TiptapToolbarGroup>
                     <TiptapToolbarButton v-if="toogle.includes('undo')" label="Undo"
                         @click="editorInstance?.chain().focus().undo().run()"
@@ -447,11 +487,34 @@ defineExpose({
             @close="() => { showLinkDialog = false; showDialog = false; }" @update="updateLink" />
         <TiptapVideoDialog v-if="showAddYoutubeDialog" :show="showAddYoutubeDialog" @insert="insertYoutubeVideo"
             @close="() => { showAddYoutubeDialog = false; showDialog = false; }" />
+
+
+            <Dialog v-model:visible="CustomLinkConfirm"  :style="{ width: '25rem' }" modal :closable="false"
+                :dismissableMask="true" :showHeader="false" >
+                <div class="pt-5">
+                    <ul class="list-none p-0">
+                        <li class="mb-2">
+                            <a :href="attrsCustomLink?.workshop" target="_blank"
+                                class="block px-4 py-2 bg-blue-500 text-white rounded-lg text-center hover:bg-blue-600 transition">
+                                <FontAwesomeIcon :icon="faDraftingCompass"/> Go to Workshop 
+                            </a>
+                        </li>
+                        <li>
+                            <a :href="attrsCustomLink?.href" target="_blank" 
+                                class="block px-4 py-2 bg-blue-500 text-white rounded-lg text-center hover:bg-blue-600 transition">
+                                <FontAwesomeIcon :icon="faExternalLink"/> Go to Page
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </Dialog>
     </div>
 </template>
 
 
-<style scoped >
+<style scoped>
+
+
 :deep(.tippy-box) {
     min-width: 10px !important;
     max-width: max-content !important
@@ -575,6 +638,7 @@ defineExpose({
 :deep(.ProseMirror-gapcursor:after) {
     animation: ProseMirror-cursor-blink 1.1s steps(2, start) infinite;
 }
+
 /* 
 :deep(.ProseMirror > p > br:first-child:last-child) {
   display: none;

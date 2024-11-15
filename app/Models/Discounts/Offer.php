@@ -9,6 +9,7 @@ namespace App\Models\Discounts;
 
 use App\Enums\Discounts\Offer\OfferStateEnum;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -70,6 +71,7 @@ class Offer extends Model implements Auditable
     use HasFactory;
     use InShop;
     use HasHistory;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data'            => 'array',

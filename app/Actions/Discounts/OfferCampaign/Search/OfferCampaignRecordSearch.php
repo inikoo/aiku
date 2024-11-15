@@ -7,12 +7,12 @@
  *
 */
 
-namespace App\Actions\Discounts\Offer\Search;
+namespace App\Actions\Discounts\OfferCampaign\Search;
 
 use App\Models\Discounts\Offer;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OfferRecordSearch
+class OfferCampaignRecordSearch
 {
     use AsAction;
 
