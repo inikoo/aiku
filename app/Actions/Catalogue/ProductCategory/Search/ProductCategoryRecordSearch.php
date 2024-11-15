@@ -19,6 +19,7 @@ class ProductCategoryRecordSearch
 
     public function handle(ProductCategory $productCategory): void
     {
+
         if ($productCategory->trashed()) {
             $productCategory->universalSearch()->delete();
 
