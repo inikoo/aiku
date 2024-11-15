@@ -8,7 +8,6 @@
 namespace App\Actions\Fulfilment\PalletDelivery\Search;
 
 use App\Actions\HydrateModel;
-use App\Models\Accounting\Invoice;
 use App\Models\Fulfilment\PalletDelivery;
 use Illuminate\Support\Collection;
 
@@ -22,7 +21,7 @@ class ReindexPalletDeliverySearch extends HydrateModel
         PalletDeliveryRecordSearch::run($palletDelivery);
     }
 
-    protected function getModel(string $slug): Invoice
+    protected function getModel(string $slug): PalletDelivery
     {
         return PalletDelivery::withTrashed()->where('slug', $slug)->first();
     }
