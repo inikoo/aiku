@@ -54,7 +54,7 @@ Route::get('shop/{shop}/catalogue/{scope}/collections', GetCollections::class)->
 Route::get('organisation/{organisation}/employees/packers', GetPackers::class)->name('employees.packers');
 Route::get('organisation/{organisation}/employees/pickers', GetPickers::class)->name('employees.pickers');
 
-Route::get('org-agent/{orgAgent}/org-supplier-products', [GetOrgSupplierProducts::class, 'inOrgAgent'])->name('org-agent.org-supplier-products');
-Route::get('org-supplier/{orgSupplier}/org-supplier-products', [GetOrgSupplierProducts::class, 'inOrgSupplier'])->name('org-supplier.org-supplier-products');
+Route::get('org-agent/{orgAgent}/purchase-order/{purchaseOrder}/org-supplier-products', [GetOrgSupplierProducts::class, 'inOrgAgent'])->name('org-agent.org-supplier-products');
+Route::get('org-supplier/{orgSupplier/purchase-order/{purchaseOrder}/org-supplier-products', [GetOrgSupplierProducts::class, 'inOrgSupplier'])->name('org-supplier.org-supplier-products');
 
 Route::get('website/{website}/unique-visitors', GetWebsiteCloudflareUniqueVisitors::class)->name('website.unique-visitors');
