@@ -102,12 +102,13 @@ class IndexUniversalSearch extends InertiaAction
             'shops.show.mail.' => ['mail'],
             'shops.show.marketing.' => ['marketing'],
             'show.discounts.' => ['discounts'],
-            'shops.show.ordering.' => ['ordering'],
+            'shops.show.ordering.' => ['ordering', 'dispatching'],
             'shops.show.web.' => ['web'],
             'shops.show.crm.' => ['crm'],
             'hr.' => ['hr'],
             'warehouses.show.infrastructure.' => ['infrastructure'],
-            'warehouses.' => ['infrastructure', 'inventory']
+            'warehouses.show.dispatching' => ['dispatching'],
+            'warehouses.' => ['infrastructure', 'inventory', 'dispatching']
         ];
 
         if (empty($route)) {

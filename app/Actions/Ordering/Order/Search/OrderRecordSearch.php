@@ -35,35 +35,52 @@ class OrderRecordSearch
                 'customer_id'       => $order->customer_id,
                 'customer_slug'     => $order->customer->slug,
                 'sections'          => ['ordering'],
-                'haystack_tier_1'   => $order->reference,
+                'haystack_tier_1'   => trim($order->reference . ' ' . $order->customer->name),
                 'result'            => [
-                    'aa'        => $order,
-                    'container' => [
-                        'label'     => $order->customer->name,
-                        'tooltip'   => __('Customer name')
+                    'route'      => [
+                        'name'       => 'grp.org.shops.show.ordering.orders.show',
+                        'parameters' => [
+                            'organisation' => $order->organisation->slug,
+                            'shop'     => $order->shop->slug,
+                            'order'     => $order->slug,
+                        ]
                     ],
-                    'title' => $order->reference,
+                    'description' => [
+                        'label'     => $order->customer->name,
+                    ],
+                    'code' => [
+                        'label' => $order->reference
+                    ],
                     'icon'  => [
                         'icon' => 'fal fa-shopping-cart',
                     ],
                     'meta'  => [
                         [
-                            'key'     => 'status',
-                            'label'   => $order->status,
+                            'label'   => __($order->state->value),
+                            'tooltip' => __('State')
+                        ],
+                        [
+                            'label'   => $order->status->value,
                             'tooltip' => __('Status')
                         ],
                         [
-                            'key'     => 'created_date',
                             'type'    => 'date',
                             'label'   => $order->created_at,
-                            'tooltip' => __('Created at')
+                            'tooltip' => __('Date')
                         ],
                         [
-                            'key'       => 'total_amount',
                             'type'      => 'currency',
+                            'label'     => __('Payment'),
                             'code'      => $order->currency->code,
-                            'amount'    => $order->total_amount,
-                            'tooltip'   => __('Total amount')
+                            'amount'    => $order->payment_amount,
+                            'tooltip'   => __('Payment')
+                        ],
+                        [
+                            'type'      => 'currency',
+                            'label'     => __('Net'),
+                            'code'      => $order->currency->code,
+                            'amount'    => $order->net_amount,
+                            'tooltip'   => __('Net')
                         ],
                     ]
                 ]
