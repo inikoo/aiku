@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 
 class ReindexPalletDeliverySearch extends HydrateModel
 {
-    public string $commandSignature = 'pallet-delivery:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'pallet_delivery:search {organisations?*} {--s|slugs=}';
 
 
     public function handle(PalletDelivery $palletDelivery): void
