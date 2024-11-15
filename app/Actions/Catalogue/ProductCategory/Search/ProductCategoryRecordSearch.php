@@ -37,8 +37,34 @@ class ProductCategoryRecordSearch
                 'haystack_tier_1'   => $productCategory->code,
                 'haystack_tier_2'   => $productCategory->name,
                 'result'            => [
-
-
+                    'route'         => match($productCategory->type) {
+                        ProductCategoryTypeEnum::DEPARTMENT => [
+                            'name'          => 'grp.org.shops.show.catalogue.departments.show',
+                            'parameters'    => [
+                                $productCategory->organisation->slug,
+                                $productCategory->shop->slug,
+                                $productCategory->slug,
+                            ]
+                        ],
+                        ProductCategoryTypeEnum::SUB_DEPARTMENT => [
+                            'name'          => 'grp.org.shops.show.catalogue.departments.show.sub-departments.show',
+                            'parameters'    => [
+                                $productCategory->organisation->slug,
+                                $productCategory->shop->slug,
+                                $productCategory->department->slug,
+                                $productCategory->slug,
+                            ]
+                        ],
+                        ProductCategoryTypeEnum::FAMILY => [
+                            'name'          => 'grp.org.shops.show.catalogue.families.show',
+                            'parameters'    => [
+                                $productCategory->organisation->slug,
+                                $productCategory->shop->slug,
+                                $productCategory->slug,
+                            ]
+                        ],
+                        default => null,
+                    },
                     'code' => [
                         'label' => $productCategory->code,
                     ],
@@ -46,24 +72,33 @@ class ProductCategoryRecordSearch
                     'description' => [
                         'label' => $productCategory->name,
                     ],
-                    'stats'       => match ($productCategory->type) {
+                    'meta'       => match ($productCategory->type) {
                         ProductCategoryTypeEnum::DEPARTMENT, ProductCategoryTypeEnum::SUB_DEPARTMENT => [
                             [
-                                'label' => __('Families'),
-                                'icon'  => 'fal fa-folder',
-                                'value' => $productCategory->stats->number_current_families,
+                                'type' => 'number',
+                                'label' => __('Families') . ": ",
+                                'icon'  => [
+                                    'icon' => 'fal fa-folder'
+                                ],
+                                'number' => $productCategory->stats->number_current_families,
                             ],
                             [
-                                'label' => __('Products'),
-                                'icon'  => 'fal fa-cube',
-                                'value' => $productCategory->stats->number_current_products
+                                'type' => 'number',
+                                'label' => __('Products') . ": ",
+                                'icon'  => [
+                                    'icon' => 'fal fa-cube'
+                                ],
+                                'number' => $productCategory->stats->number_current_products
                             ]
                         ],
                         ProductCategoryTypeEnum::FAMILY => [
                             [
-                                'label' => __('Products'),
-                                'icon'  => 'fal fa-cube',
-                                'value' => $productCategory->stats->number_current_products
+                                'type' => 'number',
+                                'label' => __('Products') . ": ",
+                                'icon'  => [
+                                    'icon' => 'fal fa-cube'
+                                ],
+                                'number' => $productCategory->stats->number_current_products
                             ]
                         ]
                     },
