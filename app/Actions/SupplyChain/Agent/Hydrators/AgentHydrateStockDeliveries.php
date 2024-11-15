@@ -7,16 +7,18 @@
 
 namespace App\Actions\SupplyChain\Agent\Hydrators;
 
+use App\Actions\Traits\WithEnumStats;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStatusEnum;
+use App\Models\Procurement\StockDelivery;
 use App\Models\SupplyChain\Agent;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class AgentHydrateStockDeliveries
 {
     use AsAction;
+    use WithEnumStats;
     private Agent $agent;
 
     public function __construct(Agent $agent)
@@ -32,26 +34,28 @@ class AgentHydrateStockDeliveries
     public function handle(Agent $agent): void
     {
         $stats = [
-            'number_stock_deliveries' => $agent->purchaseOrders->count(),
+            'number_stock_deliveries' => $agent->stockDeliveries->count(),
         ];
 
-        $stockDeliveryStateCounts = $agent->purchaseOrders()
-            ->selectRaw('state, count(*) as total')
-            ->groupBy('state')
-            ->pluck('total', 'state')->all();
+        $stats = array_merge($stats, $this->getEnumStats(
+            model:'stock_deliveries',
+            field: 'state',
+            enum: StockDeliveryStateEnum::class,
+            models: StockDelivery::class,
+            where: function ($q) use ($agent) {
+                $q->where('agent_id', $agent->id);
+            }
+        ));
 
-        foreach (StockDeliveryStateEnum::cases() as $productState) {
-            $stats['number_stock_deliveries_state_'.$productState->snake()] = Arr::get($stockDeliveryStateCounts, $productState->value, 0);
-        }
-
-        $stockDeliveryStatusCounts =  $agent->purchaseOrders()
-            ->selectRaw('status, count(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status')->all();
-
-        foreach (StockDeliveryStatusEnum::cases() as $stockDeliveryStatusEnum) {
-            $stats['number_stock_deliveries_status_'.$stockDeliveryStatusEnum->snake()] = Arr::get($stockDeliveryStatusCounts, $stockDeliveryStatusEnum->value, 0);
-        }
+        $stats = array_merge($stats, $this->getEnumStats(
+            model:'stock_deliveries',
+            field: 'status',
+            enum: StockDeliveryStatusEnum::class,
+            models: StockDelivery::class,
+            where: function ($q) use ($agent) {
+                $q->where('agent_id', $agent->id);
+            }
+        ));
 
         $agent->stats()->update($stats);
     }

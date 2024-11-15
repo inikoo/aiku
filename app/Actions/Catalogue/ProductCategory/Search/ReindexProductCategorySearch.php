@@ -16,9 +16,9 @@ class ReindexProductCategorySearch extends HydrateModel
     public string $commandSignature = 'product_category:search {organisations?*} {--s|slugs=}';
 
 
-    public function handle(ProductCategory $customer): void
+    public function handle(ProductCategory $productCategory): void
     {
-        ProductCategoryRecordSearch::run($customer);
+        ProductCategoryRecordSearch::run($productCategory);
     }
 
     protected function getModel(string $slug): ProductCategory

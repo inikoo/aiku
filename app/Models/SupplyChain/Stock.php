@@ -203,8 +203,4 @@ class Stock extends Model implements HasMedia, Auditable
         return $this->morphToMany(Barcode::class, 'mode', 'model_has_barcodes')->withTimestamps();
     }
 
-    public function ingredients(): MorphToMany
-    {
-        return $this->morphToMany(Ingredient::class, 'model', 'model_has_ingredients')->withTimestamps();
-    }
 }

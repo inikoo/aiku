@@ -98,7 +98,7 @@ class TradeUnit extends Model implements HasMedia, Auditable
     protected $attributes = [
         'data'       => '{}',
         'dimensions' => '{}',
-        'sources'     => '{}',
+        'sources'    => '{}',
     ];
 
     protected $guarded = [];
@@ -162,13 +162,19 @@ class TradeUnit extends Model implements HasMedia, Auditable
             ->withTimestamps();
     }
 
-    // public function ingredients(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(Ingredient::class, 'trade_unit_has_ingredients');
-    // }
-
-    public function ingredients(): MorphToMany
+    public function ingredients(): BelongsToMany
     {
-        return $this->morphToMany(Ingredient::class, 'model', 'model_has_ingredients')->withTimestamps();
+        return $this->belongsToMany(Ingredient::class, 'trade_unit_has_ingredients')->withTimestamps()
+            ->withPivot(
+                'prefix',
+                'suffix',
+                'notes',
+                'concentration',
+                'purity',
+                'percentage',
+                'aroma'
+            );
     }
+
+
 }
