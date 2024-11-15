@@ -162,6 +162,7 @@ const sidebarOpen = ref(false)
 
     @apply focus:ring-0 focus:outline-none focus:border-none
     bg-no-repeat [background-position:0%_100%]
+    transition-all
     [background-size:100%_0.2em]
     motion-safe:transition-all motion-safe:duration-200
     hover:[background-size:100%_100%]

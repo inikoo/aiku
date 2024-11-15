@@ -37,8 +37,11 @@ class GetOrgSupplierProducts extends OrgAction
 
         $queryBuilder = QueryBuilder::for(OrgSupplierProduct::class);
         $queryBuilder->leftJoin('supplier_products', 'supplier_products.id', 'org_supplier_products.supplier_product_id');
-        $queryBuilder->leftJoin('purchase_order_transactions', 'purchase_order_transactions.org_supplier_product_id', 'org_supplier_products.id');
-
+        $queryBuilder->leftJoin('purchase_order_transactions', function ($join) use ($purchaseOrder) {
+            $join->on('purchase_order_transactions.org_supplier_product_id', '=', 'org_supplier_products.id')
+                ->where('purchase_order_transactions.purchase_order_id', $purchaseOrder->id);
+        });
+        
         if (class_basename($parent) == 'OrgAgent') {
             $queryBuilder->where('org_supplier_products.org_agent_id', $parent->id);
         } elseif (class_basename($parent) == 'OrgSupplier') {

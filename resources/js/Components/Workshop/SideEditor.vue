@@ -126,6 +126,8 @@ const setFormValues = (blueprint = [], data = {}) => {
 
 
 onMounted(() => {
+    // const xxx = setFormValues(props.blueprint, cloneDeep(props.modelValue))
+    // console.log('xxxx', props.blueprint, xxx)
     emits('update:modelValue', setFormValues(props.blueprint, cloneDeep(props.modelValue)));
 });
 
@@ -148,17 +150,25 @@ onMounted(() => {
 
             <AccordionContent class="px-0 py-2">
                 <div class="bg-white mt-[0px]">
+                    <!-- Replaceform -->
                     <template v-if="field.replaceForm">
                         <div v-for="form in field.replaceForm">
+                            {{ form }}
                             <div v-if="form.type != 'hidden'">
                                 <div class="my-2 text-xs font-semibold">{{ get(form,'label','') }}</div>
-                                <component :is="getComponent(form.type)" :key="form.key"
+                                <component
+                                    :is="getComponent(form.type)"
+                                    :key="form.key"
                                     :modelValue="getFormValue(modelValue, [...field.key, ...get(form,'key',[])])"
                                     @update:modelValue="newValue => setFormValue(modelValue, [...field.key, ...get(form,'key',[])], newValue)"
-                                    :uploadRoutes="uploadImageRoute" v-bind="{ ...form?.props_data, background }" />
+                                    :uploadRoutes="uploadImageRoute"
+                                    v-bind="{ ...form?.props_data, background }"
+                                />
                             </div>
                         </div>
                     </template>
+
+                    <!-- key -->
                     <template v-else>
                         <div class="my-2 text-xs font-semibold">{{ get(field,'label','') }}</div>
                         <component :is="getComponent(field.type)" :key="field.key"

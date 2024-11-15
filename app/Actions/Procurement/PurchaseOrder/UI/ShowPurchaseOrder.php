@@ -127,6 +127,7 @@ class ShowPurchaseOrder extends OrgAction
                 'name'       => 'grp.json.org-agent.org-supplier-products',
                 'parameters' => [
                     'orgAgent' => $purchaseOrder->parent->slug,
+                    'purchaseOrder' => $purchaseOrder->slug
                 ]
             ];
         } elseif ($purchaseOrder->parent instanceof OrgSupplier) {
@@ -136,6 +137,7 @@ class ShowPurchaseOrder extends OrgAction
                 'name'       => 'grp.json.org-supplier.org-supplier-products',
                 'parameters' => [
                     'orgSupplier' => $purchaseOrder->parent->slug,
+                    'purchaseOrder' => $purchaseOrder->slug
                 ]
             ];
         }
