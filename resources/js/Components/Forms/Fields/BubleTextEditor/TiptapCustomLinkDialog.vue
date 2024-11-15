@@ -106,7 +106,7 @@ const options = [
             <!-- Buttons -->
             <div class="flex flex-row justify-end space-x-3">
                 <Button type="white" label="cancel" @click="closeDialog">
-                    Batal
+                    Cancel
                 </Button>
                 <Button @click="update" type="black" label="Apply" />
             </div>
