@@ -32,6 +32,7 @@ class PurchaseOrderOrgSupplierProductsResource extends JsonResource
             'historic_id'     => $this->historic_id,
             'code'            => $this->code,
             'name'            => $this->name,
+            'supplier_name'   => $supplierProduct->supplier->name,
             'image_thumbnail' => $supplierProduct->stock->imageSources(40, 40),
             'quantity_ordered' => $this->quantity_ordered ?? 0
         ];
