@@ -130,13 +130,15 @@ const isLoading = ref(false)
 							v-if="meta.label"
 							v-tooltip="meta.tooltip"
 							class="flex items-center gap-x-1 text-gray-400 text-xs">
-							<FontAwesomeIcon
+							<Icon :data="meta?.icon" size="2xs" class="" />
+
+						<!-- 	<FontAwesomeIcon
 								v-if="meta.icon"
 								:icon="meta.icon"
 								:class="meta.class"
 								size="sm"
 								fixed-width
-								aria-hidden="true" />
+								aria-hidden="true" /> -->
 							<template v-if="meta.type === 'date'">
 								{{ useFormatTime(meta.label) }}
 							</template>
