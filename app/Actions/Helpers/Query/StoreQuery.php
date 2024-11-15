@@ -47,7 +47,7 @@ class StoreQuery extends OrgAction
 
 
         if ($parent instanceof Shop) {
-            ShopHydrateQueries::dispatch($query->parent)->delay($this->hydratorsDelay);
+            ShopHydrateQueries::dispatch($query->shop)->delay($this->hydratorsDelay);
         }
 
         return $query;
