@@ -489,10 +489,10 @@ defineExpose({
     font-family: "Inter", sans-serif;
 }
 
-:deep(.editor-class p) {
+.editor-class p {
     display: block;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
+    margin-block-start: 0em;
+    margin-block-end: 0em;
     margin-inline-start: 0px;
     margin-inline-end: 0px;
     unicode-bidi: isolate;
@@ -509,6 +509,15 @@ defineExpose({
 /* :deep(.editor-class p) {
     @apply leading-4 mb-0 mt-0 mr-0 ml-0
 } */
+
+:deep(.editor-class p) {
+    display: block;
+    margin-block-start: 0em;
+    margin-block-end: 0em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: isolate;
+}
 
 :deep(.editor-class h1) {
     @apply text-4xl font-semibold;

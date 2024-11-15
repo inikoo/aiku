@@ -19,7 +19,7 @@ const props = defineProps({
         required: true,
     },
 });
-console.log()
+
 const showLinkDialog = ref<boolean>(false);
 
 const openUrl = () => {
