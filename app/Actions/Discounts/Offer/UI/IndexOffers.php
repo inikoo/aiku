@@ -62,7 +62,7 @@ class IndexOffers extends OrgAction
                 'shops.slug as shop_slug'
             );
 
-        return $query->allowedSorts(['code', 'name'])
+        return $query->allowedSorts(['id','code', 'name'])
             ->allowedFilters([$globalSearch, 'code', 'name'])
             ->withPaginator($prefix)
             ->withQueryString();

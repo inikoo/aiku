@@ -11,6 +11,7 @@ import Table from "@/Components/Table/Table.vue"
 import { Order } from "@/types/order"
 import type { Links, Meta, Table as TableTS } from "@/types/Table"
 // import { useFormatTime } from '@/Composables/useFormatTime'
+import Icon from "@/Components/Icon.vue"
 
 defineProps<{
     data: TableTS
@@ -24,7 +25,7 @@ function campaignRoute(campaign: {}) {
         case "grp.org.shops.show.discounts.campaigns.index":
             return route(
                 "grp.org.shops.show.discounts.campaigns.show",
-                [route().params["organisation"], route().params["shop"],  campaign.slug])
+                [route().params["organisation"], route().params["shop"], campaign.slug])
         default:
             return ''
     }
@@ -36,9 +37,12 @@ function campaignRoute(campaign: {}) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <!-- Column: Reference -->
+        <template #cell(state)="{ item: campaign }">
+            <Icon :data="campaign.state_icon" />
+        </template>
         <template #cell(code)="{ item: campaign }">
             <Link :href="campaignRoute(campaign)" class="primaryLink">
-                {{ campaign.code }}
+            {{ campaign.code }}
             </Link>
         </template>
 
