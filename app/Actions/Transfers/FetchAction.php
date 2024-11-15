@@ -43,7 +43,7 @@ class FetchAction
     protected int $number_no_changes = 0;
     protected int $number_errors = 0;
 
-    protected AuroraOrganisationService|WowsbarOrganisationService|null $organisationSource = null;
+    protected AuroraOrganisationService|WowsbarOrganisationService|SourceOrganisationService|null $organisationSource = null;
 
     protected int $hydratorsDelay = 0;
 

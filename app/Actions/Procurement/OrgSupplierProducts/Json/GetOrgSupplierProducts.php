@@ -9,7 +9,6 @@
 namespace App\Actions\Procurement\OrgSupplierProducts\Json;
 
 use App\Actions\OrgAction;
-use App\Http\Resources\Procurement\OrgSupplierProductsResource;
 use App\Http\Resources\Procurement\PurchaseOrderOrgSupplierProductsResource;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgSupplier;
@@ -41,7 +40,7 @@ class GetOrgSupplierProducts extends OrgAction
             $join->on('purchase_order_transactions.org_supplier_product_id', '=', 'org_supplier_products.id')
                 ->where('purchase_order_transactions.purchase_order_id', $purchaseOrder->id);
         });
-        
+
         if (class_basename($parent) == 'OrgAgent') {
             $queryBuilder->where('org_supplier_products.org_agent_id', $parent->id);
         } elseif (class_basename($parent) == 'OrgSupplier') {

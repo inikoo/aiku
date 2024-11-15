@@ -24,9 +24,34 @@ use OwenIt\Auditing\Contracts\Auditable;
 /**
  *
  *
+ * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property int|null $shop_id
+ * @property int|null $warehouse_id
+ * @property int|null $user_id The user who created/inputted the feedback
+ * @property string $origin_source
+ * @property string $origin_type
+ * @property int $origin_id
+ * @property bool $blame_supplier
+ * @property bool $blame_picker
+ * @property bool $blame_packer
+ * @property bool $blame_warehouse
+ * @property bool $blame_courier
+ * @property bool $blame_marketing
+ * @property bool $blame_customer
+ * @property bool $blame_other
+ * @property string|null $message
+ * @property array $data
+ * @property string|null $source_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
- * @property-read \App\Models\SysAdmin\Group|null $group
- * @property-read \App\Models\SysAdmin\Organisation|null $organisation
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Model|\Eloquent $origin
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaction> $transaction
@@ -48,9 +73,10 @@ class Feedback extends Model implements Auditable
     use HasHistory;
     use InShop;
 
+    protected $table = 'feedbacks';
+
     protected $casts = [
         'data'               => 'array',
-        'audited_at'         => 'datetime',
         'fetched_at'         => 'datetime',
         'last_fetched_at'    => 'datetime',
     ];

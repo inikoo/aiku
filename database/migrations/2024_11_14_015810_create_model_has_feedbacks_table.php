@@ -4,9 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-
+return new class () extends Migration {
     public function up(): void
     {
         Schema::create('model_has_feedbacks', function (Blueprint $table) {
@@ -16,6 +14,7 @@ return new class extends Migration
             $table->index(['model_id', 'model_type']);
             $table->unsignedSmallInteger('feedback_id')->index();
             $table->foreign('feedback_id')->references('id')->on('feedbacks');
+            $table->string('type')->index();
             $table->timestampsTz();
         });
     }

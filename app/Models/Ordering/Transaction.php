@@ -72,6 +72,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read Asset|null $asset
  * @property-read Customer $customer
  * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
+ * @property-read Collection<int, Feedback> $feedbacks
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read HistoricAsset|null $historicAsset
  * @property-read Model|\Eloquent $item

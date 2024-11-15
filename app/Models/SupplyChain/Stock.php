@@ -9,7 +9,6 @@ namespace App\Models\SupplyChain;
 
 use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Enums\SupplyChain\Stock\StockTradeUnitCompositionEnum;
-use App\Models\Goods\Ingredient;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Media;
@@ -73,7 +72,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Media|null $image
  * @property-read MediaCollection<int, Media> $images
- * @property-read Collection<int, Ingredient> $ingredients
  * @property-read MediaCollection<int, Media> $media
  * @property-read Collection<int, OrgStock> $orgStocks
  * @property-read \App\Models\SupplyChain\StockStats|null $stats

@@ -174,4 +174,6 @@ interface SourceOrganisationService
 
     public function fetchIngredient($id);
 
+    public function fetchFeedback($id);
+
 }

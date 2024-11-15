@@ -28,6 +28,15 @@ class FetchAuroraTradeUnits extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?TradeUnit
     {
+
+
+        $this->organisationSource = $organisationSource;
+
+
+        $organisation = $organisationSource->getOrganisation();
+
+
+
         if ($tradeUnitData = $organisationSource->fetchTradeUnit($organisationSourceId)) {
             if (TradeUnit::withTrashed()->where('source_slug', $tradeUnitData['trade_unit']['source_slug'])->exists()) {
                 if ($tradeUnit = TradeUnit::withTrashed()->where('source_id', $tradeUnitData['trade_unit']['source_id'])->first()) {
@@ -110,33 +119,23 @@ class FetchAuroraTradeUnits extends FetchAuroraAction
                         ->where('Part SKU', $dataSource[1])->get() as $auroraIngredients
                 ) {
                     $ingredient = $this->parseIngredient(
-                        $this->organisationSource->getOrganisation()->id.
+                        $organisation->id.
                         ':'.$auroraIngredients->{'Material Key'}
                     );
                     if ($ingredient) {
                         $ingredientsToDelete = array_diff($ingredientsToDelete, [$ingredient->id]);
 
-
-                        //print_r($ingredient->source_data);
-
-                        $ingredientSourceID = $this->organisationSource->getOrganisation()->id.':'.$auroraIngredients->{'Material Key'};
-
-                        //print ">>>>>>>>>>$ingredientSourceID<<<<<<<\n";
+                        $ingredientSourceID = $organisation->id.':'.$auroraIngredients->{'Material Key'};
 
                         $arguments = Arr::get($ingredient->source_data, 'trade_unt_args.'.$ingredientSourceID, []);
-
-                        //print_r($arguments);
                         $ingredients[$ingredient->id] = $arguments;
                     }
 
 
                     $tradeUnit->ingredients()->syncWithoutDetaching($ingredients);
-                    // print_r($ingredients);
                 }
 
 
-                //dd($tradeUnit->source_id);
-                //  dd($ingredientsToDelete);
 
                 $tradeUnit->ingredients()->whereIn('ingredient_id', array_keys($ingredientsToDelete))->forceDelete();
             }

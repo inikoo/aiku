@@ -10,7 +10,6 @@ namespace App\Models\Catalogue;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
 use App\Models\CRM\Favourite;
-use App\Models\Goods\Ingredient;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\OrgStock;
 use App\Models\Reminder\BackInStockReminder;
@@ -90,7 +89,6 @@ use Spatie\Tags\HasTags;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Ingredient> $ingredients
  * @property-read Product|null $mainProduct
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgStock> $orgStocks

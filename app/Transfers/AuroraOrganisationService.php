@@ -38,6 +38,7 @@ use App\Transfers\Aurora\FetchAuroraEmailTrackingEvent;
 use App\Transfers\Aurora\FetchAuroraEmployee;
 use App\Transfers\Aurora\FetchAuroraFamily;
 use App\Transfers\Aurora\FetchAuroraFavourite;
+use App\Transfers\Aurora\FetchAuroraFeedback;
 use App\Transfers\Aurora\FetchAuroraHistoricAsset;
 use App\Transfers\Aurora\FetchAuroraHistoricService;
 use App\Transfers\Aurora\FetchAuroraHistoricSupplierProduct;
@@ -519,5 +520,9 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraIngredient($this))->fetch($id);
     }
 
+    public function fetchFeedback($id): ?array
+    {
+        return (new FetchAuroraFeedback($this))->fetch($id);
+    }
 
 }

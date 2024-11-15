@@ -18,6 +18,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraDeletedEmployees;
 use App\Actions\Transfers\Aurora\FetchAuroraDeletedLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraDeletedStocks;
 use App\Actions\Transfers\Aurora\FetchAuroraDeletedSuppliers;
+use App\Actions\Transfers\Aurora\FetchAuroraDeliveryNotes;
 use App\Actions\Transfers\Aurora\FetchAuroraDepartments;
 use App\Actions\Transfers\Aurora\FetchAuroraDispatchedEmails;
 use App\Actions\Transfers\Aurora\FetchAuroraEmployees;
@@ -25,6 +26,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraFamilies;
 use App\Actions\Transfers\Aurora\FetchAuroraHistoricAssets;
 use App\Actions\Transfers\Aurora\FetchAuroraHistoricSupplierProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraIngredients;
+use App\Actions\Transfers\Aurora\FetchAuroraInvoices;
 use App\Actions\Transfers\Aurora\FetchAuroraLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraMailshots;
 use App\Actions\Transfers\Aurora\FetchAuroraOfferCampaigns;
@@ -52,6 +54,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraWebsites;
 use App\Actions\Transfers\Aurora\FetchAuroraWebUsers;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Helpers\TaxNumber\TaxNumberStatusEnum;
+use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -66,6 +69,7 @@ use App\Models\CRM\Prospect;
 use App\Models\CRM\WebUser;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
+use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\Shipper;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\Rental;
@@ -273,6 +277,7 @@ trait WithAuroraParsers
 
     public function parseShop($sourceId): Shop
     {
+
         $shop = Shop::where('source_id', $sourceId)->first();
         if (!$shop) {
             $sourceData = explode(':', $sourceId);
@@ -576,6 +581,38 @@ trait WithAuroraParsers
         }
 
         return $order;
+    }
+
+    public function parseDeliveryNote($sourceId): ?DeliveryNote
+    {
+
+        if (!$sourceId) {
+            return null;
+        }
+
+        $deliveryNote = DeliveryNote::withTrashed()->where('source_id', $sourceId)->first();
+        if (!$deliveryNote) {
+            $sourceData = explode(':', $sourceId);
+            $deliveryNote      = FetchAuroraDeliveryNotes::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $deliveryNote;
+    }
+
+    public function parseInvoice($sourceId): ?Invoice
+    {
+
+        if (!$sourceId) {
+            return null;
+        }
+
+        $invoice = Invoice::withTrashed()->where('source_id', $sourceId)->first();
+        if (!$invoice) {
+            $sourceData = explode(':', $sourceId);
+            $invoice      = FetchAuroraInvoices::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $invoice;
     }
 
     public function parseTransaction($sourceId): ?Transaction
