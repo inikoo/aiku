@@ -19,8 +19,8 @@ class ShopHydrateQueries
     public function handle(Shop $shop): void
     {
         $stats = [
-            'number_customer_queries'  => Query::where('parent_type', 'Shop')->where('parent_id', $shop->id)->where('model_type', 'Customer')->count(),
-            'number_prospect_queries'  => Query::where('parent_type', 'Shop')->where('parent_id', $shop->id)->where('model_type', 'Prospect')->count(),
+            'number_customer_queries'  => Query::where('shop_id', $shop->id)->where('model', 'Customer')->count(),
+            'number_prospect_queries'  => Query::where('shop_id', $shop->id)->where('model', 'Prospect')->count(),
         ];
 
 

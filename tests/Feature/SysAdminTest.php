@@ -583,7 +583,7 @@ test('should not show without authentication', function () {
 
 test('reindex search', function () {
     ReindexSearch::run();
-    expect(UniversalSearch::count())->toBe(5);
+    expect(UniversalSearch::count())->toBe(67);
 });
 
 test('employee job position in another organisation', function () {

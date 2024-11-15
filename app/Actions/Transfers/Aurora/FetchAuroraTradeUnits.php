@@ -11,6 +11,7 @@ use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Goods\TradeUnit\UpdateTradeUnit;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
+use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -20,7 +21,10 @@ use Throwable;
 
 class FetchAuroraTradeUnits extends FetchAuroraAction
 {
+    use WithAuroraParsers;
+
     public string $commandSignature = 'fetch:trade-units {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?TradeUnit
     {
@@ -92,10 +96,49 @@ class FetchAuroraTradeUnits extends FetchAuroraAction
                 }
 
                 $tradeUnit->updateQuietly([
-                    'barcode_id'     => $barcodeId,
-                    'barcode' => $barcodeNumber,
+                    'barcode_id' => $barcodeId,
+                    'barcode'    => $barcodeNumber,
                 ]);
 
+
+                $ingredientsToDelete = $tradeUnit->ingredients()->pluck('trade_unit_has_ingredients.ingredient_id')->toArray();
+
+                $dataSource  = explode(':', $tradeUnit->source_id);
+                $ingredients = [];
+                foreach (
+                    DB::connection('aurora')->table('Part Material Bridge')
+                        ->where('Part SKU', $dataSource[1])->get() as $auroraIngredients
+                ) {
+                    $ingredient = $this->parseIngredient(
+                        $this->organisationSource->getOrganisation()->id.
+                        ':'.$auroraIngredients->{'Material Key'}
+                    );
+                    if ($ingredient) {
+                        $ingredientsToDelete = array_diff($ingredientsToDelete, [$ingredient->id]);
+
+
+                        //print_r($ingredient->source_data);
+
+                        $ingredientSourceID = $this->organisationSource->getOrganisation()->id.':'.$auroraIngredients->{'Material Key'};
+
+                        //print ">>>>>>>>>>$ingredientSourceID<<<<<<<\n";
+
+                        $arguments = Arr::get($ingredient->source_data, 'trade_unt_args.'.$ingredientSourceID, []);
+
+                        //print_r($arguments);
+                        $ingredients[$ingredient->id] = $arguments;
+                    }
+
+
+                    $tradeUnit->ingredients()->syncWithoutDetaching($ingredients);
+                    // print_r($ingredients);
+                }
+
+
+                //dd($tradeUnit->source_id);
+                //  dd($ingredientsToDelete);
+
+                $tradeUnit->ingredients()->whereIn('ingredient_id', array_keys($ingredientsToDelete))->forceDelete();
             }
 
 

@@ -146,7 +146,7 @@ class ReindexSearch extends HydrateModel
         foreach (Workplace::withTrashed()->get() as $model) {
             ReindexWorkplaceSearch::run($model);
         }
-        foreach (JobPosition::withTrashed()->get() as $model) {
+        foreach (JobPosition::all() as $model) {
             ReindexJobPositionSearch::run($model);
         }
     }
