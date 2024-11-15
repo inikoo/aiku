@@ -60,6 +60,8 @@ class IndexDeliveryNotes extends OrgAction
             $query->where('delivery_notes.customer_id', $parent->id);
         } elseif ($parent instanceof CustomerClient) {
             $query->where('delivery_notes.customer_client_id', $parent->id);
+        } elseif ($parent instanceof Shop) {
+            $query->where('delivery_notes.shop_id', $parent->id);
         } else {
             abort(419);
         }

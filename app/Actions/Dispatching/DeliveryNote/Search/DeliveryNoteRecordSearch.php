@@ -29,47 +29,55 @@ class DeliveryNoteRecordSearch
                 'group_id'          => $deliveryNote->group_id,
                 'organisation_id'   => $deliveryNote->organisation_id,
                 'organisation_slug' => $deliveryNote->organisation->slug,
-                'shop_id'           => $deliveryNote->shop_id,
-                'shop_slug'         => $deliveryNote->shop->slug,
+                'shop_id' => $deliveryNote->shop_id,
+                'shop_slug' => $deliveryNote->shop->slug,
+                'warehouse_id' => $deliveryNote->warehouse_id,
+                'warehouse_slug' => $deliveryNote->warehouse->slug,
                 'customer_id'       => $deliveryNote->customer_id,
                 'customer_slug'     => $deliveryNote->customer->slug,
                 'sections'          => ['dispatching'],
-                'haystack_tier_1'   => $deliveryNote->reference,
+                'haystack_tier_1'   => trim($deliveryNote->reference . ' ' . $deliveryNote->customer->name),
                 'haystack_tier_2'   => $deliveryNote->email,
                 'result'            => [
-                    'aa'            => $deliveryNote,
-                    'container'     => [
-                        'label'     => $deliveryNote->customer->name,
-                        'tooltip'   => __('Customer name')
+                    'route'      => [
+                        'name'       => 'grp.org.warehouses.show.dispatching.delivery-notes.show',
+                        'parameters' => [
+                            'organisation' => $deliveryNote->organisation->slug,
+                            'warehouse'     => $deliveryNote->warehouse->slug,
+                            'deliveryNote'     => $deliveryNote->slug,
+                        ]
                     ],
-                    'title'         => $deliveryNote->reference,
+                    'description'     => [
+                        'label'     => $deliveryNote->customer->name,
+                    ],
+                    'code' => [
+                        'label'     => $deliveryNote->reference,
+                    ],
                     'icon'          => [
                         'icon' => 'fal fa-truck',
                     ],
                     'meta'      => [
                         [
-                            'key'   => 'status',
-                            'label' => $deliveryNote->status->name
+                            'label' => $deliveryNote->status->value,
+                            'tooltip' => __('Status')
                         ],
                         [
-                            'key'       => 'created_date',
                             'type'      => 'date',
                             'label'     => $deliveryNote->created_at,
-                            'tooltip'   => __('Created at')
+                            'tooltip'   => __('Date')
                         ],
                         [
-                            'key'       => 'number_stocks',
                             'type'      => 'number',
-                            'number'    => $deliveryNote->number_stocks,
-                            'afterLabel'    => ' ' . __('Stocks'),
-                            'tooltip'   => __('Stocks Quantity')
+                            'number'    => $deliveryNote->stats->number_items,
+                            'afterLabel'    => ' ' . __('Items'),
+                            'tooltip'   => __('Items')
                         ],
-                        // [
-                        //     'key'       => 'updated_date',
-                        //     'type'      => 'date',
-                        //     'label'     => $deliveryNote->updated_at,
-                        //     'tooltip'   => __('Updated at')
-                        // ],
+                        [
+                            'type'      => 'number',
+                            'number'    => $deliveryNote->weight,
+                            'afterLabel'    => ' ' . __('Weight'),
+                            'tooltip'   => __('Weight')
+                        ],
                     ]
                 ]
             ]
