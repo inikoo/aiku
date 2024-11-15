@@ -7,18 +7,121 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Actions\Goods\Ingredient\StoreIngredient;
+use App\Models\Goods\Ingredient;
+use Arr;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraIngredient extends FetchAurora
 {
     protected function parseModel(): void
     {
-        $prefix = '';
-        $suffix = '';
-        $name   = $this->auroraModelData->{'Material Name'};
-        $name   = preg_replace('/\s+/', ' ', $name);
-        $name   = trim($name);
-        $name   = preg_replace('/^\p{Z}+|\p{Z}+$/u', '', $name);
+
+
+        $name = $this->auroraModelData->{'Material Name'};
+
+
+        list($name, $extraIngredients,$suffix) = $this->parseMultipleIngredients($name);
+
+
+        $parsedIngredient = $this->parseIngredientName($name);
+        $name = $parsedIngredient['name'];
+        $tradeUnitArg = $parsedIngredient['trade_unit_args'];
+
+        if($suffix){
+            $tradeUnitArg['suffix'] = $suffix;
+        }
+
+
+        if ($name == null) {
+            return;
+        }
+        if (count($tradeUnitArg) > 0) {
+            $this->parsedData['trade_unit_args'] = $tradeUnitArg;
+        }
+
+        $this->parsedData['extra_ingredients'] = $extraIngredients;
+
+        print ">>$name<<<\n";
+        print_r(Arr::get($this->parsedData, 'trade_unit_args'));
+        print_r($extraIngredients);
+
+        $this->parsedData['ingredient']      = [
+            'name'            => $name,
+            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Material Key'},
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
+        ];
+
+
+    }
+
+    protected function parseMultipleIngredients($name): array
+    {
+        $suffix= '';
+        $extraIngredients = [];
+        if ($name == 'CI 45430 CI 77891') {
+            $name = 'CI 45430';
+            $extraIngredients= $this->processExtra($extraIngredients,'CI 77891');
+        }
+
+
+        if(preg_match('/(.+)&(.+)Essential Oils in Grapeseed Oil/',$name,$matches)){
+            $name= $matches[1].' Essential Oil';
+            $extraIngredients= $this->processExtra($extraIngredients,$matches[2]);
+            $suffix='In Grapeseed Oil';
+
+            return [$name,$extraIngredients,$suffix];
+        }
+
+
+
+        if ($name == 'Tea Tree & Eucalyptus Essential Oils in Grapeseed Oil') {
+            $name = 'Tea Tree Essential Oil';
+            $suffix='In Grapeseed Oil';
+            $extraIngredients= $this->processExtra($extraIngredients,'Eucalyptus Essential Oils');
+        }
+
+
+
+        if ($name == 'Peppermint & Tea Tree - Sodium Bicarbonate') {
+            $name = 'Peppermint';
+            $extraIngredients= $this->processExtra($extraIngredients,'Tea Tree');
+            $extraIngredients= $this->processExtra($extraIngredients,'Sodium Bicarbonate');
+
+        }
+
+
+
+
+
+        return [$name,$extraIngredients,$suffix];
+
+    }
+
+    protected function processExtra($extraIngredients,$name): array
+    {
+        $name= trim($name);
+        $ingredient = $this->storeExtraIngredient($name);
+        $extraIngredients[] = $ingredient->id;
+        return $extraIngredients;
+    }
+
+
+    protected function parseIngredientName($name): array
+    {
+
+        $prefix        = '';
+        $suffix        = '';
+        $notes         = '';
+        $concentration = '';
+        $purity        = '';
+        $percentage    = '';
+        $aroma         = '';
+
+        $name = preg_replace('/\s+/', ' ', $name);
+        $name = trim($name);
+        $name = preg_replace('/^\p{Z}+|\p{Z}+$/u', '', $name);
 
 
         if (is_numeric($name) or $name == '' or strlen($name) == 1 or
@@ -44,13 +147,19 @@ class FetchAuroraIngredient extends FetchAurora
                     'www.ancient-wisdom.info',
                     '24hrs Burning time',
                     '30 hours burning time',
-                    'Temps de combustion: 30h'
+                    'Temps de combustion: 30h',
+                    'Not Suitable for children under 36 months. This product contains pieces which may present a choking hazard',
+                    'Not Available',
+                    'Unfragranced',
+
                 ]
             )) {
-            return;
+            return [
+                'name' => null,
+                'trade_unit_args' => []
+            ];
         }
 
-        //print "Orifinal>>$name<<<";
 
         $name = preg_replace('/^\.\*/', '', $name);
 
@@ -78,6 +187,7 @@ class FetchAuroraIngredient extends FetchAurora
         $name = preg_replace('/^~\s*/', '', $name);
         $name = preg_replace('/^\s*-\s*/', '', $name);
         $name = preg_replace('/^\.\s*/', '', $name);
+        $name = preg_replace('/\s+\.\s*$/', '', $name);
 
 
         $name = preg_replace('/\s*\.*\s*\*?\s*(Occur naturally|Naturally occurring) in Essential Oils?$/', '', $name);
@@ -180,7 +290,9 @@ class FetchAuroraIngredient extends FetchAurora
             $name = 'Soap';
         }
 
-        if ($name=="Product Ingredients Lavender: Sodium Bicarbonate" or $name="Ingredients Sodium Bicarbonate" or $name == 'Ingredients / Ingrédients / Bestandteile / Ingredientes / Skład / Ingredienti : Sodium Bicarbonate') {
+        if ($name == "Product Ingredients Lavender: Sodium Bicarbonate" or
+            $name == "Ingredients Sodium Bicarbonate" or
+            $name == 'Ingredients / Ingrédients / Bestandteile / Ingredientes / Skład / Ingredienti : Sodium Bicarbonate') {
             $name = 'Sodium Bicarbonate';
         }
 
@@ -240,7 +352,10 @@ class FetchAuroraIngredient extends FetchAurora
 
 
         if (in_array($name, ['. *Naturally occurring in Essential Oils', '. *Occur naturally in Essential Oils', '. *Occur naturally in Essential Oils. Do not use internally. Keep out of reach of children'])) {
-            return;
+            return [
+                'name' => null,
+                'trade_unit_args' => []
+            ];
         }
 
         if (preg_match('/^\(.+\)/', $name)) {
@@ -260,23 +375,124 @@ class FetchAuroraIngredient extends FetchAurora
         }
 
         if ($name == '') {
-            return;
+            return [
+                'name' => null,
+                'trade_unit_args' => []
+            ];
         }
 
-        //print ">>$name<<<\n";
+        if (preg_match('/(\d+) silver/i', $name, $matches)) {
+            $name = 'Silver';
+            $purity = $matches[1];
+        }
+
+        if (preg_match('/(\d+K) gold/i', $name, $matches)) {
+            $name = 'Gold';
+            $purity = strtolower($matches[1]);
+        }
+
+        if ($name == '100% Acrylic') {
+            $name = 'Acrylic';
+        }
 
 
-        $this->parsedData['metadata']   = [
-            'prefix'  => $prefix,
-            'suffix'  => $suffix,
-            'wrapper' => '',
+        if (in_array($name, ['Gemstone / beads', 'Gemstone/Bead','Gemstone/beads'])) {
+            $name = 'Gemstone';
+            $suffix = 'Beads';
+        }
+
+
+        if (preg_match('/(\d+)\s*%\s+(.+)/i', $name, $matches)) {
+            $name = $matches[2];
+            $percentage = $matches[1].'%';
+        }
+
+
+        if (is_numeric($name) or $name == '' or strlen($name) == 1 or
+            in_array(
+                $name,
+                [
+                    '*Occur naturally in Essential Oils. Do not use internally. Keep out of reach of children',
+                    '5%)',
+                    '4hrs Burning time',
+                    'SERF-01 BSV-Relax BSV-Detox BSV-Skin Revive Lavender & Clary Sage Lotion Coffee Sugar Scrub 80g',
+                    'SERF-03 BSV-Sensual BSV-Energise BSV-Clarity Sandalwood & Rose Lotion 60g Strawberry Sugar Scrub 80g',
+                    'Soybean Candles - Pomegranate & Orange',
+                    'Soybean Jar Candles - Cucumber & Mint',
+                    'Soybean Jar Candles - Fig & Cassis',
+                    'Soybean Jar Candles - Grapefruit & Ginger',
+                    'Soybean Jar Candles - Lavender & Basil',
+                    'Soybean Jar Candles - Lily & Jasmine',
+                    'Himalayan Salt Lamp - & Base'
+
+
+                ]
+            )) {
+            return [
+                'name' => null,
+                'trade_unit_args' => []
+            ];
+        }
+
+        if ($name == '15 hours burning time. fragrance - lemon & lime') {
+            $name = 'Fragrance';
+            $aroma = 'lemon & lime';
+        }
+
+
+
+        $tradeUnitArg = [];
+        if ($prefix) {
+            $tradeUnitArg['prefix'] = $prefix;
+        }
+        if ($suffix) {
+            $tradeUnitArg['suffix'] = $suffix;
+        }
+        if ($notes) {
+            $tradeUnitArg['notes'] = $notes;
+        }
+        if ($concentration) {
+            $tradeUnitArg['concentration'] = $concentration;
+        }
+        if ($purity) {
+            $tradeUnitArg['purity'] = $purity;
+        }
+
+        if ($aroma) {
+            $tradeUnitArg['aroma'] = $aroma;
+        }
+        if ($percentage) {
+            $tradeUnitArg['percentage'] = $percentage;
+        }
+
+
+        return[
+            'name' => $name,
+            'trade_unit_args' => $tradeUnitArg
         ];
-        $this->parsedData['ingredient'] = [
-            'name'            => $name,
-            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Material Key'},
-            'fetched_at'      => now(),
-            'last_fetched_at' => now(),
-        ];
+
+
+    }
+
+    protected function storeExtraIngredient($name)
+    {
+        $ingredient = Ingredient::whereRaw('LOWER(name)=? ', [trim(strtolower($name))])->first();
+        if ($ingredient) {
+            return $ingredient;
+        }
+
+        print "try to store extra ingredient >>>$name<<<\n";
+
+        return StoreIngredient::make()->action(
+            group: group(),
+            modelData: [
+                'name'            => $name,
+            ],
+            hydratorsDelay: 60,
+            strict: false,
+            audit: false
+        );
+
     }
 
 

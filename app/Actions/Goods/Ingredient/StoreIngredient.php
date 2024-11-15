@@ -27,7 +27,7 @@ class StoreIngredient extends GrpAction
     public function rules(): array
     {
         $rules = [
-            'name'       => [
+            'name' => [
                 'required',
                 'max:255',
                 'string',
@@ -41,7 +41,8 @@ class StoreIngredient extends GrpAction
         ];
 
         if (!$this->strict) {
-            $rules = $this->noStrictStoreRules($rules);
+            $rules['source_data'] = ['sometimes','nullable', 'array'];
+            $rules                = $this->noStrictStoreRules($rules);
         }
 
         return $rules;
@@ -64,6 +65,7 @@ class StoreIngredient extends GrpAction
     public function asController(Group $group, ActionRequest $request): Ingredient
     {
         $this->initialisation($group, $request);
+
         return $this->handle($group, $this->validatedData);
     }
 }
