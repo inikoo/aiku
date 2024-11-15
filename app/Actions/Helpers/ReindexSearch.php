@@ -14,6 +14,7 @@ use App\Actions\Catalogue\ProductCategory\Search\ReindexProductCategorySearch;
 use App\Actions\Catalogue\Service\Search\ReindexServiceSearch;
 use App\Actions\CRM\Customer\Search\ReindexCustomerSearch;
 use App\Actions\CRM\Prospect\Search\ReindexProspectSearch;
+use App\Actions\Discounts\Offer\Search\ReindexOfferSearch;
 use App\Actions\Dispatching\DeliveryNote\Search\ReindexDeliveryNotesSearch;
 use App\Actions\Dropshipping\CustomerClient\Search\ReindexCustomerClientSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\Search\ReindexFulfilmentCustomerSearch;
@@ -45,6 +46,7 @@ use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
+use App\Models\Discounts\Offer;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\FulfilmentCustomer;
@@ -144,7 +146,7 @@ class ReindexSearch extends HydrateModel
         foreach (Workplace::withTrashed()->get() as $model) {
             ReindexWorkplaceSearch::run($model);
         }
-        foreach (JobPosition::withTrashed()->get() as $model) {
+        foreach (JobPosition::all() as $model) {
             ReindexJobPositionSearch::run($model);
         }
     }
@@ -226,6 +228,13 @@ class ReindexSearch extends HydrateModel
         }
     }
 
+    public function reindexDiscount(): void
+    {
+        foreach (Offer::withTrashed()->get() as $model) {
+            ReindexOfferSearch::run($model);
+        }
+    }
+
     public string $commandSignature = 'search:reindex';
 
     public function asCommand(Command $command): int
@@ -269,6 +278,19 @@ class ReindexSearch extends HydrateModel
 
         $command->line('Website');
         $command->call('website:search');
+
+        # new
+        $command->line('Ordering');
+        $command->call('order:search');
+
+        $command->line('Inventory');
+        $command->call('org_stock_family:search');
+        $command->call('org_stock:search');
+
+        $command->line('Infrasturcture');
+        $command->call('warehouse:search');
+        $command->call('warehouse_area:search');
+
 
         return 0;
     }

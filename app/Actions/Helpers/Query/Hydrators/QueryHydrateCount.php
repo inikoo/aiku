@@ -38,7 +38,7 @@ class QueryHydrateCount
 
     public function byModelType(string $modelType): void
     {
-        foreach (Query::where('model    ', $modelType)->get() as $query) {
+        foreach (Query::where('model', $modelType)->get() as $query) {
             $this->handle($query);
         }
     }

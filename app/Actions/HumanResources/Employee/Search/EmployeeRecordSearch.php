@@ -58,15 +58,15 @@ class EmployeeRecordSearch
                                 'label' => $employee->state->value
                             ],
                             $employee->state->stateIcon()[$employee->state->value],
-                            ['tooltip' => 'State']
+                            ['tooltip' => __('State')]
                         ),
                         [
                             'label'   => $employee->employment_start_at,
-                            'tooltip' => 'Start date'
+                            'tooltip' => __('Start date')
                         ],
                         [
                             'label'   => $employee->job_title,
-                            'tooltip' => 'Job title'
+                            'tooltip' => __('Job title')
                         ]
                     ]
                 ]
