@@ -37,36 +37,31 @@ class PalletDeliveryRecordSearch
                     'palletDelivery'         => $palletDelivery->slug
                 ]
             ],
-            'container'     => [
-                'key'     => 'warehouse',
+            'description'     => [
                 'tooltip' => 'Warehouse',
                 'label'   => $palletDelivery->warehouse->name
             ],
-            'title'         => $palletDelivery->reference,
-            // 'afterTitle'    => [
-            //     'label'     => '('.$palletDelivery->customer->reference.')',
-            // ],
+            'code'         => [
+                'label' => $palletDelivery->reference
+            ],
             'icon'          => [
                 'icon'  => 'fal fa-truck-couch',
             ],
             'meta'          => [
                 [
-                    'key'       => 'created_date',
                     'type'      => 'date',
                     'label'     => $palletDelivery->created_at,
-                    'tooltip'   => "Delivery's created date"
+                    'tooltip'   => __("Created date")
                 ],
                 [
-                    'key'       => 'label',
                     'label'     => $palletDelivery->state->labels()[$palletDelivery->state->value],
-                    'tooltip'   => "Pallet's state"
+                    'tooltip'   => __("State")
                 ],
                 [
-                    'key'       => 'pallets',
                     'type'      => 'number',
                     'label'     => 'Pallets: ',
                     'number'    => $palletDelivery->stats->number_pallets,
-                    'tooltip'   => "Pallet's count"
+                    'tooltip'   => __("Pallet's count")
                 ],
             ],
         ];
