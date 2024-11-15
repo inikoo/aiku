@@ -10,26 +10,26 @@
 namespace App\Actions\Discounts\OfferCampaign\Search;
 
 use App\Actions\HydrateModel;
-use App\Models\Discounts\Offer;
+use App\Models\Discounts\OfferCampaign;
 use Illuminate\Support\Collection;
 
 class ReindexOfferCampaignSearch extends HydrateModel
 {
-    public string $commandSignature = 'offer:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'offer_campaign:search {organisations?*} {--s|slugs=}';
 
 
-    public function handle(Offer $offer): void
+    public function handle(OfferCampaign $offerCampaign): void
     {
-        OfferCampaignRecordSearch::run($offer);
+        OfferCampaignRecordSearch::run($offerCampaign);
     }
 
-    protected function getModel(string $slug): Offer
+    protected function getModel(string $slug): OfferCampaign
     {
-        return Offer::withTrashed()->where('slug', $slug)->first();
+        return OfferCampaign::withTrashed()->where('slug', $slug)->first();
     }
 
     protected function getAllModels(): Collection
     {
-        return Offer::withTrashed()->get();
+        return OfferCampaign::withTrashed()->get();
     }
 }

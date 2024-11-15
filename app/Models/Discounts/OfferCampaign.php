@@ -10,6 +10,7 @@ namespace App\Models\Discounts;
 use App\Enums\Discounts\OfferCampaign\OfferCampaignStateEnum;
 use App\Enums\Discounts\OfferCampaign\OfferCampaignTypeEnum;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -66,6 +67,7 @@ class OfferCampaign extends Model implements Auditable
     use HasFactory;
     use InShop;
     use HasHistory;
+    use HasUniversalSearch;
 
 
     protected $casts = [
