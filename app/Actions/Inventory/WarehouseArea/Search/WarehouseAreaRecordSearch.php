@@ -53,19 +53,11 @@ class WarehouseAreaRecordSearch
                     'icon'      => [
                         'icon' => 'fal fa-map-signs',
                     ],
-                    // 'aaa'       => $warehouseArea,
                     'meta'      => [
                         [
-                            'key'       => 'created_date',
-                            'type'      => 'date',
-                            'label'     => $warehouseArea->created_at,
-                            'tooltip'   => __('Created at')
-                        ],
-                        [
-                            'key'    => 'unit_quantity',
                             'type'   => 'number',
-                            'label'  => __('Unit quantity') . ': ',
-                            'number' => $warehouseArea->unit_quantity
+                            'label'  => __('Number locations') . ': ',
+                            'number' => (int) $warehouseArea->stats->number_locations_status_operational
                         ],
 
                     ],

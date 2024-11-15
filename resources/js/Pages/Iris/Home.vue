@@ -10,7 +10,7 @@ import { faCheck, faPlus, faMinus } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
 import LayoutIris from '@/Layouts/Iris.vue'
-import { getComponent } from '@/Components/Fulfilment/Website/BlockListIris'
+import { getComponent } from '@/Composables/getIrisComponents'
 
 // import { usePage } from '@inertiajs/vue3'
 
@@ -26,7 +26,6 @@ const props = defineProps<{
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
 
-console.log('DDD', props.blocks.web_blocks)
 
 </script>
 
@@ -34,22 +33,20 @@ console.log('DDD', props.blocks.web_blocks)
 
   <Head title="Warehouse Solution" />
 
-  <div class="bg-white pb-20">
+  <div class="bg-white">
     <template v-if="props.blocks?.web_blocks?.length">
-      <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"
-        class="w-full">
-
-        <component v-if="activityItem.web_block?.layout?.data?.fieldValue" :is="getComponent(activityItem.type)"
-          :key="activityItemIdx" :properties="activityItem?.web_block?.layout?.data?.fieldValue?.properties"
-          v-model="activityItem.web_block.layout.data.fieldValue" :isEditable="false"
-          v-bind="activityItem.web_block.layout.data.fieldValue" />
-
+      <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id" class="w-full">
+        <component  
+          :is="getComponent(activityItem.type)"
+          :key="activityItemIdx"
+          v-model="activityItem.web_block.layout.data.fieldValue" 
+        />
       </div>
     </template>
-    <div v-else class="text-center text-2xl sm:text-4xl font-bold text-gray-400 mt-16">
+
+    <div v-else class="text-center text-2xl sm:text-4xl font-bold text-gray-400 mt-16 pb-20">
       This page have no data
     </div>
-
   </div>
 
 </template>

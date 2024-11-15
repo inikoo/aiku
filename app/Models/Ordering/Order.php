@@ -20,6 +20,7 @@ use App\Models\Helpers\Address;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\TaxCategory;
 use App\Models\Helpers\UniversalSearch;
+use App\Models\Mail\DispatchedEmail;
 use App\Models\ShopifyUserHasFulfilment;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -118,6 +119,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read CustomerClient|null $customerClient
  * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
+ * @property-read Collection<int, DispatchedEmail> $dispatchedEmails
  * @property-read Collection<int, Address> $fixedAddresses
  * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
@@ -272,4 +274,11 @@ class Order extends Model implements HasMedia, Auditable
     {
         return $this->belongsTo(TaxCategory::class);
     }
+
+    public function dispatchedEmails(): MorphToMany
+    {
+        return $this->morphToMany(DispatchedEmail::class, 'model', 'model_has_dispatched_emails')->withTimestamps();
+    }
+
+
 }

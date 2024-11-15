@@ -90,6 +90,7 @@ use Spatie\Tags\HasTags;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Ingredient> $ingredients
  * @property-read Product|null $mainProduct
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgStock> $orgStocks

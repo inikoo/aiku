@@ -21,6 +21,26 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 
+/**
+ *
+ *
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\SysAdmin\Group|null $group
+ * @property-read \App\Models\SysAdmin\Organisation|null $organisation
+ * @property-read Model|\Eloquent $origin
+ * @property-read \App\Models\Catalogue\Shop|null $shop
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaction> $transaction
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
+ * @property-read User|null $user
+ * @property-read Warehouse|null $warehouse
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Feedback newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Feedback newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Feedback onlyTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Feedback query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Feedback withTrashed()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Feedback withoutTrashed()
+ * @mixin \Eloquent
+ */
 class Feedback extends Model implements Auditable
 {
     use SoftDeletes;

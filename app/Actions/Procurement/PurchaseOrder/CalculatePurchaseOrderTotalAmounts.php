@@ -9,7 +9,6 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\OrgAction;
-use App\Models\Ordering\Order;
 use App\Models\Procurement\PurchaseOrder;
 
 class CalculatePurchaseOrderTotalAmounts extends OrgAction

@@ -47,6 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Role> $roles
  * @property-read \App\Models\HumanResources\JobPositionStats|null $stats
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static Builder<static>|JobPosition newModelQuery()
  * @method static Builder<static>|JobPosition newQuery()
  * @method static Builder<static>|JobPosition query()

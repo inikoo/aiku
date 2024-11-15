@@ -10,8 +10,8 @@ namespace App\Models\Goods;
 
 use App\Models\SysAdmin\Group;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -24,9 +24,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property string $slug
  * @property string $name
+ * @property array $data
  * @property int $number_trade_units
+ * @property int $number_stocks
+ * @property int $number_master_products
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
+ * @property string|null $deleted_at
+ * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Goods\TradeUnit> $tradeUnits
@@ -39,8 +46,22 @@ class Ingredient extends Model implements Auditable
 {
     use HasSlug;
     use HasHistory;
+    use InGroup;
 
     protected $guarded = [];
+
+
+    protected $casts = [
+        'data'            => 'array',
+        'sources'         => 'array',
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
+    ];
+
+    protected $attributes = [
+        'sources' => '{}',
+        'data'    => '{}',
+    ];
 
     public function generateTags(): array
     {
@@ -50,8 +71,7 @@ class Ingredient extends Model implements Auditable
     }
 
     protected array $auditInclude = [
-        'name',
-        'number_trade_units',
+        'name'
     ];
 
     public function getSlugOptions(): SlugOptions
@@ -62,10 +82,6 @@ class Ingredient extends Model implements Auditable
             ->doNotGenerateSlugsOnUpdate();
     }
 
-    public function group(): BelongsTo
-    {
-        return $this->belongsTo(Group::class);
-    }
 
     public function tradeUnits(): BelongsToMany
     {

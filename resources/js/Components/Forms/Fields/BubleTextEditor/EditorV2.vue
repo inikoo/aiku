@@ -60,7 +60,8 @@ import {
     faAlignRight,
     faFileVideo,
     faPaintBrushAlt,
-    faText
+    faText,
+    faTextSize
 } from "@far"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
@@ -127,7 +128,7 @@ const editorInstance = useEditor({
    `, */
     editorProps: {
         attributes: {
-            class: "blog",
+            class: "editor-class",
         },
     },
     extensions: [
@@ -152,7 +153,14 @@ const editorInstance = useEditor({
         Link.configure({
             openOnClick: false,
         }),
-        HardBreak,
+        HardBreak.extend({
+            addKeyboardShortcuts() {
+                return {
+                    'Mod-Enter': () => this.editor.commands.setHardBreak(),
+                    'Shift-Enter': () => this.editor.commands.setHardBreak(),
+                };
+            },
+        }),
         Blockquote,
         CharacterCount,
         Youtube,
@@ -287,7 +295,7 @@ defineExpose({
     <div id="tiptap" class="divide-y divide-gray-400">
         <BubbleMenu ref="_bubbleMenu" :editor="editorInstance" :tippy-options="{ duration: 100 }"
             v-if="editorInstance && !showDialog">
-            <section id="tiptap-toolbar" class="bg-gray-100 rounded-xl border border-gray-300 divide-x divide-gray-400">
+            <section id="tiptap-toolbar" class="bg-gray-100 flex items-center rounded-xl border border-gray-300 divide-x divide-gray-400">
                 <TiptapToolbarGroup>
                     <TiptapToolbarButton v-if="toogle.includes('undo')" label="Undo"
                         @click="editorInstance?.chain().focus().undo().run()"
@@ -301,27 +309,21 @@ defineExpose({
                     </TiptapToolbarButton>
                 </TiptapToolbarGroup>
                 <TiptapToolbarGroup>
-                    <TiptapToolbarButton
-                        v-if="toogle.includes('heading')" 
-                        label="Heading 1"
+                    <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 1"
                         :is-active="editorInstance?.isActive('heading', { level: 1 })"
                         @click="editorInstance?.chain().focus().toggleHeading({ level: 1 }).run()"
                         class="toolbar-button">
                         <FontAwesomeIcon :icon="faH1" class="h-5 w-5" />
                     </TiptapToolbarButton>
 
-                    <TiptapToolbarButton
-                        v-if="toogle.includes('heading')" 
-                        label="Heading 2"
+                    <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 2"
                         :is-active="editorInstance?.isActive('heading', { level: 2 })"
                         @click="editorInstance?.chain().focus().toggleHeading({ level: 2 }).run()"
                         class="toolbar-button">
                         <FontAwesomeIcon :icon="faH2" class="h-5 w-5" />
                     </TiptapToolbarButton>
 
-                    <TiptapToolbarButton
-                        v-if="toogle.includes('heading')" 
-                        label="Heading 3"
+                    <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 3"
                         :is-active="editorInstance?.isActive('heading', { level: 3 })"
                         @click="editorInstance?.chain().focus().toggleHeading({ level: 3 }).run()"
                         class="toolbar-button">
@@ -329,34 +331,36 @@ defineExpose({
                     </TiptapToolbarButton>
                 </TiptapToolbarGroup>
 
-                <TiptapToolbarGroup>
-                    <div class="group relative inline-block w-20">
-                        <div
-                            class="text-sm py-1 px-2 border rounded-md cursor-pointer bg-white border-gray-300 hover:border-gray-400 flex items-center justify-between transition">
-                            <span id="tiptapfontsize" class="text-black">
-                                {{ editorInstance?.getAttributes('textStyle').fontSize || 'Text size' }}
-                            </span>
-                            <FontAwesomeIcon 
-                                v-if="editorInstance?.getAttributes('textStyle').fontSize"
-                                @click="editorInstance?.chain().focus().unsetFontSize().run()"
-                                icon="fal fa-times" 
-                                class="text-red-500 ml-2 cursor-pointer" 
-                                aria-hidden="true" />
-                        </div>
-
-                        <div
-                            class="w-min h-32 overflow-y-auto text-black cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
+                <div class="my-1.5 inline-flex flex-row flex-wrap items-center space-x-1 px-2">
+                    <div :class="[
+                        'inline-flex h-8 shrink-0 flex-row items-center justify-center rounded-md disabled:bg-transparent disabled:text-gray-300',
+                        'text-gray-600 hover:bg-blue-50',
+                    ]" type="button" v-tooltip="'font size'" :aria-label="'font size'">
+                        <div class="group relative">
                             <div
-                                v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
-                                :key="fontsize"
-                                class="px-4 py-2 text-left text-sm cursor-pointer hover:bg-gray-100"
-                                :class="{ 'bg-indigo-600 text-white': parseInt(editorInstance?.getAttributes('textStyle').fontSize, 10) === parseInt(fontsize) }"
-                                @click="editorInstance?.chain().focus().setFontSize(fontsize + 'px').run()">
-                                {{ fontsize }}
+                                class="text-sm py-1 px-2 cursor-pointer hover:border-gray-400 flex items-center justify-between transition h-8">
+                                <FontAwesomeIcon v-if="!editorInstance?.getAttributes('textStyle').fontSize"
+                                    :icon="faTextSize" class="h-5 w-5" />
+                                <div v-else id="tiptapfontsize" class="text-gray-600 text-sm font-semibold h-5">
+                                    {{ editorInstance?.getAttributes('textStyle').fontSize }}
+                                </div>
+                                <FontAwesomeIcon v-if="editorInstance?.getAttributes('textStyle').fontSize"
+                                    @click="editorInstance?.chain().focus().unsetFontSize().run()" icon="fal fa-times"
+                                    class="text-red-500 ml-2 cursor-pointer" aria-hidden="true" />
+                            </div>
+                            <div
+                                class="w-min h-32 overflow-y-auto text-black cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
+                                <div v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
+                                    :key="fontsize" class="px-4 py-2 text-left text-sm cursor-pointer hover:bg-gray-100"
+                                    :class="{ 'bg-indigo-600 text-white': parseInt(editorInstance?.getAttributes('textStyle').fontSize, 10) === parseInt(fontsize) }"
+                                    @click="editorInstance?.chain().focus().setFontSize(fontsize + 'px').run()">
+                                    {{ fontsize }}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </TiptapToolbarGroup>
+
+                </div>
 
 
                 <TiptapToolbarGroup>
@@ -475,7 +479,7 @@ defineExpose({
 </template>
 
 
-<style scoped>
+<style scoped >
 :deep(.tippy-box) {
     min-width: 10px !important;
     max-width: max-content !important
@@ -485,70 +489,83 @@ defineExpose({
     font-family: "Inter", sans-serif;
 }
 
+:deep(.editor-class p) {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: isolate;
+}
+
 :deep(.ProseMirror) {
     @apply focus:outline-none px-0 py-0 min-h-[10px] relative;
 }
 
-:deep(.blog) {
-    @apply flex flex-col space-y-4;
+:deep(.editor-class) {
+    @apply flex flex-col;
 }
 
-:deep(.blog h1) {
+/* :deep(.editor-class p) {
+    @apply leading-4 mb-0 mt-0 mr-0 ml-0
+} */
+
+:deep(.editor-class h1) {
     @apply text-4xl font-semibold;
 }
 
-:deep(.blog h2) {
-    @apply text-3xl font-semibold;
+:deep(.editor-class h2) {
+    @apply text-3xl font-semibold mt-0 mb-0 mr-0 ml-0;
 }
 
-:deep(.blog h3) {
+:deep(.editor-class h3) {
     @apply text-2xl font-semibold;
 }
 
-:deep(.blog ol),
-:deep(.blog ul) {
+:deep(.editor-class ol),
+:deep(.editor-class ul) {
     @apply ml-8 list-outside mt-2;
 }
 
-:deep(.blog ol) {
+:deep(.editor-class ol) {
     @apply list-decimal;
 }
 
-:deep(.blog ul) {
+:deep(.editor-class ul) {
     @apply list-disc;
 }
 
-:deep(.blog ol li),
-:deep(.blog ul li) {
+:deep(.editor-class ol li),
+:deep(.editor-class ul li) {
     @apply mt-2 first:mt-0;
 }
 
-:deep(.blog blockquote) {
+:deep(.editor-class blockquote) {
     @apply italic border-l-4 border-gray-300 p-4 py-2 ml-6 mt-6 mb-2 bg-gray-50;
 }
 
-:deep(.blog a) {
+:deep(.editor-class a) {
     @apply hover:underline text-blue-600 cursor-pointer;
 }
 
-:deep(.blog hr) {
+:deep(.editor-class hr) {
     @apply border-gray-400 my-4;
 }
 
-:deep(.blog table) {
+:deep(.editor-class table) {
     @apply border border-gray-400 table-fixed border-collapse w-full my-4;
 }
 
-:deep(.blog table th),
-:deep(.blog table td) {
+:deep(.editor-class table th),
+:deep(.editor-class table td) {
     @apply border border-gray-400 py-2 px-4 text-left relative;
 }
 
-:deep(.blog table th) {
+:deep(.editor-class table th) {
     @apply bg-blue-100 font-semibold;
 }
 
-:deep(.blog .tableWrapper) {
+:deep(.editor-class .tableWrapper) {
     @apply overflow-auto;
 }
 
@@ -577,6 +594,11 @@ defineExpose({
 :deep(.ProseMirror-gapcursor:after) {
     animation: ProseMirror-cursor-blink 1.1s steps(2, start) infinite;
 }
+/* 
+:deep(.ProseMirror > p > br:first-child:last-child) {
+  display: none;
+} */
+
 
 @keyframes ProseMirror-cursor-blink {
     to {

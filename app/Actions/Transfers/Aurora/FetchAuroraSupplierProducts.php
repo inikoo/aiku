@@ -84,9 +84,9 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                 }
             }
 
-
-            $supplierProduct = SupplierProduct::withTrashed()->whereJsonContains('sources->supplier_parts', $supplierProductData['supplierProduct']['source_id'])->first();
-
+            if (!$supplierProduct) {
+                $supplierProduct = SupplierProduct::withTrashed()->whereJsonContains('sources->supplier_parts', $supplierProductData['supplierProduct']['source_id'])->first();
+            }
             if (!$supplierProduct) {
                 $supplierProduct = SupplierProduct::withTrashed()->where('source_slug', $supplierProductData['supplierProduct']['source_slug'])->first();
 

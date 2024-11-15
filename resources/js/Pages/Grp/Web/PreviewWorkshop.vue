@@ -113,6 +113,7 @@ provide('isPreviewMode', isPreviewMode)
 
 
 <template>
+    <div class="editor-class">
     <div v-if="isInWorkshop" class="bg-gray-200 shadow-xl px-8 py-4 flex items-center gap-x-2">
         <span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged out</span>
         <Toggle v-model="isPreviewLoggedIn" class="" />
@@ -130,25 +131,28 @@ provide('isPreviewMode', isPreviewMode)
                 :data="layout.header" 
                 :menu="layout?.navigation"
                 :colorThemed="layout?.colorThemed" 
-                :previewMode="false" 
+                :previewMode="route().current() == 'grp.websites.preview' ? true : isPreviewMode"
                 :loginMode="isPreviewLoggedIn" 
                 @update:model-value="() => {updateData(layout.header)}" 
             />
         </div>
 
-        <div v-if="data" class="relative">
+        <div v-if="data" class="relative editor-class">
             <div class="container max-w-7xl mx-auto">
                 <div class="h-full overflow-auto w-full ">
                     <div v-if="data?.layout?.web_blocks?.length">
                         <TransitionGroup tag="div" name="zzz" class="relative">
                             <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
                                 :key="activityItem.id" class="w-full">
-                                <component v-if="ShowWebpage(activityItem)" class="w-full"
-                                    :is="getComponent(activityItem?.type)" :webpageData="webpage"
-                                    :properties="activityItem?.web_block?.layout?.data?.properties"
-                                    v-bind="activityItem" v-model="activityItem.web_block.layout.data.fieldValue"
-                                    :isEditable="true" :style="{ width: '100%' }"
-                                    @autoSave="() => debouncedSendUpdateBlock(activityItem)" />
+                                <component 
+                                    v-if="ShowWebpage(activityItem)" 
+                                    class="w-full"
+                                    :is="getComponent(activityItem?.type)" 
+                                    :webpageData="webpage" 
+                                    v-model="activityItem.web_block.layout.data.fieldValue"
+                                    :isEditable="isPreviewMode"
+                                    @autoSave="() => debouncedSendUpdateBlock(activityItem)" 
+                                />
                             </section>
                         </TransitionGroup>
                     </div>
@@ -187,4 +191,89 @@ provide('isPreviewMode', isPreviewMode)
             @update:model-value="() => {updateData(layout.footer)}" 
         />
     </div>
+</div>
 </template>
+
+<style scoped lang="scss">
+/* @font-face {
+    font-family: 'Raleway';
+    src: url("@/Assets/raleway.woff2");
+} */
+
+
+.editor-class {
+    @apply flex flex-col;
+}
+
+.editor-class p {
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: isolate;
+}
+
+.editor-class h1 {
+    @apply text-4xl font-semibold;
+}
+
+.editor-class h2 {
+    @apply text-3xl font-semibold;
+}
+
+.editor-class h3 {
+    @apply text-2xl font-semibold;
+}
+
+.editor-class ol,
+.editor-class ul {
+    @apply ml-8 list-outside mt-2;
+}
+
+.editor-class ol {
+    @apply list-decimal;
+}
+
+.editor-class ul {
+    @apply list-disc;
+}
+
+.editor-class ol li,
+.editor-class ul li {
+    @apply mt-2 first:mt-0;
+}
+
+.editor-class blockquote {
+    @apply italic border-l-4 border-gray-300 p-4 py-2 ml-6 mt-6 mb-2 bg-gray-50;
+}
+
+.editor-class a {
+    @apply hover:underline text-blue-600 cursor-pointer;
+}
+
+.editor-class hr {
+    @apply border-gray-400 my-4;
+}
+
+.editor-class table {
+    @apply border border-gray-400 table-fixed border-collapse w-full my-4;
+}
+
+.editor-class table th,
+.editor-class table td {
+    @apply border border-gray-400 py-2 px-4 text-left relative;
+}
+
+.editor-class table th {
+    @apply bg-blue-100 font-semibold;
+}
+
+.editor-class .tableWrapper {
+    @apply overflow-auto;
+}
+
+.editor-class p:empty::after {
+    content: "\00A0";
+}
+</style>

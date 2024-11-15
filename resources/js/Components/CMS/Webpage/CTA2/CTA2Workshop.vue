@@ -38,11 +38,6 @@ const emits = defineEmits<{
 				:editable="isEditable"
 				v-model="modelValue.headline"
 				@update:modelValue="() => emits('autoSave')" />
-			<!--   <h2 class="mx-auto max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-4xl">Boost your productivity today.</h2> -->
-			<Editor
-				:editable="isEditable"
-				v-model="modelValue.description"
-				@update:modelValue="() => emits('autoSave')" />
 
 			<div class="mt-10 flex items-center justify-center gap-x-6">
 				<div

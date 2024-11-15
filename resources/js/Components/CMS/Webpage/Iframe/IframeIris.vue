@@ -12,19 +12,20 @@ import { getStyles } from "@/Composables/styles.js"
 library.add(faPresentation, faLink, faPaperclip)
 
 const props = defineProps<{
-    modelValue: any
-    emptyState?: Boolean
-    isEditable?: boolean
-    properties?: any
+    modelValue: {
+        link : String
+        container : {
+            properties : Object
+        }
+    }
 }>()
 
 
 </script>
 
 <template>
-
-    <div class="relative">
-        <iframe :src="modelValue?.link" :style="getStyles(modelValue?.container?.properties)" title="I farme Block">
-        </iframe>
-    </div>
+        <iframe 
+            :src="modelValue?.link" 
+            :style="getStyles(modelValue?.container?.properties)" 
+        />
 </template>

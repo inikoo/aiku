@@ -137,6 +137,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
+ * @property-read LaravelCollection<int, Ingredient> $ingredients
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\JobPositionCategory> $jobPositionCategories
@@ -719,7 +720,7 @@ class Group extends Authenticatable implements Auditable, HasMedia
     }
 
 
-    public function ingredients() : HasMany
+    public function ingredients(): HasMany
     {
         return $this->hasMany(Ingredient::class);
     }

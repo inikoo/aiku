@@ -332,7 +332,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 :deep(.loading-overlay) {
-    position: fixed;
+    position: block;
     top: 0;
     left: 0;
     width: 100%;

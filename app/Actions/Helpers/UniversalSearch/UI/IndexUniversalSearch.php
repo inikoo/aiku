@@ -36,6 +36,7 @@ class IndexUniversalSearch extends InertiaAction
 
 
         // dd($sections, $organisationSlug, $shopSlug, $warehouseSlug, $websiteSlug, $fulfilmentSlug);
+        // dd($warehouseSlug);
         if ($sections && count($sections) > 0) {
             $query->whereIn('sections', $sections);
         }

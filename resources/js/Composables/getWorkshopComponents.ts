@@ -22,6 +22,7 @@ import Topbar1 from '@/Components/CMS/Website/TopBars/Template/Topbar1/Topbar1.v
 import Topbar2 from '@/Components/CMS/Website/TopBars/Template/Topbar2/Topbar2.vue'
 import Topbar3 from '@/Components/CMS/Website/TopBars/Template/Topbar3/Topbar3.vue'
 import Header1 from '@/Components/CMS/Website/Headers/Header1/Header1Workshop.vue'
+import Menu1 from '@/Components/CMS/Website/Menus/Menu1Workshop.vue'
 import NotFoundComponents from '@/Components/CMS/Webpage/NotFoundComponent.vue'
 
 
@@ -49,6 +50,7 @@ export const getComponent = (componentName: string) => {
         'top-bar-2': Topbar2,
         'top-bar-3': Topbar3,
         'header-1': Header1,
+        'menu-1': Menu1,
     }
     return components[componentName] ?? NotFoundComponents
 }
