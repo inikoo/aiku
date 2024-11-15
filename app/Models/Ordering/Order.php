@@ -119,6 +119,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read CustomerClient|null $customerClient
  * @property-read Address|null $deliveryAddress
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
+ * @property-read Collection<int, DispatchedEmail> $dispatchedEmails
  * @property-read Collection<int, Address> $fixedAddresses
  * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices

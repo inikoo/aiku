@@ -13,9 +13,10 @@ use Illuminate\Database\Eloquent\Model;
  *
  *
  * @property int $id
- * @property string $model_type
  * @property int $model_id
+ * @property string $model_type
  * @property int $dispatched_email_id
+ * @property int $outbox_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at

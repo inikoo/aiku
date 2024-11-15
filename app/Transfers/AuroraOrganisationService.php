@@ -42,6 +42,7 @@ use App\Transfers\Aurora\FetchAuroraHistoricAsset;
 use App\Transfers\Aurora\FetchAuroraHistoricService;
 use App\Transfers\Aurora\FetchAuroraHistoricSupplierProduct;
 use App\Transfers\Aurora\FetchAuroraHistory;
+use App\Transfers\Aurora\FetchAuroraIngredient;
 use App\Transfers\Aurora\FetchAuroraInvoice;
 use App\Transfers\Aurora\FetchAuroraInvoiceTransaction;
 use App\Transfers\Aurora\FetchAuroraLocation;
@@ -511,7 +512,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchOrderDispatchedEmail($id): ?array
     {
         return (new FetchAuroraOrderDispatchedEmail($this))->fetch($id);
+    }
 
+    public function fetchIngredient($id): ?array
+    {
+        return (new FetchAuroraIngredient($this))->fetch($id);
     }
 
 

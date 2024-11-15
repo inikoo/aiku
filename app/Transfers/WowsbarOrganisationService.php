@@ -440,5 +440,11 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchIngredient($id): ?array
+    {
+        return null;
+    }
+
+
 
 }

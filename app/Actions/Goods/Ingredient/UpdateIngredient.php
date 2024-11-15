@@ -9,32 +9,63 @@
 namespace App\Actions\Goods\Ingredient;
 
 use App\Actions\GrpAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Goods\Ingredient;
+use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateIngredient extends GrpAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
+
+    private Ingredient $ingredient;
+
 
     public function handle(Ingredient $ingredient, array $modelData): Ingredient
     {
-        $ingredient = $this->update($ingredient, $modelData);
-
-        return $ingredient;
+        return $this->update($ingredient, $modelData, ['data']);
     }
 
     public function rules(): array
     {
-        return [
-            'name'                 => ['sometimes', 'max:250', 'string'],
-            'number_trade_units'   => ['sometimes', 'sometimes'],
+        $rules = [
+            'name'               => [
+                'sometimes',
+                'required',
+                'max:255',
+                'string',
+                new IUnique(
+                    table: 'ingredients',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->ingredient->group_id],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->ingredient->id
+                        ]
+                    ]
+                ),
+            ],
             ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictUpdateRules($rules);
+        }
+
+        return $rules;
     }
 
-    public function action(Ingredient $ingredient, array $modelData): Ingredient
+    public function action(Ingredient $ingredient, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Ingredient
     {
+        $this->strict = $strict;
+        if (!$audit) {
+            Ingredient::disableAuditing();
+        }
         $this->asAction       = true;
+        $this->ingredient       = $ingredient;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($ingredient->group, $modelData);
 
         return $this->handle($ingredient, $this->validatedData);
