@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, toRaw } from 'vue'
 import type { Component } from 'vue'
 
 import Accordion from 'primevue/accordion'
@@ -40,7 +40,7 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faRectangleWide, faDotCircle)
 
 const props = defineProps<{
-    blueprint: Array
+    blueprint: []
     uploadImageRoute?: routeType
 }>()
 
@@ -94,40 +94,88 @@ const getFormValue = (data: any, fieldKeys: string | string[]) => {
 const setFormValue = (mValue: any, fieldKeys: string | string[], newVal: any) => {
     const keys = Array.isArray(fieldKeys) ? fieldKeys : [fieldKeys];
     setLodash(mValue, keys, newVal);
-    onUpdateValue();
+    // onUpdateValue();
 };
 
-const setChild = (blueprint = [], data = {}, parent = []) => {
-    const result = { ...data };
-    for (const form of blueprint) {
-        getFormValues(form, result, parent);
-    }
-    return result;
-};
+// const setChild = (blueprint = [], data = {}, parent = []) => {
+//     const result = { ...data };
+//     for (const form of blueprint) {
+//         getFormValues(form, result, parent);
+//     }
+//     return result;
+// };
 
-const getFormValues = (form: any, data: any = {}, parent : any) => {
-    const keyPath = Array.isArray(form.key) ? form.key : [form.key];
-    const parentKey = Array.isArray(parent.key) ? parent.key : [parent.key];
-    if (form.replaceForm) {
-        const set = getFormValue(data, keyPath) || {};
-        setLodash(data, keyPath, setChild(form.replaceForm, set, form));
+// const getFormValues = (form: any, data: any = {}, parent : any) => {
+//     const keyPath = Array.isArray(form.key) ? form.key : [form.key];
+//     const parentKey = Array.isArray(parent.key) ? parent.key : [parent.key];
+//     if (form.replaceForm) {
+//         const set = getFormValue(data, keyPath) || {};
+//         setLodash(data, keyPath, setChild(form.replaceForm, set, form));
+//     } else {
+//         if (!get(data, keyPath)) {
+//             setLodash(data, keyPath, get(form,["props_data",'defaultValue'],null));
+//         }
+//     }
+// };
+
+const getSafeValue = (mval, keyPath, fFormKey = []) => {
+    const value = get(mval, [...keyPath, ...fFormKey])
+    if (typeof value === 'object' || Array.isArray(value)) {
+        return value
+    } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+        return value
     } else {
-        if (!get(data, keyPath)) {
-            setLodash(data, keyPath, get(form,["props_data",'defaultValue'],null));
-        }
+        return String(value)
     }
-};
+}
 
-const setFormValues = (blueprint = [], data = {}) => {
-    for (const form of blueprint) {
-        getFormValues(form, data, form );
-    }
-    return data;
+const setFormValues = (blueprint = [], mval = {}) => {
+    for (const bprint of props.blueprint) {
+        const bprintPath = Array.isArray(bprint.key) ? bprint.key : [bprint.key]  // ['container', 'properties']
+
+        // If have 'replaceForm'
+        if (bprint.replaceForm && bprint.replaceForm.length) {
+
+            for (const rForm of bprint.replaceForm) {
+                const fFormKey = Array.isArray(rForm.key) ? rForm.key : [rForm.key]  // ['container', 'properties']
+                
+                const mvalValue = getSafeValue(mval, bprintPath, fFormKey)
+                const rFormDefaultValue = get(rForm, ["props_data", 'defaultValue'], null)
+
+
+                const mergedValue = (typeof mvalValue === 'object' && typeof rFormDefaultValue === 'object')
+                    ? { ...mvalValue, ...rFormDefaultValue }
+                    : mvalValue || rFormDefaultValue;
+
+                // console.log('pppppp', mergedValue)
+            }
+
+        } else {            
+            const mvalValue = getSafeValue(mval, bprintPath)
+            const rFormDefaultValue = get(bprint, ["props_data", 'defaultValue'], {})
+
+
+            const mergedValue = (typeof mvalValue === 'object' && typeof rFormDefaultValue === 'object')
+                ? { ...mvalValue, ...rFormDefaultValue }
+                : mvalValue || rFormDefaultValue;
+
+            // console.log('pppppp', mergedValue)
+        }
+    // }
+}
+
+    return mval;
 };
 
 
 onMounted(() => {
-    emits('update:modelValue', setFormValues(props.blueprint, cloneDeep(props.modelValue)));
+    setFormValues(props.blueprint, modelValue.value)  // Set default value from blueprint's template to modelValue
+
+    // console.log('blueprintXX', props.blueprint)
+    // console.log('modelXX', toRaw(modelValue.value))
+    // // setFormValues(props.blueprint, toRaw(modelValue.value))
+    // console.log('modelYY', setFormValues(props.blueprint, modelValue.value))
+    // emits('update:modelValue', setFormValues(props.blueprint, cloneDeep(props.modelValue)));
 });
 
 
@@ -171,6 +219,7 @@ onMounted(() => {
             </AccordionContent>
         </AccordionPanel>
     </Accordion>
+    <!-- <pre>{{ modelValue }}</pre> -->
 </template>
 
 

@@ -20,10 +20,16 @@ export default {
 				{
 					key: ["visible"],
 					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: "all",
+					},
 				},
 				{
 					key: ["text"],
 					type: "editorhtml",
+					props_data: {
+						defaultValue: "<p>Celebrating your membership anniversary!</p>",
+					},
 				},
 			],
 		},
@@ -38,10 +44,16 @@ export default {
 				{
 					key: ["visible"],
 					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: 'all',
+					},
 				},
 				{
 					key: ["text"],
 					type: "editorhtml",
+					props_data: {
+						defaultValue: "<p>Welcome, <strong>{{ name }}</strong>!",
+					},
 				},
 			],
 		},
@@ -56,6 +68,9 @@ export default {
 				{
 					key: ["visible"],
 					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: 'logout',
+					},
 				},
 				{
 					key: [],
@@ -174,6 +189,9 @@ export default {
 				{
 					key: ["visible"],
 					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: 'login',
+					},
 				},
 				{
 					key: [],
@@ -181,58 +199,67 @@ export default {
 				},
 			],
 		},
-		{
-			name: "Button 4",
-            key:["button_4"],
-			icon: {
-				icon: "far fa-dot-circle",
-				tooltip: "Action",
-			},
-			replaceForm: [
-				{
-					key: ["visible"],
-					type: "VisibleLoggedIn",
-				},
-				{
-					key: [],
-					type: "button",
-				},
-			],
-		},
-		{
-			name: "Button 5",
-            key:['button_5'],
-			icon: {
-				icon: "far fa-dot-circle",
-				tooltip: "Action",
-			},
-			replaceForm: [
-				{
-					key: ["visible"],
-					type: "VisibleLoggedIn",
-				},
-				{
-					key: ["button_5"],
-					type: "button",
-				},
-			],
-		},
-		{
-			name: "Button 6",
-            key: ["button_6"],
-			icon: {
-				icon: "far fa-dot-circle",
-				tooltip: "Action",
-			},
-			replaceForm: [
-				{
-					key: ["visible"],
-					type: "VisibleLoggedIn",
-				},
-				{
-					type: 'button',
-				},
-			],
-		},
+		// {
+		// 	name: "Button 4",
+        //     key:["button_4"],
+		// 	icon: {
+		// 		icon: "far fa-dot-circle",
+		// 		tooltip: "Action",
+		// 	},
+		// 	replaceForm: [
+		// 		{
+		// 			key: ["visible"],
+		// 			type: "VisibleLoggedIn",
+		// 			props_data: {
+		// 				defaultValue: 'all',
+		// 			},
+		// 		},
+		// 		{
+		// 			key: [],
+		// 			type: "button",
+		// 		},
+		// 	],
+		// },
+		// {
+		// 	name: "Button 5",
+        //     key:['button_5'],
+		// 	icon: {
+		// 		icon: "far fa-dot-circle",
+		// 		tooltip: "Action",
+		// 	},
+		// 	replaceForm: [
+		// 		{
+		// 			key: ["visible"],
+		// 			type: "VisibleLoggedIn",
+		// 			props_data: {
+		// 				defaultValue: 'all',
+		// 			},
+		// 		},
+		// 		{
+		// 			key: ["button_5"],
+		// 			type: "button",
+		// 		},
+		// 	],
+		// },
+		// {
+		// 	name: "Button 6",
+        //     key: ["button_6"],
+		// 	icon: {
+		// 		icon: "far fa-dot-circle",
+		// 		tooltip: "Action",
+		// 	},
+		// 	replaceForm: [
+		// 		{
+		// 			key: ["visible"],
+		// 			type: "VisibleLoggedIn",
+		// 			props_data: {
+		// 				defaultValue: 'all',
+		// 			},
+		// 		},
+		// 		{
+		// 			type: 'button',
+		// 		},
+		// 	],
+		// },
 	],
 }
