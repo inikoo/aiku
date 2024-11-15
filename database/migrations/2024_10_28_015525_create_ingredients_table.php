@@ -27,6 +27,9 @@ return new class () extends Migration {
             $table->datetimeTz('last_fetched_at')->nullable();
             $table->string('source_id')->nullable()->unique();
             $table->jsonb('sources');
+            $table->jsonb('source_data');
+            $table->jsonb('source_extra_ingredients');
+
 
         });
     }

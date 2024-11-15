@@ -32,8 +32,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
- * @property string|null $deleted_at
  * @property string|null $source_id
+ * @property array $sources
+ * @property array $source_data
+ * @property array $source_extra_ingredients
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Goods\TradeUnit> $tradeUnits
@@ -52,15 +54,19 @@ class Ingredient extends Model implements Auditable
 
 
     protected $casts = [
-        'data'            => 'array',
-        'sources'         => 'array',
-        'fetched_at'      => 'datetime',
-        'last_fetched_at' => 'datetime',
+        'data'                     => 'array',
+        'sources'                  => 'array',
+        'source_data'              => 'array',
+        'source_extra_ingredients' => 'array',
+        'fetched_at'               => 'datetime',
+        'last_fetched_at'          => 'datetime',
     ];
 
     protected $attributes = [
-        'sources' => '{}',
-        'data'    => '{}',
+        'sources'                  => '{}',
+        'source_data'              => '{}',
+        'source_extra_ingredients' => '{}',
+        'data'                     => '{}',
     ];
 
     public function generateTags(): array

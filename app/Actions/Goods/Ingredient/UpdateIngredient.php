@@ -51,6 +51,7 @@ class UpdateIngredient extends GrpAction
             ];
 
         if (!$this->strict) {
+            $rules['source_data'] = ['sometimes','nullable', 'array'];
             $rules = $this->noStrictUpdateRules($rules);
         }
 
