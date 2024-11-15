@@ -16,18 +16,55 @@ import { faText } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faText)
 
-const model = defineModel()
+interface ModelButtonProperties {
+    text: string
+    link: string
+    container: {
+        properties: {
+            dimension: {
+                width: number
+                height: number
+            }
+            background: {
+                color: string
+            }
+            text: {
+                color: string
+            }
+            border: {
+                width: number
+                style: string
+                color: string
+                radius: number
+            }
+            padding: {
+                top: number
+                right: number
+                bottom: number
+                left: number
+            }
+            margin: {
+                top: number
+                right: number
+                bottom: number
+                left: number
+            }
+        }
+    }
+}
 
-const compModel = computed(() => {
-    // To check does the data if changed
-    return JSON.stringify(model.value)
-})
+const model = defineModel<ModelButtonProperties>()
+// console.log('mmomom', model.value)
+// const compModel = computed(() => {
+//     // To check does the data if changed
+//     return JSON.stringify(model.value)
+// })
 
-const emit = defineEmits();
-watch(compModel, () => {
-    console.log('on change compModel')
-    emit('update:modelValue', model.value)
-})
+// const emit = defineEmits();
+// watch(compModel, () => {
+//     console.log('on change compModel')
+//     emit('update:modelValue', model.value)
+// })
 
 
 

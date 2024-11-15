@@ -37,33 +37,31 @@ class PalletReturnRecordSearch
                     'palletReturn'           => $palletReturn->slug
                 ]
             ],
-            'container'     => [
-                'key'     => 'warehouse',
+            'description'     => [
                 'tooltip' => 'Warehouse',
                 'label'   => $palletReturn->warehouse->name
             ],
-            'title'         => $palletReturn->reference,
+            'code'         => [
+                'label' => $palletReturn->reference
+            ],
             'icon'          => [
                 'icon'  => 'fal fa-truck-couch',
             ],
             'meta'          => [
                 [
-                    'key'       => 'created_date',
                     'type'      => 'date',
                     'label'     => $palletReturn->created_at,
-                    'tooltip'   => "Delivery's created date"
+                    'tooltip'   => __("Created date")
                 ],
                 [
-                    'key'       => 'label',
                     'label'     => $palletReturn->state->labels()[$palletReturn->state->value],
-                    'tooltip'   => "Pallet's state"
+                    'tooltip'   => __("State")
                 ],
                 [
-                    'key'       => 'pallets',
                     'type'      => 'number',
-                    'label'     => 'Pallets: ',
+                    'label'     => __('Pallets') . ': ',
                     'number'    => $palletReturn->stats->number_pallets,
-                    'tooltip'   => "Pallet's count"
+                    'tooltip'   => __("Pallet's count")
                 ],
             ],
         ];

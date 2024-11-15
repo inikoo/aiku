@@ -56,7 +56,7 @@ class OrderRecordSearch
                     ],
                     'meta'  => [
                         [
-                            'label'   => __($order->state->value),
+                            'label'   => $order->state->labels()[$order->state->value],
                             'tooltip' => __('State')
                         ],
                         [
