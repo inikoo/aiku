@@ -26,7 +26,7 @@ export const getStyles = (properties: any) => {
         marginLeft: properties?.margin?.left?.value != null && properties?.margin?.unit ? 
             (properties.margin.left.value + properties.margin.unit) : null,
         background: properties?.background?.type === 'color' ? properties?.background?.color :
-            properties?.background?.image?.original || null,
+            `url(${properties?.background?.image?.source?.original || null})`,
         borderTop: properties?.border?.top?.value != null && properties?.border?.unit && properties?.border?.color ? 
             `${properties.border.top.value}${properties.border.unit} solid ${properties.border.color}` : null,
         borderBottom: properties?.border?.bottom?.value != null && properties?.border?.unit && properties?.border?.color ? 
