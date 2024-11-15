@@ -271,9 +271,5 @@ class Product extends Model implements Auditable, HasMedia
         return $this->hasMany(BackInStockReminder::class);
     }
 
-    public function ingredients(): MorphToMany
-    {
-        return $this->morphToMany(Ingredient::class, 'model', 'model_has_ingredients')->withTimestamps();
-    }
 
 }

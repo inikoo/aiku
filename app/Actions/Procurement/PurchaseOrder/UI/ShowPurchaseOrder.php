@@ -278,6 +278,9 @@ class ShowPurchaseOrder extends OrgAction
                             'title' => __('purchase order')
                         ],
                     'title' => $purchaseOrder->reference,
+                    'afterTitle'    => [
+                        'label' => __($purchaseOrder->parent_type)
+                    ],
                     'edit'  => $this->canEdit ? [
                         'route' => [
                             'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),

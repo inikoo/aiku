@@ -106,26 +106,6 @@ const showLinkDialog = ref<boolean>()
 const editorInstance = useEditor({
     content: props.modelValue,
     editable: props.editable,
-    /*  content: `
-     <p>This is a paragraph.
- 
-      <CustomLinkExtension
-       type="internal"
-       workshop="https://tailwindcss.com/docs/z-index"
-       id="1"
-       url="https://tailwindcss.com/docs/z-index">link test
-       </CustomLinkExtension>
- 
-       <CustomLinkExtension url="https://ancientwisdom.biz/showroom" 
-       type="internal"
-        id="9" 
-        workshop="http://app.aiku.test/org/aw/shops/uk/web/aw/webpages/showroom-uk/workshop"   
-        rel="noopener noreferrer" 
-        target="_blank">
-        <span style="{color: rgb(232, 121, 40)}">Showroom</span>
-        </CustomLinkExtension>
-       </p>
-   `, */
     editorProps: {
         attributes: {
             class: "editor-class",
@@ -136,7 +116,9 @@ const editorInstance = useEditor({
         Document,
         Text,
         History,
-        customLink,
+        customLink.configure({
+            openOnClick: false,
+        }),
         Heading.configure({
             levels: [1, 2, 3],
         }),
@@ -151,7 +133,7 @@ const editorInstance = useEditor({
         BulletList,
         OrderedList,
         Link.configure({
-            openOnClick: false,
+        openOnClick: false,
         }),
         HardBreak.extend({
             addKeyboardShortcuts() {
@@ -193,34 +175,24 @@ const editorInstance = useEditor({
 })
 
 function openLinkDialogCustom() {
-    const attrs = editorInstance.value?.getText({ blockSeparator: '\n\n' })
-    currentLinkInDialog.value = {
-        content: attrs 
-    }
+    const attrs = editorInstance.value?.getAttributes("link")
+    currentLinkInDialog.value = attrs
     showLinkDialogCustom.value = true;
     showDialog.value = true;
 }
 
-function updateLinkCustom(value: string) {
-    if (value.url) {
+function updateLinkCustom(value) {
+    if (value.href) {
         const attrs = {
             type: value.type,
-            workshop: value.type === 'internal' ? value.workshop : null,
-            id: value.type === 'internal' ? value.id.id : null,
-            url: value.url,
-            content: value.content ? value.content : value.url,
+            workshop: value.workshop,
+            id: value.type === 'internal' ? value.id?.id : null,
+            href: value.href,
         };
-
-        editorInstance.value
-            ?.chain()
-            .focus()
-            .insertContent({
-                type: 'customLink',
-                attrs,
-            })
-            .run();
+        editorInstance.value?.chain().focus().extendMarkRange("link").setCustomLink(attrs).run();
     }
 }
+
 
 function openLinkDialog() {
     currentLinkInDialog.value = editorInstance.value?.getAttributes("link").href
@@ -437,7 +409,7 @@ defineExpose({
                         <FontAwesomeIcon :icon="faLink" class="h-5 w-5" />
                     </TiptapToolbarButton>
                     <TiptapToolbarButton v-if="toogle.includes('customLink')" label="Link Internal & External"
-                        @click="openLinkDialogCustom" :is-active="editorInstance?.isActive('customLink')">
+                        @click="openLinkDialogCustom" :is-active="editorInstance?.isActive('link')">
                         <FontAwesomeIcon :icon="faLink" class="h-5 w-5" />
                     </TiptapToolbarButton>
                     <TiptapToolbarButton v-if="toogle.includes('image')" label="Image"

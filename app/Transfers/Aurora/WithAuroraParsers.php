@@ -24,6 +24,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraEmployees;
 use App\Actions\Transfers\Aurora\FetchAuroraFamilies;
 use App\Actions\Transfers\Aurora\FetchAuroraHistoricAssets;
 use App\Actions\Transfers\Aurora\FetchAuroraHistoricSupplierProducts;
+use App\Actions\Transfers\Aurora\FetchAuroraIngredients;
 use App\Actions\Transfers\Aurora\FetchAuroraLocations;
 use App\Actions\Transfers\Aurora\FetchAuroraMailshots;
 use App\Actions\Transfers\Aurora\FetchAuroraOfferCampaigns;
@@ -68,6 +69,7 @@ use App\Models\Discounts\OfferCampaign;
 use App\Models\Dispatching\Shipper;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\Rental;
+use App\Models\Goods\Ingredient;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Country;
@@ -579,6 +581,23 @@ trait WithAuroraParsers
     public function parseTransaction($sourceId): ?Transaction
     {
         return Transaction::where('source_id', $sourceId)->first();
+    }
+
+    public function parseIngredient($sourceId): ?Ingredient
+    {
+        $ingredient = Ingredient::where('source_id', $sourceId)->first();
+
+        if (!$ingredient) {
+            $ingredient = Ingredient::whereJsonContains('sources->ingredients', $sourceId)->first();
+
+        }
+
+        if (!$ingredient) {
+            $sourceData                = explode(':', $sourceId);
+            $ingredient = FetchAuroraIngredients::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $ingredient;
     }
 
     public function parseShipper($sourceId): Shipper

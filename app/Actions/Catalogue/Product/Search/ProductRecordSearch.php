@@ -33,10 +33,9 @@ class ProductRecordSearch
             'shop_id'                     => $product->shop_id,
             'shop_slug'                   => $product->shop->slug,
             'sections'                    => ['catalogue'],
-            'haystack_tier_1'             => $product->code,
-            'haystack_tier_2'             => $product->name.' '.$product->description,
+            'haystack_tier_1'             => trim($product->code . ' ' . $product->name),
+            'haystack_tier_2'             => $product->description,
             'result'                      => [
-                'xxx'           => $product,
                 'route'         => [
                     'name'          => 'grp.org.shops.show.catalogue.products.current_products.show',
                     'parameters'    => [
@@ -45,40 +44,35 @@ class ProductRecordSearch
                         $product->slug,
                     ]
                 ],
-                'container'     => [
-                    'label'   => $product->shop->name,
-                    'tooltip'   => __('Shop')
+                'description'     => [
+                    'label'   => $product->name,
                 ],
-                'title'         => $product->name,
-                'afterTitle'    => [
-                    'label'     => '(' . $product->code . ')',
+                'code'         => [
+                    'code' => $product->name
                 ],
                 'icon'      => [
                     'icon'      => 'fal fa-cube',
-                    'tooltip'   => __('Product')
                 ],
                 'meta'      => [
                     [
-                        'key'     => 'state',
                         'label'   => $product->state,
                         'tooltip' => __('State'),
                     ],
                     [
-                        'key'       => 'created_date',
                         'type'      => 'date',
                         'label'     => $product->created_at,
                         'tooltip'   => __('Created at')
                     ],
                     [
-                        'key'        => 'price',
                         'type'       => 'currency',
-                        'code'       => $product->currency->code,     // TODO: pass correct currency code
+                        'label'      => __('Price') . ': ',
+                        'code'       => $product->currency->code,
                         'amount'     => $product->price,
                         'tooltip'    => __('Price')
                     ],
                     [
-                        'key'            => 'quantity',
                         'type'           => 'number',
+                        'label'          => __('Quantity') . ': ',
                         'number'         => $product->available_quantity,
                         'afterLabel'     => __('pcs'),
                         'tooltip'        => __('Quantity')

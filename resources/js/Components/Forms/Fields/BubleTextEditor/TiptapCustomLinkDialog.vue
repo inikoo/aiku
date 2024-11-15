@@ -9,33 +9,34 @@ import SelectQuery from "@/Components/SelectQuery.vue";
 const props = defineProps<{
     show: boolean;
     attribut?: {
-        url: string,
+        href: string,
         type: string,
         id: string,
         workshop: string,
-        content?: string // Added content to props
+  /*       content?: string  */
     }
 }>();
+
+console.log(props)
 const emit = defineEmits(["close", "update"]);
+
 // Reactive form data
 const form = useForm({
-    url: "",
-    type: "internal",
+    href: props.attribut?.href || "",
+    type: props.attribut?.type || "internal",
     workshop: null,
     id: null,
-    content: '',
 });
 
 // Watch for changes in the attribut prop
 watch(() => props.attribut, (newValue) => {
     if (newValue) {
-        form.url = newValue.url || "";
+        form.href = newValue.href || "";
         form.type = newValue.type || "internal";
         form.workshop = newValue.workshop || null;
-        form.id = newValue.id || null;
-        form.content = newValue.content || ''; // Ensure to include content
+        form.id = newValue || null;
     }
-}, { immediate: true }); // Immediate to set initial values
+}, { immediate: true }); 
 
 // Function to close the dialog
 function closeDialog() {
@@ -50,9 +51,9 @@ function update() {
 
 // Function to handle link changes
 const onChangeLink = (value) => {
-    form.url = value.url;
+    form.href = value.url;
     form.id = value.id;
-    form.workshop = value.url_workshop;
+    form.workshop = value.workshop;
 };
 
 // Options for link types
@@ -75,10 +76,10 @@ const options = [
                 </div>
             </div>
 
-            <div>
+           <!--  <div>
                 <div class="select-none text-sm text-gray-600 mb-2">Label</div>
                 <PureInput v-model="form.content" />
-            </div>
+            </div> -->
 
             <div v-if="form.type === 'internal'">
                 <div class="select-none text-sm text-gray-600 mb-2">Link</div>
@@ -86,22 +87,22 @@ const options = [
                     fieldName="id" 
                     :object="true"
                     :urlRoute="route('grp.org.shops.show.web.webpages.index', {
-                        organisation:  route().params['organisation'],
+                        organisation: route().params['organisation'],
                         shop: route().params['shop'],
                         website: route().params['website']
                     })" 
                     :value="form" 
                     :closeOnSelect="true" 
-                    label="url" 
+                    label="href" 
                     :onChange="onChangeLink"
                 />
             </div>
 
             <div v-if="form.type === 'external'">
                 <div class="select-none text-sm text-gray-600 mb-2">Link</div>
-                <PureInput v-model="form.url" />
+                <PureInput v-model="form.href" />
             </div>
-
+ 
             <!-- Buttons -->
             <div class="flex flex-row justify-end space-x-3">
                 <Button type="white" label="cancel" @click="closeDialog">

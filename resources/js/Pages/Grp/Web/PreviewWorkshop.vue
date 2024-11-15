@@ -151,7 +151,7 @@ provide('isPreviewMode', isPreviewMode)
                                     :is="getComponent(activityItem?.type)" 
                                     :webpageData="webpage" 
                                     v-model="activityItem.web_block.layout.data.fieldValue"
-                                    :isEditable="isPreviewMode"
+                                    :isEditable="!isPreviewMode"
                                     @autoSave="() => debouncedSendUpdateBlock(activityItem)" 
                                 />
                             </section>

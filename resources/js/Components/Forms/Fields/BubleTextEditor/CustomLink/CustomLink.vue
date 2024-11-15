@@ -44,7 +44,6 @@ const updateValue = (value) => {
     props.updateAttributes({...props.node.attrs, ...value, id : value.id.id});
 };
 
-console.log(props.node.attrs.content )
 
 </script>
 
