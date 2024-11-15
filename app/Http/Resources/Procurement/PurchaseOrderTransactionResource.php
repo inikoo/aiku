@@ -24,6 +24,7 @@ class PurchaseOrderTransactionResource extends JsonResource
         return [
             'code'              => $this->supplierProduct->code,
             'name'              => $this->supplierProduct->name,
+            'supplier'          => $this->supplierProduct->supplier->name,
             'quantity_ordered'  => intval($this->quantity_ordered),
             'unit_cost'         => intval($this->supplierProduct->cost),
             'total_cost'        => intval($this->supplierProduct->cost * $this->quantity_ordered),

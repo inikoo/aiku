@@ -28,8 +28,8 @@ class GetOrgSupplierProducts extends OrgAction
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
-                $query->whereStartWith('supplier_products.code', $value)
-                    ->orWhereANyWordStartWith('supplier_products.name', $value);
+                $query->whereAnyWordStartWith('supplier_products.code', $value)
+                    ->orWhereStartWith('supplier_products.name', $value);
             });
         });
 
