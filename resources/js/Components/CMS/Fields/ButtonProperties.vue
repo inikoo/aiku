@@ -66,7 +66,7 @@ const model = defineModel<ModelButtonProperties>()
 //     emit('update:modelValue', model.value)
 // })
 
-
+console.log('sd',model.value)
 
 </script>
 
