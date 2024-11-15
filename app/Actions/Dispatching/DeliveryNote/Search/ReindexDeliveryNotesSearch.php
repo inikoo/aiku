@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 
 class ReindexDeliveryNotesSearch extends HydrateModel
 {
-    public string $commandSignature = 'deliveryNote:search {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'delivery-note:search {organisations?*} {--s|slugs=}';
 
 
     public function handle(DeliveryNote $deliveryNote): void
