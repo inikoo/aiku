@@ -145,6 +145,7 @@ provide('isPreviewMode', isPreviewMode)
                             <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
                                 :key="activityItem.id" class="w-full">
                                 <component 
+                                    :key="activityItemIdx"
                                     v-if="ShowWebpage(activityItem)" 
                                     class="w-full"
                                     :is="getComponent(activityItem?.type)" 

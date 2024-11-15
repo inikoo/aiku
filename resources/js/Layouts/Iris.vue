@@ -2,6 +2,7 @@
 import Notification from '@/Components/Utils/Notification.vue'
 import IrisHeader from '@/Layouts/Iris/Header.vue'
 import IrisLoginInformation from '@/Layouts/Iris/IrisLoginInformation.vue'
+import { isArray } from 'lodash'
 
 import Footer from '@/Layouts/Iris/Footer.vue'
 import { useColorTheme } from '@/Composables/useStockList'
@@ -32,13 +33,13 @@ console.log('inislds',usePage().props?.iris)
         <ScreenWarning v-if="layout.app.environment === 'staging'" />
         <div :class="[colorThemed.layout === 'blog' ? 'container max-w-7xl mx-auto shadow-xl' : '']" :style="{ fontFamily: colorThemed.fontFamily}">
         <!--     <IrisLoginInformation /> -->
-            <IrisHeader :data="header" :colorThemed="colorThemed" :menu="navigation"/>
+            <IrisHeader v-if="header.header" :data="header" :colorThemed="colorThemed" :menu="navigation"/>
 
             <!-- Main Content -->
             <main>
                 <slot />
             </main>
-             <Footer :data="footer" :colorThemed="colorThemed"/>
+             <Footer v-if="footer && !isArray(footer)" :data="footer" :colorThemed="colorThemed"/>
         </div>
     </div>
 
@@ -63,8 +64,8 @@ console.log('inislds',usePage().props?.iris)
 
 .editor-class p {
     display: block;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
+    margin-block-start: 0em;
+    margin-block-end: 0em;
     margin-inline-start: 0px;
     margin-inline-end: 0px;
     unicode-bidi: isolate;
