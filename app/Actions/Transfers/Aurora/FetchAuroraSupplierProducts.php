@@ -11,6 +11,7 @@ use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Actions\SupplyChain\SupplierProduct\SyncSupplierProductTradeUnits;
 use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
+use App\Models\Goods\Ingredient;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Transfers\SourceOrganisationService;
@@ -92,7 +93,10 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
 
             }
 
+            if (!$supplierProduct) {
+                $supplierProduct = SupplierProduct::whereRaw('LOWER(code)=? ', [trim(strtolower($supplierProductData['supplierProduct']['code']))])->first();
 
+            }
 
 
 
