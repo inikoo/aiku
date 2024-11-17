@@ -46,7 +46,8 @@ class FetchAuroraStockDeliveryItems
                 //  try {
                 $stockDeliveryItem = StoreStockDeliveryItem::make()->action(
                     stockDelivery: $stockDelivery,
-                    item: $transactionData['item'],
+                    historicSupplierProduct: $transactionData['historic_supplier_product'],
+                    orgStock: $transactionData['org_stock'],
                     modelData: $transactionData['stock_delivery_item'],
                     hydratorsDelay: 60,
                     strict: false

@@ -11,9 +11,12 @@ use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\SyncStockTradeUnits;
 use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Inventory\OrgStock\SyncOrgStockLocations;
+use App\Actions\Inventory\OrgStockHasOrgSupplierProduct\StoreOrgStockHasOrgSupplierProduct;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Models\Goods\TradeUnit;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\Stock;
+use App\Models\SupplyChain\StockHasSupplierProduct;
 use App\Transfers\Aurora\WithAuroraAttachments;
 use App\Transfers\SourceOrganisationService;
 use Exception;
@@ -33,70 +36,89 @@ class FetchAuroraStocks extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): array
     {
-        $orgStock       = null;
-        $effectiveStock = null;
+        $orgStock    = null;
+        $isPrincipal = false;
+        $stockData   = $organisationSource->fetchStock($organisationSourceId);
+        if (!$stockData) {
+            return [
+                'stock'    => null,
+                'orgStock' => null
+            ];
+        }
 
-        if ($stockData = $organisationSource->fetchStock($organisationSourceId)) {
-            if ($baseStock = Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->first()) {
-                if ($stock = Stock::withTrashed()->where('source_id', $stockData['stock']['source_id'])->first()) {
-                    try {
-                        $stock = UpdateStock::make()->action(
-                            stock: $stock,
-                            modelData: $stockData['stock'],
-                            hydratorsDelay: 60,
-                            strict: false,
-                            audit: false
-                        );
-                        $this->recordChange($organisationSource, $stock->wasChanged());
-                    } catch (Exception $e) {
-                        $this->recordError($organisationSource, $e, $stockData['stock'], 'Stock', 'update');
 
-                        return [
-                            'stock'    => null,
-                            'orgStock' => null
-                        ];
-                    }
-                }
-            } else {
-                if ($stockData['stock_family']) {
-                    $parent = $stockData['stock_family'];
-                } else {
-                    $parent = $organisationSource->getOrganisation()->group;
-                }
-                try {
-                    $stock = StoreStock::make()->action(
-                        parent: $parent,
-                        modelData: $stockData['stock'],
-                        hydratorsDelay: 60,
-                        strict: false,
-                        audit: false
-                    );
-                    Stock::enableAuditing();
-                    $this->saveMigrationHistory(
-                        $stock,
-                        Arr::except($stockData['stock'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                    );
+        if ($stock = Stock::withTrashed()->where('source_id', $stockData['stock']['source_id'])->first()) {
+            try {
+                $stock       = UpdateStock::make()->action(
+                    stock: $stock,
+                    modelData: $stockData['stock'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
+                $isPrincipal = true;
+                $this->recordChange($organisationSource, $stock->wasChanged());
+            } catch (Exception $e) {
+                $this->recordError($organisationSource, $e, $stockData['stock'], 'Stock', 'update');
 
-                    $this->updateStockSources($stock, $stockData['stock']['source_id']);
-
-                    $this->recordNew($organisationSource);
-
-                    $sourceData = explode(':', $stock->source_id);
-                    DB::connection('aurora')->table('Part Dimension')
-                        ->where('Part SKU', $sourceData[1])
-                        ->update(['aiku_id' => $stock->id]);
-                } catch (Exception|Throwable $e) {
-                    $this->recordError($organisationSource, $e, $stockData['stock'], 'Stock', 'store');
-
-                    return [
-                        'stock'    => null,
-                        'orgStock' => null
-                    ];
-                }
+                return [
+                    'stock'    => null,
+                    'orgStock' => null
+                ];
             }
+        }
 
 
-            if ($stock) {
+        if (!$stock) {
+            $stock = Stock::withTrashed()->whereJsonContains('sources->parts', $stockData['stock']['source_id'])->first();
+        }
+
+        if (!$stock) {
+            $stock = Stock::withTrashed()->where('source_slug', $stockData['stock']['source_slug'])->first();
+        }
+
+        if (!$stock) {
+            if ($stockData['stock_family']) {
+                $parent = $stockData['stock_family'];
+            } else {
+                $parent = $organisationSource->getOrganisation()->group;
+            }
+            try {
+                $stock       = StoreStock::make()->action(
+                    parent: $parent,
+                    modelData: $stockData['stock'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
+                $isPrincipal = true;
+                Stock::enableAuditing();
+                $this->saveMigrationHistory(
+                    $stock,
+                    Arr::except($stockData['stock'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
+
+                $this->updateStockSources($stock, $stockData['stock']['source_id']);
+
+                $this->recordNew($organisationSource);
+
+                $sourceData = explode(':', $stock->source_id);
+                DB::connection('aurora')->table('Part Dimension')
+                    ->where('Part SKU', $sourceData[1])
+                    ->update(['aiku_id' => $stock->id]);
+            } catch (Exception|Throwable $e) {
+                $this->recordError($organisationSource, $e, $stockData['stock'], 'Stock', 'store');
+
+                return [
+                    'stock'    => null,
+                    'orgStock' => null
+                ];
+            }
+        }
+
+
+        if ($stock) {
+            if ($isPrincipal) {
                 $tradeUnit = $stockData['trade_unit'];
 
                 SyncStockTradeUnits::run($stock, [
@@ -106,11 +128,9 @@ class FetchAuroraStocks extends FetchAuroraAction
                 ]);
             }
 
-            $effectiveStock = $stock ?? $baseStock;
-
-            if ($effectiveStock and $effectiveStock->state == StockStateEnum::IN_PROCESS and $stockData['org_stock']['state'] != StockStateEnum::IN_PROCESS) {
-                $effectiveStock = UpdateStock::make()->action(
-                    stock: $effectiveStock,
+            if ($stock->state == StockStateEnum::IN_PROCESS and $stockData['org_stock']['state'] != StockStateEnum::IN_PROCESS) {
+                $stock = UpdateStock::make()->action(
+                    stock: $stock,
                     modelData: [
                         'state' => StockStateEnum::ACTIVE
                     ],
@@ -118,8 +138,9 @@ class FetchAuroraStocks extends FetchAuroraAction
                 );
             }
 
-            if ($effectiveStock and $effectiveStock->state != StockStateEnum::IN_PROCESS) {
-                $orgStock = $this->processOrgStock($organisationSource, $effectiveStock, $stockData);
+
+            if ($stock->state != StockStateEnum::IN_PROCESS) {
+                $orgStock = $this->processOrgStock($organisationSource, $stock, $stockData);
 
                 if ($orgStock) {
                     $locationsData = $this->getStockLocationData($organisationSource, $stockData['stock']['source_id']);
@@ -127,20 +148,60 @@ class FetchAuroraStocks extends FetchAuroraAction
                         'locationsData' => $locationsData
                     ], 60, false);
                 }
-
             }
-        }
-
-
-        if ($effectiveStock) {
             /** @var TradeUnit $tradeUnit */
-            $tradeUnit = $effectiveStock->tradeUnits()->first();
+            $tradeUnit = $stock->tradeUnits()->first();
             $this->processFetchAttachments($tradeUnit, 'Part', $stockData['stock']['source_id']);
+
+
+            if ($isPrincipal) {
+                $stock->supplierProducts()->syncWithoutDetaching($stockData['supplier_products']);
+            } else {
+                foreach ($stockData['supplier_products'] as $supplierProductId => $supplierProductData) {
+                    if (!$stock->supplierProducts()->where('supplier_product_id', $supplierProductId)->exists()) {
+                        $stock->supplierProducts()->attach(
+                            $supplierProductId,
+                            [
+                                'available' => $supplierProductData['available']
+                            ]
+                        );
+                    }
+                }
+            }
+
+            if ($orgStock) {
+                foreach ($stockData['org_supplier_products'] as $orgSupplierProductId => $orgSupplierProductData) {
+                    $orgStockHasOrgSupplierProduct = $orgStock->orgSupplierProducts()->where('org_supplier_product_id', $orgSupplierProductId)->first();
+
+                    if (!$orgStockHasOrgSupplierProduct) {
+                        $stockHasSupplierProduct = StockHasSupplierProduct::where('stock_id', $stock->id)->where('supplier_product_id', $orgSupplierProductData['supplier_product_id'])->first();
+
+                        /** @var OrgSupplierProduct $orgSupplierProduct */
+                        $orgSupplierProduct = OrgSupplierProduct::find($orgSupplierProductId);
+
+                        data_forget($orgSupplierProductData, 'supplier_product_id');
+
+                        StoreOrgStockHasOrgSupplierProduct::make()->action(
+                            stockHasSupplierProduct: $stockHasSupplierProduct,
+                            orgStock: $orgStock,
+                            orgSupplierProduct: $orgSupplierProduct,
+                            modelData: $orgSupplierProductData
+                        );
+                    }
+                }
+            }
+
+
+            return [
+                'stock'    => $stock,
+                'orgStock' => $orgStock
+            ];
         }
+
 
         return [
-            'stock'    => $effectiveStock,
-            'orgStock' => $orgStock
+            'stock'    => null,
+            'orgStock' => null
         ];
     }
 

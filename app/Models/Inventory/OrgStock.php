@@ -9,14 +9,17 @@ namespace App\Models\Inventory;
 
 use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -61,17 +64,18 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\LocationOrgStock> $locationOrgStocks
  * @property-read \App\Models\Inventory\OrgStockFamily|null $orgStockFamily
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Inventory\OrgStockMovement> $orgStockMovements
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\OrgStockStats|null $stats
  * @property-read Stock|null $stock
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Inventory\OrgStockFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStock newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStock newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStock onlyTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStock query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStock withTrashed()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgStock withoutTrashed()
+ * @method static Builder<static>|OrgStock newModelQuery()
+ * @method static Builder<static>|OrgStock newQuery()
+ * @method static Builder<static>|OrgStock onlyTrashed()
+ * @method static Builder<static>|OrgStock query()
+ * @method static Builder<static>|OrgStock withTrashed()
+ * @method static Builder<static>|OrgStock withoutTrashed()
  * @mixin \Eloquent
  */
 class OrgStock extends Model implements Auditable
@@ -154,6 +158,24 @@ class OrgStock extends Model implements Auditable
     {
         return $this->hasOne(OrgStockStats::class);
     }
+
+    public function orgSupplierProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(OrgSupplierProduct::class, 'org_stock_has_org_supplier_products')
+            ->withPivot([ 'status', 'local_priority'])->withTimestamps();
+    }
+
+    //    public function orgSupplierProduct(): HasOne
+    //    {
+    //        return $this->orgSupplierProducts()->one()->ofMany(
+    //            [
+    //                'local_priority' => 'max',
+    //            ],
+    //            function (Builder $query) {
+    //                $query->where('status', true);
+    //            }
+    //        );
+    //    }
 
 
 }

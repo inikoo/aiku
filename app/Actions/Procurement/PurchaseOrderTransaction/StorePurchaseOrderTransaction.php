@@ -25,9 +25,9 @@ class StorePurchaseOrderTransaction extends OrgAction
     use WithNoStrictRules;
     use WithStoreProcurementOrderItem;
 
-    public function handle(PurchaseOrder $purchaseOrder, HistoricSupplierProduct|OrgStock $item, array $modelData): PurchaseOrderTransaction
+    public function handle(PurchaseOrder $purchaseOrder, ?HistoricSupplierProduct $historicSupplierProduct, OrgStock $orgStock, array $modelData): PurchaseOrderTransaction
     {
-        $modelData = $this->prepareProcurementOrderItem($purchaseOrder, $item, $modelData);
+        $modelData = $this->prepareProcurementOrderItem($purchaseOrder, $historicSupplierProduct, $orgStock, $modelData);
 
         /** @var PurchaseOrderTransaction $purchaseOrderTransaction */
         $purchaseOrderTransaction = $purchaseOrder->purchaseOrderTransactions()->create($modelData);
@@ -47,9 +47,9 @@ class StorePurchaseOrderTransaction extends OrgAction
             $rules['state']           = ['sometimes', 'required', Rule::enum(PurchaseOrderTransactionStateEnum::class)];
             $rules['delivery_status'] = ['sometimes', 'required', Rule::enum(PurchaseOrderTransactionDeliveryStatusEnum::class)];
             $rules['submitted_at']    = ['sometimes', 'required', 'date'];
-            $rules['net_amount']   = ['sometimes', 'numeric'];
-            $rules['org_exchange'] = ['sometimes', 'numeric'];
-            $rules['grp_exchange'] = ['sometimes', 'numeric'];
+            $rules['net_amount']      = ['sometimes', 'numeric'];
+            $rules['org_exchange']    = ['sometimes', 'numeric'];
+            $rules['grp_exchange']    = ['sometimes', 'numeric'];
 
 
             $rules = $this->noStrictStoreRules($rules);
@@ -59,19 +59,19 @@ class StorePurchaseOrderTransaction extends OrgAction
         return $rules;
     }
 
-    public function action(PurchaseOrder $purchaseOrder, HistoricSupplierProduct|OrgStock $item, array $modelData, int $hydratorsDelay = 0, bool $strict = true): PurchaseOrderTransaction
+    public function action(PurchaseOrder $purchaseOrder, ?HistoricSupplierProduct $historicSupplierProduct, OrgStock $orgStock, array $modelData, int $hydratorsDelay = 0, bool $strict = true): PurchaseOrderTransaction
     {
         $this->asAction       = true;
-        $this->strict = $strict;
+        $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($purchaseOrder->organisation, $modelData);
 
-        return $this->handle($purchaseOrder, $item, $this->validatedData);
+        return $this->handle($purchaseOrder, $historicSupplierProduct, $orgStock, $this->validatedData);
     }
 
-    public function asController(PurchaseOrder $purchaseOrder, HistoricSupplierProduct $historicSupplierProduct, ActionRequest $request): void
+    public function asController(PurchaseOrder $purchaseOrder, ?HistoricSupplierProduct $historicSupplierProduct, OrgStock $orgStock, ActionRequest $request): void
     {
         $this->initialisation($purchaseOrder->organisation, $request);
-        $this->handle($purchaseOrder, $historicSupplierProduct, $this->validatedData);
+        $this->handle($purchaseOrder, $historicSupplierProduct, $orgStock, $this->validatedData);
     }
 }

@@ -16,29 +16,31 @@ class FetchAuroraStockDeliveryItem extends FetchAurora
     protected function parseStockDeliveryItem(StockDelivery $stockDelivery): void
     {
 
-        $item = null;
-        if ($stockDelivery->parent_type == 'OrgPartner' || $stockDelivery->parent_type == 'Production') {
-
-            if ($this->auroraModelData->{'Purchase Order Transaction Part SKU'}) {
-                $item = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Part SKU'});
-            }
-
-        } else {
-            $item = $this->parseHistoricSupplierProduct($this->organisation->id, $this->auroraModelData->{'Supplier Part Historic Key'});
-            if (!$item) {
-                $item = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Part SKU'});
-            }
-
+        $orgStock = null;
+        if ($this->auroraModelData->{'Purchase Order Transaction Part SKU'}) {
+            $orgStock = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Part SKU'});
         }
-
-        if (!$item) {
-            print "SD  ".$this->auroraModelData->{'Supplier Delivery Key'}."  Transaction Item not found   ".$this->auroraModelData->{'Purchase Order Transaction Fact Key'}."  \n";
+        if (!$orgStock) {
+            print "SD  ".$this->auroraModelData->{'Purchase Delivery Key'}."  SKU not found (".$this->auroraModelData->{'Purchase Order Transaction Part SKU'}.")   ".$this->auroraModelData->{'Purchase Order Transaction Fact Key'}."  \n";
             return;
         }
 
 
+        $historicSupplierProduct = null;
+        if (!($stockDelivery->parent_type == 'OrgPartner' || $stockDelivery->parent_type == 'Production')) {
+            $historicSupplierProduct = $this->parseHistoricSupplierProduct($this->organisation->id, $this->auroraModelData->{'Supplier Part Historic Key'});
+        }
 
-        $this->parsedData['item'] = $item;
+
+        if (!$historicSupplierProduct and !$orgStock) {
+            print "SD  ".$this->auroraModelData->{'Supplier Delivery Key'}."  Transaction Item not found   ".$this->auroraModelData->{'Purchase Order Transaction Fact Key'}."  \n";
+
+            return;
+        }
+
+
+        $this->parsedData['historic_supplier_product'] = $historicSupplierProduct;
+        $this->parsedData['org_stock']                 = $orgStock;
 
         //enum('Cancelled','NoReceived','InProcess','Dispatched','Received','Checked','Placed','CostingDone')
         $state = match ($this->auroraModelData->{'Supplier Delivery Transaction State'}) {

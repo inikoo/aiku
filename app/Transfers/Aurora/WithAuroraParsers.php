@@ -98,6 +98,7 @@ use App\Models\Ordering\Transaction;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
+use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\HistoricSupplierProduct;
 use App\Models\SupplyChain\Stock;
@@ -522,6 +523,20 @@ trait WithAuroraParsers
         }
 
         return $orgStock;
+    }
+
+    public function parseOrgSupplierProduct($sourceId): ?OrgSupplierProduct
+    {
+        $orgSupplierProduct   = OrgSupplierProduct::where('source_id', $sourceId)->first();
+        $sourceData = explode(':', $sourceId);
+
+        if (!$orgSupplierProduct) {
+            $supplierProduct = FetchAuroraSupplierProducts::run($this->organisationSource, $sourceData[1]);
+            if ($supplierProduct) {
+                $orgSupplierProduct = OrgSupplierProduct::where('supplier_product_id', $supplierProduct->id)->first();
+            }
+        }
+        return $orgSupplierProduct;
     }
 
 

@@ -35,47 +35,48 @@ class FetchAuroraTradeUnits extends FetchAuroraAction
 
         $organisation = $organisationSource->getOrganisation();
 
+        $tradeUnitData = $organisationSource->fetchTradeUnit($organisationSourceId);
 
 
-        if ($tradeUnitData = $organisationSource->fetchTradeUnit($organisationSourceId)) {
+        if ($tradeUnitData) {
             if (TradeUnit::withTrashed()->where('source_slug', $tradeUnitData['trade_unit']['source_slug'])->exists()) {
                 if ($tradeUnit = TradeUnit::withTrashed()->where('source_id', $tradeUnitData['trade_unit']['source_id'])->first()) {
-                    try {
-                        $tradeUnit = UpdateTradeUnit::make()->action(
-                            tradeUnit: $tradeUnit,
-                            modelData: $tradeUnitData['trade_unit'],
-                            hydratorsDelay: 30,
-                            strict: false,
-                            audit: false
-                        );
-                        $this->recordChange($organisationSource, $tradeUnit->wasChanged());
-                    } catch (Exception $e) {
-                        $this->recordError($organisationSource, $e, $tradeUnitData['trade_unit'], 'TradeUnit', 'update');
-
-                        return null;
-                    }
-                }
-            } else {
-                try {
-                    $tradeUnit = StoreTradeUnit::make()->action(
-                        group: $organisationSource->getOrganisation()->group,
+                    // try {
+                    $tradeUnit = UpdateTradeUnit::make()->action(
+                        tradeUnit: $tradeUnit,
                         modelData: $tradeUnitData['trade_unit'],
                         hydratorsDelay: 30,
                         strict: false,
                         audit: false
                     );
-                    TradeUnit::enableAuditing();
-                    $this->saveMigrationHistory(
-                        $tradeUnit,
-                        Arr::except($tradeUnitData['trade_unit'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                    );
-
-                    $this->recordNew($organisationSource);
-                } catch (Exception|Throwable $e) {
-                    $this->recordError($organisationSource, $e, $tradeUnitData['trade_unit'], 'TradeUnit', 'store');
-
-                    return null;
+                    $this->recordChange($organisationSource, $tradeUnit->wasChanged());
+                    //                    } catch (Exception $e) {
+                    //                        $this->recordError($organisationSource, $e, $tradeUnitData['trade_unit'], 'TradeUnit', 'update');
+                    //
+                    //                        return null;
+                    //                    }
                 }
+            } else {
+                //   try {
+                $tradeUnit = StoreTradeUnit::make()->action(
+                    group: $organisationSource->getOrganisation()->group,
+                    modelData: $tradeUnitData['trade_unit'],
+                    hydratorsDelay: 30,
+                    strict: false,
+                    audit: false
+                );
+                TradeUnit::enableAuditing();
+                $this->saveMigrationHistory(
+                    $tradeUnit,
+                    Arr::except($tradeUnitData['trade_unit'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
+
+                $this->recordNew($organisationSource);
+                //                } catch (Exception|Throwable $e) {
+                //                    $this->recordError($organisationSource, $e, $tradeUnitData['trade_unit'], 'TradeUnit', 'store');
+                //
+                //                    return null;
+                //                }
             }
 
 

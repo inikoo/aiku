@@ -11,7 +11,6 @@ use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Actions\SupplyChain\SupplierProduct\SyncSupplierProductTradeUnits;
 use App\Actions\SupplyChain\SupplierProduct\UpdateSupplierProduct;
-use App\Models\Goods\Ingredient;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Transfers\SourceOrganisationService;
@@ -90,7 +89,6 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
             }
             if (!$supplierProduct) {
                 $supplierProduct = SupplierProduct::withTrashed()->where('source_slug', $supplierProductData['supplierProduct']['source_slug'])->first();
-
             }
 
             if (!$supplierProduct) {

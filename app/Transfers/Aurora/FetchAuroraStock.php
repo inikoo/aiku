@@ -59,14 +59,45 @@ class FetchAuroraStock extends FetchAurora
 
         if ($state == StockStateEnum::IN_PROCESS) {
             if (DB::connection('aurora')
-                ->table('Inventory Transaction Fact')
-                ->leftJoin('Part Dimension', 'Part Dimension.Part SKU', 'Inventory Transaction Fact.Part SKU')
-                ->whereIn('Inventory Transaction Section', ['In','Out'])
-                ->where('Inventory Transaction Fact.Part SKU', $this->auroraModelData->{'Part SKU'})->count() > 0) {
+                    ->table('Inventory Transaction Fact')
+                    ->leftJoin('Part Dimension', 'Part Dimension.Part SKU', 'Inventory Transaction Fact.Part SKU')
+                    ->whereIn('Inventory Transaction Section', ['In', 'Out'])
+                    ->where('Inventory Transaction Fact.Part SKU', $this->auroraModelData->{'Part SKU'})->count() > 0) {
                 $state = StockStateEnum::ACTIVE;
             }
         }
 
+        $supplierProducts = [];
+        $orgSupplierProducts = [];
+
+        foreach (DB::connection('aurora')
+            ->table('Supplier Part Dimension')
+            ->where('Supplier Part Part SKU', $this->auroraModelData->{'Part SKU'})->get() as $auroraSupplierProductData
+        ) {
+            $supplierProduct = $this->parseSupplierProduct($this->organisation->id.':'.$auroraSupplierProductData->{'Supplier Part Key'});
+
+            if (!$supplierProduct) {
+                continue;
+            }
+
+            $supplierProducts[$supplierProduct->id] = [
+                'available' => $auroraSupplierProductData->{'Supplier Part Status'} == 'Available',
+            ];
+
+            $orgSupplierProduct = $this->parseOrgSupplierProduct($this->organisation->id.':'.$auroraSupplierProductData->{'Supplier Part Key'});
+            if ($orgSupplierProduct) {
+                $orgSupplierProducts[$orgSupplierProduct->id] = [
+                    'supplier_product_id' => $supplierProduct->id,
+                    'status' => $auroraSupplierProductData->{'Supplier Part Status'} == 'Available',
+                    'local_priority'  => $this->auroraModelData->{'Part Main Supplier Part Key'} == $auroraSupplierProductData->{'Supplier Part Key'} ? 10 : 0,
+                ];
+            }
+
+
+        }
+
+        $this->parsedData['supplier_products'] = $supplierProducts;
+        $this->parsedData['org_supplier_products'] = $orgSupplierProducts;
 
 
         $this->parsedData['stock_family'] = $this->parseStockFamily($this->auroraModelData->{'Part SKU'});
@@ -102,18 +133,18 @@ class FetchAuroraStock extends FetchAurora
 
             'state' => match ($this->auroraModelData->{'Part Status'}) {
                 'Discontinuing' => OrgStockStateEnum::DISCONTINUING,
-                'Not In Use'    => OrgStockStateEnum::DISCONTINUED,
-                default         => OrgStockStateEnum::ACTIVE,
+                'Not In Use' => OrgStockStateEnum::DISCONTINUED,
+                default => OrgStockStateEnum::ACTIVE,
             },
 
 
             'quantity_status' => match ($this->auroraModelData->{'Part Stock Status'}) {
-                'Surplus'      => 'excess',
-                'Optimal'      => 'ideal',
-                'Low'          => 'low',
-                'Critical'     => 'critical',
+                'Surplus' => 'excess',
+                'Optimal' => 'ideal',
+                'Low' => 'low',
+                'Critical' => 'critical',
                 'Out_Of_Stock' => 'out-of-stock',
-                'Error'        => 'error',
+                'Error' => 'error',
             },
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Part SKU'},
             'source_slug'     => $sourceSlug,

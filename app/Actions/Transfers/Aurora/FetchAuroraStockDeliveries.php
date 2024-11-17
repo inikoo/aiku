@@ -80,7 +80,7 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
 
             $this->processFetchAttachments($stockDelivery, 'Supplier Delivery', $stockDeliveryData['stockDelivery']['source_id']);
 
-            if (in_array('transactions', $this->with)) {
+            if (in_array('transactions', $this->with) or in_array('full', $this->with)) {
                 $this->fetchTransactions($organisationSource, $stockDelivery);
             }
 

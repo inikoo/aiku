@@ -15,22 +15,18 @@ use Illuminate\Support\Arr;
 
 trait WithStoreProcurementOrderItem
 {
-    protected function prepareProcurementOrderItem(PurchaseOrder|StockDelivery $procurementOrder, HistoricSupplierProduct|OrgStock $item, array $modelData): array
+    protected function prepareProcurementOrderItem(PurchaseOrder|StockDelivery $procurementOrder, ?HistoricSupplierProduct $historicSupplierProduct, OrgStock $orgStock, array $modelData): array
     {
-
         data_set($modelData, 'group_id', $procurementOrder->group_id);
         data_set($modelData, 'organisation_id', $procurementOrder->organisation_id);
 
 
-        if (class_basename($item) == 'HistoricSupplierProduct') {
-            $supplierProduct = $item->supplierProduct;
+        if ($historicSupplierProduct) {
+            $supplierProduct = $historicSupplierProduct->supplierProduct;
             data_set($modelData, 'supplier_product_id', $supplierProduct->id);
-            data_set($modelData, 'historic_supplier_product_id', $item->id);
+            data_set($modelData, 'historic_supplier_product_id', $historicSupplierProduct->id);
             $orgSupplierProduct = $supplierProduct->orgSupplierProducts()->where('organisation_id', $procurementOrder->organisation_id)->first();
             data_set($modelData, 'org_supplier_product_id', $orgSupplierProduct->id);
-            $orgStock = $supplierProduct->stock->orgStocks()->where('organisation_id', $procurementOrder->organisation_id)->first();
-            data_set($modelData, 'stock_id', $supplierProduct->stock->id);
-            data_set($modelData, 'org_stock_id', $orgStock->id);
 
 
             if (!Arr::has($modelData, 'net_amount')) {
@@ -43,10 +39,11 @@ trait WithStoreProcurementOrderItem
                     $unitCost * $quantity
                 );
             }
-        } else {
-            data_set($modelData, 'org_stock_id', $item->id);
-            data_set($modelData, 'stock_id', $item->stock_id);
         }
+
+        data_set($modelData, 'org_stock_id', $orgStock->id);
+        data_set($modelData, 'stock_id', $orgStock->stock_id);
+
 
         data_set($modelData, 'org_exchange', $procurementOrder->org_exchange, overwrite: false);
         data_set($modelData, 'grp_exchange', $procurementOrder->grp_exchange, overwrite: false);
