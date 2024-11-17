@@ -180,6 +180,6 @@ interface SourceOrganisationService
 
     public function fetchPollOption($id);
 
-    public function fetchPollHasCustomer($id);
+    public function fetchPollReply($id);
 
 }

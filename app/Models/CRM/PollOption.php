@@ -98,4 +98,6 @@ class PollOption extends Model implements Auditable
     {
         return $this->belongsTo(Poll::class);
     }
+
+
 }

@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('poll_has_customers', function (Blueprint $table) {
+        Schema::create('poll_replies', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->unsignedSmallInteger('poll_id')->index();
             $table->foreign('poll_id')->references('id')->on('polls');
-            $table->unsignedSmallInteger('poll_option_id')->index();
+            $table->unsignedSmallInteger('poll_option_id')->index()->nullable();
             $table->foreign('poll_option_id')->references('id')->on('poll_options');
             $table->text('value')->index()->nullable();
             $table->timestampsTz();
@@ -31,6 +31,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('poll_has_customers');
+        Schema::dropIfExists('poll_replies');
     }
 };

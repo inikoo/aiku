@@ -62,7 +62,7 @@ use App\Transfers\Aurora\FetchAuroraPayment;
 use App\Transfers\Aurora\FetchAuroraPaymentAccount;
 use App\Transfers\Aurora\FetchAuroraOrgPaymentServiceProvider;
 use App\Transfers\Aurora\FetchAuroraPoll;
-use App\Transfers\Aurora\FetchAuroraPollHasCustomer;
+use App\Transfers\Aurora\FetchAuroraPollReply;
 use App\Transfers\Aurora\FetchAuroraPollOption;
 use App\Transfers\Aurora\FetchAuroraPortfolio;
 use App\Transfers\Aurora\FetchAuroraProduct;
@@ -538,9 +538,9 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraPollOption($this))->fetch($id);
     }
 
-    public function fetchPollHasCustomer($id): ?array
+    public function fetchPollReply($id): ?array
     {
-        return (new FetchAuroraPollHasCustomer($this))->fetch($id);
+        return (new FetchAuroraPollReply($this))->fetch($id);
     }
 
 }

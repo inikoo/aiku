@@ -45,6 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CRM\PollOption> $pollOptions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\CRM\PollReply> $pollReplies
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\CRM\PollStat|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Poll newModelQuery()
@@ -112,5 +113,10 @@ class Poll extends Model implements Auditable
     public function pollOptions(): HasMany
     {
         return $this->hasMany(PollOption::class);
+    }
+
+    public function pollReplies(): HasMany
+    {
+        return $this->hasMany(PollReply::class);
     }
 }

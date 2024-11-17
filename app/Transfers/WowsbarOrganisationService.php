@@ -460,7 +460,7 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
-    public function fetchPollHasCustomer($id): ?array
+    public function fetchPollReply($id): ?array
     {
         return null;
     }
