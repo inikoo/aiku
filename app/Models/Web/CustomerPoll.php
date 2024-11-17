@@ -28,7 +28,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property CustomerPollTypeEnum $type
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Web\CustomerPollOption> $options
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Web\CustomerPollStat|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerPoll newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|CustomerPoll newQuery()
@@ -38,7 +41,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class CustomerPoll extends Model
 {
     use InShop;
-    
+
     protected $casts = [
         'type' => CustomerPollTypeEnum::class
     ];

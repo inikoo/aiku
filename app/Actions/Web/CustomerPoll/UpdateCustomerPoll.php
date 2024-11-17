@@ -12,7 +12,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Web\CustomerPoll\CustomerPollTypeEnum;
-use App\Models\Catalogue\Shop;
 use App\Models\Web\CustomerPoll;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
