@@ -51,6 +51,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Discounts\OfferCampaignStats|null $stats
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Discounts\OfferCampaignFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferCampaign newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferCampaign newQuery()

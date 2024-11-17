@@ -8,6 +8,7 @@
 namespace App\Actions\Accounting\InvoiceTransaction;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
@@ -18,6 +19,7 @@ use App\Models\Ordering\Transaction;
 class StoreInvoiceTransaction extends OrgAction
 {
     use WithOrderExchanges;
+    use WithNoStrictRules;
 
     public function handle(Invoice $invoice, Transaction|HistoricAsset $model, array $modelData): InvoiceTransaction
     {
@@ -89,9 +91,7 @@ class StoreInvoiceTransaction extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
-            $rules['created_at']      = ['sometimes', 'required', 'date'];
-            $rules['fetched_at']      = ['sometimes', 'required', 'date'];
+            $rules = $this->noStrictStoreRules($rules);
         }
 
         return $rules;

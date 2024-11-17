@@ -8,12 +8,15 @@
 namespace App\Actions\Accounting\InvoiceTransaction;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Accounting\InvoiceTransaction;
 
 class UpdateInvoiceTransaction extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
+
 
     public function handle(InvoiceTransaction $invoiceTransaction, array $modelData): InvoiceTransaction
     {
@@ -40,8 +43,7 @@ class UpdateInvoiceTransaction extends OrgAction
             'submitted_at'        => ['sometimes', 'required', 'date'],
         ];
         if (!$this->strict) {
-            $rules['created_at']      = ['sometimes', 'required', 'date'];
-            $rules['last_fetched_at'] = ['sometimes', 'required', 'date'];
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;

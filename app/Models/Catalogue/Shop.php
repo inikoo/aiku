@@ -34,6 +34,7 @@ use App\Models\Fulfilment\Rental;
 use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
+use App\Models\Helpers\InvoiceTransactionHasFeedback;
 use App\Models\Helpers\Issue;
 use App\Models\Helpers\Query;
 use App\Models\Helpers\SerialReference;
@@ -145,6 +146,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read ShippingZoneSchema|null $discountShippingZoneSchema
  * @property-read \App\Models\Catalogue\ShopDiscountsStats|null $discountsStats
  * @property-read \App\Models\Catalogue\ShopDropshippingStat|null $dropshippingStats
+ * @property-read LaravelCollection<int, InvoiceTransactionHasFeedback> $feedbackBridges
  * @property-read Fulfilment|null $fulfilment
  * @property-read Group $group
  * @property-read \App\Models\Helpers\Media|null $image
@@ -586,6 +588,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function queries(): HasMany
     {
         return $this->hasMany(Query::class);
+    }
+
+    public function feedbackBridges(): HasMany
+    {
+        return $this->hasMany(InvoiceTransactionHasFeedback::class);
     }
 
 }
