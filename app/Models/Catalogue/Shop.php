@@ -23,6 +23,7 @@ use App\Models\Catalogue\Shop\ShopMailshotsIntervals;
 use App\Models\Catalogue\Shop\ShopOrdersIntervals;
 use App\Models\CRM\Appointment;
 use App\Models\CRM\Customer;
+use App\Models\CRM\Poll;
 use App\Models\CRM\Prospect;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
@@ -62,7 +63,6 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
-use App\Models\Web\CustomerPoll;
 use App\Models\Web\Redirect;
 use App\Models\Web\Website;
 use Eloquent;
@@ -140,7 +140,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopCRMStats|null $crmStats
  * @property-read Currency $currency
  * @property-read ShippingZoneSchema|null $currentShippingZoneSchema
- * @property-read LaravelCollection<int, CustomerPoll> $customerPolls
  * @property-read LaravelCollection<int, Customer> $customers
  * @property-read LaravelCollection<int, DeliveryNote> $deliveryNotes
  * @property-read ShippingZoneSchema|null $discountShippingZoneSchema
@@ -168,6 +167,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Outbox> $outboxes
  * @property-read LaravelCollection<int, PaymentAccount> $paymentAccounts
  * @property-read LaravelCollection<int, Payment> $payments
+ * @property-read LaravelCollection<int, Poll> $polls
  * @property-read LaravelCollection<int, Portfolio> $portfolios
  * @property-read LaravelCollection<int, \App\Models\Catalogue\ProductCategory> $productCategories
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Product> $products
@@ -580,9 +580,9 @@ class Shop extends Model implements HasMedia, Auditable
                     ->whereNull('unsubscribed_at');
     }
 
-    public function customerPolls(): HasMany
+    public function polls(): HasMany
     {
-        return $this->hasMany(CustomerPoll::class);
+        return $this->hasMany(Poll::class);
     }
 
     public function queries(): HasMany

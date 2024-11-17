@@ -1,33 +1,32 @@
 <?php
 /*
- * author Arya Permana - Kirin
- * created on 14-11-2024-09h-19m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 17 Nov 2024 15:01:28 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\Web\CustomerPoll;
+namespace App\Actions\CRM\Poll;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
-use App\Enums\Web\CustomerPoll\CustomerPollTypeEnum;
+use App\Enums\CRM\Poll\PollTypeEnum;
 use App\Models\Catalogue\Shop;
-use App\Models\Web\CustomerPoll;
+use App\Models\CRM\Poll;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreCustomerPoll extends OrgAction
+class StorePoll extends OrgAction
 {
     use HasWebAuthorisation;
 
-    public function handle(Shop $shop, array $modelData): CustomerPoll
+    public function handle(Shop $shop, array $modelData): Poll
     {
         data_set($modelData, 'group_id', $shop->group_id);
         data_set($modelData, 'organisation_id', $shop->organisation_id);
 
-        $customerPoll = $shop->customerPolls()->create($modelData);
+        $poll = $shop->polls()->create($modelData);
 
-        return $customerPoll;
+        return $poll;
     }
 
     public function rules(): array
@@ -37,20 +36,20 @@ class StoreCustomerPoll extends OrgAction
             'label'                     => ['required', 'string'],
             'in_registration'           => ['required', 'boolean'],
             'in_registration_required'  => ['required', 'boolean'],
-            'type'                      => ['required', Rule::enum(CustomerPollTypeEnum::class)],
+            'type'                      => ['required', Rule::enum(PollTypeEnum::class)],
         ];
 
         return $rules;
     }
 
-    public function asController(Shop $shop, ActionRequest $request): CustomerPoll
+    public function asController(Shop $shop, ActionRequest $request): Poll
     {
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop, $this->validatedData);
     }
 
-    public function action(Shop $shop, array $modelData): CustomerPoll
+    public function action(Shop $shop, array $modelData): Poll
     {
         $this->initialisationFromShop($shop, $modelData);
 

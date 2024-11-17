@@ -20,7 +20,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-            $table = $this->crmStats($table);
+            $table = $this->customerStats($table);
             $table = $this->prospectsStats($table);
             $table->unsignedSmallInteger('number_prospect_queries')->default(0);
             $table->unsignedSmallInteger('number_customer_queries')->default(0);
