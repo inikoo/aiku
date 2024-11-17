@@ -49,11 +49,13 @@ trait IsMedia
         $rootPath    = '/'.config('app.name');
         $diskPath    = Storage::disk($this->disk)->path('');
         $storagePath = storage_path();
+
+
+
         $rootPath    .= Str::after(
             $diskPath,
             $storagePath
         );
-
         return 'local://'.$rootPath.$this->getPathRelativeToRoot();
 
     }
