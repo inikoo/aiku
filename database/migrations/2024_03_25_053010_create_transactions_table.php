@@ -50,6 +50,9 @@ return new class () extends Migration {
             $table->decimal('quantity_fail', 16, 3)->default(0)->nullable();
             $table->decimal('quantity_cancelled', 16, 3)->default(0)->nullable();
 
+            $table->boolean('out_of_stock_in_basket')->default(false)->index();
+            $table->dateTimeTz('out_of_stock_in_basket_at')->nullable();
+
             $table->string('fail_status')->nullable()->index();
 
             $table = $this->orderMoneyFields($table);
