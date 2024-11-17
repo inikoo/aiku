@@ -25,12 +25,13 @@ class FetchAuroraCustomers extends FetchAuroraAction
     use WithAuroraAttachments;
     use WithAuroraParsers;
 
-    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users portfolio favourites full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users portfolio favourites polls full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
     {
-        $with = $this->with;
+        $organisation = $organisationSource->getOrganisation();
+        $with         = $this->with;
 
         if ($customerData = $organisationSource->fetchCustomer($organisationSourceId)) {
             if ($customer = Customer::withTrashed()->where('source_id', $customerData['customer']['source_id'])
@@ -163,6 +164,22 @@ class FetchAuroraCustomers extends FetchAuroraAction
                 ) {
                     FetchAuroraWebUsers::run($organisationSource, $webUserData->source_id);
                 }
+            }
+
+            if (in_array('polls', $with) || in_array('full', $with)) {
+                $pollRepliesDelete = $customer->pollReplies()->whereNotNull('source_id')->pluck('source_id')->all();
+
+                foreach (
+                    DB::connection('aurora')
+                        ->table('Customer Poll Fact')
+                        ->where('Customer Poll Customer Key', $sourceData[1])
+                        ->select('Customer Poll Key as source_id')
+                        ->orderBy('source_id')->get() as $pollsData
+                ) {
+                    FetchAuroraPollReplies::run($organisationSource, $pollsData->source_id);
+                    $pollRepliesDelete = array_diff($pollRepliesDelete, [$organisation->id.':'.$pollsData->source_id]);
+                }
+                $customer->pollReplies()->whereIn('id', array_keys($pollRepliesDelete))->delete();
             }
 
             $this->processFetchAttachments($customer, 'Customer', $customerData['customer']['source_id']);

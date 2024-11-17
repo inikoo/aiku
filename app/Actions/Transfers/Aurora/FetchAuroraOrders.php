@@ -149,6 +149,8 @@ class FetchAuroraOrders extends FetchAuroraAction
 
     private function fetchPayments($organisationSource, Order $order): void
     {
+        $organisation = $organisationSource->getOrganisation();
+
         $paymentsToDelete = $order->payments()->pluck('source_id')->all();
         foreach (
             DB::connection('aurora')
@@ -170,7 +172,7 @@ class FetchAuroraOrders extends FetchAuroraAction
                 );
             }
 
-            $paymentsToDelete = array_diff($paymentsToDelete, [$auroraData->{'Payment Key'}]);
+            $paymentsToDelete = array_diff($paymentsToDelete, [$organisation->id.':'.$auroraData->{'Payment Key'}]);
         }
 
         $order->payments()->whereIn('id', $paymentsToDelete)->delete();

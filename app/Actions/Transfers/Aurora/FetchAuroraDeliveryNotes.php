@@ -108,6 +108,7 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
 
     private function fetchDeliveryNoteTransactions($organisationSource, $deliveryNote): void
     {
+        $organisation = $organisationSource->getOrganisation();
         $transactionsToDelete = $deliveryNote->deliveryNoteItems()->pluck('source_id', 'id')->all();
 
 
@@ -119,7 +120,7 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
                 ->where('Delivery Note Key', $sourceData[1])
                 ->get() as $auroraData
         ) {
-            $transactionsToDelete = array_diff($transactionsToDelete, [$auroraData->{'Inventory Transaction Key'}]);
+            $transactionsToDelete = array_diff($transactionsToDelete, [$organisation->id.':'.$auroraData->{'Inventory Transaction Key'}]);
             FetchDeliveryNoteTransactions::run($organisationSource, $auroraData->{'Inventory Transaction Key'}, $deliveryNote);
         }
         $deliveryNote->deliveryNoteItems()->whereIn('id', array_keys($transactionsToDelete))->delete();
