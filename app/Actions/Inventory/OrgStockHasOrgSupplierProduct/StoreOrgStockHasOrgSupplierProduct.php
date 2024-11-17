@@ -26,7 +26,6 @@ class StoreOrgStockHasOrgSupplierProduct extends OrgAction
 
     public function handle(StockHasSupplierProduct $stockHasSupplierProduct, OrgStock $orgStock, OrgSupplierProduct $orgSupplierProduct, array $modelData): OrgStockHasOrgSupplierProduct
     {
-
         data_set($modelData, 'org_stock_id', $orgStock->id);
         data_set($modelData, 'org_supplier_product_id', $orgSupplierProduct->id);
 
@@ -39,8 +38,8 @@ class StoreOrgStockHasOrgSupplierProduct extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'status'                  => ['sometimes', 'boolean'],
-            'local_priority'          => ['sometimes', 'integer'],
+            'status'         => ['sometimes', 'boolean'],
+            'local_priority' => ['sometimes', 'integer'],
         ];
 
         if (!$this->strict) {
@@ -52,11 +51,17 @@ class StoreOrgStockHasOrgSupplierProduct extends OrgAction
 
     public function afterValidator(Validator $validator): void
     {
-        if ($this->orgStock->stock != $this->stockHasSupplierProduct->stock) {
-            $validator->errors()->add('org_stock_id', 'Stock does not belong to this supplier product');
+        if ($this->orgStock->stock_id != $this->stockHasSupplierProduct->stock_id) {
+            $validator->errors()->add(
+                'org_stock_id',
+                'Org Stock->Stock '.$this->orgStock->id.'->'.$this->orgStock->stock_id.' does not belong to this supplier product'.$this->stockHasSupplierProduct->id
+            );
         }
-        if ($this->orgSupplierProduct->supplierProduct != $this->stockHasSupplierProduct->supplierProduct) {
-            $validator->errors()->add('org_supplier_product_id', 'Supplier Product does not belong to this stock');
+        if ($this->orgSupplierProduct->supplier_product_id != $this->stockHasSupplierProduct->supplier_product_id) {
+            $validator->errors()->add(
+                'org_supplier_product_id',
+                'Org/Supplier Product '.$this->orgSupplierProduct->id.'->'.$this->orgSupplierProduct->supplier_product_id.'   does not belong to this stock'.$this->stockHasSupplierProduct->id
+            );
         }
     }
 
@@ -67,8 +72,8 @@ class StoreOrgStockHasOrgSupplierProduct extends OrgAction
         $this->strict   = $strict;
 
         $this->stockHasSupplierProduct = $stockHasSupplierProduct;
-        $this->orgStock = $orgStock;
-        $this->orgSupplierProduct = $orgSupplierProduct;
+        $this->orgStock                = $orgStock;
+        $this->orgSupplierProduct      = $orgSupplierProduct;
 
         $this->initialisation($orgStock->organisation, $modelData);
 

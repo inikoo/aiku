@@ -86,6 +86,11 @@ class FetchAuroraStock extends FetchAurora
 
             $orgSupplierProduct = $this->parseOrgSupplierProduct($this->organisation->id.':'.$auroraSupplierProductData->{'Supplier Part Key'});
             if ($orgSupplierProduct) {
+
+
+
+
+
                 $orgSupplierProducts[$orgSupplierProduct->id] = [
                     'supplier_product_id' => $supplierProduct->id,
                     'status' => $auroraSupplierProductData->{'Supplier Part Status'} == 'Available',
