@@ -36,6 +36,8 @@ use App\Actions\Transfers\Aurora\FetchAuroraPallets;
 use App\Actions\Transfers\Aurora\FetchAuroraPaymentAccounts;
 use App\Actions\Transfers\Aurora\FetchAuroraPayments;
 use App\Actions\Transfers\Aurora\FetchAuroraOrgPaymentServiceProviders;
+use App\Actions\Transfers\Aurora\FetchAuroraPollOptions;
+use App\Actions\Transfers\Aurora\FetchAuroraPolls;
 use App\Actions\Transfers\Aurora\FetchAuroraProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraProspects;
 use App\Actions\Transfers\Aurora\FetchAuroraServices;
@@ -65,6 +67,8 @@ use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
+use App\Models\CRM\Poll;
+use App\Models\CRM\PollOption;
 use App\Models\CRM\Prospect;
 use App\Models\CRM\WebUser;
 use App\Models\Discounts\Offer;
@@ -934,6 +938,28 @@ trait WithAuroraParsers
         }
 
         return $barcode;
+    }
+
+    public function parsePoll($sourceId): ?Poll
+    {
+        $poll = Poll::withTrashed()->where('source_id', $sourceId)->first();
+        if (!$poll) {
+            $sourceData = explode(':', $sourceId);
+            $poll    = FetchAuroraPolls::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $poll;
+    }
+
+    public function parsePollOption($sourceId): ?PollOption
+    {
+        $pollOption = PollOption::where('source_id', $sourceId)->first();
+        if (!$pollOption) {
+            $sourceData = explode(':', $sourceId);
+            $pollOption    = FetchAuroraPollOptions::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $pollOption;
     }
 
 

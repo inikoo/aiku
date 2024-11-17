@@ -1,55 +1,53 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 17 Nov 2024 15:01:28 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Sun, 17 Nov 2024 18:11:47 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\CRM\Poll;
+namespace App\Actions\CRM\PollOption;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
-use App\Models\CRM\Poll;
+use App\Models\CRM\PollOption;
 use App\Rules\IUnique;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePoll extends OrgAction
+class UpdatePollOption extends OrgAction
 {
     use HasWebAuthorisation;
     use WithActionUpdate;
     use WithNoStrictRules;
 
 
-    /**
-     * @var \App\Models\CRM\Poll
-     */
-    private Poll $poll;
 
-    public function handle(Poll $poll, array $modelData): Poll
+    private PollOption $pollOption;
+
+    public function handle(PollOption $pollOption, array $modelData): PollOption
     {
-        $poll = $this->update($poll, $modelData);
+        $pollOption = $this->update($pollOption, $modelData);
         //todo put hydrators here if in_registration|in_registration_required|in_iris|in_iris_required has changed
-        return $poll;
+        return $pollOption;
     }
 
     public function rules(): array
     {
         $rules = [
-            'name'                     => [
+            'value'                     => [
                 'sometimes',
                 'required',
                 'max:255',
                 'string',
                 new IUnique(
-                    table: 'polls',
+                    table: 'poll_options',
                     extraConditions: [
-                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'poll_id', 'value' => $this->pollOption->poll_id],
                         [
                             'column'   => 'id',
                             'operator' => '!=',
-                            'value'    => $this->poll->id
+                            'value'    => $this->pollOption->id
                         ]
                     ]
                 ),
@@ -60,21 +58,17 @@ class UpdatePoll extends OrgAction
                 'max:255',
                 'string',
                 new IUnique(
-                    table: 'polls',
+                    table: 'poll_options',
                     extraConditions: [
-                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                        ['column' => 'poll_id', 'value' => $this->pollOption->poll_id],
                         [
                             'column'   => 'id',
                             'operator' => '!=',
-                            'value'    => $this->poll->id
+                            'value'    => $this->pollOption->id
                         ]
                     ]
                 ),
             ],
-            'in_registration'          => ['sometimes', 'boolean'],
-            'in_registration_required' => ['sometimes', 'boolean'],
-            'in_iris'                  => ['sometimes', 'boolean'],
-            'in_iris_required'         => ['sometimes', 'boolean'],
         ];
 
         if (!$this->strict) {
@@ -84,25 +78,25 @@ class UpdatePoll extends OrgAction
         return $rules;
     }
 
-    public function asController(Poll $poll, ActionRequest $request): Poll
+    public function asController(PollOption $pollOption, ActionRequest $request): PollOption
     {
-        $this->initialisationFromShop($poll->shop, $request);
+        $this->initialisationFromShop($pollOption->poll->shop, $request);
 
-        return $this->handle($poll, $this->validatedData);
+        return $this->handle($pollOption, $this->validatedData);
     }
 
-    public function action(Poll $poll, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Poll
+    public function action(PollOption $pollOption, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): PollOption
     {
         $this->strict = $strict;
         if (!$audit) {
-            Poll::disableAuditing();
+            PollOption::disableAuditing();
         }
         $this->asAction       = true;
-        $this->poll           = $poll;
+        $this->pollOption           = $pollOption;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisationFromShop($poll->shop, $modelData);
+        $this->initialisationFromShop($pollOption->poll->shop, $modelData);
 
-        return $this->handle($poll, $this->validatedData);
+        return $this->handle($pollOption, $this->validatedData);
     }
 
 }

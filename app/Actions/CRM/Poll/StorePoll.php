@@ -9,15 +9,18 @@ namespace App\Actions\CRM\Poll;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\CRM\Poll\PollTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Poll;
+use App\Rules\IUnique;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StorePoll extends OrgAction
 {
     use HasWebAuthorisation;
+    use WithNoStrictRules;
 
     public function handle(Shop $shop, array $modelData): Poll
     {
@@ -26,18 +29,48 @@ class StorePoll extends OrgAction
 
         $poll = $shop->polls()->create($modelData);
 
+        //todo add Store,Org,Group hydrators here
+
         return $poll;
     }
 
     public function rules(): array
     {
         $rules = [
-            'name'                      => ['required', 'string'],
-            'label'                     => ['required', 'string'],
-            'in_registration'           => ['required', 'boolean'],
-            'in_registration_required'  => ['required', 'boolean'],
-            'type'                      => ['required', Rule::enum(PollTypeEnum::class)],
+            'name'                     => [
+                'sometimes',
+                'required',
+                'max:255',
+                'string',
+                new IUnique(
+                    table: 'polls',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                    ]
+                ),
+            ],
+            'label'                    => [
+                'sometimes',
+                'required',
+                'max:255',
+                'string',
+                new IUnique(
+                    table: 'polls',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                    ]
+                ),
+            ],
+            'in_registration'          => ['required', 'boolean'],
+            'in_registration_required' => ['required', 'boolean'],
+            'in_iris'                  => ['required', 'boolean'],
+            'in_iris_required'         => ['sometimes', 'required', 'boolean'],
+            'type'                     => ['required', Rule::enum(PollTypeEnum::class)],
         ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictStoreRules($rules);
+        }
 
         return $rules;
     }
@@ -49,8 +82,14 @@ class StorePoll extends OrgAction
         return $this->handle($shop, $this->validatedData);
     }
 
-    public function action(Shop $shop, array $modelData): Poll
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Poll
     {
+        if (!$audit) {
+            Poll::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($shop, $modelData);
 
         return $this->handle($shop, $this->validatedData);

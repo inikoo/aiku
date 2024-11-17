@@ -22,8 +22,11 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('name');
             $table->string('label');
-            $table->boolean('in_registration');
-            $table->boolean('in_registration_required');
+            $table->unsignedSmallInteger('position')->default(0)->comment('Position in the poll list');
+            $table->boolean('in_registration')->default(false)->index();
+            $table->boolean('in_registration_required')->default(false);
+            $table->boolean('in_iris')->default(false)->index();
+            $table->boolean('in_iris_required')->default(false);
             $table->string('type')->index();
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();

@@ -176,4 +176,10 @@ interface SourceOrganisationService
 
     public function fetchFeedback($id);
 
+    public function fetchPoll($id);
+
+    public function fetchPollOption($id);
+
+    public function fetchPollHasCustomer($id);
+
 }
