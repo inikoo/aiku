@@ -80,6 +80,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read HistoricAsset|null $historicAsset
  * @property-read Model|\Eloquent $item
+ * @property-read Collection<int, ModelHasOfferComponent> $offerComponents
  * @property-read \App\Models\Ordering\Order|null $order
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Shop $shop

@@ -43,47 +43,47 @@ class FetchAuroraProducts extends FetchAuroraAction
 
         /** @var Product $product */
         if ($product = Product::withTrashed()->where('source_id', $productData['product']['source_id'])->first()) {
-           // try {
-                $product = UpdateProduct::make()->action(
-                    product: $product,
-                    modelData: $productData['product'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
-//            } catch (Exception $e) {
-//                $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'update');
-//
-//                return null;
-//            }
+            // try {
+            $product = UpdateProduct::make()->action(
+                product: $product,
+                modelData: $productData['product'],
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+            //            } catch (Exception $e) {
+            //                $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'update');
+            //
+            //                return null;
+            //            }
         } else {
-          //  try {
-                $product = StoreProduct::make()->action(
-                    parent: $productData['parent'],
-                    modelData: $productData['product'],
-                    hydratorsDelay: 120,
-                    strict: false,
-                    audit: false
-                );
+            //  try {
+            $product = StoreProduct::make()->action(
+                parent: $productData['parent'],
+                modelData: $productData['product'],
+                hydratorsDelay: 120,
+                strict: false,
+                audit: false
+            );
 
-                Product::enableAuditing();
-                $this->saveMigrationHistory(
-                    $product,
-                    Arr::except($productData['product'], ['fetched_at', 'last_fetched_at'])
-                );
+            Product::enableAuditing();
+            $this->saveMigrationHistory(
+                $product,
+                Arr::except($productData['product'], ['fetched_at', 'last_fetched_at'])
+            );
 
-                $this->recordNew($organisationSource);
+            $this->recordNew($organisationSource);
 
-                $sourceData = explode(':', $product->source_id);
+            $sourceData = explode(':', $product->source_id);
 
-                DB::connection('aurora')->table('Product Dimension')
-                    ->where('Product ID', $sourceData[1])
-                    ->update(['aiku_id' => $product->id]);
-//            } catch (Exception|Throwable $e) {
-//                $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'store');
-//
-//                return null;
-//            }
+            DB::connection('aurora')->table('Product Dimension')
+                ->where('Product ID', $sourceData[1])
+                ->update(['aiku_id' => $product->id]);
+            //            } catch (Exception|Throwable $e) {
+            //                $this->recordError($organisationSource, $e, $productData['product'], 'Product', 'store');
+            //
+            //                return null;
+            //            }
         }
 
         $sourceData = explode(':', $product->source_id);

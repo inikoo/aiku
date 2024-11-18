@@ -37,7 +37,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_offer_components')->default(0);
             $table->unsignedSmallInteger('number_offers')->default(0);
             $table->unsignedSmallInteger('number_offer_campaigns')->default(0);
-            
+
             $table->timestampsTz();
         });
     }

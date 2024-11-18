@@ -169,5 +169,5 @@ class OrgStock extends Model implements Auditable
     {
         return $this->orgSupplierProducts()->where('status', true)->orderBy('local_priority', 'desc')->first();
     }
-    
+
 }
