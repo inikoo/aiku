@@ -35,7 +35,8 @@ class CollectionRecordSearch
                 'shop_id'           => $collection->shop_id,
                 'shop_slug'         => $collection->shop->slug,
                 'sections'          => ['catalogue'],
-                'haystack_tier_1'   => trim($collection->code . ' ' . $collection->name),
+                'haystack_tier_1'   => $collection->name,
+                'haystack_tier_2'   => $collection->code,
                 'result'            => [
                     'route'         => [
                         'name'          => 'grp.org.shops.show.catalogue.collections.show',
