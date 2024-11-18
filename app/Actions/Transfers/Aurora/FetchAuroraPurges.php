@@ -7,9 +7,10 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\Ordering\Purge\Hydrators\PurgeHydratePurgedOrders;
 use App\Actions\Ordering\Purge\StorePurge;
 use App\Actions\Ordering\Purge\UpdatePurge;
-use App\Enums\Ordering\PurgedOrder\PurgedOrderStateEnum;
+use App\Enums\Ordering\PurgedOrder\PurgedOrderStatusEnum;
 use App\Models\Ordering\Purge;
 use App\Models\Ordering\PurgedOrder;
 use App\Transfers\Aurora\WithAuroraParsers;
@@ -71,33 +72,36 @@ class FetchAuroraPurges extends FetchAuroraAction
                 //                }
             }
 
+            $purge->stats->update($purgeData['purge_stats']);
+
+
 
             $sourceData = explode(':', $purgeData['purge']['source_id']);
             foreach (
                 DB::connection('aurora')->table('Order Basket Purge Order Fact')
                     ->where('Order Basket Purge Order Basket Purge Key', $sourceData[1])->get() as $purgedOrderAuroraData
             ) {
-                $state = match ($purgedOrderAuroraData->{'Order Basket Purge Order Status'}) {
-                    'In Process' => PurgedOrderStateEnum::IN_PROCESS,
-                    'Purged' => PurgedOrderStateEnum::PURGED,
-                    'Exculpated' => PurgedOrderStateEnum::EXCULPATED,
-                    'Cancelled' => PurgedOrderStateEnum::CANCELLED,
-                    default => PurgedOrderStateEnum::ERROR
+                $status = match ($purgedOrderAuroraData->{'Order Basket Purge Order Status'}) {
+                    'In Process' => PurgedOrderStatusEnum::IN_PROCESS,
+                    'Purged' => PurgedOrderStatusEnum::PURGED,
+                    'Exculpated' => PurgedOrderStatusEnum::EXCULPATED,
+                    'Cancelled' => PurgedOrderStatusEnum::CANCELLED,
+                    default => PurgedOrderStatusEnum::ERROR
                 };
 
                 $purgedOrderData = [
-                    'state'           => $state,
+                    'status'           => $status,
                     'source_id'       => $organisation->id.':'.$purgedOrderAuroraData->{'Order Basket Purge Order Basket Purge Key'}.'_'.$purgedOrderAuroraData->{'Order Basket Purge Order Order Key'},
                     'fetched_at'      => now(),
                     'last_fetched_at' => now(),
                     'created_at'      => $purge->created_at,
                 ];
 
-                if ($state == PurgedOrderStateEnum::PURGED) {
+                if ($status == PurgedOrderStatusEnum::PURGED) {
                     $purgedOrderData['purged_at'] = $this->parseDatetime($purgedOrderAuroraData->{'Order Basket Purge Purged Date'});
                 }
 
-                if ($state == PurgedOrderStateEnum::ERROR) {
+                if ($status == PurgedOrderStatusEnum::ERROR) {
                     $purgedOrderData['error_message'] = $purgedOrderAuroraData->{'Order Basket Purge Note'};
                 }
 
@@ -115,6 +119,7 @@ class FetchAuroraPurges extends FetchAuroraAction
                 }
             }
 
+            PurgeHydratePurgedOrders::run($purge);
 
             return $purge;
         }

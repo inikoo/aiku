@@ -9,7 +9,7 @@ namespace App\Enums\Ordering\PurgedOrder;
 
 use App\Enums\EnumHelperTrait;
 
-enum PurgedOrderStateEnum: string
+enum PurgedOrderStatusEnum: string
 {
     use EnumHelperTrait;
 

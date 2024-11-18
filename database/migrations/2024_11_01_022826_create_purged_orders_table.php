@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\Ordering\PurgedOrder\PurgedOrderStateEnum;
+use App\Enums\Ordering\PurgedOrder\PurgedOrderStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -25,7 +25,7 @@ return new class () extends Migration {
             $table->unsignedInteger('purge_id')->index();
             $table->foreign('purge_id')->references('id')->on('purges');
             $table->unsignedInteger('order_id')->nullable();
-            $table->string('state')->default(PurgedOrderStateEnum::IN_PROCESS);
+            $table->string('status')->default(PurgedOrderStatusEnum::IN_PROCESS);
             $table->dateTimeTz('purged_at')->nullable();
             $table->dateTimeTz('order_created_at')->nullable();
             $table->dateTimeTz('order_last_updated_at')->nullable();

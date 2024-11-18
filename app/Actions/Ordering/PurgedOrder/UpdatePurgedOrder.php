@@ -12,7 +12,7 @@ use App\Actions\Ordering\Purge\Hydrators\PurgeHydratePurgedOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Ordering\PurgedOrder\PurgedOrderStateEnum;
+use App\Enums\Ordering\PurgedOrder\PurgedOrderStatusEnum;
 use App\Models\Ordering\PurgedOrder;
 use Illuminate\Validation\Rule;
 
@@ -35,7 +35,7 @@ class UpdatePurgedOrder extends OrgAction
     public function rules(): array
     {
         $rules =  [
-            'status'              => ['sometimes', Rule::enum(PurgedOrderStateEnum::class)],
+            'status'              => ['sometimes', Rule::enum(PurgedOrderStatusEnum::class)],
             'note'                => ['sometimes', 'string']
         ];
 

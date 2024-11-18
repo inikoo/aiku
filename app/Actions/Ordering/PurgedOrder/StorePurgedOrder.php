@@ -23,10 +23,7 @@ class StorePurgedOrder extends OrgAction
         data_set($modelData, 'group_id', $order->group_id);
         data_set($modelData, 'organisation_id', $order->organisation_id);
         data_set($modelData, 'shop_id', $order->shop_id);
-
-
         data_set($modelData, 'order_id', $order->id);
-
         data_set($modelData, 'customer_id', $order->customer_id);
         data_set($modelData, 'order_last_updated_at', $order->updated_at);
         data_set($modelData, 'amount', $order->net_amount);

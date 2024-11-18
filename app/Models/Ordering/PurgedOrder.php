@@ -8,7 +8,7 @@
 
 namespace App\Models\Ordering;
 
-use App\Enums\Ordering\PurgedOrder\PurgedOrderStateEnum;
+use App\Enums\Ordering\PurgedOrder\PurgedOrderStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -22,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $customer_id
  * @property int $purge_id
  * @property int|null $order_id
- * @property PurgedOrderStateEnum $state
+ * @property PurgedOrderStatusEnum $status
  * @property string|null $purged_at
  * @property string|null $order_created_at
  * @property string|null $order_last_updated_at
@@ -48,7 +48,7 @@ class PurgedOrder extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'state'       => PurgedOrderStateEnum::class,
+        'status'       => PurgedOrderStatusEnum::class,
     ];
 
     public function purge(): BelongsTo
