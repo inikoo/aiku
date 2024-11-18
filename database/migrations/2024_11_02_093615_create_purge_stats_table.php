@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\Ordering\Purge\PurgedOrderStatusEnum;
+use App\Enums\Ordering\PurgedOrder\PurgedOrderStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -23,7 +23,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('number_purged_orders')->default(0);
 
-            foreach (PurgedOrderStatusEnum::cases() as $case) {
+            foreach (PurgedOrderStateEnum::cases() as $case) {
                 $table->unsignedInteger("number_purged_orders_status_{$case->snake()}")->default(0);
             }
 

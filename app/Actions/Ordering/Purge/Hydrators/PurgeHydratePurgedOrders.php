@@ -10,7 +10,7 @@ namespace App\Actions\Ordering\Purge\Hydrators;
 
 use App\Actions\HydrateModel;
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Ordering\Purge\PurgedOrderStatusEnum;
+use App\Enums\Ordering\PurgedOrder\PurgedOrderStateEnum;
 use App\Models\Ordering\Purge;
 use App\Models\Ordering\PurgedOrder;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -35,7 +35,7 @@ class PurgeHydratePurgedOrders extends HydrateModel
     public function handle(Purge $purge): void
     {
         $purgedOrders = $purge->purgedOrders()
-            ->where('status', PurgedOrderStatusEnum::PURGED)
+            ->where('status', PurgedOrderStateEnum::PURGED)
             ->count();
 
         $estimatedNumberTransactions = $purge->purgedOrders()
@@ -46,7 +46,7 @@ class PurgeHydratePurgedOrders extends HydrateModel
             });
 
         $purgedTransactions = $purge->purgedOrders()
-            ->where('status', PurgedOrderStatusEnum::PURGED)
+            ->where('status', PurgedOrderStateEnum::PURGED)
             ->with('order.transactions')
             ->get()
             ->sum(function ($purgedOrder) {
@@ -69,7 +69,7 @@ class PurgeHydratePurgedOrders extends HydrateModel
         });
 
         $purgedOrderAmounts = $purge->purgedOrders()
-            ->where('status', PurgedOrderStatusEnum::PURGED)
+            ->where('status', PurgedOrderStateEnum::PURGED)
             ->get();
 
         $purgedAmount = $purgedOrderAmounts->sum(function ($purgedOrder) {
@@ -100,7 +100,7 @@ class PurgeHydratePurgedOrders extends HydrateModel
         $stats = array_merge($stats, $this->getEnumStats(
             model:'purged_orders',
             field: 'status',
-            enum: PurgedOrderStatusEnum::class,
+            enum: PurgedOrderStateEnum::class,
             models: PurgedOrder::class,
             where: function ($q) use ($purge) {
                 $q->where('purge_id', $purge->id);
