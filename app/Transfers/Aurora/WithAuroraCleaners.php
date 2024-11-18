@@ -41,6 +41,9 @@ trait WithAuroraCleaners
         $reference = str_replace("]", '', $reference);
         $reference = str_replace("#", '_', $reference);
         $reference = str_replace(":", '_', $reference);
+        $reference = str_replace("ň", 'n', $reference);
+        $reference = str_replace("%", 'pct', $reference);
+
 
         /** @noinspection PhpDuplicateArrayKeysInspection */
         /** @noinspection DuplicatedCode */
@@ -145,7 +148,7 @@ trait WithAuroraCleaners
         $string = str_replace('!', '_', $string);
         $string = str_replace('?', '_', $string);
         $string = str_replace("'", '', $string);
-        $string = str_replace("%", 'percentage', $string);
+        $string = str_replace("%", 'pct', $string);
 
 
         /** @noinspection PhpDuplicateArrayKeysInspection */

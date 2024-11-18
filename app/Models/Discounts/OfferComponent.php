@@ -8,6 +8,7 @@
 namespace App\Models\Discounts;
 
 use App\Enums\Discounts\OfferComponent\OfferComponentStateEnum;
+use App\Models\Accounting\InvoiceTransaction;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InShop;
 use Eloquent;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -124,6 +126,23 @@ class OfferComponent extends Model implements Auditable
     public function stats(): HasOne
     {
         return $this->hasOne(OfferComponentStats::class);
+    }
+
+    public function modelHasOfferComponents(): HasMany
+    {
+        return $this->hasMany(ModelHasOfferComponent::class);
+    }
+
+    public function invoiceTransactions(): HasMany
+    {
+        return $this->hasMany(ModelHasOfferComponent::class)
+                    ->where('model_type', 'InvoiceTransaction');
+    }
+
+    public function orderTransactions(): HasMany
+    {
+        return $this->hasMany(ModelHasOfferComponent::class)
+                    ->where('model_type', 'Transaction');
     }
 
 }

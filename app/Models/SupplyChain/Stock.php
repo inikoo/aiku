@@ -208,16 +208,9 @@ class Stock extends Model implements HasMedia, Auditable
             ->withPivot(['priority', 'status', 'source_id', 'source_slug', 'fetched_at', 'last_fetched_at'])->withTimestamps();
     }
 
-    //    public function supplierProduct(): HasOne
-    //    {
-    //        return $this->supplierProducts()->one()->ofMany(
-    //            [
-    //                'priority' => 'max',
-    //            ],
-    //            function (Builder $query) {
-    //                $query->where('status', true);
-    //            }
-    //        );
-    //    }
+    public function getMainSupplierProduct(): SupplierProduct
+    {
+        return$this->supplierProducts()->where('available', true)->orderBy('priority', 'desc')->first();
+    }
 
 }

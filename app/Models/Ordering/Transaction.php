@@ -14,6 +14,7 @@ use App\Models\Catalogue\HistoricAsset;
 use App\Models\CRM\Customer;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Catalogue\Shop;
+use App\Models\Discounts\ModelHasOfferComponent;
 use App\Models\Helpers\Feedback;
 use App\Models\Traits\InCustomer;
 use Eloquent;
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -153,6 +155,33 @@ class Transaction extends Model
     {
         return $this->morphToMany(Feedback::class, 'model', 'model_has_feedbacks');
     }
+
+    public function offerComponents(): MorphMany
+    {
+        return $this->morphMany(ModelHasOfferComponent::class, 'model');
+    }
+
+    public function countOfferComponents(): int
+    {
+        return $this->offerComponents()
+            ->distinct('offer_component_id')
+            ->count('offer_component_id');
+    }
+
+    public function countOffers(): int
+    {
+        return $this->offerComponents()
+            ->distinct('offer_id')
+            ->count('offer_id');
+    }
+
+    public function countOfferCampaigns(): int
+    {
+        return $this->offerComponents()
+            ->distinct('offer_campaigns_id')
+            ->count('offer_campaigns_id');
+    }
+
 
 
 }

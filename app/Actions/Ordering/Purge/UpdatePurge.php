@@ -10,17 +10,20 @@ namespace App\Actions\Ordering\Purge;
 
 use App\Actions\Ordering\Purge\Hydrators\PurgeHydratePurgedOrders;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Purge\PurgeStateEnum;
 use App\Enums\Ordering\Purge\PurgeTypeEnum;
 use App\Models\Ordering\Purge;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePurge extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
 
     public function handle(Purge $purge, $modelData): Purge
     {
@@ -40,12 +43,12 @@ class UpdatePurge extends OrgAction
             return true;
         }
 
-        return true;
+        return false;
     }
 
     public function rules()
     {
-        return [
+        $rules = [
             'state'             => ['sometimes', Rule::enum(PurgeStateEnum::class)],
             'type'              => ['sometimes', Rule::enum(PurgeTypeEnum::class)],
             'scheduled_at'      => ['sometimes', 'date'],
@@ -53,6 +56,12 @@ class UpdatePurge extends OrgAction
             'start_at'          => ['sometimes', 'date'],
             'end_at'            => ['sometimes', 'date'],
         ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictUpdateRules($rules);
+        }
+        return $rules;
+
     }
 
     public function asController(Purge $purge, ActionRequest $request)
@@ -61,9 +70,14 @@ class UpdatePurge extends OrgAction
         return $this->handle($purge, $this->validatedData);
     }
 
-    public function action(Purge $purge, array $modelData)
+    public function action(Purge $purge, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true)
     {
+        if (!$audit) {
+            Purge::disableAuditing();
+        }
+        $this->strict = $strict;
         $this->asAction = true;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($purge->shop, $modelData);
         return $this->handle($purge, $this->validatedData);
     }

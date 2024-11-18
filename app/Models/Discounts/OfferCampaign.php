@@ -127,4 +127,21 @@ class OfferCampaign extends Model implements Auditable
     {
         return $this->hasOne(OfferCampaignStats::class);
     }
+
+    public function modelHasOfferComponents(): HasMany
+    {
+        return $this->hasMany(ModelHasOfferComponent::class);
+    }
+
+    public function invoiceTransactions(): HasMany
+    {
+        return $this->hasMany(ModelHasOfferComponent::class)
+                    ->where('model_type', 'InvoiceTransaction');
+    }
+
+    public function orderTransactions(): HasMany
+    {
+        return $this->hasMany(ModelHasOfferComponent::class)
+                    ->where('model_type', 'Transaction');
+    }
 }
