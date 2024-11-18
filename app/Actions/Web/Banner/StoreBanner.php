@@ -9,7 +9,7 @@ namespace App\Actions\Web\Banner;
 
 use App\Actions\Helpers\Snapshot\StoreBannerSnapshot;
 use App\Actions\OrgAction;
-use App\Actions\Web\Banner\Hydrators\BannerHydrateUniversalSearch;
+use App\Actions\Web\Banner\Search\BannerRecordSearch;
 use App\Actions\Web\Banner\UI\ParseBannerLayout;
 use App\Enums\Web\Banner\BannerTypeEnum;
 use App\Models\Catalogue\Shop;
@@ -36,7 +36,7 @@ class StoreBanner extends OrgAction
     private string $scope;
 
 
-    public function handle( Website $website, array $modelData): Banner
+    public function handle(Website $website, array $modelData): Banner
     {
 
         $layout = [
@@ -95,7 +95,7 @@ class StoreBanner extends OrgAction
 
         $banner->stats()->create();
 
-        BannerHydrateUniversalSearch::dispatch($banner);
+        BannerRecordSearch::dispatch($banner);
 
         return $banner;
     }
