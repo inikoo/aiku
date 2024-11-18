@@ -7,9 +7,9 @@
 
 namespace App\Actions\Web\Banner;
 
-use App\Actions\Web\Banner\Hydrators\BannerHydrateUniversalSearch;
 use App\Actions\Web\Banner\UI\ParseBannerLayout;
 use App\Actions\Traits\WithActionUpdate;
+use App\Actions\Web\Banner\Search\BannerRecordSearch;
 use App\Actions\Web\Slide\StoreSlide;
 use App\Actions\Web\Slide\UpdateSlide;
 use App\Http\Resources\Web\BannerResource;
@@ -81,7 +81,7 @@ class UpdateUnpublishedBannerSnapshot
 
         UpdateBannerImage::run($banner);
 
-        BannerHydrateUniversalSearch::dispatch($banner);
+        BannerRecordSearch::dispatch($banner);
 
 
 
