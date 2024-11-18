@@ -21,8 +21,7 @@ class FetchAuroraHistoricAsset extends FetchAurora
         }
 
         if (!$this->parsedData['asset_model']) {
-            print_r($this->auroraModelData);
-            // dd('Error');
+            dd('Error');
         }
 
 
