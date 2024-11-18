@@ -56,7 +56,7 @@ class StorePurge extends OrgAction
             return true;
         }
 
-        return true;
+        return false;
     }
 
     public function afterValidator(Validator $validator): void

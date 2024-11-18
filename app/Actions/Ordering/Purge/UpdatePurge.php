@@ -43,7 +43,7 @@ class UpdatePurge extends OrgAction
             return true;
         }
 
-        return true;
+        return false;
     }
 
     public function rules()
