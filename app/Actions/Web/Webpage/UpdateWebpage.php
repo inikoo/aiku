@@ -12,8 +12,8 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebpages;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
-use App\Actions\Web\Webpage\Hydrators\WebpageHydrateUniversalSearch;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateWebpages;
+use App\Actions\Web\Webpage\Search\WebpageRecordSearch;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
@@ -52,7 +52,7 @@ class UpdateWebpage extends OrgAction
         }
 
 
-        WebpageHydrateUniversalSearch::run($webpage);
+        WebpageRecordSearch::run($webpage);
 
         return $webpage;
     }
