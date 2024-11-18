@@ -41,6 +41,7 @@ trait WithAuroraCleaners
         $reference = str_replace("]", '', $reference);
         $reference = str_replace("#", '_', $reference);
         $reference = str_replace(":", '_', $reference);
+        $reference = str_replace("ň", 'n', $reference);
 
         /** @noinspection PhpDuplicateArrayKeysInspection */
         /** @noinspection DuplicatedCode */
