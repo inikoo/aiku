@@ -58,7 +58,15 @@ class HandleIrisInertiaRequests extends Middleware
                     ),
                     'footer' => Arr::get($website->published_layout, 'footer'),
                     'menu'   => Arr::get($website->published_layout, 'menu'),
-                    'color'  => Arr::get($website->published_layout, 'color')
+                    'color'  => Arr::get($website->published_layout, 'color'),
+                    'variables' => [
+                        'name'              => 'Vika Aqordi',
+                        'username'          => 'aqordeon',
+                        'email'             => 'aqordeon@mail.com',
+                        'favourites_count'  => 45,
+                        'cart_count'        => 12,
+                        'cart_amount'       => '$99.124',
+                    ]
                 ],
 
             ],

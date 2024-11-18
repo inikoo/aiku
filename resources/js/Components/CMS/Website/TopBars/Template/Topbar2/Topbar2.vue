@@ -11,7 +11,7 @@ import Modal from '@/Components/Utils/Modal.vue'
 import LoginPassword from '@/Components/Auth/LoginPassword.vue'
 import { Link } from '@inertiajs/vue3'
 import { getStyles } from '@/Composables/styles'
-import { checkVisible } from '@/Composables/Workshop'
+import { checkVisible, textReplaceVariables } from '@/Composables/Workshop'
 
 library.add(faHeart, faShoppingCart, faSignOut, faUser, faSignIn, faUserPlus)
 
@@ -34,6 +34,24 @@ interface ModelTopbar2 {
             }
         }
     }
+    logout: {
+
+    }
+    login: {
+
+    }
+    register: {
+        
+    }
+    favourite: {
+
+    }
+    cart: {
+
+    }
+    profile: {
+
+    }
 }
 
 const model = defineModel<ModelTopbar2>()
@@ -43,6 +61,7 @@ const isDropshipping = ref(false)
 const sectionAuth = ref<string | null>()
 
 const locale = inject('locale', aikuLocaleStructure)
+const layout = inject('layout', {})
 
 const isModalOpen = ref(false)
 
@@ -56,7 +75,6 @@ const onClickLogin = () => {
     sectionAuth.value = 'login'
 }
 
-
 </script>
 
 <template>
@@ -65,15 +83,13 @@ const onClickLogin = () => {
     >
         
         <!-- Section: Greeting -->
-        <div v-if="checkVisible(model?.greeting.visible || null, isLoggedIn)" v-html="model?.greeting?.text?.replace(/\{\{\s*name\s*\}\}/g, 'John Doe')" class="flex items-center">
-        </div>
+        <div v-if="checkVisible(model?.greeting.visible || null, isLoggedIn)" v-html="textReplaceVariables(model?.greeting?.text, layout.iris_variables)" class="flex items-center" />
 
         <!-- Section: Main title -->
-        <div v-if="checkVisible(model?.main_title.visible || null, isLoggedIn)" class="text-center flex items-center" v-html="model.main_title.text">
-        </div>
+        <div v-if="checkVisible(model?.main_title.visible || null, isLoggedIn)" class="text-center flex items-center" v-html="textReplaceVariables(model.main_title.text, layout.iris_variables)" />
 
         <div class="action_buttons" style="display: flex; justify-content: flex-end; column-gap: 5px; grid-column: span 5 / span 5">
-            <!-- Button 6: Logout -->
+            <!-- Section: Logout -->
             <a v-if="checkVisible(model?.logout?.visible || null, isLoggedIn)"
                 :href="model?.logout?.link"
                 class="space-x-1.5"
@@ -85,7 +101,7 @@ const onClickLogin = () => {
                 <span>Log out</span>
             </a>
 
-            <!-- Button 4: Favourites -->
+            <!-- Section: Favourites -->
             <a v-if="checkVisible(model?.favourite?.visible || null, isLoggedIn)"
                 id="favorites_button"
                 :href="model?.favourite?.link"
@@ -93,10 +109,10 @@ const onClickLogin = () => {
                 :style="getStyles(model?.favourite.container?.properties)"
             >
                 <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
-                <span v-html="model?.favourite?.text.replace(/\{\{\s*favouritesCount\s*\}\}/g, '28')"></span>
+                <span v-html="textReplaceVariables(model?.favourite?.text, layout.iris_variables)"></span>
             </a>
 
-            <!-- Button 3: Cart -->
+            <!-- Section: Cart -->
             <a v-if="checkVisible(model?.cart?.visible || null, isLoggedIn)"
                 id="header_order_totals"
                 :href="model?.cart?.visible"
@@ -105,10 +121,10 @@ const onClickLogin = () => {
             >
                 <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')"
                     fixed-width aria-hidden='true' />
-                <span v-html="model?.cart?.text.replace(/\{\{\s*cartNumber\s*\}\}/g, '15')"></span>
+                <span v-html="textReplaceVariables(model?.cart?.text, layout.iris_variables)"></span>
             </a>
 
-            <!-- Button 5: Profile -->
+            <!-- Section: Profile -->
             <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
                 id="profile_button"
                 :href="model?.profile?.link"
@@ -118,7 +134,7 @@ const onClickLogin = () => {
                 <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width
                     aria-hidden='true' />
-                <span v-html="model?.profile?.text"></span>
+                <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)"></span>
             </a>
 
             <!-- Section: Logged out (Login, Register) -->
@@ -129,7 +145,8 @@ const onClickLogin = () => {
             </template>
 
             <!-- Register -->
-            <div v-if="checkVisible(model?.register?.visible || null, isLoggedIn)" @click="() => onClickRegister()"
+            <div v-if="checkVisible(model?.register?.visible || null, isLoggedIn)"
+                @click="() => onClickRegister()"
                 :href="model?.register?.visible"
                 class="space-x-1.5 cursor-pointer"
                 id=""
@@ -137,7 +154,7 @@ const onClickLogin = () => {
                 
             >
                 <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
-                <span>{{ model?.register.text }}</span>
+                <span>{{ textReplaceVariables(model?.register.text, layout.iris_variables) }}</span>
             </div>
 
             <!-- Login -->
@@ -149,7 +166,7 @@ const onClickLogin = () => {
                 
             >
                 <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
-                <span>{{ model?.login.text }}</span>
+                <span>{{ textReplaceVariables(model?.login.text, layout.iris_variables) }}</span>
             </div>
 
             <!-- <div @click="() => onClickRegister()" href="/register.sys" class="space-x-1.5">
@@ -179,7 +196,7 @@ const onClickLogin = () => {
                             Email address
                         </label>
                         <div class="mt-2">
-                            <input id="email" name="email" type="email" autocomplete="email" required=""
+                            <input id="email" name="email" type="email" autocomplete="email" required
                                 class="block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                         </div>
                     </div>
@@ -192,7 +209,7 @@ const onClickLogin = () => {
                                 name="password"
                                 type="password"
                                 autocomplete="current-password"
-                                required=""
+                                required
                                 class="block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
                         </div>
                     </div>

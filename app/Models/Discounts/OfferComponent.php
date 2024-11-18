@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -49,8 +50,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $invoiceTransactions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $modelHasOfferComponents
  * @property-read \App\Models\Discounts\Offer $offer
  * @property-read \App\Models\Discounts\OfferCampaign $offerCampaign
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $orderTransactions
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Discounts\OfferComponentStats|null $stats
@@ -124,6 +128,23 @@ class OfferComponent extends Model implements Auditable
     public function stats(): HasOne
     {
         return $this->hasOne(OfferComponentStats::class);
+    }
+
+    public function modelHasOfferComponents(): HasMany
+    {
+        return $this->hasMany(ModelHasOfferComponent::class);
+    }
+
+    public function invoiceTransactions(): HasMany
+    {
+        return $this->hasMany(ModelHasOfferComponent::class)
+                    ->where('model_type', 'InvoiceTransaction');
+    }
+
+    public function orderTransactions(): HasMany
+    {
+        return $this->hasMany(ModelHasOfferComponent::class)
+                    ->where('model_type', 'Transaction');
     }
 
 }

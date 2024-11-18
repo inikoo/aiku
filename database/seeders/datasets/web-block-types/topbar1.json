@@ -27,7 +27,7 @@
 				"text": "<p><strong>Stay Fit & Healthy: Save 15% on Natural Supplements!</strong></p>",
 				"visible": "all"
 			},
-			"button_1": {
+			"login": {
 				"link": {
 					"type" : "external",
 					"url": "ancientwisdom.biz/login.sys",
@@ -112,7 +112,7 @@
 					}
 				}
 			},
-			"button_2": {
+			"register": {
 				"link": {
 					"type" : "external",
 					"url": "ancientwisdom.biz/register.sys",
@@ -197,7 +197,7 @@
 					}
 				}
 			},
-			"button_3": {
+			"cart": {
 				"link": {
 					"type" : "internal",
 					"url": "https://ancientwisdom.biz/login",
@@ -229,7 +229,7 @@
 					}
 				}
 			},
-			"button_4": {
+			"favourite": {
 				"link": {
 					"type" : "external",
 					"url": "ancientwisdom.biz/favourites.sys",
@@ -261,7 +261,7 @@
 					}
 				}
 			},
-			"button_5": {
+			"profile": {
 				"link": {
 					"type" : "external",
 					"url": "ancientwisdom.biz/profile.sys",
@@ -293,7 +293,7 @@
 					}
 				}
 			},
-			"button_6": {
+			"logout": {
 				"link": {
 					"type" : "external",
 					"url": "ancientwisdom.biz/logout.sys",

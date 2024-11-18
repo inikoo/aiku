@@ -9,9 +9,9 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
-use App\Models\Accounting\Payment;
 use App\Models\Ordering\Order;
 use App\Transfers\Aurora\WithAuroraAttachments;
+use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -22,6 +22,7 @@ use Throwable;
 class FetchAuroraOrders extends FetchAuroraAction
 {
     use WithAuroraAttachments;
+    use WithAuroraParsers;
 
     public string $commandSignature = 'fetch:orders {organisations?*} {--S|shop= : Shop slug} {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: transactions payments full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
@@ -29,6 +30,9 @@ class FetchAuroraOrders extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?Order
     {
+
+        $this->organisationSource = $organisationSource;
+
         if ($orderData = $organisationSource->fetchOrder($organisationSourceId)) {
             $order = $this->processFetchOrder($organisationSource, $orderData);
 
@@ -45,7 +49,7 @@ class FetchAuroraOrders extends FetchAuroraAction
                 $this->fetchTransactions($organisationSource, $order);
                 $this->fetchNoProductTransactions($organisationSource, $order);
             }
-            if (in_array('payments', $this->with) or in_array('full_todo', $this->with)) {
+            if (in_array('payments', $this->with) or in_array('full', $this->with)) {
                 $this->fetchPayments($organisationSource, $order);
             }
 
@@ -152,42 +156,33 @@ class FetchAuroraOrders extends FetchAuroraAction
         $organisation = $organisationSource->getOrganisation();
 
         $paymentsToDelete = $order->payments()->pluck('source_id')->all();
+        $sourceData = explode(':', $order->source_id);
+        $modelHasPayments = [];
         foreach (
+
             DB::connection('aurora')
                 ->table('Order Payment Bridge')
                 ->select('Payment Key')
-                ->where('Order Key', $order->source_id)
+                ->where('Order Key', $sourceData[1])
                 ->get() as $auroraData
         ) {
-            $payment = $this->parseOrderPayment($organisationSource, $auroraData->{'Payment Key'});
+            $payment = $this->parsePayment($organisation->id.':'.$auroraData->{'Payment Key'});
 
-
-            if (!in_array($payment->id, $paymentsToDelete)) {
-                $order->payments()->attach(
-                    $payment->id,
-                    [
-                        'amount' => $payment->amount,
-                        'share'  => 1
-                    ]
-                );
-            }
+            $modelHasPayments[$payment->id] = [
+                'amount' => $payment->amount,
+                'share'  => 1
+            ];
 
             $paymentsToDelete = array_diff($paymentsToDelete, [$organisation->id.':'.$auroraData->{'Payment Key'}]);
         }
+
+        $order->payments()->syncWithoutDetaching($modelHasPayments);
+
 
         $order->payments()->whereIn('id', $paymentsToDelete)->delete();
     }
 
 
-    public function parseOrderPayment($organisationSource, $source_id): Payment
-    {
-        $payment = Payment::withTrashed()->where('source_id', $source_id)->first();
-        if (!$payment) {
-            $payment = FetchAuroraPayments::run($organisationSource, $source_id);
-        }
-
-        return $payment;
-    }
 
 
     private function fetchTransactions($organisationSource, Order $order): void

@@ -51,7 +51,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $invoiceTransactions
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $modelHasOfferComponents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\OfferComponent> $offerComponents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $orderTransactions
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Discounts\OfferStats|null $stats
@@ -130,5 +133,22 @@ class Offer extends Model implements Auditable
     public function offerComponents(): HasMany
     {
         return $this->hasMany(OfferComponent::class);
+    }
+
+    public function modelHasOfferComponents(): HasMany
+    {
+        return $this->hasMany(ModelHasOfferComponent::class);
+    }
+
+    public function invoiceTransactions(): HasMany
+    {
+        return $this->hasMany(ModelHasOfferComponent::class)
+                    ->where('model_type', 'InvoiceTransaction');
+    }
+
+    public function orderTransactions(): HasMany
+    {
+        return $this->hasMany(ModelHasOfferComponent::class)
+                    ->where('model_type', 'Transaction');
     }
 }

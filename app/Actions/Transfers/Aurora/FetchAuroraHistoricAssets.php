@@ -21,29 +21,30 @@ class FetchAuroraHistoricAssets
 
     public function handle(SourceOrganisationService $organisationSource, int $source_id): ?HistoricAsset
     {
-        if ($historicProductData = $organisationSource->fetchHistoricAsset($source_id)) {
-            if ($historicProduct = HistoricAsset::withTrashed()->where('source_id', $historicProductData['historic_asset']['source_id'])
-                ->first()) {
-                $historicProduct = UpdateHistoricAsset::run(
-                    historicAsset: $historicProduct,
-                    modelData: $historicProductData['historic_asset'],
-                );
-            } else {
-                $historicProduct = StoreHistoricAsset::run(
-                    assetModel: $historicProductData['asset_model'],
-                    modelData: $historicProductData['historic_asset']
-                );
-            }
-            $sourceData = explode(':', $historicProduct->source_id);
-
-            DB::connection('aurora')->table('Product History Dimension')
-                ->where('Product Key', $sourceData[1])
-                ->update(['aiku_id' => $historicProduct->id]);
-
-            return $historicProduct;
+        $historicProductData = $organisationSource->fetchHistoricAsset($source_id);
+        if (!$historicProductData) {
+            return null;
         }
 
 
-        return null;
+        if ($historicProduct = HistoricAsset::withTrashed()->where('source_id', $historicProductData['historic_asset']['source_id'])
+            ->first()) {
+            $historicProduct = UpdateHistoricAsset::run(
+                historicAsset: $historicProduct,
+                modelData: $historicProductData['historic_asset'],
+            );
+        } else {
+            $historicProduct = StoreHistoricAsset::run(
+                assetModel: $historicProductData['asset_model'],
+                modelData: $historicProductData['historic_asset']
+            );
+        }
+        $sourceData = explode(':', $historicProduct->source_id);
+
+        DB::connection('aurora')->table('Product History Dimension')
+            ->where('Product Key', $sourceData[1])
+            ->update(['aiku_id' => $historicProduct->id]);
+
+        return $historicProduct;
     }
 }
