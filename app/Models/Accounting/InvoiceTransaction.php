@@ -8,6 +8,7 @@
 namespace App\Models\Accounting;
 
 use App\Models\Catalogue\Asset;
+use App\Models\Discounts\ModelHasOfferComponent;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\InvoiceTransactionHasFeedback;
 use App\Models\Ordering\Transaction;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -120,6 +122,11 @@ class InvoiceTransaction extends Model
     public function feedbackBridges(): HasMany
     {
         return $this->hasMany(InvoiceTransactionHasFeedback::class);
+    }
+
+    public function offerComponents(): MorphMany
+    {
+        return $this->morphMany(ModelHasOfferComponent::class, 'model');
     }
 
 }
