@@ -2,6 +2,7 @@
 import { onBeforeUnmount, onMounted, ref, defineExpose } from "vue"
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
 /* import type DataTable from "@/models/table" */
+import Select from 'primevue/select'
 
 import TiptapToolbarButton from "@/Components/Forms/Fields/BubleTextEditor/TiptapToolbarButton.vue"
 import TiptapToolbarGroup from "@/Components/Forms/Fields/BubleTextEditor/TiptapToolbarGroup.vue"
@@ -75,6 +76,7 @@ import TiptapVideoDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapV
 import TiptapImageDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapImageDialog.vue"
 import { Plugin } from "prosemirror-state"
 import CustomLink from "./CustomLink/CustomLink.vue"
+import { trans } from "laravel-vue-i18n"
 
 const props = withDefaults(defineProps<{
     modelValue: string,
@@ -300,177 +302,202 @@ defineExpose({
     editor: editorInstance
 })
 
+
+const irisVariablesList = [
+    {
+        label: trans("Name"),
+        value: "{{ name }}",
+    },
+    {
+        label: trans("Username"),
+        value: "{{ username }}",
+    },
+    {
+        label: trans("Email"),
+        value: "{{ email }}",
+    },
+    {
+        label: trans("Favourites count"),
+        value: "{{ favourites_count }}",
+    },
+    {
+        label: trans("Cart count"),
+        value: "{{ cart_count }}",
+    },
+    {
+        label: trans("Cart amount"),
+        value: "{{ cart_amount }}",
+    },
+]
 </script>
 
 <template>
     <div id="tiptap" class="divide-y divide-gray-400">
         <BubbleMenu ref="_bubbleMenu" :editor="editorInstance" :tippy-options="{ duration: 100 }"
             v-if="editorInstance && !showDialog">
-            <section id="tiptap-toolbar"
-                class="bg-gray-100 flex items-center rounded-xl border border-gray-300 divide-x divide-gray-400">
-                <TiptapToolbarGroup>
-                    <TiptapToolbarButton v-if="toogle.includes('undo')" label="Undo"
-                        @click="editorInstance?.chain().focus().undo().run()"
-                        :disabled="!editorInstance?.can().chain().focus().undo().run()">
-                        <FontAwesomeIcon :icon="faRedo" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('redo')" label="Redo"
-                        @click="editorInstance?.chain().focus().redo().run()"
-                        :disabled="!editorInstance?.can().chain().focus().redo().run()">
-                        <FontAwesomeIcon :icon="faUndo" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                </TiptapToolbarGroup>
-                <TiptapToolbarGroup>
-                    <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 1"
-                        :is-active="editorInstance?.isActive('heading', { level: 1 })"
-                        @click="editorInstance?.chain().focus().toggleHeading({ level: 1 }).run()"
-                        class="toolbar-button">
-                        <FontAwesomeIcon :icon="faH1" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-
-                    <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 2"
-                        :is-active="editorInstance?.isActive('heading', { level: 2 })"
-                        @click="editorInstance?.chain().focus().toggleHeading({ level: 2 }).run()"
-                        class="toolbar-button">
-                        <FontAwesomeIcon :icon="faH2" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-
-                    <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 3"
-                        :is-active="editorInstance?.isActive('heading', { level: 3 })"
-                        @click="editorInstance?.chain().focus().toggleHeading({ level: 3 }).run()"
-                        class="toolbar-button">
-                        <FontAwesomeIcon :icon="faH3" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                </TiptapToolbarGroup>
-
-                <div class="my-1.5 inline-flex flex-row flex-wrap items-center space-x-1 px-2">
-                    <div :class="[
-                        'inline-flex h-8 shrink-0 flex-row items-center justify-center rounded-md disabled:bg-transparent disabled:text-gray-300',
-                        'text-gray-600 hover:bg-blue-50',
-                    ]" type="button" v-tooltip="'font size'" :aria-label="'font size'">
-                        <div class="group relative">
-                            <div
-                                class="text-sm py-1 px-2 cursor-pointer hover:border-gray-400 flex items-center justify-between transition h-8">
-                                <FontAwesomeIcon v-if="!editorInstance?.getAttributes('textStyle').fontSize"
-                                    :icon="faTextSize" class="h-5 w-5" />
-                                <div v-else id="tiptapfontsize" class="text-gray-600 text-sm font-semibold h-5">
-                                    {{ editorInstance?.getAttributes('textStyle').fontSize }}
+            <div class="bg-gray-100 rounded-xl border border-gray-300 divide-y divide-gray-400">
+                <section id="tiptap-toolbar"
+                    class="flex items-center divide-x divide-gray-400">
+                    <TiptapToolbarGroup>
+                        <TiptapToolbarButton v-if="toogle.includes('undo')" label="Undo"
+                            @click="editorInstance?.chain().focus().undo().run()"
+                            :disabled="!editorInstance?.can().chain().focus().undo().run()">
+                            <FontAwesomeIcon :icon="faRedo" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('redo')" label="Redo"
+                            @click="editorInstance?.chain().focus().redo().run()"
+                            :disabled="!editorInstance?.can().chain().focus().redo().run()">
+                            <FontAwesomeIcon :icon="faUndo" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                    </TiptapToolbarGroup>
+                    <TiptapToolbarGroup>
+                        <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 1"
+                            :is-active="editorInstance?.isActive('heading', { level: 1 })"
+                            @click="editorInstance?.chain().focus().toggleHeading({ level: 1 }).run()"
+                            class="toolbar-button">
+                            <FontAwesomeIcon :icon="faH1" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 2"
+                            :is-active="editorInstance?.isActive('heading', { level: 2 })"
+                            @click="editorInstance?.chain().focus().toggleHeading({ level: 2 }).run()"
+                            class="toolbar-button">
+                            <FontAwesomeIcon :icon="faH2" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 3"
+                            :is-active="editorInstance?.isActive('heading', { level: 3 })"
+                            @click="editorInstance?.chain().focus().toggleHeading({ level: 3 }).run()"
+                            class="toolbar-button">
+                            <FontAwesomeIcon :icon="faH3" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                    </TiptapToolbarGroup>
+                    <div class="my-1.5 inline-flex flex-row flex-wrap items-center space-x-1 px-2">
+                        <div :class="[
+                            'inline-flex h-8 shrink-0 flex-row items-center justify-center rounded-md disabled:bg-transparent disabled:text-gray-300',
+                            'text-gray-600 hover:bg-blue-50',
+                        ]" type="button" v-tooltip="'font size'" :aria-label="'font size'">
+                            <div class="group relative">
+                                <div
+                                    class="text-sm py-1 px-2 cursor-pointer hover:border-gray-400 flex items-center justify-between transition h-8">
+                                    <FontAwesomeIcon v-if="!editorInstance?.getAttributes('textStyle').fontSize"
+                                        :icon="faTextSize" class="h-5 w-5" />
+                                    <div v-else id="tiptapfontsize" class="text-gray-600 text-sm font-semibold h-5">
+                                        {{ editorInstance?.getAttributes('textStyle').fontSize }}
+                                    </div>
+                                    <FontAwesomeIcon v-if="editorInstance?.getAttributes('textStyle').fontSize"
+                                        @click="editorInstance?.chain().focus().unsetFontSize().run()" icon="fal fa-times"
+                                        class="text-red-500 ml-2 cursor-pointer" aria-hidden="true" />
                                 </div>
-                                <FontAwesomeIcon v-if="editorInstance?.getAttributes('textStyle').fontSize"
-                                    @click="editorInstance?.chain().focus().unsetFontSize().run()" icon="fal fa-times"
-                                    class="text-red-500 ml-2 cursor-pointer" aria-hidden="true" />
-                            </div>
-                            <div
-                                class="w-min h-32 overflow-y-auto text-black cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
-                                <div v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
-                                    :key="fontsize" class="px-4 py-2 text-left text-sm cursor-pointer hover:bg-gray-100"
-                                    :class="{ 'bg-indigo-600 text-white': parseInt(editorInstance?.getAttributes('textStyle').fontSize, 10) === parseInt(fontsize) }"
-                                    @click="editorInstance?.chain().focus().setFontSize(fontsize + 'px').run()">
-                                    {{ fontsize }}
+                                <div
+                                    class="w-min h-32 overflow-y-auto text-black cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
+                                    <div v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
+                                        :key="fontsize" class="px-4 py-2 text-left text-sm cursor-pointer hover:bg-gray-100"
+                                        :class="{ 'bg-indigo-600 text-white': parseInt(editorInstance?.getAttributes('textStyle').fontSize, 10) === parseInt(fontsize) }"
+                                        @click="editorInstance?.chain().focus().setFontSize(fontsize + 'px').run()">
+                                        {{ fontsize }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
-                </div>
-
-
-                <TiptapToolbarGroup>
-                    <TiptapToolbarButton v-if="toogle.includes('bold')" label="Bold"
-                        :is-active="editorInstance?.isActive('bold')"
-                        @click="editorInstance?.chain().focus().toggleBold().run()">
-                        <FontAwesomeIcon :icon="faBold" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('italic')" label="Italic"
-                        :is-active="editorInstance?.isActive('italic')"
-                        @click="editorInstance?.chain().focus().toggleItalic().run()">
-                        <FontAwesomeIcon :icon="faItalic" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('underline')" label="Underline"
-                        :is-active="editorInstance?.isActive('underline')"
-                        @click="editorInstance?.chain().focus().toggleUnderline().run()">
-                        <FontAwesomeIcon :icon="faUnderline" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('strikethrough')" label="Strikethrough"
-                        :is-active="editorInstance?.isActive('strike')"
-                        @click="editorInstance?.chain().focus().toggleStrike().run()">
-                        <FontAwesomeIcon :icon="faStrikethrough" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-
-                    <TiptapToolbarButton v-if="toogle.includes('color')" label="Text Color">
-                        <ColorPicker v-model="editorInstance.getAttributes('textStyle').color" style="z-index: 99;"
-                            @update:model-value="color => editorInstance?.chain().focus().setColor(`#${color}`).run()" />
-                    </TiptapToolbarButton>
-
-                    <!-- <ColorPicker v-if="toogle.includes('highlight')" :color="editorInstance?.getAttributes('highlight').color"
-                        @changeColor="(color) => editorInstance?.chain().setHighlight({ color: color.hex }).run()"
-                        class="flex items-center justify-center w-6 aspect-square rounded cursor-pointer p-1 border border-gray-400"
-                        :style="{ backgroundColor: editorInstance?.getAttributes('highlight').color }">
-                        <FontAwesomeIcon :icon="faPaintBrushAlt" class='text-gray-500 h-5 w-5' fixed-width
-                            aria-hidden='true' />
-                    </ColorPicker> -->
-
-                </TiptapToolbarGroup>
-
-                <TiptapToolbarGroup>
-                    <TiptapToolbarButton v-if="toogle.includes('bulletList')" label="Bullet List"
-                        :is-active="editorInstance?.isActive('bulletList')"
-                        @click="editorInstance?.chain().focus().toggleBulletList().run()">
-                        <FontAwesomeIcon :icon="faList" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('orderedList')" label="Ordered List"
-                        :is-active="editorInstance?.isActive('orderedList')"
-                        @click="editorInstance?.chain().focus().toggleOrderedList().run()">
-                        <FontAwesomeIcon :icon="faListOl" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                </TiptapToolbarGroup>
-
-                <TiptapToolbarGroup>
-                    <TiptapToolbarButton v-if="toogle.includes('alignLeft')" label="Align Left"
-                        :is-active="editorInstance?.isActive('textAlign', 'left')"
-                        @click="editorInstance?.chain().focus().setTextAlign('left').run()">
-                        <FontAwesomeIcon :icon="faAlignLeft" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('alignCenter')" label="Align Center"
-                        :is-active="editorInstance?.isActive('textAlign', 'center')"
-                        @click="editorInstance?.chain().focus().setTextAlign('center').run()">
-                        <FontAwesomeIcon :icon="faAlignCenter" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('alignRight')" label="Align Right"
-                        :is-active="editorInstance?.isActive('textAlign', 'right')"
-                        @click="editorInstance?.chain().focus().setTextAlign('right').run()">
-                        <FontAwesomeIcon :icon="faAlignRight" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                </TiptapToolbarGroup>
-
-                <TiptapToolbarGroup>
-                    <TiptapToolbarButton v-if="toogle.includes('link')" label="Link" @click="openLinkDialog"
-                        :is-active="editorInstance?.isActive('link')">
-                        <FontAwesomeIcon :icon="faLink" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('customLink')" label="Link Internal & External"
-                        @click="openLinkDialogCustom" :is-active="editorInstance?.isActive('link')">
-                        <FontAwesomeIcon :icon="faLink" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('image')" label="Image"
-                        @click="showAddImageDialog = true">
-                        <FontAwesomeIcon :icon="faImage" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('video')" label="Youtube Video"
-                        @click="() => { showAddYoutubeDialog = true, showDialog = true }">
-                        <FontAwesomeIcon :icon="faFileVideo" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('blockquote')" label="Blockquote"
-                        :is-active="editorInstance?.isActive('blockquote')"
-                        @click="editorInstance?.chain().focus().toggleBlockquote().run()">
-                        <FontAwesomeIcon :icon="faQuoteLeft" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                    <TiptapToolbarButton v-if="toogle.includes('divider')"
-                        @click="editorInstance?.chain().focus().setHorizontalRule().run()" label="Horizontal Line">
-                        <FontAwesomeIcon :icon="faMinus" class="h-5 w-5" />
-                    </TiptapToolbarButton>
-                </TiptapToolbarGroup>
-            </section>
+                    <TiptapToolbarGroup>
+                        <TiptapToolbarButton v-if="toogle.includes('bold')" label="Bold"
+                            :is-active="editorInstance?.isActive('bold')"
+                            @click="editorInstance?.chain().focus().toggleBold().run()">
+                            <FontAwesomeIcon :icon="faBold" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('italic')" label="Italic"
+                            :is-active="editorInstance?.isActive('italic')"
+                            @click="editorInstance?.chain().focus().toggleItalic().run()">
+                            <FontAwesomeIcon :icon="faItalic" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('underline')" label="Underline"
+                            :is-active="editorInstance?.isActive('underline')"
+                            @click="editorInstance?.chain().focus().toggleUnderline().run()">
+                            <FontAwesomeIcon :icon="faUnderline" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('strikethrough')" label="Strikethrough"
+                            :is-active="editorInstance?.isActive('strike')"
+                            @click="editorInstance?.chain().focus().toggleStrike().run()">
+                            <FontAwesomeIcon :icon="faStrikethrough" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('color')" label="Text Color">
+                            <ColorPicker v-model="editorInstance.getAttributes('textStyle').color" style="z-index: 99;"
+                                @update:model-value="color => editorInstance?.chain().focus().setColor(`#${color}`).run()" />
+                        </TiptapToolbarButton>
+                        <!-- <ColorPicker v-if="toogle.includes('highlight')" :color="editorInstance?.getAttributes('highlight').color"
+                            @changeColor="(color) => editorInstance?.chain().setHighlight({ color: color.hex }).run()"
+                            class="flex items-center justify-center w-6 aspect-square rounded cursor-pointer p-1 border border-gray-400"
+                            :style="{ backgroundColor: editorInstance?.getAttributes('highlight').color }">
+                            <FontAwesomeIcon :icon="faPaintBrushAlt" class='text-gray-500 h-5 w-5' fixed-width
+                                aria-hidden='true' />
+                        </ColorPicker> -->
+                    </TiptapToolbarGroup>
+                    <TiptapToolbarGroup>
+                        <TiptapToolbarButton v-if="toogle.includes('bulletList')" label="Bullet List"
+                            :is-active="editorInstance?.isActive('bulletList')"
+                            @click="editorInstance?.chain().focus().toggleBulletList().run()">
+                            <FontAwesomeIcon :icon="faList" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('orderedList')" label="Ordered List"
+                            :is-active="editorInstance?.isActive('orderedList')"
+                            @click="editorInstance?.chain().focus().toggleOrderedList().run()">
+                            <FontAwesomeIcon :icon="faListOl" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                    </TiptapToolbarGroup>
+                    <TiptapToolbarGroup>
+                        <TiptapToolbarButton v-if="toogle.includes('alignLeft')" label="Align Left"
+                            :is-active="editorInstance?.isActive('textAlign', 'left')"
+                            @click="editorInstance?.chain().focus().setTextAlign('left').run()">
+                            <FontAwesomeIcon :icon="faAlignLeft" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('alignCenter')" label="Align Center"
+                            :is-active="editorInstance?.isActive('textAlign', 'center')"
+                            @click="editorInstance?.chain().focus().setTextAlign('center').run()">
+                            <FontAwesomeIcon :icon="faAlignCenter" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('alignRight')" label="Align Right"
+                            :is-active="editorInstance?.isActive('textAlign', 'right')"
+                            @click="editorInstance?.chain().focus().setTextAlign('right').run()">
+                            <FontAwesomeIcon :icon="faAlignRight" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                    </TiptapToolbarGroup>
+                    <TiptapToolbarGroup>
+                        <TiptapToolbarButton v-if="toogle.includes('link')" label="Link" @click="openLinkDialog"
+                            :is-active="editorInstance?.isActive('link')">
+                            <FontAwesomeIcon :icon="faLink" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('customLink')" label="Link Internal & External"
+                            @click="openLinkDialogCustom" :is-active="editorInstance?.isActive('link')">
+                            <FontAwesomeIcon :icon="faLink" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('image')" label="Image"
+                            @click="showAddImageDialog = true">
+                            <FontAwesomeIcon :icon="faImage" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('video')" label="Youtube Video"
+                            @click="() => { showAddYoutubeDialog = true, showDialog = true }">
+                            <FontAwesomeIcon :icon="faFileVideo" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('blockquote')" label="Blockquote"
+                            :is-active="editorInstance?.isActive('blockquote')"
+                            @click="editorInstance?.chain().focus().toggleBlockquote().run()">
+                            <FontAwesomeIcon :icon="faQuoteLeft" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                        <TiptapToolbarButton v-if="toogle.includes('divider')"
+                            @click="editorInstance?.chain().focus().setHorizontalRule().run()" label="Horizontal Line">
+                            <FontAwesomeIcon :icon="faMinus" class="h-5 w-5" />
+                        </TiptapToolbarButton>
+                    </TiptapToolbarGroup>
+                </section>
+                
+                <!-- 2nd row -->
+                <section id="tiptap-toolbar"
+                    class="py-1 px-2 flex items-center divide-x divide-gray-400">
+                    <!-- Button: Variable -->
+                    <Select @change="(e) => editorInstance?.chain().focus().insertContent(e.value.value).focus().run()" :options="irisVariablesList" optionLabel="label" size="small" :placeholder="trans('Select a variable')" class="w-full md:w-56" />
+                    
+                </section>
+            </div>
         </BubbleMenu>
 
         <div class="flex flex-col">
