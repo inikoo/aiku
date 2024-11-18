@@ -210,7 +210,7 @@ export default {
 			name: "Favourite",
             key: ["favourite"],
 			icon: {
-				icon: "fal fa-love",
+				icon: "fal fa-heart",
 				tooltip: "Favourite",
 			},
 			replaceForm: [
@@ -262,67 +262,5 @@ export default {
 				},
 			],
 		},
-		// {
-		// 	name: "Button 4",
-        //     key:["button_4"],
-		// 	icon: {
-		// 		icon: "far fa-dot-circle",
-		// 		tooltip: "Action",
-		// 	},
-		// 	replaceForm: [
-		// 		{
-		// 			key: ["visible"],
-		// 			type: "VisibleLoggedIn",
-		// 			props_data: {
-		// 				defaultValue: 'all',
-		// 			},
-		// 		},
-		// 		{
-		// 			key: [],
-		// 			type: "button",
-		// 		},
-		// 	],
-		// },
-		// {
-		// 	name: "Button 5",
-        //     key:['button_5'],
-		// 	icon: {
-		// 		icon: "far fa-dot-circle",
-		// 		tooltip: "Action",
-		// 	},
-		// 	replaceForm: [
-		// 		{
-		// 			key: ["visible"],
-		// 			type: "VisibleLoggedIn",
-		// 			props_data: {
-		// 				defaultValue: 'all',
-		// 			},
-		// 		},
-		// 		{
-		// 			key: ["button_5"],
-		// 			type: "button",
-		// 		},
-		// 	],
-		// },
-		// {
-		// 	name: "Button 6",
-        //     key: ["button_6"],
-		// 	icon: {
-		// 		icon: "far fa-dot-circle",
-		// 		tooltip: "Action",
-		// 	},
-		// 	replaceForm: [
-		// 		{
-		// 			key: ["visible"],
-		// 			type: "VisibleLoggedIn",
-		// 			props_data: {
-		// 				defaultValue: 'all',
-		// 			},
-		// 		},
-		// 		{
-		// 			type: 'button',
-		// 		},
-		// 	],
-		// },
 	],
 }

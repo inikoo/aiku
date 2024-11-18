@@ -5,7 +5,7 @@ import { ColorPicker } from 'vue-color-kit'
 import 'vue-color-kit/dist/vue-color-kit.css'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faTimes } from '@fortawesome/free-solid-svg-icons'
+import { faTimes } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 library.add(faTimes)
 
@@ -59,7 +59,7 @@ const opacityToHexCode = (opacity: number) => {
                     v-bind="$attrs"
                     class="h-12 w-12 cursor-pointer"
                     :style="{ backgroundColor: color }"
-                ></div>
+                />
             </slot>
         </div>
 
@@ -74,8 +74,8 @@ const opacityToHexCode = (opacity: number) => {
                     @changeColor="(e) => {emits('changeColor', {...e, hex: e.hex + opacityToHexCode(e.rgba.a)})}"
                 />
                 
-                <div @click="overlayPanel.hide()" class="absolute top-0 right-0 mt-1 mr-1">
-                    <FontAwesomeIcon icon="faTimes" class="text-gray-400 hover:text-gray-600 cursor-pointer" fixed-width aria-hidden="true" />
+                <div @click="overlayPanel.hide()" class="absolute -top-5 -right-10 mt-1 mr-1">
+                    <FontAwesomeIcon icon="fal fa-times" class="text-red-400 hover:text-red-600 cursor-pointer" fixed-width aria-hidden="true" />
                 </div>
             </div>
         </OverlayPanel>

@@ -47,15 +47,18 @@ export default {
 		},
 		{
 			name: "Login",
-            key:['button_1'],
+            key:['login'],
 			icon: {
-				icon: "far fa-dot-circle",
+				icon: "fal fa-sign-in-alt",
 				tooltip: "Action",
 			},
 			replaceForm: [
 				{
 					key: ["visible"],
 					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: 'logout',
+					},
 				},
 				{
 					key: [],
@@ -64,91 +67,122 @@ export default {
 			],
 		},
 		{
-			name: "Register",
-            key:["button_2"],
+			name: "Cart",
+            key: ["cart"],
 			icon: {
-				icon: "far fa-dot-circle",
-				tooltip: "Action",
+				icon: "fal fa-shopping-cart",
+				tooltip: "Cart",
 			},
 			replaceForm: [
 				{
 					key: ["visible"],
 					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: 'login',
+					},
 				},
 				{
-					key: [],
+					key: ["link"],
+					type: "link",
+					props_data: {
+						defaultValue: {
+							"type" : "external",
+							"url": "",
+							"id": null,
+							"workshop_route" : ""
+						},
+					},
+				},
+				{
+					key: ['container', 'properties'],
 					type: "button",
+				},
+				{
+					key: ['text'],
+					type: "editorhtml",
+					props_data: {
+						defaultValue: '{{ cart_count }} items',
+					},
 				},
 			],
 		},
 		{
-			name: "Button 3",
-            key: ["button_3"],
+			name: "Favourite",
+            key: ["favourite"],
 			icon: {
-				icon: "far fa-dot-circle",
-				tooltip: "Action",
+				icon: "fal fa-heart",
+				tooltip: "Favourite",
 			},
 			replaceForm: [
 				{
 					key: ["visible"],
 					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: 'login',
+					},
 				},
 				{
-					key: [],
+					key: ["link"],
+					type: "link",
+					props_data: {
+						defaultValue: {
+							"type" : "external",
+							"url": "",
+							"id": null,
+							"workshop_route" : ""
+						},
+					},
+				},
+				{
+					key: ['container', 'properties'],
 					type: "button",
+				},
+				{
+					key: ['text'],
+					type: "editorhtml",
+					props_data: {
+						defaultValue: '{{ favourites_count }}',
+					},
 				},
 			],
 		},
 		{
-			name: "Button 4",
-            key:["button_4"],
+			name: "Profile",
+            key: ["profile"],
 			icon: {
-				icon: "far fa-dot-circle",
-				tooltip: "Action",
+				icon: "fal fa-user",
+				tooltip: "Profile",
 			},
 			replaceForm: [
 				{
 					key: ["visible"],
 					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: 'login',
+					},
 				},
 				{
-					key: [],
+					key: ["link"],
+					type: "link",
+					props_data: {
+						defaultValue: {
+							"type" : "external",
+							"url": "",
+							"id": null,
+							"workshop_route" : ""
+						},
+					},
+				},
+				{
+					key: ['container', 'properties'],
 					type: "button",
 				},
-			],
-		},
-		{
-			name: "Button 5",
-            key:['button_5'],
-			icon: {
-				icon: "far fa-dot-circle",
-				tooltip: "Action",
-			},
-			replaceForm: [
 				{
-					key: ["visible"],
-					type: "VisibleLoggedIn",
-				},
-				{
-					key: ["button_5"],
-					type: "button",
-				},
-			],
-		},
-		{
-			name: "Button 6",
-            key: ["button_6"],
-			icon: {
-				icon: "far fa-dot-circle",
-				tooltip: "Action",
-			},
-			replaceForm: [
-				{
-					key: ["visible"],
-					type: "VisibleLoggedIn",
-				},
-				{
-					type: 'button',
+					key: ['text'],
+					type: "editorhtml",
+					props_data: {
+						defaultValue: 'Welcome, <strong>{{ name }}</strong>!',
+					},
 				},
 			],
 		},

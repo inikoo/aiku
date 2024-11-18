@@ -236,7 +236,7 @@
 					"id": null,
 					"workshop_route" : ""
 				},
-				"text": "{{ favouritesCount }}",
+				"text": "{{ favourites_count }}",
 				"visible": "login",
 				"container": {
 					"properties": {

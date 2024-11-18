@@ -97,63 +97,131 @@ export default {
 					},
 				},
 				{
-					key: [],
+					key: ["link"],
+					type: "link",
+					props_data: {
+						defaultValue: {
+							"type" : "external",
+							"url": "",
+							"id": null,
+							"workshop_route" : ""
+						},
+					},
+				},
+				{
+					key: ['container', 'properties'],
 					type: "button",
+				},
+				{
+					key: ['text'],
+					type: "editorhtml",
+					props_data: {
+						defaultValue: '{{ cart_count }}',
+					},
 				},
 			],
 		},
-		// {
-		// 	name: "Button 4",
-        //     key:["button_4"],
-		// 	icon: {
-		// 		icon: "far fa-dot-circle",
-		// 		tooltip: "Action",
-		// 	},
-		// 	replaceForm: [
-		// 		{
-		// 			key: ["visible"],
-		// 			type: "VisibleLoggedIn",
-		// 		},
-		// 		{
-		// 			key: [],
-		// 			type: "button",
-		// 		},
-		// 	],
-		// },
-		// {
-		// 	name: "Button 5",
-        //     key:['button_5'],
-		// 	icon: {
-		// 		icon: "far fa-dot-circle",
-		// 		tooltip: "Action",
-		// 	},
-		// 	replaceForm: [
-		// 		{
-		// 			key: ["visible"],
-		// 			type: "VisibleLoggedIn",
-		// 		},
-		// 		{
-		// 			key: ["button_5"],
-		// 			type: "button",
-		// 		},
-		// 	],
-		// },
-		// {
-		// 	name: "Button 6",
-        //     key: ["button_6"],
-		// 	icon: {
-		// 		icon: "far fa-dot-circle",
-		// 		tooltip: "Action",
-		// 	},
-		// 	replaceForm: [
-		// 		{
-		// 			key: ["visible"],
-		// 			type: "VisibleLoggedIn",
-		// 		},
-		// 		{
-		// 			type: 'button',
-		// 		},
-		// 	],
-		// },
+		{
+			name: "Favourite",
+            key: ["favourite"],
+			icon: {
+				icon: "fal fa-heart",
+				tooltip: "Favourite",
+			},
+			replaceForm: [
+				{
+					key: ["visible"],
+					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: 'login',
+					},
+				},
+				{
+					key: ["link"],
+					type: "link",
+					props_data: {
+						defaultValue: {
+							"type" : "external",
+							"url": "",
+							"id": null,
+							"workshop_route" : ""
+						},
+					},
+				},
+				{
+					key: ['container', 'properties'],
+					type: "button",
+				},
+				{
+					key: ['text'],
+					type: "editorhtml",
+					props_data: {
+						defaultValue: '{{ favourites_count }}',
+					},
+				},
+			],
+		},
+		{
+			name: "Profile",
+            key: ["profile"],
+			icon: {
+				icon: "fal fa-user",
+				tooltip: "Profile",
+			},
+			replaceForm: [
+				{
+					key: ["visible"],
+					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: 'login',
+					},
+				},
+				{
+					key: ["link"],
+					type: "link",
+					props_data: {
+						defaultValue: {
+							"type" : "external",
+							"url": "",
+							"id": null,
+							"workshop_route" : ""
+						},
+					},
+				},
+				{
+					key: ['container', 'properties'],
+					type: "button",
+					props_data: {
+						defaultValue: {
+							"text": {
+								"color": "rgba(255, 255, 255, 1)"
+							},
+							"padding": {
+								"top": {
+									"value": 5
+								},
+								"left": {
+									"value": 20
+								},
+								"unit": "px",
+								"right": {
+									"value": 20
+								},
+								"bottom": {
+									"value": 5
+								}
+							}
+						},
+					},
+				},
+				{
+					key: ['text'],
+					type: "editorhtml",
+					props_data: {
+						defaultValue: '{{ name }}',
+					},
+				},
+			],
+		},
 	],
 }
