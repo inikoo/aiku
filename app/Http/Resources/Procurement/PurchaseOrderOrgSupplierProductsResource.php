@@ -25,6 +25,7 @@ class PurchaseOrderOrgSupplierProductsResource extends JsonResource
     {
 
         $supplierProduct = SupplierProduct::find($this->supplier_product_id)->first();
+        $stock = $supplierProduct->getMainStock();
         /** @var SupplierProduct $supplierProduct */
         return [
             'id'              => $this->id,
@@ -32,7 +33,7 @@ class PurchaseOrderOrgSupplierProductsResource extends JsonResource
             'code'            => $this->code,
             'name'            => $this->name,
             'supplier_name'   => $supplierProduct->supplier->name,
-            'image_thumbnail' => $supplierProduct->stock->imageSources(40, 40),
+            'image_thumbnail' => $stock->imageSources(40, 40),
             'quantity_ordered' => $this->quantity_ordered ?? 0
         ];
     }

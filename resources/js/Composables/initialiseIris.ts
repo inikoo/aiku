@@ -40,7 +40,9 @@ export const initialiseIrisApp = () => {
             layout.user = usePage().props?.auth
         }
 
-
+        if (usePage().props.iris?.variables) {
+            layout.iris_variables = usePage().props.iris?.variables
+        }
 
         // Set data of Locale (Language)
         // if (usePage().props.localeData) {

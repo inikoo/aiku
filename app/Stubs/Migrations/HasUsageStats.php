@@ -23,6 +23,8 @@ trait HasUsageStats
     {
         $table->unsignedInteger('number_customers')->default(0);
         $table->unsignedInteger('number_orders')->default(0);
+        $table->unsignedInteger('number_invoices')->default(0);
+        $table->unsignedInteger('number_delivery_notes')->default(0);
         $table->decimal('amount')->default(0);
         if (!in_array($table->getTable(), ['group_discounts_stats', 'organisation_discounts_stats'])) {
             $table->decimal('org_amount')->default(0);
