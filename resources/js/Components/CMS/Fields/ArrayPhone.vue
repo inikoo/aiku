@@ -11,22 +11,6 @@ const props = defineProps<{
 
 const emit = defineEmits(['update:modelValue']);
 
-// Deep clone modelValue to keep a local reference
-// const items = ref(isArray(props.modelValue) ? [...props.modelValue] : []);
-
-// Watch for changes in the local items array and emit updates
-// watch(items, (newVal) => {
-//     emit('update:modelValue', newVal);
-// }, { deep: true });
-
-// watch(
-//     () => props.modelValue,
-//     (newValue) => {
-//        console.log('inii')
-//     },
-//     { deep: true, immediate: true } // Immediate to apply initially, deep for nested changes
-// );
-
 // Function to add a new item
 const addItem = () => {
     props.modelValue.push(''); // Add an empty string as a new item

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+resources/js/Components/Workshop/SideEditor/SideEditorInputHTML.vue resources/js/Components/Workshop/SideEditor/SideEditorText.vue<script setup lang="ts">
 import { computed, watch } from 'vue'
 import PaddingMarginProperty from '@/Components/Workshop/Properties/PaddingMarginProperty.vue'
 import BackgroundProperty from '@/Components/Workshop/Properties/BackgroundProperty.vue'

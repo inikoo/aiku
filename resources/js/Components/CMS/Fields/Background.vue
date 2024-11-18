@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { onMounted } from 'vue'
 import BackgroundProperty from '@/Components/Workshop/Properties/BackgroundProperty.vue'
 import { trans } from 'laravel-vue-i18n'
 
@@ -7,26 +7,28 @@ const props = defineProps<{
     uploadImageRoute?: routeType
 }>()
 
-const model = defineModel()
+const modelValue = defineModel()
 
-const compModel = computed(() => {
-    // To check does the data if changed
-    return JSON.stringify(model.value)
-})
 
 const emit = defineEmits();
-watch(compModel, () => {
-    console.log('on change compModel')
-    emit('update:modelValue', model.value)
-})
 
+onMounted(() => {
+    if (!modelValue.value) {
+        modelValue.value = {
+            type: null,
+            color: null,
+            image: {
+                original: null
+            }
+        }
+}})
 
 </script>
 
 <template>
-    <div v-if="model"  class="border-t border-gray-300 bg-gray-100 pb-3">
+    <div v-if="modelValue" class="border-t border-gray-300 bg-gray-100 pb-3">
         <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Background') }}</div>
-        <BackgroundProperty v-model="model" :uploadImageRoute="uploadImageRoute"/>
+        <BackgroundProperty v-model="modelValue" :uploadImageRoute="uploadImageRoute" />
     </div>
 </template>
 

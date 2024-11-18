@@ -6,7 +6,7 @@ import { capitalize } from "@/Composables/capitalize"
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import Modal from '@/Components/Utils/Modal.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue'
-import SideEditor from '@/Components/Workshop/SideEditor.vue'
+import SideEditor from '@/Components/Workshop/SideEditor/SideEditor.vue'
 import { notify } from "@kyvg/vue3-notification"
 import Publish from '@/Components/Publish.vue'
 import { debounce } from 'lodash'
@@ -83,7 +83,7 @@ const _iframe = ref<IframeHTMLAttributes | null>(null)
 const onSelectBlock = (selectedBlock: object) => {
     const selectedKey = selectedTab.value.key;
     const currentTemplate = toRaw(usedTemplates.value[selectedKey]);
-    const newTemplate = { ...toRaw(selectedBlock) };
+    const newTemplate = { ...toRaw(selectedBlock)  };
 
     newTemplate.data.fieldValue = {
         ...currentTemplate?.data?.fieldValue,

@@ -16,7 +16,7 @@ import LoadingIcon from '@/Components/Utils/LoadingIcon.vue'
 import Modal from "@/Components/Utils/Modal.vue"
 import BlockList from '@/Components/CMS/Webpage/BlockList.vue'
 import VisibleCheckmark from '@/Components/CMS/Fields/VisibleCheckmark.vue';
-import SideEditor from '@/Components/Workshop/SideEditor.vue'
+import SideEditor from '@/Components/Workshop/SideEditor/SideEditor.vue'
 import { getBlueprint } from '@/Composables/getBlueprintWorkshop'
 
 import { Root, Daum } from '@/types/webBlockTypes'
