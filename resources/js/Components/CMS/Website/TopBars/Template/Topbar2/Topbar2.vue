@@ -34,6 +34,24 @@ interface ModelTopbar2 {
             }
         }
     }
+    logout: {
+
+    }
+    login: {
+
+    }
+    register: {
+        
+    }
+    favourite: {
+
+    }
+    cart: {
+
+    }
+    profile: {
+
+    }
 }
 
 const model = defineModel<ModelTopbar2>()
