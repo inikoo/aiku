@@ -28,6 +28,9 @@ return new class () extends Migration {
             $table->dateTimeTz('end_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();
             $table->unsignedSmallInteger('inactive_days')->nullable();
+            $table->dateTimeTz('fetched_at')->nullable();
+            $table->string('source_id')->nullable();
+            $table->softDeletesTz();
             $table->timestampsTz();
         });
     }

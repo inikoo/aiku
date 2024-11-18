@@ -11,6 +11,7 @@ namespace App\Actions\Ordering\Purge;
 use App\Actions\Ordering\Purge\Hydrators\PurgeHydratePurgedOrders;
 use App\Actions\Ordering\PurgedOrder\StorePurgedOrder;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Purge\PurgeTypeEnum;
 use App\Models\Catalogue\Shop;
@@ -22,6 +23,8 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StorePurge extends OrgAction
 {
+    use WithNoStrictRules;
+
     public function handle(Shop $shop, $modelData): Purge
     {
         data_set($modelData, 'group_id', $shop->group_id);
@@ -72,10 +75,17 @@ class StorePurge extends OrgAction
 
     public function rules()
     {
-        return [
+        $rules = [
             'type'              => ['required', Rule::enum(PurgeTypeEnum::class)],
             'scheduled_at'      => ['required', 'date'],
         ];
+
+        if (!$this->strict) {
+
+            $rules = $this->noStrictStoreRules($rules);
+
+        }
+        return $rules;
     }
 
     public function asController(Shop $shop, ActionRequest $request)
@@ -85,8 +95,16 @@ class StorePurge extends OrgAction
         return $this->handle($shop, $this->validatedData);
     }
 
-    public function action(Shop $shop, array $modelData)
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true)
     {
+        if (!$audit) {
+            Purge::disableAuditing();
+        }
+
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+
         $this->initialisationFromShop($shop, $modelData);
 
         return $this->handle($shop, $this->validatedData);

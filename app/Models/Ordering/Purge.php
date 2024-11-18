@@ -15,6 +15,7 @@ use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 
 /**
@@ -48,6 +49,7 @@ class Purge extends Model implements Auditable
 {
     use InShop;
     use HasHistory;
+    use SoftDeletes;
 
     protected $guarded = [];
 
