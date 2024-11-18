@@ -62,7 +62,9 @@ class OrgSupplier extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->supplier->code.'-'.$this->organisation->code;
+
+                $supplier = $this->supplier()->withTrashed()->first();
+                return $supplier->code.'-'.$this->organisation->code;
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()

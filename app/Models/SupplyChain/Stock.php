@@ -9,7 +9,6 @@ namespace App\Models\SupplyChain;
 
 use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Enums\SupplyChain\Stock\StockTradeUnitCompositionEnum;
-use App\Models\Goods\Ingredient;
 use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Media;
@@ -73,11 +72,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Media|null $image
  * @property-read MediaCollection<int, Media> $images
- * @property-read Collection<int, Ingredient> $ingredients
  * @property-read MediaCollection<int, Media> $media
  * @property-read Collection<int, OrgStock> $orgStocks
  * @property-read \App\Models\SupplyChain\StockStats|null $stats
  * @property-read \App\Models\SupplyChain\StockFamily|null $stockFamily
+ * @property-read Collection<int, \App\Models\SupplyChain\SupplierProduct> $supplierProducts
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
  * @method static \Database\Factories\SupplyChain\StockFactory factory($count = null, $state = [])
@@ -202,5 +201,23 @@ class Stock extends Model implements HasMedia, Auditable
     {
         return $this->morphToMany(Barcode::class, 'mode', 'model_has_barcodes')->withTimestamps();
     }
+
+    public function supplierProducts(): BelongsToMany
+    {
+        return $this->belongsToMany(SupplierProduct::class, 'stock_has_supplier_products')
+            ->withPivot(['priority', 'status', 'source_id', 'source_slug', 'fetched_at', 'last_fetched_at'])->withTimestamps();
+    }
+
+    //    public function supplierProduct(): HasOne
+    //    {
+    //        return $this->supplierProducts()->one()->ofMany(
+    //            [
+    //                'priority' => 'max',
+    //            ],
+    //            function (Builder $query) {
+    //                $query->where('status', true);
+    //            }
+    //        );
+    //    }
 
 }

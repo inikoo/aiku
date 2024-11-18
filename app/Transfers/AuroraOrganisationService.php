@@ -38,6 +38,7 @@ use App\Transfers\Aurora\FetchAuroraEmailTrackingEvent;
 use App\Transfers\Aurora\FetchAuroraEmployee;
 use App\Transfers\Aurora\FetchAuroraFamily;
 use App\Transfers\Aurora\FetchAuroraFavourite;
+use App\Transfers\Aurora\FetchAuroraFeedback;
 use App\Transfers\Aurora\FetchAuroraHistoricAsset;
 use App\Transfers\Aurora\FetchAuroraHistoricService;
 use App\Transfers\Aurora\FetchAuroraHistoricSupplierProduct;
@@ -60,6 +61,9 @@ use App\Transfers\Aurora\FetchAuroraPallet;
 use App\Transfers\Aurora\FetchAuroraPayment;
 use App\Transfers\Aurora\FetchAuroraPaymentAccount;
 use App\Transfers\Aurora\FetchAuroraOrgPaymentServiceProvider;
+use App\Transfers\Aurora\FetchAuroraPoll;
+use App\Transfers\Aurora\FetchAuroraPollReply;
+use App\Transfers\Aurora\FetchAuroraPollOption;
 use App\Transfers\Aurora\FetchAuroraPortfolio;
 use App\Transfers\Aurora\FetchAuroraProduct;
 use App\Transfers\Aurora\FetchAuroraProductHasOrgStock;
@@ -519,5 +523,24 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraIngredient($this))->fetch($id);
     }
 
+    public function fetchFeedback($id): ?array
+    {
+        return (new FetchAuroraFeedback($this))->fetch($id);
+    }
+
+    public function fetchPoll($id): ?array
+    {
+        return (new FetchAuroraPoll($this))->fetch($id);
+    }
+
+    public function fetchPollOption($id): ?array
+    {
+        return (new FetchAuroraPollOption($this))->fetch($id);
+    }
+
+    public function fetchPollReply($id): ?array
+    {
+        return (new FetchAuroraPollReply($this))->fetch($id);
+    }
 
 }

@@ -1,0 +1,98 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 17 Nov 2024 15:01:28 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Actions\CRM\Poll;
+
+use App\Actions\OrgAction;
+use App\Actions\Traits\Authorisations\HasWebAuthorisation;
+use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Enums\CRM\Poll\PollTypeEnum;
+use App\Models\Catalogue\Shop;
+use App\Models\CRM\Poll;
+use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
+use Lorisleiva\Actions\ActionRequest;
+
+class StorePoll extends OrgAction
+{
+    use HasWebAuthorisation;
+    use WithNoStrictRules;
+
+    public function handle(Shop $shop, array $modelData): Poll
+    {
+        data_set($modelData, 'group_id', $shop->group_id);
+        data_set($modelData, 'organisation_id', $shop->organisation_id);
+
+        $poll = $shop->polls()->create($modelData);
+
+        //todo add Store,Org,Group hydrators here
+
+        return $poll;
+    }
+
+    public function rules(): array
+    {
+        $rules = [
+            'name'                     => [
+                'sometimes',
+                'required',
+                'max:255',
+                'string',
+                new IUnique(
+                    table: 'polls',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                    ]
+                ),
+            ],
+            'label'                    => [
+                'sometimes',
+                'required',
+                'max:255',
+                'string',
+                new IUnique(
+                    table: 'polls',
+                    extraConditions: [
+                        ['column' => 'shop_id', 'value' => $this->shop->id],
+                    ]
+                ),
+            ],
+            'in_registration'          => ['required', 'boolean'],
+            'in_registration_required' => ['required', 'boolean'],
+            'in_iris'                  => ['required', 'boolean'],
+            'in_iris_required'         => ['sometimes', 'required', 'boolean'],
+            'type'                     => ['required', Rule::enum(PollTypeEnum::class)],
+        ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
+    }
+
+    public function asController(Shop $shop, ActionRequest $request): Poll
+    {
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($shop, $this->validatedData);
+    }
+
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Poll
+    {
+        if (!$audit) {
+            Poll::disableAuditing();
+        }
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFromShop($shop, $modelData);
+
+        return $this->handle($shop, $this->validatedData);
+    }
+
+}

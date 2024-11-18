@@ -18,6 +18,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
     protected function parseModel(): void
     {
         if ($this->auroraModelData->aiku_ignore == 'Yes') {
+
             return;
         }
 
@@ -32,10 +33,10 @@ class FetchAuroraSupplierProduct extends FetchAurora
             return;
         }
 
-        $stock = $this->parseStock($this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Part SKU'});
-        if (!$stock) {
-            return;
-        }
+        //        $stock = $this->parseStock($this->organisation->id.':'.$this->auroraModelData->{'Supplier Part Part SKU'});
+        //        if (!$stock) {
+        //            return;
+        //        }
 
 
         $supplier = $this->parseSupplier($this->organisation->id.":".$this->auroraModelData->{'Supplier Part Supplier Key'});
@@ -58,10 +59,15 @@ class FetchAuroraSupplierProduct extends FetchAurora
         $tradeUnitReference = $this->cleanTradeUnitReference($auroraPartData->{'Part Reference'});
         $tradeUnitSlug      = Str::lower($tradeUnitReference);
 
-        $this->parsedData['trade_unit'] = $this->parseTradeUnit(
-            $tradeUnitSlug,
-            $auroraPartData->{'Part SKU'}
-        );
+
+        $tradeUnit = $this->parseTradeUnit($tradeUnitSlug, $auroraPartData->{'Part SKU'});
+
+        if (!$tradeUnit) {
+            print "NO TRADE UNIT WTF";
+            dd($this->auroraModelData);
+        }
+
+        $this->parsedData['trade_unit'] = $tradeUnit;
 
 
         $this->parsedData['supplier'] = $supplier;
@@ -136,7 +142,7 @@ class FetchAuroraSupplierProduct extends FetchAurora
                 'is_available'          => $isAvailable,
                 'state'                 => $state,
                 'stock_quantity_status' => $stock_quantity_status,
-                'stock_id'              => $stock->id,
+               // 'stock_id'              => $stock->id,
 
                 'data'       => $data,
                 'settings'   => $settings,

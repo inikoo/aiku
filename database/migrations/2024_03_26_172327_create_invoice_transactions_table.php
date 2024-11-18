@@ -16,7 +16,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('invoice_transactions', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table = $this->groupOrgRelationship($table);
             $table->dateTimeTz('date')->index();
 

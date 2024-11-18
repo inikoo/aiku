@@ -20,22 +20,34 @@ class FetchAuroraPurchaseOrderTransaction extends FetchAurora
             return;
         }
 
-        if ($purchaseOrder->parent_type == 'OrgPartner') {
-            $item = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Part SKU'});
-        } else {
-            $item = $this->parseHistoricSupplierProduct($this->organisation->id, $this->auroraModelData->{'Supplier Part Historic Key'});
-            if (!$item) {
-                $item = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Part SKU'});
-            }
+
+        $orgStock = null;
+        if ($this->auroraModelData->{'Purchase Order Transaction Part SKU'}) {
+            $orgStock = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Part SKU'});
         }
 
-        if (!$item) {
+        if (!$orgStock) {
+            print "PO  ".$this->auroraModelData->{'Purchase Order Key'}."  SKU not found (".$this->auroraModelData->{'Purchase Order Transaction Part SKU'}.")   ".$this->auroraModelData->{'Purchase Order Transaction Fact Key'}."  \n";
+
+            return;
+        }
+
+
+        $historicSupplierProduct = null;
+        if ($purchaseOrder->parent_type != 'OrgPartner') {
+            $historicSupplierProduct = $this->parseHistoricSupplierProduct($this->organisation->id, $this->auroraModelData->{'Supplier Part Historic Key'});
+        }
+
+
+        if (!$historicSupplierProduct and !$orgStock) {
             print "PO  ".$this->auroraModelData->{'Purchase Order Key'}."  Transaction Item not found   ".$this->auroraModelData->{'Purchase Order Transaction Fact Key'}."  \n";
 
             return;
         }
 
-        $this->parsedData['item'] = $item;
+        $this->parsedData['historic_supplier_product'] = $historicSupplierProduct;
+        $this->parsedData['org_stock']                 = $orgStock;
+
 
         //enum('Cancelled','NoReceived','InProcess','Submitted','ProblemSupplier','Confirmed','Manufactured','QC_Pass','ReceivedAgent','InDelivery','Inputted','Dispatched','Received','Checked','Placed','InvoiceChecked')
         $state = match ($this->auroraModelData->{'Purchase Order Transaction State'}) {

@@ -38,10 +38,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int|null $customer_client_id
  * @property int|null $order_id
  * @property int|null $invoice_id
- * @property string $date
- * @property string|null $submitted_at
- * @property string|null $in_warehouse_at
- * @property string|null $settled_at
+ * @property \Illuminate\Support\Carbon $date
+ * @property \Illuminate\Support\Carbon|null $submitted_at
+ * @property \Illuminate\Support\Carbon|null $in_warehouse_at
+ * @property \Illuminate\Support\Carbon|null $settled_at
  * @property TransactionStateEnum $state
  * @property TransactionStatusEnum $status
  * @property string|null $model_type
@@ -53,6 +53,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property string|null $quantity_dispatched
  * @property string|null $quantity_fail
  * @property string|null $quantity_cancelled
+ * @property bool $out_of_stock_in_basket
+ * @property \Illuminate\Support\Carbon|null $out_of_stock_in_basket_at
  * @property string|null $fail_status
  * @property string $gross_amount net amount before discounts
  * @property string $net_amount
@@ -64,14 +66,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $fetched_at
- * @property string|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property string|null $source_alt_id to be used in no products transactions
  * @property-read Asset|null $asset
  * @property-read Customer $customer
  * @property-read Collection<int, DeliveryNoteItem> $deliveryNoteItems
+ * @property-read Collection<int, Feedback> $feedbacks
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read HistoricAsset|null $historicAsset
  * @property-read Model|\Eloquent $item
@@ -96,10 +99,21 @@ class Transaction extends Model
     protected $table = 'transactions';
 
     protected $casts = [
-        'quantity'   => 'decimal:3',
-        'data'       => 'array',
-        'state'      => TransactionStateEnum::class,
-        'status'     => TransactionStatusEnum::class,
+        'quantity'                  => 'decimal:3',
+        'data'                      => 'array',
+        'state'                     => TransactionStateEnum::class,
+        'status'                    => TransactionStatusEnum::class,
+        'out_of_stock_in_basket'    => 'boolean',
+        'date'                      => 'datetime',
+        'submitted_at'              => 'datetime',
+        'in_warehouse_at'           => 'datetime',
+        'settled_at'                => 'datetime',
+
+
+        'out_of_stock_in_basket_at' => 'datetime',
+        'fetched_at'                => 'datetime',
+        'last_fetched_at'           => 'datetime',
+
 
     ];
 
@@ -139,8 +153,6 @@ class Transaction extends Model
     {
         return $this->morphToMany(Feedback::class, 'model', 'model_has_feedbacks');
     }
-
-
 
 
 }

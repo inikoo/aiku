@@ -44,7 +44,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $image_id
  * @property int|null $supplier_id
  * @property int|null $agent_id
- * @property int|null $stock_id
  * @property SupplierProductStateEnum $state
  * @property bool $is_available
  * @property numeric $cost unit cost
@@ -73,6 +72,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read \App\Models\SupplyChain\SupplierProductStats|null $stats
  * @property-read \App\Models\SupplyChain\Stock|null $stock
+ * @property-read Collection<int, \App\Models\SupplyChain\Stock> $stocks
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
  * @property-read Collection<int, TradeUnit> $tradeUnits
  * @property-read UniversalSearch|null $universalSearch
@@ -98,7 +98,7 @@ class SupplierProduct extends Model implements Auditable
         'cost'                   => 'decimal:4',
         'data'                   => 'array',
         'settings'               => 'array',
-        'sources'                   => 'array',
+        'sources'                => 'array',
         'status'                 => 'boolean',
         'state'                  => SupplierProductStateEnum::class,
         'trade_unit_composition' => SupplierProductTradeUnitCompositionEnum::class,
@@ -109,7 +109,7 @@ class SupplierProduct extends Model implements Auditable
     protected $attributes = [
         'data'     => '{}',
         'settings' => '{}',
-        'sources'     => '{}',
+        'sources'  => '{}',
     ];
 
     protected $guarded = [];
@@ -183,7 +183,7 @@ class SupplierProduct extends Model implements Auditable
             null,
             'trade_units',
         )
-           ->withPivot(['quantity','notes'])
+            ->withPivot(['quantity', 'notes'])
             ->withTimestamps();
     }
 
@@ -192,8 +192,22 @@ class SupplierProduct extends Model implements Auditable
         return $this->hasMany(OrgSupplierProduct::class);
     }
 
-    public function stock(): BelongsTo
+    public function stocks(): HasMany
     {
-        return $this->belongsTo(Stock::class);
+        return $this->hasMany(Stock::class, 'stock_has_supplier_products');
+    }
+
+
+    public function stock(): HasOne
+    {
+        return $this->stocks()->one()->ofMany(
+            [
+                'created_at' => 'max',
+                'id'         => 'max',
+            ],
+            function (Builder $query) {
+                $query->where('status', true);
+            }
+        );
     }
 }

@@ -1,0 +1,43 @@
+<?php
+/*
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Sun, 17 Nov 2024 15:00:36 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
+
+namespace App\Models\CRM;
+
+use Illuminate\Database\Eloquent\Model;
+
+/**
+ *
+ *
+ * @property int $id
+ * @property int $poll_id
+ * @property int $number_customers
+ * @property int $number_customers_state_in_process
+ * @property int $number_customers_state_registered
+ * @property int $number_customers_state_active
+ * @property int $number_customers_state_losing
+ * @property int $number_customers_state_lost
+ * @property int $number_customers_trade_state_none
+ * @property int $number_customers_trade_state_one
+ * @property int $number_customers_trade_state_many
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PollStat newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PollStat newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|PollStat query()
+ * @mixin \Eloquent
+ */
+class PollStat extends Model
+{
+    protected $casts = [
+    ];
+
+    protected $attributes = [
+    ];
+
+    protected $guarded = [];
+
+}

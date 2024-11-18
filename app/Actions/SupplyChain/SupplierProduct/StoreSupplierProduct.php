@@ -101,13 +101,13 @@ class StoreSupplierProduct extends GrpAction
                     ]
                 ),
             ],
-            'stock_id'     => [
-                'required',
-                Rule::exists('stocks', 'id')->where(function (Builder $query) {
-                    return $query->where('group_id', $this->group->id);
-                }),
-
-            ],
+//            'stock_id'     => [
+//                'required',
+//                Rule::exists('stocks', 'id')->where(function (Builder $query) {
+//                    return $query->where('group_id', $this->group->id);
+//                }),
+//
+//            ],
             'name'         => ['required', 'string', 'max:255'],
             'state'        => ['sometimes', 'required', Rule::enum(SupplierProductStateEnum::class)],
             'is_available' => ['sometimes', 'required', 'boolean'],

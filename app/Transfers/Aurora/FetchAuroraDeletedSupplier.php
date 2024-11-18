@@ -68,17 +68,21 @@ class FetchAuroraDeletedSupplier extends FetchAurora
         $scopeType = 'Group';
         $scopeId   = $this->organisation->group_id;
 
+        $code = preg_replace('/\s/', '-', $auroraDeletedData->{'Supplier Code'});
+
+        $code = $code.'-deleted-'.$this->organisation->id;
+
         $this->parsedData['supplier'] =
             [
                 'name'            => $auroraDeletedData->{'Supplier Nickname'} ?? $auroraDeletedData->{'Supplier Name'},
-                'code'            => preg_replace('/\s/', '-', $auroraDeletedData->{'Supplier Code'}),
+                'code'            => $code,
                 'company_name'    => $auroraDeletedData->{'Supplier Company Name'},
                 'contact_name'    => $auroraDeletedData->{'Supplier Main Contact Name'},
                 'email'           => $auroraDeletedData->{'Supplier Main Plain Email'},
                 'phone'           => $phone,
                 'currency_id'     => $this->parseCurrencyID($auroraDeletedData->{'Supplier Default Currency Code'}),
                 'source_id'       => $this->organisation->id.':'.$auroraDeletedData->{'Supplier Key'},
-                'source_slug'     => Str::kebab(strtolower($auroraDeletedData->{'Supplier Code'}).'-deleted'),
+                'source_slug'     => Str::kebab(strtolower($code)),
                 'deleted_at'      => $deletedAt,
                 'archived_at'     => $archivedAt,
                 'status'          => false,

@@ -89,10 +89,12 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
             }
             if (!$supplierProduct) {
                 $supplierProduct = SupplierProduct::withTrashed()->where('source_slug', $supplierProductData['supplierProduct']['source_slug'])->first();
-
             }
 
+            if (!$supplierProduct) {
+                $supplierProduct = SupplierProduct::whereRaw('LOWER(code)=? ', [trim(strtolower($supplierProductData['supplierProduct']['code']))])->first();
 
+            }
 
 
 

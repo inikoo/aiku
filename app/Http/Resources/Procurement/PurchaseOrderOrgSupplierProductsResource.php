@@ -9,7 +9,6 @@
 namespace App\Http\Resources\Procurement;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\SupplierProduct;
 
 /**

@@ -44,8 +44,8 @@ class IndexOfferCampaigns extends OrgAction
         $query = QueryBuilder::for(OfferCampaign::class);
 
         $query->where('offer_campaigns.shop_id', $shop->id);
-        $query->leftjoin('shops', 'offer_campaigns.shop_id', '=', 'shops.id');
-
+        $query->leftjoin('shops', 'offer_campaigns.shop_id', '=', 'shops.id')
+            ->leftJoin('offer_campaign_stats', 'offer_campaigns.id', 'offer_campaign_stats.offer_campaign_id');
         $query->defaultSort('offer_campaigns.id')
             ->select(
                 'offer_campaigns.id',
@@ -55,10 +55,12 @@ class IndexOfferCampaigns extends OrgAction
                 'offer_campaigns.type',
                 'offer_campaigns.state',
                 'offer_campaigns.status',
-                'shops.slug as shop_slug'
+                'shops.slug as shop_slug',
+                'offer_campaign_stats.number_current_offers as number_current_offers'
             );
 
-        return $query->allowedSorts(['code', 'name', 'type', 'state'])
+        return $query->
+            allowedSorts(['code', 'name', 'state', 'number_current_offers'])
             ->allowedFilters([$globalSearch, 'code', 'name'])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -92,7 +94,7 @@ class IndexOfferCampaigns extends OrgAction
             $table->column(key: 'state', label: ['fal', 'fa-yin-yang'], type: 'icon');
             $table->column(key: 'code', label: __('Code'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'name', label: __('Name'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'type', label: __('Type'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'number_current_offers', label: __('Number Offers'), canBeHidden: false, sortable: true, searchable: true);
             $table->defaultSort('id');
         };
     }

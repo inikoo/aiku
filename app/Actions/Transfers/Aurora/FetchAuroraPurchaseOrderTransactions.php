@@ -46,7 +46,8 @@ class FetchAuroraPurchaseOrderTransactions
                 //  try {
                 $purchaseOrderTransaction = StorePurchaseOrderTransaction::make()->action(
                     purchaseOrder: $purchaseOrder,
-                    item: $transactionData['item'],
+                    historicSupplierProduct: $transactionData['historic_supplier_product'],
+                    orgStock: $transactionData['org_stock'],
                     modelData: $transactionData['purchase_order_transaction'],
                     hydratorsDelay: 60,
                     strict: false

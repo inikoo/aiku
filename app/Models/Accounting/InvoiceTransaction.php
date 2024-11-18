@@ -9,12 +9,14 @@ namespace App\Models\Accounting;
 
 use App\Models\Catalogue\Asset;
 use App\Models\Helpers\Currency;
+use App\Models\Helpers\InvoiceTransactionHasFeedback;
 use App\Models\Ordering\Transaction;
 use App\Models\Traits\InCustomer;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -56,6 +58,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read Asset|null $asset
  * @property-read Currency|null $currency
  * @property-read \App\Models\CRM\Customer $customer
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, InvoiceTransactionHasFeedback> $feedbackBridges
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Model|\Eloquent $item
  * @property-read \App\Models\SysAdmin\Organisation $organisation
@@ -112,6 +115,11 @@ class InvoiceTransaction extends Model
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class);
+    }
+
+    public function feedbackBridges(): HasMany
+    {
+        return $this->hasMany(InvoiceTransactionHasFeedback::class);
     }
 
 }

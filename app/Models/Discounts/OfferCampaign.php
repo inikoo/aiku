@@ -10,6 +10,7 @@ namespace App\Models\Discounts;
 use App\Enums\Discounts\OfferCampaign\OfferCampaignStateEnum;
 use App\Enums\Discounts\OfferCampaign\OfferCampaignTypeEnum;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -50,6 +51,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Discounts\OfferCampaignStats|null $stats
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Discounts\OfferCampaignFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferCampaign newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferCampaign newQuery()
@@ -66,6 +68,7 @@ class OfferCampaign extends Model implements Auditable
     use HasFactory;
     use InShop;
     use HasHistory;
+    use HasUniversalSearch;
 
 
     protected $casts = [

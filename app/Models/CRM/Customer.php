@@ -131,6 +131,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Platform> $platforms
+ * @property-read Collection<int, \App\Models\CRM\PollReply> $pollReplies
  * @property-read Collection<int, Portfolio> $portfolios
  * @property-read Collection<int, Asset> $products
  * @property-read Shop|null $shop
@@ -431,5 +432,10 @@ class Customer extends Model implements HasMedia, Auditable
     {
         return $this->morphMany(ModelSubscribedToOutbox::class, 'model')
                     ->whereNotNull('unsubscribed_at');
+    }
+
+    public function pollReplies(): HasMany
+    {
+        return $this->hasMany(PollReply::class);
     }
 }

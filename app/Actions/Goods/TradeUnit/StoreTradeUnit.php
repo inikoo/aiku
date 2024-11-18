@@ -35,7 +35,7 @@ class StoreTradeUnit extends GrpAction
             'code'             => [
                 'required',
                 'max:64',
-                new AlphaDashDot(),
+                $this->strict ? new AlphaDashDot() : 'string',
                 Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
                     table: 'trade_units',

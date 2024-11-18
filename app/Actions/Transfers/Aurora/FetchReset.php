@@ -194,6 +194,17 @@ class FetchReset
                         ]
                     );
 
+                DB::connection('aurora')->table('Supplier Part Historic Dimension')
+                    ->whereNotNull('aiku_supplier_historic_product_id')
+                    ->update(
+                        [
+                            'aiku_supplier_historic_product_id' => null,
+                        ]
+                    );
+
+
+
+
 
                 $command->line('✅ agents/suppliers');
 

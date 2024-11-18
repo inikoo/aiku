@@ -61,7 +61,7 @@ class UpdateLocation extends OrgAction
                 'sometimes',
                 'required',
                 'max:64',
-                'alpha_dash',
+                $this->strict ? 'alpha_dash' : 'string',
                 new IUnique(
                     table: 'locations',
                     extraConditions: [
@@ -82,11 +82,6 @@ class UpdateLocation extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['code']            = [
-                'required',
-                'max:64',
-                'string',
-            ];
             $rules = $this->noStrictUpdateRules($rules);
         }
 

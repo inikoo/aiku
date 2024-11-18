@@ -13,7 +13,7 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasCRMStats
 {
-    public function crmStats(Blueprint $table): Blueprint
+    public function customerStats(Blueprint $table): Blueprint
     {
 
         $table->unsignedInteger('number_customers')->default(0);
