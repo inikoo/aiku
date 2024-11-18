@@ -10,6 +10,7 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
 use App\Models\Accounting\Invoice;
+use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -19,6 +20,8 @@ use Throwable;
 
 class FetchAuroraInvoices extends FetchAuroraAction
 {
+    use WithAuroraParsers;
+
     public string $commandSignature = 'fetch:invoices {organisations?*} {--s|source_id=} {--S|shop= : Shop slug}  {--N|only_new : Fetch only new} {--w|with=* : Accepted values: transactions} {--d|db_suffix=} {--r|reset}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?Invoice
@@ -28,79 +31,107 @@ class FetchAuroraInvoices extends FetchAuroraAction
             $doTransactions = true;
         }
 
-        if ($invoiceData = $organisationSource->fetchInvoice($organisationSourceId, $doTransactions)) {
-            if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])
-                ->first()) {
-                try {
-                    UpdateInvoice::make()->action(
-                        invoice: $invoice,
-                        modelData: $invoiceData['invoice'],
-                        hydratorsDelay: 60,
-                        strict: false,
-                        audit: false
-                    );
-                } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'update');
-
-                    return null;
-                }
+        $invoiceData = $organisationSource->fetchInvoice($organisationSourceId, $doTransactions);
+        if (!$invoiceData) {
+            return null;
+        }
 
 
-                if ($doTransactions) {
-                    $this->fetchInvoiceTransactions($organisationSource, $invoice);
-                    $this->fetchInvoiceNoProductTransactions($organisationSource, $invoice);
-                }
+        if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])->first()) {
+            try {
+                UpdateInvoice::make()->action(
+                    invoice: $invoice,
+                    modelData: $invoiceData['invoice'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
+            } catch (Exception $e) {
+                $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'update');
+
+                return null;
+            }
+        } else {
+            if ($invoiceData['invoice']['data']['foot_note'] == '') {
+                unset($invoiceData['invoice']['data']['foot_note']);
+            }
+            try {
+                $invoice = StoreInvoice::make()->action(
+                    parent: $invoiceData['parent'],
+                    modelData: $invoiceData['invoice'],
+                    hydratorsDelay: $this->hydratorsDelay,
+                    strict: false,
+                    audit: false
+                );
+
+                Invoice::enableAuditing();
+                $this->saveMigrationHistory(
+                    $invoice,
+                    Arr::except($invoiceData['invoice'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
 
 
-                return $invoice;
-            } else {
-                if ($invoiceData['invoice']) {
-                    if ($invoiceData['invoice']['data']['foot_note'] == '') {
-                        unset($invoiceData['invoice']['data']['foot_note']);
-                    }
-                    try {
-                        $invoice = StoreInvoice::make()->action(
-                            parent: $invoiceData['parent'],
-                            modelData: $invoiceData['invoice'],
-                            hydratorsDelay: $this->hydratorsDelay,
-                            strict: false,
-                            audit: false
-                        );
+                $this->recordNew($organisationSource);
 
-                        Invoice::enableAuditing();
-                        $this->saveMigrationHistory(
-                            $invoice,
-                            Arr::except($invoiceData['invoice'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                        );
+                $sourceData = explode(':', $invoice->source_id);
+                DB::connection('aurora')->table('Invoice Dimension')
+                    ->where('Invoice Key', $sourceData[1])
+                    ->update(['aiku_id' => $invoice->id]);
+            } catch (Exception|Throwable $e) {
+                $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'store');
+
+                return null;
+            }
+        }
 
 
-                        $this->recordNew($organisationSource);
-
-                        $sourceData = explode(':', $invoice->source_id);
-                        DB::connection('aurora')->table('Invoice Dimension')
-                            ->where('Invoice Key', $sourceData[1])
-                            ->update(['aiku_id' => $invoice->id]);
-                    } catch (Exception|Throwable $e) {
-                        $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'store');
-
-                        return null;
-                    }
-                    if (in_array('transactions', $this->with) or $forceWithTransactions) {
-                        $this->fetchInvoiceTransactions($organisationSource, $invoice);
-                        $this->fetchInvoiceNoProductTransactions($organisationSource, $invoice);
-                    }
+        if ($invoice) {
+            if ($doTransactions) {
+                $this->fetchInvoiceTransactions($organisationSource, $invoice);
+                $this->fetchInvoiceNoProductTransactions($organisationSource, $invoice);
+            }
 
 
-
-                    return $invoice;
-                }
-                print "Warning invoice $organisationSourceId do not have customer\n";
+            if (in_array('payments', $this->with) or in_array('full', $this->with)) {
+                $this->fetchPayments($organisationSource, $invoice);
             }
         }
 
         return null;
     }
 
+    private function fetchPayments($organisationSource, Invoice $invoice): void
+    {
+        $organisation = $organisationSource->getOrganisation();
+
+        $paymentsToDelete = $invoice->payments()->pluck('source_id')->all();
+        $sourceData       = explode(':', $invoice->source_id);
+
+        $modelHasPayments = [];
+        foreach (
+
+            DB::connection('aurora')
+                ->table('Order Payment Bridge')
+                ->select('Payment Key')
+                ->where('Invoice Key', $sourceData[1])
+                ->get() as $auroraData
+        ) {
+            $payment = $this->parsePayment($organisation->id.':'.$auroraData->{'Payment Key'});
+
+            $modelHasPayments[$payment->id] = [
+                'amount' => $payment->amount,
+                'share'  => 1
+            ];
+
+
+            $paymentsToDelete = array_diff($paymentsToDelete, [$organisation->id.':'.$auroraData->{'Payment Key'}]);
+        }
+
+
+        $invoice->payments()->syncWithoutDetaching($modelHasPayments);
+
+        $invoice->payments()->whereIn('id', $paymentsToDelete)->delete();
+    }
 
     private function fetchInvoiceTransactions($organisationSource, Invoice $invoice): void
     {
