@@ -53,12 +53,15 @@ const opacityToHexCode = (opacity: number) => {
 <template>
     <div class="relative">
         <!-- Toggle button -->
-        <div
-            v-bind="$attrs"
-            class="h-12 w-12 cursor-pointer"
-            :style="{ backgroundColor: color }"
-            @click="overlayPanel.show($event)"
-        ></div>
+        <div @click="overlayPanel.show($event)">
+            <slot name="button">
+                <div
+                    v-bind="$attrs"
+                    class="h-12 w-12 cursor-pointer"
+                    :style="{ backgroundColor: color }"
+                ></div>
+            </slot>
+        </div>
 
         <!-- OverlayPanel with ColorPicker -->
         <OverlayPanel ref="overlayPanel" class="shadow-lg rounded-md">

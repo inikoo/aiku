@@ -22,19 +22,25 @@ const options = ref([
 
 <template>
 	<div v-if="modelValue.type">
-		<div class="pb-3">
-			<SelectButton v-if="modelValue?.type"
-				v-model="modelValue.type"
-				:options="options"
-				optionLabel="label"
-				optionValue="value">
-				<template #option="slotProps">
-					<span class="text-xs">{{ slotProps.option.label }}</span>
-				</template>
-			</SelectButton>
-		</div>
 		<div>
-			<div class="my-2 text-gray-500 text-xs font-semibold mb-2">{{ trans("Link") }}</div>
+			<div class="text-gray-500 text-xs tracking-wide mb-2">{{ trans("Target") }}</div>
+			<div class="mb-3 border border-gray-300 rounded-md w-fit">
+				<SelectButton v-if="modelValue?.type"
+					v-model="modelValue.type"
+					:options="options"
+					optionLabel="label"
+					optionValue="value"
+					:allowEmpty="false"
+				>
+					<template #option="slotProps">
+						<span class="text-xs">{{ slotProps.option.label }}</span>
+					</template>
+				</SelectButton>
+			</div>
+		</div>
+		
+		<div>
+			<div class="my-2 text-gray-500 text-xs tracking-wide mb-2">{{ trans("Destination") }}</div>
 			<PureInput v-if="modelValue?.type == 'external'" v-model="modelValue.url" />
 			<SelectQuery
 				v-else-if="modelValue"
