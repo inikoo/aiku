@@ -9,6 +9,14 @@
 namespace App\Actions\Discounts\ModelHasOfferComponent;
 ;
 
+use App\Actions\Accounting\Invoice\Hydrators\InvoiceHydrateOffers;
+use App\Actions\Discounts\Offer\Hydrators\OfferHydrateInvoices;
+use App\Actions\Discounts\OfferCampaign\Hydrators\OfferCampaignHydrateInvoices;
+use App\Actions\Discounts\OfferCampaign\Hydrators\OfferCampaignHydrateOrders;
+use App\Actions\Discounts\OfferComponent\Hydrators\OfferComponentHydrateInvoices;
+use App\Actions\Discounts\OfferComponent\Hydrators\OfferComponentHydrateOrders;
+use App\Actions\Discounts\OfferComponent\Hydrators\OfferHydrateOrders;
+use App\Actions\Ordering\Order\Hydrators\OrderHydrateOffers;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\Accounting\Invoice;
@@ -31,6 +39,19 @@ class StoreModelHasOfferComponent extends OrgAction
         data_set($modelData, 'offer_component_id', $offerComponent->id);
 
         $modelHasDiscount = $model->offerComponents()->create($modelData);
+
+        if($model instanceof InvoiceTransaction) {
+            OfferComponentHydrateInvoices::dispatch($modelHasDiscount->offerComponent);
+            OfferHydrateInvoices::dispatch($modelHasDiscount->offer);
+            OfferCampaignHydrateInvoices::dispatch($modelHasDiscount->offerCampaign);
+            InvoiceHydrateOffers::dispatch($modelHasDiscount->model->invoice);
+        } elseif($model instanceof Transaction) {
+            OfferComponentHydrateOrders::dispatch($modelHasDiscount->offerComponent);
+            OfferHydrateOrders::dispatch($modelHasDiscount->offer);
+            OfferCampaignHydrateOrders::dispatch($modelHasDiscount->offerCampaign);
+            OrderHydrateOffers::dispatch($modelHasDiscount->model->order);
+        }
+
         return $modelHasDiscount;
     }
 
