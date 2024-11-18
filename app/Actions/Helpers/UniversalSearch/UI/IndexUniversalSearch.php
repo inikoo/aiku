@@ -31,12 +31,13 @@ class IndexUniversalSearch extends InertiaAction
     ): Collection {
 
 
-
+        $query = trim($query);
+        $query = preg_replace('/(\+|\-|\=|&&|\|\||\>|\<|\!|\(|\)|\{|\}|\[|\]|\^|"|~|\*|\?|\:|\\\\|\/)/', '\\\\$1', $query);
+        $query = preg_replace('/\b(AND|OR|NOT)\b/', '\\\\$0', $query);
         $query = UniversalSearch::search($query)->where('group_id', group()->id);
 
 
         // dd($sections, $organisationSlug, $shopSlug, $warehouseSlug, $websiteSlug, $fulfilmentSlug);
-        // dd($warehouseSlug);
         if ($sections && count($sections) > 0) {
             $query->whereIn('sections', $sections);
         }
@@ -68,7 +69,7 @@ class IndexUniversalSearch extends InertiaAction
     public function asController(ActionRequest $request): AnonymousResourceCollection
     {
         $searchResults = $this->handle(
-            query: $request->input('q', ''),
+            query: $request->input('q', '') ?? '',
             sections: $this->parseSections($request->input('route_src')),
             organisationSlug: $request->input('organisation'),
             shopSlug: $request->input('shop'),
@@ -94,6 +95,7 @@ class IndexUniversalSearch extends InertiaAction
         $routes = [
             'accounting.' => ['accounting'],
             'productions.' => ['productions'],
+            'fulfilments.show.web.' => ['web'],
             'fulfilments.' => ['fulfilments'],
             'procurement.' => ['procurement'],
             'reports.' => ['reports'],
@@ -101,10 +103,11 @@ class IndexUniversalSearch extends InertiaAction
             'shops.show.catalogue.' => ['catalogue'],
             'shops.show.mail.' => ['mail'],
             'shops.show.marketing.' => ['marketing'],
-            'show.discounts.' => ['discounts'],
+            'shops.show.discounts.' => ['discounts'],
             'shops.show.ordering.' => ['ordering', 'dispatching'],
             'shops.show.web.' => ['web'],
             'shops.show.crm.' => ['crm'],
+            'shops.' => ['assets', 'catalogue', 'mail', 'marketing', 'discounts', 'ordering', 'dispatching', 'web', 'crm'],
             'hr.' => ['hr'],
             'warehouses.show.infrastructure.' => ['infrastructure'],
             'warehouses.show.dispatching' => ['dispatching'],

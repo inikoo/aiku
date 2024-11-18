@@ -18,34 +18,35 @@ class ClockingMachineRecordSearch
 
     public string $jobQueue = 'universal-search';
 
-    public function handle(ClockingMachine $clockingmachine): void
+    public function handle(ClockingMachine $clockingMachine): void
     {
-        if ($clockingmachine->trashed()) {
-            if ($clockingmachine->universalSearch) {
-                $clockingmachine->universalSearch()->delete();
+        if ($clockingMachine->trashed()) {
+            if ($clockingMachine->universalSearch) {
+                $clockingMachine->universalSearch()->delete();
             }
 
             return;
         }
 
-        $clockingmachine->universalSearch()->updateOrCreate(
+        $clockingMachine->universalSearch()->updateOrCreate(
             [],
             [
-                'group_id'          => $clockingmachine->group_id,
-                'organisation_id'   => $clockingmachine->organisation_id,
-                'organisation_slug' => $clockingmachine->organisation->slug,
+                'group_id'          => $clockingMachine->group_id,
+                'organisation_id'   => $clockingMachine->organisation_id,
+                'organisation_slug' => $clockingMachine->organisation->slug,
                 'sections'          => ['hr'],
-                'haystack_tier_1'   => trim($clockingmachine->slug.' '.$clockingmachine->name),
+                'haystack_tier_1'   => $clockingMachine->name,
+                'haystack_tier_2'   => $clockingMachine->workplace->name,
                 'result'            => [
                     'route'      => [
                         'name'       => 'grp.org.hr.clocking_machines.show',
                         'parameters' => [
-                            'organisation' => $clockingmachine->organisation->slug,
-                            'clockingMachine'     => $clockingmachine->slug,
+                            'organisation' => $clockingMachine->organisation->slug,
+                            'clockingMachine'     => $clockingMachine->slug,
                         ]
                     ],
                     'code' => [
-                        'label' => $clockingmachine->name,
+                        'label' => $clockingMachine->name,
                     ],
                     'icon'       => [
                         'icon' => 'fal fa-chess-clock'
