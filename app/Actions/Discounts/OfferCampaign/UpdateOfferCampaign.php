@@ -8,6 +8,7 @@
 namespace App\Actions\Discounts\OfferCampaign;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateOfferCampaigns;
+use App\Actions\Discounts\OfferCampaign\Search\OfferCampaignRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOfferCampaigns;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOfferCampaigns;
@@ -31,6 +32,7 @@ class UpdateOfferCampaign extends OrgAction
             GroupHydrateOfferCampaigns::dispatch($offerCampaign->group)->delay($this->hydratorsDelay);
             OrganisationHydrateOfferCampaigns::dispatch($offerCampaign->organisation)->delay($this->hydratorsDelay);
             ShopHydrateOfferCampaigns::dispatch($offerCampaign->shop)->delay($this->hydratorsDelay);
+            OfferCampaignRecordSearch::dispatch($offerCampaign)->delay($this->hydratorsDelay);
         }
 
         return $offerCampaign;
