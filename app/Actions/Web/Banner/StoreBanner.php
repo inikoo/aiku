@@ -32,14 +32,12 @@ class StoreBanner extends OrgAction
     use AsAction;
     use WithAttributes;
 
-    private Shop|Fulfilment $parent;
     private Website $website;
     private string $scope;
 
 
-    public function handle(Shop|Fulfilment $parent, array $modelData): Banner
+    public function handle( Website $website, array $modelData): Banner
     {
-        $this->parent = $parent;
 
         $layout = [
             "delay"      => 5000,
@@ -71,7 +69,10 @@ class StoreBanner extends OrgAction
         ];
         list($layout, $slides) = ParseBannerLayout::run($layout);
 
-        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'group_id', $website->group_id);
+        data_set($modelData, 'organisation_id', $website->organisation_id);
+        data_set($modelData, 'shop_id', $website->shop_id);
+        data_set($modelData, 'website_id', $website->id);
         data_set($modelData, 'ulid', Str::ulid());
         data_set($modelData, 'date', now());
 
@@ -142,20 +143,18 @@ class StoreBanner extends OrgAction
 
     public function asController(Shop $shop, Website $website, ActionRequest $request): Banner
     {
-        $this->parent  = $shop;
         $this->website = $website;
         $this->initialisationFromShop($shop, $request);
 
-        return $this->handle($shop, $this->validatedData);
+        return $this->handle($website, $this->validatedData);
     }
 
     public function inFulfilment(Fulfilment $fulfilment, Website $website, ActionRequest $request): Banner
     {
-        $this->parent  = $fulfilment;
         $this->website = $website;
         $this->initialisationFromFulfilment($fulfilment, $request);
 
-        return $this->handle($fulfilment, $this->validatedData);
+        return $this->handle($website, $this->validatedData);
     }
 
     public function action(Website $website, array $objectData): Banner
@@ -164,7 +163,7 @@ class StoreBanner extends OrgAction
         $this->setRawAttributes($objectData);
 
         $validatedData = $this->validateAttributes();
-        return $this->handle($website->shop, $validatedData);
+        return $this->handle($website, $validatedData);
     }
 
     public function getCommandSignature(): string
@@ -210,8 +209,8 @@ class StoreBanner extends OrgAction
         return route(
             'grp.org.shops.show.web.banners.workshop',
             [
-                'organisation' => $this->parent->organisation->slug,
-                'shop'         => $this->parent->slug,
+                'organisation' => $this->website->organisation->slug,
+                'shop'         => $this->website->shop->slug,
                 'website'      => $this->website->slug,
                 'banner'       => $banner->slug
             ]
@@ -223,8 +222,8 @@ class StoreBanner extends OrgAction
         return redirect()->route(
             'grp.org.shops.show.web.banners.workshop',
             [
-                'organisation' => $this->parent->organisation->slug,
-                'shop'         => $this->parent->slug,
+                'organisation' => $this->website->organisation->slug,
+                'shop'         => $this->website->shop->slug,
                 'website'      => $this->website->slug,
                 'banner'       => $banner->slug
             ]

@@ -194,8 +194,71 @@ export default {
 					},
 				},
 				{
-					key: [],
+					key: ['container', 'properties'],
 					type: "button",
+				},
+				{
+					key: ['text'],
+					type: "editorhtml",
+					props_data: {
+						defaultValue: '{{ cart_count }} items',
+					},
+				},
+			],
+		},
+		{
+			name: "Favourite",
+            key: ["favourite"],
+			icon: {
+				icon: "fal fa-love",
+				tooltip: "Favourite",
+			},
+			replaceForm: [
+				{
+					key: ["visible"],
+					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: 'login',
+					},
+				},
+				{
+					key: ['container', 'properties'],
+					type: "button",
+				},
+				{
+					key: ['text'],
+					type: "editorhtml",
+					props_data: {
+						defaultValue: '{{ favourites_count }}',
+					},
+				},
+			],
+		},
+		{
+			name: "Profile",
+            key: ["profile"],
+			icon: {
+				icon: "fal fa-user",
+				tooltip: "Profile",
+			},
+			replaceForm: [
+				{
+					key: ["visible"],
+					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: 'login',
+					},
+				},
+				{
+					key: ['container', 'properties'],
+					type: "button",
+				},
+				{
+					key: ['text'],
+					type: "editorhtml",
+					props_data: {
+						defaultValue: 'Welcome, <strong>{{ name }}</strong>!',
+					},
 				},
 			],
 		},

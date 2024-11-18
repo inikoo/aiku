@@ -494,7 +494,7 @@ const irisVariablesList = [
                 <section id="tiptap-toolbar"
                     class="py-1 px-2 flex items-center divide-x divide-gray-400">
                     <!-- Button: Variable -->
-                    <Select @change="(e) => editorInstance?.chain().focus().insertContent(e.value.value).focus().run()" :options="irisVariablesList" optionLabel="label" size="small" :placeholder="trans('Select a variable')" class="w-full md:w-56" />
+                    <Select @change="(e) => editorInstance?.chain().focus().insertContent(e.value.value).focus().run()" :options="irisVariablesList" optionLabel="label" size="small" :placeholder="trans('Select a variable to put')" class="w-full md:w-56" />
                     
                 </section>
             </div>
