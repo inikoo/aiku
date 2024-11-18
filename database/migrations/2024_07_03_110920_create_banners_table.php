@@ -8,6 +8,7 @@
 
 use App\Enums\Web\Banner\BannerStateEnum;
 use App\Enums\Web\Banner\BannerTypeEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,18 +16,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasSoftDeletes;
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
         Schema::create('banners', function (Blueprint $table) {
             $table->increments('id');
 
-            $table->unsignedSmallInteger('group_id')->index();
-            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
-
+            $table = $this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('shop_id')->index();
+            $table->foreign('shop_id')->references('id')->on('shops')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('website_id')->index();
+            $table->foreign('website_id')->references('id')->on('websites')->onUpdate('cascade')->onDelete('cascade');
             $table->unsignedInteger('web_block_id')->nullable()->index();
             $table->foreign('web_block_id')->references('id')->on('web_blocks')->onUpdate('cascade')->onDelete('cascade');
-
-
 
             $table->ulid()->index();
             $table->string('type')->default(BannerTypeEnum::LANDSCAPE->value);
