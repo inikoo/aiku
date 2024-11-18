@@ -21,7 +21,7 @@ class FetchAuroraStockDeliveryItem extends FetchAurora
             $orgStock = $this->parseOrgStock($this->organisation->id.':'.$this->auroraModelData->{'Purchase Order Transaction Part SKU'});
         }
         if (!$orgStock) {
-            print "SD  ".$this->auroraModelData->{'Purchase Delivery Key'}."  SKU not found (".$this->auroraModelData->{'Purchase Order Transaction Part SKU'}.")   ".$this->auroraModelData->{'Purchase Order Transaction Fact Key'}."  \n";
+            print "SD  ".$this->auroraModelData->{'Supplier Delivery Key'}."  SKU not found (".$this->auroraModelData->{'Purchase Order Transaction Part SKU'}.")   ".$this->auroraModelData->{'Purchase Order Transaction Fact Key'}."  \n";
             return;
         }
 
