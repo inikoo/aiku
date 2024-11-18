@@ -9,10 +9,7 @@
 namespace App\Actions\Discounts\Offer\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Discounts\Offer\OfferStateEnum;
 use App\Models\Discounts\Offer;
-use App\Models\Discounts\OfferCampaign;
-use App\Models\Discounts\OfferComponent;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 

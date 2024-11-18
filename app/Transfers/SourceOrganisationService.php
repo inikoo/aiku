@@ -182,4 +182,6 @@ interface SourceOrganisationService
 
     public function fetchPollReply($id);
 
+    public function fetchPurge($id);
+
 }

@@ -62,7 +62,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\CRM\Customer $customer
  * @property-read \Illuminate\Database\Eloquent\Collection<int, InvoiceTransactionHasFeedback> $feedbackBridges
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\Accounting\Invoice|null $invoice
  * @property-read Model|\Eloquent $item
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, ModelHasOfferComponent> $offerComponents
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read Transaction|null $transaction

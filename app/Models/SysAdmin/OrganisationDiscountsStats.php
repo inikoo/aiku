@@ -17,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $organisation_id
  * @property int $number_customers
  * @property int $number_orders
+ * @property int $number_invoices
+ * @property int $number_delivery_notes
  * @property string $amount
  * @property string $group_amount
  * @property int $number_offer_campaigns

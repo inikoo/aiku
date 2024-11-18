@@ -7,7 +7,7 @@ import { Switch } from '@headlessui/vue'
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Modal from '@/Components/Utils/Modal.vue'
 import EmptyState from '@/Components/Utils/EmptyState.vue';
-import SideEditor from '@/Components/Workshop/SideEditor.vue';
+import SideEditor from '@/Components/Workshop/SideEditor/SideEditor.vue';
 import { notify } from "@kyvg/vue3-notification"
 import axios from 'axios'
 import { debounce, isArray } from 'lodash'

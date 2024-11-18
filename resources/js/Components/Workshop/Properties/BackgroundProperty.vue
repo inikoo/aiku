@@ -100,9 +100,9 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
             <div class="group rounded-md relative shadow-lg border border-gray-300">
                 <div class="relative h-12 w-12 cursor-pointer rounded overflow-hidden">
                     <Image
-                        :src="model.image?.thumbnail"
-                        :key="model.image?.id"
-                        :alt="model.image?.name"
+                        :src="model?.image?.thumbnail"
+                        :key="model?.image?.id"
+                        :alt="model?.image?.name"
                         :imageCover="true"
                         class="h-full"
                         v-tooltip="trans('Image background')"
