@@ -28,11 +28,12 @@ class UpdateOfferCampaign extends OrgAction
     {
         $offerCampaign = $this->update($offerCampaign, $modelData);
 
+        OfferCampaignRecordSearch::dispatch($offerCampaign)->delay($this->hydratorsDelay);
+
         if ($offerCampaign->wasChanged(['state', 'status'])) {
             GroupHydrateOfferCampaigns::dispatch($offerCampaign->group)->delay($this->hydratorsDelay);
             OrganisationHydrateOfferCampaigns::dispatch($offerCampaign->organisation)->delay($this->hydratorsDelay);
             ShopHydrateOfferCampaigns::dispatch($offerCampaign->shop)->delay($this->hydratorsDelay);
-            OfferCampaignRecordSearch::dispatch($offerCampaign)->delay($this->hydratorsDelay);
         }
 
         return $offerCampaign;
