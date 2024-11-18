@@ -7,7 +7,7 @@
 
 namespace App\Actions\Catalogue\Collection;
 
-use App\Actions\Catalogue\Collection\Hydrators\CollectionHydrateUniversalSearch;
+use App\Actions\Catalogue\Collection\Search\CollectionRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Catalogue\CollectionResource;
@@ -27,7 +27,7 @@ class UpdateCollection extends OrgAction
     public function handle(Collection $collection, array $modelData): Collection
     {
         $collection = $this->update($collection, $modelData, ['data']);
-        CollectionHydrateUniversalSearch::dispatch($collection);
+        CollectionRecordSearch::dispatch($collection);
 
         return $collection;
     }
