@@ -47,7 +47,7 @@ export default {
 		},
 		{
 			name: "Login",
-            key:['button_1'],
+            key:['login'],
 			icon: {
 				icon: "far fa-dot-circle",
 				tooltip: "Action",
@@ -65,7 +65,7 @@ export default {
 		},
 		{
 			name: "Register",
-            key:["button_2"],
+            key:["register"],
 			icon: {
 				icon: "far fa-dot-circle",
 				tooltip: "Action",
@@ -82,16 +82,19 @@ export default {
 			],
 		},
 		{
-			name: "Button 3",
-            key: ["button_3"],
+			name: "Cart",
+            key: ["cart"],
 			icon: {
-				icon: "far fa-dot-circle",
-				tooltip: "Action",
+				icon: "fal fa-shopping-cart",
+				tooltip: "Cart",
 			},
 			replaceForm: [
 				{
 					key: ["visible"],
 					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: 'login',
+					},
 				},
 				{
 					key: [],
@@ -99,58 +102,58 @@ export default {
 				},
 			],
 		},
-		{
-			name: "Button 4",
-            key:["button_4"],
-			icon: {
-				icon: "far fa-dot-circle",
-				tooltip: "Action",
-			},
-			replaceForm: [
-				{
-					key: ["visible"],
-					type: "VisibleLoggedIn",
-				},
-				{
-					key: [],
-					type: "button",
-				},
-			],
-		},
-		{
-			name: "Button 5",
-            key:['button_5'],
-			icon: {
-				icon: "far fa-dot-circle",
-				tooltip: "Action",
-			},
-			replaceForm: [
-				{
-					key: ["visible"],
-					type: "VisibleLoggedIn",
-				},
-				{
-					key: ["button_5"],
-					type: "button",
-				},
-			],
-		},
-		{
-			name: "Button 6",
-            key: ["button_6"],
-			icon: {
-				icon: "far fa-dot-circle",
-				tooltip: "Action",
-			},
-			replaceForm: [
-				{
-					key: ["visible"],
-					type: "VisibleLoggedIn",
-				},
-				{
-					type: 'button',
-				},
-			],
-		},
+		// {
+		// 	name: "Button 4",
+        //     key:["button_4"],
+		// 	icon: {
+		// 		icon: "far fa-dot-circle",
+		// 		tooltip: "Action",
+		// 	},
+		// 	replaceForm: [
+		// 		{
+		// 			key: ["visible"],
+		// 			type: "VisibleLoggedIn",
+		// 		},
+		// 		{
+		// 			key: [],
+		// 			type: "button",
+		// 		},
+		// 	],
+		// },
+		// {
+		// 	name: "Button 5",
+        //     key:['button_5'],
+		// 	icon: {
+		// 		icon: "far fa-dot-circle",
+		// 		tooltip: "Action",
+		// 	},
+		// 	replaceForm: [
+		// 		{
+		// 			key: ["visible"],
+		// 			type: "VisibleLoggedIn",
+		// 		},
+		// 		{
+		// 			key: ["button_5"],
+		// 			type: "button",
+		// 		},
+		// 	],
+		// },
+		// {
+		// 	name: "Button 6",
+        //     key: ["button_6"],
+		// 	icon: {
+		// 		icon: "far fa-dot-circle",
+		// 		tooltip: "Action",
+		// 	},
+		// 	replaceForm: [
+		// 		{
+		// 			key: ["visible"],
+		// 			type: "VisibleLoggedIn",
+		// 		},
+		// 		{
+		// 			type: 'button',
+		// 		},
+		// 	],
+		// },
 	],
 }

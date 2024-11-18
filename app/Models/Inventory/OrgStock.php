@@ -165,17 +165,9 @@ class OrgStock extends Model implements Auditable
             ->withPivot([ 'status', 'local_priority'])->withTimestamps();
     }
 
-    //    public function orgSupplierProduct(): HasOne
-    //    {
-    //        return $this->orgSupplierProducts()->one()->ofMany(
-    //            [
-    //                'local_priority' => 'max',
-    //            ],
-    //            function (Builder $query) {
-    //                $query->where('status', true);
-    //            }
-    //        );
-    //    }
-
+    public function getMainOrgSupplierProduct(): OrgSupplierProduct
+    {
+        return $this->orgSupplierProducts()->where('status', true)->orderBy('local_priority', 'desc')->first();
+    }
 
 }

@@ -19,7 +19,7 @@
 					},
 					"text": {
 						"color": "rgba(10,10,10,1)",
-						"fontFamily": "Raleway"
+						"fontFamily": "Inter, sans-serif"
 					}
 				}
 			},
@@ -43,7 +43,8 @@
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(255, 255, 255, 1)"
+							"color": "rgba(255, 255, 255, 1)",
+							"fontFamily": "Inter, sans-serif"
 						},
 						"border": {
 							"top": {
@@ -128,7 +129,8 @@
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(10, 10, 10, 1)"
+							"color": "rgba(10, 10, 10, 1)",
+							"fontFamily": "Inter, sans-serif"
 						},
 						"border": {
 							"top": {
@@ -213,7 +215,8 @@
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(10, 10, 10, 1)"
+							"color": "rgba(10, 10, 10, 1)",
+							"fontFamily": "Inter, sans-serif"
 						},
 						"padding": {
 							"top": {
@@ -245,7 +248,8 @@
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(10, 10, 10, 1)"
+							"color": "rgba(10, 10, 10, 1)",
+							"fontFamily": "Inter, sans-serif"
 						},
 						"padding": {
 							"top": {
@@ -277,7 +281,8 @@
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(10, 10, 10, 1)"
+							"color": "rgba(10, 10, 10, 1)",
+							"fontFamily": "Inter, sans-serif"
 						},
 						"padding": {
 							"top": {
@@ -309,7 +314,8 @@
 				"container": {
 					"properties": {
 						"text": {
-							"color": "rgba(10, 10, 10, 1)"
+							"color": "rgba(10, 10, 10, 1)",
+							"fontFamily": "Inter, sans-serif"
 						},
 						"padding": {
 							"top": {

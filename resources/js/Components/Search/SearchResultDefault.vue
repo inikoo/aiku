@@ -91,7 +91,7 @@ const isLoading = ref(false)
                             {{ data?.model }}
                         </span>
                         <span class="leading-none inline-block text-sm whitespace-nowrap ">
-                            {{ useTruncate(data?.code.label || "", 30) }}
+                            {{ useTruncate(data?.code?.label || "", 30) }}
                         </span>
                     </h2>
 

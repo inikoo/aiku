@@ -70,6 +70,7 @@ use App\Transfers\Aurora\FetchAuroraProductHasOrgStock;
 use App\Transfers\Aurora\FetchAuroraProspect;
 use App\Transfers\Aurora\FetchAuroraPurchaseOrder;
 use App\Transfers\Aurora\FetchAuroraPurchaseOrderTransaction;
+use App\Transfers\Aurora\FetchAuroraPurge;
 use App\Transfers\Aurora\FetchAuroraQuery;
 use App\Transfers\Aurora\FetchAuroraService;
 use App\Transfers\Aurora\FetchAuroraShipper;
@@ -541,6 +542,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchPollReply($id): ?array
     {
         return (new FetchAuroraPollReply($this))->fetch($id);
+    }
+
+    public function fetchPurge($id): ?array
+    {
+        return (new FetchAuroraPurge($this))->fetch($id);
     }
 
 }

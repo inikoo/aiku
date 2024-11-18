@@ -12,8 +12,8 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWebpages;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWebpages;
 use App\Actions\Traits\Rules\WithNoStrictRules;
-use App\Actions\Web\Webpage\Hydrators\WebpageHydrateUniversalSearch;
 use App\Actions\Web\Webpage\Hydrators\WebpageHydrateWebpages;
+use App\Actions\Web\Webpage\Search\WebpageRecordSearch;
 use App\Actions\Web\Website\Hydrators\WebsiteHydrateWebpages;
 use App\Enums\Web\Webpage\WebpageSubTypeEnum;
 use App\Enums\Web\Webpage\WebpageStateEnum;
@@ -81,7 +81,7 @@ class StoreWebpage extends OrgAction
         });
 
 
-        WebpageHydrateUniversalSearch::dispatch($webpage);
+        WebpageRecordSearch::dispatch($webpage);
         GroupHydrateWebpages::dispatch($webpage->group)->delay($this->hydratorsDelay);
         OrganisationHydrateWebpages::dispatch($webpage->organisation)->delay($this->hydratorsDelay);
         WebsiteHydrateWebpages::dispatch($webpage->website)->delay($this->hydratorsDelay);

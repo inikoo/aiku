@@ -7,7 +7,7 @@
 
 namespace App\Actions\Web\Website\Search;
 
-use App\Http\Resources\Web\WebsiteSearchResultResource;
+use App\Enums\Web\Website\WebsiteTypeEnum;
 use App\Models\Web\Website;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -28,22 +28,19 @@ class WebsiteRecordSearch
             return;
         }
 
-
-        $website->universalSearch()->updateOrCreate(
-            [],
-            [
-                'group_id'          => $website->group_id,
-                'organisation_id'   => $website->organisation_id,
-                'organisation_slug' => $website->organisation->slug,
-                'shop_id'           => $website->shop_id,
-                'shop_slug'         => $website->shop->slug,
-                'website_id'        => $website->id,
-                'website_slug'      => $website->slug,
-                'sections'          => ['web'],
-                'haystack_tier_1'   => trim($website->code.' '.$website->name.' '.$website->domain),
-                'result'            => [
-                    // 'aaa'       => $website,
-                    'route'     => [
+        $modelData = [
+            'group_id'          => $website->group_id,
+            'organisation_id'   => $website->organisation_id,
+            'organisation_slug' => $website->organisation->slug,
+            'shop_id'           => $website->shop_id,
+            'shop_slug'         => $website->shop->slug,
+            'website_id'        => $website->id,
+            'website_slug'      => $website->slug,
+            'sections'          => ['web'],
+            'haystack_tier_1'   => trim($website->code.' '.$website->name.' '.$website->domain),
+            'result'            => [
+                'route'     => match($website->type) {
+                    'fulfilment' => [
                         'name'          => 'grp.org.fulfilments.show.web.websites.show',
                         'parameters'    => [
                             $website->organisation->slug,
@@ -51,52 +48,54 @@ class WebsiteRecordSearch
                             $website->slug
                         ]
                     ],
-                    'container'     => [
-                        'key'     => 'type',
-                        'label'   => $website->type->labels()[$website->type->value]
+                    default => [
+                        'name'          => 'grp.org.shops.show.web.websites.show',
+                        'parameters'    => [
+                            $website->organisation->slug,
+                            $website->shop->slug,
+                            $website->slug
+                        ]
                     ],
-                    'title'         => $website->name,
-                    'afterTitle'    => [
-                        'label'     => '(' . $website->code . ')',
+                },
+                'description'     => [
+                    'label'   => $website->name
+                ],
+                'code'         => [
+                    'label' => $website->code,
+                ],
+                'icon'          => [
+                    'icon' => 'fal fa-globe'
+                ],
+                'meta'          => [
+                    [
+                        'icon' => $website->state->stateIcon()[$website->state->value],
+                        'label'     => $website->state->labels()[$website->state->value],
+                        'tooltip'   => __('State'),
                     ],
-                    'icon'          => [
-                        'icon' => 'fal fa-globe'
+                    [
+                        'type'      => 'date',
+                        'label'     => $website->created_at,
+                        'tooltip'   => __('Created at')
                     ],
-                    'meta'          => [
-
-                        array_merge(
-                            $website->state->stateIcon()[$website->state->value],
-                            [
-                                'key'       => 'state',
-                                'label'     => $website->state->labels()[$website->state->value],
-                                'tooltip'   => 'State',
-                            ]
-                        ),
-                        [
-                            'key'       => 'created_date',
-                            'type'      => 'date',
-                            'label'     => $website->created_at,
-                            'tooltip'   => 'Created at'
-                        ],
-                        [
-                            'key'       => 'domain',
-                            'label'     => $website->domain,
-                            'tooltip'   => 'Domain'
-                        ],
-                        [
-                            'key'       => 'contact_name',
-                            'label'     => $website->contact_name,
-                            'tooltip'   => 'Contact name'
-                        ],
+                    [
+                        'label'     => $website->domain,
+                        'tooltip'   => __('Domain')
                     ],
-
-
-                    // 'meta'       => [
-                    //     WebsiteSearchResultResource::make($website)
-                    // ]
-                ]
+                ],
             ]
+        ];
+
+        if ($website->type == WebsiteTypeEnum::FULFILMENT) {
+            $modelData['fulfilment_id'] = $website->shop->fulfilment->id;
+            $modelData['fulfilment_slug'] = $website->shop->fulfilment->slug;
+        }
+
+        $website->universalSearch()->updateOrCreate(
+            [],
+            $modelData
         );
+
+
     }
 
 

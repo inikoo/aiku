@@ -41,7 +41,13 @@ const options = ref([
     <div class="border-b pb-3 border-gray-300 mb-5">
         <!-- {{ model }} === -->
         <div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Visibility') }}</div>
-        <SelectButton v-model="model" :options="options" optionLabel="label" optionValue="value">
+        <SelectButton
+            v-model="model"
+            :options="options"
+            optionLabel="label"
+            optionValue="value"
+            :allowEmpty="false"
+        >
             <template #option="slotProps">
                 <span class="text-xs">{{ slotProps.option.label }}</span>
             </template>

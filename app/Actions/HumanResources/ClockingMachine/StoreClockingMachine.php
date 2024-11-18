@@ -7,7 +7,7 @@
 
 namespace App\Actions\HumanResources\ClockingMachine;
 
-use App\Actions\HumanResources\ClockingMachine\Hydrators\ClockingMachineHydrateUniversalSearch;
+use App\Actions\HumanResources\ClockingMachine\Search\ClockingMachineRecordSearch;
 use App\Actions\HumanResources\Workplace\Hydrators\WorkplaceHydrateClockingMachines;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateClockingMachines;
@@ -69,7 +69,7 @@ class StoreClockingMachine extends OrgAction
         GroupHydrateClockingMachines::dispatch($clockingMachine->group);
         WorkplaceHydrateClockingMachines::dispatch($workplace);
 
-        ClockingMachineHydrateUniversalSearch::dispatch($clockingMachine);
+        ClockingMachineRecordSearch::dispatch($clockingMachine);
 
         return $clockingMachine;
     }

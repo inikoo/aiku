@@ -24,15 +24,19 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property int $group_id
  * @property int $organisation_id
  * @property int $shop_id
+ * @property int|null $user_id
  * @property PurgeStateEnum $state
  * @property PurgeTypeEnum $type
- * @property \Illuminate\Support\Carbon $scheduled_at
+ * @property int|null $inactive_days
+ * @property \Illuminate\Support\Carbon|null $scheduled_at
  * @property \Illuminate\Support\Carbon|null $start_at
  * @property \Illuminate\Support\Carbon|null $end_at
  * @property \Illuminate\Support\Carbon|null $cancelled_at
- * @property int|null $inactive_days
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
@@ -75,5 +79,16 @@ class Purge extends Model implements Auditable
     {
         return $this->hasOne(PurgeStats::class);
     }
+
+    public function generateTags(): array
+    {
+        return [
+            'ordering'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'scheduled_at',
+    ];
 
 }

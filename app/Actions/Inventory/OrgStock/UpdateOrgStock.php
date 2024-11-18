@@ -7,7 +7,7 @@
 
 namespace App\Actions\Inventory\OrgStock;
 
-use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
+use App\Actions\Inventory\OrgStock\Search\OrgStockRecordSearch;
 use App\Actions\Inventory\OrgStockFamily\Hydrators\OrgStockFamilyHydrateOrgStocks;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgStocks;
@@ -27,7 +27,7 @@ class UpdateOrgStock extends OrgAction
     public function handle(OrgStock $orgStock, array $modelData): OrgStock
     {
         $orgStock = $this->update($orgStock, $modelData, ['data', 'settings']);
-        OrgStockHydrateUniversalSearch::dispatch($orgStock);
+        OrgStockRecordSearch::dispatch($orgStock);
         $changes = $orgStock->getChanges();
 
         if (Arr::has($changes, 'state')) {

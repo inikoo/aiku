@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -71,7 +72,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\SupplyChain\HistoricSupplierProduct> $historicSupplierProducts
  * @property-read Collection<int, OrgSupplierProduct> $orgSupplierProducts
  * @property-read \App\Models\SupplyChain\SupplierProductStats|null $stats
- * @property-read \App\Models\SupplyChain\Stock|null $stock
  * @property-read Collection<int, \App\Models\SupplyChain\Stock> $stocks
  * @property-read \App\Models\SupplyChain\Supplier|null $supplier
  * @property-read Collection<int, TradeUnit> $tradeUnits
@@ -192,22 +192,14 @@ class SupplierProduct extends Model implements Auditable
         return $this->hasMany(OrgSupplierProduct::class);
     }
 
-    public function stocks(): HasMany
+    public function stocks(): BelongsToMany
     {
-        return $this->hasMany(Stock::class, 'stock_has_supplier_products');
+        return $this->belongsToMany(Stock::class, 'stock_has_supplier_products');
     }
 
 
-    public function stock(): HasOne
+    public function getMainStock(): Stock
     {
-        return $this->stocks()->one()->ofMany(
-            [
-                'created_at' => 'max',
-                'id'         => 'max',
-            ],
-            function (Builder $query) {
-                $query->where('status', true);
-            }
-        );
+        return$this->stocks()->where('available', true)->orderBy('created_at')->first();
     }
 }

@@ -33,6 +33,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_transactions_status_creating
  * @property int $number_transactions_status_processing
  * @property int $number_transactions_status_settled
+ * @property int $number_offer_components
+ * @property int $number_offers
+ * @property int $number_offer_campaigns
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Ordering\Order $order

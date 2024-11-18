@@ -18,6 +18,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $invoice_id
  * @property int $number_items current number of items
+ * @property int $number_offer_components
+ * @property int $number_offers
+ * @property int $number_offer_campaigns
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Accounting\Invoice $invoice

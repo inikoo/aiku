@@ -10,6 +10,7 @@ namespace App\Actions\Ordering\PurgedOrder;
 
 use App\Actions\Ordering\Purge\Hydrators\PurgeHydratePurgedOrders;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Purge\PurgedOrderStatusEnum;
 use App\Models\Ordering\PurgedOrder;
@@ -19,6 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 class UpdatePurgedOrder extends OrgAction
 {
     use WithActionUpdate;
+    use WithNoStrictRules;
     public function handle(PurgedOrder $purgedOrder, $modelData): PurgedOrder
     {
 
@@ -40,15 +42,23 @@ class UpdatePurgedOrder extends OrgAction
 
     public function rules()
     {
-        return [
+        $rules =  [
             'status'              => ['sometimes', Rule::enum(PurgedOrderStatusEnum::class)],
             'note'                => ['sometimes', 'string']
         ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
     }
 
-    public function action(PurgedOrder $purgedOrder, array $modelData)
+    public function action(PurgedOrder $purgedOrder, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true)
     {
         $this->asAction = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($purgedOrder->purge->shop, $modelData);
         return $this->handle($purgedOrder, $modelData);
     }

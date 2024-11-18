@@ -48,4 +48,17 @@ export const iframeToParent = (data: any) => {
 export const sendMessageToParent = (key: string, value: any) => {
     const serializableValue = JSON.parse(JSON.stringify(value));
     window.parent.postMessage({ key, value: serializableValue }, '*');
-};
+}
+
+export const textReplaceVariables = (text: string, piniaVariables: {}) => {
+    if (!text) {
+        return ''
+    }
+
+    return text.replace(/\{\{\s*name\s*\}\}/g, piniaVariables?.name || 'Name')
+    .replace(/\{\{\s*username\s*\}\}/g, piniaVariables?.username || 'username')
+    .replace(/\{\{\s*email\s*\}\}/g, piniaVariables?.email || 'example@mail.com')
+    .replace(/\{\{\s*favourites_count\s*\}\}/g, piniaVariables?.favourites_count || '0')
+    .replace(/\{\{\s*cart_count\s*\}\}/g, piniaVariables?.cart_count || '0')
+    .replace(/\{\{\s*cart_amount\s*\}\}/g, piniaVariables?.cart_amount || '0')
+}

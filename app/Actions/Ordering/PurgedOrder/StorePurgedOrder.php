@@ -9,6 +9,7 @@
 namespace App\Actions\Ordering\PurgedOrder;
 
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;
 use App\Models\Ordering\PurgedOrder;
@@ -16,6 +17,7 @@ use Lorisleiva\Actions\ActionRequest;
 
 class StorePurgedOrder extends OrgAction
 {
+    use WithNoStrictRules;
     public function handle(Purge $purge, Order $order): PurgedOrder
     {
         data_set($modelData, 'order_id', $order->id);
@@ -37,10 +39,25 @@ class StorePurgedOrder extends OrgAction
         }
     }
 
-    public function action(Purge $purge, Order $order)
+    public function rules(): array
     {
-        $this->asAction = true;
-        $this->initialisationFromShop($purge->shop, []);
+        $rules = [
+        ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
+    }
+
+    public function action(Purge $purge, Order $order, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true)
+    {
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+
+        $this->initialisationFromShop($purge->shop, $modelData);
         return $this->handle($purge, $order);
     }
 }

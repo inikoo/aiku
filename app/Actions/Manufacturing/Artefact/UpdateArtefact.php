@@ -7,7 +7,7 @@
 
 namespace App\Actions\Manufacturing\Artefact;
 
-use App\Actions\Inventory\OrgStock\Hydrators\OrgStockHydrateUniversalSearch;
+use App\Actions\Inventory\OrgStock\Search\OrgStockRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Manufacturing\ArtefactResource;
@@ -29,7 +29,7 @@ class UpdateArtefact extends OrgAction
     public function handle(Artefact $artefact, array $modelData): Artefact
     {
         $stock = $this->update($artefact, $modelData, ['data', 'settings']);
-        OrgStockHydrateUniversalSearch::dispatch($stock);
+        OrgStockRecordSearch::dispatch($stock);
 
         return $stock;
     }
