@@ -35,6 +35,9 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property int $group_id
+ * @property int $organisation_id
+ * @property int $shop_id
+ * @property int $website_id
  * @property int|null $web_block_id
  * @property string $ulid
  * @property string $type
