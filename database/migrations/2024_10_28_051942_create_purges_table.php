@@ -6,6 +6,7 @@
  */
 
 use App\Enums\Ordering\Purge\PurgeStateEnum;
+use App\Enums\Ordering\Purge\PurgeTypeEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -21,17 +22,20 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->index();
             $table->foreign('shop_id')->references('id')->on('shops');
+            $table->unsignedSmallInteger('user_id')->index()->nullable();
+            $table->foreign('user_id')->references('id')->on('users');
             $table->string('state')->default(PurgeStateEnum::IN_PROCESS);
-            $table->string('type');
-            $table->dateTimeTz('scheduled_at');
+            $table->string('type')->default(PurgeTypeEnum::MANUAL->value);
+            $table->unsignedSmallInteger('inactive_days')->nullable();
+            $table->dateTimeTz('scheduled_at')->nullable();
             $table->dateTimeTz('start_at')->nullable();
             $table->dateTimeTz('end_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();
-            $table->unsignedSmallInteger('inactive_days')->nullable();
-            $table->dateTimeTz('fetched_at')->nullable();
-            $table->string('source_id')->nullable();
-            $table->softDeletesTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
             $table->timestampsTz();
+            $table->string('source_id')->nullable()->unique();
+
         });
     }
 

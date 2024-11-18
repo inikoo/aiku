@@ -13,6 +13,7 @@ use App\Actions\Ordering\PurgedOrder\StorePurgedOrder;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Enums\Ordering\Purge\PurgeStateEnum;
 use App\Enums\Ordering\Purge\PurgeTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Purge;
@@ -36,7 +37,7 @@ class StorePurge extends OrgAction
             'currency_id' => $shop->currency_id
         ]);
         $dateThreshold = Carbon::now()->subDays(30);
-        $orders = $shop->orders()
+        $orders        = $shop->orders()
             ->where('updated_at', '<', $dateThreshold)
             ->where('state', OrderStateEnum::CREATING)
             ->get();
@@ -50,52 +51,62 @@ class StorePurge extends OrgAction
         return $purge;
     }
 
-    public function authorize(ActionRequest $request)
+    public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
             return true;
         }
 
-        return true;
+        return false;
     }
 
     public function afterValidator(Validator $validator): void
     {
-        $dateThreshold = Carbon::now()->subDays(30);
+        $dateThreshold       = Carbon::now()->subDays(30);
         $numberEligiblePurge = $this->shop->orders()
-        ->where('updated_at', '<', $dateThreshold)
-        ->where('state', OrderStateEnum::CREATING)
-        ->count();
+            ->where('updated_at', '<', $dateThreshold)
+            ->where('state', OrderStateEnum::CREATING)
+            ->count();
 
         if ($this->strict && $numberEligiblePurge == 0) {
-            $message = __("There Are No Eligble Orders to Purge");
+            $message = __("There are no eligible orders to purge");
             $validator->errors()->add('purge', $message);
         }
     }
 
-    public function rules()
+    public function rules(): array
     {
         $rules = [
-            'type'              => ['required', Rule::enum(PurgeTypeEnum::class)],
-            'scheduled_at'      => ['required', 'date'],
+            'type'          => ['required', Rule::enum(PurgeTypeEnum::class)],
+            'scheduled_at'  => ['sometimes', 'required', 'date'],
+            'user_id'       => [
+                'sometimes',
+                'required',
+                Rule::exists('users', 'id')->where(function ($query) {
+                    $query->where('group_id', $this->shop->group_id);
+                })
+            ],
+            'inactive_days' => ['required', 'integer', 'min:1', 'max:3652'],
         ];
 
         if (!$this->strict) {
-
-            $rules = $this->noStrictStoreRules($rules);
-
+            $rules['state']   = ['required', Rule::enum(PurgeStateEnum::class)];
+            $rules['start_at'] = ['sometimes', 'required', 'date'];
+            $rules['end_at']   = ['sometimes', 'required', 'date'];
+            $rules             = $this->noStrictStoreRules($rules);
         }
+
         return $rules;
     }
 
-    public function asController(Shop $shop, ActionRequest $request)
+    public function asController(Shop $shop, ActionRequest $request): Purge
     {
         $this->initialisationFromShop($shop, $request);
 
         return $this->handle($shop, $this->validatedData);
     }
 
-    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true)
+    public function action(Shop $shop, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Purge
     {
         if (!$audit) {
             Purge::disableAuditing();

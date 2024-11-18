@@ -465,5 +465,9 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchPurge($id): ?array
+    {
+        return null;
+    }
 
 }

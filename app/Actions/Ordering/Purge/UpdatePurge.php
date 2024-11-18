@@ -13,11 +13,9 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Ordering\Purge\PurgeStateEnum;
-use App\Enums\Ordering\Purge\PurgeTypeEnum;
 use App\Models\Ordering\Purge;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePurge extends OrgAction
@@ -37,48 +35,51 @@ class UpdatePurge extends OrgAction
         return $purge;
     }
 
-    public function authorize(ActionRequest $request)
+    public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
             return true;
         }
 
-        return true;
+        return false;
     }
 
-    public function rules()
+    public function rules(): array
     {
         $rules = [
-            'state'             => ['sometimes', Rule::enum(PurgeStateEnum::class)],
-            'type'              => ['sometimes', Rule::enum(PurgeTypeEnum::class)],
-            'scheduled_at'      => ['sometimes', 'date'],
-            'cancelled_at'      => ['sometimes', 'date'],
-            'start_at'          => ['sometimes', 'date'],
-            'end_at'            => ['sometimes', 'date'],
+            'state'         => ['sometimes', Rule::enum(PurgeStateEnum::class)],
+            'scheduled_at'  => ['sometimes', 'date'],
+            'cancelled_at'  => ['sometimes', 'date'],
+            'start_at'      => ['sometimes', 'date'],
+            'end_at'        => ['sometimes', 'date'],
+            'inactive_days' => ['sometimes', 'required', 'integer', 'min:1', 'max:3652'],
+
         ];
 
         if (!$this->strict) {
             $rules = $this->noStrictUpdateRules($rules);
         }
-        return $rules;
 
+        return $rules;
     }
 
-    public function asController(Purge $purge, ActionRequest $request)
+    public function asController(Purge $purge, ActionRequest $request): Purge
     {
         $this->initialisationFromShop($purge->shop, $request);
+
         return $this->handle($purge, $this->validatedData);
     }
 
-    public function action(Purge $purge, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true)
+    public function action(Purge $purge, array $modelData, int $hydratorsDelay = 0, bool $strict = true, bool $audit = true): Purge
     {
         if (!$audit) {
             Purge::disableAuditing();
         }
-        $this->strict = $strict;
-        $this->asAction = true;
+        $this->strict         = $strict;
+        $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisationFromShop($purge->shop, $modelData);
+
         return $this->handle($purge, $this->validatedData);
     }
 }
