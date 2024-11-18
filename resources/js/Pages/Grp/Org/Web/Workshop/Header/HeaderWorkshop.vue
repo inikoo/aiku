@@ -19,7 +19,7 @@ import ProgressSpinner from 'primevue/progressspinner';
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 
-import { faPresentation, faCube, faText, faPaperclip, faSignInAlt, faHeart, faExternalLink } from "@fal"
+import { faPresentation, faCube, faText, faPaperclip, faSignInAlt, faHeart as falHeart, faExternalLink } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faHeading, faHeart, faSignIn } from '@far'
@@ -29,7 +29,7 @@ import { trans } from 'laravel-vue-i18n'
 import LoadingIcon from '@/Components/Utils/LoadingIcon.vue';
 import Toggle from '@/Components/Pure/Toggle.vue'
 
-library.add(faBrowser, faPresentation, faCube, faText, faHeart, faPaperclip, faSignInAlt, faHeart)
+library.add(faBrowser, faPresentation, faCube, faText, faHeart, faPaperclip, faSignInAlt, falHeart)
 
 const props = defineProps<{
     pageHead: TSPageHeading
