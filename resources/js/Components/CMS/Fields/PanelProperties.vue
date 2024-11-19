@@ -10,16 +10,16 @@ import { trans } from 'laravel-vue-i18n'
 
 const model = defineModel()
 
-const compModel = computed(() => {
-    // To check does the data if changed
-    return JSON.stringify(model.value)
-})
+// const compModel = computed(() => {
+//     // To check does the data if changed
+//     return JSON.stringify(model.value)
+// })
 
-const emit = defineEmits();
-watch(compModel, () => {
-    console.log('on change compModel')
-    emit('update:modelValue', model.value)
-})
+// const emit = defineEmits();
+// watch(compModel, () => {
+//     console.log('on change compModel')
+//     emit('update:modelValue', model.value)
+// })
 
 
 

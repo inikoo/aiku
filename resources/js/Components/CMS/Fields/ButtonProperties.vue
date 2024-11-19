@@ -67,7 +67,7 @@ const model = defineModel<ModelButtonProperties>()
 //     emit('update:modelValue', model.value)
 // })
 
-console.log('sd',model.value)
+// console.log('sd',model.value)
 
 </script>
 
@@ -75,7 +75,7 @@ console.log('sd',model.value)
     <div  class="border-t border-gray-300 bg-gray-100 pb-3">
         <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Link') }}</div>
         <div class="px-3" v-if="model?.link">
-            <Link v-model="model.link" />
+            <Link :modelValue="get(model, 'link', '')" @update:modelValue=" (newVal: string) => set(model, 'link', newVal)" />
             <!-- <PureInput v-model="model.link" /> -->
         </div>
     </div>
