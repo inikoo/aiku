@@ -28,7 +28,7 @@ const theme =  usePage().props?.iris?.theme ? usePage().props?.iris?.theme :  {c
 console.log('inislds',usePage().props?.iris)
 
 onMounted(() => {
-    irisStyleVariables(theme.color)
+    irisStyleVariables(theme?.color)
 })
 </script>
 

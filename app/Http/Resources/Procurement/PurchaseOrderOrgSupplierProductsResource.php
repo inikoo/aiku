@@ -11,6 +11,7 @@ namespace App\Http\Resources\Procurement;
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Models\SupplyChain\SupplierProduct;
 use App\Models\SupplyChain\Stock;
+
 /**
  * @property string $code
  * @property string $name

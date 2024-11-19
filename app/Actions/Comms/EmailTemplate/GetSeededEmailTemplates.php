@@ -7,28 +7,22 @@
 
 namespace App\Actions\Comms\EmailTemplate;
 
-use App\Actions\InertiaAction;
+use App\Actions\OrgAction;
 use App\Http\Resources\Mail\EmailTemplateResource;
-use App\Models\Comms\EmailTemplate;
-use App\Models\Comms\EmailTemplateCategory;
+use App\Models\SysAdmin\Group;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsObject;
 
-class GetSeededEmailTemplates extends InertiaAction
+class GetSeededEmailTemplates extends OrgAction
 {
     use AsObject;
 
-    public function handle(?string $category = null): array
+    public function handle(Group $group): array
     {
         $selectOptions = [];
 
-        /** @var EmailTemplate $emailTemplates */
-        if ($category == null) {
-            $emailTemplates = EmailTemplate::all();
-        } else {
-            $emailTemplates = EmailTemplateCategory::where('name', $category)->first();
-            $emailTemplates = $emailTemplates->templates;
-        }
+        $emailTemplates = $group->emalTemplates()->where('state', 'seeded')->get();
+
 
         foreach ($emailTemplates as $template) {
             $selectOptions[$template->id] = EmailTemplateResource::make($template)->getArray();   //new EmailTemplateResource($template);
@@ -46,7 +40,7 @@ class GetSeededEmailTemplates extends InertiaAction
     public function asController(ActionRequest $request): array
     {
 
-        return $this->handle($request->get('category'));
+        return $this->handle(group());
     }
 
 

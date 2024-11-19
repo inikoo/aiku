@@ -29,8 +29,8 @@ class StoreOutbox extends OrgAction
 {
     public function handle(PostRoom $postRoom, Organisation|Shop|Website|Fulfilment $parent, array $modelData): Outbox
     {
-        $layout = Arr::get($modelData, 'layout', []);
-        data_forget($modelData, 'layout');
+        // $layout = Arr::get($modelData, 'layout', []);
+        // data_forget($modelData, 'layout');
 
         data_set($modelData, 'group_id', $parent->group_id);
 
@@ -60,11 +60,11 @@ class StoreOutbox extends OrgAction
         $outbox = $postRoom->outboxes()->create($modelData);
         $outbox->stats()->create();
 
-        if ($outbox->blueprint == OutboxBlueprintEnum::EMAIL_TEMPLATE) {
-            StoreEmailTemplate::make()->action($outbox, [
-                'layout' => $layout
-            ]);
-        }
+        //if ($outbox->blueprint == OutboxBlueprintEnum::EMAIL_TEMPLATE) {
+        //    StoreEmailTemplate::make()->action($outbox, [
+        //        'layout' => $layout
+        //    ]);
+        //}
 
         GroupHydrateOutboxes::run($outbox->group);
         OrganisationHydrateOutboxes::run($outbox->organisation);
