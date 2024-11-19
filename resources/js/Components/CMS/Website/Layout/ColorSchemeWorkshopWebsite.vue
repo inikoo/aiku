@@ -9,7 +9,7 @@ library.add(faExternalLink)
 const props = defineProps<{
     color?: string[]
     layout?: String
-    fontFamily?: String
+    fontFamily?: string
     routeList: {
         headerRoute: routeType
         footerRoute: routeType
@@ -28,7 +28,7 @@ const props = defineProps<{
     <div class="h-full rounded-md overflow-hidden border-2 border-gray-400 flex justify-center"
         :style="{ fontFamily: fontFamily }">
         <!-- Section: Notification -->
-        <div :class="layout == 'fullscreen' ? 'w-full' : 'w-[80%]'">
+        <div :class="layout == 'fullscreen' ? 'w-full' : 'w-[80%]'" class="transition-all">
 
             <div
                 class="group relative w-full h-8 bg-gray-200 text-gray-700 text-xxs text-center flex items-center justify-center cursor-pointer">

@@ -14,6 +14,7 @@ import { routeType } from '@/types/route'
 import { ImageData } from '@/types/Image'
 import axios from 'axios'
 import { notify } from '@kyvg/vue3-notification'
+import RadioButton from 'primevue/radiobutton'
 library.add(faImage, faPalette)
 
 interface BackgroundProperty {
@@ -96,7 +97,7 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
 
 <template>
     <div class="flex items-center justify-between gap-x-3 flex-wrap px-6 w-full relative">
-        <div class="flex items-center gap-x-2 py-1" >
+        <div class="relative flex items-center gap-x-2 py-1" >
             <div class="group rounded-md relative shadow-lg border border-gray-300">
                 <div class="relative h-12 w-12 cursor-pointer rounded overflow-hidden">
                     <Image
@@ -108,9 +109,11 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
                         v-tooltip="trans('Image background')"
                     />
                     
-                    <div @click="() => isOpenGallery = true" class="hidden group-hover:flex absolute inset-0 bg-black/30 items-center justify-center cursor-pointer">
+                    <div v-if="model.type === 'image'" @click="() => isOpenGallery = true" class="hidden group-hover:flex absolute inset-0 bg-black/30 items-center justify-center cursor-pointer">
                         <FontAwesomeIcon icon='fal fa-image' class='text-white' fixed-width aria-hidden='true' />
                     </div>
+
+                    <div v-else @click="() => model.type = 'image'" class="flex absolute inset-0 bg-gray-200/70 hover:bg-gray-100/40 items-center justify-center cursor-pointer" />
                 </div>
 
             </div>
@@ -120,13 +123,14 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
         
         <!-- List: Background Color -->
         <div class="flex items-center gap-x-4 h-min" >
-            <div class="h-12 aspect-square rounded-md shadow">
+            <div class="relative h-12 aspect-square rounded-md shadow">
                 <ColorPicker
                     :color="model.color"
                     class=""
                     @changeColor="(newColor)=> (model.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a})`, model.type = 'color')"
                     closeButton
                     v-tooltip="trans('Color background')"
+                    :isEditable="!model.color.includes('var')"
                 >
                     <template #button>
                         <div class="group relative h-12 w-12 overflow-hidden rounded"  :style="{
@@ -138,7 +142,30 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
                         </div>
 
                     </template>
+
+                    <template #before-main-picker>
+                        <div class="flex items-center gap-2">
+                            <RadioButton size="small" v-model="model.color" inputId="bg-color-picker-1" name="bg-color-picker" value="var(--iris-color-primary)" />
+                            <label class="cursor-pointer" for="bg-color-picker-1">{{ trans("Primary color") }} <a :href="route('grp.org.shops.show.web.websites.workshop', {...route().params, tab: 'website_layout', section: 'theme_colors'})" as="a" target="_blank" class="text-xs text-blue-600">{{ trans("themes") }}</a></label>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <RadioButton size="small" v-model="model.color" inputId="bg-color-picker-2" name="bg-color-picker" value="var(--iris-color-secondary)" />
+                            <label class="cursor-pointer" for="bg-color-picker-2">{{ trans("Secondary color") }} <a :href="route('grp.org.shops.show.web.websites.workshop', {...route().params, tab: 'website_layout', section: 'theme_colors'})" as="a" target="_blank" class="text-xs text-blue-600">{{ trans("themes") }}</a></label>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <RadioButton size="small"
+                                :modelValue="!model.color.includes('var') ? '#111111' : null"
+                                @update:modelValue="(e) => model.color.includes('var') ? model.color = '#111111' : false"
+                                inputId="bg-color-picker-3"
+                                name="bg-color-picker"
+                                value="#111111" />
+                            <label class="cursor-pointer" for="bg-color-picker-3">{{ trans("Custom") }}</label>
+                        </div>
+                    </template>
                 </ColorPicker>
+                
+                <div v-if="model.type !== 'color'" @click="() => model.type = 'color'" class="flex absolute inset-0 items-center justify-center cursor-pointer" />
+
             </div>
             <!-- <div v-else class="h-8 w-8 rounded-md border border-gray-300 shadow" :style="{background: model.color}" /> -->
 

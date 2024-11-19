@@ -562,7 +562,7 @@ test('update search', function () {
 });
 
 // test('update web block types', function (Group $group) {
-//     $this->artisan('group:seed-web-block-types')->assertSuccessful();
+//     $this->artisan('group:seed_web_block_types')->assertSuccessful();
 //     $group->refresh();
 //     expect($group->webBlockTypeCategories()->count())->toBe(13)
 //         ->and($group->webBlockTypes()->count())->toBe(18);
