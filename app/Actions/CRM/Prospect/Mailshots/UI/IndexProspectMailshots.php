@@ -7,25 +7,25 @@
 
 namespace App\Actions\CRM\Prospect\Mailshots\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
+use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\UI\ProspectMailshotSettings;
 use App\Actions\Traits\WithProspectsSubNavigation;
+use App\Enums\Comms\SenderEmail\SenderEmailStateEnum;
 use App\Enums\Mail\MailshotTypeEnum;
-use App\Enums\Mail\SenderEmail\SenderEmailStateEnum;
 use App\Enums\UI\Organisation\ProspectsMailshotsTabsEnum;
 use App\Http\Resources\Mail\MailshotsResource;
 use App\Http\Resources\Mail\SenderEmailResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Mail\Mailshot;
 use App\Models\Catalogue\Shop;
+use App\Models\Comms\Mailshot;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexProspectMailshots extends InertiaAction
 {

@@ -5,10 +5,10 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Mail\Outbox\UI\IndexOutboxes;
-use App\Actions\Mail\Outbox\UI\ShowOutbox;
-use App\Actions\Mail\Outbox\UI\ShowOutboxWorkshop;
-use App\Actions\Mail\ShowCommsDashboard;
+use App\Actions\Comms\Outbox\UI\IndexOutboxes;
+use App\Actions\Comms\Outbox\UI\ShowOutbox;
+use App\Actions\Comms\Outbox\UI\ShowOutboxWorkshop;
+use App\Actions\Comms\ShowCommsDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', ShowCommsDashboard::class)->name('dashboard');

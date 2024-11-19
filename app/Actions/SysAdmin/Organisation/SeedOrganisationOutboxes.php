@@ -7,9 +7,9 @@
 
 namespace App\Actions\SysAdmin\Organisation;
 
-use App\Actions\Mail\Outbox\StoreOutbox;
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Models\Mail\PostRoom;
+use App\Actions\Comms\Outbox\StoreOutbox;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Models\Comms\PostRoom;
 use App\Models\SysAdmin\Organisation;
 use Exception;
 use Illuminate\Console\Command;

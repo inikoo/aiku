@@ -7,10 +7,10 @@
 
 namespace App\Actions\Web\Website;
 
-use App\Actions\Mail\Outbox\StoreOutbox;
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Models\Mail\Outbox;
-use App\Models\Mail\PostRoom;
+use App\Actions\Comms\Outbox\StoreOutbox;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Models\Comms\Outbox;
+use App\Models\Comms\PostRoom;
 use App\Models\Web\Website;
 use Exception;
 use Illuminate\Console\Command;

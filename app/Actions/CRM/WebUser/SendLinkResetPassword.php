@@ -7,7 +7,6 @@
 
 namespace App\Actions\CRM\WebUser;
 
-use App\Actions\Mail\Ses\SendSesEmail;
 use App\Models\CRM\WebUser;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Support\Str;

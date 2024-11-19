@@ -7,9 +7,9 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Mail\DispatchedEmail\StoreDispatchEmail;
-use App\Actions\Mail\DispatchedEmail\UpdateDispatchedEmail;
-use App\Models\Mail\DispatchedEmail;
+use App\Actions\Comms\DispatchedEmail\StoreDispatchEmail;
+use App\Actions\Comms\DispatchedEmail\UpdateDispatchedEmail;
+use App\Models\Comms\DispatchedEmail;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;

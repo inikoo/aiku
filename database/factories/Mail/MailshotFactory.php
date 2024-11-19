@@ -7,8 +7,8 @@
 
 namespace Database\Factories\Mail;
 
-use App\Enums\Mail\Mailshot\MailshotStateEnum;
-use App\Enums\Mail\Mailshot\MailshotTypeEnum;
+use App\Enums\Comms\Mailshot\MailshotStateEnum;
+use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class MailshotFactory extends Factory

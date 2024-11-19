@@ -8,10 +8,10 @@
 namespace App\Actions\Catalogue\Shop\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Mail\Outbox\OutboxStateEnum;
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxStateEnum;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Models\Catalogue\Shop;
-use App\Models\Mail\Outbox;
+use App\Models\Comms\Outbox;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 

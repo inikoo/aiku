@@ -1,8 +1,8 @@
 <?php
 
+use App\Actions\Comms\Outbox\UI\IndexOutboxes;
+use App\Actions\Comms\Outbox\UI\ShowOutbox;
 use App\Actions\Fulfilment\Fulfilment\UI\EditFulfilment;
-use App\Actions\Mail\Outbox\UI\IndexOutboxes;
-use App\Actions\Mail\Outbox\UI\ShowOutbox;
 use Illuminate\Support\Facades\Route;
 
 Route::get('', EditFulfilment::class)->name('.edit');
