@@ -8,12 +8,12 @@ import Button from '@/Components/Elements/Buttons/Button.vue'
 import { useFontFamilyList } from '@/Composables/useFont'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
 
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faPaintBrushAlt } from '@fal'
-import { faRocketLaunch } from '@far'
+import { faPaintBrushAlt, faRocketLaunch } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
-library.add(faPaintBrushAlt)
+import { get, isEqual, set } from 'lodash'
+library.add(faPaintBrushAlt, faRocketLaunch)
 
 const props = defineProps<{
     data: {
@@ -27,24 +27,38 @@ const props = defineProps<{
             menuRoute: routeType
         }
         updateColorRoute: routeType
-        color: object
+        theme: {
+            color: string[]
+            layout: string  // 'fullscreen' | 'blog'
+            fontFamily: string // "Inter, sans-serif"
+        }
     }
 }>()
 
 const listColorTheme = [...useColorTheme]
 
-const selectedColor = ref(props.data.color?.color ? props.data.color?.color : [...listColorTheme[0]])
-const selectedIndex = ref(0) // Track the selected index
-const selectedLayout = ref('fullscreen') // Default layout option
-const fontFamily = ref("Inter, sans-serif")
+// const selectedColor = ref(props.data.theme?.color ? props.data.theme?.color : [...listColorTheme[0]])
+// const selectedIndex = ref(0) // Track the selected index
+// const selectedLayout = ref('fullscreen') // Default layout option
+// const fontFamily = ref("Inter, sans-serif")
 
 const onClickColor = (colorTheme: string[], index: number) => {
-    selectedColor.value = [...colorTheme]
-    selectedIndex.value = index // Set the selected index
+    // selectedColor.value = [...colorTheme]
+    // selectedIndex.value = index // Set the selected index
+    set(props.data, 'theme.color', colorTheme)
 }
+
+const isLoadingPublish = ref(false)
+
+onMounted(() => {
+    if (!get(props.data, 'theme.color', false)) {
+        set(props.data, 'theme.color', [...listColorTheme[0]])
+    }
+})
 </script>
 
 <template>
+    <!-- <pre>{{ props }}</pre> -->
     <div class="p-8 grid grid-cols-4 gap-6 bg-gray-50 rounded-lg h-[79vh]">
         <!-- Theme Selector -->
         <div class="space-y-6 col-span-1 p-4 bg-white rounded-lg shadow-md relative h-full">
@@ -58,16 +72,21 @@ const onClickColor = (colorTheme: string[], index: number) => {
 
                 <!-- Color Options -->
                 <div class="flex flex-wrap justify-center gap-3">
-                    <div v-for="(colorTheme, index) in listColorTheme" :key="index"
-                        @click="onClickColor(colorTheme, index)"
-                        class="flex ring-1 ring-gray-300 transition duration-300 rounded-md overflow-hidden cursor-pointer"
-                        :class="{ 'ring-2 ring-indigo-500': selectedIndex === index }">
-                        <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[0] }"></div>
-                        <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[1] }"></div>
-                        <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[2] }"></div>
-                        <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[3] }"></div>
-                        <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[4] }"></div>
-                        <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[5] }"></div>
+                    <div v-for="(colorTheme, index) in listColorTheme" :key="index" class="relative flex items-center gap-x-1">
+                        <div
+                            @click="onClickColor(colorTheme, index)"
+                            class="flex ring-1 ring-gray-300 transition duration-300 rounded-md overflow-hidden cursor-pointer"
+                            :class="{ 'ring-2 ring-indigo-500': isEqual(data.theme.color, colorTheme) }">
+                            <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[0] }"></div>
+                            <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[1] }"></div>
+                            <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[2] }"></div>
+                            <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[3] }"></div>
+                            <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[4] }"></div>
+                            <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[5] }"></div>
+                        </div>
+                        <Transition name="spin-to-down">
+                            <FontAwesomeIcon v-if="isEqual(data.theme.color, colorTheme)" icon='fal fa-check' class='absolute -right-6 text-green-600' fixed-width aria-hidden='true' />
+                        </Transition>
                     </div>
                 </div>
             </div>
@@ -81,12 +100,12 @@ const onClickColor = (colorTheme: string[], index: number) => {
                 </div>
 
                 <!-- Radio Options for Layout -->
-                <div class="flex gap-4 justify-center">
+                <div class="flex gap-4 justify-center flex-wrap">
                     <!-- Fullscreen Layout Option -->
                     <label
                         class="flex flex-col items-center gap-2 p-4 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50 transition"
-                        :class="{ 'border-indigo-500 bg-indigo-50': selectedLayout === 'fullscreen' }">
-                        <input type="radio" value="fullscreen" v-model="selectedLayout" class="hidden">
+                        :class="{ 'border-indigo-500 bg-indigo-50': data.theme.layout === 'fullscreen' }">
+                        <input type="radio" value="fullscreen" v-model="data.theme.layout" class="hidden">
                         <div class="w-20 h-12 bg-gray-200 rounded-md flex items-center justify-center">
                             <div class="w-full h-full"
                                 style="background: repeating-linear-gradient(45deg, #ebf8ff, #ebf8ff 10px, #bee3f8 10px, #bee3f8 20px);">
@@ -98,8 +117,8 @@ const onClickColor = (colorTheme: string[], index: number) => {
                     <!-- Blog in the Middle Layout Option -->
                     <label
                         class="flex flex-col items-center gap-2 p-4 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50 transition"
-                        :class="{ 'border-indigo-500 bg-indigo-50': selectedLayout === 'blog' }">
-                        <input type="radio" value="blog" v-model="selectedLayout" class="hidden">
+                        :class="{ 'border-indigo-500 bg-indigo-50': data.theme.layout === 'blog' }">
+                        <input type="radio" value="blog" v-model="data.theme.layout" class="hidden">
                         <div class="w-20 h-12 bg-gray-200 rounded-md flex items-center justify-center">
                             <div class="w-[60%] h-full rounded"
                                 style="background: repeating-linear-gradient(45deg, #ebf8ff, #ebf8ff 10px, #bee3f8 10px, #bee3f8 20px);">
@@ -119,7 +138,7 @@ const onClickColor = (colorTheme: string[], index: number) => {
                 </div>
 
                 <div class="flex flex-wrap justify-center gap-3">
-                    <PureMultiselect v-model="fontFamily" required :options="useFontFamilyList">
+                    <PureMultiselect v-model="data.theme.fontFamily" required :options="useFontFamilyList" caret>
                         <template #option="{ option, isSelected, isPointed, search }">
                             <span :style="{ fontFamily: option.value }">{{ option.label }}</span>
                         </template>
@@ -133,9 +152,16 @@ const onClickColor = (colorTheme: string[], index: number) => {
 
             <!-- Publish Button at the Bottom with Absolute Positioning -->
             <div class="absolute bottom-0 left-0 right-0 p-4 bg-white border-t">
-                <Link :href="route(data.updateColorRoute.name, data.updateColorRoute.parameters)" method="patch"
-                    as="button" :data="{ layout: { color: selectedColor, fontFamily : fontFamily, layout :  selectedLayout }}" class="w-full">
-                <Button type="submit" full label="Publish" :icon="faRocketLaunch" />
+                <Link :href="route(data.updateColorRoute.name, data.updateColorRoute.parameters)"
+                    method="patch"
+                    as="button"
+                    :data="{ layout: data.theme}"
+                    class="w-full"
+                    preserveScroll
+                    @start="() => isLoadingPublish = true"
+                    @finish="() => isLoadingPublish = false"
+                >
+                    <Button type="submit" :loading="isLoadingPublish" full label="Publish" icon="fal fa-rocket-launch" />
                 </Link>
             </div>
         </div>
@@ -146,12 +172,11 @@ const onClickColor = (colorTheme: string[], index: number) => {
             <div  class="rounded-lg shadow-md bg-white p-8 h-full flex justify-center ">
                 <ColorSchemeWorkshopWebsite 
                     :routeList="data.routeList" 
-                    :color="selectedColor" 
-                    :layout="selectedLayout"
-                    :fontFamily="fontFamily"
+                    :color="data.theme.color" 
+                    :layout="data.theme.layout"
+                    :fontFamily="data.theme.fontFamily"
                 />
             </div>
-          
         </div>
     </div>
 </template>

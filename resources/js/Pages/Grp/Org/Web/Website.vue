@@ -78,7 +78,6 @@ const component = computed(() => {
     return components[currentTab.value]
 
 })
-console.log(props);
 
 </script>
 
