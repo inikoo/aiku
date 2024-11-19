@@ -42,12 +42,7 @@ class StorePurge extends OrgAction
 
             return $purge;
         });
-
-        $orders = FetchEligiblePurgeOrders::dispatch($purge);
-
-        foreach ($orders as $order) {
-            StorePurgedOrder::make()->action($purge, $order, []);
-        }
+        FetchEligiblePurgeOrders::dispatch($purge);
 
         PurgeHydratePurgedOrders::dispatch($purge);
 

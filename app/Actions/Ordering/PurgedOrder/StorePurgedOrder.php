@@ -26,10 +26,10 @@ class StorePurgedOrder extends OrgAction
         data_set($modelData, 'order_id', $order->id);
         data_set($modelData, 'customer_id', $order->customer_id);
         data_set($modelData, 'order_last_updated_at', $order->updated_at);
-        data_set($modelData, 'amount', $order->net_amount);
-        data_set($modelData, 'org_amount', $order->org_net_amount);
-        data_set($modelData, 'grp_amount', $order->grp_net_amount);
-        data_set($modelData, 'number_transactions', $order->transactions->count());
+        data_set($modelData, 'net_amount', $order->net_amount);
+        data_set($modelData, 'org_net_amount', $order->org_net_amount);
+        data_set($modelData, 'grp_net_amount', $order->grp_net_amount);
+        data_set($modelData, 'number_transaction', $order->transactions->count());
 
         return $purge->purgedOrders()->create($modelData);
     }

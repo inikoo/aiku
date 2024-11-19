@@ -20,7 +20,7 @@ const props = defineProps<{
         replaceForm : Array<any>
     }
     uploadImageRoute?: routeType,
-    index:Number
+    index:Number | Array<String> | string
 }>()
 
 const modelValue = defineModel()
@@ -42,14 +42,12 @@ const emits = defineEmits<{
         <AccordionContent class="px-0 py-2">
             <div class="bg-white mt-[0px]">
                 <template v-if="blueprint.replaceForm">
-                    <Accordion class="w-full">
                         <ChildFieldSideEditor 
                             :blueprint="blueprint.replaceForm"
                             :modelValue="getFormValue(modelValue, blueprint.key)"
                             :key="blueprint.key"
                             @update:modelValue="newValue => emits('update:modelValue',setFormValue(modelValue, blueprint.key, newValue))"
                         />
-                    </Accordion>
                 </template>
                 <template v-else>
                     <div class="my-2 text-xs font-semibold">{{ get(blueprint, 'label', '') }}</div>

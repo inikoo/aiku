@@ -175,7 +175,7 @@ onMounted(() => {
 
     <div class="h-[84vh] grid grid-flow-row-dense grid-cols-4">
         <div v-if="usedTemplates" class="col-span-1 bg-[#F9F9F9] flex flex-col h-full border-r border-gray-300">
-            <div class="flex h-full">
+            <div class="h-full">
                 <SideEditor v-model="usedTemplates.data.fieldValue" :blueprint="getBlueprint(usedTemplates.code)" />
             </div>
         </div>
