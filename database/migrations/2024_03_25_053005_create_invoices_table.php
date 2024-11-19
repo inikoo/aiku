@@ -30,7 +30,7 @@ return new class () extends Migration {
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->unsignedSmallInteger('billing_country_id')->index()->nullable();
             $table->foreign('billing_country_id')->references('id')->on('countries');
-            $table->unsignedInteger('sales_channel_id')->index();
+            $table->unsignedInteger('sales_channel_id')->nullable()->index();
             $table->foreign('sales_channel_id')->references('id')->on('sales_channels');
             $table->string('type')->default(InvoiceTypeEnum::INVOICE)->index();
 

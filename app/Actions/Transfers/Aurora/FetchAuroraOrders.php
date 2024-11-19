@@ -104,46 +104,46 @@ class FetchAuroraOrders extends FetchAuroraAction
     {
         $order = null;
         if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])->first()) {
-            try {
-                $order = UpdateOrder::make()->action(
-                    order: $order,
-                    modelData: ['order'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
-            } catch (Exception $e) {
-                $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'update');
-                $this->errorReported = true;
-            }
+            //try {
+            $order = UpdateOrder::make()->action(
+                order: $order,
+                modelData: ['order'],
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+            //            } catch (Exception $e) {
+            //                $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'update');
+            //                $this->errorReported = true;
+            //            }
         } elseif ($orderData['parent']) {
-            try {
-                $order = StoreOrder::make()->action(
-                    parent: $orderData['parent'],
-                    modelData: $orderData['order'],
-                    strict: false,
-                    hydratorsDelay: $this->hydratorsDelay,
-                    audit: false
-                );
+            //   try {
+            $order = StoreOrder::make()->action(
+                parent: $orderData['parent'],
+                modelData: $orderData['order'],
+                strict: false,
+                hydratorsDelay: $this->hydratorsDelay,
+                audit: false
+            );
 
-                Order::enableAuditing();
-                $this->saveMigrationHistory(
-                    $order,
-                    Arr::except($orderData['order'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                );
+            Order::enableAuditing();
+            $this->saveMigrationHistory(
+                $order,
+                Arr::except($orderData['order'], ['fetched_at', 'last_fetched_at', 'source_id'])
+            );
 
-                $this->recordNew($organisationSource);
+            $this->recordNew($organisationSource);
 
-                $sourceData = explode(':', $order->source_id);
-                DB::connection('aurora')->table('Order Dimension')
-                    ->where('Order Key', $sourceData[1])
-                    ->update(['aiku_id' => $order->id]);
-            } catch (Exception|Throwable $e) {
-                $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'store');
-                $this->errorReported = true;
-
-                return null;
-            }
+            $sourceData = explode(':', $order->source_id);
+            DB::connection('aurora')->table('Order Dimension')
+                ->where('Order Key', $sourceData[1])
+                ->update(['aiku_id' => $order->id]);
+            //            } catch (Exception|Throwable $e) {
+            //                $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'store');
+            //                $this->errorReported = true;
+            //
+            //                return null;
+            //            }
         }
 
         $this->processFetchAttachments($order, 'Order', $orderData['order']['source_id']);

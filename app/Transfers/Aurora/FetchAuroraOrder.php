@@ -9,9 +9,11 @@ namespace App\Transfers\Aurora;
 
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Actions\Transfers\Aurora\FetchAuroraCustomerClients;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Order\OrderStatusEnum;
+use App\Enums\Ordering\SalesChannel\SalesChannelTypeEnum;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -55,28 +57,30 @@ class FetchAuroraOrder extends FetchAurora
         $this->parsedData["parent"] = $parent;
         if (!$parent) {
             $this->parsedData = null;
+
             return;
         }
 
         if ($parent->deleted_at and $this->auroraModelData->{'Order State'} == "Cancelled") {
             $this->parsedData = null;
+
             return;
         }
 
         $state = match ($this->auroraModelData->{'Order State'}) {
             "InWarehouse", "Packed" => OrderStateEnum::HANDLING,
             "PackedDone" => OrderStateEnum::PACKED,
-            "Approved"   => OrderStateEnum::FINALISED,
+            "Approved" => OrderStateEnum::FINALISED,
             "Dispatched" => OrderStateEnum::DISPATCHED,
-            "InBasket"   => OrderStateEnum::CREATING,
-            default      => OrderStateEnum::SUBMITTED,
+            "InBasket" => OrderStateEnum::CREATING,
+            default => OrderStateEnum::SUBMITTED,
         };
 
 
         $status = match ($this->auroraModelData->{'Order State'}) {
-            "Cancelled","Dispatched"  => OrderStatusEnum::SETTLED,
-            "InBasket"   => OrderStatusEnum::CREATING,
-            default      => OrderStatusEnum::PROCESSING,
+            "Cancelled", "Dispatched" => OrderStatusEnum::SETTLED,
+            "InBasket" => OrderStatusEnum::CREATING,
+            default => OrderStatusEnum::PROCESSING,
         };
 
 
@@ -92,12 +96,12 @@ class FetchAuroraOrder extends FetchAurora
             }
 
             if (
-                $this->auroraModelData->{'Order Invoiced Date'}   != "" or
+                $this->auroraModelData->{'Order Invoiced Date'} != "" or
                 $this->auroraModelData->{'Order Dispatched Date'} != ""
             ) {
                 $stateWhenCancelled = OrderStateEnum::FINALISED;
             } elseif (
-                $this->auroraModelData->{'Order Packed Date'}      != "" or
+                $this->auroraModelData->{'Order Packed Date'} != "" or
                 $this->auroraModelData->{'Order Packed Done Date'} != ""
             ) {
                 $stateWhenCancelled = OrderStateEnum::PACKED;
@@ -136,6 +140,14 @@ class FetchAuroraOrder extends FetchAurora
         $orgExchange = GetHistoricCurrencyExchange::run($shop->currency, $shop->organisation->currency, $date);
         $grpExchange = GetHistoricCurrencyExchange::run($shop->currency, $shop->group->currency, $date);
 
+        $salesChannel = null;
+
+        if ($shop->type == ShopTypeEnum::FULFILMENT) {
+            $salesChannel = $shop->group->salesChannels()->where('type', SalesChannelTypeEnum::NA)->first();
+        } elseif ($this->auroraModelData->{'Order Source Key'}) {
+            $salesChannel = $this->parseSalesChannel($this->organisation->id.':'.$this->auroraModelData->{'Order Source Key'});
+        }
+
 
         $this->parsedData["order"] = [
             'date'            => $date,
@@ -155,26 +167,32 @@ class FetchAuroraOrder extends FetchAurora
             "status"             => $status,
             "source_id"          => $this->organisation->id.':'.$this->auroraModelData->{'Order Key'},
 
-            "created_at"     => $this->auroraModelData->{'Order Created Date'},
-            "cancelled_at"   => $cancelled_at,
-            "data"           => $data,
-            'org_exchange'   => $orgExchange,
-            'grp_exchange'   => $grpExchange,
+            "created_at"   => $this->auroraModelData->{'Order Created Date'},
+            "cancelled_at" => $cancelled_at,
+            "data"         => $data,
+            'org_exchange' => $orgExchange,
+            'grp_exchange' => $grpExchange,
 
-            'gross_amount'       => $this->auroraModelData->{'Order Items Gross Amount'},
-            'goods_amount'       => $this->auroraModelData->{'Order Items Net Amount'},
-            'shipping_amount'    => $this->auroraModelData->{'Order Shipping Net Amount'},
-            'charges_amount'     => $this->auroraModelData->{'Order Charges Net Amount'},
-            'insurance_amount'   => $this->auroraModelData->{'Order Insurance Net Amount'},
+            'gross_amount'     => $this->auroraModelData->{'Order Items Gross Amount'},
+            'goods_amount'     => $this->auroraModelData->{'Order Items Net Amount'},
+            'shipping_amount'  => $this->auroraModelData->{'Order Shipping Net Amount'},
+            'charges_amount'   => $this->auroraModelData->{'Order Charges Net Amount'},
+            'insurance_amount' => $this->auroraModelData->{'Order Insurance Net Amount'},
 
 
-            'net_amount'      => $this->auroraModelData->{'Order Total Net Amount'},
-            'tax_amount'      => $this->auroraModelData->{'Order Total Tax Amount'},
-            'total_amount'    => $this->auroraModelData->{'Order Total Amount'},
-            'fetched_at'      => now(),
-            'last_fetched_at' => now(),
+            'net_amount'   => $this->auroraModelData->{'Order Total Net Amount'},
+            'tax_amount'   => $this->auroraModelData->{'Order Total Tax Amount'},
+            'total_amount' => $this->auroraModelData->{'Order Total Amount'},
+
+
+            'fetched_at'       => now(),
+            'last_fetched_at'  => now(),
 
         ];
+
+        if ($salesChannel) {
+            $this->parsedData['order']['sales_channel_id'] = $salesChannel->id;
+        }
 
         $billingAddressData = $this->parseAddress(
             prefix: "Order Invoice",

@@ -19,6 +19,7 @@ enum SalesChannelTypeEnum: string
     case EMAIL = 'email';
     case MARKETPLACE = 'marketplace';
     case SOCIAL_MEDIA = 'social-media';
+    case PLATFORM = 'platform'; // e.g. Shopify, Magento, WooCommerce
     case OTHER = 'other';
     case NA = 'na';
 
@@ -32,6 +33,7 @@ enum SalesChannelTypeEnum: string
             'other'        => __('Other'),
             'marketplace'  => __('Marketplace'),
             'social-media' => __('Social media'),
+            'platform'     => __('Platform'),
             'na'           => __('N/A'),
 
         ];
@@ -42,6 +44,7 @@ enum SalesChannelTypeEnum: string
         return match ($this) {
             SalesChannelTypeEnum::MARKETPLACE,
             SalesChannelTypeEnum::SOCIAL_MEDIA,
+            SalesChannelTypeEnum::PLATFORM,
             => false,
             default => true,
         };

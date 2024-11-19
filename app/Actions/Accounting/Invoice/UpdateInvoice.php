@@ -16,6 +16,7 @@ use App\Models\Accounting\Invoice;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
+use Illuminate\Validation\Rule;
 
 class UpdateInvoice extends OrgAction
 {
@@ -73,6 +74,13 @@ class UpdateInvoice extends OrgAction
             'tax_liability_at' => ['sometimes', 'date'],
             'billing_address'  => ['sometimes', 'required', new ValidAddress()],
             'last_fetched_at'  => ['sometimes', 'date'],
+            'sales_channel_id'   => [
+                'sometimes',
+                'required',
+                Rule::exists('sales_channels', 'id')->where(function ($query) {
+                    $query->where('group_id', $this->shop->group_id);
+                })
+            ],
 
         ];
 

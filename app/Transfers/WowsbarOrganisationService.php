@@ -470,4 +470,9 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchSalesChannel($id): ?array
+    {
+        return null;
+    }
+
 }

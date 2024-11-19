@@ -184,4 +184,6 @@ interface SourceOrganisationService
 
     public function fetchPurge($id);
 
+    public function fetchSalesChannel($id);
+
 }

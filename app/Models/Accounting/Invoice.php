@@ -54,7 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $recurring_bill_id
  * @property int|null $address_id
  * @property int|null $billing_country_id
- * @property int $sales_channel_id
+ * @property int|null $sales_channel_id
  * @property InvoiceTypeEnum $type
  * @property int $currency_id
  * @property string|null $grp_exchange
@@ -98,7 +98,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read RecurringBill|null $recurringBill
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
- * @property-read SalesChannel $salesChannel
+ * @property-read SalesChannel|null $salesChannel
  * @property-read Shop $shop
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch

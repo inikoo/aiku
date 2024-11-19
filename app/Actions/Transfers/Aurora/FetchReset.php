@@ -332,6 +332,17 @@ class FetchReset
                         ]
                     );
 
+                DB::connection('aurora')->table('Order Source Dimension')
+                    ->whereNotNull('aiku_id')
+                    ->update(
+                        [
+                            'aiku_id' => null
+                        ]
+                    );
+
+
+
+
 
                 DB::connection('aurora')->table('Order No Product Transaction Fact')->update(
                     [
