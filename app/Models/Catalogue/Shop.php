@@ -50,6 +50,7 @@ use App\Models\Helpers\Upload;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;
+use App\Models\Ordering\SalesChannel;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
@@ -593,6 +594,11 @@ class Shop extends Model implements HasMedia, Auditable
     public function feedbackBridges(): HasMany
     {
         return $this->hasMany(InvoiceTransactionHasFeedback::class);
+    }
+
+    public function salesChannels():HasMany
+    {
+        return $this->hasMany(SalesChannel::class);
     }
 
 }

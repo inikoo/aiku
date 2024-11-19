@@ -9,7 +9,9 @@
 namespace App\Models\Ordering;
 
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -20,6 +22,7 @@ class SalesChannel extends Model implements Auditable
     use HasSlug;
     use SoftDeletes;
     use HasHistory;
+    use InShop;
 
     protected $guarded = [];
 
@@ -38,5 +41,10 @@ class SalesChannel extends Model implements Auditable
             ->generateSlugsFrom('code')
             ->doNotGenerateSlugsOnUpdate()
             ->saveSlugsTo('slug');
+    }
+
+    public function stats():HasOne
+    {
+        return $this->hasOne(SalesChannelStats::class);
     }
 }
