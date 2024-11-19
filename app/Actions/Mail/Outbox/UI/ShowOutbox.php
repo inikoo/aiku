@@ -14,7 +14,6 @@ use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Mail\Outbox;
-use App\Models\Mail\PostRoom;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
 use Inertia\Inertia;
@@ -26,68 +25,62 @@ use Lorisleiva\Actions\ActionRequest;
  */
 class ShowOutbox extends OrgAction
 {
-    //use HasUIOutbox;
     use HasWorkshopAction;
+
     public function handle(Outbox $outbox): Outbox
     {
         return $outbox;
     }
 
-    // public function authorize(ActionRequest $request): bool
-    // {
-    //     $this->canEdit = $request->user()->hasPermissionTo('mail.edit');
-    //     return $request->user()->hasPermissionTo('marketing.view');
-    // }
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasAnyPermission([
+            'shop-admin.'.$this->shop->id,
+            'marketing.'.$this->shop->id.'.view',
+            'web.'.$this->shop->id.'.view',
+            'orders.'.$this->shop->id.'.view',
+            'crm.'.$this->shop->id.'.view',
+        ]);
+    }
 
     public function inOrganisation(Organisation $organisation, Outbox $outbox, ActionRequest $request): Outbox
     {
-
         $this->initialisation($organisation, $request);
+
         return $this->handle($outbox);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    // public function inPostRoom(PostRoom $postRoom, Outbox $outbox, ActionRequest $request): Outbox
-    // {
-
-    //     $this->initialisation($request);
-    //     return $this->handle($outbox);
-    // }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, Outbox $outbox, ActionRequest $request): Outbox
     {
-
         $this->initialisationFromShop($shop, $request);
-        return $this->handle($outbox);
-    }
 
-    public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): Outbox
-    {
-
-        $this->initialisationFromShop($shop, $request);
-        return $this->handle($outbox);
-    }
-
-    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request): Outbox
-    {
-
-        $this->initialisationFromFulfilment($fulfilment, $request);
         return $this->handle($outbox);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    // public function inPostRoomInShop(PostRoom $postRoom, Outbox $outbox, ActionRequest $request): Outbox
-    // {
+    public function inWebsite(Organisation $organisation, Shop $shop, Website $website, Outbox $outbox, ActionRequest $request): Outbox
+    {
+        $this->initialisationFromShop($shop, $request);
 
-    //     $this->initialisation($request);
-    //     return $this->handle($outbox);
-    // }
+        return $this->handle($outbox);
+    }
+
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, Outbox $outbox, ActionRequest $request): Outbox
+    {
+        $this->initialisationFromFulfilment($fulfilment, $request);
+
+        return $this->handle($outbox);
+    }
+
 
     public function htmlResponse(Outbox $outbox, ActionRequest $request): Response
     {
         $this->canEdit = true;
         $actions       = $this->workshopActions($request);
+
         return Inertia::render(
             'Mail/Outbox',
             [
@@ -96,29 +89,28 @@ class ShowOutbox extends OrgAction
                     $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
-                'navigation'                            => [
+                'navigation'  => [
                     'previous' => $this->getPrevious($outbox, $request),
                     'next'     => $this->getNext($outbox, $request),
                 ],
                 'pageHead'    => [
-                    'title'     => $outbox->slug,
-                    'model'     => __('outbox'),
-                    'icon'      =>
+                    'title'   => $outbox->slug,
+                    'icon'    =>
                         [
-                            'icon'  => ['fal', 'fa-cube'],
+                            'icon'  => ['fal', 'fa-inbox-out'],
                             'title' => __('outbox')
                         ],
-                'actions' => $actions,
+                    'actions' => $actions,
                 ],
-                'tabs' => [
+                'tabs'        => [
                     'current'    => $this->tab,
                     'navigation' => OutboxTabsEnum::navigation()
                 ],
 
 
                 OutboxTabsEnum::SHOWCASE->value => $this->tab == OutboxTabsEnum::SHOWCASE->value ?
-                    fn () => GetOutboxShowcase::run($outbox)
-                    : Inertia::lazy(fn () => GetOutboxShowcase::run($outbox)),
+                    fn() => GetOutboxShowcase::run($outbox)
+                    : Inertia::lazy(fn() => GetOutboxShowcase::run($outbox)),
 
 
             ]
@@ -133,30 +125,31 @@ class ShowOutbox extends OrgAction
 
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        $headCrumb = function (Outbox $outbox, array $routeParameters, $suffix) {
+        $headCrumb = function (Outbox $outbox, array $routeParameters, $suffix = null) {
             return [
                 [
-                   'type'   => 'simple',
-                   'simple' => [
-                       'route' => $routeParameters,
-                       'label' => $outbox->slug,
-                   ],
-           ],
-        ];
+                    'type'   => 'simple',
+                    'simple' => [
+                        'route' => $routeParameters,
+                        'label' => $outbox->slug,
+                    ],
+                    'suffix' => $suffix
+                ],
+            ];
         };
 
         $outbox = Outbox::where('slug', $routeParameters['outbox'])->first();
 
         return match ($routeName) {
-            'grp.org.shops.show.mail.outboxes.show' =>
+            'grp.org.shops.show.comms.outboxes.show' =>
             array_merge(
-                IndexOutboxes::make()->getBreadcrumbs('grp.org.shops.show.mail.outboxes', $routeParameters),
+                IndexOutboxes::make()->getBreadcrumbs('grp.org.shops.show.comms.outboxes.index', $routeParameters),
                 $headCrumb(
                     $outbox,
                     [
 
-                            'name'       => 'grp.org.shops.show.mail.outboxes.show',
-                            'parameters' => $routeParameters
+                        'name'       => 'grp.org.shops.show.comms.outboxes.show',
+                        'parameters' => $routeParameters
 
                     ],
                     $suffix
@@ -169,8 +162,8 @@ class ShowOutbox extends OrgAction
                     $outbox,
                     [
 
-                            'name'       => 'grp.org.shops.show.web.websites.outboxes.show',
-                            'parameters' => $routeParameters
+                        'name'       => 'grp.org.shops.show.web.websites.outboxes.show',
+                        'parameters' => $routeParameters
 
                     ],
                     $suffix
@@ -183,13 +176,14 @@ class ShowOutbox extends OrgAction
     public function getPrevious(Outbox $outbox, ActionRequest $request): ?array
     {
         $previous = Outbox::where('slug', '<', $outbox->slug)->orderBy('slug', 'desc')->first();
-        return $this->getNavigation($previous, $request->route()->getName());
 
+        return $this->getNavigation($previous, $request->route()->getName());
     }
 
     public function getNext(Outbox $outbox, ActionRequest $request): ?array
     {
         $next = Outbox::where('slug', '>', $outbox->slug)->orderBy('slug')->first();
+
         return $this->getNavigation($next, $request->route()->getName());
     }
 
@@ -200,14 +194,14 @@ class ShowOutbox extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.shops.show.mail.outboxes.show' => [
+            'grp.org.shops.show.comms.outboxes.show' => [
                 'label' => $outbox->name,
                 'route' => [
-                    'name'      => $routeName,
+                    'name'       => $routeName,
                     'parameters' => [
-                        'organisation'   => $this->organisation->slug,
-                        'shop'           => $outbox->shop->slug,
-                        'outbox'         => $outbox->slug
+                        'organisation' => $this->organisation->slug,
+                        'shop'         => $outbox->shop->slug,
+                        'outbox'       => $outbox->slug
                     ]
 
                 ]
@@ -215,12 +209,12 @@ class ShowOutbox extends OrgAction
             'grp.org.shops.show.web.websites.outboxes.show' => [
                 'label' => $outbox->name,
                 'route' => [
-                    'name'      => $routeName,
+                    'name'       => $routeName,
                     'parameters' => [
-                        'organisation'   => $this->organisation->slug,
-                        'shop'           => $outbox->shop->slug,
-                        'website'        => $outbox->website->slug,
-                        'outbox'         => $outbox->slug
+                        'organisation' => $this->organisation->slug,
+                        'shop'         => $outbox->shop->slug,
+                        'website'      => $outbox->website->slug,
+                        'outbox'       => $outbox->slug
                     ]
 
                 ]

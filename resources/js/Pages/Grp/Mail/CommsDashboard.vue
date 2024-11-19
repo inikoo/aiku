@@ -5,13 +5,14 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 
 import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
-import { computed, defineAsyncComponent, ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { Component } from 'vue'
 
 import { PageHeading as TSPageHeading } from '@/types/PageHseading'
 import { Tabs as TSTabs } from '@/types/Tabs'
-
-// import FileShowcase from '@/xxxxxxxxxxxx'
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faInboxOut }  from "@fal";
+library.add(faInboxOut)
 
 const props = defineProps<{
     title: string,

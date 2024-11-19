@@ -49,7 +49,7 @@ beforeEach(function () {
 });
 
 test('UI index mail outboxes', function () {
-    $response = $this->get(route('grp.org.shops.show.mail.outboxes', [$this->organisation->slug, $this->shop->slug]));
+    $response = $this->get(route('grp.org.shops.show.comms.outboxes.index', [$this->organisation->slug, $this->shop->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -67,7 +67,7 @@ test('UI index mail outboxes', function () {
 });
 
 test('UI show mail outboxes', function () {
-    $response = $this->get(route('grp.org.shops.show.mail.outboxes.show', [$this->organisation->slug, $this->shop->slug, $this->outbox]));
+    $response = $this->get(route('grp.org.shops.show.comms.outboxes.show', [$this->organisation->slug, $this->shop->slug, $this->outbox]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
