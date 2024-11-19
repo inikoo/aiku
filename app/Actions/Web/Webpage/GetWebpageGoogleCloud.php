@@ -55,29 +55,39 @@ class GetWebpageGoogleCloud extends OrgAction
 
         $siteUrl = $this->getSiteUrl($webpage, $service);
 
-        if ($this->saveSecret) {
+        if ($this->saveSecret || !$siteUrl) {
             return [];
         }
 
         return $this->getSearchAnalytics($webpage, $service, $siteUrl, $modelData);
     }
 
-    private function getSiteUrl(Webpage $webpage, $service): string
+    private function getSiteUrl(Webpage $webpage, $service, $retry = 3): string
     {
+        if ($retry == 0) {
+            return '';
+        }
         $websiteData = $webpage->website->data;
         $siteUrl = Arr::get($websiteData, 'gcp.siteUrl');
+
         if (!$siteUrl) {
-            $siteEntry = $service->sites->listSites()->getSiteEntry();
-            $listSite = Arr::pluck($siteEntry, "siteUrl");
-            $siteUrl = Arr::where($listSite, function (string $value) use ($webpage) {
-                return str_contains($value, $webpage->website->domain);
-            });
-            if (empty($siteUrl)) {
-                return [];
+            try {
+                $siteEntry = $service->sites->listSites()->getSiteEntry();
+                $listSite = Arr::pluck($siteEntry, "siteUrl");
+                $siteUrl = Arr::where($listSite, function (string $value) use ($webpage) {
+                    return str_contains($value, $webpage->website->domain);
+                });
+                if (empty($siteUrl)) {
+                    return '';
+                }
+                $siteUrl = Arr::first($siteUrl);
+                data_set($websiteData, 'gcp.siteUrl', $siteUrl);
+                $webpage->website->update(['data' => $websiteData]);
+            } catch (ConnectException) {
+                return $this->getSiteUrl($webpage, $service, $retry - 1);
+            } catch (Exception $e) {
+                dd($e);
             }
-            $siteUrl = Arr::first($siteUrl);
-            data_set($websiteData, 'gcp.siteUrl', $siteUrl);
-            $webpage->website->update(['data' => $websiteData]);
         }
         return $siteUrl;
     }
@@ -144,7 +154,7 @@ class GetWebpageGoogleCloud extends OrgAction
         return $this->handle($webpage, $validatedData);
     }
 
-    public string $commandSignature = "gcp-webpage:search-result {webpage} {--saveSecret}";
+    public string $commandSignature = "gcp-webpage:search-result {webpage?} {--saveSecret}";
 
     /**
      * @throws \Exception
@@ -154,15 +164,23 @@ class GetWebpageGoogleCloud extends OrgAction
 
         $this->saveSecret = $command->option("saveSecret");
 
-        try {
-            /** @var Webpage $webpage */
-            $webpage = Webpage::where("slug", $command->argument("webpage"))->firstOrFail();
-        } catch (Exception) {
-            $command->error("webpage not found");
-            exit();
+        if ($command->argument("webpage")) {
+            try {
+                /** @var Webpage $webpage */
+                $webpage = Webpage::where("slug", $command->argument("webpage"))->firstOrFail();
+                dd($this->action($webpage, []));
+            } catch (Exception) {
+                $command->error("webpage not found");
+                exit();
+            }
+        } else {
+            if ($this->saveSecret) {
+                foreach (Webpage::orderBy('id')->get() as $webpage) {
+                    $this->action($webpage, []);
+                    $command->line("Webpage ".$webpage->url." saved");
+                }
+            }
         }
-
-        dd($this->action($webpage, []));
 
         return 0;
     }

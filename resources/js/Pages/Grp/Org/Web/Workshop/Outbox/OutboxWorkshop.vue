@@ -3,10 +3,11 @@ import { ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
-import Unlayer from "@/Components/CMS/Website/Outboxes/Unlayer.vue"
+import Unlayer from "@/Components/CMS/Website/Outboxes/Unlayer/Unlayer.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Modal from "@/Components/Utils/Modal.vue"
 import TemplateMailshot from '@/Components/CMS/Website/Outboxes/Templates/TemplateMailshot.vue'
+import Beetree from '@/Components/CMS/Website/Outboxes/Beetree.vue'
 
 
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -38,7 +39,8 @@ console.log(props)
             <Button @click="openTemplates = true" icon="fas fa-th-large" label="Templates" :style="'tertiary'"  />
         </template>
     </PageHeading>
-    <Unlayer :updateRoute="updateRoute" :loadRoute="loadRoute" :imagesUploadRoute="imagesUploadRoute" :mailshot="{}"/>
+    <Beetree />
+    <!-- <Unlayer :updateRoute="updateRoute" :loadRoute="loadRoute" :imagesUploadRoute="imagesUploadRoute" :mailshot="{}"/> -->
 
     <Modal :isOpen="openTemplates" @onClose="openTemplates = false" width="w-[600px]">
         <div class="overflow-y-auto">
