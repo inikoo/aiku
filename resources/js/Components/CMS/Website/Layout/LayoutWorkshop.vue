@@ -3,7 +3,7 @@ import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import { useColorTheme } from '@/Composables/useStockList'
 import ColorSchemeWorkshopWebsite from '@/Components/CMS/Website/Layout/ColorSchemeWorkshopWebsite.vue'
 import { routeType } from '@/types/route'
-import { Link } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { useFontFamilyList } from '@/Composables/useFont'
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
@@ -13,6 +13,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faPaintBrushAlt, faRocketLaunch } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { get, isEqual, set } from 'lodash'
+import { trans } from 'laravel-vue-i18n'
+import { notify } from '@kyvg/vue3-notification'
 library.add(faPaintBrushAlt, faRocketLaunch)
 
 const props = defineProps<{
@@ -50,12 +52,57 @@ const onClickColor = (colorTheme: string[], index: number) => {
 
 const isLoadingPublish = ref(false)
 
+const fieldGroupAnimateSection = ref()
 onMounted(() => {
-    console.log('eeeeeee', get(props.data, 'theme.color', false))
     if (!get(props.data, 'theme.color', false)) {
         set(props.data, 'theme.color', [...listColorTheme[0]])
     }
+
+    // Animate the selected section
+    route().v().query?.section ? (
+        setTimeout(() => {
+            fieldGroupAnimateSection.value = ['bg-yellow-500/80']
+            setTimeout(() => {
+                fieldGroupAnimateSection.value = []
+            }, 800)
+        }, 130)
+    ) : ''
 })
+
+const onPublishTheme = () => {
+    // <Link :href="route(data.updateColorRoute.name, data.updateColorRoute.parameters)"
+    //                 method="patch"
+    //                 as="button"
+    //                 :data="{ layout: data.theme}"
+    //                 class="w-full"
+    //                 preserveScroll
+    //                 @start="() => isLoadingPublish = true"
+    //                 @finish="() => isLoadingPublish = false"
+    //             >
+    router.patch(route(props.data.updateColorRoute.name, props.data.updateColorRoute.parameters),
+    { 
+        layout: props.data.theme
+    },
+    {
+        onStart: () => isLoadingPublish.value = true,
+        onSuccess: () => {
+            notify({
+                title: trans('Success!'),
+                text: trans('Theme config changed'),
+                type: 'success',
+            })
+        },
+        onError: () => {
+            notify({
+                title: trans('Something went wrong'),
+                text: trans('Unsuccessfully change theme config'),
+                type: 'error',
+            })
+        },
+        onFinish: () => isLoadingPublish.value = false
+    }
+)
+}
 </script>
 
 <template>
@@ -64,10 +111,10 @@ onMounted(() => {
         <!-- Theme Selector -->
         <div class="space-y-6 col-span-1 p-4 bg-white rounded-lg shadow-md relative h-full">
             <!-- Header -->
-            <div>
+            <div id="theme_colors" class="rounded pb-4 transition-all duration-1000" :class="fieldGroupAnimateSection">
                 <div class="flex items-center gap-2 mb-4">
                     <hr class="h-0.5 rounded-full w-full bg-gray-300" />
-                    <span class="whitespace-nowrap text-sm text-gray-600 font-semibold">Select Theme</span>
+                    <span class="whitespace-nowrap text-sm text-gray-600 font-semibold">{{ trans("Select Theme") }}</span>
                     <hr class="h-0.5 rounded-full w-full bg-gray-300" />
                 </div>
 
@@ -153,17 +200,7 @@ onMounted(() => {
 
             <!-- Publish Button at the Bottom with Absolute Positioning -->
             <div class="absolute bottom-0 left-0 right-0 p-4 bg-white border-t">
-                <Link :href="route(data.updateColorRoute.name, data.updateColorRoute.parameters)"
-                    method="patch"
-                    as="button"
-                    :data="{ layout: data.theme}"
-                    class="w-full"
-                    preserveScroll
-                    @start="() => isLoadingPublish = true"
-                    @finish="() => isLoadingPublish = false"
-                >
-                    <Button type="submit" :loading="isLoadingPublish" full label="Publish" icon="fal fa-rocket-launch" />
-                </Link>
+                <Button @click="() => onPublishTheme()" type="submit" :loading="isLoadingPublish" full label="Publish" icon="fal fa-rocket-launch" />
             </div>
         </div>
 

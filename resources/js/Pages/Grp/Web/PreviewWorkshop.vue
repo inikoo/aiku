@@ -15,7 +15,7 @@ import { sendMessageToParent, iframeToParent, irisStyleVariables } from '@/Compo
 import RenderHeaderMenu from './RenderHeaderMenu.vue'
 import { usePage, router } from '@inertiajs/vue3'
 import { useColorTheme } from '@/Composables/useStockList'
-import { cloneDeep } from 'lodash'
+import { cloneDeep, get, set } from 'lodash'
 import Toggle from '@/Components/Pure/Toggle.vue';
 
 import { Root } from '@/types/webBlockTypes'
@@ -29,7 +29,14 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 defineOptions({ layout: WebPreview })
 const props = defineProps<{
     webpage?: RootWebpage
-    header: Object,
+    header: {
+        data: {}
+        theme: {
+            color: string[]
+            layout: string
+            
+        }
+    },
     footer: Object,
     navigation: Object,
 }>()
@@ -45,7 +52,7 @@ const layout = reactive({
     header: { ...props.header?.data },
     footer: { ...props.footer?.footer },
     navigation: { ...props.navigation },
-    colorThemed: usePage().props?.iris?.theme ? usePage().props?.iris?.theme : { color: [...useColorTheme[2]] }
+    colorThemed: props.header?.theme ? props.header.theme : { color: [...useColorTheme[0]] }
 });
 
 /* const onUpdatedBlock = (block: Daum) => {
@@ -85,7 +92,9 @@ onMounted(() => {
         layout.footer = value.footer.footer;
         layout.navigation = value.navigation;
     }); */
-    
+    if (!get(layout, 'colorThemed.color', false)) {
+        set(layout, 'colorThemed.color', [...useColorTheme[0]])
+    }
     irisStyleVariables(layout.colorThemed?.color)
 
     window.addEventListener('message', (event) => {
