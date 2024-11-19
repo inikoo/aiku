@@ -51,6 +51,7 @@ const onClickColor = (colorTheme: string[], index: number) => {
 const isLoadingPublish = ref(false)
 
 onMounted(() => {
+    console.log('eeeeeee', get(props.data, 'theme.color', false))
     if (!get(props.data, 'theme.color', false)) {
         set(props.data, 'theme.color', [...listColorTheme[0]])
     }
@@ -76,7 +77,7 @@ onMounted(() => {
                         <div
                             @click="onClickColor(colorTheme, index)"
                             class="flex ring-1 ring-gray-300 transition duration-300 rounded-md overflow-hidden cursor-pointer"
-                            :class="{ 'ring-2 ring-indigo-500': isEqual(data.theme.color, colorTheme) }">
+                            :class="{ 'ring-2 ring-indigo-500': isEqual(data.theme?.color, colorTheme) }">
                             <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[0] }"></div>
                             <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[1] }"></div>
                             <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[2] }"></div>
@@ -85,7 +86,7 @@ onMounted(() => {
                             <div class="h-6 w-6" :style="{ backgroundColor: colorTheme[5] }"></div>
                         </div>
                         <Transition name="spin-to-down">
-                            <FontAwesomeIcon v-if="isEqual(data.theme.color, colorTheme)" icon='fal fa-check' class='absolute -right-6 text-green-600' fixed-width aria-hidden='true' />
+                            <FontAwesomeIcon v-if="isEqual(data.theme?.color, colorTheme)" icon='fal fa-check' class='absolute -right-6 text-green-600' fixed-width aria-hidden='true' />
                         </Transition>
                     </div>
                 </div>
@@ -104,8 +105,8 @@ onMounted(() => {
                     <!-- Fullscreen Layout Option -->
                     <label
                         class="flex flex-col items-center gap-2 p-4 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50 transition"
-                        :class="{ 'border-indigo-500 bg-indigo-50': data.theme.layout === 'fullscreen' }">
-                        <input type="radio" value="fullscreen" v-model="data.theme.layout" class="hidden">
+                        :class="{ 'border-indigo-500 bg-indigo-50': data.theme?.layout === 'fullscreen' }">
+                        <input type="radio" value="fullscreen" :modelValue="get(data, 'theme.layout', null)" @update:modelValue="(e) => set(data, 'theme.layout', e.value)" class="hidden">
                         <div class="w-20 h-12 bg-gray-200 rounded-md flex items-center justify-center">
                             <div class="w-full h-full"
                                 style="background: repeating-linear-gradient(45deg, #ebf8ff, #ebf8ff 10px, #bee3f8 10px, #bee3f8 20px);">
@@ -117,8 +118,8 @@ onMounted(() => {
                     <!-- Blog in the Middle Layout Option -->
                     <label
                         class="flex flex-col items-center gap-2 p-4 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50 transition"
-                        :class="{ 'border-indigo-500 bg-indigo-50': data.theme.layout === 'blog' }">
-                        <input type="radio" value="blog" v-model="data.theme.layout" class="hidden">
+                        :class="{ 'border-indigo-500 bg-indigo-50': data.theme?.layout === 'blog' }">
+                        <input type="radio" value="blog" :modelValue="get(data, 'theme.layout', null)" @update:modelValue="(e) => set(data, 'theme.layout', e.value)" class="hidden">
                         <div class="w-20 h-12 bg-gray-200 rounded-md flex items-center justify-center">
                             <div class="w-[60%] h-full rounded"
                                 style="background: repeating-linear-gradient(45deg, #ebf8ff, #ebf8ff 10px, #bee3f8 10px, #bee3f8 20px);">
@@ -138,7 +139,7 @@ onMounted(() => {
                 </div>
 
                 <div class="flex flex-wrap justify-center gap-3">
-                    <PureMultiselect v-model="data.theme.fontFamily" required :options="useFontFamilyList" caret>
+                    <PureMultiselect :modelValue="get(data, 'theme.fontFamily', null)" @update:modelValue="(e) => set(data, 'theme.fontFamily', e.value)" required :options="useFontFamilyList" caret>
                         <template #option="{ option, isSelected, isPointed, search }">
                             <span :style="{ fontFamily: option.value }">{{ option.label }}</span>
                         </template>
@@ -172,9 +173,9 @@ onMounted(() => {
             <div  class="rounded-lg shadow-md bg-white p-8 h-full flex justify-center ">
                 <ColorSchemeWorkshopWebsite 
                     :routeList="data.routeList" 
-                    :color="data.theme.color" 
-                    :layout="data.theme.layout"
-                    :fontFamily="data.theme.fontFamily"
+                    :color="data.theme?.color" 
+                    :layout="data.theme?.layout"
+                    :fontFamily="data.theme?.fontFamily"
                 />
             </div>
         </div>

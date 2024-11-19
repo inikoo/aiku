@@ -86,7 +86,7 @@ onMounted(() => {
         layout.navigation = value.navigation;
     }); */
     
-    irisStyleVariables(layout.colorThemed.color)
+    irisStyleVariables(layout.colorThemed?.color)
 
     window.addEventListener('message', (event) => {
         if (event.data.key === 'isPreviewLoggedIn') isPreviewLoggedIn.value = event.data.value
