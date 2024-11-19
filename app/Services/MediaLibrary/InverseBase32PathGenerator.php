@@ -9,8 +9,9 @@ namespace App\Services\MediaLibrary;
 
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\MediaLibrary\Support\PathGenerator\PathGenerator;
+use Tuupola\Base32;
 
-class InverseUlidPathGenerator implements PathGenerator
+class InverseBase32PathGenerator implements PathGenerator
 {
     public function getPath(Media $media): string
     {
@@ -36,7 +37,14 @@ class InverseUlidPathGenerator implements PathGenerator
         if ($path !== '') {
             $path .= '/';
         }
-        $path .= substr($media->ulid, -1).'/'.substr($media->ulid, -2, 1).'/'.$media->ulid;
+        $base32 = new Base32([
+            "characters" => Base32::HEX,
+            "padding" => false
+        ]);
+
+        $encodedId=$base32->encode(sprintf("%010d", $media->id));
+
+        $path .= substr($encodedId, -1).'/'.substr($encodedId, -2, 1).'/'.$encodedId;
 
         return $path;
     }

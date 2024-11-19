@@ -11,17 +11,15 @@ return new class () extends Migration {
             $table->id();
             $table->unsignedBigInteger('model_id');
             $table->string('model_type');
-            $table->index(['model_id', 'model_type']);
-            $table->unsignedSmallInteger('dispatched_email_id')->index();
+            $table->unsignedBigInteger('dispatched_email_id')->index();
             $table->foreign('dispatched_email_id')->references('id')->on('dispatched_emails');
             $table->unsignedSmallInteger('outbox_id')->index();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
-
-
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
             $table->string('source_id')->nullable()->unique();
+            $table->index(['model_id', 'model_type']);
 
         });
     }

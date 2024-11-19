@@ -17,6 +17,7 @@ use App\Models\Helpers\Media;
 use App\Models\Helpers\Snapshot;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
+use App\Models\Traits\InWebsite;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -35,6 +36,9 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property int $group_id
+ * @property int $organisation_id
+ * @property int $shop_id
+ * @property int $website_id
  * @property int|null $web_block_id
  * @property string $ulid
  * @property string $type
@@ -76,6 +80,7 @@ class Banner extends Model implements HasMedia, Auditable
     use SoftDeletes;
     use HasSlug;
     use HasFactory;
+    use InWebsite;
     use HasUniversalSearch;
     use InteractsWithMedia;
     use HasHistory;

@@ -8,7 +8,7 @@
 
 namespace App\Models\Ordering;
 
-use App\Enums\Ordering\Purge\PurgedOrderStatusEnum;
+use App\Enums\Ordering\PurgedOrder\PurgedOrderStatusEnum;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,18 +16,26 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  *
  * @property int $id
+ * @property int $group_id
+ * @property int $organisation_id
+ * @property int $shop_id
+ * @property int|null $customer_id
  * @property int $purge_id
- * @property int $order_id
+ * @property int|null $order_id
  * @property PurgedOrderStatusEnum $status
  * @property string|null $purged_at
+ * @property string|null $order_created_at
  * @property string|null $order_last_updated_at
- * @property string $amount
- * @property string $org_amount
- * @property string $grp_amount
- * @property int $number_transactions
- * @property string|null $note
+ * @property int|null $number_transaction
+ * @property string|null $net_amount Net amount of the deleted order
+ * @property string|null $org_net_amount
+ * @property string|null $grp_net_amount
+ * @property string|null $error_message
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
+ * @property string|null $source_id
  * @property-read \App\Models\Ordering\Order|null $order
  * @property-read \App\Models\Ordering\Purge $purge
  * @method static \Illuminate\Database\Eloquent\Builder<static>|PurgedOrder newModelQuery()

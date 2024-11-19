@@ -5,14 +5,13 @@
  * github: https://github.com/KirinZero0
  * copyright 2024
 */
+
 namespace App\Actions\Ordering\Purge;
 
 use App\Actions\OrgAction;
 use App\Enums\Ordering\Order\OrderStateEnum;
-use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Purge;
 use Carbon\Carbon;
-use Lorisleiva\Actions\ActionRequest;
 
 class FetchEligiblePurgeOrders extends OrgAction
 {

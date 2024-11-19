@@ -25,12 +25,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_purged_orders_status_error
  * @property int $number_purged_transactions
  * @property int $currency_id
- * @property string $estimated_amount
- * @property string $estimated_org_amount
- * @property string $estimated_grp_amount
- * @property string $purged_amount
- * @property string $purged_org_amount
- * @property string $purged_grp_amount
+ * @property string $estimated_net_amount
+ * @property string $estimated_org_net_amount
+ * @property string $estimated_grp_net_amount
+ * @property string $purged_net_amount
+ * @property string $purged_org_net_amount
+ * @property string $purged_grp_net_amount
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Ordering\Purge $purge

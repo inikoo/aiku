@@ -34,6 +34,8 @@ class BannerRecordSearch
             [],
             [
                 'group_id'          => $banner->group_id,
+                'model_id'          => $banner->id,
+                'model_type'        => class_basename(Banner::class),
                 'organisation_id'   => $banner->organisation_id,
                 'organisation_slug' => $banner->organisation->slug,
                 'shop_id'           => $banner->shop_id,
