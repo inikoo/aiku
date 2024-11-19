@@ -22,7 +22,6 @@ const props = defineProps<{
     uploadImageRoute?: routeType,
     index:Number | Array<String> | string
 }>()
-
 const modelValue = defineModel()
 
 const emits = defineEmits<{
@@ -46,6 +45,7 @@ const emits = defineEmits<{
                             :blueprint="blueprint.replaceForm"
                             :modelValue="getFormValue(modelValue, blueprint.key)"
                             :key="blueprint.key"
+                            :uploadImageRoute="uploadImageRoute" 
                             @update:modelValue="newValue => emits('update:modelValue',setFormValue(modelValue, blueprint.key, newValue))"
                         />
                 </template>
