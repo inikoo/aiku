@@ -45,6 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Procurement\OrgSupplierStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Procurement\StockDelivery> $stockDeliveries
  * @property-read Supplier $supplier
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static Builder<static>|OrgSupplier newModelQuery()
  * @method static Builder<static>|OrgSupplier newQuery()
  * @method static Builder<static>|OrgSupplier query()
