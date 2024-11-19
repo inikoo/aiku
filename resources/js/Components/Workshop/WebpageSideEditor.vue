@@ -35,6 +35,7 @@ const props = defineProps<{
     isAddBlockLoading: string | null
 }>()
 
+
 const emits = defineEmits<{
     (e: 'add', value: Daum): void
     (e: 'delete', value: Daum): void

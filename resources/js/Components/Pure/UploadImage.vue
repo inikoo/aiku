@@ -30,6 +30,7 @@ const props = withDefaults(
 	{}
 )
 
+
 const emits = defineEmits<{
 	(e: "update:modelValue", value: any): void
 	(e: "onUpload", value: Files[]): void
@@ -62,6 +63,7 @@ const onUpload = async () => {
 		emits("update:modelValue", updatedModelValue)
 		onSave()
 	} catch (error) {
+		console.log(error)
 		notify({
 			title: "Failed",
 			text: "Error while uploading data",
