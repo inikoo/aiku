@@ -11,7 +11,7 @@ import WebPreview from "@/Layouts/WebPreview.vue";
 import debounce from 'lodash/debounce'
 import EmptyState from "@/Components/Utils/EmptyState.vue"
 /* import { socketWeblock } from '@/Composables/SocketWebBlock' */
-import { sendMessageToParent, iframeToParent } from '@/Composables/Workshop'
+import { sendMessageToParent, iframeToParent, irisStyleVariables } from '@/Composables/Workshop'
 import RenderHeaderMenu from './RenderHeaderMenu.vue'
 import { usePage, router } from '@inertiajs/vue3'
 import { useColorTheme } from '@/Composables/useStockList'
@@ -45,7 +45,7 @@ const layout = reactive({
     header: { ...props.header?.data },
     footer: { ...props.footer?.footer },
     navigation: { ...props.navigation },
-    colorThemed: usePage().props?.iris?.color ? usePage().props?.iris?.color : { color: [...useColorTheme[2]] }
+    colorThemed: usePage().props?.iris?.theme ? usePage().props?.iris?.theme : { color: [...useColorTheme[2]] }
 });
 
 /* const onUpdatedBlock = (block: Daum) => {
@@ -85,6 +85,9 @@ onMounted(() => {
         layout.footer = value.footer.footer;
         layout.navigation = value.navigation;
     }); */
+    
+    irisStyleVariables(layout.colorThemed.color)
+
     window.addEventListener('message', (event) => {
         if (event.data.key === 'isPreviewLoggedIn') isPreviewLoggedIn.value = event.data.value
         if (event.data.key === 'isPreviewMode') isPreviewMode.value = event.data.value
@@ -193,13 +196,24 @@ provide('isPreviewMode', isPreviewMode)
         />
     </div>
 </div>
+
 </template>
+
+
+<style lang="scss">
+// :root {
+//     --iris-color-primary: v-bind('layout.colorThemed.color[0]');
+//     --iris-color-secondary: v-bind('layout.colorThemed.color[2]');
+// }
+</style>
 
 <style scoped lang="scss">
 /* @font-face {
     font-family: 'Raleway';
     src: url("@/Assets/raleway.woff2");
 } */
+
+
 
 
 .editor-class {
