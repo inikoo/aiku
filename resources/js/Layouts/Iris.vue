@@ -8,9 +8,10 @@ import Footer from '@/Layouts/Iris/Footer.vue'
 import { useColorTheme } from '@/Composables/useStockList'
 import { usePage } from '@inertiajs/vue3'
 import ScreenWarning from '@/Components/Utils/ScreenWarning.vue'
-import { provide } from 'vue'
+import { onMounted, provide } from 'vue'
 import { initialiseIrisApp } from '@/Composables/initialiseIris'
 import { useIrisLayoutStore } from "@/Stores/irisLayout"
+import { irisStyleVariables } from '@/Composables/Workshop'
 
 initialiseIrisApp()
 
@@ -22,24 +23,27 @@ provide('layout', layout)
 const header = usePage().props?.iris?.header
 const navigation =  usePage().props?.iris?.menu
 const footer =  usePage().props?.iris?.footer
-const colorThemed =  usePage().props?.iris?.color ? usePage().props?.iris?.color :  {color : [...useColorTheme[2]]}
+const theme =  usePage().props?.iris?.theme ? usePage().props?.iris?.theme :  {color : [...useColorTheme[2]]}
 
 console.log('inislds',usePage().props?.iris)
 
+onMounted(() => {
+    irisStyleVariables(theme?.color)
+})
 </script>
 
 <template>
     <div class="relative editor-class">
         <ScreenWarning v-if="layout.app.environment === 'staging'" />
-        <div :class="[colorThemed.layout === 'blog' ? 'container max-w-7xl mx-auto shadow-xl' : '']" :style="{ fontFamily: colorThemed.fontFamily}">
+        <div :class="[theme.layout === 'blog' ? 'container max-w-7xl mx-auto shadow-xl' : '']" :style="{ fontFamily: theme.fontFamily}">
         <!--     <IrisLoginInformation /> -->
-            <IrisHeader v-if="header.header" :data="header" :colorThemed="colorThemed" :menu="navigation"/>
+            <IrisHeader v-if="header.header" :data="header" :colorThemed="theme" :menu="navigation"/>
 
             <!-- Main Content -->
             <main>
                 <slot />
             </main>
-             <Footer v-if="footer && !isArray(footer)" :data="footer" :colorThemed="colorThemed"/>
+            <Footer v-if="footer && !isArray(footer)" :data="footer" :colorThemed="theme"/>
         </div>
     </div>
 

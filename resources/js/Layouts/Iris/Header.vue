@@ -22,12 +22,24 @@ const props = defineProps<{
 </script>
 
 <template>
-    <component v-if="data?.topBar?.data.fieldValue" :is="getComponent(data?.topBar.code)"
-        v-model="data.topBar.data.fieldValue" :loginMode="true" :previewMode="true" :uploadImageRoute="null"
-        :colorThemed="colorThemed" @update:model-value="(e) => emits('update:modelValue', e)" />
+    <!-- Section: Header-Topbar -->
+    <component v-if="data?.topBar?.data.fieldValue"
+        :is="getComponent(data?.topBar.code)"
+        v-model="data.topBar.data.fieldValue"
+        :loginMode="true"
+        :previewMode="true"
+        :uploadImageRoute="null"
+        :colorThemed="colorThemed" @update:model-value="(e) => emits('update:modelValue', e)"
+    />
 
-    <component :is="getComponent(data?.header?.code)" v-model="data.header.data.fieldValue" :loginMode="true"
-        :previewMode="true" :colorThemed="colorThemed" />
+    <!-- Section: Header-Menu -->
+    <component
+        :is="getComponent(data?.header?.code)"
+        v-model="data.header.data.fieldValue"
+        :loginMode="true"
+        :previewMode="true"
+        :colorThemed="colorThemed"
+    />
 
         <NavigationMenu 
             :data="menu" 

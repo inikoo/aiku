@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-
+use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
@@ -151,13 +151,13 @@ test('create purchase order independent supplier', function (OrgSupplierProduct 
 })->depends('attach supplier product to organisation');
 
 test('add item to purchase order', function (PurchaseOrder $purchaseOrder, OrgSupplierProduct $orgSupplierProduct) {
-
-
+    $orgStock = $this->orgStocks[0];
     $purchaseOrderTransactionData = PurchaseOrderTransaction::factory()->definition();
 
     $purchaseOrderTransaction = StorePurchaseOrderTransaction::make()->action(
         $purchaseOrder,
         $orgSupplierProduct->supplierProduct->historicSupplierProduct,
+        $orgStock,
         $purchaseOrderTransactionData
     );
 
@@ -184,10 +184,10 @@ test('add more items to purchase order', function (PurchaseOrder $purchaseOrder)
         'units_per_pack' => 50,
         'units_per_carton' => 200
     ]);
-    StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
+    $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
 
 
-    $purchaseOrderTransaction2 = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, PurchaseOrderTransaction::factory()->definition());
+    $purchaseOrderTransaction2 = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $orgSupplierProduct->supplierProduct->historicSupplierProduct, $this->orgStocks[1], PurchaseOrderTransaction::factory()->definition());
 
     $supplierProduct = StoreSupplierProduct::make()->action($orgSupplier->supplier, [
         'code'    => 'product-3',
@@ -197,8 +197,8 @@ test('add more items to purchase order', function (PurchaseOrder $purchaseOrder)
         'units_per_pack' => 5,
         'units_per_carton' => 50
     ]);
-    StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
-    $purchaseOrderTransaction3 = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $supplierProduct->historicSupplierProduct, PurchaseOrderTransaction::factory()->definition());
+    $orgSupplierProduct2 = StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
+    $purchaseOrderTransaction3 = StorePurchaseOrderTransaction::make()->action($purchaseOrder, $orgSupplierProduct2->supplierProduct->historicSupplierProduct, $this->orgStocks[2], PurchaseOrderTransaction::factory()->definition());
 
 
     expect($purchaseOrderTransaction2)->toBeInstanceOf(PurchaseOrderTransaction::class)
@@ -352,8 +352,9 @@ test('create supplier delivery items', function (StockDelivery $stockDelivery) {
     ];
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, $supplierProductData);
     $orgSupplierProduct = StoreOrgSupplierProduct::make()->action($orgSupplier, $supplierProduct);
-
-    $supplier = StoreStockDeliveryItem::run($stockDelivery, $orgSupplierProduct->supplierProduct->historicSupplierProduct, StockDeliveryItem::factory()->definition());
+    $orgStock = $this->orgStocks[0];
+    // dd($orgStock);
+    $supplier = StoreStockDeliveryItem::make()->action($stockDelivery, $orgSupplierProduct->supplierProduct->historicSupplierProduct, $orgStock, StockDeliveryItem::factory()->definition());
 
     expect($supplier->stock_delivery_id)->toBe($stockDelivery->id);
     $stockDelivery->refresh();

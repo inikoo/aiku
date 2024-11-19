@@ -62,3 +62,15 @@ export const textReplaceVariables = (text: string, piniaVariables: {}) => {
     .replace(/\{\{\s*cart_count\s*\}\}/g, piniaVariables?.cart_count || '0')
     .replace(/\{\{\s*cart_amount\s*\}\}/g, piniaVariables?.cart_amount || '0')
 }
+
+
+// Method: to declare css variable in the root
+export const irisStyleVariables = (layoutColor: string[]) => {
+    if (!layoutColor) {
+        return 
+    }
+
+    const root = document.documentElement
+    root.style.setProperty('--iris-color-primary', layoutColor[0])
+    root.style.setProperty('--iris-color-secondary', layoutColor[2])
+}

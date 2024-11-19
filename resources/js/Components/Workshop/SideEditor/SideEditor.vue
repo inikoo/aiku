@@ -14,6 +14,7 @@ const props = defineProps<{
     uploadImageRoute?: routeType
 }>()
 const modelValue = defineModel()
+const openPanel = ref(0);
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
@@ -50,26 +51,25 @@ const setFormValues = (blueprint = [], data = {}) => {
 
 onMounted(() => {
     emits('update:modelValue', setFormValues(props.blueprint, cloneDeep(modelValue.value)));
-    console.log(modelValue.value)
 });
 
 
 </script>
 
 <template>
-    <Accordion  class="w-full">
-        <div v-for="(field, index) of blueprint.filter((item) => item.type != 'hidden')">
-        <ParentFieldSideEditor 
-            :blueprint="field"
-            :uploadImageRoute="uploadImageRoute" 
-            v-model="modelValue" 
-            :key="field.key"
-            @update:modelValue="e=>console.log(e)"
-        />
-        </div>
-    </Accordion>
+
+    <div v-for="(field, index) of blueprint.filter((item) => item.type != 'hidden')">
+        <Accordion class="w-full" v-model="openPanel">
+            <ParentFieldSideEditor 
+                :blueprint="field" 
+                :uploadImageRoute="uploadImageRoute" 
+                v-model="modelValue"
+                :key="field.key" @update:modelValue="e => emits('update:modelValue', e)" 
+                :index="index" 
+            />
+        </Accordion>
+    </div>
 </template>
 
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

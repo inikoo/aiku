@@ -7,6 +7,7 @@
 
 namespace App\Models\Comms;
 
+use App\Enums\Comms\EmailTemplate\EmailTemplateProviderEnum;
 use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum;
 use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Media;
@@ -69,7 +70,9 @@ class EmailTemplate extends Model implements HasMedia
         'data'             => 'array',
         'published_layout' => 'array',
         'state'            => EmailTemplateStateEnum::class,
-        'live_at'          => 'datetime',
+        'provider'         => EmailTemplateProviderEnum::class,
+        'active_at'        => 'datetime',
+        'suspended_at'     => 'datetime',
     ];
 
     protected $attributes = [

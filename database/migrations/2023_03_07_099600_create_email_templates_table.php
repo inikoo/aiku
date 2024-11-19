@@ -17,19 +17,17 @@ return new class () extends Migration {
     {
         Schema::create('email_templates', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table = $this->groupOrgRelationship($table);
-            $table->string('type')->index()->nullable();
+            $table->unsignedSmallInteger('group_id')->index();
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('provider')->index();
+            $table->string('state')->index()->default(EmailTemplateStateEnum::IN_PROCESS);
+            $table->boolean('seeded')->index();
+            $table->jsonb('layout')->nullable();
             $table->json('data')->nullable();
             $table->unsignedInteger('screenshot_id')->nullable();
             $table->foreign('screenshot_id')->references('id')->on('media');
-            $table->unsignedSmallInteger('outbox_id')->index();
-            $table->foreign('outbox_id')->references('id')->on('outboxes');
-            $table->string('state')->index()->default(EmailTemplateStateEnum::IN_PROCESS);
-            $table->unsignedInteger('unpublished_snapshot_id')->nullable()->index();
-            $table->unsignedInteger('live_snapshot_id')->nullable()->index();
-            $table->jsonb('published_layout');
-            $table->dateTimeTz('live_at')->nullable();
-
+            $table->dateTimeTz('active_at')->nullable();
+            $table->dateTimeTz('suspended_at')->nullable();
             $table->timestampsTz();
         });
     }

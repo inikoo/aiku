@@ -1,0 +1,158 @@
+[
+  {
+    "outboxes": [
+      "Marketing"
+    ],
+    "name": "Blank",
+    "content": "default.json",
+    "image": "",
+    "provider": "unlayer",
+    "tags": [
+      "Blank"
+    ]
+  },
+  {
+    "outboxes": [
+      "Marketing"
+    ],
+    "name": "Christmas Discount",
+    "content": "ChristmasDiscount.json",
+    "image": "ChristmasDiscount.jpg",
+    "provider": "unlayer",
+    "tags": [
+      "Christmas"
+    ]
+  },
+  {
+    "outboxes": [
+      "Marketing"
+    ],
+    "name": "Christmas Eve",
+    "content": "ChristmasEve.json",
+    "image": "ChristmasEve.jpg",
+    "provider": "unlayer",
+    "tags": [
+      "Christmas"
+    ]
+  },
+  {
+    "outboxes": [
+      "Marketing"
+    ],
+    "name": "Christmas Mega Discount",
+    "content": "ChristmasMegaDiscount.json",
+    "image": "ChristmasMegaDiscount.jpg",
+    "provider": "unlayer",
+    "tags": [
+      "Christmas"
+    ]
+  },
+  {
+    "outboxes": [
+      "Marketing"
+    ],
+    "name": "Christmas Movie Night",
+    "content": "ChristmasMovieNight.json",
+    "image": "ChristmasMovieNight.jpg",
+    "provider": "unlayer",
+    "tags": [
+      "Christmas"
+    ]
+  },
+  {
+    "outboxes": [
+      "Marketing"
+    ],
+    "name": "Sweet Treat",
+    "content": "SweetTreat.json",
+    "image": "SweetTreat.png",
+    "provider": "unlayer",
+    "tags": [
+      "Christmas"
+    ]
+  },
+  {
+    "outboxes": [
+      "Marketing"
+    ],
+    "name": "Halloween Party",
+    "content": "HalloweenParty.json",
+    "image": "HalloweenParty.jpg",
+    "provider": "unlayer",
+    "tags": [
+      "Halloween"
+    ]
+  },
+  {
+    "outboxes": [
+      "Marketing"
+    ],
+    "name": "Halloween Sale",
+    "content": "HalloweenSale.json",
+    "image": "HalloweenSale.jpg",
+    "provider": "unlayer",
+    "tags": [
+      "Halloween"
+    ]
+  },
+  {
+    "outboxes": [
+      "Marketing"
+    ],
+    "name": "Happy New Year Email to Employee",
+    "content": "HappyNewYearEmailToEmployee.json",
+    "image": "HappyNewYearEmailToEmployee.jpg",
+    "provider": "unlayer",
+    "tags": [
+      "New Year"
+    ]
+  },
+  {
+    "outboxes": [
+      "Marketing"
+    ],
+    "name": "New Year party",
+    "content": "NewYearparty.json",
+    "image": "NewYearparty.jpg",
+    "provider": "unlayer",
+    "tags": [
+      "New Year"
+    ]
+  },
+  {
+    "outboxes": [
+      "Marketing"
+    ],
+    "name": "New Year Sale",
+    "content": "NewYearSale.json",
+    "image": "NewYearSale.jpg",
+    "provider": "unlayer",
+    "tags": [
+      "New Year"
+    ]
+  },
+  {
+    "outboxes": [
+      "Marketing"
+    ],
+    "name": "Event Announcement",
+    "content": "EventAnnouncement.json",
+    "image": "EventAnnouncement.jpg",
+    "provider": "unlayer",
+    "tags": [
+      "marketing"
+    ]
+  },
+  {
+    "outboxes": [
+      "Marketing"
+    ],
+    "name": "Simple Offer",
+    "content": "SimpleOffer.json",
+    "image": "SimpleOffer.jpg",
+    "provider": "unlayer",
+    "tags": [
+      "marketing"
+    ]
+  }
+]

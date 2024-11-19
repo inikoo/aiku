@@ -364,7 +364,8 @@ test('create purge', function (Order $order) {
     $shop = $order->shop;
     $purge = StorePurge::make()->action($shop, [
         'type' => PurgeTypeEnum::MANUAL,
-        'scheduled_at' => now()
+        'scheduled_at' => now(),
+        'inactive_days' => 30,
     ]);
 
     expect($purge)->toBeInstanceOf(Purge::class)

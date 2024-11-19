@@ -22,7 +22,7 @@ export default {
 				},
 			],
 		},
-		{
+		/* {
 			label : 'text',
 			key: ["text"],
 			type: "text",
@@ -37,11 +37,11 @@ export default {
 						{
 							name : 'test2',
 							key: ["margin"],
-							type: "margin",
+							type: "padding",
 						},
 					]
 				},
 			],
-		},
+		}, */
 	],
 }
