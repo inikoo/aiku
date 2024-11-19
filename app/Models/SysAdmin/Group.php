@@ -131,6 +131,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\SysAdmin\GroupDiscountsStats|null $discountsStats
  * @property-read \App\Models\SysAdmin\GroupDropshippingStat|null $dropshippingStats
  * @property-read LaravelCollection<int, EmailAddress> $emailAddresses
+ * @property-read LaravelCollection<int, EmailTemplate> $emailTemplates
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read LaravelCollection<int, ExternalLink> $externalLinks
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats

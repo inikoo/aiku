@@ -80,7 +80,7 @@ class SeedWebBlockTypes
         }
     }
 
-    public string $commandSignature = 'group:seed-web-block-types';
+    public string $commandSignature = 'group:seed_web_block_types';
 
     public function asCommand(Command $command): int
     {

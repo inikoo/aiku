@@ -19,13 +19,19 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('slug')->unique()->collation('und_ns');
+            $table->string('name')->index()->collation('und_ns');
             $table->string('provider')->index();
             $table->string('state')->index()->default(EmailTemplateStateEnum::IN_PROCESS);
-            $table->boolean('seeded')->index();
+            $table->boolean('is_seeded')->index()->default(false);
             $table->jsonb('layout')->nullable();
-            $table->json('data')->nullable();
+            $table->json('data');
+
             $table->unsignedInteger('screenshot_id')->nullable();
             $table->foreign('screenshot_id')->references('id')->on('media');
+            $table->unsignedSmallInteger('language_id')->default(68);
+            $table->foreign('language_id')->references('id')->on('languages');
+
             $table->dateTimeTz('active_at')->nullable();
             $table->dateTimeTz('suspended_at')->nullable();
             $table->timestampsTz();
