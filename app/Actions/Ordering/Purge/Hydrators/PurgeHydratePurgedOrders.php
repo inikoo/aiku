@@ -55,7 +55,7 @@ class PurgeHydratePurgedOrders extends HydrateModel
         $purge->stats()->update($stats);
 
         // Excluding amountStats & transactionsStats for aurora migrated purges
-        if(!$purge->source_id) {
+        if (!$purge->source_id) {
             $this->amountStats($purge);
             $this->transactionsStats($purge);
         }

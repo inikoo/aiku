@@ -42,7 +42,7 @@ class InverseBase32PathGenerator implements PathGenerator
             "padding" => false
         ]);
 
-        $encodedId=$base32->encode(sprintf("%010d", $media->id));
+        $encodedId = $base32->encode(sprintf("%010d", $media->id));
 
         $path .= substr($encodedId, -1).'/'.substr($encodedId, -2, 1).'/'.$encodedId;
 
