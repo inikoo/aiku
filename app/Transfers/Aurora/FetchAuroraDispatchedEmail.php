@@ -7,9 +7,9 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Mail\DispatchedEmail\DispatchedEmailProviderEnum;
-use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
-use App\Models\Mail\Outbox;
+use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
+use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Models\Comms\Outbox;
 use Illuminate\Support\Facades\DB;
 use Str;
 

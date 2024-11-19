@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\CRM\BackInStockReminder\DeleteBackInStockReminder;
 use App\Actions\CRM\BackInStockReminder\StoreBackInStockReminder;
 use App\Actions\CRM\BackInStockReminder\UpdateBackInStockReminder;
@@ -19,19 +20,18 @@ use App\Actions\CRM\Favourite\UpdateFavourite;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
-use App\Actions\Mail\Mailshot\StoreMailshot;
+use App\Enums\Comms\Mailshot\MailshotStateEnum;
+use App\Enums\Comms\Mailshot\MailshotTypeEnum;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
-use App\Enums\Mail\Mailshot\MailshotStateEnum;
-use App\Enums\Mail\Mailshot\MailshotTypeEnum;
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
+use App\Models\Comms\Mailshot;
+use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerNote;
 use App\Models\CRM\Favourite;
 use App\Models\CRM\Prospect;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Query;
-use App\Models\Mail\Mailshot;
-use App\Models\Mail\Outbox;
 use App\Models\Reminder\BackInStockReminder;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia;

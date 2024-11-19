@@ -7,7 +7,7 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Models\Mail\ModelHasDispatchedEmail;
+use App\Models\Comms\ModelHasDispatchedEmail;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;

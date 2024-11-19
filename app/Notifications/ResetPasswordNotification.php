@@ -3,9 +3,9 @@
 namespace App\Notifications;
 
 use App\Channel\CustomMailMessage;
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Models\Comms\Outbox;
 use App\Models\CRM\WebUser;
-use App\Models\Mail\Outbox;
 use App\Models\SysAdmin\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;

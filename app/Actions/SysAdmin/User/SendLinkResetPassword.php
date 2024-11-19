@@ -7,7 +7,7 @@
 
 namespace App\Actions\SysAdmin\User;
 
-use App\Actions\Mail\Ses\SendSesEmail;
+use App\Actions\Comms\Ses\SendSesEmail;
 use App\Models\SysAdmin\User;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Support\Str;

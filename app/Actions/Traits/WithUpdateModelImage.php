@@ -8,10 +8,10 @@
 namespace App\Actions\Traits;
 
 use App\Actions\Helpers\Media\UpdateIsAnimatedMedia;
+use App\Models\Comms\EmailTemplate;
 use App\Models\CRM\WebUser;
 use App\Models\Helpers\Media;
 use App\Models\HumanResources\Clocking;
-use App\Models\Mail\EmailTemplate;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\User;
 use App\Models\Web\Website;

@@ -8,7 +8,7 @@
 namespace App\Events;
 
 use App\Http\Resources\Mail\MailshotResource;
-use App\Models\Mail\Mailshot;
+use App\Models\Comms\Mailshot;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;

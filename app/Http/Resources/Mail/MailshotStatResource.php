@@ -8,7 +8,7 @@
 namespace App\Http\Resources\Mail;
 
 use App\Http\Resources\HasSelfCall;
-use App\Models\Mail\MailshotStats;
+use App\Models\Comms\MailshotStats;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class MailshotStatResource extends JsonResource

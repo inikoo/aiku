@@ -7,7 +7,7 @@
 
 namespace App\Actions\Reports;
 
-use App\Actions\Mail\PostRoom\UI\IndexPostRooms;
+use App\Actions\Comms\PostRoom\UI\IndexPostRooms;
 use Illuminate\Support\Facades\Route;
 
 class PostRoomRoutes

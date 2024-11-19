@@ -7,11 +7,10 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Mail\EmailCopy\UpdateEmailCopy;
-use App\Actions\Mail\EmailCopy\StoreEmailCopy;
-use App\Models\Mail\EmailCopy;
+use App\Actions\Comms\EmailCopy\StoreEmailCopy;
+use App\Actions\Comms\EmailCopy\UpdateEmailCopy;
+use App\Models\Comms\EmailCopy;
 use App\Transfers\SourceOrganisationService;
-use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
