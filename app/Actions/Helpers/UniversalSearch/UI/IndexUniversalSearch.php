@@ -99,7 +99,6 @@ class IndexUniversalSearch extends InertiaAction
             'websites.' => ['web'],
             'fulfilments.show.web.' => ['web'],
             'fulfilments.' => ['fulfilments'],
-            'procurement.' => ['procurement'],
             'reports.' => ['reports'],
             'shops.show.assets.' => ['assets'],
             'shops.show.catalogue.' => ['catalogue'],

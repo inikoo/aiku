@@ -36,7 +36,7 @@ class UpdatePurgedOrder extends OrgAction
     {
         $rules =  [
             'status'              => ['sometimes', Rule::enum(PurgedOrderStatusEnum::class)],
-            'note'                => ['sometimes', 'string']
+            'error_message'       => ['sometimes', 'string']
         ];
 
         if (!$this->strict) {

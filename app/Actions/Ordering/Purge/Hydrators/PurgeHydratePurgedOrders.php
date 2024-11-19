@@ -55,7 +55,7 @@ class PurgeHydratePurgedOrders extends HydrateModel
         $purge->stats()->update($stats);
 
         // Excluding amountStats & transactionsStats for aurora migrated purges
-        if(!$purge->source_id) {
+        if (!$purge->source_id) {
             $this->amountStats($purge);
             $this->transactionsStats($purge);
         }
@@ -125,12 +125,12 @@ class PurgeHydratePurgedOrders extends HydrateModel
 
         $stats = [
 
-            'estimated_amount'                 => $estimatedPurgedAmount,
-            'estimated_org_amount'             => $estimatedPurgedOrgAmount,
-            'estimated_grp_amount'             => $estimatedPurgedGrpAmount,
-            'purged_amount'                    => $purgedAmount,
-            'purged_org_amount'                => $purgedOrgAmount,
-            'purged_grp_amount'                => $purgedGrpAmount
+            'estimated_net_amount'                 => $estimatedPurgedAmount,
+            'estimated_org_net_amount'             => $estimatedPurgedOrgAmount,
+            'estimated_grp_net_amount'             => $estimatedPurgedGrpAmount,
+            'purged_net_amount'                    => $purgedAmount,
+            'purged_org_net_amount'                => $purgedOrgAmount,
+            'purged_grp_net_amount'                => $purgedGrpAmount
         ];
         $purge->stats()->update($stats);
 

@@ -20,6 +20,7 @@ use App\Models\Ordering\Purge;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
 use Inertia\Testing\AssertableInertia;
+use Illuminate\Support\Facades\Date;
 
 use function Pest\Laravel\actingAs;
 use function Pest\Laravel\get;
@@ -86,8 +87,9 @@ beforeEach(function () {
 
         $purge = StorePurge::make()->action($this->shop, [
             'type' => PurgeTypeEnum::MANUAL,
-            'scheduled_at' => now()
-        ]);
+            'scheduled_at' => now(),
+            'inactive_days' => 30
+        ],);
     }
     $this->purge = $purge;
     // dd($purge);

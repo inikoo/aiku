@@ -364,7 +364,8 @@ test('create purge', function (Order $order) {
     $shop = $order->shop;
     $purge = StorePurge::make()->action($shop, [
         'type' => PurgeTypeEnum::MANUAL,
-        'scheduled_at' => now()
+        'scheduled_at' => now(),
+        'inactive_days' => 30,
     ]);
 
     expect($purge)->toBeInstanceOf(Purge::class)
@@ -389,11 +390,11 @@ test('update purge', function (Purge $purge) {
 test('update purge order', function (Purge $purge) {
     $purgedOrder = $purge->purgedOrders->first();
     $updatedPurgedOrder = UpdatePurgedOrder::make()->action($purgedOrder, [
-        'note' => 'Note test'
+        'error_message' => 'error test'
     ]);
 
     expect($updatedPurgedOrder)->toBeInstanceOf(PurgedOrder::class)
-        ->and($updatedPurgedOrder->note)->toBe('Note test');
+        ->and($updatedPurgedOrder->error_message)->toBe('error test');
 
     return $updatedPurgedOrder;
 })->depends('create purge');

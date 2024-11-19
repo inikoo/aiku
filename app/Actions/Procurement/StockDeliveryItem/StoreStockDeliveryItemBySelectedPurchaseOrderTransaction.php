@@ -21,7 +21,7 @@ class StoreStockDeliveryItemBySelectedPurchaseOrderTransaction
         $purchaseOrderTransactions = PurchaseOrderTransaction::whereIn('purchase_order_id', $purchaseOrderIds)->get();
 
         foreach ($purchaseOrderTransactions as $item) {
-            $items[] = StoreStockDeliveryItem::run($stockDelivery, $item->historicSupplierProduct, [
+            $items[] = StoreStockDeliveryItem::run($stockDelivery, $item->historicSupplierProduct, $item->orgStock, [
                 'group_id'            => $item->group_id,
                 'supplier_product_id' => $item->supplier_product_id,
                 // 'unit_price'          => $item->net_amount,

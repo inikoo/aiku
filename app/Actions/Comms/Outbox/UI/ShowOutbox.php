@@ -109,8 +109,8 @@ class ShowOutbox extends OrgAction
 
 
                 OutboxTabsEnum::SHOWCASE->value => $this->tab == OutboxTabsEnum::SHOWCASE->value ?
-                    fn() => GetOutboxShowcase::run($outbox)
-                    : Inertia::lazy(fn() => GetOutboxShowcase::run($outbox)),
+                    fn () => GetOutboxShowcase::run($outbox)
+                    : Inertia::lazy(fn () => GetOutboxShowcase::run($outbox)),
 
 
             ]
