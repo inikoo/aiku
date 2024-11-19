@@ -98,6 +98,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read RecurringBill|null $recurringBill
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
+ * @property-read SalesChannel $salesChannel
  * @property-read Shop $shop
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch

@@ -49,7 +49,7 @@ class UpdateSalesChannel extends OrgAction
                     extraConditions: [
                         [
                             'column' => 'group_id',
-                            'value'  => $this->shop->group_id
+                            'value'  => $this->group->id
                         ],
                         [
                             'column'   => 'id',
@@ -66,7 +66,7 @@ class UpdateSalesChannel extends OrgAction
                 new IUnique(
                     table: 'sales_channels',
                     extraConditions: [
-                        ['column' => 'group_id', 'value' => $this->shop->group_id],
+                        ['column' => 'group_id', 'value' => $this->group->id],
                         [
                             'column'   => 'id',
                             'operator' => '!=',
@@ -74,7 +74,11 @@ class UpdateSalesChannel extends OrgAction
                         ]
                     ]
                 )
-            ]
+            ],
+            'is_active' => [
+                'sometimes',
+                'boolean'
+            ],
         ];
 
         if (!$this->strict) {
@@ -86,7 +90,7 @@ class UpdateSalesChannel extends OrgAction
 
     public function asController(SalesChannel $salesChannel, ActionRequest $request): SalesChannel
     {
-        $this->initialisationFromShop($salesChannel->shop, $request);
+        $this->initialisationFromGroup($salesChannel->group, $request);
 
         return $this->handle($salesChannel, $this->validatedData);
     }

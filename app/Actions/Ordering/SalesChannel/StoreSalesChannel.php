@@ -10,10 +10,12 @@ namespace App\Actions\Ordering\SalesChannel;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Enums\Ordering\SalesChannel\SalesChannelTypeEnum;
 use App\Models\Ordering\SalesChannel;
 use App\Models\SysAdmin\Group;
 use App\Rules\IUnique;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreSalesChannel extends OrgAction
@@ -29,6 +31,7 @@ class StoreSalesChannel extends OrgAction
             /** @var SalesChannel $salesChannel */
             $salesChannel = $group->salesChannels()->create($modelData);
             $salesChannel->stats()->create();
+
             return $salesChannel;
         });
     }
@@ -52,7 +55,7 @@ class StoreSalesChannel extends OrgAction
                 new IUnique(
                     table: 'sales_channels',
                     extraConditions: [
-                        ['column' => 'group_id', 'value' => $this->shop->group_id],
+                        ['column' => 'group_id', 'value' => $this->group->id],
                     ]
                 ),
             ],
@@ -62,19 +65,27 @@ class StoreSalesChannel extends OrgAction
                 new IUnique(
                     table: 'sales_channels',
                     extraConditions: [
-                        ['column' => 'group_id', 'value' => $this->shop->group_id],
+                        ['column' => 'group_id', 'value' => $this->group->id],
                     ]
                 )
-            ]
+            ],
+            'type' => [
+                'required',
+                Rule::enum(SalesChannelTypeEnum::class)
+            ],
+
         ];
 
         if (!$this->strict) {
-            $rules = $this->noStrictStoreRules($rules);
+            $rules['is_seeded'] = [
+                'required',
+                'boolean'
+            ];
+            $rules              = $this->noStrictStoreRules($rules);
         }
 
         return $rules;
     }
-
 
 
     /**

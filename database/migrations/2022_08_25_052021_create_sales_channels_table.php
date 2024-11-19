@@ -19,14 +19,19 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+            $table->boolean('is_active')->default(true)->index();
+            $table->string('type')->index();
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->unique();
             $table->string('name');
+            $table->boolean('is_seeded')->index()->default(false);
+            $table->jsonb('data');
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();
             $table->string('source_id')->nullable();
+            $table->jsonb('sources')->nullable();
 
         });
     }

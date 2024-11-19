@@ -8,6 +8,7 @@
 
 namespace App\Models\Ordering;
 
+use App\Enums\Ordering\SalesChannel\SalesChannelTypeEnum;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Model;
@@ -22,15 +23,20 @@ use Spatie\Sluggable\SlugOptions;
  *
  * @property int $id
  * @property int $group_id
+ * @property bool $is_active
+ * @property SalesChannelTypeEnum $type
  * @property string $slug
  * @property string $code
  * @property string $name
+ * @property bool $is_seeded
+ * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $fetched_at
- * @property string|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property array|null $sources
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Ordering\SalesChannelStats|null $stats
@@ -49,6 +55,20 @@ class SalesChannel extends Model implements Auditable
     use HasHistory;
     use InGroup;
 
+    protected $casts = [
+        'type'            => SalesChannelTypeEnum::class,
+        'data'            => 'array',
+        'is_active'       => 'boolean',
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
+        'sources'         => 'array'
+    ];
+
+    protected $attributes = [
+        'data'    => '{}',
+        'sources' => '{}'
+    ];
+
     protected $guarded = [];
 
     public function generateTags(): array
@@ -58,7 +78,8 @@ class SalesChannel extends Model implements Auditable
 
     protected array $auditInclude = [
         'code',
-        'name'
+        'name',
+        'is_active'
     ];
 
     public function getRouteKeyName(): string
