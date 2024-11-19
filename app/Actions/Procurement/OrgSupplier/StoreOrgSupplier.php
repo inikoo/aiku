@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\OrgSupplier;
 
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydrateOrgSuppliers;
+use App\Actions\Procurement\OrgSupplier\Search\OrgSupplierRecordSearch;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOrgSuppliers;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\Procurement\OrgAgent;
@@ -25,7 +26,7 @@ class StoreOrgSupplier extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(Organisation|OrgAgent $parent, Supplier $supplier, $modelData = []): OrgSupplier
+    public function handle(Organisation|OrgAgent $parent, Supplier $supplier, $modelData = [])
     {
         if ($parent instanceof OrgAgent) {
             $organisation = $parent->organisation;
@@ -47,6 +48,7 @@ class StoreOrgSupplier extends OrgAction
             return $orgSupplier;
         });
 
+        OrgSupplierRecordSearch::dispatch($orgSupplier)->delay($this->hydratorsDelay);
         OrganisationHydrateOrgSuppliers::dispatch($organisation)->delay($this->hydratorsDelay);
         if ($orgSupplier->org_agent_id) {
             OrgAgentHydrateOrgSuppliers::dispatch($orgSupplier->orgAgent)->delay($this->hydratorsDelay);

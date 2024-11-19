@@ -13,8 +13,10 @@ import { debounce } from 'lodash'
 import ScreenView from "@/Components/ScreenView.vue"
 import HeaderListModal from '@/Components/CMS/Fields/ListModal.vue'
 import { getBlueprint } from '@/Composables/getBlueprintWorkshop'
-import { setIframeView } from '@/Composables/Workshop'
+import { irisStyleVariables, setIframeView } from '@/Composables/Workshop'
 import ProgressSpinner from 'primevue/progressspinner';
+import { useColorTheme } from '@/Composables/useStockList'
+import { set, get } from 'lodash'
 
 import { routeType } from "@/types/route"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
@@ -204,6 +206,12 @@ const sendToIframe = (data: any) => {
 }
 
 onMounted(() => {
+    if (get(props.data, 'theme.color', false)) {
+        set(props.data, 'theme.color', [...useColorTheme[0]])
+
+    }
+    irisStyleVariables(props.data.theme?.color)
+
     window.addEventListener('message', (event) => {
         if (event.origin !== window.location.origin) return;
         const { data } = event;
@@ -349,6 +357,8 @@ onMounted(() => {
 
 
 <style lang="scss" scoped>
+
+
 :deep(.loading-overlay) {
     position: block;
     top: 0;

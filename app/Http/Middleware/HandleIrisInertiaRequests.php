@@ -58,7 +58,7 @@ class HandleIrisInertiaRequests extends Middleware
                     ),
                     'footer' => Arr::get($website->published_layout, 'footer'),
                     'menu'   => Arr::get($website->published_layout, 'menu'),
-                    'color'  => Arr::get($website->published_layout, 'color'),
+                    'theme'  => Arr::get($website->published_layout, 'theme'),
                     'variables' => [
                         'name'              => 'Vika Aqordi',
                         'username'          => 'aqordeon',

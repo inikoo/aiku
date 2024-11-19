@@ -14,6 +14,7 @@ class GetWebsiteWorkshopHeader
     {
         return [
             'data' => Arr::get($website->published_layout, 'header'),
+            'theme' => Arr::get($website->published_layout, 'theme'),
         ];
     }
 }
