@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\OrgPartner;
 
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgPartner\Search\OrgPartnerRecordSearch;
 use App\Models\Procurement\OrgPartner;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Facades\DB;
@@ -25,13 +26,17 @@ class StoreOrgPartner extends OrgAction
         data_set($modelData, 'status', $partner->status, false);
 
 
-        return DB::transaction(function () use ($organisation, $modelData) {
+        $orgPartner = DB::transaction(function () use ($organisation, $modelData) {
             /** @var OrgPartner $orgPartner */
             $orgPartner = $organisation->orgPartners()->create($modelData);
             $orgPartner->stats()->create();
 
             return $orgPartner;
         });
+
+        OrgPartnerRecordSearch::dispatch($orgPartner);
+
+        return $orgPartner;
     }
 
 

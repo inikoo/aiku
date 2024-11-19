@@ -54,7 +54,7 @@ class IndexOrgPartners extends OrgAction
                 'organisations.name',
                 'organisations.email'
                 ])
-            ->allowedSorts(['code', 'name', 'email'])
+            ->allowedSorts(['code', 'organisations.name', 'email'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();

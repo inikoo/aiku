@@ -9,7 +9,9 @@ namespace App\Actions\Comms\EmailTemplate;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum;
 use App\Models\Comms\EmailTemplate;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateEmailTemplate extends OrgAction
@@ -18,30 +20,28 @@ class UpdateEmailTemplate extends OrgAction
 
     public function handle(EmailTemplate $emailTemplate, array $modelData): EmailTemplate
     {
-        $emailTemplate = $this->update($emailTemplate, $modelData);
-
-        return $emailTemplate;
+        return $this->update($emailTemplate, $modelData, ['data']);
     }
 
-    public function asController(EmailTemplate $emailTemplate, ActionRequest $request): EmailTemplate
-    {
-        $this->initialisation($emailTemplate->organisation, $request);
-
-        return $this->action($emailTemplate, $this->validatedData);
-    }
 
     public function authorize(ActionRequest $request): bool
     {
         if ($this->asAction) {
             return true;
         }
-        return true;
+
+        return false;
     }
 
     public function rules(): array
     {
         return [
-            'name'  => ['sometimes', 'max:255']
+            'name'       => ['sometimes', 'string', 'max:255'],
+            'data'       => ['sometimes', 'array'],
+            'state'      => ['sometimes', Rule::enum(EmailTemplateStateEnum::class)],
+            'active_at'  => ['sometimes', 'date'],
+            'suspend_at' => ['sometimes', 'date'],
+            'layout'     => ['sometimes', 'array']
         ];
     }
 
@@ -49,8 +49,15 @@ class UpdateEmailTemplate extends OrgAction
     {
         $this->asAction = true;
 
-        $this->initialisation($emailTemplate->organisation, $modelData);
+        $this->initialisationFromGroup($emailTemplate->group, $modelData);
 
         return $this->handle($emailTemplate, $this->validatedData);
+    }
+
+    public function asController(EmailTemplate $emailTemplate, ActionRequest $request): EmailTemplate
+    {
+        $this->initialisation($emailTemplate->organisation, $request);
+
+        return $this->action($emailTemplate, $this->validatedData);
     }
 }
