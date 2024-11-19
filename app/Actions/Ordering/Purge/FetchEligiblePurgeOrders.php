@@ -8,6 +8,7 @@
 
 namespace App\Actions\Ordering\Purge;
 
+use App\Actions\Ordering\PurgedOrder\StorePurgedOrder;
 use App\Actions\OrgAction;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Models\Ordering\Purge;
@@ -23,7 +24,12 @@ class FetchEligiblePurgeOrders extends OrgAction
             ->where('state', OrderStateEnum::CREATING)
             ->get();
 
+        foreach ($orders as $order) {
+            StorePurgedOrder::make()->action($purge, $order, []);
+        }
 
-        return $orders;
+        $purge->refresh();
+
+        return $purge;
     }
 }
