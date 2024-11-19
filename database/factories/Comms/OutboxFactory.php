@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace Database\Factories\Mail;
+namespace Database\Factories\Comms;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 
