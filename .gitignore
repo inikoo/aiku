@@ -31,6 +31,7 @@
 /storage/*.key
 /vendor
 .env
+pull_staging_db.sh
 .env.backup
 .env.testing
 .env.cypress
