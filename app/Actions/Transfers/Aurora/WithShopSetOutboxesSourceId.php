@@ -7,7 +7,7 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Models\Catalogue\Shop;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;

@@ -8,9 +8,9 @@
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Mail\Outbox\OutboxStateEnum;
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
-use App\Models\Mail\Outbox;
+use App\Enums\Comms\Outbox\OutboxStateEnum;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Models\Comms\Outbox;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;

@@ -8,7 +8,7 @@
 
 namespace App\Http\Resources\Mail;
 
-use App\Models\Mail\Mailshot;
+use App\Models\Comms\Mailshot;
 use Carbon\Carbon;
 use Illuminate\Http\Resources\Json\JsonResource;
 

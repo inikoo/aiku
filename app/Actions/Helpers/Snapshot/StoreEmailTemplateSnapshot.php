@@ -8,8 +8,8 @@
 namespace App\Actions\Helpers\Snapshot;
 
 use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
+use App\Models\Comms\EmailTemplate;
 use App\Models\Helpers\Snapshot;
-use App\Models\Mail\EmailTemplate;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 

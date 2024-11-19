@@ -7,9 +7,9 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Mail\EmailTrackingEvent\StoreEmailTrackingEvent;
-use App\Actions\Mail\EmailTrackingEvent\UpdateEmailTrackingEvent;
-use App\Models\Mail\EmailTrackingEvent;
+use App\Actions\Comms\EmailTrackingEvent\StoreEmailTrackingEvent;
+use App\Actions\Comms\EmailTrackingEvent\UpdateEmailTrackingEvent;
+use App\Models\Comms\EmailTrackingEvent;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;

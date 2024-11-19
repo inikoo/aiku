@@ -25,7 +25,7 @@ trait HasWorkshopAction
                 ] : [],
                 $this->canEdit ? [
                     'type'  => 'button',
-                    'style' => 'primary',
+                    'style' => 'secondary',
                     'label' => __('workshop'),
                     'icon'  => ["fal", "fa-drafting-compass"],
                     'route' => [

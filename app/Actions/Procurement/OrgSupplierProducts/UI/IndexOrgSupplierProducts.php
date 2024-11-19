@@ -238,7 +238,7 @@ class IndexOrgSupplierProducts extends OrgAction
             ),
             'grp.org.procurement.org_suppliers.show.supplier_products.index' =>
             array_merge(
-                (new ShowOrgSupplier())->getBreadcrumbs($routeParameters),
+                (new ShowOrgSupplier())->getBreadcrumbs($routeName, $routeParameters),
                 $headCrumb(
                     [
                         'name'       => 'grp.org.procurement.org_suppliers.show.supplier_products.index',

@@ -9,6 +9,7 @@ namespace App\Actions\Procurement\OrgSupplier\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
+use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgSupplier\WithOrgSupplierSubNavigation;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
 use App\Enums\UI\SupplyChain\SupplierTabsEnum;
@@ -24,6 +25,8 @@ use Lorisleiva\Actions\ActionRequest;
 class ShowOrgSupplier extends OrgAction
 {
     use WithOrgSupplierSubNavigation;
+
+    private OrgAgent|Organisation $parent;
     public function handle(OrgSupplier $orgSupplier): OrgSupplier
     {
         return $orgSupplier;
@@ -40,6 +43,7 @@ class ShowOrgSupplier extends OrgAction
 
     public function asController(Organisation $organisation, OrgSupplier $orgSupplier, ActionRequest $request): OrgSupplier
     {
+        $this->parent = $organisation;
         $this->initialisation($organisation, $request)->withTab(SupplierTabsEnum::values());
 
         return $this->handle($orgSupplier);
@@ -54,6 +58,7 @@ class ShowOrgSupplier extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inOrgAgent(Organisation $organisation, OrgAgent $orgAgent, OrgSupplier $orgSupplier, ActionRequest $request): OrgSupplier
     {
+        $this->parent = $orgAgent;
         $this->initialisation($organisation, $request)->withTab(SupplierTabsEnum::values());
 
         return $this->handle($orgSupplier);
@@ -66,6 +71,7 @@ class ShowOrgSupplier extends OrgAction
             [
                 'title'       => __('supplier'),
                 'breadcrumbs' => $this->getBreadcrumbs(
+                    $request->route()->getName(),
                     $request->route()->originalParameters()
                 ),
                 'navigation'  => [
@@ -142,44 +148,75 @@ class ShowOrgSupplier extends OrgAction
         )->table(IndexHistory::make()->tableStructure(prefix: SupplierTabsEnum::HISTORY->value));
     }
 
-
-    public function getBreadcrumbs(array $routeParameters, $suffix = null): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
-        $orgSupplier = OrgSupplier::where('slug', $routeParameters['orgSupplier'])->first();
+        $headCrumb = function (OrgSupplier $orgSupplier, array $routeParameters, $suffix) {
+            return [
 
-        return array_merge(
-            (new ShowProcurementDashboard())->getBreadcrumbs($routeParameters),
-            [
                 [
                     'type'           => 'modelWithIndex',
                     'modelWithIndex' => [
                         'index' => [
-                            'route' => [
-                                'name'       => 'grp.org.procurement.org_suppliers.index',
-                                'parameters' => [
-                                    $routeParameters['organisation'],
-                                ]
-                            ],
+                            'route' => $routeParameters['index'],
                             'label' => __('Suppliers')
                         ],
                         'model' => [
-                            'route' => [
-                                'name'       => 'grp.org.procurement.org_suppliers.show',
-                                'parameters' => [
-                                    $routeParameters['organisation'],
-                                    $orgSupplier->slug
-                                ]
-                            ],
+                            'route' => $routeParameters['model'],
                             'label' => $orgSupplier->supplier->code,
                         ],
                     ],
                     'suffix'         => $suffix,
 
                 ],
-            ]
-        );
-    }
 
+            ];
+        };
+
+        $orgSupplier = OrgSupplier::where('slug', $routeParameters['orgSupplier'])->first();
+
+        return match ($routeName) {
+            'grp.org.procurement.org_suppliers.show',
+            'grp.org.procurement.org_suppliers.show.supplier_products.index',
+            'grp.org.procurement.org_suppliers.show.purchase_orders.index',
+            'grp.org.procurement.org_suppliers.show.stock_deliveries.index' =>
+            array_merge(
+                ShowProcurementDashboard::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $orgSupplier,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.procurement.org_suppliers.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.procurement.org_suppliers.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            'grp.org.procurement.org_agents.show.suppliers.show' =>
+            array_merge(
+                ShowOrgAgent::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $orgSupplier,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.procurement.org_agents.show.suppliers.index',
+                            'parameters' => $routeParameters
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.procurement.org_agents.show.suppliers.show',
+                            'parameters' => $routeParameters
+                        ]
+                    ],
+                    $suffix
+                )
+            ),
+            default => []
+        };
+    }
 
     public function jsonResponse(OrgSupplier $orgSupplier): OrgSupplierResource
     {
@@ -217,7 +254,19 @@ class ShowOrgSupplier extends OrgAction
                     ]
 
                 ]
-            ]
+            ],
+            'grp.org.procurement.org_agents.show.suppliers.show' => [
+                'label' => $orgSupplier->supplier->name,
+                'route' => [
+                    'name'       => $routeName,
+                    'parameters' => [
+                        'organisation'    => $orgSupplier->organisation->slug,
+                        'orgAgent'        => $this->parent->slug,
+                        'orgSupplier'     => $orgSupplier->slug
+                    ]
+
+                ]
+            ],
         };
     }
 

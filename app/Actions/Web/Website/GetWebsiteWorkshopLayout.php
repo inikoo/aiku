@@ -50,7 +50,7 @@ class GetWebsiteWorkshopLayout
                     ],
                 ],
                 'updateColorRoute' => [
-                    'name'       => 'grp.models.website.update.color',
+                    'name'       => 'grp.models.website.update.theme',
                     'parameters' => [
                         'website' => $website->id
                     ]
@@ -96,7 +96,7 @@ class GetWebsiteWorkshopLayout
                     ],
                 ],
                 'updateColorRoute' => [
-                        'name'       => 'grp.models.website.update.color',
+                        'name'       => 'grp.models.website.update.theme',
                         'parameters' => [
                             'website' => $website->id
                         ]
@@ -106,7 +106,7 @@ class GetWebsiteWorkshopLayout
         }
 
         $propsValue = [
-            'color' => Arr::get($website->published_layout, 'color')
+            'theme' => Arr::get($website->published_layout, 'theme')
         ];
 
         return array_merge($workshopRoutes, $propsValue);

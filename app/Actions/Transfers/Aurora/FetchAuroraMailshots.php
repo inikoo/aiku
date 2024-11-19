@@ -7,15 +7,14 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Mail\Mailshot\StoreMailshot;
-use App\Actions\Mail\Mailshot\UpdateMailshot;
-use App\Models\Mail\Mailshot;
+use App\Actions\Comms\Mailshot\StoreMailshot;
+use App\Actions\Comms\Mailshot\UpdateMailshot;
+use App\Models\Comms\Mailshot;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Throwable;
 
 class FetchAuroraMailshots extends FetchAuroraAction
 {

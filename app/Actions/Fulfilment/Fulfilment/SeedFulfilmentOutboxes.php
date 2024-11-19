@@ -7,11 +7,11 @@
 
 namespace App\Actions\Fulfilment\Fulfilment;
 
-use App\Actions\Mail\Outbox\StoreOutbox;
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
+use App\Actions\Comms\Outbox\StoreOutbox;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Models\Comms\Outbox;
+use App\Models\Comms\PostRoom;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Mail\Outbox;
-use App\Models\Mail\PostRoom;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;

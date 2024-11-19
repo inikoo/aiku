@@ -7,10 +7,10 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\Mail\DispatchedEmail\DispatchedEmailStateEnum;
-use App\Enums\Mail\Mailshot\MailshotStateEnum;
-use App\Enums\Mail\Outbox\OutboxStateEnum;
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Enums\Comms\Mailshot\MailshotStateEnum;
+use App\Enums\Comms\Outbox\OutboxStateEnum;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasMailStats

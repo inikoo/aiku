@@ -8,10 +8,10 @@
 namespace App\Actions\CRM\Customer\UI;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
+use App\Actions\Comms\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\CRM\BackInStockReminder\UI\IndexCustomerBackInStockReminders;
 use App\Actions\CRM\Favourite\UI\IndexCustomerFavourites;
 use App\Actions\Helpers\Media\UI\IndexAttachments;
-use App\Actions\Mail\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
@@ -24,7 +24,6 @@ use App\Http\Resources\CRM\CustomerBackInStockRemindersResource;
 use App\Http\Resources\CRM\CustomerFavouritesResource;
 use App\Http\Resources\CRM\CustomersResource;
 use App\Http\Resources\Helpers\Attachment\AttachmentsResource;
-use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\SysAdmin\Organisation;
