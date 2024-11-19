@@ -175,7 +175,10 @@ class ShowOrgSupplier extends OrgAction
         $orgSupplier = OrgSupplier::where('slug', $routeParameters['orgSupplier'])->first();
 
         return match ($routeName) {
-            'grp.org.procurement.org_suppliers.show' =>
+            'grp.org.procurement.org_suppliers.show',
+            'grp.org.procurement.org_suppliers.show.supplier_products.index',
+            'grp.org.procurement.org_suppliers.show.purchase_orders.index',
+            'grp.org.procurement.org_suppliers.show.stock_deliveries.index' =>
             array_merge(
                 ShowProcurementDashboard::make()->getBreadcrumbs($routeParameters),
                 $headCrumb(

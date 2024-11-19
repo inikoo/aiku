@@ -95,6 +95,7 @@ class IndexUniversalSearch extends InertiaAction
         $routes = [
             'accounting.' => ['accounting'],
             'productions.' => ['productions'],
+            'procurement.' => ['procurement'],
             'websites.' => ['web'],
             'fulfilments.show.web.' => ['web'],
             'fulfilments.' => ['fulfilments'],

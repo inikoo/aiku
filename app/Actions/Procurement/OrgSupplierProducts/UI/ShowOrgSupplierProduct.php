@@ -10,6 +10,7 @@ namespace App\Actions\Procurement\OrgSupplierProducts\UI;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\UI\GetOrgAgentShowcase;
+use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
 use App\Actions\Procurement\UI\ShowProcurementDashboard;
@@ -163,6 +164,24 @@ class ShowOrgSupplierProduct extends OrgAction
                             ],
                             'model' => [
                                 'name'       => 'grp.org.procurement.org_supplier_products.show',
+                                'parameters' => $routeParameters
+                            ]
+                        ],
+                        $suffix
+                    )
+                ),
+            'grp.org.procurement.org_agents.show.supplier_products.show' =>
+                array_merge(
+                    (new ShowOrgAgent())->getBreadcrumbs($routeParameters),
+                    $headCrumb(
+                        $orgSupplierProduct,
+                        [
+                            'index' => [
+                                'name'       => 'grp.org.procurement.org_agents.show.supplier_products.index',
+                                'parameters' => $routeParameters
+                            ],
+                            'model' => [
+                                'name'       => 'grp.org.procurement.org_agents.show.supplier_products.show',
                                 'parameters' => $routeParameters
                             ]
                         ],

@@ -10,6 +10,7 @@ namespace App\Models\Procurement;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,6 +49,7 @@ class OrgAgent extends Model
 {
     use InOrganisation;
     use HasSlug;
+    use HasUniversalSearch;
 
     protected $guarded = [];
 

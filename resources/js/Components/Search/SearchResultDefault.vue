@@ -113,8 +113,7 @@ const isLoading = ref(false)
                 <!-- Section: mini Tabs -->
                 <div v-if="data?.meta?.length" class="flex items-center pr-4 sm:pr-0 flex-wrap sm:gap-y-0.5 text-sm">
                     <template v-for="meta in data?.meta">
-                        <div v-if="meta.label" v-tooltip="meta.tooltip"
-                            class="flex items-center gap-x-1 text-gray-400 text-xs">
+                        <div v-tooltip="meta.tooltip" class="flex items-center gap-x-1 text-gray-400 text-xs">
                             <Icon v-if='meta?.icon' :data="meta.icon" size="sm" />
 
                             <template v-if="meta.type === 'date'">
@@ -126,12 +125,17 @@ const isLoading = ref(false)
                                 {{ locale.currencyFormat(meta.code || "usd", meta.amount) }}
                             </template>
 
+                            <template v-else-if="meta.type === 'location'">
+                                <AddressLocation :data="meta.location" />
+                            </template>
+
                             <template v-else-if="meta.type === 'number'">
                                 {{ meta.label }} {{ locale.number(meta.number) }}
                                 <span v-if="meta.afterLabel">
                                     {{ meta.afterLabel }}
                                 </span>
                             </template>
+
                             <template v-else-if="meta.type === 'address'">
                                 <AddressLocation :data="meta.label" />
                             </template>
@@ -139,7 +143,7 @@ const isLoading = ref(false)
                             <template v-else>{{ meta.label }}</template>
                         </div>
 
-                        <div v-if="meta.label" class="last:hidden px-2">•</div>
+                        <div class="last:hidden px-2">•</div>
                     </template>
                 </div>
             </div>
