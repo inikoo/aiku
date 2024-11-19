@@ -70,15 +70,6 @@ onMounted(() => {
 })
 
 const onPublishTheme = () => {
-    // <Link :href="route(data.updateColorRoute.name, data.updateColorRoute.parameters)"
-    //                 method="patch"
-    //                 as="button"
-    //                 :data="{ layout: data.theme}"
-    //                 class="w-full"
-    //                 preserveScroll
-    //                 @start="() => isLoadingPublish = true"
-    //                 @finish="() => isLoadingPublish = false"
-    //             >
     router.patch(route(props.data.updateColorRoute.name, props.data.updateColorRoute.parameters),
     { 
         layout: props.data.theme
@@ -151,9 +142,10 @@ const onPublishTheme = () => {
                 <div class="flex gap-4 justify-center flex-wrap">
                     <!-- Fullscreen Layout Option -->
                     <label
+                        for="radio-layout-fullscreen"
                         class="flex flex-col items-center gap-2 p-4 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50 transition"
                         :class="{ 'border-indigo-500 bg-indigo-50': data.theme?.layout === 'fullscreen' }">
-                        <input type="radio" value="fullscreen" :modelValue="get(data, 'theme.layout', null)" @update:modelValue="(e) => set(data, 'theme.layout', e.value)" class="hidden">
+                        <input id="radio-layout-fullscreen" name="radio-layout-fullscreen" type="radio" value="fullscreen" @change="(e) => (set(data, 'theme.layout', e.target.value))" class="hidden">
                         <div class="w-20 h-12 bg-gray-200 rounded-md flex items-center justify-center">
                             <div class="w-full h-full"
                                 style="background: repeating-linear-gradient(45deg, #ebf8ff, #ebf8ff 10px, #bee3f8 10px, #bee3f8 20px);">
@@ -164,9 +156,10 @@ const onPublishTheme = () => {
 
                     <!-- Blog in the Middle Layout Option -->
                     <label
+                        for="radio-layout-blog"
                         class="flex flex-col items-center gap-2 p-4 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50 transition"
                         :class="{ 'border-indigo-500 bg-indigo-50': data.theme?.layout === 'blog' }">
-                        <input type="radio" value="blog" :modelValue="get(data, 'theme.layout', null)" @update:modelValue="(e) => set(data, 'theme.layout', e.value)" class="hidden">
+                        <input id="radio-layout-blog" name="radio-layout-fullscreen" type="radio" value="blog" @change="(e) => (set(data, 'theme.layout', e.target.value))" class="hidden">
                         <div class="w-20 h-12 bg-gray-200 rounded-md flex items-center justify-center">
                             <div class="w-[60%] h-full rounded"
                                 style="background: repeating-linear-gradient(45deg, #ebf8ff, #ebf8ff 10px, #bee3f8 10px, #bee3f8 20px);">
