@@ -16,7 +16,7 @@ return new class () extends Migration {
             $table->id();
             $table->unsignedBigInteger('model_id');
             $table->string('model_type');
-            $table->unsignedSmallInteger('feedback_id')->index();
+            $table->unsignedBigInteger('feedback_id')->index();
             $table->foreign('feedback_id')->references('id')->on('feedbacks');
             $table->string('type')->index();
             $table->timestampsTz();

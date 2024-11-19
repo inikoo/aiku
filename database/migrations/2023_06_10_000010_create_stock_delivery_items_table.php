@@ -19,7 +19,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('stock_delivery_items', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table = $this->groupOrgRelationship($table);
             $table->unsignedInteger('stock_delivery_id')->index();
             $table->foreign('stock_delivery_id')->references('id')->on('stock_deliveries');

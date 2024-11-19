@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('delivery_note_id')->index();
             $table->foreign('delivery_note_id')->references('id')->on('delivery_notes');
-            $table->unsignedInteger('delivery_note_item_id')->index();
+            $table->unsignedBigInteger('delivery_note_item_id')->index();
             $table->foreign('delivery_note_item_id')->references('id')->on('delivery_note_items');
 
             $table->boolean('status')->default(false)->index();
