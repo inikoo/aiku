@@ -28,6 +28,8 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
+            $table->unsignedInteger('sales_channel_id')->index();
+            $table->foreign('sales_channel_id')->references('id')->on('sales_channels');
 
             $table->unsignedInteger('customer_client_id')->nullable()->index();
             $table->foreign('customer_client_id')->references('id')->on('customer_clients');

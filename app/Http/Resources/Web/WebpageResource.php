@@ -20,7 +20,7 @@ class WebpageResource extends JsonResource
     {
         /** @var Webpage $webpage */
         $webpage = $this;
-
+        // dd($webpage->webBlocks);
         return [
             'id'                  => $webpage->id,
             'slug'                => $webpage->slug,
@@ -53,6 +53,9 @@ class WebpageResource extends JsonResource
             ],
             'images_upload_route' => [
                 'name'       => 'grp.models.model_has_web_block.images.store',
+                // 'parameters' => [
+                //     'modelHasWebBlocks' => 
+                // ],
             ],
             'reorder_web_blocks_route'        => [
                 'name'       => 'grp.models.webpage.reorder_web_blocks',
