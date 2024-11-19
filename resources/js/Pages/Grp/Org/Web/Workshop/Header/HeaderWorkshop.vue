@@ -236,8 +236,8 @@ onMounted(() => {
                     </div>
                 </div>
                 
-                <div class="w-full py-2 px-3 overflow-y-auto">
-                    <div class="sticky top-0 bg-gray-50 z-20 text-lg font-semibold flex items-center justify-between gap-3 border-b border-gray-300">
+                <div class="w-full overflow-y-auto">
+                    <div class="px-3 py-0.5 sticky top-0 bg-gray-50 z-20 text-lg font-semibold flex items-center justify-between gap-3 border-b border-gray-300">
                         <div class="flex items-center gap-3">
                             <FontAwesomeIcon :icon="selectedTab.icon" aria-hidden="true" />
                             <span>{{ selectedTab.label }}</span>
@@ -251,13 +251,15 @@ onMounted(() => {
 
                     <!-- <pre>{{ usedTemplates?.[selectedTab.key].blueprint }}</pre> -->
                     <!-- <pre>{{ getBlueprint(usedTemplates[selectedTab.key].code) }}</pre> -->
-                    <SideEditor
-                        v-if="usedTemplates?.[selectedTab.key]?.data.fieldValue"
-                        :key="keySidebar"
-                        v-model="usedTemplates[selectedTab.key].data.fieldValue"
-                        :blueprint="getBlueprint(usedTemplates[selectedTab.key].code)" 
-                        :uploadImageRoute="uploadImageRoute" 
-                    />
+                    <div class="">
+                        <SideEditor
+                            v-if="usedTemplates?.[selectedTab.key]?.data.fieldValue"
+                            :key="keySidebar"
+                            v-model="usedTemplates[selectedTab.key].data.fieldValue"
+                            :blueprint="getBlueprint(usedTemplates[selectedTab.key].code)"
+                            :uploadImageRoute="uploadImageRoute"
+                        />
+                    </div>
                 </div>
             </div>
         </div>

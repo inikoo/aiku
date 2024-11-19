@@ -14,6 +14,7 @@ import Link from '@/Components/CMS/Fields/Link.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faText } from '@far'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { get, set } from 'lodash'
 library.add(faText)
 
 interface ModelButtonProperties {
@@ -71,32 +72,6 @@ console.log('sd',model.value)
 </script>
 
 <template>
-    <div v-if="model?.text" class="border-t border-gray-300 bg-gray-100 pb-3">
-        <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Text') }}</div>
-        <div class="px-3 flex gap-x-2 flex-nowrap">
-            <PureInput v-model="model.text" />
-            <div v-if="model?.container?.properties?.text?.color" class="h-full">
-                <ColorPicker
-                    :color="model?.container?.properties?.text.color"
-                    @changeColor="(newColor) => model.container.properties.text.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a})`"
-                    closeButton>
-                    <template #button>
-                        <div v-bind="$attrs"
-                            class="bg-gray-100 overflow-hidden h-full aspect-square w-10 rounded-md border border-gray-300 cursor-pointer flex justify-center items-center"
-                            >
-                            <FontAwesomeIcon icon='far fa-text' class='' fixed-width aria-hidden='true'
-                                :style="{
-                                    color: `${model.container.properties.text.color}`
-                                }"
-                            />
-                        </div>
-                    </template>
-                </ColorPicker>
-            </div>
-        </div>
-    </div>
-                
-
     <div  class="border-t border-gray-300 bg-gray-100 pb-3">
         <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Link') }}</div>
         <div class="px-3" v-if="model?.link">
@@ -118,6 +93,32 @@ console.log('sd',model.value)
     <div v-if="model?.container?.properties?.text" class="border-t border-gray-300 bg-gray-100 pb-3">
         <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Text') }}</div>
         <TextProperty v-model="model.container.properties.text" />
+        <div class="px-3 flex gap-x-2 flex-nowrap">
+            <PureInput
+                placeholder="Enter a text"
+                :modelValue="get(model, 'text', '')"
+                @update:modelValue="(text: string) => set(model, 'text', text)"
+            />
+
+            <!-- <div v-if="model?.container?.properties?.text?.color" class="h-full">
+                <ColorPicker
+                    :color="model?.container?.properties?.text.color"
+                    @changeColor="(newColor) => model.container.properties.text.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a})`"
+                    closeButton>
+                    <template #button>
+                        <div v-bind="$attrs"
+                            class="bg-gray-100 overflow-hidden h-full aspect-square w-10 rounded-md border border-gray-300 cursor-pointer flex justify-center items-center"
+                            >
+                            <FontAwesomeIcon icon='far fa-text' class='' fixed-width aria-hidden='true'
+                                :style="{
+                                    color: `${model.container.properties.text.color}`
+                                }"
+                            />
+                        </div>
+                    </template>
+                </ColorPicker>
+            </div> -->
+        </div>
     </div>
 
     <div v-if="model?.container?.properties?.border" class="border-t border-gray-300 bg-gray-100">
