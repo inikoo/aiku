@@ -8,16 +8,13 @@
 namespace App\Actions\UI\Retina\Dropshipping;
 
 use App\Actions\Catalogue\Product\UI\GetProductShowcase;
+use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\CRM\Customer\UI\IndexCustomers;
-use App\Actions\Mail\Mailshot\UI\IndexMailshots;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\RetinaAction;
 use App\Actions\UI\Retina\Dropshipping\Product\UI\IndexDropshippingRetinaPortfolio;
 use App\Enums\UI\Catalogue\ProductTabsEnum;
 use App\Http\Resources\Catalogue\ProductsResource;
-use App\Http\Resources\CRM\CustomersResource;
-use App\Http\Resources\Mail\MailshotResource;
-use App\Http\Resources\Sales\OrderResource;
 use App\Models\Catalogue\Product;
 use Inertia\Inertia;
 use Inertia\Response;

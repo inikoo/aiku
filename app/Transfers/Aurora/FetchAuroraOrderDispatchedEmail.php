@@ -7,7 +7,7 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Mail\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraOrderDispatchedEmail extends FetchAurora

@@ -20,7 +20,7 @@ class GetShopNavigation
         $navigation = [];
 
         $navigation['dashboard'] = [
-            'root'  => 'grp.org.shops.show.dashboard',
+            'root'  => 'grp.org.shops.show.',
             'label' => __('Shop'),
             'icon'  => 'fal fa-store-alt',
 
@@ -30,7 +30,17 @@ class GetShopNavigation
             ],
 
             'topMenu' => [
-                'subSections' => []
+                'subSections' => [
+                    [
+                        "label"   => __("Comms"),
+                        "tooltip" => __("Email communications"),
+                        "icon"    => ["fal", "fa-satellite-dish"],
+                        "route"   => [
+                            "name"       => "grp.org.shops.show.comms.dashboard",
+                            "parameters" => [$shop->organisation->slug, $shop->slug],
+                        ],
+                    ],
+                ]
             ]
 
         ];
@@ -238,15 +248,7 @@ class GetShopNavigation
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
-                        [
-                            "label"   => __("notifications"),
-                            "tooltip" => __("notifications"),
-                            "icon"    => ["fal", "fa-bell"],
-                            "route"   => [
-                                "name"       => "grp.org.shops.show.marketing.notifications.index",
-                                "parameters" => [$shop->organisation->slug, $shop->slug],
-                            ],
-                        ],
+
 
 
                     ],

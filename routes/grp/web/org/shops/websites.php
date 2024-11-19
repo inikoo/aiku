@@ -5,11 +5,11 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Comms\Outbox\UI\IndexOutboxes;
+use App\Actions\Comms\Outbox\UI\ShowOutbox;
+use App\Actions\Comms\Outbox\UI\ShowOutboxWorkshop;
 use App\Actions\CRM\WebUser\IndexWebUsers;
 use App\Actions\CRM\WebUser\ShowWebUser;
-use App\Actions\Mail\Outbox\UI\IndexOutboxes;
-use App\Actions\Mail\Outbox\UI\ShowOutbox;
-use App\Actions\Mail\Outbox\UI\ShowOutboxWorkshop;
 use App\Actions\Web\Banner\UI\CreateBanner;
 use App\Actions\Web\Banner\UI\EditBanner;
 use App\Actions\Web\Banner\UI\IndexBanners;

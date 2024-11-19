@@ -147,16 +147,16 @@ class AppServiceProvider extends ServiceProvider
                 'OrgStockFamily'                => 'App\Models\Inventory\OrgStockFamily',
 
                 // Mail
-                'DispatchedEmail'               => 'App\Models\Mail\DispatchedEmail',
-                'EmailAddress'                  => 'App\Models\Mail\EmailAddress',
-                'EmailTemplate'                 => 'App\Models\Mail\EmailTemplate',
-                'EmailTrackingEvent'            => 'App\Models\Mail\EmailTrackingEvent',
-                'PostRoom'                      => 'App\Models\Mail\PostRoom',
-                'Mailshot'                      => 'App\Models\Mail\Mailshot',
-                'Outbox'                        => 'App\Models\Mail\Outbox',
-                'SenderEmail'                   => 'App\Models\Mail\SenderEmail',
-                'SesNotification'               => 'App\Models\Mail\SesNotification',
-                'EmailCopy'                     => 'App\Models\Mail\EmailCopy',
+                'DispatchedEmail'               => 'App\Models\Comms\DispatchedEmail',
+                'EmailAddress'                  => 'App\Models\Comms\EmailAddress',
+                'EmailTemplate'                 => 'App\Models\Comms\EmailTemplate',
+                'EmailTrackingEvent'            => 'App\Models\Comms\EmailTrackingEvent',
+                'PostRoom'                      => 'App\Models\Comms\PostRoom',
+                'Mailshot'                      => 'App\Models\Comms\Mailshot',
+                'Outbox'                        => 'App\Models\Comms\Outbox',
+                'SenderEmail'                   => 'App\Models\Comms\SenderEmail',
+                'SesNotification'               => 'App\Models\Comms\SesNotification',
+                'EmailCopy'                     => 'App\Models\Comms\EmailCopy',
 
 
                 // Catalogue

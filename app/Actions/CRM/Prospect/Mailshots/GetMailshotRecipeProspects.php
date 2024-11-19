@@ -9,7 +9,7 @@ namespace App\Actions\CRM\Prospect\Mailshots;
 
 use App\Actions\InertiaAction;
 use App\Actions\Mail\Mailshot\GetMailshotRecipientsQueryBuilder;
-use App\Models\Mail\Mailshot;
+use App\Models\Comms\Mailshot;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsObject;

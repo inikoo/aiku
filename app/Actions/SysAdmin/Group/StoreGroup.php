@@ -7,9 +7,9 @@
 
 namespace App\Actions\SysAdmin\Group;
 
-use App\Actions\Mail\PostRoom\StorePostRoom;
+use App\Actions\Comms\PostRoom\StorePostRoom;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateJobPositions;
-use App\Enums\Mail\PostRoom\PostRoomCodeEnum;
+use App\Enums\Comms\PostRoom\PostRoomCodeEnum;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Language;

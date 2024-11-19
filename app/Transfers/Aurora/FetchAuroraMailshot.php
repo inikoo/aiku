@@ -7,8 +7,8 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Mail\Mailshot\MailshotStateEnum;
-use App\Enums\Mail\Mailshot\MailshotTypeEnum;
+use App\Enums\Comms\Mailshot\MailshotStateEnum;
+use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraMailshot extends FetchAurora

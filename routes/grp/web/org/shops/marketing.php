@@ -5,11 +5,11 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Mail\Mailshot\UI\CreateMailshot;
-use App\Actions\Mail\Mailshot\UI\EditMailshot;
-use App\Actions\Mail\Mailshot\UI\IndexMarketingMailshots;
-use App\Actions\Mail\Mailshot\UI\IndexNewsletterMailshots;
-use App\Actions\Mail\Mailshot\UI\ShowMailshot;
+use App\Actions\Comms\Mailshot\UI\CreateMailshot;
+use App\Actions\Comms\Mailshot\UI\EditMailshot;
+use App\Actions\Comms\Mailshot\UI\IndexMarketingMailshots;
+use App\Actions\Comms\Mailshot\UI\IndexNewsletterMailshots;
+use App\Actions\Comms\Mailshot\UI\ShowMailshot;
 use App\Actions\UI\Dropshipping\Marketing\ShowMarketingDashboard;
 use App\Stubs\UIDummies\CreateDummy;
 use App\Stubs\UIDummies\EditDummy;

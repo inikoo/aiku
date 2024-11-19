@@ -10,14 +10,14 @@ namespace App\Actions\Helpers\Snapshot\UI;
 use App\Actions\InertiaAction;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\InertiaTable\InertiaTable;
+use App\Models\Comms\EmailTemplate;
 use App\Models\Helpers\Snapshot;
-use App\Models\Mail\EmailTemplate;
 use App\Models\Web\Banner;
 use App\Models\Web\Webpage;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\ActionRequest;
-use App\Services\QueryBuilder;
 
 class IndexSnapshots extends InertiaAction
 {

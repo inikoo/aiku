@@ -30,6 +30,14 @@ function supplierRoute(supplier: Supplier) {
                   route().params['organisation'],
                   supplier.org_supplier_slug
                 ]);
+        case 'grp.org.procurement.org_agents.show.suppliers.index':
+            return route(
+                'grp.org.procurement.org_agents.show.suppliers.show',
+                [
+                  route().params['organisation'],
+                  route().params['orgAgent'],
+                  supplier.org_supplier_slug
+                ]);
 
     }
 }
