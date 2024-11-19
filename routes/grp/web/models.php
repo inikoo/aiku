@@ -529,7 +529,7 @@ Route::name('website.')->prefix('website/{website:id}')->group(function () {
 
     Route::patch('/settings/update', PublishWebsiteProductTemplate::class)->name('settings.update');
 
-    Route::patch('color', [PublishWebsiteMarginal::class, 'color'])->name('update.color');
+    Route::patch('theme', [PublishWebsiteMarginal::class, 'theme'])->name('update.theme');
 
     Route::patch('', UpdateWebsite::class)->name('update');
     Route::post('launch', LaunchWebsite::class)->name('launch');

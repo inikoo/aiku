@@ -200,10 +200,10 @@ class PublishWebsiteMarginal extends OrgAction
         $this->handle($website, 'footer', $this->validatedData);
     }
 
-    public function color(Website $website, ActionRequest $request): void
+    public function theme(Website $website, ActionRequest $request): void
     {
         $this->initialisationFromShop($website->shop, $request);
-        $this->handle($website, 'color', $this->validatedData);
+        $this->handle($website, 'theme', $this->validatedData);
     }
 
     public function menu(Website $website, ActionRequest $request): void
