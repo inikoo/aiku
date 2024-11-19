@@ -34,7 +34,8 @@ const props = withDefaults(defineProps<{
     closeButton?: boolean
     isEditable?: boolean
 }>(), {
-    color: 'rgba(0, 0, 0, 0)'
+    color: 'rgba(0, 0, 0, 0)',
+    isEditable: true
 })
 
 const emits = defineEmits<{
