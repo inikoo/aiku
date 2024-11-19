@@ -40,6 +40,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraPollOptions;
 use App\Actions\Transfers\Aurora\FetchAuroraPolls;
 use App\Actions\Transfers\Aurora\FetchAuroraProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraProspects;
+use App\Actions\Transfers\Aurora\FetchAuroraPurges;
 use App\Actions\Transfers\Aurora\FetchAuroraServices;
 use App\Actions\Transfers\Aurora\FetchAuroraShippers;
 use App\Actions\Transfers\Aurora\FetchAuroraShippingZones;
@@ -96,6 +97,7 @@ use App\Models\Mail\Mailshot;
 use App\Models\Manufacturing\Production;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\Purge;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
@@ -282,7 +284,6 @@ trait WithAuroraParsers
 
     public function parseShop($sourceId): Shop
     {
-
         $shop = Shop::where('source_id', $sourceId)->first();
         if (!$shop) {
             $sourceData = explode(':', $sourceId);
@@ -531,8 +532,8 @@ trait WithAuroraParsers
 
     public function parseOrgSupplierProduct($sourceId): ?OrgSupplierProduct
     {
-        $orgSupplierProduct   = OrgSupplierProduct::where('source_id', $sourceId)->first();
-        $sourceData = explode(':', $sourceId);
+        $orgSupplierProduct = OrgSupplierProduct::where('source_id', $sourceId)->first();
+        $sourceData         = explode(':', $sourceId);
 
         if (!$orgSupplierProduct) {
             $supplierProduct = FetchAuroraSupplierProducts::run($this->organisationSource, $sourceData[1]);
@@ -540,6 +541,7 @@ trait WithAuroraParsers
                 $orgSupplierProduct = OrgSupplierProduct::where('supplier_product_id', $supplierProduct->id)->first();
             }
         }
+
         return $orgSupplierProduct;
     }
 
@@ -604,15 +606,14 @@ trait WithAuroraParsers
 
     public function parseDeliveryNote($sourceId): ?DeliveryNote
     {
-
         if (!$sourceId) {
             return null;
         }
 
         $deliveryNote = DeliveryNote::withTrashed()->where('source_id', $sourceId)->first();
         if (!$deliveryNote) {
-            $sourceData = explode(':', $sourceId);
-            $deliveryNote      = FetchAuroraDeliveryNotes::run($this->organisationSource, $sourceData[1]);
+            $sourceData   = explode(':', $sourceId);
+            $deliveryNote = FetchAuroraDeliveryNotes::run($this->organisationSource, $sourceData[1]);
         }
 
         return $deliveryNote;
@@ -620,7 +621,6 @@ trait WithAuroraParsers
 
     public function parseInvoice($sourceId): ?Invoice
     {
-
         if (!$sourceId) {
             return null;
         }
@@ -628,7 +628,7 @@ trait WithAuroraParsers
         $invoice = Invoice::withTrashed()->where('source_id', $sourceId)->first();
         if (!$invoice) {
             $sourceData = explode(':', $sourceId);
-            $invoice      = FetchAuroraInvoices::run($this->organisationSource, $sourceData[1]);
+            $invoice    = FetchAuroraInvoices::run($this->organisationSource, $sourceData[1]);
         }
 
         return $invoice;
@@ -645,11 +645,10 @@ trait WithAuroraParsers
 
         if (!$ingredient) {
             $ingredient = Ingredient::whereJsonContains('sources->ingredients', $sourceId)->first();
-
         }
 
         if (!$ingredient) {
-            $sourceData                = explode(':', $sourceId);
+            $sourceData = explode(':', $sourceId);
             $ingredient = FetchAuroraIngredients::run($this->organisationSource, $sourceData[1]);
         }
 
@@ -844,8 +843,8 @@ trait WithAuroraParsers
 
         $offer = Offer::withTrashed()->where('source_id', $sourceId)->first();
         if (!$offer) {
-            $sourceData    = explode(':', $sourceId);
-            $offer = FetchAuroraOffers::run($this->organisationSource, $sourceData[1]);
+            $sourceData = explode(':', $sourceId);
+            $offer      = FetchAuroraOffers::run($this->organisationSource, $sourceData[1]);
         }
 
         return $offer;
@@ -945,7 +944,7 @@ trait WithAuroraParsers
         $poll = Poll::withTrashed()->where('source_id', $sourceId)->first();
         if (!$poll) {
             $sourceData = explode(':', $sourceId);
-            $poll    = FetchAuroraPolls::run($this->organisationSource, $sourceData[1]);
+            $poll       = FetchAuroraPolls::run($this->organisationSource, $sourceData[1]);
         }
 
         return $poll;
@@ -956,10 +955,21 @@ trait WithAuroraParsers
         $pollOption = PollOption::where('source_id', $sourceId)->first();
         if (!$pollOption) {
             $sourceData = explode(':', $sourceId);
-            $pollOption    = FetchAuroraPollOptions::run($this->organisationSource, $sourceData[1]);
+            $pollOption = FetchAuroraPollOptions::run($this->organisationSource, $sourceData[1]);
         }
 
         return $pollOption;
+    }
+
+    public function parsePurge($sourceId): ?Purge
+    {
+        $purge = Purge::where('source_id', $sourceId)->first();
+        if (!$purge) {
+            $sourceData = explode(':', $sourceId);
+            $purge      = FetchAuroraPurges::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $purge;
     }
 
 

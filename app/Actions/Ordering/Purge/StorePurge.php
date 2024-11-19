@@ -33,12 +33,12 @@ class StorePurge extends OrgAction
         data_set($modelData, 'organisation_id', $shop->organisation_id);
 
         $purge = DB::transaction(function () use ($shop, $modelData) {
-         /** @var Purge $purge */
-        $purge = $shop->purges()->create($modelData);
-        $purge->refresh();
-        $purge->stats()->create([
-            'currency_id' => $shop->currency_id
-        ]);
+            /** @var Purge $purge */
+            $purge = $shop->purges()->create($modelData);
+            $purge->refresh();
+            $purge->stats()->create([
+                'currency_id' => $shop->currency_id
+            ]);
 
             return $purge;
         });

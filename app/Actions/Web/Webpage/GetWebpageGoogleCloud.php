@@ -88,11 +88,12 @@ class GetWebpageGoogleCloud extends OrgAction
             return [];
         }
         $query = new SearchAnalyticsQueryRequest();
-        $currentDate = Date::now();
+        $currentDate = Date::now()->setTimezone('UTC');
         $query->startDate = Arr::get($modelData, 'startDate') ?? $currentDate->copy()->subWeek()->toDateString();
         $query->endDate = Arr::get($modelData, 'endDate') ?? $currentDate->toDateString();
-        $query->dimensions = Arr::get($modelData, 'dimentions') ?? ['date'];
+        $query->dimensions = ['date'];
         $query->searchType = Arr::get($modelData, 'searchType') ?? 'web';
+        $query->dataState = 'all';
         if ($webpage->url) {
             $query->setDimensionFilterGroups([
                 "filters" => [
@@ -129,7 +130,6 @@ class GetWebpageGoogleCloud extends OrgAction
         return [
             'startDate' => ['sometimes', 'date'],
             'endDate' => ['sometimes', 'date'],
-            'dimensions' => ['sometimes'],
             'searchType' => ['sometimes']
         ];
     }

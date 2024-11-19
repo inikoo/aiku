@@ -6,7 +6,7 @@
  * copyright 2024
 */
 
-namespace App\Actions\Discounts\OfferComponent\Hydrators;
+namespace App\Actions\Discounts\Offer\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Models\Discounts\Offer;

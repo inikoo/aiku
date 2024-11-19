@@ -1,12 +1,11 @@
 <?php
 /*
- * author Arya Permana - Kirin
- * created on 01-11-2024-11h-17m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 18 Nov 2024 17:07:33 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Enums\Ordering\Purge;
+namespace App\Enums\Ordering\PurgedOrder;
 
 use App\Enums\EnumHelperTrait;
 

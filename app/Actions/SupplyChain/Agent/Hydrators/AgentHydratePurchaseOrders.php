@@ -46,9 +46,9 @@ class AgentHydratePurchaseOrders
         }
 
         $purchaseOrderStatusCounts =  $agent->purchaseOrders()
-            ->selectRaw('status, count(*) as total')
-            ->groupBy('status')
-            ->pluck('total', 'status')->all();
+            ->selectRaw('delivery_status, count(*) as total')
+            ->groupBy('delivery_status')
+            ->pluck('total', 'delivery_status')->all();
 
         foreach (PurchaseOrderDeliveryStatusEnum::cases() as $purchaseOrderStatusEnum) {
             $stats['number_purchase_orders_delivery_status_'.$purchaseOrderStatusEnum->snake()] = Arr::get($purchaseOrderStatusCounts, $purchaseOrderStatusEnum->value, 0);

@@ -6,7 +6,7 @@
  */
 
 use App\Models\Helpers\Media;
-use App\Services\MediaLibrary\InverseUlidPathGenerator;
+use App\Services\MediaLibrary\InverseBase32PathGenerator;
 
 return [
 
@@ -78,7 +78,7 @@ return [
     /*
      * The class that contains the strategy for determining a media file's path.
      */
-    'path_generator' => InverseUlidPathGenerator::class,
+    'path_generator' => InverseBase32PathGenerator::class,
 
     /*
      * The class that contains the strategy for determining how to remove files.

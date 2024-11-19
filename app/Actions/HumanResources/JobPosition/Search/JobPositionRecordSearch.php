@@ -37,7 +37,7 @@ class JobPositionRecordSearch
     private function saveToUniversalSearch(JobPosition $jobPosition, Organisation $organisation)
     {
 
-        $universalSearchData = [
+        $modelData = [
             'group_id'          => $jobPosition->group_id,
             'organisation_id'   => $organisation->id,
             'organisation_slug' => $organisation->slug,
@@ -85,7 +85,7 @@ class JobPositionRecordSearch
             });
         }
 
-        UniversalSearch::create(array_merge($universalSearchData, [
+        UniversalSearch::create(array_merge($modelData, [
             'model_id'   => $jobPosition->id,
             'model_type' => class_basename(JobPosition::class),
         ]));
