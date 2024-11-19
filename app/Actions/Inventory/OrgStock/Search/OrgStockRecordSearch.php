@@ -10,6 +10,8 @@
 namespace App\Actions\Inventory\OrgStock\Search;
 
 use App\Models\Inventory\OrgStock;
+use App\Models\Inventory\Warehouse;
+use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class OrgStockRecordSearch
@@ -33,6 +35,11 @@ class OrgStockRecordSearch
         }
 
         $warehouse = $orgStock->organisation->warehouses->first();
+
+        if (!$warehouse) {
+            return;
+        }
+
         $orgFamilyName = '';
         if ($orgStock->orgStockFamily) {
             $orgFamilyName = $orgStock->orgStockFamily->name ? ' (' . $orgStock->orgStockFamily->name  . ')' : '';
