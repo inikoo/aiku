@@ -59,6 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Comms\ModelSubscribedToOutbox> $subscribers
  * @property-read Collection<int, \App\Models\Comms\ModelSubscribedToOutbox> $unsubscribed
  * @property-read Website|null $website
+ * @method static \Database\Factories\Comms\OutboxFactory factory($count = null, $state = [])
  * @method static Builder<static>|Outbox newModelQuery()
  * @method static Builder<static>|Outbox newQuery()
  * @method static Builder<static>|Outbox onlyTrashed()
