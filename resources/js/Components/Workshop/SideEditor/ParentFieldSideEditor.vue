@@ -6,14 +6,21 @@ import AccordionPanel from 'primevue/accordionpanel'
 import AccordionHeader from 'primevue/accordionheader'
 import AccordionContent from 'primevue/accordioncontent'
 import ChildFieldSideEditor from '@/Components/Workshop/SideEditor/ChildFieldSideEditor.vue'
+import { v4 as uuidv4 } from 'uuid';
 
 import { getFormValue ,setFormValue, getComponent } from '@/Composables/SideEditorHelper'
 import { get } from 'lodash'
 import { routeType } from '@/types/route'
 
 const props = defineProps<{
-    blueprint: {}
-    uploadImageRoute?: routeType
+    blueprint: {
+        name : String,
+        type : String,
+        key : Array<String> | String,
+        replaceForm : Array<any>
+    }
+    uploadImageRoute?: routeType,
+    index:Number
 }>()
 
 const modelValue = defineModel()
@@ -25,7 +32,7 @@ const emits = defineEmits<{
 </script>
 
 <template>
-    <AccordionPanel v-if="blueprint.name" :key="blueprint.key">
+    <AccordionPanel v-if="blueprint.name" :key="index" :value="index">
         <AccordionHeader>
             <div>
                 <Icon v-if="blueprint?.icon" :data="blueprint.icon" />
@@ -35,7 +42,7 @@ const emits = defineEmits<{
         <AccordionContent class="px-0 py-2">
             <div class="bg-white mt-[0px]">
                 <template v-if="blueprint.replaceForm">
-                    <Accordion class="w-full" :key="blueprint.key + 2">
+                    <Accordion class="w-full">
                         <ChildFieldSideEditor 
                             :blueprint="blueprint.replaceForm"
                             :modelValue="getFormValue(modelValue, blueprint.key)"
