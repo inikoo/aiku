@@ -8,15 +8,31 @@
 
 namespace App\Models\Ordering;
 
-use App\Models\Traits\HasHistory;
-use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use OwenIt\Auditing\Contracts\Auditable;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property int $sales_channel_id
+ * @property string|null $first_used_at
+ * @property string|null $last_used_at
+ * @property int $number_customers
+ * @property int $number_orders
+ * @property int $number_invoices
+ * @property int $number_delivery_notes
+ * @property string $amount
+ * @property string $org_amount
+ * @property string $group_amount
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Ordering\SalesChannel $salesChannel
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SalesChannelStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SalesChannelStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SalesChannelStats query()
+ * @mixin \Eloquent
+ */
 class SalesChannelStats extends Model
 {
     protected $table = 'sales_channel_stats';

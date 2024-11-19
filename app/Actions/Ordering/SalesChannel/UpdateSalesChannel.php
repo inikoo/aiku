@@ -8,22 +8,11 @@
 
 namespace App\Actions\Ordering\SalesChannel;
 
-use App\Actions\Ordering\Purge\Hydrators\PurgeHydratePurgedOrders;
-use App\Actions\Ordering\PurgedOrder\StorePurgedOrder;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Ordering\Order\OrderStateEnum;
-use App\Enums\Ordering\Purge\PurgeStateEnum;
-use App\Enums\Ordering\Purge\PurgeTypeEnum;
-use App\Models\Catalogue\Shop;
-use App\Models\Ordering\Purge;
 use App\Models\Ordering\SalesChannel;
 use App\Rules\IUnique;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
-use Illuminate\Validation\Validator;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateSalesChannel extends OrgAction
@@ -31,11 +20,12 @@ class UpdateSalesChannel extends OrgAction
     use WithNoStrictRules;
     use WithActionUpdate;
 
+
+    private SalesChannel $salesChannel;
+
     public function handle(SalesChannel $salesChannel, array $modelData): SalesChannel
     {
-        $salesChannel = $this->update($salesChannel, $modelData);
-
-        return $salesChannel;
+        return $this->update($salesChannel, $modelData);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -44,17 +34,51 @@ class UpdateSalesChannel extends OrgAction
             return true;
         }
 
-        return false;
+        return $request->user()->hasPermissionTo('sysadmin.edit');
     }
 
     public function rules(): array
     {
         $rules = [
-            'name'  => ['sometimes', 'string']
+            'code' => [
+                'sometimes',
+                'alpha_dash',
+                'max:16',
+                new IUnique(
+                    table: 'sales_channels',
+                    extraConditions: [
+                        [
+                            'column' => 'group_id',
+                            'value'  => $this->shop->group_id
+                        ],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->salesChannel->id
+                        ]
+                    ]
+                ),
+
+            ],
+            'name' => [
+                'sometimes',
+                'string',
+                new IUnique(
+                    table: 'sales_channels',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->shop->group_id],
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->salesChannel->id
+                        ]
+                    ]
+                )
+            ]
         ];
 
         if (!$this->strict) {
-            $rules             = $this->noStrictStoreRules($rules);
+            $rules = $this->noStrictStoreRules($rules);
         }
 
         return $rules;
@@ -70,14 +94,14 @@ class UpdateSalesChannel extends OrgAction
     public function action(SalesChannel $salesChannel, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): SalesChannel
     {
         if (!$audit) {
-            Purge::disableAuditing();
+            SalesChannel::disableAuditing();
         }
 
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
-
-        $this->initialisationFromShop($salesChannel->shop, $modelData);
+        $this->salesChannel   = $salesChannel;
+        $this->initialisationFromGroup($salesChannel->group, $modelData);
 
         return $this->handle($salesChannel, $this->validatedData);
     }

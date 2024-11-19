@@ -54,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property int $shop_id
  * @property int $customer_id
+ * @property int $sales_channel_id
  * @property int|null $customer_client_id
  * @property string|null $reference
  * @property string|null $customer_reference Customers own order reference
@@ -280,5 +281,9 @@ class Order extends Model implements HasMedia, Auditable
         return $this->morphToMany(DispatchedEmail::class, 'model', 'model_has_dispatched_emails')->withTimestamps();
     }
 
+    public function salesChannel(): BelongsTo
+    {
+        return $this->belongsTo(SalesChannel::class);
+    }
 
 }

@@ -40,10 +40,11 @@ return new class () extends Migration {
             $table->dateTimeTz('date')->index()->nullable();
             $table->dateTimeTz('tax_liability_at')->nullable();
             $table->dateTimeTz('paid_at')->nullable();
+
             $table->jsonb('data');
+            $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->index()->nullable();
         });
