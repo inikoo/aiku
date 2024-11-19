@@ -1,6 +1,5 @@
 
 import type { Component } from 'vue'
-import EditorAndPanelProperties from "@/Components/CMS/Fields/EditorAndPanelProperties.vue"
 import ButtonVisibleLoggedIn from '@/Components/CMS/Fields/ButtonVisibleLoggedIn.vue'
 import PanelProperties from '@/Components/CMS/Fields/PanelProperties.vue'
 import SideEditorInputHTML from '@/Components/CMS/Fields/SideEditorInputHTML.vue'
@@ -33,7 +32,6 @@ export const getComponent = (componentName: string) => {
         'payment_templates': Payments,
         'editor': Editor,
         'socialMedia': socialMedia,
-        "EditorAndPanelProperties": EditorAndPanelProperties,
         "VisibleLoggedIn": ButtonVisibleLoggedIn,
         "properties": PanelProperties,
         "background": Background,

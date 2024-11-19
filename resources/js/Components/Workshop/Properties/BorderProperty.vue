@@ -97,12 +97,12 @@ const iconRoundedCorner = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" 
                 >
                     <template #button>
                         <div v-bind="$attrs" class="overflow-hidden h-7 w-7 rounded-md border border-gray-300 cursor-pointer flex justify-center items-center" :style="{
-                            border: `4px solid ${model.color}`
+                            border: `4px solid ${model?.color}`
                         }"
-                            v-tooltip="!(model.top.value || model.right.value || model.bottom.value || model.left.value) ? trans('Will not show due have no border width') : undefined"
+                            v-tooltip="!(model?.top?.value || model?.right?.value || model?.bottom?.value || model?.left?.value) ? trans('Will not show due have no border width') : undefined"
                         >
                             <Transition name="spin-to-down">
-                                <FontAwesomeIcon v-if="!(model.top.value || model.right.value || model.bottom.value || model.left.value)" icon='fas fa-exclamation' class='text-gray-400 text-xs' fixed-width aria-hidden='true' />
+                                <FontAwesomeIcon v-if="!(model?.top?.value || model?.right?.value || model?.bottom?.value || model?.left?.value)" icon='fas fa-exclamation' class='text-gray-400 text-xs' fixed-width aria-hidden='true' />
                             </Transition>
                         </div>
                     </template>
