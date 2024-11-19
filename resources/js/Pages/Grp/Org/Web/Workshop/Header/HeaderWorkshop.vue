@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed, toRaw, onMounted, Component, IframeHTMLAttributes, provide  } from 'vue'
+import { ref, watch, computed, toRaw, onMounted, Component, IframeHTMLAttributes, provide, nextTick  } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -80,19 +80,34 @@ const saveCancelToken = ref<Function | null>(null)
 const isPreviewLoggedIn = ref(false)
 const _iframe = ref<IframeHTMLAttributes | null>(null)
 
-const onSelectBlock = (selectedBlock: object) => {
-    const selectedKey = selectedTab.value.key;
-    const currentTemplate = toRaw(usedTemplates.value[selectedKey]);
-    const newTemplate = { ...toRaw(selectedBlock)  };
+const isLoadingTemplate = ref(false)
+const onSelectBlock = async (selectedBlock: object) => {
+    isLoadingTemplate.value = true
+    
+    setTimeout(() => {
+        const selectedKey = selectedTab.value.key;
+        const currentTemplate = toRaw(usedTemplates.value[selectedKey])
+        const newTemplate = { ...toRaw(selectedBlock)  }
 
-    newTemplate.data.fieldValue = {
-        ...currentTemplate?.data?.fieldValue,
-        ...newTemplate?.data?.fieldValue
-    };
+        newTemplate.data.fieldValue = {
+            ...currentTemplate?.data?.fieldValue,
+            ...newTemplate?.data?.fieldValue
+        };
 
-    usedTemplates.value[selectedKey] = newTemplate;
-    keySidebar.value++;
-    isModalOpen.value = false;
+        usedTemplates.value[selectedKey] = newTemplate
+        keySidebar.value++
+        nextTick(() => {
+            isLoadingTemplate.value = false
+            isModalOpen.value = false
+        })
+    }, 500)
+
+    
+    // nextTick(() => {
+    // })
+    // setTimeout(() => {
+        
+    // }, 2000);
 }
 
 // Method: Publish
@@ -236,8 +251,8 @@ onMounted(() => {
                     </div>
                 </div>
                 
-                <div class="w-full py-2 px-3 overflow-y-auto">
-                    <div class="sticky top-0 bg-gray-50 z-20 text-lg font-semibold flex items-center justify-between gap-3 border-b border-gray-300">
+                <div class="w-full overflow-y-auto">
+                    <div class="px-3 py-0.5 sticky top-0 bg-gray-50 z-20 text-lg font-semibold flex items-center justify-between gap-3 border-b border-gray-300">
                         <div class="flex items-center gap-3">
                             <FontAwesomeIcon :icon="selectedTab.icon" aria-hidden="true" />
                             <span>{{ selectedTab.label }}</span>
@@ -251,13 +266,15 @@ onMounted(() => {
 
                     <!-- <pre>{{ usedTemplates?.[selectedTab.key].blueprint }}</pre> -->
                     <!-- <pre>{{ getBlueprint(usedTemplates[selectedTab.key].code) }}</pre> -->
-                    <SideEditor
-                        v-if="usedTemplates?.[selectedTab.key]?.data.fieldValue"
-                        :key="keySidebar"
-                        v-model="usedTemplates[selectedTab.key].data.fieldValue"
-                        :blueprint="getBlueprint(usedTemplates[selectedTab.key].code)" 
-                        :uploadImageRoute="uploadImageRoute" 
-                    />
+                    <div class="">
+                        <SideEditor
+                            v-if="usedTemplates?.[selectedTab.key]?.data.fieldValue"
+                            :key="keySidebar"
+                            v-model="usedTemplates[selectedTab.key].data.fieldValue"
+                            :blueprint="getBlueprint(usedTemplates[selectedTab.key].code)"
+                            :uploadImageRoute="uploadImageRoute"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
@@ -325,6 +342,7 @@ onMounted(() => {
             :onSelectBlock
             :webBlockTypes="selectedWebBlock"
             :currentTopbar="usedTemplates.topBar"
+            :isLoading="isLoadingTemplate"
         />
     </Modal>
 </template>

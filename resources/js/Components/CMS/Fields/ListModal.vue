@@ -6,6 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import Image from '@/Components/Image.vue'
 import { Image as ImageTS } from '@/types/Image'
+import LoadingIcon from '@/Components/Utils/LoadingIcon.vue';
+import Button from '@/Components/Elements/Buttons/Button.vue';
 
 library.add(faPresentation, faCube, faText, faImage, faImages, faPaperclip, faShoppingBasket, faStar, faHandHoldingBox, faBoxFull, faBars, faBorderAll, faLocationArrow)
 
@@ -18,13 +20,14 @@ const props = defineProps<{
         name: string
     }[]
     currentTopbar?: {}
+    isLoading?: boolean
 }>()
 
 const currentTopbarCode = props.currentTopbar?.code
 </script>
 
 <template>
-    <div class="flex border rounded-xl overflow-hidden">
+    <div class="relative flex border rounded-xl overflow-hidden">
         <div class="flex-1 p-4">
             <section aria-labelledby="products-heading" class="h-full mx-auto w-full sm:px-6 lg:px-8 overflow-y-auto">
                 <div class="relative grid  gap-y-8 gap-x-4 overflow-y-auto overflow-x-hidden">
@@ -42,10 +45,14 @@ const currentTopbarCode = props.currentTopbar?.code
                         </div>
 
                         <slot name="image" :block="block">
-                            <div @click="() => onSelectBlock(block)"
-                                class="min-h-16 max-h-20 w-full aspect-[4/1] overflow-hidden flex items-center bg-gray-100 justify-center border border-gray-300 hover:border-indigo-500 rounded cursor-pointer">
+                            <div
+                                class="group/template relative min-h-16 max-h-20 w-full aspect-[4/1] overflow-hidden flex items-center bg-gray-100 justify-center border border-gray-300 hover:border-indigo-500 rounded">
                                 <div class="w-auto shadow-md">
                                     <Image :src="block.screenshot" class="object-contain" />
+                                </div>
+
+                                <div class="hidden group-hover/template:flex absolute inset-0 bg-black/20 justify-center items-center">
+                                    <Button @click="() => onSelectBlock(block)" label="Select this template" />
                                 </div>
                             </div>
                         </slot>
@@ -53,6 +60,10 @@ const currentTopbarCode = props.currentTopbar?.code
                     </div>
                 </div>
             </section>
+        </div>
+
+        <div v-if="isLoading" class="absolute inset-0 bg-black/30 flex items-center justify-center text-[80px] text-white">
+            <LoadingIcon />
         </div>
     </div>
 </template>
