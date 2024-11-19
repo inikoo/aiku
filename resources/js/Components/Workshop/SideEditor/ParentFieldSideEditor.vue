@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getFormValue ,setFormValue, getComponent } from '@/Composables/SideEditorHelper'
 import { get } from 'lodash'
 import { routeType } from '@/types/route'
+import Icon from '@/Components/Icon.vue'
 
 const props = defineProps<{
     blueprint: {

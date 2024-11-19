@@ -6,15 +6,10 @@ import RadioButton from "primevue/radiobutton"
 import PureInput from "@/Components/Pure/PureInput.vue"
 import SelectQuery from "@/Components/SelectQuery.vue"
 
-// Define props
-const props = defineProps({
-	modelValue: {
-		type: Object,
-		required: true,
-	},
+const modelValue = defineModel({
+	required: true
 })
 
-const emit = defineEmits(["update:modelValue"])
 const options = ref([
 	{ label: "Internal", value: "internal" },
 	{ label: "External", value: "external" },

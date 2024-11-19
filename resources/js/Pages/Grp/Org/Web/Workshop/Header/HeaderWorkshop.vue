@@ -206,9 +206,8 @@ const sendToIframe = (data: any) => {
 }
 
 onMounted(() => {
-    if (get(props.data, 'theme.color', false)) {
+    if (!get(props.data, 'theme.color', false)) {
         set(props.data, 'theme.color', [...useColorTheme[0]])
-
     }
     irisStyleVariables(props.data.theme?.color)
 
