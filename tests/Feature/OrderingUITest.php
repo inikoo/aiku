@@ -89,7 +89,7 @@ beforeEach(function () {
             'type' => PurgeTypeEnum::MANUAL,
             'scheduled_at' => now(),
             'inactive_days' => 30
-        ],);
+        ], );
     }
     $this->purge = $purge;
     // dd($purge);

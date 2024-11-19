@@ -9,120 +9,121 @@ namespace App\Models\Comms;
 
 use App\Enums\Comms\EmailTemplate\EmailTemplateProviderEnum;
 use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum;
-use App\Models\Helpers\Deployment;
 use App\Models\Helpers\Media;
-use App\Models\Helpers\Snapshot;
-use App\Models\Inventory\Warehouse;
+use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasImage;
 use App\Models\Traits\InShop;
-use App\Models\Web\Website;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\Sluggable\HasSlug;
+use Spatie\Sluggable\SlugOptions;
+use Spatie\Tags\HasTags;
 
 /**
  * App\Models\Mail\EmailTemplate
  *
  * @property int $id
  * @property int $group_id
- * @property int $organisation_id
- * @property string|null $type
- * @property array|null $data
- * @property int|null $screenshot_id
- * @property int $outbox_id
+ * @property string $slug
+ * @property string $name
+ * @property EmailTemplateProviderEnum $provider
  * @property EmailTemplateStateEnum $state
- * @property int|null $unpublished_snapshot_id
- * @property int|null $live_snapshot_id
- * @property array $published_layout
- * @property \Illuminate\Support\Carbon|null $live_at
+ * @property bool $is_seeded
+ * @property array|null $layout
+ * @property array $data
+ * @property int|null $screenshot_id
+ * @property int $language_id
+ * @property \Illuminate\Support\Carbon|null $active_at
+ * @property \Illuminate\Support\Carbon|null $suspended_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Deployment> $deployments
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read Snapshot|null $liveSnapshot
+ * @property-read Media|null $image
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $images
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
- * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read \App\Models\Comms\Outbox $outbox
+ * @property-read \App\Models\SysAdmin\Organisation|null $organisation
  * @property-read Model|\Eloquent $parent
  * @property-read Media|null $screenshot
+ * @property \Illuminate\Database\Eloquent\Collection<int, \Spatie\Tags\Tag> $tags
  * @property-read \App\Models\Catalogue\Shop|null $shop
- * @property-read \Illuminate\Database\Eloquent\Collection<int, Snapshot> $snapshots
- * @property-read Snapshot|null $unpublishedSnapshot
- * @property-read Warehouse|null $warehouse
- * @property-read Website|null $website
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplate newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplate newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplate query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplate withAllTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplate withAllTagsOfAnyType($tags)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplate withAnyTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplate withAnyTagsOfAnyType($tags)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailTemplate withoutTags(\ArrayAccess|\Spatie\Tags\Tag|array|string $tags, ?string $type = null)
  * @mixin \Eloquent
  */
-class EmailTemplate extends Model implements HasMedia
+class EmailTemplate extends Model implements HasMedia, Auditable
 {
     use HasFactory;
-    use InteractsWithMedia;
     use InShop;
+    use HasTags;
+    use HasHistory;
+    use HasSlug;
+    use HasImage;
 
     protected $guarded = [];
 
     protected $casts = [
-        'data'             => 'array',
-        'published_layout' => 'array',
-        'state'            => EmailTemplateStateEnum::class,
-        'provider'         => EmailTemplateProviderEnum::class,
-        'active_at'        => 'datetime',
-        'suspended_at'     => 'datetime',
+        'data'         => 'array',
+        'layout'       => 'array',
+        'state'        => EmailTemplateStateEnum::class,
+        'provider'     => EmailTemplateProviderEnum::class,
+        'active_at'    => 'datetime',
+        'suspended_at' => 'datetime',
     ];
 
     protected $attributes = [
-        'data'             => '{}',
-        'published_layout' => '{}',
+        'data'   => '{}',
+        'layout' => '{}',
     ];
 
+
+    public function generateTags(): array
+    {
+        return [
+            'comms'
+        ];
+    }
+
+    protected array $auditInclude = [
+        'name',
+        'state',
+        'provider',
+        'active_at',
+        'suspended_at',
+    ];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->doNotGenerateSlugsOnUpdate()
+            ->saveSlugsTo('slug');
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function parent(): MorphTo
     {
         return $this->morphTo();
     }
 
-    public function snapshots(): MorphMany
-    {
-        return $this->morphMany(Snapshot::class, 'parent');
-    }
-
-    public function unpublishedSnapshot(): BelongsTo
-    {
-        return $this->belongsTo(Snapshot::class, 'unpublished_snapshot_id');
-    }
-
-    public function liveSnapshot(): BelongsTo
-    {
-        return $this->belongsTo(Snapshot::class, 'live_snapshot_id');
-    }
 
     public function screenshot(): BelongsTo
     {
         return $this->belongsTo(Media::class, 'screenshot_id');
     }
 
-    public function deployments(): MorphMany
-    {
-        return $this->morphMany(Deployment::class, 'model');
-    }
-
-    public function outbox(): BelongsTo
-    {
-        return $this->belongsTo(Outbox::class);
-    }
-
-    public function warehouse(): BelongsTo
-    {
-        return $this->belongsTo(Warehouse::class);
-    }
-
-    public function website(): BelongsTo
-    {
-        return $this->belongsTo(Website::class);
-    }
 }

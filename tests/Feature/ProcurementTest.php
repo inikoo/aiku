@@ -5,7 +5,6 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;

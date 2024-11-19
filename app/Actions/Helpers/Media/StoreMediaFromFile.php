@@ -24,7 +24,6 @@ class StoreMediaFromFile
         }
 
 
-
         $media = $model->addMedia($imageData['path'])
             ->preservingOriginal()
             ->withProperties(
@@ -32,14 +31,14 @@ class StoreMediaFromFile
                     [
                         'checksum' => $imageData['checksum'],
                         'group_id' => group()->id,
-                        'type' => $type,
+                        'type'     => $type,
                         'ulid'     => Str::ulid()
 
                     ],
                 )
             )
             ->usingName($imageData['originalName'])
-            ->usingFileName(hash('crc32b', $imageData['checksum'])  .'.'.$extension)
+            ->usingFileName(hash('crc32b', $imageData['checksum']).'.'.$extension)
             ->toMediaCollection($collection);
 
         UpdateIsAnimatedMedia::run($media, $imageData['path']);

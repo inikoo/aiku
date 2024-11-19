@@ -41,6 +41,7 @@ class StoreGroup
         SeedStockImages::run($group);
         SeedWebBlockTypes::run($group);
         SeedPlatforms::run($group);
+        SeedEmailTemplates::run($group);
 
         $group->stats()->create();
         $group->supplyChainStats()->create();

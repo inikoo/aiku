@@ -8,14 +8,16 @@
 namespace App\Actions\Comms\EmailTemplate;
 
 use App\Actions\OrgAction;
+use App\Enums\Comms\EmailTemplate\EmailTemplateProviderEnum;
+use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum;
 use App\Models\Comms\EmailTemplate;
 use App\Models\SysAdmin\Group;
+use Illuminate\Validation\Rule;
 
 class StoreEmailTemplate extends OrgAction
 {
     public function handle(Group $group, array $modelData): EmailTemplate
     {
-
         /** @var EmailTemplate $emailTemplate */
         $emailTemplate = $group->emailTemplates()->create($modelData);
 
@@ -25,15 +27,28 @@ class StoreEmailTemplate extends OrgAction
 
     public function rules(): array
     {
-        return [
-            'layout'  => ['sometimes', 'array']
+        $rules = [
+            'layout'      => ['sometimes', 'array'],
+            'name'        => ['required', 'string', 'max:255'],
+            'provider'    => ['required', Rule::enum(EmailTemplateProviderEnum::class)],
+            'language_id' => ['required', 'exists:languages,id'],
+            'data'        => ['sometimes', 'array'],
         ];
+
+        if (!$this->strict) {
+            $rules['is_seeded'] = ['required', 'boolean'];
+            $rules['state']     = ['required', Rule::enum(EmailTemplateStateEnum::class)];
+            $rules['active_at'] = ['sometimes', 'required', 'date'];
+        }
+
+        return $rules;
     }
 
 
-    public function action(Group $group, array $modelData): EmailTemplate
+    public function action(Group $group, array $modelData, bool $strict = true): EmailTemplate
     {
         $this->asAction = true;
+        $this->strict   = $strict;
         $this->initialisationFromGroup($group, $modelData);
 
         return $this->handle($group, $this->validatedData);
