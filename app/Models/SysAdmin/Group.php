@@ -27,6 +27,7 @@ use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\Subscription;
 use App\Models\Comms\EmailAddress;
+use App\Models\Comms\EmailTemplate;
 use App\Models\Comms\ModelSubscribedToOutbox;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
@@ -723,5 +724,10 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function ingredients(): HasMany
     {
         return $this->hasMany(Ingredient::class);
+    }
+
+    public function emailTemplates(): HasMany
+    {
+        return $this->hasMany(EmailTemplate::class);
     }
 }
