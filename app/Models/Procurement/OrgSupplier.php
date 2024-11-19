@@ -10,6 +10,7 @@ namespace App\Models\Procurement;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -53,6 +54,7 @@ class OrgSupplier extends Model
 {
     use InOrganisation;
     use HasSlug;
+    use HasUniversalSearch;
 
     protected $table = 'org_suppliers';
 
