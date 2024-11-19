@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed, toRaw, onMounted, Component, IframeHTMLAttributes, provide  } from 'vue'
+import { ref, watch, computed, toRaw, onMounted, Component, IframeHTMLAttributes, provide, nextTick  } from 'vue'
 import { Head, router } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
@@ -80,19 +80,34 @@ const saveCancelToken = ref<Function | null>(null)
 const isPreviewLoggedIn = ref(false)
 const _iframe = ref<IframeHTMLAttributes | null>(null)
 
-const onSelectBlock = (selectedBlock: object) => {
-    const selectedKey = selectedTab.value.key;
-    const currentTemplate = toRaw(usedTemplates.value[selectedKey]);
-    const newTemplate = { ...toRaw(selectedBlock)  };
+const isLoadingTemplate = ref(false)
+const onSelectBlock = async (selectedBlock: object) => {
+    isLoadingTemplate.value = true
+    
+    setTimeout(() => {
+        const selectedKey = selectedTab.value.key;
+        const currentTemplate = toRaw(usedTemplates.value[selectedKey])
+        const newTemplate = { ...toRaw(selectedBlock)  }
 
-    newTemplate.data.fieldValue = {
-        ...currentTemplate?.data?.fieldValue,
-        ...newTemplate?.data?.fieldValue
-    };
+        newTemplate.data.fieldValue = {
+            ...currentTemplate?.data?.fieldValue,
+            ...newTemplate?.data?.fieldValue
+        };
 
-    usedTemplates.value[selectedKey] = newTemplate;
-    keySidebar.value++;
-    isModalOpen.value = false;
+        usedTemplates.value[selectedKey] = newTemplate
+        keySidebar.value++
+        nextTick(() => {
+            isLoadingTemplate.value = false
+            isModalOpen.value = false
+        })
+    }, 500)
+
+    
+    // nextTick(() => {
+    // })
+    // setTimeout(() => {
+        
+    // }, 2000);
 }
 
 // Method: Publish
@@ -327,6 +342,7 @@ onMounted(() => {
             :onSelectBlock
             :webBlockTypes="selectedWebBlock"
             :currentTopbar="usedTemplates.topBar"
+            :isLoading="isLoadingTemplate"
         />
     </Modal>
 </template>
