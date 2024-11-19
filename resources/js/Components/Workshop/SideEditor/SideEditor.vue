@@ -20,8 +20,6 @@ const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
 }>()
 
-
-
 const setChild = (blueprint = [], data = {}) => {
     const result = { ...data };
     for (const form of blueprint) {
@@ -57,7 +55,6 @@ onMounted(() => {
 </script>
 
 <template>
-
     <div v-for="(field, index) of blueprint.filter((item) => item.type != 'hidden')">
         <Accordion class="w-full" v-model="openPanel">
             <ParentFieldSideEditor 

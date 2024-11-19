@@ -11,12 +11,12 @@ export default {
             replaceForm: [
                 {
                     key: ["numbers"],
-                    name: "Phone",
+                    label: "Phone",
                     type: "arrayPhone"
                 },
                 {
                     key: ["caption"],
-                    name: "caption",
+                    label: "caption",
                     type: "text"
                 }
             ]
@@ -27,17 +27,17 @@ export default {
             replaceForm: [
                 {
                     key: ["number"],
-                    name: "Phone",
+                    label: "Phone",
                     type: "text"
                 },
                 {
                     key: ["caption"],
-                    name: "caption",
+                    label: "caption",
                     type: "text"
                 },
                 {
                     key: ["message"],
-                    name: "message",
+                    label: "message",
                     type: "text"
                 }
             ]
@@ -58,12 +58,11 @@ export default {
             replaceForm: [
                 {
                     key: ["data"],
-                    name: "Payments",
                     type: "payment_templates",
                 },
                 {
                     key: ["label"],
-                    name: "Label",
+                    label: "Label",
                     type: "hidden"
                 }
             ]

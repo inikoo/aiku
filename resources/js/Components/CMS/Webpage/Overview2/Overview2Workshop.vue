@@ -58,12 +58,6 @@ function onSave() {
 			class="imgBx relative w-1/2 transition-all duration-300"
 			>
 			<div class="absolute inset-0">
-				<button
-					v-if="isEditable"
-					@click="isModalGallery = !isModalGallery"
-					style="position: absolute; top: 0; left: 10px; z-index: 10">
-					<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
-				</button>
 				<a :href="modelValue?.image?.url || '#'" target="_blank" rel="noopener noreferrer">
 					<img
 						v-if="!modelValue?.image"
