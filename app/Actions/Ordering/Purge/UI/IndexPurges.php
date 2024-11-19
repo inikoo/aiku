@@ -63,9 +63,9 @@ class IndexPurges extends OrgAction
                 'purges.inactive_days',
                 'purge_stats.estimated_number_orders',
                 'purge_stats.estimated_number_transactions',
-                'purge_stats.estimated_amount'
+                'purge_stats.estimated_net_amount'
             ])
-            ->allowedSorts(['id', 'scheduled_at', 'state', 'type', 'estimated_number_orders', 'estimated_number_transactions', 'estimated_amount'])
+            ->allowedSorts(['id', 'scheduled_at', 'state', 'type', 'estimated_number_orders', 'estimated_number_transactions', 'estimated_net_amount'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -98,7 +98,7 @@ class IndexPurges extends OrgAction
             $table->column(key: 'state', label: __('state'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'estimated_number_orders', label: __('orders'), sortable: true, canBeHidden: false, searchable: true);
             $table->column(key: 'estimated_number_transactions', label: __('transactions'), sortable: true, canBeHidden: false, searchable: true);
-            $table->column(key: 'estimated_amount', label: __('amount'), sortable: true, canBeHidden: false, searchable: true);
+            $table->column(key: 'estimated_net_amount', label: __('amount'), sortable: true, canBeHidden: false, searchable: true);
         };
     }
 
