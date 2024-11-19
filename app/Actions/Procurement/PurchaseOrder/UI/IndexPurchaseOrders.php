@@ -307,7 +307,7 @@ class IndexPurchaseOrders extends OrgAction
                 ]
             ),
             'grp.org.procurement.org_suppliers.show.purchase_orders.index' => array_merge(
-                ShowOrgSupplier::make()->getBreadcrumbs($routeParameters),
+                ShowOrgSupplier::make()->getBreadcrumbs($routeName, $routeParameters),
                 [
                     [
                         'type'   => 'simple',
