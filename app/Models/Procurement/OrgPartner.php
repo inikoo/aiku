@@ -8,6 +8,7 @@
 namespace App\Models\Procurement;
 
 use App\Models\SysAdmin\Organisation;
+use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -39,6 +40,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 class OrgPartner extends Model
 {
     use InOrganisation;
+    use HasUniversalSearch;
 
     protected $casts = [
         'sources'           => 'array',

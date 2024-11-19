@@ -5,7 +5,7 @@
  * Copyright (c) 2023, Inikoo LTD
  */
 
-namespace Database\Factories\Mail;
+namespace Database\Factories\Comms;
 
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;

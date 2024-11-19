@@ -66,7 +66,7 @@ class OrgAgentRecordSearch
                     [
                         'type' => 'number',
                         'number'     => $orgAgent->stats->number_org_supplier_products,
-                        'label' => __('supplier products') . ": "
+                        'label' => __('Supplier products') . ": "
                     ],
                 ],
             ]
