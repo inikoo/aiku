@@ -25,7 +25,7 @@ class PurgesResource extends JsonResource
             'inactive_days'                     => $this->inactive_days,
             'estimated_number_orders'           => $this->estimated_number_orders,
             'estimated_number_transactions'     => $this->estimated_number_transactions,
-            'estimated_amount'                  => $this->estimated_amount,
+            'estimated_net_amount'                  => $this->estimated_net_amount,
         ];
     }
 }
