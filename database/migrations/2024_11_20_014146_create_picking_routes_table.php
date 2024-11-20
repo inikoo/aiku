@@ -1,23 +1,25 @@
 <?php
 
-use App\Enums\Accounting\Invoice\InvoiceCategoryStateEnum;
+use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class () extends Migration {
+return new class extends Migration
+{
+    use HasGroupOrganisationRelationship;
     public function up(): void
     {
-        Schema::create('invoice_categories', function (Blueprint $table) {
+        Schema::create('picking_routes', function (Blueprint $table) {
             $table->id();
-            $table->unsignedSmallInteger('group_id');
-            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+            $table = $this->groupOrgRelationship($table);
+            $table->unsignedSmallInteger('warehouse_id')->index();
+            $table->foreign('warehouse_id')->references('id')->on('warehouses');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('name');
-            $table->string('state')->default(InvoiceCategoryStateEnum::IN_PROCESS);
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->string('source_id')->nullable();
+            $table->string('source_id')->nullable()->unique();
             $table->softDeletesTz();
             $table->timestampsTz();
         });
@@ -26,6 +28,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('invoice_categories');
+        Schema::dropIfExists('picking_routes');
     }
 };
