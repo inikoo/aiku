@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Charge\StoreCharge;
+use App\Actions\Billables\Charge\StoreCharge;
 use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
 use Illuminate\Support\Facades\Route;
 

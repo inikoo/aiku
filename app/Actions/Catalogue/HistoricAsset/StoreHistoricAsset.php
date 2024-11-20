@@ -7,18 +7,18 @@
 
 namespace App\Actions\Catalogue\HistoricAsset;
 
+use App\Actions\Billables\Charge\Hydrators\ChargeHydrateHistoricAssets;
+use App\Actions\Billables\Service\Hydrators\ServiceHydrateHistoricAssets;
+use App\Actions\Billables\Subscription\Hydrators\SubscriptionHydrateHistoricAssets;
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateHistoricAssets;
-use App\Actions\Catalogue\Charge\Hydrators\ChargeHydrateHistoricAssets;
 use App\Actions\Catalogue\Product\Hydrators\ProductHydrateHistoricAssets;
-use App\Actions\Catalogue\Service\Hydrators\ServiceHydrateHistoricAssets;
-use App\Actions\Catalogue\Subscription\Hydrators\SubscriptionHydrateHistoricAssets;
 use App\Actions\Fulfilment\Rental\Hydrators\RentalHydrateHistoricAssets;
-use App\Models\Catalogue\Charge;
+use App\Models\Billables\Charge;
+use App\Models\Billables\Rental;
+use App\Models\Billables\Service;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Product;
-use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Subscription;
-use App\Models\Fulfilment\Rental;
 use App\Models\Ordering\ShippingZone;
 use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;

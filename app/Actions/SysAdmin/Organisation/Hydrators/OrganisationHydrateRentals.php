@@ -8,8 +8,8 @@
 namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Fulfilment\Rental\RentalStateEnum;
-use App\Models\Fulfilment\Rental;
+use App\Enums\Billables\Rental\RentalStateEnum;
+use App\Models\Billables\Rental;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;

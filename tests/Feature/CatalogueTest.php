@@ -5,8 +5,10 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Charge\StoreCharge;
-use App\Actions\Catalogue\Charge\UpdateCharge;
+use App\Actions\Billables\Charge\StoreCharge;
+use App\Actions\Billables\Charge\UpdateCharge;
+use App\Actions\Billables\Service\StoreService;
+use App\Actions\Billables\Service\UpdateService;
 use App\Actions\Catalogue\Collection\AttachCollectionToModels;
 use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\Collection\UpdateCollection;
@@ -21,8 +23,6 @@ use App\Actions\Catalogue\ProductCategory\HydrateDepartments;
 use App\Actions\Catalogue\ProductCategory\HydrateFamilies;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\ProductCategory\UpdateProductCategory;
-use App\Actions\Catalogue\Service\StoreService;
-use App\Actions\Catalogue\Service\UpdateService;
 use App\Actions\Catalogue\Shop\HydrateShops;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
@@ -35,14 +35,14 @@ use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Billables\Charge;
+use App\Models\Billables\Service;
 use App\Models\Catalogue\Asset;
-use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\CollectionCategory;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
-use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;

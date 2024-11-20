@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Charge\StoreCharge;
+use App\Actions\Billables\Charge\StoreCharge;
 use App\Actions\Catalogue\Collection\StoreCollection;
 use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\Catalogue\Shop\StoreShop;
@@ -15,7 +15,7 @@ use App\Enums\Catalogue\Charge\ChargeTypeEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
-use App\Models\Catalogue\Charge;
+use App\Models\Billables\Charge;
 use App\Models\Catalogue\Collection;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;

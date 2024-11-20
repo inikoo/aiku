@@ -12,11 +12,11 @@ use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateAssets;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAssets;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAssets;
+use App\Models\Billables\Charge;
+use App\Models\Billables\Rental;
+use App\Models\Billables\Service;
 use App\Models\Catalogue\Asset;
-use App\Models\Catalogue\Charge;
 use App\Models\Catalogue\Product;
-use App\Models\Catalogue\Service;
-use App\Models\Fulfilment\Rental;
 use App\Models\Ordering\ShippingZone;
 
 class StoreAsset extends OrgAction

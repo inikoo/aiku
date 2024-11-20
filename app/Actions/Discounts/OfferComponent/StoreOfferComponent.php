@@ -44,7 +44,7 @@ class StoreOfferComponent extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'code'         => [
+            'code'          => [
                 'required',
                 new IUnique(
                     table: 'offer_components',
@@ -63,9 +63,10 @@ class StoreOfferComponent extends OrgAction
 
         ];
         if (!$this->strict) {
-            $rules['state']    = ['required', Rule::enum(OfferComponentStateEnum::class)];
-            $rules['start_at'] = ['sometimes', 'nullable', 'date'];
-            $rules             = $this->noStrictStoreRules($rules);
+            $rules['state']            = ['required', Rule::enum(OfferComponentStateEnum::class)];
+            $rules['start_at']         = ['sometimes', 'nullable', 'date'];
+            $rules['is_discretionary'] = ['sometimes', 'boolean'];
+            $rules                     = $this->noStrictStoreRules($rules);
         }
 
         return $rules;

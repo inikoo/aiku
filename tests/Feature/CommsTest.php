@@ -182,7 +182,6 @@ test('test post room hydrator', function ($shop) {
             'type'      => OutboxTypeEnum::NEWSLETTER,
             'name'      => 'Test',
             'blueprint' => OutboxBlueprintEnum::EMAIL_TEMPLATE,
-            'layout'    => []
         ]
     );
 

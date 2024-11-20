@@ -23,6 +23,7 @@ use Throwable;
 class FetchAuroraShops extends FetchAuroraAction
 {
     use WithShopSetOutboxesSourceId;
+
     public string $commandSignature = 'fetch:shops {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 

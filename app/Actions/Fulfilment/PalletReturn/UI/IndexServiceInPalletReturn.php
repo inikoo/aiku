@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\PalletReturn\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Service\ServiceStateEnum;
+use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\Fulfilment\FulfilmentTransaction\FulfilmentTransactionTypeEnum;
 use App\Http\Resources\Fulfilment\FulfilmentTransactionsResource;
 use App\InertiaTable\InertiaTable;

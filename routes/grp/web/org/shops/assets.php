@@ -5,10 +5,11 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Charge\UI\CreateCharge;
-use App\Actions\Catalogue\Charge\UI\EditCharge;
-use App\Actions\Catalogue\Charge\UI\IndexCharges;
-use App\Actions\Catalogue\Charge\UI\ShowCharge;
+use App\Actions\Billables\Charge\UI\CreateCharge;
+use App\Actions\Billables\Charge\UI\EditCharge;
+use App\Actions\Billables\Charge\UI\IndexCharges;
+use App\Actions\Billables\Charge\UI\ShowCharge;
+use App\Actions\Billables\Service\UI\IndexServices;
 use App\Actions\Ordering\ShippingZone\UI\EditShippingZone;
 use App\Actions\Ordering\ShippingZone\UI\ShowShippingZone;
 use App\Actions\Ordering\ShippingZoneSchema\UI\CreateShippingZoneSchema;
@@ -53,7 +54,8 @@ Route::name("charges.")->prefix('charges')
 
 Route::name("services.")->prefix('services')
     ->group(function () {
-        Route::get('', IndexDummies::class)->name('index');
+        // Route::get('', IndexDummies::class)->name('index');
+        Route::get('', IndexServices::class)->name('index');
         Route::get('create', EditDummy::class)->name('create');
 
         Route::prefix('{service}')->group(function () {

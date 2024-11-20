@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
+
     public function up(): void
     {
         Schema::create('offers', function (Blueprint $table) {
@@ -28,12 +29,12 @@ return new class () extends Migration {
             $table->string('code');
             $table->string('name');
             $table->string('type')->index();
-            $table->string('trigger_type')->index();
-            $table->unsignedBigInteger('trigger_id')->nullable();
+            $table->string('trigger_type')->nullable()->index();
+            $table->unsignedBigInteger('trigger_id')->nullable()->nullable();
             $table->jsonb('allowances');
             $table->jsonb('data');
             $table->jsonb('settings');
-
+            $table->boolean('is_discretionary')->default(false)->index();
             $table->timestampsTz();
             $table->datetimeTz('start_at')->nullable();
             $table->datetimeTz('end_at')->nullable();

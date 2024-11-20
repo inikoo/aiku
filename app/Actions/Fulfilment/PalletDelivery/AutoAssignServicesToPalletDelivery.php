@@ -11,9 +11,9 @@ use App\Actions\Fulfilment\FulfilmentTransaction\DeleteFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\StoreFulfilmentTransaction;
 use App\Actions\Fulfilment\FulfilmentTransaction\UpdateFulfilmentTransaction;
 use App\Actions\OrgAction;
-use App\Models\Catalogue\Service;
-use App\Models\Fulfilment\PalletDelivery;
+use App\Models\Billables\Service;
 use App\Models\Fulfilment\FulfilmentTransaction;
+use App\Models\Fulfilment\PalletDelivery;
 
 class AutoAssignServicesToPalletDelivery extends OrgAction
 {

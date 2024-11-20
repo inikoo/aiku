@@ -5,13 +5,13 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Billables\Service\UI\CreateService;
+use App\Actions\Billables\Service\UI\EditService;
+use App\Actions\Billables\Service\UI\ShowService;
 use App\Actions\Catalogue\Product\UI\CreatePhysicalGoods;
 use App\Actions\Catalogue\Product\UI\EditPhysicalGoods;
 use App\Actions\Catalogue\Product\UI\ShowPhysicalGoods;
 use App\Actions\Catalogue\Product\UI\ShowProduct;
-use App\Actions\Catalogue\Service\UI\CreateService;
-use App\Actions\Catalogue\Service\UI\EditService;
-use App\Actions\Catalogue\Service\UI\ShowService;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentAssets;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
