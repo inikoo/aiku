@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Service\StoreService;
+use App\Actions\Billables\Service\StoreService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Fulfilment\Pallet\StorePallet;
@@ -18,14 +18,14 @@ use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Inventory\Location\StoreLocation;
-use App\Enums\Catalogue\Service\ServiceStateEnum;
+use App\Enums\Billables\Rental\RentalStateEnum;
+use App\Enums\Billables\Rental\RentalUnitEnum;
+use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Enums\Fulfilment\Rental\RentalStateEnum;
-use App\Enums\Fulfilment\Rental\RentalUnitEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementBillingCycleEnum;
 use App\Enums\Fulfilment\RentalAgreement\RentalAgreementStateEnum;
 use App\Enums\UI\Fulfilment\FulfilmentAssetsTabsEnum;
@@ -33,13 +33,13 @@ use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
-use App\Models\Catalogue\Service;
+use App\Models\Billables\Rental;
+use App\Models\Billables\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
 use App\Models\Fulfilment\PalletReturn;
 use App\Models\Fulfilment\RecurringBill;
-use App\Models\Fulfilment\Rental;
 use App\Models\Fulfilment\RentalAgreement;
 use App\Models\Fulfilment\StoredItem;
 use App\Models\Inventory\Location;

@@ -7,7 +7,7 @@
 
 namespace App\Http\Resources\Fulfilment;
 
-use App\Models\Fulfilment\Rental;
+use App\Models\Billables\Rental;
 use App\Models\Fulfilment\StoredItem;
 use Illuminate\Http\Resources\Json\JsonResource;
 

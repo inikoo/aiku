@@ -10,6 +10,7 @@ namespace App\Models\Fulfilment;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
+use App\Models\Billables\Rental;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
 use App\Models\SysAdmin\Organisation;
@@ -89,7 +90,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Fulfilment\PalletDelivery|null $palletDelivery
  * @property-read \App\Models\Fulfilment\PalletReturn|null $palletReturn
- * @property-read \App\Models\Fulfilment\Rental|null $rental
+ * @property-read \App\Models\Billables\Rental|null $rental
  * @property-read \App\Models\Fulfilment\RentalAgreementClause|null $rentalAgreementClause
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\StoredItemAuditDelta> $storedItemAuditDeltas

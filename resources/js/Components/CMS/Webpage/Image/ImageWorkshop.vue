@@ -5,20 +5,22 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import Gallery from "@/Components/Fulfilment/Website/Gallery/Gallery.vue"
 import Image from "@/Components/Image.vue"
-import { ref, defineProps, defineEmits } from "vue"
+import { ref, defineProps, defineEmits, toRaw } from "vue"
 import Button from "@/Components/Elements/Buttons/Button.vue"
+import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
+import Modal from "@/Components/Utils/Modal.vue"
+import { notify } from "@kyvg/vue3-notification"
+import axios from "axios"
 
 library.add(faCube, faStar, faImage, faPencil)
 
 const props = defineProps<{
 	modelValue: any
 	webpageData?: any
-	web_block?: Object
-	id?: Number
-	type?: String
 	isEditable?: boolean
+	blockData:Object
 }>()
-
+console.log('Images',props)
 const emits = defineEmits<{
 	(e: "update:modelValue", value: any): void
 	(e: "autoSave"): void
@@ -38,19 +40,18 @@ const setImage = (imageData: any) => {
 			})
 		}
 	
-		const flattenedSource = imageData.source ? imageData.source : imageData
+		const flattenedSource = imageData[0].source ? imageData[0].source : imageData
 
 		images[activeImageIndex.value].source = {
 			...flattenedSource,
 		}
     
+
 		emits("update:modelValue", {
-			...props.modelValue,
-			value: {
-                ...props.modelValue.value,
-                images: images,
-            },
-		})
+		...toRaw(props.modelValue), // Strips Vue's reactivity for safe usage
+		value: { ...toRaw(props.modelValue?.value), images: images },
+		});
+
 
 		emits("autoSave")
 	} else {
@@ -61,8 +62,34 @@ const setImage = (imageData: any) => {
 	activeImageIndex.value = null
 }
 
-const onUpload = (uploadData: any) => {
-	if (activeImageIndex.value !== null && uploadData.data && uploadData.data.length <= 1) {
+const onUpload = async (files: File[], clear: Function) => {
+	try {
+		const formData = new FormData()
+		Array.from(files).forEach((file, index) => {
+			formData.append(`images[${index}]`, file)
+		})
+		const response = await axios.post(
+			route(props.webpageData?.images_upload_route.name, { modelHasWebBlocks: props.blockData.id }),
+			formData,
+			{
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			}
+		)
+		setImage(response.data.data)
+	} catch (error) {
+		console.log(error)
+		notify({
+			title: "Failed",
+			text: "Error while uploading data",
+			type: "error",
+		})
+	}
+}
+
+/* const onUpload = (uploadData: any, clear : Function) => {
+	if (activeImageIndex.value !== null && uploadData && uploadData.length <= 1) {
 		const images = props.modelValue?.value?.images || []
 		while (images.length <= activeImageIndex.value) {
 			images.push({
@@ -71,9 +98,9 @@ const onUpload = (uploadData: any) => {
 			})
 		}
 
-		const flattenedSource = uploadData.data[0].source
-			? uploadData.data[0].source
-			: uploadData.data[0]
+		const flattenedSource = uploadData[0].source
+			? uploadData[0].source
+			: uploadData[0]
 
 		images[activeImageIndex.value].source = {
 			...flattenedSource,
@@ -95,7 +122,7 @@ const onUpload = (uploadData: any) => {
 	openGallery.value = false
 	activeImageIndex.value = null
 }
-
+ */
 const openImageGallery = (index: number) => {
 	activeImageIndex.value = index
 	openGallery.value = true
@@ -104,7 +131,6 @@ const openImageGallery = (index: number) => {
 const getHref = (index: number, isEditable: any) => {
 	const image = props.modelValue?.value?.images?.[index]
 
-	console.log(image, "this url", index)
 	if (isEditable) {
 		return image?.link_data?.workshop_url
 	}
@@ -175,7 +201,6 @@ const getImageSlots = (layoutType: string) => {
 					:src="modelValue?.value?.images?.[index - 1]?.source"
 					class="w-full object-cover object-center group-hover:opacity-75" />
 
-				<!-- Pencil icon for editing when isEditable is true -->
 				<div v-if="isEditable" class="absolute top-2 right-2 z-10 flex space-x-2">
 					<Button
 						:icon="['far', 'fa-pencil']"
@@ -198,11 +223,26 @@ const getImageSlots = (layoutType: string) => {
 		</div>
 	</div>
 
-	<!-- Gallery for picking/uploading images -->
-	<Gallery
+	<!-- <Gallery
 		:open="openGallery"
 		@on-close="openGallery = false"
 		:uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: id })"
 		@onPick="setImage"
-		@onUpload="onUpload" />
+		@onUpload="onUpload" /> -->
+
+
+		<Modal :isOpen="openGallery" @onClose="() => (openGallery = false)" width="w-3/4">
+			<GalleryManagement 
+				:maxSelected="1" 
+				:closePopup="() => (openGallery = false)" 
+				@submitSelectedImages="setImage" 
+				:submitUpload="onUpload"
+				:uploadRoute="{
+					...webpageData?.images_upload_route,
+					parameters: {
+						modelHasWebBlocks: blockData.id
+					},
+				}"
+			/>
+		</Modal>
 </template>

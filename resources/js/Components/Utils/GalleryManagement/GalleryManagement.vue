@@ -60,7 +60,7 @@ const selectedTab = ref(0)
 const emits = defineEmits<{
     // (e: 'onClose'): void
     // (e: 'onSuccessUpload', data: []): void
-    // (e: 'onUpload', value: {}): void
+    (e: 'onSuccessUpload', value: {}): void
     (e: 'submitSelectedImages', value: ImageData[]): void
     (e: 'selectImage', value: {}): void
 }>()
@@ -115,6 +115,7 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
             onStart: () => isLoading.value = true,
             onSuccess: (xxx) => {
                 console.log('xxx', xxx)
+                emits('onSuccessUpload', xxx)
                 notify({
                     title: trans('Success'),
                     text: trans('New image added'),
@@ -123,7 +124,6 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
                 clear()
             },
             onError: (ee) => {
-                console.log('ee', ee)
                 notify({
                     title: trans('Something went wrong'),
                     text: trans('Failed to add new image'),

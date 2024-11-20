@@ -7,7 +7,7 @@
 
 namespace App\Actions\Accounting\Payment;
 
-use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
+use App\Actions\Accounting\Payment\Search\PaymentRecordSearch;
 use App\Actions\Accounting\PaymentAccount\Hydrators\PaymentAccountHydratePayments;
 use App\Actions\Accounting\PaymentGateway\Checkout\Channels\MakePaymentUsingCheckout;
 use App\Actions\Accounting\PaymentGateway\Paypal\Orders\MakePaymentUsingPaypal;
@@ -90,7 +90,7 @@ class StorePayment extends OrgAction
         ShopHydratePayments::dispatch($payment->shop)->delay($this->hydratorsDelay);
 
 
-        PaymentHydrateUniversalSearch::dispatch($payment);
+        PaymentRecordSearch::dispatch($payment);
 
         return $payment;
     }

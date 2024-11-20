@@ -130,7 +130,7 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
                     @changeColor="(newColor)=> (model.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a})`, model.type = 'color')"
                     closeButton
                     v-tooltip="trans('Color background')"
-                    :isEditable="!model.color.includes('var')"
+                    :isEditable="!model.color?.includes('var')"
                 >
                     <template #button>
                         <div class="group relative h-12 w-12 overflow-hidden rounded"  :style="{
@@ -148,10 +148,7 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
                             <RadioButton size="small" v-model="model.color" inputId="bg-color-picker-1" name="bg-color-picker" value="var(--iris-color-primary)" />
                             <label class="cursor-pointer" for="bg-color-picker-1">{{ trans("Primary color") }} <a :href="route('grp.org.shops.show.web.websites.workshop', {...route().params, tab: 'website_layout', section: 'theme_colors'})" as="a" target="_blank" class="text-xs text-blue-600">{{ trans("themes") }}</a></label>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <RadioButton size="small" v-model="model.color" inputId="bg-color-picker-2" name="bg-color-picker" value="var(--iris-color-secondary)" />
-                            <label class="cursor-pointer" for="bg-color-picker-2">{{ trans("Secondary color") }} <a :href="route('grp.org.shops.show.web.websites.workshop', {...route().params, tab: 'website_layout', section: 'theme_colors'})" as="a" target="_blank" class="text-xs text-blue-600">{{ trans("themes") }}</a></label>
-                        </div>
+                        
                         <div class="flex items-center gap-2">
                             <RadioButton size="small"
                                 :modelValue="!model.color.includes('var') ? '#111111' : null"

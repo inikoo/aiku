@@ -9,7 +9,7 @@ namespace App\Actions\Fulfilment\PalletDelivery\Json;
 
 use App\Actions\OrgAction;
 use App\Http\Resources\Fulfilment\ServicesResource;
-use App\Models\Catalogue\Service;
+use App\Models\Billables\Service;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\PalletDelivery;

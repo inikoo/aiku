@@ -20,15 +20,16 @@ const emits = defineEmits<{
 </script>
 
 <template>
-    <div v-for="(form, index) of blueprint.filter((item)=>item.type != 'hidden')" :key="form.key">
+    <div v-for="(form, index) of blueprint.filter((item)=>item.type != 'hidden')" :key="form.key" class="">
         <Accordion v-if="form.name" class="w-full" v-model="openPanel">
             <div v-if="form.type != 'hidden'">
-                <div class="my-2 text-xs font-semibold">{{ get(form, 'label', '') }}</div>
+                <div v-if="get(form, 'label', '')" class="my-2 text-xs font-semibold">{{ get(form, 'label', '') }}</div>
                 <ParentFieldSideEditor :blueprint="form" :modelValue="modelValue" :uploadImageRoute="uploadImageRoute" 
                     @update:modelValue="newValue => emits('update:modelValue', newValue)" :index="index" />
             </div>
         </Accordion>
-        <section v-else>
+        
+        <section v-else class="">
             <ParentFieldSideEditor :blueprint="form" :modelValue="modelValue" :uploadImageRoute="uploadImageRoute" 
                 @update:modelValue="newValue => emits('update:modelValue', newValue)" :index="index" />
         </section>

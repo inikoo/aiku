@@ -12,6 +12,7 @@ use App\Models\Helpers\SerialReference;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -75,6 +76,7 @@ class PaymentAccount extends Model implements Auditable
     use HasFactory;
     use HasHistory;
     use inOrganisation;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data' => 'array',

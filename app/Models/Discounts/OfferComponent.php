@@ -23,7 +23,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Deals\OfferComponent
+ *
  *
  * @property int $id
  * @property int $group_id

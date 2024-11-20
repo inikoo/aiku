@@ -3,6 +3,7 @@ import { onBeforeUnmount, onMounted, ref, defineExpose } from "vue"
 import { useEditor, EditorContent, BubbleMenu } from '@tiptap/vue-3'
 /* import type DataTable from "@/models/table" */
 import Select from 'primevue/select'
+import { useFontFamilyList } from '@/Composables/useFont'
 
 import TiptapToolbarButton from "@/Components/Forms/Fields/BubleTextEditor/TiptapToolbarButton.vue"
 import TiptapToolbarGroup from "@/Components/Forms/Fields/BubleTextEditor/TiptapToolbarGroup.vue"
@@ -36,6 +37,7 @@ import TextStyle from '@tiptap/extension-text-style'
 import customLink from '@/Components/Forms/Fields/BubleTextEditor/CustomLink/CustomLinkExtension.js'
 import { Color } from '@tiptap/extension-color'
 import FontSize from 'tiptap-extension-font-size'
+import FontFamily from '@tiptap/extension-font-family'
 /* import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue' */
 import ColorPicker from 'primevue/colorpicker';
 import Dialog from 'primevue/dialog';
@@ -65,7 +67,8 @@ import {
     faText,
     faTextSize,
     faDraftingCompass,
-    faExternalLink
+    faExternalLink,
+    faTimesCircle
 } from "@far"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
@@ -89,7 +92,7 @@ const props = withDefaults(defineProps<{
     type: 'Bubble',
     placeholder: '',
     toogle: () => [
-        'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',
+        'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList', 'query', "fontFamily",
         'orderedList', 'blockquote', 'divider', 'alignLeft', 'alignRight', "customLink",
         'alignCenter', 'undo', 'redo', 'highlight', 'color', 'clear', "image", "video"
     ]
@@ -125,6 +128,9 @@ const editorInstance = useEditor({
         Document,
         Text,
         History,
+        FontFamily.configure({
+            types: ['textStyle'],
+        }),
         customLink.extend({
             addProseMirrorPlugins() {
                 return [
@@ -229,6 +235,7 @@ function updateLinkCustom(value) {
             workshop: value.workshop,
             id: value.type === 'internal' ? value.id?.id : null,
             href: value.href,
+            target : value.target ? value.target : '_self'
         };
         editorInstance.value?.chain().focus().extendMarkRange("link").setCustomLink(attrs).run();
     }
@@ -336,8 +343,7 @@ const irisVariablesList = [
         <BubbleMenu ref="_bubbleMenu" :editor="editorInstance" :tippy-options="{ duration: 100 }"
             v-if="editorInstance && !showDialog">
             <div class="bg-gray-100 rounded-xl border border-gray-300 divide-y divide-gray-400">
-                <section id="tiptap-toolbar"
-                    class="flex items-center divide-x divide-gray-400">
+                <section id="tiptap-toolbar" class="flex items-center divide-x divide-gray-400">
                     <TiptapToolbarGroup>
                         <TiptapToolbarButton v-if="toogle.includes('undo')" label="Undo"
                             @click="editorInstance?.chain().focus().undo().run()"
@@ -384,13 +390,15 @@ const irisVariablesList = [
                                         {{ editorInstance?.getAttributes('textStyle').fontSize }}
                                     </div>
                                     <FontAwesomeIcon v-if="editorInstance?.getAttributes('textStyle').fontSize"
-                                        @click="editorInstance?.chain().focus().unsetFontSize().run()" icon="fal fa-times"
-                                        class="text-red-500 ml-2 cursor-pointer" aria-hidden="true" />
+                                        @click="editorInstance?.chain().focus().unsetFontSize().run()"
+                                        icon="fal fa-times" class="text-red-500 ml-2 cursor-pointer"
+                                        aria-hidden="true" />
                                 </div>
                                 <div
                                     class="w-min h-32 overflow-y-auto text-black cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
                                     <div v-for="fontsize in ['8', '9', '12', '14', '16', '20', '24', '28', '36', '44', '52', '64']"
-                                        :key="fontsize" class="px-4 py-2 text-left text-sm cursor-pointer hover:bg-gray-100"
+                                        :key="fontsize"
+                                        class="px-4 py-2 text-left text-sm cursor-pointer hover:bg-gray-100"
                                         :class="{ 'bg-indigo-600 text-white': parseInt(editorInstance?.getAttributes('textStyle').fontSize, 10) === parseInt(fontsize) }"
                                         @click="editorInstance?.chain().focus().setFontSize(fontsize + 'px').run()">
                                         {{ fontsize }}
@@ -489,13 +497,47 @@ const irisVariablesList = [
                         </TiptapToolbarButton>
                     </TiptapToolbarGroup>
                 </section>
-                
+
                 <!-- 2nd row -->
-                <section id="tiptap-toolbar"
-                    class="py-1 px-2 flex items-center divide-x divide-gray-400">
-                    <!-- Button: Variable -->
-                    <Select @change="(e) => editorInstance?.chain().focus().insertContent(e.value.value).focus().run()" :options="irisVariablesList" optionLabel="label" size="small" :placeholder="trans('Select a variable to put')" class="w-full md:w-56" />
-                    
+                <section id="tiptap-toolbar" class="py-1 px-2 flex items-center divide-x divide-gray-400 gap-2">
+                    <Select v-if="toogle.includes('query')"
+                        @change="(e) => editorInstance?.chain().focus().insertContent(e.value.value).focus().run()"
+                        :options="irisVariablesList" optionLabel="label" size="small"
+                        :placeholder="trans('Select a variable to put')" class="w-full md:w-56" />
+
+                    <div class="my-1.5 inline-flex flex-row flex-wrap items-center space-x-1 px-2">
+                        <div :class="[
+                            'inline-flex h-8 shrink-0 flex-row items-center justify-center rounded-md disabled:bg-transparent disabled:text-gray-300',
+                            'text-gray-600 hover:bg-blue-50',
+                        ]" type="button" v-tooltip="'font Family'" :aria-label="'font family'">
+                            <div class="group relative">
+                                <div
+                                    class="text-sm py-1 px-2 cursor-pointer hover:border-gray-400 flex items-center justify-between transition h-8 bg-white border rounded">
+                                    <div v-if="!editorInstance?.getAttributes('textStyle').fontFamily"
+                                        id="tiptapfontsize" class="text-gray-600 text-sm font-semibold h-5">
+                                        Font Family
+                                    </div>
+                                    <div v-else id="tiptapfontsize" class="text-gray-600 text-sm font-semibold h-5">
+                                        {{ editorInstance?.getAttributes('textStyle').fontFamily }}
+                                    </div>
+                                    <FontAwesomeIcon v-if="editorInstance?.getAttributes('textStyle').fontFamily"
+                                        @click="editorInstance?.chain().focus().unsetFontFamily().run()"
+                                        icon="fal fa-times" class="text-red-500 ml-2 cursor-pointer"
+                                        aria-hidden="true" />
+                                </div>
+                                <div
+                                    class="w-min h-32 overflow-y-auto text-black cursor-pointer overflow-hidden hidden group-hover:block absolute left-0 right-0 border border-gray-500 rounded bg-white z-[1]">
+                                    <div v-for="font in useFontFamilyList"
+                                        :key="font.value"
+                                        class="px-4 py-2 text-left text-sm cursor-pointer hover:bg-gray-100"
+                                        @click="editorInstance?.chain().focus().setFontFamily(font.value).run()">
+                                        {{ font.label }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </section>
             </div>
         </BubbleMenu>
@@ -516,25 +558,25 @@ const irisVariablesList = [
             @close="() => { showAddYoutubeDialog = false; showDialog = false; }" />
 
 
-            <Dialog v-model:visible="CustomLinkConfirm"  :style="{ width: '25rem' }" modal :closable="false"
-                :dismissableMask="true" :showHeader="false" >
-                <div class="pt-5">
-                    <ul class="list-none p-0">
-                        <li class="mb-2">
-                            <a :href="attrsCustomLink?.workshop" target="_blank"
-                                class="block px-4 py-2 bg-blue-500 text-white rounded-lg text-center hover:bg-blue-600 transition">
-                                <FontAwesomeIcon :icon="faDraftingCompass"/> Go to Workshop 
-                            </a>
-                        </li>
-                        <li>
-                            <a :href="attrsCustomLink?.href" target="_blank" 
-                                class="block px-4 py-2 bg-blue-500 text-white rounded-lg text-center hover:bg-blue-600 transition">
-                                <FontAwesomeIcon :icon="faExternalLink"/> Go to Page
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </Dialog>
+        <Dialog v-model:visible="CustomLinkConfirm" :style="{ width: '25rem' }" modal :closable="false"
+            :dismissableMask="true" :showHeader="false">
+            <div class="pt-5">
+                <ul class="list-none p-0">
+                    <li class="mb-2">
+                        <a :href="attrsCustomLink?.workshop" target="_blank"
+                            class="block px-4 py-2 bg-blue-500 text-white rounded-lg text-center hover:bg-blue-600 transition">
+                            <FontAwesomeIcon :icon="faDraftingCompass" /> Go to Workshop
+                        </a>
+                    </li>
+                    <li>
+                        <a :href="attrsCustomLink?.href" target="_blank"
+                            class="block px-4 py-2 bg-blue-500 text-white rounded-lg text-center hover:bg-blue-600 transition">
+                            <FontAwesomeIcon :icon="faExternalLink" /> Go to Page
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </Dialog>
     </div>
 </template>
 

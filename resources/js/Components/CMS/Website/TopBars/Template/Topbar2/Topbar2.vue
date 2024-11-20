@@ -35,13 +35,15 @@ interface ModelTopbar2 {
         }
     }
     logout: {
-
+        text: string
+        visible: string
+        link: string
     }
     login: {
 
     }
     register: {
-        
+
     }
     favourite: {
 
@@ -95,10 +97,8 @@ const onClickLogin = () => {
                 class="space-x-1.5"
                 :style="getStyles(model?.logout.container?.properties)"
             >
-                <!-- <i class="far fa-flip-horizontal fa-sign-out" title="Log out" aria-hidden="true"></i> -->
-                <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width
-                    aria-hidden='true' />
-                <span>Log out</span>
+                <FontAwesomeIcon icon='fal fa-sign-out' v-tooltip="trans('Log out')" class='' fixed-width aria-hidden='true' />
+                <span v-html="textReplaceVariables(model?.logout?.text, layout.iris_variables)" />
             </a>
 
             <!-- Section: Favourites -->
@@ -109,19 +109,19 @@ const onClickLogin = () => {
                 :style="getStyles(model?.favourite.container?.properties)"
             >
                 <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.favourite?.text, layout.iris_variables)"></span>
+                <span v-html="textReplaceVariables(model?.favourite?.text, layout.iris_variables)" />
             </a>
 
             <!-- Section: Cart -->
             <a v-if="checkVisible(model?.cart?.visible || null, isLoggedIn)"
                 id="header_order_totals"
-                :href="model?.cart?.visible"
+                :href="model?.cart?.link"
                 class="space-x-1.5"
                 :style="getStyles(model?.cart.container?.properties)"
             >
                 <FontAwesomeIcon icon='fal fa-shopping-cart' class='text-base px-[5px]' v-tooltip="trans('Basket')"
                     fixed-width aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.cart?.text, layout.iris_variables)"></span>
+                <span v-html="textReplaceVariables(model?.cart?.text, layout.iris_variables)" />
             </a>
 
             <!-- Section: Profile -->
@@ -132,17 +132,16 @@ const onClickLogin = () => {
                 :style="getStyles(model?.profile.container?.properties)"
             >
                 <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
-                <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width
-                    aria-hidden='true' />
-                <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)"></span>
+                <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
+                <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
             </a>
 
             <!-- Section: Logged out (Login, Register) -->
-            <template v-if="isDropshipping">
+            <!-- <template v-if="isDropshipping">
                 <a href="/login.sys" class="space-x-1.5" id="">
                     <span>Call us</span>
                 </a>
-            </template>
+            </template> -->
 
             <!-- Register -->
             <div v-if="checkVisible(model?.register?.visible || null, isLoggedIn)"
@@ -154,19 +153,20 @@ const onClickLogin = () => {
                 
             >
                 <FontAwesomeIcon icon='fal fa-user-plus' class='' fixed-width aria-hidden='true' />
-                <span>{{ textReplaceVariables(model?.register.text, layout.iris_variables) }}</span>
+                <span v-html="textReplaceVariables(model?.register.text, layout.iris_variables)" />
             </div>
 
             <!-- Login -->
-            <div v-if="checkVisible(model?.login.visible || null, isLoggedIn)" @click="() => onClickLogin()"
+            <div
+                v-if="checkVisible(model?.login?.visible || null, isLoggedIn)"
+                @click="() => onClickLogin()"
                 :href="model?.login?.visible"
                 class="space-x-1.5 cursor-pointer"
                 id=""
-                :style="getStyles(model?.login.container?.properties)"
-                
+                :style="getStyles(model?.login?.container?.properties)"
             >
                 <FontAwesomeIcon icon='fal fa-sign-in' class='' fixed-width aria-hidden='true' />
-                <span>{{ textReplaceVariables(model?.login.text, layout.iris_variables) }}</span>
+                <span v-html="textReplaceVariables(model?.login?.text, layout.iris_variables)" />
             </div>
 
             <!-- <div @click="() => onClickRegister()" href="/register.sys" class="space-x-1.5">

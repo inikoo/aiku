@@ -10,8 +10,9 @@ namespace App\Models\Catalogue;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Enums\Catalogue\Product\ProductUnitRelationshipType;
+use App\Models\Billables\Rental;
+use App\Models\Billables\Service;
 use App\Models\Fulfilment\RecurringBill;
-use App\Models\Fulfilment\Rental;
 use App\Models\Helpers\Barcode;
 use App\Models\Helpers\Currency;
 use App\Models\Traits\HasImage;
@@ -68,7 +69,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
  * @property-read Rental|null $rental
  * @property-read \App\Models\Catalogue\AssetSalesIntervals|null $salesIntervals
- * @property-read \App\Models\Catalogue\Service|null $service
+ * @property-read \App\Models\Billables\Service|null $service
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\AssetStats|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset newModelQuery()

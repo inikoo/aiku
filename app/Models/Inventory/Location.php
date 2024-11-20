@@ -8,6 +8,7 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Location\LocationStatusEnum;
+use App\Models\Dispatching\PickingRoute;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\SysAdmin\Organisation;
@@ -20,6 +21,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -164,6 +166,11 @@ class Location extends Model implements Auditable
     public function pallets(): HasMany
     {
         return $this->hasMany(Pallet::class);
+    }
+
+    public function pickingRoutes(): BelongsToMany
+    {
+        return $this->belongsToMany(PickingRoute::class, 'picking_route_has_locations');
     }
 
 

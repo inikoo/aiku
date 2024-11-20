@@ -25,9 +25,9 @@ export default {
 		/* {
 			label : 'text',
 			key: ["text"],
-			type: "text",
-		},
-		{
+			type: "link",
+		}, */
+		/* {
 			name: "test2",
 			key: ["container", "test2"],
 			replaceForm: [

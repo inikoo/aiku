@@ -57,33 +57,41 @@ class InvoiceRecordSearch
             'shop_slug'         => $shop->slug,
             'customer_id'       => $invoice->customer_id,
             'customer_slug'     => $invoice->slug,
-            'sections'          => ['accounting'],
-            'haystack_tier_1'   => $invoice->reference,
+            'sections'          => ['accounting', 'ordering'],
+            'haystack_tier_1'   => trim($invoice->reference . ' ' . $invoice->customer->name),
             'keyword'           => $invoice->reference,
             'result'            => [
                 'route'     => $route,
-                'container' => [
-                    'label' => $invoice->shop->name,
+                'routes' => [
+                    'ordering' => [
+                        'name'          => 'grp.org.shops.show.ordering.orders.show',
+                        'parameters'    => [
+                            $invoice->organisation->slug,
+                            $invoice->shop->slug,
+                            $invoice->slug
+                        ]
+                    ]
                 ],
-                'title'     => $invoice->reference,
+                'description'     => [
+                    'label'   => $invoice->customer->name,
+                ],
+                'code'         => [
+                    'label' => $invoice->reference,
+                ],
                 'icon'      => [
                     'icon' => 'fal fa-file-invoice-dollar',
                 ],
-                // 'aaa'       => $invoice,
                 'meta'      => [
                     [
-                        'key'   => 'type',
                         'label' => $invoice->type,
                         'tooltip' => __('Type')
                     ],
                     [
-                        'key'   => 'created_date',
                         'type'  => 'date',
                         'label' => $invoice->created_at,
-                        'tooltip' => __('created date')
+                        'tooltip' => __('Date')
                     ],
                     [
-                        'key'    => 'total',
                         'type'   => 'currency',
                         'code'   => $invoice->currency->code,
                         'label'  => 'Total: ',

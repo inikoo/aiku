@@ -7,7 +7,7 @@
 
 namespace App\Actions\Fulfilment\Rental\UI;
 
-use App\Models\Fulfilment\Rental;
+use App\Models\Billables\Rental;
 use Lorisleiva\Actions\Concerns\AsObject;
 
 class GetRentalShowcase

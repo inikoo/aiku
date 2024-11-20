@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\Rental\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Models\Fulfilment\Rental;
+use App\Models\Billables\Rental;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 

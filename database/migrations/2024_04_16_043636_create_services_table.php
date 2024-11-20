@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\Catalogue\Service\ServiceStateEnum;
+use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Stubs\Migrations\HasAssetModel;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
