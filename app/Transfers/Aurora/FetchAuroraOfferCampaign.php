@@ -61,6 +61,8 @@ class FetchAuroraOfferCampaign extends FetchAurora
         if ($createdBy) {
             $this->parsedData['offer-campaign']['created_by'] = $createdBy;
         }
+
+
     }
 
 

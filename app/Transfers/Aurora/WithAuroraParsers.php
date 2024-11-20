@@ -869,6 +869,21 @@ trait WithAuroraParsers
         return $offerCampaign;
     }
 
+    public function parseOfferComponent($sourceId): ?OfferComponent
+    {
+        if (!$sourceId) {
+            return null;
+        }
+
+        $offerComponent = OfferComponent::withTrashed()->where('source_id', $sourceId)->first();
+        if (!$offerComponent) {
+            $sourceData = explode(':', $sourceId);
+            $offerComponent      = FetchAuroraOfferComponents::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $offerComponent;
+    }
+
 
     public function parseTaxCategory($auroraTaxCategoryId): TaxCategory
     {

@@ -199,6 +199,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, TradeUnit> $tradeUnits
  * @property-read LaravelCollection<int, Upload> $uploads
+ * @property-read LaravelCollection<int, \App\Models\SysAdmin\UserRequest> $userRequests
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\User> $users
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
  * @property-read LaravelCollection<int, Warehouse> $warehouses

@@ -9,7 +9,6 @@ namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Models\Dispatching\DeliveryNote;
-use App\Models\Dispatching\Picking;
 use App\Models\Dispatching\PickingRoute;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
@@ -76,6 +75,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, PalletDelivery> $palletDeliveries
  * @property-read Collection<int, PalletReturn> $palletReturns
  * @property-read Collection<int, Pallet> $pallets
+ * @property-read Collection<int, PickingRoute> $pickingRoutes
  * @property-read Collection<int, Role> $roles
  * @property-read \App\Models\Inventory\WarehouseStats|null $stats
  * @property-read UniversalSearch|null $universalSearch

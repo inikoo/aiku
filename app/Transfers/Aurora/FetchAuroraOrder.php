@@ -22,6 +22,7 @@ class FetchAuroraOrder extends FetchAurora
 {
     protected function parseModel(): void
     {
+
         $deliveryData = [];
 
         if ($this->auroraModelData->{'Order For Collection'} == 'Yes') {
@@ -35,9 +36,7 @@ class FetchAuroraOrder extends FetchAurora
             }
         }
 
-        if ($this->auroraModelData->{'Order State'} == "InBasket") {
-            return;
-        }
+
 
         if ($this->auroraModelData->{'Order Customer Client Key'} != "") {
             $parent = FetchAuroraCustomerClients::run(

@@ -21,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_rentals_state_discontinued
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Rental|null $asset
+ * @property-read \App\Models\Billables\Rental|null $asset
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalStats newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalStats newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalStats query()

@@ -60,6 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Accounting\PaymentAccountShop|null $pivot
  * @property-read Collection<int, Shop> $shops
  * @property-read \App\Models\Accounting\PaymentAccountStats|null $stats
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Accounting\PaymentAccountFactory factory($count = null, $state = [])
  * @method static Builder<static>|PaymentAccount newModelQuery()
  * @method static Builder<static>|PaymentAccount newQuery()

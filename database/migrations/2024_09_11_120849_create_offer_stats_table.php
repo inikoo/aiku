@@ -15,8 +15,8 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('offer_stats', function (Blueprint $table) {
-            $table->smallIncrements('id');
-            $table->unsignedSmallInteger('offer_id')->index();
+            $table->increments('id');
+            $table->unsignedInteger('offer_id')->index();
             $table->foreign('offer_id')->references('id')->on('offers');
 
             $table = $this->usageStats($table);

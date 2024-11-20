@@ -23,62 +23,61 @@ class FetchAuroraOffers extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Offer
     {
-        if ($offerData = $organisationSource->fetchOffer($organisationSourceId)) {
-            if ($offer = Offer::withTrashed()->where('source_id', $offerData['offer']['source_id'])
-                ->first()) {
-                try {
-                    $offer = UpdateOffer::make()->action(
-                        offer: $offer,
-                        modelData: $offerData['offer'],
-                        hydratorsDelay: 60,
-                        strict: false,
-                        audit: false
-                    );
-                    $this->recordChange($organisationSource, $offer->wasChanged());
-                } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'update');
-
-                    return null;
-                }
-            } else {
-                try {
-                    $offer = StoreOffer::make()->action(
-                        offerCampaign: $offerData['offer_campaign'],
-                        trigger: $offerData['trigger'],
-                        modelData: $offerData['offer'],
-                        hydratorsDelay: 60,
-                        strict: false,
-                        audit: false
-                    );
-
-                    $this->recordNew($organisationSource);
-                    Offer::enableAuditing();
-                    $this->saveMigrationHistory(
-                        $offer,
-                        Arr::except($offerData['offer'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                    );
-
-                    $this->recordNew($organisationSource);
-
-                    $sourceData = explode(':', $offer->source_id);
-                    DB::connection('aurora')->table('Deal Dimension')
-                        ->where('Deal Key', $sourceData[1])
-                        ->update(['aiku_id' => $offer->id]);
-
-
-
-                } catch (Exception|Throwable $e) {
-                    $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'store');
-
-                    return null;
-                }
-            }
-
-
-            return $offer;
+        $offerData = $organisationSource->fetchOffer($organisationSourceId);
+        if (!$offerData) {
+            return null;
         }
 
-        return null;
+        if ($offer = Offer::withTrashed()->where('source_id', $offerData['offer']['source_id'])
+            ->first()) {
+               try {
+            $offer = UpdateOffer::make()->action(
+                offer: $offer,
+                modelData: $offerData['offer'],
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+            $this->recordChange($organisationSource, $offer->wasChanged());
+                            } catch (Exception $e) {
+                                $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'update');
+
+                                return null;
+                            }
+        } else {
+              try {
+            $offer = StoreOffer::make()->action(
+                offerCampaign: $offerData['offer_campaign'],
+                trigger: $offerData['trigger'],
+                modelData: $offerData['offer'],
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+
+            $this->recordNew($organisationSource);
+            Offer::enableAuditing();
+            $this->saveMigrationHistory(
+                $offer,
+                Arr::except($offerData['offer'], ['fetched_at', 'last_fetched_at', 'source_id'])
+            );
+
+            $this->recordNew($organisationSource);
+
+            $sourceData = explode(':', $offer->source_id);
+            DB::connection('aurora')->table('Deal Dimension')
+                ->where('Deal Key', $sourceData[1])
+                ->update(['aiku_id' => $offer->id]);
+              } catch (Exception|Throwable $e) {
+                  $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'store');
+
+                  return null;
+              }
+        }
+
+
+        return $offer;
+
     }
 
     public function getModelsQuery(): Builder

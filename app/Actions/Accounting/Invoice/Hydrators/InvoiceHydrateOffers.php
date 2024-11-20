@@ -67,6 +67,6 @@ class InvoiceHydrateOffers
             ->distinct('offer_campaigns_id')
             ->count('offer_campaigns_id');
     }
-    
+
 
 }
