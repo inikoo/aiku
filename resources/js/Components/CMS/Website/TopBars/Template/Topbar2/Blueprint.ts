@@ -154,11 +154,11 @@ export default {
 											"value": 5
 										},
 										left: {
-											"value": 20
+											"value": 10
 										},
 										"unit": "px",
 										right: {
-											"value": 20
+											"value": 10
 										},
 										bottom: {
 											"value": 5

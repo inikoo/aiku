@@ -83,7 +83,7 @@ const emits = defineEmits<{
         <!-- <pre>{{ data.topBar.data }}</pre> -->
         <!-- Section: TopBars -->
         <component
-            v-if="data?.topBar?.data.fieldValue"
+            v-if="data?.topBar?.data?.fieldValue"
             :is="getComponent(data?.topBar.code)"
             v-model="data.topBar.data.fieldValue"
             :loginMode="loginMode"
