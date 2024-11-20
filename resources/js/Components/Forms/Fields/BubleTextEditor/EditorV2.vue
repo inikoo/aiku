@@ -335,7 +335,7 @@ const irisVariablesList = [
     <div id="tiptap" class="divide-y divide-gray-400">
         <BubbleMenu ref="_bubbleMenu" :editor="editorInstance" :tippy-options="{ duration: 100 }"
             v-if="editorInstance && !showDialog">
-            <div class="bg-gray-100 rounded-xl border border-gray-300 divide-y divide-gray-400">
+            <div class="bg-gray-100 rounded-xl border border-gray-300 divide-y divide-gray-400 isolate">
                 <section id="tiptap-toolbar"
                     class="flex items-center divide-x divide-gray-400">
                     <TiptapToolbarGroup>
@@ -350,6 +350,8 @@ const irisVariablesList = [
                             <FontAwesomeIcon :icon="faUndo" class="h-5 w-5" />
                         </TiptapToolbarButton>
                     </TiptapToolbarGroup>
+
+                    <!-- Section: Heading 1,2,3 -->
                     <TiptapToolbarGroup>
                         <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 1"
                             :is-active="editorInstance?.isActive('heading', { level: 1 })"
@@ -357,12 +359,14 @@ const irisVariablesList = [
                             class="toolbar-button">
                             <FontAwesomeIcon :icon="faH1" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 2"
                             :is-active="editorInstance?.isActive('heading', { level: 2 })"
                             @click="editorInstance?.chain().focus().toggleHeading({ level: 2 }).run()"
                             class="toolbar-button">
                             <FontAwesomeIcon :icon="faH2" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('heading')" label="Heading 3"
                             :is-active="editorInstance?.isActive('heading', { level: 3 })"
                             @click="editorInstance?.chain().focus().toggleHeading({ level: 3 }).run()"
@@ -370,6 +374,8 @@ const irisVariablesList = [
                             <FontAwesomeIcon :icon="faH3" class="h-5 w-5" />
                         </TiptapToolbarButton>
                     </TiptapToolbarGroup>
+                    
+                    <!-- Section: Font size -->
                     <div class="my-1.5 inline-flex flex-row flex-wrap items-center space-x-1 px-2">
                         <div :class="[
                             'inline-flex h-8 shrink-0 flex-row items-center justify-center rounded-md disabled:bg-transparent disabled:text-gray-300',
@@ -399,31 +405,40 @@ const irisVariablesList = [
                             </div>
                         </div>
                     </div>
+
                     <TiptapToolbarGroup>
                         <TiptapToolbarButton v-if="toogle.includes('bold')" label="Bold"
                             :is-active="editorInstance?.isActive('bold')"
                             @click="editorInstance?.chain().focus().toggleBold().run()">
                             <FontAwesomeIcon :icon="faBold" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('italic')" label="Italic"
                             :is-active="editorInstance?.isActive('italic')"
                             @click="editorInstance?.chain().focus().toggleItalic().run()">
                             <FontAwesomeIcon :icon="faItalic" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('underline')" label="Underline"
                             :is-active="editorInstance?.isActive('underline')"
                             @click="editorInstance?.chain().focus().toggleUnderline().run()">
                             <FontAwesomeIcon :icon="faUnderline" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('strikethrough')" label="Strikethrough"
                             :is-active="editorInstance?.isActive('strike')"
                             @click="editorInstance?.chain().focus().toggleStrike().run()">
                             <FontAwesomeIcon :icon="faStrikethrough" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('color')" label="Text Color">
-                            <ColorPicker v-model="editorInstance.getAttributes('textStyle').color" style="z-index: 99;"
-                                @update:model-value="color => editorInstance?.chain().focus().setColor(`#${color}`).run()" />
+                            <ColorPicker
+                                v-model="editorInstance.getAttributes('textStyle').color"
+                                :baseZIndex="9999"
+                                @update:model-value="color => editorInstance?.chain().focus().setColor(`#${color}`).run()"
+                            />
                         </TiptapToolbarButton>
+
                         <!-- <ColorPicker v-if="toogle.includes('highlight')" :color="editorInstance?.getAttributes('highlight').color"
                             @changeColor="(color) => editorInstance?.chain().setHighlight({ color: color.hex }).run()"
                             class="flex items-center justify-center w-6 aspect-square rounded cursor-pointer p-1 border border-gray-400"
@@ -432,57 +447,68 @@ const irisVariablesList = [
                                 aria-hidden='true' />
                         </ColorPicker> -->
                     </TiptapToolbarGroup>
+                    
                     <TiptapToolbarGroup>
                         <TiptapToolbarButton v-if="toogle.includes('bulletList')" label="Bullet List"
                             :is-active="editorInstance?.isActive('bulletList')"
                             @click="editorInstance?.chain().focus().toggleBulletList().run()">
                             <FontAwesomeIcon :icon="faList" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('orderedList')" label="Ordered List"
                             :is-active="editorInstance?.isActive('orderedList')"
                             @click="editorInstance?.chain().focus().toggleOrderedList().run()">
                             <FontAwesomeIcon :icon="faListOl" class="h-5 w-5" />
                         </TiptapToolbarButton>
                     </TiptapToolbarGroup>
+                    
                     <TiptapToolbarGroup>
                         <TiptapToolbarButton v-if="toogle.includes('alignLeft')" label="Align Left"
                             :is-active="editorInstance?.isActive('textAlign', 'left')"
                             @click="editorInstance?.chain().focus().setTextAlign('left').run()">
                             <FontAwesomeIcon :icon="faAlignLeft" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('alignCenter')" label="Align Center"
                             :is-active="editorInstance?.isActive('textAlign', 'center')"
                             @click="editorInstance?.chain().focus().setTextAlign('center').run()">
                             <FontAwesomeIcon :icon="faAlignCenter" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('alignRight')" label="Align Right"
                             :is-active="editorInstance?.isActive('textAlign', 'right')"
                             @click="editorInstance?.chain().focus().setTextAlign('right').run()">
                             <FontAwesomeIcon :icon="faAlignRight" class="h-5 w-5" />
                         </TiptapToolbarButton>
                     </TiptapToolbarGroup>
+                    
                     <TiptapToolbarGroup>
                         <TiptapToolbarButton v-if="toogle.includes('link')" label="Link" @click="openLinkDialog"
                             :is-active="editorInstance?.isActive('link')">
                             <FontAwesomeIcon :icon="faLink" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('customLink')" label="Link Internal & External"
                             @click="openLinkDialogCustom" :is-active="editorInstance?.isActive('link')">
                             <FontAwesomeIcon :icon="faLink" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('image')" label="Image"
                             @click="showAddImageDialog = true">
                             <FontAwesomeIcon :icon="faImage" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('video')" label="Youtube Video"
                             @click="() => { showAddYoutubeDialog = true, showDialog = true }">
                             <FontAwesomeIcon :icon="faFileVideo" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('blockquote')" label="Blockquote"
                             :is-active="editorInstance?.isActive('blockquote')"
                             @click="editorInstance?.chain().focus().toggleBlockquote().run()">
                             <FontAwesomeIcon :icon="faQuoteLeft" class="h-5 w-5" />
                         </TiptapToolbarButton>
+
                         <TiptapToolbarButton v-if="toogle.includes('divider')"
                             @click="editorInstance?.chain().focus().setHorizontalRule().run()" label="Horizontal Line">
                             <FontAwesomeIcon :icon="faMinus" class="h-5 w-5" />
@@ -495,7 +521,6 @@ const irisVariablesList = [
                     class="py-1 px-2 flex items-center divide-x divide-gray-400">
                     <!-- Button: Variable -->
                     <Select @change="(e) => editorInstance?.chain().focus().insertContent(e.value.value).focus().run()" :options="irisVariablesList" optionLabel="label" size="small" :placeholder="trans('Select a variable to put')" class="w-full md:w-56" />
-                    
                 </section>
             </div>
         </BubbleMenu>
