@@ -7,6 +7,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Actions\SysAdmin\User\ProcessUserRequest;
 use App\Actions\SysAdmin\User\StoreUserRequest;
 use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use Closure;
@@ -33,18 +34,15 @@ class LogUserRequestMiddleware
         $user = $request->user();
 
         if (!app()->runningUnitTests() && $user && env('USER_REQUEST_LOGGING')) {
-            StoreUserRequest::run(
-                now(),
-                [
-                    'name'      => $request->route()->getName(),
-                    'arguments' => $request->route()->originalParameters(),
-                    'url'       => $request->path()
-                ],
-                $request->ip(),
-                $request->header('User-Agent'),
-                ElasticsearchUserRequestTypeEnum::VISIT->value,
-                $user,
-            );
+            ProcessUserRequest::dispatch($user, 
+            now(), 
+            [
+                'name'      => $request->route()->getName(),
+                'arguments' => $request->route()->originalParameters(),
+                'url'       => $request->path()
+            ],
+            $request->ip(),
+            $request->header('User-Agent'));
 
             $user->stats()->update(['last_active_at' => now()]);
         }

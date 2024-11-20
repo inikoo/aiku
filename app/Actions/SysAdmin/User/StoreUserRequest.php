@@ -1,143 +1,92 @@
 <?php
 /*
- * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 04 Dec 2023 16:24:47 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
- */
+ * author Arya Permana - Kirin
+ * created on 20-11-2024-16h-30m
+ * github: https://github.com/KirinZero0
+ * copyright 2024
+*/
 
 namespace App\Actions\SysAdmin\User;
 
-use App\Actions\Elasticsearch\IndexElasticsearchDocument;
+use AlibabaCloud\SDK\Dm\V20151123\Models\GetIpfilterListResponseBody\data;
+use App\Actions\GrpAction;
 use App\Actions\Helpers\UniversalSearch\Trait\WithSectionsRoute;
-use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
+use App\Actions\Inventory\Location\Search\LocationRecordSearch;
+use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLocations;
+use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateLocations;
+use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateLocations;
+use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateLocations;
+use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Models\Inventory\Location;
+use App\Models\Inventory\Warehouse;
+use App\Models\Inventory\WarehouseArea;
+use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\User;
-use hisorange\BrowserDetect\Parser as Browser;
-use Illuminate\Support\Carbon;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Stevebauman\Location\Facades\Location;
+use App\Models\SysAdmin\UserRequest;
+use App\Rules\IUnique;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
+use Lorisleiva\Actions\ActionRequest;
+use Stevebauman\Location\Facades\Location as FacadesLocation;
 
-class StoreUserRequest
+class StoreUserRequest extends GrpAction
 {
-    use AsAction;
-    use WithSectionsRoute;
+    use WithNoStrictRules;
 
-    // TODO
-
-    public function handle(Carbon $datetime, array $routeData, string $ip, string $userAgent, string $type, User $user): void
+    /**
+     * @throws \Throwable
+     */
+    public function handle(User $user, array $modelData): UserRequest
     {
-        $group           = group();
-        $indexType       = 'user_requests_';
+        data_set($modelData, 'group_id', $user->group_id);
+        $userRequest = $user->userRequests()->create($modelData);
 
-        if ($type == ElasticsearchUserRequestTypeEnum::ACTION->value) {
-            $indexType = 'history_';
-        }
-
-        $index =  config('elasticsearch.index_prefix') . $indexType.$group->slug;
-
-        $parsedUserAgent = (new Browser())->parse($userAgent);
-
-        $body = [
-            'type'        => $type,
-            'datetime'    => $datetime,
-            'group'       => $group->slug,
-            'username'    => $user->username,
-            'route'       => $routeData,
-            'module'      => explode('.', $routeData['name'])[0],
-            'ip_address'  => $ip,
-            'location'    => json_encode($this->getLocation($ip)), // reference: https://github.com/stevebauman/location
-            'user_agent'  => $userAgent,
-            'device_type' => json_encode([
-                'title' => $parsedUserAgent->deviceType(),
-                'icon'  => $this->getDeviceIcon($parsedUserAgent->deviceType())
-            ]),
-            'platform'    => json_encode([
-                'title' => $this->detectWindows11($parsedUserAgent),
-                'icon'  => $this->getPlatformIcon($this->detectWindows11($parsedUserAgent))
-            ]),
-            'browser'     => json_encode([
-                'title' => explode(' ', $parsedUserAgent->browserName())[0],
-                'icon'  => $this->getBrowserIcon(strtolower($parsedUserAgent->browserName()))
-            ])
-        ];
-
-        // Save to DB
-        $modelData = [
-            'user_id'       => $user->id,
-            'date'          => $body['datetime'],
-            'route_name'    => $routeData['name'],
-            'route_params'  => $routeData['arguments'],
-            'section'       => $this->parseSections($routeData['name']),
-            'os'            => $this->detectWindows11($parsedUserAgent),
-            'device'        => $parsedUserAgent->deviceType(),
-            'browser'       => explode(' ', $parsedUserAgent->browserName())[0],
-            'ip_address'    => $body['ip_address'],
-            'location'      => $body['location']
-        ];
-
-        // $group->userRequests()->create($modelData);
-
-        // if platform=='Windows 10' need to check if it is actually Windows 11 see:
-        // https://developers.whatismybrowser.com/learn/browser-detection/client-hints/detect-windows-11-client-hints
-        // https://stackoverflow.com/questions/68614445/how-to-detect-windows-11-from-user-agent
-
-
-        IndexElasticsearchDocument::dispatch(index: $index, body: $body);
+        return $userRequest;
     }
 
-    public function getDeviceIcon($deviceType): string
+    public function authorize(ActionRequest $request): bool
     {
-        if ($deviceType == 'Desktop') {
-            return 'far fa-desktop-alt';
-        }
-
-        return 'fas fa-mobile-alt';
-    }
-
-    public function getBrowserIcon($browser): string
-    {
-        if (explode(' ', $browser)[0] == 'chrome') {
-            return 'fab fa-chrome';
-        } elseif ($browser == 'microsoft') {
-            return 'fab fa-edge';
-        }
-
-        return 'fab fa-firefox-browser';
-    }
-
-    public function getPlatformIcon($platform): string
-    {
-        if ($platform == 'android') {
-            return 'fab fa-android';
-        } elseif ($platform == 'apple') {
-            return 'fab fa-apple';
-        }
-
-        return 'fab fa-windows';
-    }
-
-    public function getLocation(string|null $ip): false|array|null
-    {
-        if ($position = Location::get($ip == '127.0.0.1' ? '103.121.18.96' : $ip)) {
-            return [
-                $position->countryCode,
-                $position->countryName,
-                $position->cityName
-            ];
+        if ($this->asAction) {
+            return true;
         }
 
         return false;
     }
 
-    public function detectWindows11($parsedUserAgent): string
+    public function rules(): array
     {
-        if ($parsedUserAgent->isWindows()) {
-            if (str_contains($parsedUserAgent->userAgent(), 'Windows NT 10.0; Win64; x64')) {
-                return 'Windows 11';
-            }
+        $rules = [
+            'date' => ['required', 'date'],
+            'os'   => ['required', 'string'],
+            'route_name' => ['required', 'string'],
+            'route_params' => ['required'],
+            'section'   => ['required', 'string'],
+            'device' => ['required', 'string'],
+            'browser' => ['required', 'string'],
+            'ip_address' => ['required', 'string'],
+            'location'  => ['required']
+        ];
 
-            return 'Windows 10';
+        if (!$this->strict) {
+            $rules = $this->noStrictStoreRules($rules);
         }
 
-        return $parsedUserAgent->platformName();
+        return $rules;
+    }
+    /**
+     * @throws \Throwable
+     */
+    public function action(User $user, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): UserRequest
+    {
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+
+        $this->initialisation($user->group, $modelData);
+
+        return $this->handle($user, $this->validatedData);
     }
 }
