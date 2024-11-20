@@ -29,7 +29,7 @@ trait WithSectionsRoute
             'procurement.' => ['procurement'],
             'websites.' => ['web'],
             'fulfilments.show.web.' => ['web'],
-            // 'fulfilments.' => ['fulfilments'],
+            'fulfilments.' => ['fulfilment'],
             'shops.show.billables.' => ['billables'],
             // 'reports.' => ['reports'],
             'shops.show.catalogue.' => ['catalogue'],
