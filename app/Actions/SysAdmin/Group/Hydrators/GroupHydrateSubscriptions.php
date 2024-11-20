@@ -8,7 +8,7 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Catalogue\Subscription\SubscriptionStateEnum;
+use App\Enums\Billables\Subscription\SubscriptionStateEnum;
 use App\Models\Catalogue\Subscription;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;

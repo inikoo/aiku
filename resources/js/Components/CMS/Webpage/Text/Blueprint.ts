@@ -22,11 +22,11 @@ export default {
 				},
 			],
 		},
-		{
+		/* {
 			label : 'text',
 			key: ["text"],
 			type: "link",
-		},
+		}, */
 		/* {
 			name: "test2",
 			key: ["container", "test2"],

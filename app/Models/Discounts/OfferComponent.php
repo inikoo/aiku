@@ -23,7 +23,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Deals\OfferComponent
+ *
  *
  * @property int $id
  * @property int $group_id
@@ -37,9 +37,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property array $data
  * @property string|null $trigger_scope
- * @property string $trigger_type
+ * @property string|null $trigger_type
  * @property string|null $trigger_id
  * @property string|null $target_type
+ * @property bool $is_discretionary
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $start_at

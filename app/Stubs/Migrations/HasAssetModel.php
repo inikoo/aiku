@@ -7,9 +7,9 @@
 
 namespace App\Stubs\Migrations;
 
+use App\Enums\Billables\Shipping\ShippingStateEnum;
+use App\Enums\Billables\Subscription\SubscriptionStateEnum;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
-use App\Enums\Catalogue\Shipping\ShippingStateEnum;
-use App\Enums\Catalogue\Subscription\SubscriptionStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasAssetModel

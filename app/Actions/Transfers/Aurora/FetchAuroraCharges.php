@@ -7,9 +7,9 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Catalogue\Charge\StoreCharge;
-use App\Actions\Catalogue\Charge\UpdateCharge;
-use App\Models\Catalogue\Charge;
+use App\Actions\Billables\Charge\StoreCharge;
+use App\Actions\Billables\Charge\UpdateCharge;
+use App\Models\Billables\Charge;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;

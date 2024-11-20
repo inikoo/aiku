@@ -16,8 +16,8 @@ class FetchAuroraOfferComponent extends FetchAurora
     protected function parseModel(): void
     {
         $offer = $this->parseOffer($this->organisation->id.':'.$this->auroraModelData->{'Deal Component Deal Key'});
-
         if (!$offer) {
+            print "Offer not found ".$this->auroraModelData->{'Deal Component Deal Key'}." \n";
             return;
         }
         //enum('Category','Department','Family','Product','Order','Customer','Customer Category','Customer List')
@@ -109,18 +109,20 @@ class FetchAuroraOfferComponent extends FetchAurora
         ];
 
         if ($endAt = $this->parseDatetime($this->auroraModelData->{'Deal Component Expiration Date'})) {
-            $this->parsedData['offer']['end_at'] = $endAt;
+            $this->parsedData['offerComponent']['end_at'] = $endAt;
         }
 
         if ($trigger_type) {
-            $this->parsedData['offer']['trigger_type'] = $trigger_type;
+            $this->parsedData['offerComponent']['trigger_type'] = $trigger_type;
         }
 
         $createdBy = $this->auroraModelData->{'Deal Component Begin Date'};
 
         if ($createdBy) {
-            $this->parsedData['offer']['created_by'] = $createdBy;
+            $this->parsedData['offerComponent']['created_by'] = $createdBy;
         }
+
+
     }
 
 

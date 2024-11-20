@@ -7,12 +7,12 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
-use App\Enums\Fulfilment\Rental\RentalStateEnum;
-use App\Enums\Fulfilment\Rental\RentalUnitEnum;
+use App\Enums\Billables\Rental\RentalStateEnum;
+use App\Enums\Billables\Rental\RentalUnitEnum;
+use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
-use App\Enums\Catalogue\Service\ServiceStateEnum;
+use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraService extends FetchAurora

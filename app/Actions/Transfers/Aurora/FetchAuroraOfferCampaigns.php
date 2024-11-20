@@ -21,54 +21,56 @@ class FetchAuroraOfferCampaigns extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?OfferCampaign
     {
-        if ($offerCampaignData = $organisationSource->fetchOfferCampaign($organisationSourceId)) {
-            $shop          = $offerCampaignData['shop'];
-            $offerCampaign = $shop->offerCampaigns()->where('source_id', $offerCampaignData['offer-campaign']['source_id'])->first();
-            if (!$offerCampaign) {
-                $offerCampaign = $shop->offerCampaigns()->where('type', $offerCampaignData['type'])->first();
-                unset($offerCampaignData['offer-campaign']['last_fetched_at']);
-            } else {
-                unset($offerCampaignData['offer-campaign']['fetched_at']);
-            }
-
-            if ($offerCampaign) {
-                try {
-                    $offerCampaign = UpdateOfferCampaign::make()->action(
-                        offerCampaign: $offerCampaign,
-                        modelData: $offerCampaignData['offer-campaign'],
-                        strict: false
-                    );
-
-                    if (!$offerCampaign->fetched_at) {
-                        $offerCampaign->updateQuietly(
-                            [
-                                'fetched_at' => now(),
-                                'source_id' => $offerCampaignData['offer-campaign']['source_id']
-                            ]
-                        );
-                        OfferCampaign::enableAuditing();
-                        $this->saveMigrationHistory(
-                            $offerCampaign,
-                            Arr::except($offerCampaignData['offer-campaign'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                        );
-
-
-                    }
-
-                    $this->recordChange($organisationSource, $offerCampaign->wasChanged());
-                    $sourceData = explode(':', $offerCampaign->source_id);
-                    DB::connection('aurora')->table('Deal Campaign Dimension')
-                        ->where('Deal Campaign Key', $sourceData[1])
-                        ->update(['aiku_id' => $offerCampaign->id]);
-                } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $offerCampaignData['offer-campaign'], 'OfferCampaign', 'update');
-
-                    return null;
-                }
-            }
+        $offerCampaignData = $organisationSource->fetchOfferCampaign($organisationSourceId);
+        if (!$offerCampaignData) {
+            return null;
         }
 
-        return null;
+
+        $shop          = $offerCampaignData['shop'];
+        $offerCampaign = $shop->offerCampaigns()->where('source_id', $offerCampaignData['offer-campaign']['source_id'])->first();
+        if (!$offerCampaign) {
+            $offerCampaign = $shop->offerCampaigns()->where('type', $offerCampaignData['type'])->first();
+            unset($offerCampaignData['offer-campaign']['last_fetched_at']);
+        } else {
+            unset($offerCampaignData['offer-campaign']['fetched_at']);
+        }
+
+        if ($offerCampaign) {
+             try {
+            $offerCampaign = UpdateOfferCampaign::make()->action(
+                offerCampaign: $offerCampaign,
+                modelData: $offerCampaignData['offer-campaign'],
+                strict: false
+            );
+
+            if (!$offerCampaign->fetched_at) {
+                $offerCampaign->updateQuietly(
+                    [
+                        'fetched_at' => now(),
+                        'source_id'  => $offerCampaignData['offer-campaign']['source_id']
+                    ]
+                );
+                OfferCampaign::enableAuditing();
+                $this->saveMigrationHistory(
+                    $offerCampaign,
+                    Arr::except($offerCampaignData['offer-campaign'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
+            }
+
+            $this->recordChange($organisationSource, $offerCampaign->wasChanged());
+            $sourceData = explode(':', $offerCampaign->source_id);
+            DB::connection('aurora')->table('Deal Campaign Dimension')
+                ->where('Deal Campaign Key', $sourceData[1])
+                ->update(['aiku_id' => $offerCampaign->id]);
+             } catch (Exception $e) {
+                 $this->recordError($organisationSource, $e, $offerCampaignData['offer-campaign'], 'OfferCampaign', 'update');
+
+                 return null;
+             }
+        }
+
+        return $offerCampaign;
     }
 
     public function getModelsQuery(): Builder

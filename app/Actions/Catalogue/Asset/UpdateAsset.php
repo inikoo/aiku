@@ -8,21 +8,21 @@
 namespace App\Actions\Catalogue\Asset;
 
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateAssets;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAssets;
 use App\Actions\OrgAction;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateAssets;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateAssets;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Billables\Rental\RentalStateEnum;
+use App\Enums\Billables\Service\ServiceStateEnum;
+use App\Enums\Billables\Shipping\ShippingStateEnum;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Charge\ChargeStateEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Enums\Catalogue\Service\ServiceStateEnum;
-use App\Enums\Catalogue\Shipping\ShippingStateEnum;
-use App\Enums\Fulfilment\Rental\RentalStateEnum;
+use App\Models\Billables\Rental;
+use App\Models\Billables\Service;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\Product;
-use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Subscription;
-use App\Models\Fulfilment\Rental;
 use Illuminate\Support\Arr;
 
 class UpdateAsset extends OrgAction

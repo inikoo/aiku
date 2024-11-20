@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\Fulfilment\Rental\RentalStateEnum;
+use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Stubs\Migrations\HasAssetModel;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;

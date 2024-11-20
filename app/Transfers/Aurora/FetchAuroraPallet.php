@@ -7,12 +7,12 @@
 
 namespace App\Transfers\Aurora;
 
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\Pallet\PalletTypeEnum;
-use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Billables\Rental;
 use App\Models\CRM\Customer;
-use App\Models\Fulfilment\Rental;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraPallet extends FetchAurora

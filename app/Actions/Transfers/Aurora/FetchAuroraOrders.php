@@ -30,74 +30,76 @@ class FetchAuroraOrders extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId, bool $forceWithTransactions = false): ?Order
     {
-
         $this->organisationSource = $organisationSource;
 
-        if ($orderData = $organisationSource->fetchOrder($organisationSourceId)) {
-            $order = $this->processFetchOrder($organisationSource, $orderData);
+        $orderData = $organisationSource->fetchOrder($organisationSourceId);
 
-
-            if (!$order) {
-                if (!$this->errorReported) {
-                    $this->recordFetchError($organisationSource, $orderData, 'Order', 'fetching');
-                }
-
-                return null;
-            }
-
-            if (in_array('transactions', $this->with) or in_array('full', $this->with) or $forceWithTransactions) {
-                $this->fetchTransactions($organisationSource, $order);
-                $this->fetchNoProductTransactions($organisationSource, $order);
-            }
-            if (in_array('payments', $this->with) or in_array('full', $this->with)) {
-                $this->fetchPayments($organisationSource, $order);
-            }
-
-            $sourceData = explode(':', $order->source_id);
-
-
-            if (in_array('full', $this->with)) {
-                foreach (
-                    DB::connection('aurora')
-                        ->table('Delivery Note Dimension')
-                        ->where('Delivery Note Order Key', $sourceData[1])
-                        ->select('Delivery Note Key as source_id')
-                        ->orderBy('source_id')->get() as $deliveryNote
-                ) {
-                    FetchAuroraDeliveryNotes::run($organisationSource, $deliveryNote->source_id, true);
-                }
-            }
-
-            if (in_array('full', $this->with)) {
-                foreach (
-                    DB::connection('aurora')
-                        ->table('Invoice Dimension')
-                        ->where('Invoice Order Key', $sourceData[1])
-                        ->select('Invoice Key as source_id')
-                        ->orderBy('source_id')->get() as $invoice
-                ) {
-                    FetchAuroraInvoices::run($organisationSource, $invoice->source_id, true);
-                }
-
-
-                foreach (
-                    DB::connection('aurora')
-                        ->table('Order Sent Email Bridge')
-                        ->where('Order Sent Email Order Key', $sourceData[1])
-                        ->select('Order Sent Email Bridge Key as source_id')
-                        ->orderBy('Order Sent Email Bridge Key')->get() as $orderHasDispatchedEmail
-                ) {
-                    FetchAuroraOrderDispatchedEmails::run($organisationSource, $orderHasDispatchedEmail->source_id, true);
-                }
-
-
-            }
-
-
-            return $order;
+        if (!$orderData) {
+            return null;
         }
 
-        return null;
+
+        $order = $this->processFetchOrder($organisationSource, $orderData);
+
+
+
+        if (!$order) {
+            if (!$this->errorReported) {
+                $this->recordFetchError($organisationSource, $orderData, 'Order', 'fetching');
+            }
+
+            return null;
+        }
+
+
+        if (in_array('transactions', $this->with) or in_array('full', $this->with) or $forceWithTransactions) {
+            $this->fetchTransactions($organisationSource, $order);
+            $this->fetchNoProductTransactions($organisationSource, $order);
+        }
+        if (in_array('payments', $this->with) or in_array('full', $this->with)) {
+            $this->fetchPayments($organisationSource, $order);
+        }
+
+        $sourceData = explode(':', $order->source_id);
+
+
+        if (in_array('full', $this->with)) {
+            foreach (
+                DB::connection('aurora')
+                    ->table('Delivery Note Dimension')
+                    ->where('Delivery Note Order Key', $sourceData[1])
+                    ->select('Delivery Note Key as source_id')
+                    ->orderBy('source_id')->get() as $deliveryNote
+            ) {
+                FetchAuroraDeliveryNotes::run($organisationSource, $deliveryNote->source_id, true);
+            }
+        }
+
+        if (in_array('full', $this->with)) {
+            foreach (
+                DB::connection('aurora')
+                    ->table('Invoice Dimension')
+                    ->where('Invoice Order Key', $sourceData[1])
+                    ->select('Invoice Key as source_id')
+                    ->orderBy('source_id')->get() as $invoice
+            ) {
+                FetchAuroraInvoices::run($organisationSource, $invoice->source_id, true);
+            }
+
+
+            foreach (
+                DB::connection('aurora')
+                    ->table('Order Sent Email Bridge')
+                    ->where('Order Sent Email Order Key', $sourceData[1])
+                    ->select('Order Sent Email Bridge Key as source_id')
+                    ->orderBy('Order Sent Email Bridge Key')->get() as $orderHasDispatchedEmail
+            ) {
+                FetchAuroraOrderDispatchedEmails::run($organisationSource, $orderHasDispatchedEmail->source_id, true);
+            }
+        }
+
+
+        return $order;
     }
 
     private function processFetchOrder($organisationSource, $orderData): ?Order
@@ -153,10 +155,9 @@ class FetchAuroraOrders extends FetchAuroraAction
 
     private function fetchPayments($organisationSource, Order $order): void
     {
-        $organisation = $organisationSource->getOrganisation();
-
+        $organisation     = $organisationSource->getOrganisation();
         $paymentsToDelete = $order->payments()->pluck('source_id')->all();
-        $sourceData = explode(':', $order->source_id);
+        $sourceData       = explode(':', $order->source_id);
         $modelHasPayments = [];
         foreach (
 
@@ -177,16 +178,13 @@ class FetchAuroraOrders extends FetchAuroraAction
         }
 
         $order->payments()->syncWithoutDetaching($modelHasPayments);
-
-
         $order->payments()->whereIn('id', $paymentsToDelete)->delete();
     }
 
 
-
-
     private function fetchTransactions($organisationSource, Order $order): void
     {
+
         $transactionsToDelete = $order->transactions()->whereIn('model_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
 
 

@@ -7,7 +7,7 @@
 
 namespace App\Actions\Accounting\Payment;
 
-use App\Actions\Accounting\Payment\Hydrators\PaymentHydrateUniversalSearch;
+use App\Actions\Accounting\Payment\Search\PaymentRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Accounting\PaymentsResource;
@@ -22,7 +22,7 @@ class UpdatePayment extends OrgAction
     {
         $payment = $this->update($payment, $modelData, ['data']);
 
-        PaymentHydrateUniversalSearch::dispatch($payment);
+        PaymentRecordSearch::dispatch($payment);
 
         return $payment;
     }

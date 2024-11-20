@@ -28,57 +28,52 @@ class FetchAuroraOfferComponents extends FetchAuroraAction
             return null;
         }
         if ($offerComponent = OfferComponent::withTrashed()->where('source_id', $offerComponentData['offerComponent']['source_id'])->first()) {
-            //            try {
-            $offerComponent = UpdateOfferComponent::make()->action(
-                offerComponent: $offerComponent,
-                modelData: $offerComponentData['offerComponent'],
-                hydratorsDelay: 60,
-                strict: false,
-                audit: false
-            );
-            $this->recordChange($organisationSource, $offerComponent->wasChanged());
-            //            } catch (Exception $e) {
-            //                $this->recordError($organisationSource, $e, $offerComponentData['offerComponent'], 'OfferComponent', 'update');
-            //
-            //                return null;
-            //            }
+            try {
+                $offerComponent = UpdateOfferComponent::make()->action(
+                    offerComponent: $offerComponent,
+                    modelData: $offerComponentData['offerComponent'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
+                $this->recordChange($organisationSource, $offerComponent->wasChanged());
+            } catch (Exception $e) {
+                $this->recordError($organisationSource, $e, $offerComponentData['offerComponent'], 'OfferComponent', 'update');
+
+                return null;
+            }
         } else {
-            //  try {
-            $offerComponent = StoreOfferComponent::make()->action(
-                offer: $offerComponentData['offer'],
-                trigger: $offerComponentData['trigger'],
-                modelData: $offerComponentData['offerComponent'],
-                hydratorsDelay: 60,
-                strict: false,
-                audit: false
-            );
+            try {
+                $offerComponent = StoreOfferComponent::make()->action(
+                    offer: $offerComponentData['offer'],
+                    trigger: $offerComponentData['trigger'],
+                    modelData: $offerComponentData['offerComponent'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
 
-            $this->recordNew($organisationSource);
-            OfferComponent::enableAuditing();
-            $this->saveMigrationHistory(
-                $offerComponent,
-                Arr::except($offerComponentData['offerComponent'], ['fetched_at', 'last_fetched_at', 'source_id'])
-            );
+                $this->recordNew($organisationSource);
+                OfferComponent::enableAuditing();
+                $this->saveMigrationHistory(
+                    $offerComponent,
+                    Arr::except($offerComponentData['offerComponent'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
 
-            $this->recordNew($organisationSource);
+                $this->recordNew($organisationSource);
 
-            $sourceData = explode(':', $offerComponent->source_id);
-            DB::connection('aurora')->table('Deal Component Dimension')
-                ->where('Deal Component Key', $sourceData[1])
-                ->update(['aiku_id' => $offerComponent->id]);
+                $sourceData = explode(':', $offerComponent->source_id);
+                DB::connection('aurora')->table('Deal Component Dimension')
+                    ->where('Deal Component Key', $sourceData[1])
+                    ->update(['aiku_id' => $offerComponent->id]);
+            } catch (Exception|Throwable $e) {
+                $this->recordError($organisationSource, $e, $offerComponentData['offerComponent'], 'Offer', 'store');
 
-
-
-            //            } catch (Exception|Throwable $e) {
-            //                $this->recordError($organisationSource, $e, $offerComponentData['offerComponent'], 'Offer', 'store');
-            //
-            //                return null;
-            //            }
+                return null;
+            }
         }
 
-
         return $offerComponent;
-
     }
 
     public function getModelsQuery(): Builder

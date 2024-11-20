@@ -7,10 +7,14 @@
 
 namespace App\Actions\Catalogue\Shop;
 
+use App\Actions\Discounts\Offer\StoreOffer;
 use App\Actions\Discounts\OfferCampaign\StoreOfferCampaign;
+use App\Actions\Discounts\OfferComponent\StoreOfferComponent;
 use App\Actions\GrpAction;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Discounts\Offer\OfferStateEnum;
 use App\Enums\Discounts\OfferCampaign\OfferCampaignTypeEnum;
+use App\Enums\Discounts\OfferComponent\OfferComponentStateEnum;
 use App\Models\Catalogue\Shop;
 use Exception;
 use Illuminate\Console\Command;
@@ -20,12 +24,15 @@ class SeedOfferCampaigns extends GrpAction
 {
     use AsAction;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Shop $shop): void
     {
-
         if ($shop->type != ShopTypeEnum::B2B) {
             return;
         }
+
 
         foreach (OfferCampaignTypeEnum::cases() as $case) {
             $code = $case->codes()[$case->value];
@@ -34,7 +41,7 @@ class SeedOfferCampaigns extends GrpAction
                 continue;
             }
 
-            StoreOfferCampaign::make()->action(
+            $offerCampaign = StoreOfferCampaign::make()->action(
                 $shop,
                 [
                     'code' => $code,
@@ -43,6 +50,35 @@ class SeedOfferCampaigns extends GrpAction
                 ]
             );
 
+
+            if ($offerCampaign->type == OfferCampaignTypeEnum::DISCRETIONARY) {
+                $discretionaryOffer = StoreOffer::make()->action(
+                    $offerCampaign,
+                    null,
+                    [
+                        'state'            => OfferStateEnum::ACTIVE,
+                        'code'             => 'di-'.$shop->slug,
+                        'name'             => 'Discretionary Discount',
+                        'type'             => 'Discretionary',
+                        'start_at'         => $shop->created_at,
+                        'is_discretionary' => true
+                    ],
+                    strict: false
+                );
+
+                StoreOfferComponent::make()->action(
+                    $discretionaryOffer,
+                    null,
+                    [
+                        'code'             => 'di-'.$shop->slug,
+                        'state'            => OfferComponentStateEnum::ACTIVE,
+                        'start_at'         => $shop->created_at,
+                        'trigger_scope'    => 'NA',
+                        'is_discretionary' => true
+                    ],
+                    strict: false
+                );
+            }
         }
     }
 
@@ -66,8 +102,6 @@ class SeedOfferCampaigns extends GrpAction
             }
             echo "Success seed all shops offer campaigns ✅ \n";
         }
-
-
 
 
         return 0;

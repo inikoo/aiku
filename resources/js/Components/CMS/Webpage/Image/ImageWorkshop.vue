@@ -230,7 +230,7 @@ const getImageSlots = (layoutType: string) => {
 		@onPick="setImage"
 		@onUpload="onUpload" /> -->
 
-		{{ webpageData?.images_upload_route }}
+
 		<Modal :isOpen="openGallery" @onClose="() => (openGallery = false)" width="w-3/4">
 			<GalleryManagement 
 				:maxSelected="1" 

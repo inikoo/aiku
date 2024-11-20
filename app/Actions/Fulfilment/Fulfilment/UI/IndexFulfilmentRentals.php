@@ -8,12 +8,12 @@
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\Rental\RentalStateEnum;
+use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Http\Resources\Fulfilment\RentalsResource;
 use App\InertiaTable\InertiaTable;
+use App\Models\Billables\Rental;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\Rental;
 use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;

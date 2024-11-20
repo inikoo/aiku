@@ -6,7 +6,7 @@
  */
 
 
-use App\Enums\Fulfilment\Rental\RentalStateEnum;
+use App\Enums\Billables\Rental\RentalStateEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;

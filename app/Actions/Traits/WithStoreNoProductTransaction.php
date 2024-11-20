@@ -7,7 +7,7 @@
 
 namespace App\Actions\Traits;
 
-use App\Models\Catalogue\Charge;
+use App\Models\Billables\Charge;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\ShippingZone;
 use Illuminate\Support\Arr;

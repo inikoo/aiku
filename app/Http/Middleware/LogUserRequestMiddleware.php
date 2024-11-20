@@ -7,7 +7,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Actions\SysAdmin\User\LogUserRequest;
 use App\Actions\SysAdmin\User\StoreUserRequest;
 use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use Closure;
