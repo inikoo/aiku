@@ -162,6 +162,7 @@ provide('isPreviewMode', isPreviewMode)
                                     class="w-full"
                                     :is="getComponent(activityItem?.type)" 
                                     :webpageData="webpage" 
+                                    :blockData="activityItem"
                                     v-model="activityItem.web_block.layout.data.fieldValue"
                                     :isEditable="!isPreviewMode"
                                     @autoSave="() => debouncedSendUpdateBlock(activityItem)" 
