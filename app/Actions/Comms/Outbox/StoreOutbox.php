@@ -55,7 +55,6 @@ class StoreOutbox extends OrgAction
             data_set($modelData, 'state', OutboxStateEnum::ACTIVE);
         }
 
-
         /** @var Outbox $outbox */
         $outbox = $postRoom->outboxes()->create($modelData);
         $outbox->stats()->create();
@@ -83,7 +82,6 @@ class StoreOutbox extends OrgAction
             'type'      => ['required', Rule::enum(OutboxTypeEnum::class)],
             'name'      => ['required', 'max:250', 'string'],
             'blueprint' => ['required', Rule::enum(OutboxBlueprintEnum::class)],
-            'layout'    => ['sometimes', 'array']
         ];
     }
 
