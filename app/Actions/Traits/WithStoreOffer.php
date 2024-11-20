@@ -8,6 +8,7 @@
 namespace App\Actions\Traits;
 
 use App\Enums\Discounts\Offer\OfferStateEnum;
+use App\Enums\Discounts\OfferCampaign\OfferCampaignStateEnum;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
 use Illuminate\Support\Arr;
@@ -16,13 +17,12 @@ trait WithStoreOffer
 {
     protected function prepareOfferData(OfferCampaign|Offer $parent, $trigger, array $modelData): array
     {
-
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'shop_id', $parent->shop_id);
 
         $status = false;
-        if (Arr::get($modelData, 'state') == OfferStateEnum::ACTIVE) {
+        if (Arr::get($modelData, 'state') == $parent instanceof Offer ? OfferStateEnum::ACTIVE : OfferCampaignStateEnum::ACTIVE) {
             $status = true;
         }
 

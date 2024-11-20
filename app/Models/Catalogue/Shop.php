@@ -418,6 +418,11 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(Offer::class);
     }
 
+    public function offerComponents(): HasMany
+    {
+        return $this->hasMany(OfferComponent::class);
+    }
+
     public function taxNumber(): MorphOne
     {
         return $this->morphOne(TaxNumber::class, 'owner');

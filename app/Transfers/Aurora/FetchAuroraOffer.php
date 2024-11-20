@@ -16,14 +16,15 @@ class FetchAuroraOffer extends FetchAurora
     protected function parseModel(): void
     {
         $offerCampaign = $this->parseOfferCampaign($this->organisation->id.':'.$this->auroraModelData->{'Deal Campaign Key'});
-
         if (!$offerCampaign) {
+            print "Offer Campaign not found ".$this->auroraModelData->{'Deal Campaign Key'}." \n";
             return;
         }
 
         if (in_array($this->auroraModelData->{'Deal Trigger'}, ['Product', 'Department', 'Family', 'Category', 'Customer']) and
             !$this->auroraModelData->{'Deal Trigger Key'}
         ) {
+            print "No trigger key for ".$this->auroraModelData->{'Deal Trigger'}." \n";
             return;
         }
 
@@ -122,6 +123,7 @@ class FetchAuroraOffer extends FetchAurora
         if ($createdBy) {
             $this->parsedData['offer']['created_by'] = $createdBy;
         }
+
 
 
     }
