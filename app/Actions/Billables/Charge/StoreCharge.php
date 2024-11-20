@@ -7,7 +7,7 @@
 
 namespace App\Actions\Billables\Charge;
 
-use App\Actions\Billables\Charge\Hydrators\ChargeHydrateUniversalSearch;
+use App\Actions\Billables\Charge\Search\ChargeRecordSearch;
 use App\Actions\Catalogue\Asset\StoreAsset;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCharges;

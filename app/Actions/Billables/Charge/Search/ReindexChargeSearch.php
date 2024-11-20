@@ -7,10 +7,10 @@
  *
 */
 
-namespace App\Actions\Catalogue\Charge\Search;
+namespace App\Actions\Billables\Charge\Search;
 
 use App\Actions\HydrateModel;
-use App\Models\Catalogue\Charge;
+use App\Models\Billables\Charge;
 use Illuminate\Support\Collection;
 
 class ReindexChargeSearch extends HydrateModel

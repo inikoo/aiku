@@ -7,9 +7,9 @@
  *
 */
 
-namespace App\Actions\Catalogue\Charge\Search;
+namespace App\Actions\Billables\Charge\Search;
 
-use App\Models\Catalogue\Charge;
+use App\Models\Billables\Charge;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class ChargeRecordSearch
