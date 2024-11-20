@@ -133,7 +133,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Appointment> $appointments
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Asset> $assets
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
- * @property-read LaravelCollection<int, \App\Models\Billables\Charge> $charges
+ * @property-read LaravelCollection<int, Charge> $charges
  * @property-read LaravelCollection<int, CustomerClient> $clients
  * @property-read Address|null $collectionAddress
  * @property-read LaravelCollection<int, \App\Models\Catalogue\CollectionCategory> $collectionCategories
@@ -160,6 +160,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read ShopMailshotsIntervals|null $mailshotsIntervals
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
+ * @property-read LaravelCollection<int, OfferComponent> $offerComponents
  * @property-read LaravelCollection<int, Offer> $offers
  * @property-read ShopOrdersIntervals|null $orderIntervals
  * @property-read LaravelCollection<int, Order> $orders
@@ -184,7 +185,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\ShopSalesStats|null $salesStats
  * @property-read SenderEmail|null $senderEmail
  * @property-read LaravelCollection<int, SerialReference> $serialReferences
- * @property-read LaravelCollection<int, \App\Models\Billables\Service> $services
+ * @property-read LaravelCollection<int, Service> $services
  * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
  * @property-read LaravelCollection<int, ShippingZone> $shippingZones
  * @property-read \App\Models\Catalogue\ShopStats|null $stats

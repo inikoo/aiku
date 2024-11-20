@@ -36,11 +36,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $code
  * @property string $name
  * @property string $type
- * @property string $trigger_type
+ * @property string|null $trigger_type
  * @property int|null $trigger_id
  * @property array $allowances
  * @property array $data
  * @property array $settings
+ * @property bool $is_discretionary
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $start_at

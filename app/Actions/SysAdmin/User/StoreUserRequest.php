@@ -21,7 +21,7 @@ class StoreUserRequest
     use AsAction;
     use WithSectionsRoute;
 
-// TODO
+    // TODO
 
     public function handle(Carbon $datetime, array $routeData, string $ip, string $userAgent, string $type, User $user): void
     {

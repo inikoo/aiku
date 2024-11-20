@@ -7,7 +7,6 @@
 
 namespace App\Http\Resources\SysAdmin;
 
-use App\Actions\SysAdmin\User\LogUserRequest;
 use App\Actions\SysAdmin\User\StoreUserRequest;
 use App\Models\SysAdmin\User;
 use Illuminate\Contracts\Support\Arrayable;

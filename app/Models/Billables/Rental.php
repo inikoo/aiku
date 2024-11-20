@@ -57,14 +57,14 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Catalogue\Asset|null $asset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\Helpers\Currency $currency
- * @property-read \App\Models\Fulfilment\Fulfilment|null $fulfilment
+ * @property-read Fulfilment|null $fulfilment
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read HistoricAsset|null $historicAsset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, HistoricAsset> $historicAssets
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read \App\Models\Fulfilment\RentalSalesIntervals|null $salesIntervals
+ * @property-read RentalSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
- * @property-read RentalStats|null $stats
+ * @property-read \App\Models\Billables\RentalStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Rental newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Rental newQuery()
