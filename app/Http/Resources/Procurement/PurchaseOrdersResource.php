@@ -19,7 +19,6 @@ class PurchaseOrdersResource extends JsonResource
 {
     public function toArray($request): array
     {
-        // dd($this);
         return [
             'reference'         => $this->reference,
             'state'             => $this->state,
@@ -29,6 +28,7 @@ class PurchaseOrdersResource extends JsonResource
             'parent_name'       => $this->parent_name,
             'parent_slug'       => $this->parent->slug,
             'slug'              => $this->slug,
+            'number_of_items'   => $this->number_of_items,
             'date'              => $this->date,
             'currency_code'     => $this->currency->code,
         ];
