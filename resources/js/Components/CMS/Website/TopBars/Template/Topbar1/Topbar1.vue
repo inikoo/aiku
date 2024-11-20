@@ -80,7 +80,7 @@ const onClickLogin = () => {
         </div>
 
 
-        <div class="action_buttons flex justify-center md:justify-start items-center gap-x-1 flex-wrap md:flex-nowrap">
+        <div class="action_buttons flex justify-between md:justify-start items-center gap-x-1 flex-wrap md:flex-nowrap">
                 
             <!-- Section: Profile -->
             <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
