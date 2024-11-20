@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Actions\Procurement\OrgAgent\Hydrators\OrgAgentHydratePurchaseOrders;
 use App\Actions\Procurement\OrgPartner\Hydrators\OrgPartnerHydratePurchaseOrders;
 use App\Actions\Procurement\OrgSupplier\Hydrators\OrgSupplierHydratePurchaseOrders;
+use App\Actions\Procurement\PurchaseOrder\Search\PurchaseOrderRecordSearch;
 use App\Actions\Procurement\WithNoStrictProcurementOrderRules;
 use App\Actions\Procurement\WithPrepareDeliveryStoreFields;
 use App\Actions\SupplyChain\Agent\Hydrators\AgentHydratePurchaseOrders;
@@ -76,7 +77,7 @@ class StorePurchaseOrder extends OrgAction
         }
 
         OrganisationHydratePurchaseOrders::dispatch($purchaseOrder->organisation)->delay($this->hydratorsDelay);
-
+        PurchaseOrderRecordSearch::dispatch($purchaseOrder)->delay($this->hydratorsDelay);
         return $purchaseOrder;
     }
 

@@ -16,6 +16,7 @@ use App\Models\Traits\HasAddress;
 use App\Models\Traits\HasAddresses;
 use App\Models\Traits\HasAttachments;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InOrganisation;
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -116,6 +117,7 @@ class PurchaseOrder extends Model implements Auditable, HasMedia
     use HasHistory;
     use InOrganisation;
     use HasAttachments;
+    use HasUniversalSearch;
 
 
     protected $casts = [
