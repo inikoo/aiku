@@ -7,6 +7,7 @@
 
 namespace App\Actions\Accounting\PaymentAccount;
 
+use App\Actions\Accounting\PaymentAccount\Search\PaymentAccountRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\UI\Accounting\Traits\HasPaymentAccountUpdateActions;
@@ -27,7 +28,7 @@ class UpdatePaymentAccount extends OrgAction
     public function handle(PaymentAccount $paymentAccount, array $modelData): PaymentAccount
     {
         $paymentAccount = $this->paymentAccountUpdateActions($paymentAccount->paymentServiceProvider->slug, $paymentAccount, $modelData);
-
+        PaymentAccountRecordSearch::dispatch($paymentAccount);
         return $this->update($paymentAccount, Arr::only($modelData, ['code', 'name']), ['data']);
     }
 

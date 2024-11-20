@@ -22,7 +22,7 @@ return new class () extends Migration {
             $table->boolean('is_active')->default(true)->index();
             $table->string('type')->index();
             $table->string('slug')->unique()->collation('und_ns');
-            $table->string('code')->unique();
+            $table->string('code')->index();
             $table->string('name');
             $table->boolean('is_seeded')->index()->default(false);
             $table->jsonb('data');
