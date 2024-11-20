@@ -89,7 +89,7 @@ const props = withDefaults(defineProps<{
     type: 'Bubble',
     placeholder: '',
     toogle: () => [
-        'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList',
+        'heading', 'fontSize', 'bold', 'italic', 'underline', 'bulletList', 'query',
         'orderedList', 'blockquote', 'divider', 'alignLeft', 'alignRight', "customLink",
         'alignCenter', 'undo', 'redo', 'highlight', 'color', 'clear', "image", "video"
     ]
@@ -519,8 +519,13 @@ const irisVariablesList = [
                 <!-- 2nd row -->
                 <section id="tiptap-toolbar"
                     class="py-1 px-2 flex items-center divide-x divide-gray-400">
-                    <!-- Button: Variable -->
-                    <Select @change="(e) => editorInstance?.chain().focus().insertContent(e.value.value).focus().run()" :options="irisVariablesList" optionLabel="label" size="small" :placeholder="trans('Select a variable to put')" class="w-full md:w-56" />
+                    <Select v-if="toogle.includes('query')" 
+                        @change="(e) => editorInstance?.chain().focus().insertContent(e.value.value).focus().run()" 
+                        :options="irisVariablesList" 
+                        optionLabel="label" size="small" 
+                        :placeholder="trans('Select a variable to put')" 
+                        class="w-full md:w-56" 
+                    />
                 </section>
             </div>
         </BubbleMenu>

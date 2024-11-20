@@ -130,7 +130,7 @@ const onSubmitUpload = async (files: File[], clear: Function) => {
                     @changeColor="(newColor)=> (model.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a})`, model.type = 'color')"
                     closeButton
                     v-tooltip="trans('Color background')"
-                    :isEditable="!model.color.includes('var')"
+                    :isEditable="!model.color?.includes('var')"
                 >
                     <template #button>
                         <div class="group relative h-12 w-12 overflow-hidden rounded"  :style="{
