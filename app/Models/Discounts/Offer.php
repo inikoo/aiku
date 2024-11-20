@@ -43,6 +43,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $data
  * @property array $settings
  * @property bool $is_discretionary
+ * @property bool $is_locked
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $start_at
@@ -51,6 +52,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property array $source_data
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $invoiceTransactions
@@ -84,6 +86,7 @@ class Offer extends Model implements Auditable
         'data'            => 'array',
         'settings'        => 'array',
         'allowances'      => 'array',
+        'source_data'     => 'array',
         'begin_at'        => 'datetime',
         'end_at'          => 'datetime',
         'fetched_at'      => 'datetime',
@@ -93,9 +96,10 @@ class Offer extends Model implements Auditable
     ];
 
     protected $attributes = [
-        'data'       => '{}',
-        'settings'   => '{}',
-        'allowances' => '{}'
+        'data'        => '{}',
+        'settings'    => '{}',
+        'allowances'  => '{}',
+        'source_data' => '{}',
     ];
 
     protected $guarded = [];
@@ -146,13 +150,13 @@ class Offer extends Model implements Auditable
     public function invoiceTransactions(): HasMany
     {
         return $this->hasMany(ModelHasOfferComponent::class)
-                    ->where('model_type', 'InvoiceTransaction');
+            ->where('model_type', 'InvoiceTransaction');
     }
 
     public function orderTransactions(): HasMany
     {
         return $this->hasMany(ModelHasOfferComponent::class)
-                    ->where('model_type', 'Transaction');
+            ->where('model_type', 'Transaction');
     }
 
     public function offerCampaign(): BelongsTo

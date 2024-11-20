@@ -16,7 +16,7 @@ class FetchAuroraNoProductTransactionHasOfferComponent extends FetchAurora
     {
         $transaction = $this->parseTransactionNoProduct($this->organisation->id.':'.$this->auroraModelData->{'Order No Product Transaction Fact Key'});
 
-        if(!$transaction) {
+        if (!$transaction) {
             return;
         }
 
