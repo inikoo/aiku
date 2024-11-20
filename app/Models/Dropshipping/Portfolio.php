@@ -11,6 +11,7 @@ use App\Models\Catalogue\Product;
 use App\Models\CRM\Customer;
 use App\Models\ShopifyUserHasProduct;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InCustomer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -57,6 +58,7 @@ class Portfolio extends Model implements Auditable
 {
     use InCustomer;
     use HasHistory;
+    use HasUniversalSearch;
 
     protected $casts = [
         'data'                        => 'array',
