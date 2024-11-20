@@ -280,8 +280,6 @@ class ReindexSearch extends HydrateModel
         $command->call('website:search');
 
         # new
-        $command->line('Ordering');
-        $command->call('order:search');
 
         $command->line('Inventory');
         $command->call('org_stock_family:search');
