@@ -66,7 +66,6 @@ class IndexPurchaseOrders extends OrgAction
         }
 
         return $query->defaultSort('purchase_orders.reference')
-
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -87,7 +86,7 @@ class IndexPurchaseOrders extends OrgAction
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'parent_name', label: __('supplier/agents'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'date', label: __('date Created'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'items', label: __('items'), canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'number_of_items', label: __('items'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'amount', label: __('amount'), canBeHidden: false, sortable: true, searchable: true, type: 'currency')
                 ->defaultSort('reference');
         };
@@ -251,7 +250,6 @@ class IndexPurchaseOrders extends OrgAction
                 'label'     => __('Purchase Orders')
             ];
         }
-        // dd($this->parent);
         return Inertia::render(
             'Procurement/PurchaseOrders',
             [
