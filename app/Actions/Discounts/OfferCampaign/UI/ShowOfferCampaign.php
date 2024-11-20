@@ -11,7 +11,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\Discounts\Offer\UI\IndexOffers;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
-use App\Enums\UI\Deals\OfferCampaignTabsEnum;
+use App\Enums\UI\Discounts\OfferCampaignTabsEnum;
 use App\Http\Resources\Catalogue\OfferCampaignResource;
 use App\Http\Resources\Catalogue\OffersResource;
 use App\Http\Resources\History\HistoryResource;

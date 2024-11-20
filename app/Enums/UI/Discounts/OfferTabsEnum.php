@@ -5,7 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\UI\Deals;
+namespace App\Enums\UI\Discounts;
 
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabs;
