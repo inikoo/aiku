@@ -82,7 +82,7 @@ class UpdateSalesChannel extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules = $this->noStrictStoreRules($rules);
+            $rules             = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;
