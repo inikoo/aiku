@@ -38,6 +38,7 @@ const props = defineProps<{
     showcase?: any
     snapshots?: object,
     external_links?: {}
+    analytics:any
 }>()
 
 

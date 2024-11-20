@@ -37,7 +37,17 @@ class PurchaseOrderOrgSupplierProductsResource extends JsonResource
             'name'            => $this->name,
             'supplier_name'   => $supplierProduct->supplier->name,
             'image_thumbnail' => $stock->imageSources(40, 40),
-            'quantity_ordered' => $this->quantity_ordered ?? 0
+            'quantity_ordered' => $this->quantity_ordered ?? 0,
+            'purchase_order_transaction_id' => $this->purchase_order_transaction_id,
+            'purchase_order_id'  => $this->purchase_order_id,
+            'updateRoute'       => [
+                'name' => 'grp.models.purchase-order.transaction.update',
+                'parameters' => [
+                    'purchaseOrder' => $this->purchase_order_id,
+                    'purchaseOrderTransaction' => $this->purchase_order_transaction_id
+                ]
+            ]
+
         ];
     }
 }
