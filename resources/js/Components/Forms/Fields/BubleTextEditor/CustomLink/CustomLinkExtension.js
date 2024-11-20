@@ -26,6 +26,9 @@ const CustomLink = Link.extend({
 					return element.getAttribute("href")
 				},
 			},
+			target: {
+				default: this.options.HTMLAttributes.target,
+			},
 		}
 	},
 	addCommands() {
@@ -33,7 +36,6 @@ const CustomLink = Link.extend({
 			setCustomLink:
 				(attrs) =>
 				({ commands }) => {
-					console.log("sdsad", attrs)
 					if (!attrs.href) {
 						console.warn("The href attribute is required but was not provided.")
 						return false

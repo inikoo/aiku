@@ -99,7 +99,7 @@ class StoreCharge extends OrgAction
         ShopHydrateCharges::dispatch($shop)->delay($this->hydratorsDelay);
         OrganisationHydrateCharges::dispatch($shop->organisation)->delay($this->hydratorsDelay);
         GroupHydrateCharges::dispatch($shop->group)->delay($this->hydratorsDelay);
-        ChargeHydrateUniversalSearch::dispatch($charge);
+        ChargeRecordSearch::dispatch($charge);
 
 
         return $charge;

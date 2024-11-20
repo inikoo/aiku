@@ -744,4 +744,9 @@ class Group extends Authenticatable implements Auditable, HasMedia
     {
         return $this->hasMany(InvoiceCategory::class);
     }
+
+    public function userRequests(): HasMany
+    {
+        return $this->hasMany(UserRequest::class);
+    }
 }

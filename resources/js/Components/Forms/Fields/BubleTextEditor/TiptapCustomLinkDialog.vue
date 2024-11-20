@@ -13,6 +13,7 @@ const props = defineProps<{
         type: string,
         id: string,
         workshop: string,
+        target : string
   /*       content?: string  */
     }
 }>();
@@ -26,6 +27,7 @@ const form = useForm({
     type: props.attribut?.type || "internal",
     workshop: null,
     id: null,
+    target : props.attribut?.href || "_self",
 });
 
 // Watch for changes in the attribut prop
@@ -35,6 +37,7 @@ watch(() => props.attribut, (newValue) => {
         form.type = newValue.type || "internal";
         form.workshop = newValue.workshop || null;
         form.id = newValue || null;
+        form.target = newValue.target || "_self"
     }
 }, { immediate: true }); 
 
@@ -61,6 +64,11 @@ const options = [
     { label: 'Internal', value: 'internal' },
     { label: 'External', value: 'external' }
 ];
+
+const target = [
+    { label: 'In this page', value: '_self' },
+    { label: 'New Page', value: '_blank' }
+]
 </script>
 
 <template>
@@ -71,6 +79,16 @@ const options = [
                 <div class="flex space-x-4">
                     <label v-for="option in options" :key="option.value" class="flex items-center space-x-2">
                         <input type="radio" :value="option.value" v-model="form.type" class="form-radio" />
+                        <span>{{ option.label }}</span>
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <div class="select-none text-sm text-gray-600 mb-2">target</div>
+                <div class="flex space-x-4">
+                    <label v-for="option in target" :key="option.value" class="flex items-center space-x-2">
+                        <input type="radio" :value="option.value" v-model="form.target" class="form-radio" />
                         <span>{{ option.label }}</span>
                     </label>
                 </div>

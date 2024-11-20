@@ -127,7 +127,7 @@ test('create group by command', function () {
         'currency_code' => $currency->code,
         'country_code'  => 'US'
     ])->assertSuccessful();
-    $group = Group::where('code', 'TEST')->firstOrFail();
+    $group = Group::where('code', 'TEST2')->firstOrFail();
     expect($group)->toBeInstanceOf(Group::class);
 
     return $group;

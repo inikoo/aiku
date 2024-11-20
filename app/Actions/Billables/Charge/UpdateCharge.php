@@ -8,6 +8,7 @@
 namespace App\Actions\Billables\Charge;
 
 use App\Actions\Catalogue\Asset\UpdateAsset;
+use App\Actions\Catalogue\Charge\Search\ChargeRecordSearch;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
@@ -41,6 +42,7 @@ class UpdateCharge extends OrgAction
         $charge  = $this->update($charge, $modelData);
         $changed = $charge->getChanges();
 
+        ChargeRecordSearch::dispatch($charge);
         if (Arr::hasAny($changed, ['name', 'code'])) {
             $historicAsset = StoreHistoricAsset::run($charge, [], $this->hydratorsDelay);
             $charge->updateQuietly(

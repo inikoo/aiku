@@ -8,6 +8,7 @@
 namespace App\Http\Middleware;
 
 use App\Actions\SysAdmin\User\LogUserRequest;
+use App\Actions\SysAdmin\User\StoreUserRequest;
 use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use Closure;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ class LogUserRequestMiddleware
         $user = $request->user();
 
         if (!app()->runningUnitTests() && $user && env('USER_REQUEST_LOGGING')) {
-            LogUserRequest::run(
+            StoreUserRequest::run(
                 now(),
                 [
                     'name'      => $request->route()->getName(),

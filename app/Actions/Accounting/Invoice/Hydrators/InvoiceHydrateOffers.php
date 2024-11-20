@@ -33,18 +33,40 @@ class InvoiceHydrateOffers
 
         $stats = [
             'number_offer_components' => $invoice->invoiceTransactions()->sum(function ($transaction) {
-                return $transaction->countOfferComponents();
+                return $this->countOfferComponents($transaction);
             }),
             'number_offers' => $invoice->invoiceTransactions()->sum(function ($transaction) {
-                return $transaction->countOffers();
+                return $this->countOffers($transaction);
             }),
             'number_offer_campaigns' => $invoice->invoiceTransactions()->sum(function ($transaction) {
-                return $transaction->countOfferCampaigns();
+                return $this->countOfferCampaigns($transaction);
             }),
         ];
 
 
         $invoice->stats()->update($stats);
     }
+
+    public function countOfferComponents($transaction): int
+    {
+        return $transaction->offerComponents()
+            ->distinct('offer_component_id')
+            ->count('offer_component_id');
+    }
+
+    public function countOffers($transaction): int
+    {
+        return $transaction->offerComponents()
+            ->distinct('offer_id')
+            ->count('offer_id');
+    }
+
+    public function countOfferCampaigns($transaction): int
+    {
+        return $transaction->offerComponents()
+            ->distinct('offer_campaigns_id')
+            ->count('offer_campaigns_id');
+    }
+    
 
 }
