@@ -45,7 +45,6 @@ class CustomerClientRecordSearch
                     ])
                 ),
                 'result' => [
-                    'xxxx'        => $customerClient,
                     'route'         => [
                         'name'          => 'grp.org.shops.show.crm.customers.show.customer-clients.show',
                         'parameters'    => [
@@ -55,54 +54,30 @@ class CustomerClientRecordSearch
                             $customerClient->ulid,
                         ]
                     ],
-                    'container' => [
+                    'description' => [
                         'label' => $customerClient->shop->name,
-                        'tooltip'   => __('Shop')
                     ],
-                    'title'        => $customerClient->name,
-                    // 'afterTitle'   => [
-                    //     'label'     => '(#' . $customerClient->reference . ')',
-                    //     'tooltip'   => __('reference')
-                    // ],
+                    'code'        => [
+                        'code' => $customerClient->name
+                    ],
                     'icon'      => [
-                        'icon' => 'fal fa-folder',
+                        'icon' => 'fal fa-user',
                     ],
                     'meta'      => [
-                        // [
-                        //     'key'   => 'status',
-                        //     'label' => $customerClient->status
-                        // ],
                         [
-                            'key'       => 'created_date',
-                            'type'      => 'date',
-                            'label'     => $customerClient->created_at,
-                            'tooltip'   => __('Created at')
+                            'label' => $customerClient->status,
+                            'tooltip'   => __('Status'),
                         ],
                         [
-                            'key'       => 'address',
                             'type'      => 'address',
                             'label'     => $customerClient->location,
                             'tooltip'   => __('Location')
                         ],
-                        // [
-                        //     'key'   => 'contact_name',
-                        //     // 'type'  => 'address',
-                        //     'label'     => $customerClient->contact_name,
-                        //     'tooltip'   => __('Contact name')
-                        // ],
                         [
-                            'key'   => 'email',
-                            // 'type'  => 'address',
-                            'label'     => $customerClient->email,
-                            'tooltip'   => __('Email')
+                            'type'      => 'date',
+                            'label'     => $customerClient->created_at,
+                            'tooltip'   => __('Since')
                         ],
-                        // [
-                        //     'key'    => 'total',
-                        //     'type'   => 'currency',
-                        //     'code'   => $customerClient->currency->code,
-                        //     'label'  => 'Total: ',
-                        //     'amount' => $customerClient->total_amount
-                        // ],
                     ],
                 ]
             ]
