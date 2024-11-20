@@ -10,6 +10,7 @@ namespace App\Models\SysAdmin;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Models\Accounting\CreditTransaction;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceCategory;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -730,5 +731,10 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function emailTemplates(): HasMany
     {
         return $this->hasMany(EmailTemplate::class);
+    }
+
+    public function invoiceCategories(): HasMany
+    {
+        return $this->hasMany(InvoiceCategory::class);
     }
 }

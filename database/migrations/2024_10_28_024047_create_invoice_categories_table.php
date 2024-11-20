@@ -15,6 +15,9 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('name');
             $table->string('state')->default(InvoiceCategoryStateEnum::IN_PROCESS);
+            $table->dateTimeTz('fetched_at')->nullable();
+            $table->string('source_id')->nullable();
+            $table->softDeletesTz();
             $table->timestampsTz();
         });
     }
