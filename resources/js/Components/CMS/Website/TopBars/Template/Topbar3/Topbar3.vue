@@ -136,7 +136,7 @@ const onClickLogin = () => {
             <!-- Section: Cart -->
             <a v-if="checkVisible(model?.cart?.visible || null, isLoggedIn)"
                 id="header_order_totals"
-                :href="model?.cart?.visible"
+                :href="model?.cart?.link"
                 class="space-x-1.5"
                 :style="getStyles(model?.cart.container.properties)"
             >

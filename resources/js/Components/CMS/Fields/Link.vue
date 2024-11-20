@@ -5,8 +5,14 @@ import SelectButton from "primevue/selectbutton"
 import RadioButton from "primevue/radiobutton"
 import PureInput from "@/Components/Pure/PureInput.vue"
 import SelectQuery from "@/Components/SelectQuery.vue"
+import { get, set } from "lodash"
 
-const modelValue = defineModel({
+interface Link {
+	type: string
+	url: string
+}
+
+const modelValue = defineModel<Link>({
 	required: true
 })
 
@@ -17,7 +23,7 @@ const options = ref([
 </script>
 
 <template>
-	<div v-if="modelValue.type">
+	<div>
 		<div>
 			<div class="text-gray-500 text-xs tracking-wide mb-2">{{ trans("Target") }}</div>
 			<div class="mb-3 border border-gray-300 rounded-md w-full px-4 py-2">
@@ -35,7 +41,9 @@ const options = ref([
 
 				<div class="flex flex-wrap justify-between w-full">
 					<div v-for="(option, indexOption) in options" class="flex items-center gap-2">
-						<RadioButton v-model="modelValue.type"
+						<RadioButton
+							:modelValue="get(modelValue, 'type', null)"
+							@update:modelValue="(e: string) => set(modelValue, 'type', e)"
 							:inputId="`${option.value}${indexOption}`"
 							name="pizza"
 							size="small"
@@ -49,7 +57,12 @@ const options = ref([
 		
 		<div>
 			<div class="my-2 text-gray-500 text-xs tracking-wide mb-2">{{ trans("Destination") }}</div>
-			<PureInput v-if="modelValue?.type == 'external'" v-model="modelValue.url" />
+			<PureInput
+				v-if="modelValue?.type == 'external'"
+				:modelValue="get(modelValue, 'url', null)"
+				@update:modelValue="(e: string) => set(modelValue, 'url', e)"
+			/>
+			
 			<SelectQuery
 				v-else-if="modelValue"
 				fieldName="id"
