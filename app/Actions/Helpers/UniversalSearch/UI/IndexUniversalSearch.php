@@ -94,29 +94,30 @@ class IndexUniversalSearch extends InertiaAction
     {
         $routes = [
             'accounting.' => ['accounting'],
-            'productions.' => ['productions'],
+            // 'productions.' => ['productions'],
             'procurement.' => ['procurement'],
             'websites.' => ['web'],
             'fulfilments.show.web.' => ['web'],
             'fulfilments.' => ['fulfilments'],
-            'reports.' => ['reports'],
-            'shops.show.assets.' => ['assets'],
+            // 'reports.' => ['reports'],
+            // 'shops.show.assets.' => ['assets'],
             'shops.show.catalogue.' => ['catalogue'],
-            'shops.show.mail.' => ['mail'],
-            'shops.show.marketing.' => ['marketing'],
+            // 'shops.show.mail.' => ['mail'],
+            // 'shops.show.marketing.' => ['marketing'],
             'shops.show.discounts.' => ['discounts'],
             'shops.show.ordering.' => ['ordering', 'dispatching'],
             'shops.show.web.' => ['web'],
             'shops.show.crm.' => ['crm'],
             'shops.show.billables' => ['billables'],
-            'shops.' => ['assets', 'catalogue', 'mail', 'marketing', 'discounts', 'ordering', 'dispatching', 'web', 'crm', 'billables'],
+            // 'shops.' => ['assets', 'catalogue', 'mail', 'marketing', 'discounts', 'ordering', 'dispatching', 'web', 'crm', 'billables'],
+            'shops.' => ['assets', 'catalogue', 'mail', 'discounts', 'ordering', 'dispatching', 'web', 'crm'],
             'hr.' => ['hr'],
             'warehouses.show.infrastructure.' => ['infrastructure'],
             'warehouses.show.dispatching' => ['dispatching'],
             'warehouses.' => ['infrastructure', 'inventory', 'dispatching']
         ];
 
-        if (empty($route)) {
+        if (empty($route) || str_starts_with($route, "dashboard.") || str_starts_with($route, "settings.")) {
             return array_unique(array_merge(...array_values($routes)));
         }
 

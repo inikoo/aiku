@@ -35,7 +35,7 @@ class ChargeRecordSearch
             'organisation_slug' => $charge->organisation->slug,
             'shop_id'           => $charge->shop_id,
             'shop_slug'         => $charge->shop->slug,
-            'sections'          => ['billables'],
+            'sections'          => ['assets'],
             'haystack_tier_1'   => trim($charge->code.' '.$charge->name),
             'result'            => [
                 'route'     => [
