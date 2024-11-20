@@ -112,6 +112,7 @@ onMounted(() => {
 			<PureInput
 				v-if="localModel?.type == 'external'"
 				v-model="localModel.href"
+				placeholder="www.anotherwebsite.com/page"
 			/>
 			
 			<SelectQuery

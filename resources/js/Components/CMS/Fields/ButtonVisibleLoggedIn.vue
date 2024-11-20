@@ -38,7 +38,7 @@ const options = ref([
 
 
 <template>
-    <div class="border-b pb-3 border-gray-300">
+    <div class="">
         <!-- {{ model }} === -->
         <div class="my-2 text-gray-500 text-xs font-semibold">{{ trans('Visibility') }}</div>
         <SelectButton

@@ -8,7 +8,7 @@ console.log(model.value)
 </script>
 
 <template>
-  <div class="py-3">
+  <div class="">
     <Editor v-model="model">
       <template #editor-content="{ editor }">
         <div class="editor-wrapper border-2 border-gray-300 rounded-lg p-3 shadow-sm focus-within:border-blue-400">
