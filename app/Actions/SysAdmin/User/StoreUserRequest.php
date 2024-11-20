@@ -74,7 +74,7 @@ class StoreUserRequest
             'location'      => $body['location']
         ];
 
-        $group->userRequests()->create($modelData);
+        // $group->userRequests()->create($modelData);
 
         // if platform=='Windows 10' need to check if it is actually Windows 11 see:
         // https://developers.whatismybrowser.com/learn/browser-detection/client-hints/detect-windows-11-client-hints
