@@ -41,6 +41,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraPolls;
 use App\Actions\Transfers\Aurora\FetchAuroraProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraProspects;
 use App\Actions\Transfers\Aurora\FetchAuroraPurges;
+use App\Actions\Transfers\Aurora\FetchAuroraSalesChannels;
 use App\Actions\Transfers\Aurora\FetchAuroraServices;
 use App\Actions\Transfers\Aurora\FetchAuroraShippers;
 use App\Actions\Transfers\Aurora\FetchAuroraShippingZones;
@@ -98,6 +99,7 @@ use App\Models\Manufacturing\Production;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;
+use App\Models\Ordering\SalesChannel;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Ordering\Transaction;
@@ -970,6 +972,23 @@ trait WithAuroraParsers
         }
 
         return $purge;
+    }
+
+    public function parseSalesChannel(string $sourceId): ?SalesChannel
+    {
+        $salesChannel = SalesChannel::where('source_id', $sourceId)->first();
+        if ($salesChannel) {
+            return $salesChannel;
+        }
+
+        $salesChannel = SalesChannel::whereJsonContains('sources->sales_channels', $sourceId)->first();
+        if ($salesChannel) {
+            return $salesChannel;
+        }
+
+
+        $sourceData = explode(':', $sourceId);
+        return FetchAuroraSalesChannels::run($this->organisationSource, $sourceData[1]);
     }
 
 

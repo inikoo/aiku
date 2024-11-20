@@ -28,7 +28,7 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
-            $table->unsignedInteger('sales_channel_id')->index();
+            $table->unsignedInteger('sales_channel_id')->nullable()->index();
             $table->foreign('sales_channel_id')->references('id')->on('sales_channels');
 
             $table->unsignedInteger('customer_client_id')->nullable()->index();
@@ -71,11 +71,8 @@ return new class () extends Migration {
             $table->dateTimeTz('packed_at')->nullable();
             $table->dateTimeTz('finalised_at')->nullable();
             $table->dateTimeTz('dispatched_at')->nullable();
-
             $table->dateTimeTz('cancelled_at')->nullable();
-
             $table->dateTimeTz('settled_at')->nullable()->comment('dispatched_at|cancelled_at');
-
 
             $table->boolean('is_invoiced')->default('false');
             $table->boolean('is_picking_on_hold')->nullable();

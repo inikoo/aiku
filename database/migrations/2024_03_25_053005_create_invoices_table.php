@@ -30,7 +30,7 @@ return new class () extends Migration {
             $table->foreign('address_id')->references('id')->on('addresses');
             $table->unsignedSmallInteger('billing_country_id')->index()->nullable();
             $table->foreign('billing_country_id')->references('id')->on('countries');
-            $table->unsignedInteger('sales_channel_id')->index();
+            $table->unsignedInteger('sales_channel_id')->nullable()->index();
             $table->foreign('sales_channel_id')->references('id')->on('sales_channels');
             $table->string('type')->default(InvoiceTypeEnum::INVOICE)->index();
 
@@ -40,10 +40,11 @@ return new class () extends Migration {
             $table->dateTimeTz('date')->index()->nullable();
             $table->dateTimeTz('tax_liability_at')->nullable();
             $table->dateTimeTz('paid_at')->nullable();
+
             $table->jsonb('data');
+            $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->index()->nullable();
         });

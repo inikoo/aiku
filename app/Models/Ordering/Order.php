@@ -54,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property int $shop_id
  * @property int $customer_id
+ * @property int|null $sales_channel_id
  * @property int|null $customer_client_id
  * @property string|null $reference
  * @property string|null $customer_reference Customers own order reference
@@ -127,6 +128,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Platform> $platforms
+ * @property-read \App\Models\Ordering\SalesChannel|null $salesChannel
  * @property-read Shop $shop
  * @property-read ShopifyUserHasFulfilment|null $shopifyOrder
  * @property-read \App\Models\Ordering\OrderStats|null $stats
@@ -280,5 +282,9 @@ class Order extends Model implements HasMedia, Auditable
         return $this->morphToMany(DispatchedEmail::class, 'model', 'model_has_dispatched_emails')->withTimestamps();
     }
 
+    public function salesChannel(): BelongsTo
+    {
+        return $this->belongsTo(SalesChannel::class);
+    }
 
 }

@@ -60,6 +60,7 @@ use App\Models\Manufacturing\Production;
 use App\Models\Manufacturing\RawMaterial;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;
+use App\Models\Ordering\SalesChannel;
 use App\Models\Ordering\ShippingZone;
 use App\Models\Ordering\ShippingZoneSchema;
 use App\Models\Procurement\PurchaseOrder;
@@ -178,6 +179,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Redirect> $redirects
  * @property-read LaravelCollection<int, Rental> $rentals
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Role> $roles
+ * @property-read LaravelCollection<int, SalesChannel> $salesChannels
  * @property-read \App\Models\SysAdmin\GroupSalesIntervals|null $salesIntervals
  * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
  * @property-read LaravelCollection<int, Service> $services
@@ -722,7 +724,6 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasMany(Query::class);
     }
 
-
     public function ingredients(): HasMany
     {
         return $this->hasMany(Ingredient::class);
@@ -732,6 +733,12 @@ class Group extends Authenticatable implements Auditable, HasMedia
     {
         return $this->hasMany(EmailTemplate::class);
     }
+
+    public function salesChannels(): HasMany
+    {
+        return $this->hasMany(SalesChannel::class);
+    }
+
 
     public function invoiceCategories(): HasMany
     {

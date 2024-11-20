@@ -16,6 +16,7 @@ use App\Models\Helpers\Currency;
 use App\Models\Helpers\Feedback;
 use App\Models\Helpers\UniversalSearch;
 use App\Models\Ordering\Order;
+use App\Models\Ordering\SalesChannel;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\HasHistory;
@@ -53,6 +54,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $recurring_bill_id
  * @property int|null $address_id
  * @property int|null $billing_country_id
+ * @property int|null $sales_channel_id
  * @property InvoiceTypeEnum $type
  * @property int $currency_id
  * @property string|null $grp_exchange
@@ -75,10 +77,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $tax_liability_at
  * @property \Illuminate\Support\Carbon|null $paid_at
  * @property array $data
- * @property \Illuminate\Support\Carbon|null $fetched_at
- * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
  * @property-read Address|null $address
@@ -96,6 +98,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Accounting\Payment> $payments
  * @property-read RecurringBill|null $recurringBill
  * @property-read \App\Models\Helpers\RetinaSearch|null $retinaSearch
+ * @property-read SalesChannel|null $salesChannel
  * @property-read Shop $shop
  * @property-read \App\Models\Accounting\InvoiceStats|null $stats
  * @property-read UniversalSearch|null $universalSearch
@@ -219,6 +222,11 @@ class Invoice extends Model implements Auditable
     public function feedbacks(): MorphMany
     {
         return $this->morphMany(Feedback::class, 'origin');
+    }
+
+    public function salesChannel(): BelongsTo
+    {
+        return $this->belongsTo(SalesChannel::class);
     }
 
 }

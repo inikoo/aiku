@@ -37,7 +37,7 @@ return new class () extends Migration {
             $table->foreign('org_stock_id')->references('id')->on('org_stocks');
 
 
-            $table->unsignedInteger('transaction_id')->index()->nullable();
+            $table->unsignedBigInteger('transaction_id')->index()->nullable();
             $table->foreign('transaction_id')->references('id')->on('transactions');
 
             $table->string('notes')->nullable();

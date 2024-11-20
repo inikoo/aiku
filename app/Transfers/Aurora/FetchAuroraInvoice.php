@@ -9,6 +9,7 @@ namespace App\Transfers\Aurora;
 
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Ordering\SalesChannel\SalesChannelTypeEnum;
 use App\Models\Helpers\Address;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -60,6 +61,16 @@ class FetchAuroraInvoice extends FetchAurora
 
         $taxCategory = $this->parseTaxCategory($this->auroraModelData->{'Invoice Tax Category Key'});
 
+
+        $salesChannel = null;
+
+        if ($shop->type == ShopTypeEnum::FULFILMENT) {
+            $salesChannel = $shop->group->salesChannels()->where('type', SalesChannelTypeEnum::NA)->first();
+        } elseif ($this->auroraModelData->{'Invoice Source Key'}) {
+            $salesChannel = $this->parseSalesChannel($this->organisation->id.':'.$this->auroraModelData->{'Invoice Source Key'});
+        }
+
+
         $this->parsedData['invoice'] = [
             'reference'        => $this->auroraModelData->{'Invoice Public ID'},
             'type'             => strtolower($this->auroraModelData->{'Invoice Type'}),
@@ -92,6 +103,12 @@ class FetchAuroraInvoice extends FetchAurora
             'last_fetched_at' => now()
 
         ];
+
+
+        if ($salesChannel) {
+            $this->parsedData['invoice']['sales_channel_id'] = $salesChannel->id;
+        }
+
     }
 
 

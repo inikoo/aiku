@@ -54,7 +54,7 @@ class WebpageResource extends JsonResource
             'images_upload_route' => [
                 'name'       => 'grp.models.model_has_web_block.images.store',
                 // 'parameters' => [
-                //     'modelHasWebBlocks' => 
+                //     'modelHasWebBlocks' =>
                 // ],
             ],
             'reorder_web_blocks_route'        => [

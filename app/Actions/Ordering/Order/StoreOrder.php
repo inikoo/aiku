@@ -221,6 +221,13 @@ class StoreOrder extends OrgAction
             'billing_locked'     => ['sometimes', 'boolean'],
             'delivery_locked'    => ['sometimes', 'boolean'],
             'tax_category_id'    => ['sometimes', 'required', 'exists:tax_categories,id'],
+            'sales_channel_id'   => [
+                'sometimes',
+                'required',
+                Rule::exists('sales_channels', 'id')->where(function ($query) {
+                    $query->where('group_id', $this->shop->group_id);
+                })
+            ],
 
         ];
 

@@ -72,6 +72,7 @@ use App\Transfers\Aurora\FetchAuroraPurchaseOrder;
 use App\Transfers\Aurora\FetchAuroraPurchaseOrderTransaction;
 use App\Transfers\Aurora\FetchAuroraPurge;
 use App\Transfers\Aurora\FetchAuroraQuery;
+use App\Transfers\Aurora\FetchAuroraSalesChannel;
 use App\Transfers\Aurora\FetchAuroraService;
 use App\Transfers\Aurora\FetchAuroraShipper;
 use App\Transfers\Aurora\FetchAuroraShippingZone;
@@ -547,6 +548,11 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchPurge($id): ?array
     {
         return (new FetchAuroraPurge($this))->fetch($id);
+    }
+
+    public function fetchSalesChannel($id): ?array
+    {
+        return (new FetchAuroraSalesChannel($this))->fetch($id);
     }
 
 }

@@ -160,6 +160,13 @@ class StoreInvoice extends OrgAction
             'source_id'        => ['sometimes', 'string'],
             'tax_category_id'  => ['sometimes', 'required', 'exists:tax_categories,id'],
             'fetched_at'       => ['sometimes', 'date'],
+            'sales_channel_id'   => [
+                'sometimes',
+                'required',
+                Rule::exists('sales_channels', 'id')->where(function ($query) {
+                    $query->where('group_id', $this->shop->group_id);
+                })
+            ],
         ];
 
         if (!$this->strict) {

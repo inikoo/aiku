@@ -73,25 +73,31 @@ function AgentRoute(purchaseOrder: PurchaseOrder) {
 </script>
 
 <template>
-    
+
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(reference)="{ item: purchaseOrder }">
             <Link :href="PurchaseOrderRoute(purchaseOrder)" class="primaryLink">
-                {{ purchaseOrder.reference }}
+            {{ purchaseOrder.reference }}
             </Link>
         </template>
 
         <template #cell(parent_name)="{ item: purchaseOrder }">
-            <Link :href="purchaseOrder.parent_type === 'OrgSupplier' ? SupplierRoute(purchaseOrder) : AgentRoute(purchaseOrder)" class="secondaryLink">
-                {{ purchaseOrder.parent_name }}
+            <Link
+                :href="purchaseOrder.parent_type === 'OrgSupplier' ? SupplierRoute(purchaseOrder) : AgentRoute(purchaseOrder)"
+                class="secondaryLink">
+            {{ purchaseOrder.parent_name }}
             </Link>
         </template>
-        
+
         <template #cell(state)="{ item: purchaseOrder }">
             <!-- <pre>{{ purchaseOrder }}</pre> -->
             <Icon :data="purchaseOrder.state_icon" />
         </template>
-        
+
+        <template #cell(items)="{ item: purchaseOrder }">
+            {{ purchaseOrder['number_of_items'] }}
+        </template>
+
         <template #cell(date)="{ item: purchaseOrder }">
             {{ useFormatTime(purchaseOrder['date']) }}
         </template>

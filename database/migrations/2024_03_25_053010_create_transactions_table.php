@@ -20,7 +20,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('transactions', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table = $this->groupOrgRelationship($table);
             $table = $this->salesTransactionParents($table);
             $table->unsignedInteger('invoice_id')->nullable()->index();

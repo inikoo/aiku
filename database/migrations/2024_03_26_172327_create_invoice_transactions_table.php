@@ -45,7 +45,7 @@ return new class () extends Migration {
             $table->unsignedInteger('order_id')->nullable();
             $table->foreign('order_id')->references('id')->on('orders');
 
-            $table->unsignedInteger('transaction_id')->nullable();
+            $table->unsignedBigInteger('transaction_id')->nullable();
             $table->foreign('transaction_id')->references('id')->on('transactions');
             $table->unsignedInteger('recurring_bill_transaction_id')->nullable();
 

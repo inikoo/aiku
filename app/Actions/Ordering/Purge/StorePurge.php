@@ -9,7 +9,6 @@
 namespace App\Actions\Ordering\Purge;
 
 use App\Actions\Ordering\Purge\Hydrators\PurgeHydratePurgedOrders;
-use App\Actions\Ordering\PurgedOrder\StorePurgedOrder;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Ordering\Order\OrderStateEnum;
