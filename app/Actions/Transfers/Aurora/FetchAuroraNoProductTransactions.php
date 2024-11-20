@@ -21,36 +21,31 @@ class FetchAuroraNoProductTransactions
 {
     use AsAction;
 
+    private SourceOrganisationService $organisationSource;
 
     public function handle(SourceOrganisationService $organisationSource, int $source_id, Order $order): ?Transaction
     {
-        if ($transactionData = $organisationSource->fetchNoProductTransaction(id: $source_id, order: $order)) {
+        $this->organisationSource = $organisationSource;
+        $transactionData          = $organisationSource->fetchNoProductTransaction(id: $source_id, order: $order);
+        if (!$transactionData) {
+            return null;
+        }
 
+        $transactionData['transaction']['state']  = $order->state->value;
+        $transactionData['transaction']['status'] = $order->status->value;
 
-            $transactionData['transaction']['state'] = $order->state->value;
-            $transactionData['transaction']['status'] = $order->status->value;
-
-
-
-            if ($transactionData['type'] == 'Adjustment') {
-                $transaction = $this->processAdjustmentTransaction($order, $transactionData);
-            } elseif ($transactionData['type'] == 'Shipping') {
-                $transaction = $this->processShippingTransaction($order, $transactionData);
-
-            } elseif ($transactionData['type'] == 'Charges') {
-                $transaction = $this->processChargeTransaction($order, $transactionData);
-
-            } else {
-                dd($transactionData['type']);
-
-            }
-
-
-            return $transaction;
+        if ($transactionData['type'] == 'Adjustment') {
+            $transaction = $this->processAdjustmentTransaction($order, $transactionData);
+        } elseif ($transactionData['type'] == 'Shipping') {
+            $transaction = $this->processShippingTransaction($order, $transactionData);
+        } elseif ($transactionData['type'] == 'Charges') {
+            $transaction = $this->processChargeTransaction($order, $transactionData);
+        } else {
+            dd($transactionData['type']);
         }
 
 
-        return null;
+        return $transaction;
     }
 
     public function processAdjustmentTransaction(Order $order, array $transactionData): Transaction
@@ -81,8 +76,6 @@ class FetchAuroraNoProductTransactions
     public function processShippingTransaction(Order $order, array $transactionData): Transaction
     {
         if ($transaction = Transaction::where('source_alt_id', $transactionData['transaction']['source_alt_id'])->first()) {
-
-
             $transaction = UpdateTransaction::make()->action(
                 transaction: $transaction,
                 modelData: $transactionData['transaction'],
@@ -100,6 +93,7 @@ class FetchAuroraNoProductTransactions
                 ->where('Order No Product Transaction Fact Key', $sourceData[1])
                 ->update(['aiku_id' => $transaction->id]);
         }
+
 
         return $transaction;
     }

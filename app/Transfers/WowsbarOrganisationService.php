@@ -475,4 +475,14 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
+    public function fetchTransactionHasOfferComponent($id, Order $order): ?array
+    {
+        return null;
+    }
+
+    public function fetchNoProductTransactionHasOfferComponent($id, Order $order): ?array
+    {
+        return null;
+    }
+
 }

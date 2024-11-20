@@ -14,6 +14,7 @@ use App\Models\Accounting\Invoice;
 use App\Models\Accounting\Payment;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\DispatchedEmail;
+use App\Models\Discounts\TransactionHasOfferComponent;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
@@ -125,6 +126,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Collection<int, Invoice> $invoices
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
+ * @property-read Collection<int, TransactionHasOfferComponent> $offerComponents
  * @property-read Organisation $organisation
  * @property-read Collection<int, Payment> $payments
  * @property-read Collection<int, Platform> $platforms
@@ -202,6 +204,11 @@ class Order extends Model implements HasMedia, Auditable
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function offerComponents(): HasMany
+    {
+        return $this->hasMany(TransactionHasOfferComponent::class);
     }
 
     public function deliveryNotes(): BelongsToMany
