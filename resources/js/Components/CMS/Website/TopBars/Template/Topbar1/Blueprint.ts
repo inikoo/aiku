@@ -49,7 +49,7 @@ export default {
 			name: "Login",
             key:['login'],
 			icon: {
-				icon: "far fa-dot-circle",
+				icon: "fal fa-sign-in-alt",
 				tooltip: "Action",
 			},
 			replaceForm: [
@@ -67,7 +67,7 @@ export default {
 			name: "Register",
             key:["register"],
 			icon: {
-				icon: "far fa-dot-circle",
+				icon: "fal fa-dot-circle",
 				tooltip: "Action",
 			},
 			replaceForm: [

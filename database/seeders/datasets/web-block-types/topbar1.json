@@ -204,7 +204,7 @@
 					"id": 12,
 					"workshop_route" : ""
 				},
-				"text": "{{ cartNumber }} items",
+				"text": "{{ cart_count }} items",
 				"visible": "login",
 				"container": {
 					"properties": {
