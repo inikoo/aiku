@@ -31,6 +31,13 @@ class PurchaseOrderTransactionResource extends JsonResource
             'state'             => $this->supplierProduct->state,
             'created_at'        => $this->created_at,
             'updated_at'        => $this->updated_at,
+            'updateRoute'       => [
+                'name' => 'grp.models.purchase-order.transaction.update',
+                'parameters' => [
+                    'purchaseOrder' => $this->purchaseOrder->id,
+                    'purchaseOrderTransaction' => $this->id
+                ]
+            ]
         ];
     }
 }

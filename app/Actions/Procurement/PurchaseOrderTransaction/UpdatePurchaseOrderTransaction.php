@@ -39,6 +39,7 @@ class UpdatePurchaseOrderTransaction extends OrgAction
     public function rules(): array
     {
         $rules = [
+            'quantity_ordered' => ['sometimes', 'numeric', 'min:0'],
             'unit_quantity' => ['sometimes', 'required', 'numeric', 'gt:0'],
             'unit_price'    => ['sometimes', 'required', 'numeric'],
         ];

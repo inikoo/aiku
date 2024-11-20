@@ -12,7 +12,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\Dispatching\PickingRoute;
-use App\Models\Inventory\Warehouse;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdatePickingRoute extends OrgAction

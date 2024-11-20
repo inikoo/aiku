@@ -67,6 +67,7 @@ use Spatie\Tags\HasTags;
  * @property-read Collection<int, \App\Models\Inventory\LostAndFoundStock> $lostAndFoundStocks
  * @property-read Organisation $organisation
  * @property-read Collection<int, Pallet> $pallets
+ * @property-read Collection<int, PickingRoute> $pickingRoutes
  * @property Collection<int, \Spatie\Tags\Tag> $tags
  * @property-read \App\Models\Inventory\LocationStats|null $stats
  * @property-read UniversalSearch|null $universalSearch

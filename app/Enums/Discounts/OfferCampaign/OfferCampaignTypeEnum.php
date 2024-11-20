@@ -13,13 +13,14 @@ enum OfferCampaignTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case ORDER_RECURSION   = 'order-recursion';
-    case VOLUME_DISCOUNT   = 'volume-discount';
-    case FIRST_ORDER       = 'first-order';
-    case CUSTOMER_OFFERS   = 'customer-offers';
-    case SHOP_OFFERS       = 'shop-offers';
+    case ORDER_RECURSION = 'order-recursion';
+    case VOLUME_DISCOUNT = 'volume-discount';
+    case FIRST_ORDER = 'first-order';
+    case CUSTOMER_OFFERS = 'customer-offers';
+    case SHOP_OFFERS = 'shop-offers';
     case COLLECTION_OFFERS = 'collection-offers';
-    case PRODUCT_OFFERS    = 'product-offers';
+    case PRODUCT_OFFERS = 'product-offers';
+    case DISCRETIONARY = 'discretionary';
 
 
     public function labels(): array
@@ -31,7 +32,8 @@ enum OfferCampaignTypeEnum: string
             'customer-offers'   => __('Customer offers'),
             'shop-offers'       => __('Shop offers'),
             'collection-offers' => __('Collection offers'),
-            'product-offers'    => __('Product offers')
+            'product-offers'    => __('Product offers'),
+            'discretionary'     => __('Discretionary discounts')
         ];
     }
 
@@ -44,7 +46,8 @@ enum OfferCampaignTypeEnum: string
             'customer-offers'   => 'CU',
             'shop-offers'       => 'SO',
             'collection-offers' => 'CO',
-            'product-offers'    => 'PO'
+            'product-offers'    => 'PO',
+            'discretionary'     => 'DI'
         ];
     }
 

@@ -22,25 +22,19 @@ return new class () extends Migration {
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('offer_campaign_id')->index();
             $table->foreign('offer_campaign_id')->references('id')->on('offer_campaigns');
-            $table->unsignedSmallInteger('offer_id')->index();
+            $table->unsignedInteger('offer_id')->index();
             $table->foreign('offer_id')->references('id')->on('offers');
             $table->string('state')->default(OfferComponentStateEnum::IN_PROCESS->value)->index();
             $table->boolean('status')->default(false)->index();
-
-
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code');
             $table->jsonb('data');
             $table->string('trigger_scope')->nullable()->index();
-            $table->string('trigger_type')->index();
+            $table->string('trigger_type')->nullable()->index();
             $table->string('trigger_id')->nullable();
             $table->string('target_type')->nullable()->index();
-
-
-
-
+            $table->boolean('is_discretionary')->default(false)->index();
             $table->timestampsTz();
-
             $table->datetimeTz('start_at')->nullable();
             $table->datetimeTz('end_at')->nullable();
             $table->datetimeTz('fetched_at')->nullable();

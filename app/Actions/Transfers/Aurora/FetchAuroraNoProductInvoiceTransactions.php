@@ -17,7 +17,7 @@ use App\Transfers\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class FetchNoProductInvoiceTransactions
+class FetchAuroraNoProductInvoiceTransactions
 {
     use AsAction;
 

@@ -45,7 +45,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Group $group
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\RecurringBill> $recurringBills
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Billables\Rental> $rentals
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Rental> $rentals
  * @property-read \Illuminate\Database\Eloquent\Collection<int, SerialReference> $serialReferences
  * @property-read Shop $shop
  * @property-read \App\Models\Fulfilment\FulfilmentStats|null $stats

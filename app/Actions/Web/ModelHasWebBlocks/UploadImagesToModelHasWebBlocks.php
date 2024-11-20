@@ -36,8 +36,8 @@ class UploadImagesToModelHasWebBlocks extends OrgAction
 
         }
 
-       /*  return $this->handle($modelHasWebBlocks->webBlock, 'image', $this->validatedData); */
-       return $this->handle($modelHasWebBlocks->webBlock, 'image', $this->validatedData);
+        /*  return $this->handle($modelHasWebBlocks->webBlock, 'image', $this->validatedData); */
+        return $this->handle($modelHasWebBlocks->webBlock, 'image', $this->validatedData);
     }
 
 

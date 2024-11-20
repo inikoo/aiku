@@ -12,6 +12,7 @@ use App\Actions\Dropshipping\Portfolio\Hydrators\GroupHydratePortfolios;
 use App\Actions\Dropshipping\Portfolio\Hydrators\HydratePortfolio;
 use App\Actions\Dropshipping\Portfolio\Hydrators\OrganisationHydratePortfolios;
 use App\Actions\Dropshipping\Portfolio\Hydrators\ShopHydratePortfolios;
+use App\Actions\Dropshipping\Portfolio\Search\PortfolioRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
@@ -31,6 +32,7 @@ class UpdatePortfolio extends OrgAction
     {
         $portfolio = $this->update($portfolio, $modelData, ['data']);
 
+        PortfolioRecordSearch::dispatch($portfolio);
         if ($portfolio->wasChanged(['status'])) {
             // todo #1115 put here the hydrators
             HydratePortfolio::run($portfolio);

@@ -69,7 +69,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
  * @property-read Rental|null $rental
  * @property-read \App\Models\Catalogue\AssetSalesIntervals|null $salesIntervals
- * @property-read \App\Models\Billables\Service|null $service
+ * @property-read Service|null $service
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\AssetStats|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Asset newModelQuery()
