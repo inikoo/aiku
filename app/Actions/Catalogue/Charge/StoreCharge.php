@@ -8,7 +8,7 @@
 namespace App\Actions\Catalogue\Charge;
 
 use App\Actions\Catalogue\Asset\StoreAsset;
-use App\Actions\Catalogue\Charge\Hydrators\ChargeHydrateUniversalSearch;
+use App\Actions\Catalogue\Charge\Search\ChargeRecordSearch;
 use App\Actions\Catalogue\HistoricAsset\StoreHistoricAsset;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateCharges;
 use App\Actions\OrgAction;
@@ -99,7 +99,7 @@ class StoreCharge extends OrgAction
         ShopHydrateCharges::dispatch($shop)->delay($this->hydratorsDelay);
         OrganisationHydrateCharges::dispatch($shop->organisation)->delay($this->hydratorsDelay);
         GroupHydrateCharges::dispatch($shop->group)->delay($this->hydratorsDelay);
-        ChargeHydrateUniversalSearch::dispatch($charge);
+        ChargeRecordSearch::dispatch($charge);
 
 
         return $charge;

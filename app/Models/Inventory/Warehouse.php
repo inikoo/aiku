@@ -9,6 +9,8 @@ namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Models\Dispatching\DeliveryNote;
+use App\Models\Dispatching\Picking;
+use App\Models\Dispatching\PickingRoute;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -204,6 +206,11 @@ class Warehouse extends Model implements Auditable
     public function universalSearches(): HasMany
     {
         return $this->hasMany(UniversalSearch::class);
+    }
+
+    public function pickingRoutes(): HasMany
+    {
+        return $this->hasMany(PickingRoute::class);
     }
 
 }

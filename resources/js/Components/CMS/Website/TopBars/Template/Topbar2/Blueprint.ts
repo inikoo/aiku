@@ -82,7 +82,7 @@ export default {
 			name: "Register",
             key:["register"],
 			icon: {
-				icon: "far fa-dot-circle",
+				icon: "fal fa-dot-circle",
 				tooltip: "Register",
 			},
 			replaceForm: [

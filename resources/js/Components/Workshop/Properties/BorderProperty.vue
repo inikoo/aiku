@@ -9,6 +9,7 @@ import { faLink, faUnlink } from "@fal"
 import { faExclamation } from "@fas"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import ColorPicker from '@/Components/Utils/ColorPicker.vue'
+import RadioButton from 'primevue/radiobutton'
 library.add(faExclamation, faBorderTop, faBorderLeft, faBorderBottom, faBorderRight, faBorderOuter, faLink, faUnlink)
 
 interface Borderproperty {
@@ -94,16 +95,34 @@ const iconRoundedCorner = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" 
                     :color="model.color"
                     @changeColor="(newColor)=> model.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a})`"
                     closeButton
+                    :isEditable="!model.color.includes('var')"
                 >
                     <template #button>
                         <div v-bind="$attrs" class="overflow-hidden h-7 w-7 rounded-md border border-gray-300 cursor-pointer flex justify-center items-center" :style="{
-                            border: `4px solid ${model?.color}`
+                            border: `2px solid ${model?.color}`
                         }"
                             v-tooltip="!(model?.top?.value || model?.right?.value || model?.bottom?.value || model?.left?.value) ? trans('Will not show due have no border width') : undefined"
                         >
                             <Transition name="spin-to-down">
                                 <FontAwesomeIcon v-if="!(model?.top?.value || model?.right?.value || model?.bottom?.value || model?.left?.value)" icon='fas fa-exclamation' class='text-gray-400 text-xs' fixed-width aria-hidden='true' />
                             </Transition>
+                        </div>
+                    </template>
+
+                    <template #before-main-picker>
+                        <div class="flex items-center gap-2">
+                            <RadioButton size="small" v-model="model.color" inputId="bg-color-picker-1" name="bg-color-picker" value="var(--iris-color-primary)" />
+                            <label class="cursor-pointer" for="bg-color-picker-1">{{ trans("Primary color") }} <a :href="route('grp.org.shops.show.web.websites.workshop', {...route().params, tab: 'website_layout', section: 'theme_colors'})" as="a" target="_blank" class="text-xs text-blue-600">{{ trans("themes") }}</a></label>
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            <RadioButton size="small"
+                                :modelValue="!model.color.includes('var') ? '#111111' : null"
+                                @update:modelValue="(e) => model.color.includes('var') ? model.color = '#111111' : false"
+                                inputId="bg-color-picker-3"
+                                name="bg-color-picker"
+                                value="#111111" />
+                            <label class="cursor-pointer" for="bg-color-picker-3">{{ trans("Custom") }}</label>
                         </div>
                     </template>
                 </ColorPicker>

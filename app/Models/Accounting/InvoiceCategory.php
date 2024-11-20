@@ -10,6 +10,8 @@ namespace App\Models\Accounting;
 
 use App\Enums\Accounting\Invoice\InvoiceCategoryStateEnum;
 use App\Models\Traits\HasHistory;
+use App\Models\Traits\InGroup;
+use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -38,6 +40,8 @@ class InvoiceCategory extends Model implements Auditable
 {
     use HasSlug;
     use HasHistory;
+    use HasSoftDeletes;
+    use InGroup;
 
     protected $casts = [
         'state'            => InvoiceCategoryStateEnum::class,
