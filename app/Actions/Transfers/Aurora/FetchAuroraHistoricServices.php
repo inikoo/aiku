@@ -14,7 +14,7 @@ use App\Transfers\SourceOrganisationService;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class FetchHistoricServices
+class FetchAuroraHistoricServices
 {
     use AsAction;
 
