@@ -39,7 +39,7 @@ const emits = defineEmits<{
                 {{ get(blueprint, 'name', 'test') }}
             </div>
         </AccordionHeader>
-        <AccordionContent class="px-0 py-2">
+        <AccordionContent class="px-0">
             <div class="bg-white mt-[0px]">
                 <template v-if="blueprint.replaceForm">
                         <ChildFieldSideEditor 
@@ -65,28 +65,27 @@ const emits = defineEmits<{
         </AccordionContent>
     </AccordionPanel>
 
-    <div v-else>
-        <div class="bg-white mt-[0px]">
-            <template v-if="blueprint.replaceForm">
-                <ChildFieldSideEditor 
-                    :blueprint="blueprint.replaceForm"
-                    :modelValue="getFormValue(modelValue, blueprint.key)" 
-                    :key="blueprint.key"
-                    @update:modelValue="newValue => emits('update:modelValue',setFormValue(modelValue, blueprint.key, newValue))"
-                />
-            </template>
-            <template v-else>
-                <div class="my-2 text-xs font-semibold">{{ get(blueprint, 'label', '') }}</div>
-                <component 
-                    :is="getComponent(blueprint.type)" 
-                    :key="blueprint.key"
-                    :modelValue="getFormValue(modelValue, blueprint.key)"
-                    :uploadRoutes="uploadImageRoute" 
-                    v-bind="blueprint?.props_data" 
-                    @update:modelValue="newValue => emits('update:modelValue',setFormValue(modelValue, blueprint.key, newValue))"
-                />
-            </template>
-        </div>
+    <div v-else class="bg-white mt-[0px]">
+        <template v-if="blueprint.replaceForm">
+            <ChildFieldSideEditor 
+                :blueprint="blueprint.replaceForm"
+                :modelValue="getFormValue(modelValue, blueprint.key)" 
+                :key="blueprint.key"
+                @update:modelValue="newValue => emits('update:modelValue',setFormValue(modelValue, blueprint.key, newValue))"
+            />
+        </template>
+
+        <template v-else>
+            <div v-if="get(blueprint, 'label', '')" class="my-2 text-xs font-semibold">{{ get(blueprint, 'label', '') }}</div>
+            <component 
+                :is="getComponent(blueprint.type)" 
+                :key="blueprint.key"
+                :modelValue="getFormValue(modelValue, blueprint.key)"
+                :uploadRoutes="uploadImageRoute" 
+                v-bind="blueprint?.props_data" 
+                @update:modelValue="newValue => emits('update:modelValue',setFormValue(modelValue, blueprint.key, newValue))"
+            />
+        </template>
     </div>
 
 </template>

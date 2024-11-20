@@ -28,6 +28,27 @@ export default {
 			],
 		},
 		{
+			name: "Register",
+            key:["register"],
+			icon: {
+				icon: "fal fa-dot-circle",
+				tooltip: "Register",
+			},
+			replaceForm: [
+				{
+					key: ["visible"],
+					type: "VisibleLoggedIn",
+					props_data: {
+						defaultValue: "logout",
+					}
+				},
+				{
+					key: [],
+					type: "button",
+				},
+			],
+		},
+		{
 			name: "Greeting",
             key : ["greeting"],
 			icon: {
