@@ -8,12 +8,9 @@
 namespace App\Actions\Fulfilment\Rental\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Asset\AssetTypeEnum;
-use App\Enums\Fulfilment\Rental\RentalUnitEnum;
-use App\Models\Catalogue\Asset;
-use App\Models\Catalogue\Shop;
+use App\Enums\Billables\Rental\RentalUnitEnum;
+use App\Models\Billables\Rental;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\Rental;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;

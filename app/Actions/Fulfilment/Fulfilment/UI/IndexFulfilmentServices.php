@@ -8,11 +8,11 @@
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
-use App\Enums\Catalogue\Service\ServiceStateEnum;
+use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
 use App\Http\Resources\Fulfilment\ServicesResource;
 use App\InertiaTable\InertiaTable;
-use App\Models\Catalogue\Service;
+use App\Models\Billables\Service;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\FulfilmentCustomer;

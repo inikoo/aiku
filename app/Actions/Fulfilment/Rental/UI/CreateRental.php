@@ -9,8 +9,8 @@ namespace App\Actions\Fulfilment\Rental\UI;
 
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
 use App\Actions\OrgAction;
-use App\Enums\Fulfilment\Rental\RentalStateEnum;
-use App\Enums\Fulfilment\Rental\RentalUnitEnum;
+use App\Enums\Billables\Rental\RentalStateEnum;
+use App\Enums\Billables\Rental\RentalUnitEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Exception;

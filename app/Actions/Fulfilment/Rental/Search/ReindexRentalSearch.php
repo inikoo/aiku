@@ -7,7 +7,7 @@
 
 namespace App\Actions\Fulfilment\Rental\Search;
 
-use App\Models\Fulfilment\Rental;
+use App\Models\Billables\Rental;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 

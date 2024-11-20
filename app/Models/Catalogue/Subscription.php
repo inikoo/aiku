@@ -7,7 +7,7 @@
 
 namespace App\Models\Catalogue;
 
-use App\Enums\Catalogue\Service\ServiceStateEnum;
+use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;

@@ -5,8 +5,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Billables\Service\StoreService;
 use App\Actions\Catalogue\Product\StoreProduct;
-use App\Actions\Catalogue\Service\StoreService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Fulfilment\Pallet\StorePallet;
@@ -15,16 +15,16 @@ use App\Actions\Fulfilment\PalletDelivery\StorePalletDelivery;
 use App\Actions\Fulfilment\PalletReturn\Notifications\SendPalletReturnNotification;
 use App\Actions\Fulfilment\PalletReturn\StorePalletReturn;
 use App\Actions\Inventory\Location\StoreLocation;
+use App\Enums\Billables\Rental\RentalUnitEnum;
+use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
-use App\Enums\Catalogue\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStateEnum;
 use App\Enums\Fulfilment\PalletDelivery\PalletDeliveryStateEnum;
 use App\Enums\Fulfilment\PalletReturn\PalletReturnStateEnum;
-use App\Enums\Fulfilment\Rental\RentalUnitEnum;
+use App\Models\Billables\Service;
 use App\Models\Catalogue\Product;
-use App\Models\Catalogue\Service;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;

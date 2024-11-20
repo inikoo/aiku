@@ -5,10 +5,10 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Catalogue\Charge\UI\CreateCharge;
-use App\Actions\Catalogue\Charge\UI\EditCharge;
-use App\Actions\Catalogue\Charge\UI\IndexCharges;
-use App\Actions\Catalogue\Charge\UI\ShowCharge;
+use App\Actions\Billables\Charge\UI\CreateCharge;
+use App\Actions\Billables\Charge\UI\EditCharge;
+use App\Actions\Billables\Charge\UI\IndexCharges;
+use App\Actions\Billables\Charge\UI\ShowCharge;
 use App\Actions\Ordering\ShippingZone\UI\EditShippingZone;
 use App\Actions\Ordering\ShippingZone\UI\ShowShippingZone;
 use App\Actions\Ordering\ShippingZoneSchema\UI\CreateShippingZoneSchema;

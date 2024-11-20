@@ -8,8 +8,8 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Catalogue\Service\ServiceStateEnum;
-use App\Models\Catalogue\Service;
+use App\Enums\Billables\Service\ServiceStateEnum;
+use App\Models\Billables\Service;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;

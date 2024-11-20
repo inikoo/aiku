@@ -7,6 +7,7 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Models\Billables\Rental;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -125,7 +126,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Fulfilment\Rental|null $service
+ * @property-read \App\Models\Billables\Rental|null $service
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalSalesIntervals newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalSalesIntervals newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|RentalSalesIntervals query()

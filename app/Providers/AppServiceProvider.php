@@ -166,9 +166,9 @@ class AppServiceProvider extends ServiceProvider
                 'HistoricAsset'                 => 'App\Models\Catalogue\HistoricAsset',
                 'Product'                       => 'App\Models\Catalogue\Product',
                 'Collection'                    => 'App\Models\Catalogue\Collection',
-                'Rental'                        => 'App\Models\Fulfilment\Rental',
-                'Service'                       => 'App\Models\Catalogue\Service',
-                'Charge'                        => 'App\Models\Catalogue\Charge',
+                'Rental'                        => 'App\Models\Billables\Rental',
+                'Service'                       => 'App\Models\Billables\Service',
+                'Charge'                        => 'App\Models\Billables\Charge',
                 'Shipping'                      => 'App\Models\Catalogue\Shipping',
                 'Adjustment'                    => 'App\Models\Ordering\Adjustment',
 
