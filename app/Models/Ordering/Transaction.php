@@ -161,28 +161,4 @@ class Transaction extends Model
     {
         return $this->morphMany(ModelHasOfferComponent::class, 'model');
     }
-
-    public function countOfferComponents(): int
-    {
-        return $this->offerComponents()
-            ->distinct('offer_component_id')
-            ->count('offer_component_id');
-    }
-
-    public function countOffers(): int
-    {
-        return $this->offerComponents()
-            ->distinct('offer_id')
-            ->count('offer_id');
-    }
-
-    public function countOfferCampaigns(): int
-    {
-        return $this->offerComponents()
-            ->distinct('offer_campaigns_id')
-            ->count('offer_campaigns_id');
-    }
-
-
-
 }

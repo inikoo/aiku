@@ -8,6 +8,7 @@
 namespace App\Actions\SysAdmin\User;
 
 use App\Actions\Elasticsearch\IndexElasticsearchDocument;
+use App\Actions\Helpers\UniversalSearch\Trait\WithSectionsRoute;
 use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use App\Models\SysAdmin\User;
 use hisorange\BrowserDetect\Parser as Browser;
@@ -15,10 +16,12 @@ use Illuminate\Support\Carbon;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Stevebauman\Location\Facades\Location;
 
-class LogUserRequest
+class StoreUserRequest
 {
     use AsAction;
+    use WithSectionsRoute;
 
+// TODO
 
     public function handle(Carbon $datetime, array $routeData, string $ip, string $userAgent, string $type, User $user): void
     {
@@ -56,6 +59,22 @@ class LogUserRequest
                 'icon'  => $this->getBrowserIcon(strtolower($parsedUserAgent->browserName()))
             ])
         ];
+
+        // Save to DB
+        $modelData = [
+            'user_id'       => $user->id,
+            'date'          => $body['datetime'],
+            'route_name'    => $routeData['name'],
+            'route_params'  => $routeData['arguments'],
+            'section'       => $this->parseSections($routeData['name']),
+            'os'            => $this->detectWindows11($parsedUserAgent),
+            'device'        => $parsedUserAgent->deviceType(),
+            'browser'       => explode(' ', $parsedUserAgent->browserName())[0],
+            'ip_address'    => $body['ip_address'],
+            'location'      => $body['location']
+        ];
+
+        // $group->userRequests()->create($modelData);
 
         // if platform=='Windows 10' need to check if it is actually Windows 11 see:
         // https://developers.whatismybrowser.com/learn/browser-detection/client-hints/detect-windows-11-client-hints

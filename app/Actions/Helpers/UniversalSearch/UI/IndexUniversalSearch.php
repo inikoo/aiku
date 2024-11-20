@@ -7,7 +7,8 @@
 
 namespace App\Actions\Helpers\UniversalSearch\UI;
 
-use App\Actions\InertiaAction;
+use App\Actions\Helpers\UniversalSearch\Trait\WithSectionsRoute;
+use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\UniversalSearchResource;
 use App\Models\Helpers\UniversalSearch;
 use Illuminate\Database\Eloquent\Collection;
@@ -15,10 +16,10 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsController;
 
-class IndexUniversalSearch extends InertiaAction
+class IndexUniversalSearch extends OrgAction
 {
     use AsController;
-
+    use WithSectionsRoute;
 
     public function handle(
         string $query,
@@ -79,56 +80,4 @@ class IndexUniversalSearch extends InertiaAction
         );
         return UniversalSearchResource::collection($searchResults);
     }
-
-    public function parseSections($routeName): array|null
-    {
-        if (str_starts_with($routeName, 'grp.org.')) {
-            return $this->parseOrganisationSections(
-                preg_replace('/^grp\.org./', '', $routeName)
-            );
-        }
-        return null;
-    }
-
-    public function parseOrganisationSections($route): array|null
-    {
-        $routes = [
-            'accounting.' => ['accounting'],
-            // 'productions.' => ['productions'],
-            'procurement.' => ['procurement'],
-            'websites.' => ['web'],
-            'fulfilments.show.web.' => ['web'],
-            'fulfilments.' => ['fulfilments'],
-            'shops.show.billables.' => ['billables'],
-            // 'reports.' => ['reports'],
-            'shops.show.catalogue.' => ['catalogue'],
-            // 'shops.show.mail.' => ['mail'],
-            // 'shops.show.marketing.' => ['marketing'],
-            'shops.show.discounts.' => ['discounts'],
-            'shops.show.ordering.' => ['ordering', 'dispatching'],
-            'shops.show.web.' => ['web'],
-            'shops.show.crm.' => ['crm'],
-            // 'shops.' => ['assets', 'catalogue', 'mail', 'marketing', 'discounts', 'ordering', 'dispatching', 'web', 'crm', 'billables'],
-            'shops.' => ['billables', 'catalogue', 'mail', 'discounts', 'ordering', 'dispatching', 'web', 'crm'],
-            'hr.' => ['hr'],
-            'warehouses.show.infrastructure.' => ['infrastructure'],
-            'warehouses.show.dispatching' => ['dispatching'],
-            'warehouses.' => ['infrastructure', 'inventory', 'dispatching']
-        ];
-
-        if (empty($route) || str_starts_with($route, "dashboard.") || str_starts_with($route, "settings.")) {
-            return array_unique(array_merge(...array_values($routes)));
-        }
-
-        foreach ($routes as $prefix => $result) {
-            if (str_starts_with($route, $prefix)) {
-                return $result;
-            }
-        }
-
-
-        return null;
-    }
-
-
 }

@@ -95,7 +95,7 @@ const iconRoundedCorner = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" 
                     :color="model.color"
                     @changeColor="(newColor)=> model.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a})`"
                     closeButton
-                    :isEditable="!model.color.includes('var')"
+                    :isEditable="!model.color?.includes('var')"
                 >
                     <template #button>
                         <div v-bind="$attrs" class="overflow-hidden h-7 w-7 rounded-md border border-gray-300 cursor-pointer flex justify-center items-center" :style="{
@@ -117,8 +117,8 @@ const iconRoundedCorner = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" 
                         
                         <div class="flex items-center gap-2">
                             <RadioButton size="small"
-                                :modelValue="!model.color.includes('var') ? '#111111' : null"
-                                @update:modelValue="(e) => model.color.includes('var') ? model.color = '#111111' : false"
+                                :modelValue="!model.color?.includes('var')? '#111111' : null"
+                                @update:modelValue="(e) => model.color?.includes('var')? model.color = '#111111' : false"
                                 inputId="bg-color-picker-3"
                                 name="bg-color-picker"
                                 value="#111111" />
