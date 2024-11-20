@@ -80,7 +80,7 @@ const onSubmitNote = async (layoutType: string) => {
 						</div>
 						<div
 							class="absolute inset-0 flex items-center justify-center bg-opacity-50 bg-black text-white opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-							<Button label="Select" :disabled="!modelValue" @click="() => onSubmitNote(layout.layout_type)"
+							<Button label="Select"  @click="() => onSubmitNote(layout.layout_type)"
 								class="transition-colors" :class="{
 									'bg-gray-300': !modelValue,
 									'bg-blue-500 hover:bg-blue-600': modelValue,
