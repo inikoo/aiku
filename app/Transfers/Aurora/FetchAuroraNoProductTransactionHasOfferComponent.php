@@ -14,6 +14,12 @@ class FetchAuroraNoProductTransactionHasOfferComponent extends FetchAurora
 {
     protected function parseNoProductTransactionHasOfferComponent(Order $order): void
     {
+        $transaction = $this->parseTransactionNoProduct($this->organisation->id.':'.$this->auroraModelData->{'Order No Product Transaction Fact Key'});
+
+        if(!$transaction) {
+            return;
+        }
+
         if ($this->auroraModelData->{'Deal Component Key'} == '0') {
             $offerComponent = $order->shop->offerComponents()->where('is_discretionary', true)->first();
         } else {
@@ -22,17 +28,15 @@ class FetchAuroraNoProductTransactionHasOfferComponent extends FetchAurora
 
         if (!$offerComponent) {
             print 'No offer component found (in no-product)  for '.$this->auroraModelData->{'Deal Component Key'}."\n";
-            dd($this->auroraModelData);
+            print_r($this->auroraModelData);
+            return;
         }
-
 
         if ($offerComponent->shop_id != $order->shop_id) {
             print 'Offer Component '.$offerComponent->id.' does not belong to the same shop as the order '.$order->id."\n";
             dd($this->auroraModelData);
         }
 
-
-        $transaction = $this->parseTransactionNoProduct($this->organisation->id.':'.$this->auroraModelData->{'Order No Product Transaction Fact Key'});
 
         $this->parsedData['transaction']     = $transaction;
         $this->parsedData['offer_component'] = $offerComponent;
