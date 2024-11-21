@@ -7,6 +7,7 @@
 
 namespace App\Actions\Accounting\Invoice\UI;
 
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
@@ -171,7 +172,8 @@ class IndexInvoices extends OrgAction
             return $request->user()->hasPermissionTo("crm.{$this->organisation->id}.view");
         } elseif ($this->parent instanceof Shop) {
             //todo think about it
-            return false;
+            $permission = $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
+            return $permission;
         } elseif ($this->parent instanceof FulfilmentCustomer or $this->parent instanceof Fulfilment) {
             return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.view");
         }
@@ -375,6 +377,16 @@ class IndexInvoices extends OrgAction
                 $headCrumb(
                     [
                         'name'       => 'grp.org.shops.show.crm.customers.show.invoices.index',
+                        'parameters' => $routeParameters
+                    ]
+                )
+            ),
+            'grp.org.shops.show.ordering.invoices.index' =>
+            array_merge(
+                ShowShop::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.ordering.invoices.index',
                         'parameters' => $routeParameters
                     ]
                 )

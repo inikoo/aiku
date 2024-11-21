@@ -8,7 +8,6 @@
 namespace App\Actions\Analytics\UserRequest;
 
 use App\Actions\GrpAction;
-use App\Actions\Helpers\UniversalSearch\Trait\WithSectionsRoute;
 use App\Actions\SysAdmin\User\StoreUserRequest;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\Analytics\UserRequest;
@@ -20,7 +19,6 @@ use Stevebauman\Location\Facades\Location as FacadesLocation;
 class ProcessUserRequest extends GrpAction
 {
     use WithNoStrictRules;
-    use WithSectionsRoute;
 
     /**
      * @throws \Throwable
@@ -28,12 +26,12 @@ class ProcessUserRequest extends GrpAction
     public function handle(User $user, Carbon $datetime, array $routeData, string $ip, string $userAgent): UserRequest
     {
         $parsedUserAgent = (new Browser())->parse($userAgent);
-        $section = $this->parseSections($routeData['name']);
+        // $section = $this->parseSections($routeData['name']);
         $modelData = [
             'date'          => $datetime,
             'route_name'    => $routeData['name'],
             'route_params'  => json_encode($routeData['arguments']),
-            'section'       => $section[0],
+            // 'section'       => $section[0],
             'os'            => $this->detectWindows11($parsedUserAgent),
             'device'        => $parsedUserAgent->deviceType(),
             'browser'       => explode(' ', $parsedUserAgent->browserName())[0],
