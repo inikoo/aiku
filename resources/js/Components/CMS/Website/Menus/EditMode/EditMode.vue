@@ -8,13 +8,14 @@ import DialogEditLink from '@/Components/CMS/Website/Menus/EditMode/DialogEditLi
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faTrashAlt } from '@fas';
-import { faHeart } from '@far';
+import { faChevronRight, faSignOutAlt, faShoppingCart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faTrashAlt, faLink } from '@fas';
+import { faExternalLink, faHeart } from '@far';
 import PureInput from '@/Components/Pure/PureInput.vue';
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue';
 import { v4 as uuidv4 } from "uuid"
 import EmptyState from '@/Components/Utils/EmptyState.vue';
 import DialogEditName from '@/Components/CMS/Website/Menus/EditMode/DialogEditName.vue';
+import { faCompassDrafting } from '@fortawesome/free-solid-svg-icons';
 
 library.add(faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faTrashAlt);
 
@@ -31,6 +32,7 @@ const props = defineProps<{
 
 const visibleNameDialog = ref(false)
 const visibleDialog = ref(false)
+const visibleNavigation = ref(false)
 const nameValue = ref<navigation | null>()
 const linkValue = ref<navigation | null>()
 const parentIdx = ref<Number>(0)
@@ -92,10 +94,24 @@ const onChangeLink = (data) => {
   }
   linkValue.value = null
   parentIdx.value = -1
-  linkIdx.value  = -1
+  linkIdx.value = -1
   visibleDialog.value = false
 }
 
+const editNavigation = () => {
+  visibleNavigation.value = true
+}
+
+const onChangeNavigationLink = (data) => {
+  props.Navigation[props.selectedNav] = {
+    ...props.Navigation[props.selectedNav],
+    label: data.label,
+    link: data.link
+  }
+  visibleNavigation.value = false
+}
+
+console.log(props.Navigation[props.selectedNav])
 
 </script>
 
@@ -117,10 +133,35 @@ const onChangeLink = (data) => {
 
 
       <div v-if="Navigation[selectedNav] && Navigation[selectedNav].type == 'single'"
-        class="bg-white py-2 rounded-lg m-1 col-span-1 px-2 cursor-grab">
-        <div class="font-bold text-xs mb-3">Link :</div>
-        <PureInput v-model="Navigation[selectedNav].link"></PureInput>
+        class="bg-white py-3 rounded-lg m-1 col-span-1 px-3 cursor-grab shadow-sm border border-gray-200">
+        <div class="font-bold text-xs mb-2 text-gray-700">Link :</div>
+
+        <Button label="Set Url" v-if="!Navigation[selectedNav].link" :icon="faLink" class="p-button-sm p-button-text"
+          @click="editNavigation"></Button>
+
+        <div v-else class="flex justify-between items-center w-full p-2 bg-gray-50 rounded-md">
+          <!-- Tautan -->
+          <div class="text-gray-500 hover:text-gray-600 hover:underline cursor-pointer text-xs truncate max-w-[70%]"
+            :title="Navigation[selectedNav]?.link?.href" @click="editNavigation">
+            {{ Navigation[selectedNav]?.link?.href ? Navigation[selectedNav]?.link?.href : 'https//:'  }}
+          </div>
+
+          <!-- Ikon tambahan -->
+          <div class="flex items-center gap-2">
+            <a v-if="Navigation[selectedNav]?.link?.type == 'internal'" :href="Navigation[selectedNav].link.workshop"
+              target="_blank" class="p-1">
+              <font-awesome-icon :icon="faCompassDrafting"
+                class="text-gray-400 hover:text-gray-600 transition"></font-awesome-icon>
+            </a>
+            <a v-if="Navigation[selectedNav]?.link?.href" :href="Navigation[selectedNav]?.link?.href" target="_blank"
+              class="p-1">
+              <font-awesome-icon :icon="faExternalLink"
+                class="text-gray-400 hover:text-gray-600 transition"></font-awesome-icon>
+            </a>
+          </div>
+        </div>
       </div>
+
 
 
       <div
@@ -151,13 +192,31 @@ const onChangeLink = (data) => {
             class="flex flex-col gap-y-2 p-3 relative">
             <template #item="{ element: link, index: linkIndex }">
 
-              <div class="flex items-center gap-x-2 p-1">
+              <div class="flex items-center gap-2 p-2 bg-gray-50 rounded hover:bg-gray-100 transition">
+                <!-- Ikon bar -->
                 <font-awesome-icon icon="fas fa-bars" class="text-[13px] text-gray-400 pr-2"></font-awesome-icon>
-                <span class="text-gray-500 hover:text-gray-600 hover:underline cursor-pointer text-xs"
-                  @click="() => onLinkClick(link, index, linkIndex)">{{ link.label }}</span>
+
+                <!-- Konten utama -->
+                <div class="flex justify-between items-center w-full">
+                  <!-- Tautan -->
+                  <div class="text-gray-500 hover:text-gray-600 hover:underline cursor-pointer text-xs"
+                    @click="() => onLinkClick(link, index, linkIndex)">
+                    {{ link.label }}
+                  </div>
+
+                  <!-- Ikon tambahan -->
+                  <div class="flex items-center gap-1 cursor-pointer">
+                    <a v-if="link?.link?.type == 'internal'" :href="link.link.workshop" target="_blank">
+                      <font-awesome-icon :icon="faCompassDrafting"
+                        class="text-gray-400 hover:text-gray-600 transition"></font-awesome-icon>
+                    </a>
+                    <a v-if="link?.link?.href" :href="link?.link?.href" target="_blank">
+                      <font-awesome-icon :icon="faExternalLink"
+                        class="text-gray-400 hover:text-gray-600 transition"></font-awesome-icon>
+                    </a>
+                  </div>
+                </div>
               </div>
-
-
             </template>
           </draggable>
         </div>
@@ -176,8 +235,13 @@ const onChangeLink = (data) => {
     </Dialog>
 
     <Dialog v-model:visible="visibleDialog" modal header="Edit Link" :style="{ width: '25rem' }">
-      <DialogEditLink :modelValue="linkValue" :parent="nameValue" @on-save="onChangeLink" />
+      <DialogEditLink :modelValue="linkValue" @on-save="onChangeLink" />
     </Dialog>
+
+    <Dialog v-model:visible="visibleNavigation" modal header="Edit Link" :style="{ width: '25rem' }">
+      <DialogEditLink :modelValue="toRaw({ ...Navigation[selectedNav] })" @on-save="onChangeNavigationLink" />
+    </Dialog>
+
 
   </div>
 </template>
