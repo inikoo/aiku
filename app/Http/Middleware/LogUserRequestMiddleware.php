@@ -7,7 +7,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Actions\SysAdmin\User\ProcessUserRequest;
+use App\Actions\Analytics\UserRequest\ProcessUserRequest;
 use Closure;
 use Illuminate\Http\Request;
 

@@ -1,14 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 04 Dec 2023 16:23:55 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 21 Nov 2024 10:25:09 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\UserRequest;
+namespace App\Actions\Analytics\UserRequest\UI;
 
+use App\Actions\Analytics\UserRequest\Traits\WithFormattedRequestLogs;
 use App\Actions\Elasticsearch\BuildElasticsearchClient;
-use App\Actions\SysAdmin\UserRequest\Traits\WithFormattedRequestLogs;
 use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use App\InertiaTable\InertiaTable;
 use Closure;
@@ -18,13 +18,15 @@ use Elastic\Elasticsearch\Exception\ServerResponseException;
 use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\Concerns\AsObject;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
-class IndexUserRequestLogs
+class ShowUserRequestLogs
 {
     use AsObject;
     use WithFormattedRequestLogs;
 
-    public function handle($filter = ElasticsearchUserRequestTypeEnum::VISIT->value): LengthAwarePaginator|bool|array
+    public function handle(string $query = null, $filter = ElasticsearchUserRequestTypeEnum::VISIT->value): LengthAwarePaginator|array|bool
     {
         $client = BuildElasticsearchClient::run();
 
@@ -37,8 +39,8 @@ class IndexUserRequestLogs
                         'query' => [
                             'bool' => [
                                 'must' => [
-                                    ['match' => ['type' => $filter]],
-                                     ['match' => ['type' => ElasticsearchUserRequestTypeEnum::VISIT->value]],
+                                    ['match' => ['username' => $query]],
+                                    ['match' => ['type' => $filter]]
                                 ],
                             ],
                         ],
@@ -48,14 +50,18 @@ class IndexUserRequestLogs
                 return $this->format($client, $params);
 
             } catch (ClientResponseException $e) {
-                // todo manage the 4xx error
+                //dd($e->getMessage());
+                // manage the 4xx error
                 return false;
             } catch (ServerResponseException $e) {
-                // todo manage the 5xx error
+                //dd($e->getMessage());
+                // manage the 5xx error
                 return false;
             } catch (Exception $e) {
-                // todo eg. network error like NoNodeAvailableException
+                //dd($e->getMessage());
+                // eg. network error like NoNodeAvailableException
                 return false;
+            } catch (NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             }
         }
 
@@ -68,13 +74,13 @@ class IndexUserRequestLogs
             $table
                 ->withGlobalSearch()
                 ->name('vst')
-                ->column(key: 'username', label: __('Username'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'ip_address', label: __('IP Address'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'url', label: __('URL'), canBeHidden: false, sortable: true)
                 ->column(key: 'module', label: __('Module'), canBeHidden: false, sortable: true)
                 ->column(key: 'user_agent', label: __('User Agent '), canBeHidden: false, sortable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false)
-                ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true);
+                ->column(key: 'datetime', label: __('Date & Time'), canBeHidden: false, sortable: true)
+                ->defaultSort('datetime');
         };
     }
 }
