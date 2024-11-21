@@ -22,7 +22,6 @@ const props = defineProps<{
 
 const layout = inject('layout', layoutStructure)
 
-
 function deliveryNoteRoute(deliveryNote: DeliveryNote) {
     switch (route().current()) {
         case "shops.show.orders.show":
@@ -41,6 +40,14 @@ function deliveryNoteRoute(deliveryNote: DeliveryNote) {
             return route(
                 "grp.org.warehouses.show.dispatching.delivery-notes.show",
                 [route().params["organisation"], route().params["warehouse"], deliveryNote.slug])
+        case "grp.org.shops.show.ordering.delivery-notes.index":
+            return route(
+                    "grp.org.shops.show.ordering.delivery-notes.index",
+                    [route().params["organisation"], route().params["shop"]])
+        case "grp.org.shops.show.ordering.orders.index":
+            return route(
+                "grp.org.shops.show.ordering.show.delivery-note.show",
+                [route().params["organisation"], route().params["shop"], deliveryNote.slug])
         case "grp.org.shops.show.ordering.orders.show":
             return route(
                 "grp.org.shops.show.ordering.orders.show.delivery-note",

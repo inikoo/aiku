@@ -9,8 +9,10 @@
 namespace App\Actions\Analytics\AikuSection;
 
 use App\Actions\GrpAction;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Models\Analytics\AikuSection;
 use App\Models\SysAdmin\Group;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
@@ -31,7 +33,7 @@ class StoreAikuSection extends GrpAction
     public function rules(): array
     {
         return [
-            'code' => ['required', 'string', 'max:255'],
+            'code' => ['required', Rule::enum(AikuSectionEnum::class)],
             'name' => ['required', 'string', 'max:255'],
         ];
     }

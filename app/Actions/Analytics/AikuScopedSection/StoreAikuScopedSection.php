@@ -39,6 +39,7 @@ class StoreAikuScopedSection extends GrpAction
 
         data_set($modelData, 'model_type', class_basename($scope));
         data_set($modelData, 'model_id', $scope->id);
+        data_set($modelData, 'model_slug', $scope->slug);
 
         return $aikuSection->scopedSections()->create($modelData);
     }

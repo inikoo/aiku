@@ -8,6 +8,7 @@
 
 namespace App\Models\Analytics;
 
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -42,6 +43,10 @@ class AikuScopedSection extends Model
 {
     use HasSlug;
     use InOrganisation;
+
+    protected $cast = [
+        'code' => AikuSectionEnum::class
+    ];
 
     protected $guarded = [
     ];

@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dispatching\DeliveryNote\UI;
 
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\Dispatching\DeliveryNoteItem\UI\IndexDeliveryNoteItems;
 use App\Actions\Dispatching\Picking\UI\IndexPickings;
@@ -432,6 +433,24 @@ class ShowDeliveryNote extends OrgAction
                     $suffix
                 ),
             ),
+            'grp.org.shops.show.ordering.show.delivery-note.show',
+            => array_merge(
+                ShowShop::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    $deliveryNote,
+                    [
+                        'index' => [
+                            'name'       => 'grp.org.shops.show.ordering.orders.index',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'shop'])
+                        ],
+                        'model' => [
+                            'name'       => 'grp.org.shops.show.ordering.show.delivery-note.show',
+                            'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'deliveryNote'])
+                        ]
+                    ],
+                    $suffix
+                ),
+            ),
             'grp.org.shops.show.crm.customers.show.delivery_notes.show',
             => array_merge(
                 ShowCustomer::make()->getBreadcrumbs(
@@ -532,7 +551,15 @@ class ShowDeliveryNote extends OrgAction
                     ]
 
                 ]
-                    ],
+            ],
+            'grp.org.shops.show.ordering.show.delivery-note.show' => [
+                'label' => $deliveryNote->reference,
+                'route' => [
+                    'name'      => $routeName,
+                    'parameters' => Arr::only($routeParameters, ['organisation', 'shop', 'deliveryNote'])
+
+                ]
+            ],
             'grp.org.shops.show.ordering.orders.show.delivery-note' => [
                 'label' => $deliveryNote->reference,
                 'route' => [

@@ -5,6 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Accounting\Invoice\UI\IndexInvoices;
+use App\Actions\Accounting\Invoice\UI\ShowInvoice;
+use App\Actions\Dispatching\DeliveryNote\UI\IndexDeliveryNotes;
 use App\Actions\Dispatching\DeliveryNote\UI\ShowDeliveryNote;
 use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\Ordering\Order\UI\ShowOrder;
@@ -17,6 +20,10 @@ use App\Actions\Ordering\UI\ShowOrdersBacklog;
 Route::get('/backlog', ShowOrdersBacklog::class)->name('backlog');
 
 Route::get('/orders/', IndexOrders::class)->name('orders.index');
+Route::get('/orders/invoices', [IndexInvoices::class, 'inShop'])->name('invoices.index');
+Route::get('/invoices/{invoice}', [ShowInvoice::class, 'inShop'])->name('invoices.show');
+Route::get('/orders/delivery_notes', [IndexDeliveryNotes::class, 'inShop'])->name('delivery-notes.index');
+Route::get('/orders/delivery_notes/{deliveryNote}', [ShowDeliveryNote::class, 'inOrderInShop'])->name('show.delivery-note.show');
 
 Route::prefix('orders/{order}')->group(function () {
     Route::get('', ShowOrder::class)->name('orders.show');
