@@ -48,9 +48,17 @@ class ShowCatalogue extends OrgAction
 
     public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
-        $topFamily = $shop->stats->topFamily;
-        $topDepartment = $shop->stats->topDepartment;
-        $topProduct = $shop->stats->topProduct;
+        $timesUpdate = ['1d', '1w', '1m', '1y', 'all'];
+
+        $topFamily = [];
+        $topDepartment = [];
+        $topProduct = [];
+
+        foreach ($timesUpdate as $timeUpdate) {
+            $topFamily[$timeUpdate] = $shop->stats->{'top'.$timeUpdate.'Family'} ?? [];
+            $topDepartment[$timeUpdate] = $shop->stats->{'top'.$timeUpdate.'Department'} ?? [];
+            $topProduct[$timeUpdate] = $shop->stats->{'top'.$timeUpdate.'Product'} ?? [];
+        }
 
         $totalProducts = $shop->stats->number_products;
 
