@@ -40,6 +40,7 @@ class GetOrgSupplierProducts extends OrgAction
             $join->on('purchase_order_transactions.org_supplier_product_id', '=', 'org_supplier_products.id')
                 ->where('purchase_order_transactions.purchase_order_id', $purchaseOrder->id);
         });
+        $queryBuilder->leftJoin('purchase_orders', 'purchase_order_transactions.purchase_order_id', 'purchase_orders.id');
 
         if (class_basename($parent) == 'OrgAgent') {
             $queryBuilder->where('org_supplier_products.org_agent_id', $parent->id);
@@ -62,7 +63,9 @@ class GetOrgSupplierProducts extends OrgAction
                 'supplier_products.id as supplier_product_id',
                 'supplier_products.name',
                 'supplier_products.current_historic_supplier_product_id as historic_id',
-                'purchase_order_transactions.quantity_ordered as quantity_ordered'
+                'purchase_order_transactions.quantity_ordered as quantity_ordered',
+                'purchase_order_transactions.id as purchase_order_transaction_id',
+                'purchase_orders.id as purchase_order_id'
             ])
             ->allowedSorts(['code', 'name'])
             ->allowedFilters([$globalSearch])

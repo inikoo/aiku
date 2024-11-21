@@ -10,8 +10,8 @@ namespace App\Actions\SysAdmin\User;
 
 use App\Actions\GrpAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Models\Analytics\UserRequest;
 use App\Models\SysAdmin\User;
-use App\Models\SysAdmin\UserRequest;
 use Lorisleiva\Actions\ActionRequest;
 
 class StoreUserRequest extends GrpAction

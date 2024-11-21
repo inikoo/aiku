@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 04 Dec 2023 16:23:55 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Thu, 21 Nov 2024 10:23:00 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\UserRequest\Traits;
+namespace App\Actions\Analytics\UserRequest\Traits;
 
 use Elastic\Elasticsearch\Client;
 

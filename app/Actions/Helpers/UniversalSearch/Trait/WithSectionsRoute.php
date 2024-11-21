@@ -48,7 +48,12 @@ trait WithSectionsRoute
         ];
 
         if (empty($route) || str_starts_with($route, "dashboard.") || str_starts_with($route, "settings.")) {
-            return array_unique(array_merge(...array_values($routes)));
+            $result = collect($routes) // Convert to a collection
+                    ->flatten()            // Flatten the multidimensional array
+                    ->unique()             // Get unique values
+                    ->values()             // Reindex the array to start from 0
+                    ->all();
+            return $result;
         }
 
         foreach ($routes as $prefix => $result) {

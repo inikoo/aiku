@@ -7,11 +7,11 @@
 
 namespace App\Actions\UI\Profile;
 
+use App\Actions\Analytics\UserRequest\UI\IndexUserRequestLogs;
+use App\Actions\Analytics\UserRequest\UI\ShowUserRequestLogs;
 use App\Actions\GrpAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
-use App\Actions\SysAdmin\UserRequest\IndexUserRequestLogs;
-use App\Actions\SysAdmin\UserRequest\ShowUserRequestLogs;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\Grp\Dashboard\ShowDashboard;
 use App\Actions\UI\WithInertia;
