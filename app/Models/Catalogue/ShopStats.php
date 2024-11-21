@@ -70,6 +70,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_subscriptions_state_active
  * @property int $number_subscriptions_state_discontinued
  * @property int $number_product_variants
+ * @property int|null $top_1d_department_id
+ * @property int|null $top_1d_family_id
+ * @property int|null $top_1d_product_id
+ * @property int|null $top_1w_department_id
+ * @property int|null $top_1w_family_id
+ * @property int|null $top_1w_product_id
+ * @property int|null $top_1m_department_id
+ * @property int|null $top_1m_family_id
+ * @property int|null $top_1m_product_id
+ * @property int|null $top_1y_department_id
+ * @property int|null $top_1y_family_id
+ * @property int|null $top_1y_product_id
+ * @property int|null $top_all_department_id
+ * @property int|null $top_all_family_id
+ * @property int|null $top_all_product_id
  * @property int $number_charges
  * @property int $number_charges_state_in_process
  * @property int $number_charges_state_active
@@ -88,6 +103,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Catalogue\Shop $shop
+ * @property-read \App\Models\Catalogue\ProductCategory|null $top1dDepartment
+ * @property-read \App\Models\Catalogue\ProductCategory|null $top1dFamily
+ * @property-read \App\Models\Catalogue\Product|null $top1dProduct
+ * @property-read \App\Models\Catalogue\ProductCategory|null $top1mDepartment
+ * @property-read \App\Models\Catalogue\ProductCategory|null $top1mFamily
+ * @property-read \App\Models\Catalogue\Product|null $top1mProduct
+ * @property-read \App\Models\Catalogue\ProductCategory|null $top1wDepartment
+ * @property-read \App\Models\Catalogue\ProductCategory|null $top1wFamily
+ * @property-read \App\Models\Catalogue\Product|null $top1wProduct
+ * @property-read \App\Models\Catalogue\ProductCategory|null $top1yDepartment
+ * @property-read \App\Models\Catalogue\ProductCategory|null $top1yFamily
+ * @property-read \App\Models\Catalogue\Product|null $top1yProduct
+ * @property-read \App\Models\Catalogue\ProductCategory|null $topAllDepartment
+ * @property-read \App\Models\Catalogue\ProductCategory|null $topAllFamily
+ * @property-read \App\Models\Catalogue\Product|null $topAllProduct
  * @method static Builder<static>|ShopStats newModelQuery()
  * @method static Builder<static>|ShopStats newQuery()
  * @method static Builder<static>|ShopStats query()

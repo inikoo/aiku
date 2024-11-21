@@ -17,7 +17,6 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Accounting\TopUp;
-use App\Models\Analytics\AikuScopedSection;
 use App\Models\Analytics\AikuSection;
 use App\Models\Billables\Charge;
 use App\Models\Billables\Rental;
@@ -130,6 +129,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
  * @property-read Agent|null $agent
+ * @property-read LaravelCollection<int, AikuSection> $aikuScopedSections
  * @property-read LaravelCollection<int, Artefact> $artefacts
  * @property-read LaravelCollection<int, Asset> $assets
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits

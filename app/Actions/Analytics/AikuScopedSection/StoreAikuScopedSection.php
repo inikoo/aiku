@@ -25,10 +25,9 @@ class StoreAikuScopedSection extends GrpAction
     use AsAction;
     use WithAttributes;
 
-    public function handle(Group|Organisation|Shop|Fulfilment|Warehouse|Production $scope, AikuSection $aikuSection, array $modelData)
+    public function handle(Group|Organisation|Shop|Fulfilment|Warehouse|Production $scope, AikuSection $aikuSection, array $modelData): AikuScopedSection
     {
-        if($scope instanceof Group)
-        {
+        if ($scope instanceof Group) {
             data_set($modelData, 'group_id', $scope->id);
         } elseif ($scope instanceof Organisation) {
             data_set($modelData, 'group_id', $scope->group_id);
@@ -38,8 +37,10 @@ class StoreAikuScopedSection extends GrpAction
             data_set($modelData, 'organisation_id', $scope->organisation_id);
         }
 
-        $aikuScopedSection = $scope->aikuScopedSections()->attach($aikuSection->id, $modelData);
-        return $aikuScopedSection;
+        data_set($modelData, 'model_type', class_basename($scope));
+        data_set($modelData, 'model_id', $scope->id);
+
+        return $aikuSection->scopedSections()->create($modelData);
     }
 
     public function rules(): array
@@ -50,10 +51,9 @@ class StoreAikuScopedSection extends GrpAction
         ];
     }
 
-    public function action(Group|Organisation|Shop|Fulfilment|Warehouse|Production $scope, AikuSection $aikuSection, array $modelData)
+    public function action(Group|Organisation|Shop|Fulfilment|Warehouse|Production $scope, AikuSection $aikuSection, array $modelData): AikuScopedSection
     {
-        if($scope instanceof Group)
-        {
+        if ($scope instanceof Group) {
             $group = $scope;
         } else {
             $group = $scope->group;

@@ -16,6 +16,7 @@ use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Spatie\Sluggable\HasSlug;
@@ -39,6 +40,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Shop> $shops
  * @property-read \App\Models\Analytics\AikuSectionStats|null $stats
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Warehouse> $warehouses
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AikuSection dSections()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AikuSection newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AikuSection newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AikuSection query()
@@ -70,6 +72,12 @@ class AikuSection extends Model
     {
         return $this->hasOne(AikuSectionStats::class);
     }
+
+    public function scopedSections(): HasMany
+    {
+        return $this->hasMany(AikuScopedSection::class);
+    }
+
 
     public function shops(): MorphToMany
     {

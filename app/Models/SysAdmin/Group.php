@@ -16,7 +16,6 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Accounting\TopUp;
-use App\Models\Analytics\AikuScopedSection;
 use App\Models\Analytics\AikuSection;
 use App\Models\Analytics\UserRequest;
 use App\Models\Billables\Charge;
@@ -120,6 +119,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
  * @property-read LaravelCollection<int, Agent> $agents
+ * @property-read LaravelCollection<int, AikuSection> $aikuScopedSections
  * @property-read LaravelCollection<int, AikuSection> $aikuSections
  * @property-read LaravelCollection<int, Artefact> $artefacts
  * @property-read LaravelCollection<int, Asset> $assets
@@ -142,8 +142,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, EmailTemplate> $emailTemplates
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read LaravelCollection<int, ExternalLink> $externalLinks
- * @property-read LaravelCollection<int, Fulfilment> $fulfilment
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
+ * @property-read LaravelCollection<int, Fulfilment> $fulfilments
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\Helpers\Media|null $image
