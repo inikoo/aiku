@@ -16,6 +16,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Accounting\TopUp;
+use App\Models\Analytics\UserRequest;
 use App\Models\Billables\Charge;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
@@ -199,7 +200,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, TradeUnit> $tradeUnits
  * @property-read LaravelCollection<int, Upload> $uploads
- * @property-read LaravelCollection<int, \App\Models\SysAdmin\UserRequest> $userRequests
+ * @property-read LaravelCollection<int, \App\Models\Analytics\UserRequest> $userRequests
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\User> $users
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
  * @property-read LaravelCollection<int, Warehouse> $warehouses

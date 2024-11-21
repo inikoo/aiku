@@ -7,8 +7,8 @@
 
 namespace App\Actions\UI\Profile;
 
+use App\Actions\Analytics\UserRequest\UI\IndexUserRequestLogs;
 use App\Actions\GrpAction;
-use App\Actions\SysAdmin\UserRequest\IndexUserRequestLogs;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\SysAdmin\ProfileTabsEnum;
