@@ -1,13 +1,13 @@
 <?php
 /*
- * author Arya Permana - Kirin
- * created on 20-11-2024-11h-21m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 21 Nov 2024 10:22:28 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Models\SysAdmin;
+namespace App\Models\Analytics;
 
+use App\Models\SysAdmin\User;
 use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

@@ -10,6 +10,7 @@ namespace App\Actions\Accounting\Invoice\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Models\Accounting\Invoice;
+use App\Models\Accounting\InvoiceTransaction;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -47,21 +48,21 @@ class InvoiceHydrateOffers
         $invoice->stats()->update($stats);
     }
 
-    public function countOfferComponents($transaction): int
+    public function countOfferComponents(InvoiceTransaction $transaction): int
     {
         return $transaction->offerComponents()
             ->distinct('offer_component_id')
             ->count('offer_component_id');
     }
 
-    public function countOffers($transaction): int
+    public function countOffers(InvoiceTransaction $transaction): int
     {
         return $transaction->offerComponents()
             ->distinct('offer_id')
             ->count('offer_id');
     }
 
-    public function countOfferCampaigns($transaction): int
+    public function countOfferCampaigns(InvoiceTransaction $transaction): int
     {
         return $transaction->offerComponents()
             ->distinct('offer_campaigns_id')
