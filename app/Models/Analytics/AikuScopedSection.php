@@ -9,6 +9,7 @@
 namespace App\Models\Analytics;
 
 use App\Models\Inventory\WarehouseStats;
+use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Spatie\Sluggable\HasSlug;
@@ -36,6 +37,7 @@ use Spatie\Sluggable\SlugOptions;
 class AikuScopedSection extends Model
 {
     use HasSlug;
+    use InOrganisation;
 
     protected $guarded = [
     ];
@@ -48,7 +50,7 @@ class AikuScopedSection extends Model
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('name')
+            ->generateSlugsFrom('code')
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
@@ -56,7 +58,7 @@ class AikuScopedSection extends Model
 
     public function stats(): HasOne
     {
-        return $this->hasOne(WarehouseStats::class);
+        return $this->hasOne(AikuScopedSectionStats::class);
     }
 
 

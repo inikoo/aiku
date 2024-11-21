@@ -14,7 +14,6 @@ library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinked
 const props = defineProps<{
     modelValue: FieldValue,
     keyTemplate: String
-    previewMode: Boolean
     colorThemed?: Object
 }>();
 

@@ -39,7 +39,14 @@ class CustomerRecordSearch
                 'haystack_tier_2'   => trim($customer->internal_notes.' '.$customer->warehouse_internal_notes.' '.$customer->warehouse_public_notes),
 
                 'result' => [
-
+                    'route' => [
+                        'name'          => 'grp.org.shops.show.crm.customers.show',
+                        'parameters'    => [
+                            $customer->organisation->slug,
+                            $customer->shop->slug,
+                            $customer->slug
+                        ]
+                    ],
                     'icon'        => [
                         'icon' => 'fal fa-user',
                         'model' => 'customer'

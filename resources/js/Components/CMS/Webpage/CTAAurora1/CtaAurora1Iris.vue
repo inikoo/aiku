@@ -13,27 +13,26 @@ library.add(faCube, faLink)
 
 const props = defineProps<{
 	modelValue: any
-	isEditable?: boolean
+	webpageData: any
+	blockData: Object
 }>()
 
 </script>
 
 <template>
 	<div :style="getStyles(modelValue.container.properties)">
-		<div class="w-full">
-			<div
-				class="relative isolate overflow-hidden px-6 py-24 text-center shadow-2xl sm:px-16">
-					<div v-html="modelValue.title" />
-					<div v-html="modelValue.text" />
-				<div class="flex justify-center">
-					<div
-						typeof="button"
-						:style="getStyles(modelValue.button.container.properties)"
-						class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6">
-						{{ modelValue.button.text }}
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+        <div class="w-full">
+            <div class="relative isolate overflow-hidden px-6 py-24 text-center shadow-2xl sm:px-16">
+				<section v-html="modelValue.title"></section>
+				<section v-html="modelValue.text"></section>
+
+                <div class="flex justify-center">
+                    <div typeof="button" :style="getStyles(modelValue.button.container.properties)"
+                        class="mt-10 flex items-center justify-center w-64 mx-auto gap-x-6">
+                        {{modelValue.button.text}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>

@@ -22,8 +22,6 @@ const props = defineProps<{
         chip_text: string
     }
     loginMode: boolean
-    previewMode: boolean
-    uploadImageRoute: routeType
     colorThemed?: {
         color: Array
     }
@@ -84,7 +82,7 @@ const toggle = (event) => {
                     <button :style="getStyles(modelValue.button_1.properties)"
                         class="flex items-center justify-center px-4 py-2 bg-gold-500 text-white rounded-md shadow-md hover:bg-gold-600 transition duration-300 w-fit"
                         v-if="viewVisible(loginMode, modelValue.button_1.visible)">
-                        <Editor v-model="modelValue.button_1.text" :editable="previewMode"
+                        <Editor v-model="modelValue.button_1.text" :editable="true"
                             @update:model-value="(e) => { modelValue.button_1.text = e, emits('update:modelValue', modelValue) }" />
                     </button>
                 </div>

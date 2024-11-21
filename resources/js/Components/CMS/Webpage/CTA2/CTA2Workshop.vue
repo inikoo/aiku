@@ -17,11 +17,7 @@ library.add(faCube, faLink)
 const props = defineProps<{
 	modelValue: any
 	webpageData: any
-	web_block: Object
-	id: Number
-	type: String
-	isEditable?: boolean
-	properties: {}
+	blockData: Object
 }>()
 
 const emits = defineEmits<{
@@ -35,7 +31,6 @@ const emits = defineEmits<{
 		<div
 			class="relative isolate overflow-hidden px-6 py-24 text-center shadow-2xl l sm:px-16">
 			<Editor
-				:editable="isEditable"
 				v-model="modelValue.headline"
 				@update:modelValue="() => emits('autoSave')" />
 

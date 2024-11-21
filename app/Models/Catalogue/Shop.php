@@ -19,6 +19,8 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
 use App\Models\Accounting\TopUp;
+use App\Models\Analytics\AikuScopedSection;
+use App\Models\Analytics\AikuSection;
 use App\Models\Billables\Charge;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
@@ -604,5 +606,9 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(InvoiceTransactionHasFeedback::class);
     }
 
+    public function aikuScopedSections(): MorphToMany
+    {
+        return $this->morphToMany(AikuSection::class, 'model', 'aiku_scoped_sections');
+    }
 
 }

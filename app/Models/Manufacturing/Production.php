@@ -8,6 +8,8 @@
 namespace App\Models\Manufacturing;
 
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
+use App\Models\Analytics\AikuScopedSection;
+use App\Models\Analytics\AikuSection;
 use App\Models\Procurement\StockDelivery;
 use App\Models\SysAdmin\Role;
 use App\Models\Traits\HasHistory;
@@ -17,6 +19,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -136,6 +139,11 @@ class Production extends Model implements Auditable
     public function stockDeliveries(): MorphMany
     {
         return $this->morphMany(StockDelivery::class, 'parent');
+    }
+
+    public function aikuScopedSections(): MorphToMany
+    {
+        return $this->morphToMany(AikuSection::class, 'model', 'aiku_scoped_sections');
     }
 
 

@@ -16,6 +16,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Accounting\TopUp;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Analytics\AikuSection;
 use App\Models\Analytics\UserRequest;
 use App\Models\Billables\Charge;
@@ -86,6 +87,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
@@ -444,7 +446,7 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasOne(GroupFulfilmentStats::class);
     }
 
-    public function fulfilment(): HasMany
+    public function fulfilments(): HasMany
     {
         return $this->hasMany(Fulfilment::class);
     }
@@ -764,5 +766,10 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function aikuSections(): HasMany
     {
         return $this->hasMany(AikuSection::class);
+    }
+
+    public function aikuScopedSections(): MorphToMany
+    {
+        return $this->morphToMany(AikuSection::class, 'model', 'aiku_scoped_sections');
     }
 }

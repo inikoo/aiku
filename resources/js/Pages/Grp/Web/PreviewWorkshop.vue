@@ -6,11 +6,11 @@
 
 <script setup lang="ts">
 import { getComponent } from '@/Composables/getWorkshopComponents'
+import { getComponent as getIrisComponent } from '@/Composables/getIrisComponents';
 import { ref, onMounted, onUnmounted, reactive, provide, toRaw} from 'vue'
 import WebPreview from "@/Layouts/WebPreview.vue";
 import debounce from 'lodash/debounce'
 import EmptyState from "@/Components/Utils/EmptyState.vue"
-/* import { socketWeblock } from '@/Composables/SocketWebBlock' */
 import { sendMessageToParent, iframeToParent, irisStyleVariables } from '@/Composables/Workshop'
 import RenderHeaderMenu from './RenderHeaderMenu.vue'
 import { usePage, router } from '@inertiajs/vue3'
@@ -18,9 +18,7 @@ import { useColorTheme } from '@/Composables/useStockList'
 import { cloneDeep, get, set } from 'lodash'
 import Toggle from '@/Components/Pure/Toggle.vue';
 
-import { Root } from '@/types/webBlockTypes'
 import { Root as RootWebpage } from '@/types/webpageTypes'
-import { routeType } from '@/types/route'
 import { trans } from 'laravel-vue-i18n'
 import Button from '@/Components/Elements/Buttons/Button.vue'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -43,8 +41,6 @@ const props = defineProps<{
 
 const debouncedSendUpdateBlock = debounce((block) => updateData(block), 5000, { leading: false, trailing: true })
 const data = ref(cloneDeep(props.webpage))
-/* const socketConnectionWebpage = props.webpage ? socketWeblock(props.webpage.slug) : null; */
-/* const socketLayout = SocketHeaderFooter(route().params['website']); */
 const isPreviewLoggedIn = ref(false)
 const isPreviewMode = ref(false)
 const isInWorkshop = route().params.isInWorkshop || false
@@ -55,23 +51,7 @@ const layout = reactive({
     colorThemed: props.header?.theme ? props.header.theme : { color: [...useColorTheme[0]] }
 });
 
-/* const onUpdatedBlock = (block: Daum) => {
-    debouncedSendUpdateBlock(block)
-} */
 
-/* const sendBlockUpdate = async (block: WebBlock) => {
-    try {
-        const response = await axios.patch(
-            route(props.webpage.update_model_has_web_blocks_route.name, { modelHasWebBlocks: block.id }),
-            { layout: block.web_block.layout }
-        )
-        const set = { ...response.data.data }
-        data.value = set
-    } catch (error: any) {
-        console.error('error', error)
-    }
-}
- */
 const ShowWebpage = (activityItem) => {
     if (activityItem?.web_block?.layout && activityItem.show) {
         if (isPreviewLoggedIn.value && activityItem.visibility.in) return true
@@ -86,12 +66,6 @@ const updateData = (newVal) => {
 }
 
 onMounted(() => {
- /*    if (socketConnectionWebpage) socketConnectionWebpage.actions.subscribe((value: Root) => { data.value = { ...value } }); */
- /*    if (socketLayout) socketLayout.actions.subscribe((value) => {
-        layout.header = value.header.data;
-        layout.footer = value.footer.footer;
-        layout.navigation = value.navigation;
-    }); */
     if (!get(layout, 'colorThemed.color', false)) {
         set(layout, 'colorThemed.color', [...useColorTheme[0]])
     }
@@ -113,10 +87,6 @@ onMounted(() => {
     });
 });
 
-onUnmounted(() => {
-/*     if (socketConnectionWebpage) socketConnectionWebpage.actions.unsubscribe(); */
-/*     if (socketLayout) socketLayout.actions.unsubscribe(); */
-});
 
 provide('isPreviewLoggedIn', isPreviewLoggedIn)
 provide('isPreviewMode', isPreviewMode)
@@ -157,14 +127,13 @@ provide('isPreviewMode', isPreviewMode)
                             <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
                                 :key="activityItem.id" class="w-full">
                                 <component 
-                                    :key="activityItemIdx"
                                     v-if="ShowWebpage(activityItem)" 
+                                    :key="activityItemIdx"
                                     class="w-full"
-                                    :is="getComponent(activityItem?.type)" 
+                                    :is="isPreviewMode ? getIrisComponent(activityItem?.type) : getComponent(activityItem?.type)" 
                                     :webpageData="webpage" 
                                     :blockData="activityItem"
                                     v-model="activityItem.web_block.layout.data.fieldValue"
-                                    :isEditable="!isPreviewMode"
                                     @autoSave="() => debouncedSendUpdateBlock(activityItem)" 
                                 />
                             </section>
@@ -198,9 +167,8 @@ provide('isPreviewMode', isPreviewMode)
 
         <component 
             v-if="footer?.footer?.data" 
-            :is="getComponent(layout.footer.code)"
+            :is="isPreviewMode || route().current() == 'grp.websites.preview' ? getIrisComponent(layout.footer.code) : getComponent(layout.footer.code)"
             v-model="layout.footer.data.fieldValue"
-            :previewMode="route().current() == 'grp.websites.preview' ? true : isPreviewMode"
             :colorThemed="layout.colorThemed" 
             @update:model-value="() => {updateData(layout.footer)}" 
         />
@@ -210,20 +178,12 @@ provide('isPreviewMode', isPreviewMode)
 </template>
 
 
-<style lang="scss">
-// :root {
-//     --iris-color-primary: v-bind('layout.colorThemed.color[0]');
-//     --iris-color-secondary: v-bind('layout.colorThemed.color[2]');
-// }
-</style>
 
-<style scoped lang="scss">
+<style lang="scss">
 /* @font-face {
     font-family: 'Raleway';
     src: url("@/Assets/raleway.woff2");
 } */
-
-
 
 
 .editor-class {
@@ -232,8 +192,8 @@ provide('isPreviewMode', isPreviewMode)
 
 .editor-class p {
     display: block;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
+    margin-block-start: 0em;
+    margin-block-end: 0em;
     margin-inline-start: 0px;
     margin-inline-end: 0px;
     unicode-bidi: isolate;
@@ -301,4 +261,6 @@ provide('isPreviewMode', isPreviewMode)
 .editor-class p:empty::after {
     content: "\00A0";
 }
+
+
 </style>
