@@ -45,9 +45,6 @@ enum AikuSectionEnum: string
 
     case AGENT_DASHBOARD = 'agent-dashboard';
     case AGENT_PROCUREMENT = 'agent-procurement';
-    case AGENT_ACCOUNTING = 'agent-accounting';
-    case AGENT_REPORT = 'agent-report';
-    case AGENT_SETTING = 'agent-setting';
 
     case PRODUCTION_CRAFT = 'production-craft';
     case PRODUCTION_OPERATION = 'production-operation';
@@ -95,9 +92,6 @@ enum AikuSectionEnum: string
 
             'agent-dashboard' => __('Agent Dashboard'),
             'agent-procurement' => __('Agent Procurement'),
-            'agent-accounting' => __('Agent Accounting'),
-            'agent-report' => __('Agent Report'),
-            'agent-setting' => __('Agent Setting'),
 
             'production-craft'     => __('Production Craft'),
             'production-operation' => __('Production Operation'),
@@ -109,7 +103,7 @@ enum AikuSectionEnum: string
         ];
     }
 
-    public function scopeType(): string
+    public function scopeType(): array
     {
         return match ($this) {
             // Group section
@@ -120,16 +114,19 @@ enum AikuSectionEnum: string
             AikuSectionEnum::GROUP_OVERVIEW,
             AikuSectionEnum::GROUP_SYSADMIN,
             AikuSectionEnum::GROUP_PROFILE,
-            => 'Group',
+            => ['Group'],
 
             // Organisation section
             AikuSectionEnum::ORG_DASHBOARD,
-            AikuSectionEnum::ORG_SETTINGS,
             AikuSectionEnum::ORG_PROCUREMENT,
+            => ['Organisation'],
+
+            // Organisation + Agent + DigitalAgency share sections
             AikuSectionEnum::ORG_ACCOUNTING,
             AikuSectionEnum::ORG_HR,
             AikuSectionEnum::ORG_REPORT,
-            => 'Organisation',
+            AikuSectionEnum::ORG_SETTINGS,
+            => ['Organisation', 'Agent', 'DigitalAgency'],
 
             // Shop section
             AikuSectionEnum::SHOP_DASHBOARD,
@@ -141,7 +138,7 @@ enum AikuSectionEnum: string
             AikuSectionEnum::SHOP_CRM,
             AikuSectionEnum::SHOP_ORDERING,
             AikuSectionEnum::SHOP_SETTINGS,
-            => 'Shop',
+            => ['Shop'],
 
             // Fulfilment section
             AikuSectionEnum::FULFILMENT_DASHBOARD,
@@ -150,25 +147,23 @@ enum AikuSectionEnum: string
             AikuSectionEnum::FULFILMENT_WEBSITE,
             AikuSectionEnum::FULFILMENT_CRM,
             AikuSectionEnum::FULFILMENT_SETTINGS,
-            => 'Fulfilment',
+            => ['Fulfilment'],
 
             AikuSectionEnum::AGENT_DASHBOARD,
             AikuSectionEnum::AGENT_PROCUREMENT,
-            AikuSectionEnum::AGENT_ACCOUNTING,
-            AikuSectionEnum::AGENT_REPORT,
-            AikuSectionEnum::AGENT_SETTING => 'Agent',
+            => ['Agent'],
 
             // Production section
             AikuSectionEnum::PRODUCTION_CRAFT,
             AikuSectionEnum::PRODUCTION_OPERATION,
-            => 'Production',
+            => ['Production'],
 
             // Inventory section
             AikuSectionEnum::INVENTORY,
             AikuSectionEnum::INVENTORY_INFRASTRUCTURE,
             AikuSectionEnum::INVENTORY_INCOMING,
             AikuSectionEnum::INVENTORY_DISPATCHING,
-            => 'Warehouse',
+            => ['Warehouse'],
         };
     }
 
