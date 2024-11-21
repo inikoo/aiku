@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import NavigationMenu from './MenuRender.vue'
 import { getComponent } from '@/Composables/getWorkshopComponents'
+import { getComponent as getIrisComponent } from '@/Composables/getIrisComponents';
 
 const props = defineProps<{
     data: {
@@ -80,15 +81,12 @@ const emits = defineEmits<{
 
 <template>
     <div>
-        <!-- <pre>{{ data.topBar.data }}</pre> -->
         <!-- Section: TopBars -->
         <component
             v-if="data?.topBar?.data?.fieldValue"
-            :is="getComponent(data?.topBar.code)"
+            :is="previewMode ? getIrisComponent(data?.topBar.code) : getComponent(data?.topBar.code)"
             v-model="data.topBar.data.fieldValue"
             :loginMode="loginMode"
-            :previewMode="previewMode"
-            :uploadImageRoute="null"
             :colorThemed="colorThemed"
             @update:model-value="(e)=>emits('update:modelValue', e)"
         />
@@ -97,11 +95,9 @@ const emits = defineEmits<{
         <!-- Section: Header -->
         <component
             v-if="data?.header?.code"
-            :is="getComponent(data?.header?.code)"
+            :is="previewMode ? getIrisComponent(data?.header?.code) : getComponent(data?.header?.code)"
             v-model="data.header.data.fieldValue"
             :loginMode="loginMode"
-            :previewMode="previewMode"
-            :uploadImageRoute="null"
             :colorThemed="colorThemed"
             @update:model-value="(e)=>emits('update:modelValue', e)"
         />

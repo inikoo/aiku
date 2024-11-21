@@ -7,10 +7,11 @@ import { onMounted, ref, watch } from "vue";
 
 library.add(faCube, faStar);
 
-// Props
 const props = defineProps<{
-  modelValue: { value: string },
-}>();
+	modelValue: any
+	webpageData: any
+	blockData: Object
+}>()
 
 </script>
 

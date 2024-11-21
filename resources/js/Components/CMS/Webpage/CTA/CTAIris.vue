@@ -15,11 +15,7 @@ library.add(faCube, faLink, faImage)
 const props = defineProps<{
 	modelValue: any
 	webpageData: any
-	web_block: Object
-	id: Number
-	type: String
-	isEditable?: boolean
-	properties: {}
+	blockData: Object
 }>()
 
 
@@ -73,3 +69,6 @@ const props = defineProps<{
 		</div>
 	</div>
 </template>
+
+<style lang="scss" >
+</style>

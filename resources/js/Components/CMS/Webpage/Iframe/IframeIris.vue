@@ -12,12 +12,9 @@ import { getStyles } from "@/Composables/styles.js"
 library.add(faPresentation, faLink, faPaperclip)
 
 const props = defineProps<{
-    modelValue: {
-        link : String
-        container : {
-            properties : Object
-        }
-    }
+    modelValue: any
+	webpageData: any
+	blockData: Object
 }>()
 
 

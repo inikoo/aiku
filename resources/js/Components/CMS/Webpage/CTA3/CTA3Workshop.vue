@@ -10,10 +10,7 @@ import { getStyles } from "@/Composables/styles"
 const props = defineProps<{
 	modelValue: any
 	webpageData: any
-	web_block: Object
-	id: Number
-	isEditable?: boolean
-	properties: {}
+	blockData: Object
 }>()
 
 const emits = defineEmits<{
@@ -56,7 +53,6 @@ const onUpload = (e) => {
 				<Editor
 					v-if="modelValue?.text"
 					v-model="modelValue.text"
-					:editable="true"
 					@update:modelValue="() => emits('autoSave')" />
 			</div>
 

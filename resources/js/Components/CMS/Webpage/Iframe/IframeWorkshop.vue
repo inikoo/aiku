@@ -20,7 +20,8 @@ library.add(faPresentation, faLink, faPaperclip)
 
 const props = defineProps<{
     modelValue: any
-    isEditable?: boolean
+	webpageData: any
+	blockData: Object
 }>()
 
 /* const emits = defineEmits<{
@@ -40,37 +41,9 @@ const props = defineProps<{
         class="relative block w-full p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
         <font-awesome-icon :icon="['fal', 'paperclip']" class="mx-auto h-12 w-12 text-gray-400" />
         <span class="mt-2 block text-sm font-semibold text-gray-900">I Frame</span>
-        <!-- <div class="flex justify-center m-2">
-            <PureInput v-model="modelValue.link" :placeholder="'Link'" :suffix="true" @onEnter="(e) => onEnter('a')">
-                <template #suffix>
-                    <div
-                        class="flex justify-center items-center px-2 absolute inset-y-0 right-0 gap-x-1 cursor-pointer">
-                        <span> <font-awesome-icon :icon="['fal', 'link']" /></span>
-                    </div>
-                </template>
-            </PureInput>
-            <Button class="ml-2" type="save" label="Save" @click="(e) => onEnter(e)"></Button>
-        </div> -->
     </div>
 
     <div v-else class="relative">
         <iframe :src="modelValue?.link" :style="getStyles(modelValue?.container?.properties)"  />
-        <!-- Buttons -->
-<!--         <div v-if="isEditable" class="absolute top-2 right-2 flex space-x-2">
-            <Popover class="relative h-full">
-                <template #button>
-                    <Button :icon="['far', 'fa-pencil']" size="xs" />
-                </template>
-                <template #content="{ close: closed }">
-                    <div class="w-[350px]">
-                        <div class="mb-1">
-                            <span class="text-xs text-gray-500 pb-3">Link</span>
-                            <PureInput v-model="modelValue.link"></PureInput>
-                        </div>
-
-                    </div>
-                </template>
-            </Popover>
-        </div> -->
     </div>
 </template>

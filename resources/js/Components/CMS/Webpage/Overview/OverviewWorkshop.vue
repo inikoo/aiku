@@ -10,18 +10,11 @@ import Modal from "@/Components/Utils/Modal.vue"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { faImage, faEdit } from "@far"
 
-// Sample data passed as props (modelValue)
-const props = withDefaults(
-	defineProps<{
-		modelValue?: any
-		isEditable?: boolean
-		webpageData: any
-		id: number
-	}>(),
-	{
-		isEditable: true,
-	}
-)
+const props = defineProps<{
+    modelValue: any
+	webpageData: any
+	blockData: Object
+}>()
 
 const emits = defineEmits<{
 	(e: "autoSave"): void
