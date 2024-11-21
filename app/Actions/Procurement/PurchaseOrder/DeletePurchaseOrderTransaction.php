@@ -8,6 +8,7 @@
 namespace App\Actions\Procurement\PurchaseOrder;
 
 use App\Actions\OrgAction;
+use App\Models\Procurement\PurchaseOrder;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -30,7 +31,7 @@ class DeletePurchaseOrderTransaction extends OrgAction
         $this->handle($purchaseOrderTransaction);
     }
 
-    public function asController(PurchaseOrderTransaction $purchaseOrderTransaction, ActionRequest $request): void
+    public function asController(PurchaseOrder $purchaseOrder, PurchaseOrderTransaction $purchaseOrderTransaction, ActionRequest $request): void
     {
         $this->initialisation($purchaseOrderTransaction->organisation, $request);
         $this->handle($purchaseOrderTransaction);

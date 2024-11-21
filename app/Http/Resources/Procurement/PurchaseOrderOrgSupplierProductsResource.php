@@ -46,6 +46,13 @@ class PurchaseOrderOrgSupplierProductsResource extends JsonResource
                     'purchaseOrder' => $this->purchase_order_id,
                     'purchaseOrderTransaction' => $this->purchase_order_transaction_id
                 ]
+            ],
+            'deleteRoute'       => [
+                'name' => 'grp.models.purchase-order.transaction.delete',
+                'parameters' => [
+                    'purchaseOrder' => $this->purchase_order_id,
+                    'purchaseOrderTransaction' => $this->purchase_order_transaction_id
+                ]
             ]
 
         ];
