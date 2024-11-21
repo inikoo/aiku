@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, inject } from 'vue'
+import { ref, onMounted, inject, toRaw } from 'vue'
 import draggable from "vuedraggable";
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Popover from '@/Components/Popover.vue'
+import Dialog from 'primevue/dialog';
+import DialogEditLink from '@/Components/CMS/Website/Menus/EditMode/DialogEditLink.vue';
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -12,14 +14,27 @@ import PureInput from '@/Components/Pure/PureInput.vue';
 import PureMultiselect from '@/Components/Pure/PureMultiselect.vue';
 import { v4 as uuidv4 } from "uuid"
 import EmptyState from '@/Components/Utils/EmptyState.vue';
+import DialogEditName from '@/Components/CMS/Website/Menus/EditMode/DialogEditName.vue';
 
 library.add(faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faChevronDown, faTimes, faPlusCircle, faBars, faTrashAlt);
+
+interface navigation {
+  label: String
+  id: Number | String
+  type: String
+}
 
 const props = defineProps<{
   Navigation: Array,
   selectedNav: Number | null
 }>()
 
+const visibleNameDialog = ref(false)
+const visibleDialog = ref(false)
+const nameValue = ref<navigation | null>()
+const linkValue = ref<navigation | null>()
+const parentIdx = ref<Number>(0)
+const linkIdx = ref<Number>(0)
 
 const addLink = (data: Object) => {
   data.links.push(
@@ -51,6 +66,35 @@ const deleteNavCard = (data, index) => {
   props.Navigation[props.selectedNav].subnavs.splice(index, 1)
 }
 
+const onNameClick = (data = null, index = -1) => {
+  visibleNameDialog.value = true
+  nameValue.value = toRaw({ ...data, index: index })
+}
+
+const onChangeName = (data) => {
+  props.Navigation[props.selectedNav].subnavs[data.index] = data
+  visibleNameDialog.value = false
+  nameValue.value = null
+}
+
+const onLinkClick = (data = null, parentIndex = -1, index = -1) => {
+  visibleDialog.value = true
+  parentIdx.value = parentIndex
+  linkIdx.value = index
+  linkValue.value = toRaw({ ...data })
+}
+
+const onChangeLink = (data) => {
+  props.Navigation[props.selectedNav].subnavs[parentIdx.value].links[linkIdx.value] = {
+    ...props.Navigation[props.selectedNav].subnavs[parentIdx.value].links[linkIdx.value],
+    label: data.label,
+    link: data.link,
+  }
+  linkValue.value = null
+  parentIdx.value = -1
+  linkIdx.value  = -1
+  visibleDialog.value = false
+}
 
 
 </script>
@@ -94,19 +138,7 @@ const deleteNavCard = (data, index) => {
       <template #item="{ element, index }">
         <div class="bg-white h-[26rem] rounded-lg p-4 col-span-1 cursor-grab">
           <div class="flex justify-between">
-
-            <Popover position="">
-              <template #button>
-                <div class="font-bold text-xs mb-3">{{ element.title }}</div>
-              </template>
-
-              <template #content="{ close: closed }">
-                <div class="p-1 my-1">
-                  <div class="font-bold text-xs mb-1">Title :</div>
-                  <PureInput v-model="element.title"></PureInput>
-                </div>
-              </template>
-            </Popover>
+            <div class="font-bold text-xs mb-3" @click="() => onNameClick(element, index)">{{ element.title }}</div>
             <div>
               <font-awesome-icon v-if="element.links.length < 8" icon="fas fa-plus-circle"
                 @click="() => addLink(element)" class="cursor-pointer text-gray-400 mb-3 mr-3"></font-awesome-icon>
@@ -121,30 +153,8 @@ const deleteNavCard = (data, index) => {
 
               <div class="flex items-center gap-x-2 p-1">
                 <font-awesome-icon icon="fas fa-bars" class="text-[13px] text-gray-400 pr-2"></font-awesome-icon>
-                <Popover position="">
-                  <template #button>
-                    <span class="text-gray-500 hover:text-gray-600 hover:underline cursor-pointer text-xs">{{
-                      link.label }}</span>
-                  </template>
-
-                  <template #content="{ close: closed }">
-                    <div class="p-1 my-1">
-                      <div class="font-bold text-xs mb-1">Label :</div>
-                      <PureInput v-model="link.label"></PureInput>
-                    </div>
-
-                    <div class="p-1 mb-1">
-                      <div class="font-bold text-xs mb-1">Link :</div>
-                      <PureInput v-model="link.link"></PureInput>
-                    </div>
-
-                    <div class="p-1 mb-1">
-                      <Button type="delete" label="" size="xs"
-                        @click="() => deleteLink(element.links, linkIndex)"></Button>
-                    </div>
-
-                  </template>
-                </Popover>
+                <span class="text-gray-500 hover:text-gray-600 hover:underline cursor-pointer text-xs"
+                  @click="() => onLinkClick(link, index, linkIndex)">{{ link.label }}</span>
               </div>
 
 
@@ -160,6 +170,14 @@ const deleteNavCard = (data, index) => {
       <EmptyState :data="{ title: 'you dont have Any Navigation', description: '' }" />
     </div>
 
+
+    <Dialog v-model:visible="visibleNameDialog" modal header="Edit Name" :style="{ width: '25rem' }">
+      <DialogEditName :data_form="nameValue" @on-save="onChangeName" />
+    </Dialog>
+
+    <Dialog v-model:visible="visibleDialog" modal header="Edit Link" :style="{ width: '25rem' }">
+      <DialogEditLink :modelValue="linkValue" :parent="nameValue" @on-save="onChangeLink" />
+    </Dialog>
 
   </div>
 </template>
