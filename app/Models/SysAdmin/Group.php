@@ -43,6 +43,7 @@ use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\Portfolio;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\Fulfilment\RecurringBill;
 use App\Models\Goods\Ingredient;
 use App\Models\Goods\TradeUnit;
@@ -172,6 +173,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, PostRoom> $postRooms
  * @property-read LaravelCollection<int, ProductCategory> $productCategories
  * @property-read LaravelCollection<int, Production> $productions
+ * @property-read LaravelCollection<int, Fulfilment> $fulfilments
  * @property-read LaravelCollection<int, Product> $products
  * @property-read LaravelCollection<int, PurchaseOrder> $purchaseOrders
  * @property-read LaravelCollection<int, Purge> $purges
@@ -439,6 +441,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function fulfilmentStats(): HasOne
     {
         return $this->hasOne(GroupFulfilmentStats::class);
+    }
+
+    public function fulfilment(): HasMany
+    {
+        return $this->hasMany(Fulfilment::class);
     }
 
     public function manufactureStats(): HasOne

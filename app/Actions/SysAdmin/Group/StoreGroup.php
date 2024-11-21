@@ -43,6 +43,7 @@ class StoreGroup
         SeedPlatforms::run($group);
         SeedEmailTemplates::run($group);
         SeedSalesChannels::run($group);
+        SeedAikuSections::run($group);
 
         $group->stats()->create();
         $group->supplyChainStats()->create();

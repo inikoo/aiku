@@ -97,7 +97,7 @@ enum SectionEnum: string
         ];
     }
 
-    public function scopeTypes(): string
+    public function scopeType(): string
     {
         return match ($this) {
             // Group section
