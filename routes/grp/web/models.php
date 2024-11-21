@@ -150,6 +150,7 @@ use App\Actions\Manufacturing\RawMaterial\UpdateRawMaterial;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Purge\StorePurge;
 use App\Actions\Ordering\Purge\UpdatePurge;
+use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrderTransaction;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToCancelled;
@@ -647,6 +648,7 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::patch('not-received', UpdatePurchaseOrderStateToNotReceived::class)->name('not-received');
     Route::post('transactions/{historicSupplierProduct:id}/{orgStock:id}/store', StorePurchaseOrderTransaction::class)->name('transaction.store')->withoutScopedBindings();
     Route::patch('transactions/{purchaseOrderTransaction:id}/update', UpdatePurchaseOrderTransaction::class)->name('transaction.update')->withoutScopedBindings();
+    Route::delete('transactions/{purchaseOrderTransaction:id}/delete', DeletePurchaseOrderTransaction::class)->name('transaction.delete')->withoutScopedBindings();
 });
 
 require __DIR__."/models/inventory/location_org_stock.php";

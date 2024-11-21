@@ -56,7 +56,96 @@ class ShowOrdersBacklog extends OrgAction
 
                 ],
 
-
+                'tabs_box' => [
+                    [
+                        'label' => 'Showcase',
+                        'tabs' => [
+                            [
+                                'label' => 12456,
+                                'icon' => 'fal fa-tachometer-alt',
+                                'indicator' => true,
+                                'tab_slug' => 'showcase',
+                                'type' => 'number',
+                                'information' => [
+                                    'label' => 999999998,
+                                    'type' => 'number'
+                                ]
+                            ],
+                            [
+                                'label' => 'History',
+                                'indicator' => false,
+                                'tab_slug' => 'history',
+                                'type' => 'date',
+                                'iconClass' => 'text-green-500',
+                                'information' => [
+                                    'label' => 'Info 2',
+                                    'type' => 'date'
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'label' => 'Navigation 2',
+                        'tabs' => [
+                            [
+                                'label' => 'Tab 1',
+                                'icon' => 'icon-chart',
+                                'indicator' => true,
+                                'tab_slug' => 'attachments',
+                                'type' => 'number',
+                                'iconClass' => 'text-red-500',
+                                'information' => [
+                                    'label' => 'Info 1',
+                                    'type' => 'number'
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'label' => 'Images',
+                        'tabs' => [
+                            [
+                                'label' => 'Avatar',
+                                'icon' => 'icon-wallet',
+                                'indicator' => false,
+                                'tab_slug' => 'images',
+                                'iconClass' => 'text-yellow-500',
+                                'information' => [
+                                    'label' => 'Info 1',
+                                ]
+                            ],
+                        ]
+                    ],
+                    [
+                        'label' => 'Navigation 4',
+                        'tabs' => [
+                            [
+                                'label' => 'Tab 1',
+                                'icon' => 'icon-mail',
+                                'indicator' => true,
+                                'tab_slug' => 'attachments',
+                                'type' => 'icon',
+                                'iconClass' => 'text-teal-500',
+                                'information' => [
+                                    'label' => 'Info 1',
+                                    'type' => 'icon'
+                                ]
+                            ],
+                            [
+                                'label' => 'Tab 2',
+                                'icon' => 'icon-phone',
+                                'indicator' => false,
+                                'tab_slug' => 'images',
+                                'type' => 'icon',
+                                'iconClass' => 'text-orange-500',
+                                'information' => [
+                                    'label' => 'Info 2',
+                                    'type' => 'icon'
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
             ]
         );
     }
