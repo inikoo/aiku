@@ -16,6 +16,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
 use App\Models\Accounting\TopUp;
+use App\Models\Analytics\AikuSection;
 use App\Models\Analytics\UserRequest;
 use App\Models\Billables\Charge;
 use App\Models\Billables\Rental;
@@ -750,5 +751,10 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function userRequests(): HasMany
     {
         return $this->hasMany(UserRequest::class);
+    }
+
+    public function aikuSections(): HasMany
+    {
+        return $this->hasMany(AikuSection::class);
     }
 }
