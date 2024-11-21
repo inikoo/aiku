@@ -10,6 +10,7 @@ namespace App\Actions\Inventory\Warehouse;
 use App\Actions\Inventory\Warehouse\Search\WarehouseRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateWarehouses;
+use App\Actions\SysAdmin\Group\SeedAikuScopedSections;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWarehouses;
 use App\Actions\SysAdmin\Organisation\SeedJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
@@ -64,6 +65,7 @@ class StoreWarehouse extends OrgAction
                     Role::where('name', RolesEnum::getRoleName(RolesEnum::WAREHOUSE_ADMIN->value, $warehouse))->first()
                 ]);
             }
+            SeedAikuScopedSections::make()->seedWarehouseAikuScopedSection($warehouse);
 
             return $warehouse;
         });

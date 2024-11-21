@@ -20,6 +20,7 @@ return new class () extends Migration {
             $table->string('name');
             $table->string('model_type')->index();
             $table->unsignedInteger('model_id')->index();
+            $table->string('model_slug')->index();
 
             $table->timestampsTz();
         });

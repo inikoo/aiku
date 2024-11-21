@@ -92,9 +92,8 @@ class UniversalSearchResource extends JsonResource
         ];
 
 
-            return $icons[$model_type] ?? null;
-
-        }
+        return $icons[$model_type] ?? null;
 
     }
 
+}

@@ -8,10 +8,11 @@
 
 namespace App\Models\Analytics;
 
-use App\Models\Inventory\WarehouseStats;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Models\Traits\InOrganisation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -23,12 +24,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $organisation_id
  * @property int $aiku_section_id
  * @property string $slug
+ * @property string $code
  * @property string $name
  * @property string $model_type
  * @property int $model_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read WarehouseStats|null $stats
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read Model|\Eloquent $model
+ * @property-read \App\Models\SysAdmin\Organisation|null $organisation
+ * @property-read \App\Models\Analytics\AikuScopedSectionStats|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AikuScopedSection newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AikuScopedSection newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|AikuScopedSection query()
@@ -38,6 +43,10 @@ class AikuScopedSection extends Model
 {
     use HasSlug;
     use InOrganisation;
+
+    protected $cast = [
+        'code' => AikuSectionEnum::class
+    ];
 
     protected $guarded = [
     ];
@@ -50,7 +59,9 @@ class AikuScopedSection extends Model
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('code')
+            ->generateSlugsFrom(function () {
+                return $this->code.'-'.$this->model->code;
+            })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
@@ -59,6 +70,11 @@ class AikuScopedSection extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(AikuScopedSectionStats::class);
+    }
+
+    public function model(): MorphTo
+    {
+        return $this->morphTo();
     }
 
 

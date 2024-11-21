@@ -13,6 +13,7 @@ use App\Actions\Analytics\AikuScopedSection\UpdateAikuScopedSection;
 use App\Actions\GrpAction;
 use App\Actions\Traits\WithAttachMediaToModel;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
+use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Analytics\AikuSection;
 use App\Models\Catalogue\Shop;
@@ -33,12 +34,16 @@ class SeedAikuScopedSections extends GrpAction
     {
         $this->seedGroupAikuScopedSection($group);
 
-        foreach ($group->shops()->get() as $shop) {
-            $this->seedShopAikuScopedSection($shop);
-        }
         foreach ($group->organisations()->get() as $organisation) {
             $this->seedOrganisationAikuScopedSection($organisation);
         }
+        /** @var Shop $shop */
+        foreach ($group->shops()->get() as $shop) {
+            if ($shop->type != ShopTypeEnum::FULFILMENT) {
+                $this->seedShopAikuScopedSection($shop);
+            }
+        }
+
         foreach ($group->fulfilments()->get() as $fulfilment) {
             $this->seedFulfilmentAikuScopedSection($fulfilment);
         }
@@ -48,157 +53,65 @@ class SeedAikuScopedSections extends GrpAction
         foreach ($group->warehouses()->get() as $warehouse) {
             $this->seedWarehouseAikuScopedSection($warehouse);
         }
-        //... Warehouse, Fulfillment ... etc
+
     }
 
 
-    public function seedGroupAikuScopedSection(Group $group): void
+    public function seedAikuScopedSection(Group|Shop|Organisation|Fulfilment|Production|Warehouse $model): void
     {
         foreach (AikuSectionEnum::cases() as $case) {
-            if ($case->scopeType() == 'Group') {
+            if ($case->scopeType() == class_basename($model)) {
                 $aikuSection = AikuSection::where('code', $case->value)->first();
-                $code = $aikuSection->slug . '-grp-' . $group->slug;
-                $name= $case->labels()[$case->value].' '.$group->code;
+                $code        = $aikuSection->slug;
+                $name        = $case->labels()[$case->value].' '.$model->code;
 
-                $aikuScopedSection = AikuScopedSection::where('code', $code)->first();
+                $aikuScopedSection = AikuScopedSection::where('code', $code)
+                    ->where('model_type',class_basename($model))
+                    ->where('model_id',$model->id)
+                    ->first();
 
-                if($aikuScopedSection->exists()){
+                if ($aikuScopedSection) {
                     UpdateAikuScopedSection::make()->action($aikuScopedSection, [
                         'name' => $name
                     ]);
                 } else {
-                    StoreAikuScopedSection::make()->action($group, $aikuSection, [
+                    StoreAikuScopedSection::make()->action($model, $aikuSection, [
                         'code' => $code,
                         'name' => $name
                     ]);
                 }
             }
         }
+    }
+
+    public function seedGroupAikuScopedSection(Group $group): void
+    {
+        $this->seedAikuScopedSection($group);
     }
 
     public function seedShopAikuScopedSection(Shop $shop): void
     {
-        foreach (AikuSectionEnum::cases() as $case) {
-            if ($case->scopeType() == 'Shop') {
-
-                $aikuSection = AikuSection::where('code', $case->value)->first();
-                $code = $aikuSection->slug . '-shop-' . $shop->slug;
-                $name= $case->labels()[$case->value].' '.$shop->code;
-
-                $aikuScopedSection = AikuScopedSection::where('code', $code)->first();
-
-                if($aikuScopedSection->exists()){
-                    UpdateAikuScopedSection::make()->action($aikuScopedSection, [
-                        'name' => $name
-                    ]);
-                } else {
-                    StoreAikuScopedSection::make()->action($shop, $aikuSection, [
-                        'code' => $code,
-                        'name' => $name
-                    ]);
-                }
-            }
-        }
+        $this->seedAikuScopedSection($shop);
     }
 
     public function seedOrganisationAikuScopedSection(Organisation $organisation): void
     {
-        foreach (AikuSectionEnum::cases() as $case) {
-            if ($case->scopeType() == 'Organisation') {
-
-                $aikuSection = AikuSection::where('code', $case->value)->first();
-                $code = $aikuSection->slug . '-org-' . $organisation->slug;
-                $name= $case->labels()[$case->value].' '.$organisation->code;
-
-                $aikuScopedSection = AikuScopedSection::where('code', $code)->first();
-
-                if($aikuScopedSection->exists()){
-                    UpdateAikuScopedSection::make()->action($aikuScopedSection, [
-                        'name' => $name
-                    ]);
-                } else {
-                    StoreAikuScopedSection::make()->action($organisation, $aikuSection, [
-                        'code' => $code,
-                        'name' => $name
-                    ]);
-                }
-            }
-        }
+        $this->seedAikuScopedSection($organisation);
     }
 
     public function seedFulfilmentAikuScopedSection(Fulfilment $fulfilment): void
     {
-        foreach (AikuSectionEnum::cases() as $case) {
-            if ($case->scopeType() == 'Fulfilment') {
-
-                $aikuSection = AikuSection::where('code', $case->value)->first();
-                $code = $aikuSection->slug . '-ful-' . $fulfilment->slug;
-                $name= $case->labels()[$case->value].' '.$fulfilment->slug;
-
-                $aikuScopedSection = AikuScopedSection::where('code', $code)->first();
-
-                if($aikuScopedSection->exists()){
-                    UpdateAikuScopedSection::make()->action($aikuScopedSection, [
-                        'name' => $name
-                    ]);
-                } else {
-                    StoreAikuScopedSection::make()->action($fulfilment, $aikuSection, [
-                        'code' => $code,
-                        'name' => $name
-                    ]);
-                }
-            }
-        }
+        $this->seedAikuScopedSection($fulfilment);
     }
 
     public function seedProductionAikuScopedSection(Production $production): void
     {
-        foreach (AikuSectionEnum::cases() as $case) {
-            if ($case->scopeType() == 'Production') {
-
-                $aikuSection = AikuSection::where('code', $case->value)->first();
-                $code = $aikuSection->slug . '-prod-' . $production->slug;
-                $name= $case->labels()[$case->value].' '.$production->code;
-
-                $aikuScopedSection = AikuScopedSection::where('code', $code)->first();
-
-                if($aikuScopedSection->exists()){
-                    UpdateAikuScopedSection::make()->action($aikuScopedSection, [
-                        'name' => $name
-                    ]);
-                } else {
-                    StoreAikuScopedSection::make()->action($production, $aikuSection, [
-                        'code' => $code,
-                        'name' => $name
-                    ]);
-                }
-            }
-        }
+        $this->seedAikuScopedSection($production);
     }
 
     public function seedWarehouseAikuScopedSection(Warehouse $warehouse): void
     {
-        foreach (AikuSectionEnum::cases() as $case) {
-            if ($case->scopeType() == 'Warehouse') {
-
-                $aikuSection = AikuSection::where('code', $case->value)->first();
-                $code = $aikuSection->slug . '-ware-' . $warehouse->slug;
-                $name= $case->labels()[$case->value].' '.$warehouse->code;
-
-                $aikuScopedSection = AikuScopedSection::where('code', $code)->first();
-
-                if($aikuScopedSection->exists()){
-                    UpdateAikuScopedSection::make()->action($aikuScopedSection, [
-                        'name' => $name
-                    ]);
-                } else {
-                    StoreAikuScopedSection::make()->action($warehouse, $aikuSection, [
-                        'code' => $code,
-                        'name' => $name
-                    ]);
-                }
-            }
-        }
+        $this->seedAikuScopedSection($warehouse);
     }
 
 

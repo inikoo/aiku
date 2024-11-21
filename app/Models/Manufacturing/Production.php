@@ -8,7 +8,6 @@
 namespace App\Models\Manufacturing;
 
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
-use App\Models\Analytics\AikuScopedSection;
 use App\Models\Analytics\AikuSection;
 use App\Models\Procurement\StockDelivery;
 use App\Models\SysAdmin\Role;
@@ -43,6 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property array $sources
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, AikuSection> $aikuScopedSections
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Manufacturing\Artefact> $artefacts
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group

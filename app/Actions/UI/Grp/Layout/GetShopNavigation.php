@@ -427,26 +427,26 @@ class GetShopNavigation
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
-                        /*
-                        [
-                            "label"   => __("delivery notes"),
-                            "tooltip" => __("Delivery notes"),
-                            "icon"    => ["fal", "fa-truck"],
-                            "route"   => [
-                                "name"       => "grp.oms.delivery-notes.index",
-                                "parameters" => [$shop->organisation->slug, $shop->slug],
-                            ],
-                        ],
                         [
                             "label"   => __("invoices"),
                             "tooltip" => __("Invoices"),
                             "icon"    => ["fal", "fa-file-invoice-dollar"],
+                            'root'    => 'grp.org.shops.show.ordering.invoices.',
                             "route"   => [
-                                "name"       => "grp.oms.invoices.index",
+                                "name"       => "grp.org.shops.show.ordering.invoices.index",
                                 "parameters" => [$shop->organisation->slug, $shop->slug],
                             ],
                         ],
-                        */
+                        [
+                            "label"   => __("delivery notes"),
+                            "tooltip" => __("Delivery notes"),
+                            "icon"    => ["fal", "fa-truck"],
+                            'root'    => 'grp.org.shops.show.ordering.delivery-notes.',
+                            "route"   => [
+                                "name"       => "grp.org.shops.show.ordering.delivery-notes.index",
+                                "parameters" => [$shop->organisation->slug, $shop->slug],
+                            ],
+                        ],
                     ],
                 ],
             ];
