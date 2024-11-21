@@ -200,17 +200,17 @@ class ShowCatalogue extends OrgAction
                     'family'    => [
                         'label' => __('Top Family'),
                         'icon'  => 'fal fa-folder',
-                        'value' => $topFamily ? FamilyResource::make($topFamily)->toArray(request()) : null,
+                        'value' => $topFamily ? FamilyResource::collection($topFamily) : null,
                     ],
                     'department'   => [
                         'label' => __('Top Department'),
                         'icon'  => 'fal fa-folder-tree',
-                        'value' => $topDepartment ? DepartmentResource::make($topDepartment)->toArray(request()) : null,
+                        'value' => $topDepartment ? DepartmentResource::collection($topDepartment) : null,
                     ],
                     'product'   => [
                         'label' => __('Top Product'),
                         'icon'  => 'fal fa-folder-tree',
-                        'value' => $topProduct ? ProductResource::make($topProduct)->toArray(request()) : null,
+                        'value' => $topProduct ? ProductResource::collection($topProduct) : null,
                     ],
                 ],
                 'stats' => [
