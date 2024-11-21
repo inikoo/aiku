@@ -93,7 +93,7 @@ class StoreShop extends OrgAction
             $shop->mailshotsIntervals()->create();
             $shop->discountsStats()->create();
 
-            SeedAikuScopedSections::make()->seedGroupAikuScopedSection($shop);
+            SeedAikuScopedSections::make()->seedShopAikuScopedSection($shop);
 
 
             if ($shop->type === ShopTypeEnum::DROPSHIPPING) {
