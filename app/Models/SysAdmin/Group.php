@@ -118,6 +118,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
  * @property-read LaravelCollection<int, Agent> $agents
+ * @property-read LaravelCollection<int, AikuSection> $aikuSections
  * @property-read LaravelCollection<int, Artefact> $artefacts
  * @property-read LaravelCollection<int, Asset> $assets
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
@@ -139,6 +140,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, EmailTemplate> $emailTemplates
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read LaravelCollection<int, ExternalLink> $externalLinks
+ * @property-read LaravelCollection<int, Fulfilment> $fulfilment
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
@@ -173,7 +175,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, PostRoom> $postRooms
  * @property-read LaravelCollection<int, ProductCategory> $productCategories
  * @property-read LaravelCollection<int, Production> $productions
- * @property-read LaravelCollection<int, Fulfilment> $fulfilments
  * @property-read LaravelCollection<int, Product> $products
  * @property-read LaravelCollection<int, PurchaseOrder> $purchaseOrders
  * @property-read LaravelCollection<int, Purge> $purges
@@ -203,7 +204,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, TopUp> $topUps
  * @property-read LaravelCollection<int, TradeUnit> $tradeUnits
  * @property-read LaravelCollection<int, Upload> $uploads
- * @property-read LaravelCollection<int, \App\Models\Analytics\UserRequest> $userRequests
+ * @property-read LaravelCollection<int, UserRequest> $userRequests
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\User> $users
  * @property-read LaravelCollection<int, WarehouseArea> $warehouseAreas
  * @property-read LaravelCollection<int, Warehouse> $warehouses

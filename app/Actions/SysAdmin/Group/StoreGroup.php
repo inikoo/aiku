@@ -45,6 +45,8 @@ class StoreGroup
         SeedSalesChannels::run($group);
         SeedAikuSections::run($group);
 
+        SeedAikuScopedSections::make()->seedGroupAikuScopedSection($group);
+
         $group->stats()->create();
         $group->supplyChainStats()->create();
         $group->sysadminStats()->create();
