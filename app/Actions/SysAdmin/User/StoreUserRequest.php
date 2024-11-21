@@ -8,29 +8,11 @@
 
 namespace App\Actions\SysAdmin\User;
 
-use AlibabaCloud\SDK\Dm\V20151123\Models\GetIpfilterListResponseBody\data;
 use App\Actions\GrpAction;
-use App\Actions\Helpers\UniversalSearch\Trait\WithSectionsRoute;
-use App\Actions\Inventory\Location\Search\LocationRecordSearch;
-use App\Actions\Inventory\Warehouse\Hydrators\WarehouseHydrateLocations;
-use App\Actions\Inventory\WarehouseArea\Hydrators\WarehouseAreaHydrateLocations;
-use App\Actions\OrgAction;
-use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateLocations;
-use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateLocations;
 use App\Actions\Traits\Rules\WithNoStrictRules;
-use App\Models\Inventory\Location;
-use App\Models\Inventory\Warehouse;
-use App\Models\Inventory\WarehouseArea;
-use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\User;
 use App\Models\SysAdmin\UserRequest;
-use App\Rules\IUnique;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Redirect;
 use Lorisleiva\Actions\ActionRequest;
-use Stevebauman\Location\Facades\Location as FacadesLocation;
 
 class StoreUserRequest extends GrpAction
 {

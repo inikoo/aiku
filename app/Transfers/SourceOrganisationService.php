@@ -186,4 +186,8 @@ interface SourceOrganisationService
 
     public function fetchSalesChannel($id);
 
+    public function fetchTransactionHasOfferComponent($id, Order $order);
+
+    public function fetchNoProductTransactionHasOfferComponent($id, Order $order);
+
 }

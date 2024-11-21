@@ -35,6 +35,8 @@ return new class () extends Migration {
             $table->jsonb('data');
             $table->jsonb('settings');
             $table->boolean('is_discretionary')->default(false)->index();
+            $table->boolean('is_locked')->default(false)->index();
+
             $table->timestampsTz();
             $table->datetimeTz('start_at')->nullable();
             $table->datetimeTz('end_at')->nullable();
@@ -42,6 +44,7 @@ return new class () extends Migration {
             $table->datetimeTz('last_fetched_at')->nullable();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
+            $table->jsonb('source_data');
             $table->index(['trigger_type', 'trigger_id']);
         });
     }

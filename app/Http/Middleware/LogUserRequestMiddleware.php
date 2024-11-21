@@ -8,8 +8,6 @@
 namespace App\Http\Middleware;
 
 use App\Actions\SysAdmin\User\ProcessUserRequest;
-use App\Actions\SysAdmin\User\StoreUserRequest;
-use App\Enums\Elasticsearch\ElasticsearchUserRequestTypeEnum;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -34,15 +32,17 @@ class LogUserRequestMiddleware
         $user = $request->user();
 
         if (!app()->runningUnitTests() && $user && env('USER_REQUEST_LOGGING')) {
-            ProcessUserRequest::dispatch($user, 
-            now(), 
-            [
+            ProcessUserRequest::dispatch(
+                $user,
+                now(),
+                [
                 'name'      => $request->route()->getName(),
                 'arguments' => $request->route()->originalParameters(),
                 'url'       => $request->path()
             ],
-            $request->ip(),
-            $request->header('User-Agent'));
+                $request->ip(),
+                $request->header('User-Agent')
+            );
 
             $user->stats()->update(['last_active_at' => now()]);
         }
