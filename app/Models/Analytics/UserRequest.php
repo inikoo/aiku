@@ -16,21 +16,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  *
  * @property int $id
- * @property int $group_id
+ * @property int $aiku_scoped_section_id
  * @property int $user_id
  * @property string $date
  * @property string $route_name
  * @property string $route_params
- * @property string $section
  * @property string $os
  * @property string $device
  * @property string $browser
  * @property string $ip_address
  * @property string $location
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\SysAdmin\Group $group
- * @property-read \App\Models\SysAdmin\User $user
+ * @property-read User $aikuScopedSection
+ * @property-read \App\Models\SysAdmin\Group|null $group
+ * @property-read User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserRequest newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserRequest newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserRequest query()
@@ -44,6 +42,11 @@ class UserRequest extends Model
     ];
 
     public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function aikuScopedSection(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
