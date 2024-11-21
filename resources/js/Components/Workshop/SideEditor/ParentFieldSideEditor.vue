@@ -40,18 +40,20 @@ const emits = defineEmits<{
             </div>
         </AccordionHeader>
         <AccordionContent class="px-0">
-            <div class="bg-white mt-[0px]">
+            <div class="">
                 <template v-if="blueprint.replaceForm">
-                        <ChildFieldSideEditor 
-                            :blueprint="blueprint.replaceForm"
-                            :modelValue="getFormValue(modelValue, blueprint.key)"
-                            :key="blueprint.key"
-                            :uploadImageRoute="uploadImageRoute" 
-                            @update:modelValue="newValue => emits('update:modelValue',setFormValue(modelValue, blueprint.key, newValue))"
-                        />
+                    <ChildFieldSideEditor 
+                        :blueprint="blueprint.replaceForm"
+                        :modelValue="getFormValue(modelValue, blueprint.key)"
+                        :key="blueprint.key"
+                        :uploadImageRoute="uploadImageRoute" 
+                        @update:modelValue="newValue => emits('update:modelValue',setFormValue(modelValue, blueprint.key, newValue))"
+                    />
                 </template>
+
                 <template v-else>
                     <div class="my-2 text-xs font-semibold">{{ get(blueprint, 'label', '') }}</div>
+                    
                     <component 
                         :is="getComponent(blueprint.type)" 
                         :key="blueprint.key"
@@ -65,7 +67,7 @@ const emits = defineEmits<{
         </AccordionContent>
     </AccordionPanel>
 
-    <div v-else class="bg-white mt-[0px]">
+    <div v-else class="bg-white mt-[0px] mb-2 border-b border-gray-300 pb-3">
         <template v-if="blueprint.replaceForm">
             <ChildFieldSideEditor 
                 :blueprint="blueprint.replaceForm"

@@ -177,18 +177,6 @@ export default {
 					},
 				},
 				{
-					key: ["link"],
-					type: "link",
-					props_data: {
-						defaultValue: {
-							"type" : "external",
-							"url": "",
-							"id": null,
-							"workshop_route" : ""
-						},
-					},
-				},
-				{
 					key: ['container', 'properties'],
 					type: "button",
 					props_data: {
@@ -201,11 +189,11 @@ export default {
 									"value": 5
 								},
 								"left": {
-									"value": 20
+									"value": 10
 								},
 								"unit": "px",
 								"right": {
-									"value": 20
+									"value": 10
 								},
 								"bottom": {
 									"value": 5

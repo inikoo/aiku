@@ -68,12 +68,14 @@ const tabs = [
         componentName: "topbar",
         key: 'topBar',
         icon: faSignIn,
+        scope: 'topbar'
     },
     {
         label: "Website header",
         componentName: "header",
         key: 'header',
         icon: faHeading,
+        scope: 'header'
     }
 ]
 const keySidebar = ref(0)
@@ -258,7 +260,7 @@ onMounted(() => {
                     </div>
                 </div>
                 
-                <div class="w-full overflow-y-auto">
+                <div class="w-full overflow-y-auto" :class="!usedTemplates?.[selectedTab.key]?.data?.fieldValue ? 'bg-gray-300' : ''">
                     <div class="px-3 py-0.5 sticky top-0 bg-gray-50 z-20 text-lg font-semibold flex items-center justify-between gap-3 border-b border-gray-300">
                         <div class="flex items-center gap-3">
                             <FontAwesomeIcon :icon="selectedTab.icon" aria-hidden="true" />
@@ -275,7 +277,7 @@ onMounted(() => {
                     <!-- <pre>{{ getBlueprint(usedTemplates[selectedTab.key].code) }}</pre> -->
                     <div class="">
                         <SideEditor
-                            v-if="usedTemplates?.[selectedTab.key]?.data.fieldValue"
+                            v-if="usedTemplates?.[selectedTab.key]?.data?.fieldValue"
                             :key="keySidebar"
                             v-model="usedTemplates[selectedTab.key].data.fieldValue"
                             :blueprint="getBlueprint(usedTemplates[selectedTab.key].code)"
@@ -286,9 +288,8 @@ onMounted(() => {
             </div>
         </div>
 
-
         <div :class="usedTemplates ? 'col-span-8' : 'col-span-10'" class="w-full">
-            <div v-if="usedTemplates" class="bg-white h-full">
+            <div v-if="usedTemplates?.topBar?.code || usedTemplates?.header?.code" class="bg-white h-full">
                 <!-- Section: Screenview -->
                 <div class="flex justify-between max-w-7xl mx-auto bg-slate-200 border border-b-gray-300 pr-6">
                     <div class="flex">
@@ -328,12 +329,12 @@ onMounted(() => {
 
             <section v-else>
                 <EmptyState
-                    :data="{ description: 'You need pick a template from list', title: 'Pick Header Templates' }">
+                    :data="{ description: 'You need pick a template from list', title: 'Pick Templates' }">
                     <template #button-empty-state>
                         <div class="mt-4 block">
                             <Button
                                 type="secondary"
-                                label="Templates"
+                                :label="`Templates ${selectedTab.scope}`"
                                 icon="fas fa-th-large"
                                 @click="isModalOpen = true"
                             />
