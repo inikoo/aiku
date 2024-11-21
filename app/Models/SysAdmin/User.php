@@ -25,6 +25,7 @@ use App\Models\Traits\IsUserable;
 use App\Models\Traits\WithPushNotifications;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -211,6 +212,11 @@ class User extends Authenticatable implements HasMedia, Auditable
     public function stats(): HasOne
     {
         return $this->hasOne(UserStats::class);
+    }
+
+    public function userRequests(): HasMany
+    {
+        return $this->hasMany(UserRequest::class);
     }
 
     public function authorisedOrganisations(): MorphToMany
