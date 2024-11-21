@@ -31,6 +31,14 @@ class OrgSuppliersResource extends JsonResource
             'org_supplier_slug'            => $this->org_supplier_slug,
             'org_agent_slug'               => $this->agent_slug,
             'code'                         => $this->code,
+            'status'                         => $this->status,
+            'status_icon'                         => $this->status ? [
+                'icon' => 'fal fa-check',
+                'class' => 'text-green-500'
+            ] : [
+                'icon' => 'fal fa-times',
+                'class' => 'text-red-500'
+            ],
             'name'                         => $this->name,
             'agent_name'                   => $this->agent_name,
             'number_org_supplier_products' => $this->number_org_supplier_products,
