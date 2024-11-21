@@ -32,7 +32,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div v-if="model" class="border-t border-gray-300 bg-gray-100 pb-3">
+    <div v-if="model" class="">
         <div class="w-full text-center py-1 font-semibold select-none">{{ trans('Background') }}</div>
         <BackgroundProperty v-model="model" :uploadImageRoute="uploadImageRoute" />
     </div>

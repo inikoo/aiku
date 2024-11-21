@@ -9,53 +9,65 @@ export default {
 			key: ["container", "properties"],
 			type: "properties",
 		},
+		// {
+		// 	name: "Title",
+        //     key : ["main_title"],
+		// 	icon: {
+		// 		icon: "fal fa-text",
+		// 		tooltip: "Text",
+		// 	},
+		// 	replaceForm: [
+		// 		{
+		// 			key: ["visible"],
+		// 			type: "VisibleLoggedIn",
+		// 			props_data: {
+		// 				defaultValue: "all",
+		// 			},
+		// 		},
+		// 		{
+		// 			key: ["text"],
+		// 			type: "editorhtml",
+		// 			props_data: {
+		// 				defaultValue: "<p>Celebrating your membership anniversary!</p>",
+		// 			},
+		// 		},
+		// 	],
+		// },
+		// {
+		// 	name: "Greeting",
+        //     key : ["greeting"],
+		// 	icon: {
+		// 		icon: "fal fa-text",
+		// 		tooltip: "Text",
+		// 	},
+		// 	replaceForm: [
+		// 		{
+		// 			key: ["visible"],
+		// 			type: "VisibleLoggedIn",
+		// 			props_data: {
+		// 				defaultValue: 'all',
+		// 			},
+		// 		},
+		// 		{
+		// 			key: ["text"],
+		// 			type: "editorhtml",
+		// 			props_data: {
+		// 				defaultValue: "<p>Welcome, <strong>{{ name }}</strong>!",
+		// 			},
+		// 		},
+		// 	],
+		// },
 		{
-			name: "Title",
-            key : ["main_title"],
+			name: "Logo",
+            key:['logo'],
+			type: "upload_image",
 			icon: {
-				icon: "fal fa-text",
-				tooltip: "Text",
+				icon: "fal fa-image",
+				tooltip: "Logo",
 			},
-			replaceForm: [
-				{
-					key: ["visible"],
-					type: "VisibleLoggedIn",
-					props_data: {
-						defaultValue: "all",
-					},
-				},
-				{
-					key: ["text"],
-					type: "editorhtml",
-					props_data: {
-						defaultValue: "<p>Celebrating your membership anniversary!</p>",
-					},
-				},
-			],
-		},
-		{
-			name: "Greeting",
-            key : ["greeting"],
-			icon: {
-				icon: "fal fa-text",
-				tooltip: "Text",
-			},
-			replaceForm: [
-				{
-					key: ["visible"],
-					type: "VisibleLoggedIn",
-					props_data: {
-						defaultValue: 'all',
-					},
-				},
-				{
-					key: ["text"],
-					type: "editorhtml",
-					props_data: {
-						defaultValue: "<p>Welcome, <strong>{{ name }}</strong>!",
-					},
-				},
-			],
+			props_data: {
+				defaultValue: null,
+			}
 		},
 		{
 			name: "Login",
@@ -154,11 +166,11 @@ export default {
 											"value": 5
 										},
 										left: {
-											"value": 20
+											"value": 10
 										},
 										"unit": "px",
 										right: {
-											"value": 20
+											"value": 10
 										},
 										bottom: {
 											"value": 5

@@ -32,17 +32,43 @@ class IndexOrgSuppliers extends OrgAction
 
     protected function getSupplierElementGroups(Organisation|OrgAgent $parent): array
     {
+        if ($parent instanceof OrgAgent) {
+            $stats = $parent->stats;
+        } else {
+            $stats = $parent->procurementStats;
+        }
+
         return
             [
                 'status' => [
                     'label'    => __('status'),
                     'elements' => [
-                        'active'   => [__('active'), $parent->stats->number_suppliers],
-                        'archived' => [__('archived'), $parent->stats->number_archived_suppliers]
+                        'active'   => [
+                            __('active'),
+                            $stats->number_active_org_suppliers,
+                            null,
+                            [
+                                'icon' => 'fal fa-check',
+                                'class' => 'text-green-500'
+                            ]
+                        ],
+                        'archived' => [
+                            __('archived'),
+                            $stats->number_archived_org_suppliers,
+                            null,
+                            [
+                                'icon' => 'fal fa-check',
+                            'class' => 'text-red-500'
+                            ]
+                        ]
                     ],
-
                     'engine' => function ($query, $elements) {
-                        $query->whereIn('state', $elements);
+
+                        if (count($elements) == 1) {
+                            $query->where('org_suppliers.status', reset($elements) == 'active');
+                        }
+
+
                     }
 
                 ],
@@ -89,7 +115,7 @@ class IndexOrgSuppliers extends OrgAction
 
         return $queryBuilder
             ->defaultSort('suppliers.code')
-            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location', 'number_org_supplier_products', 'number_purchase_orders', 'org_suppliers.slug as org_supplier_slug'])
+            ->select(['suppliers.code', 'suppliers.slug', 'suppliers.name', 'suppliers.location', 'number_org_supplier_products', 'number_purchase_orders', 'org_suppliers.status as status', 'org_suppliers.slug as org_supplier_slug'])
             ->leftJoin('suppliers', 'org_suppliers.supplier_id', 'suppliers.id')
 
             ->leftJoin('org_supplier_stats', 'org_supplier_stats.org_supplier_id', 'org_suppliers.id')
@@ -132,6 +158,7 @@ class IndexOrgSuppliers extends OrgAction
 
                     ]
                 )
+                ->column(key: 'status', label: '', type: 'icon', canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'location', label: __('location'), canBeHidden: false)

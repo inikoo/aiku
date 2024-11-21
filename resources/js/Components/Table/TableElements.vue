@@ -8,6 +8,8 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { onMounted } from 'vue'
 import { useLocaleStore } from '@/Stores/locale'
 import Button from '../Elements/Buttons/Button.vue'
+import Icon from '@/Components/Icon.vue'
+import { Icon as IconTS } from '@/types/Utils/Icon'
 library.add(faChevronDown, faCheckSquare, faSquare)
 
 
@@ -15,7 +17,7 @@ const props = defineProps<{
     elements: {
         [key: string]: {  // 'status'
             elements: {
-                [key: string]: number[] | string[]  // active, lose, inactive, no_rental_agreement: ['No Rental Agreement', 126, 'NRA']
+                [key: string]: number[] | string[] | IconTS // active, lose, inactive, no_rental_agreement: ['No Rental Agreement', 126, 'NRA']
             }
             key: string
             label: string
@@ -167,7 +169,8 @@ onMounted(() => {
                     ]">
                         <span class="hidden lg:inline font-normal">{{ value[0] }}</span>
                         <span class="lg:hidden font-normal">{{ value[2] || value[0] }}</span>
-                        <span :class="[value[1] ? 'font-semibold' : 'text-gray-400']" class="">({{ useLocaleStore().number(value[1]) }})</span>
+                        <span :class="[value[1] ? 'font-semibold' : 'text-gray-400']" class="">({{ useLocaleStore().number(value[1] || 0) }})</span>
+                        <Icon v-if="value?.[3]?.icon" :data="value[3]" />
                     </div>
                 </div>
             </div>

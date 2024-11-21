@@ -60,25 +60,27 @@ const onClickLogin = () => {
 <template>
     <div
         id="top_bar"
-        class="py-1 px-4 flex justify-between gap-x-4"
+        class="py-1 px-4 flex flex-col md:flex-row md:justify-between gap-x-4"
         :style="getStyles(model?.container.properties)"
     >
-        <div class="flex-shrink flex items-center justify-between w-full">
+        <div class="flex-shrink flex flex-col md:flex-row items-center justify-between w-full">
             <!-- Section: greeting -->
-            <div v-if="checkVisible(model?.greeting.visible || null, isLoggedIn)"
+            <div
+                v-if="checkVisible(model?.greeting.visible || null, isLoggedIn) && textReplaceVariables(model?.greeting?.text, layout.iris_variables)"
                 class="flex items-center"
                 v-html="textReplaceVariables(model?.greeting?.text, layout.iris_variables)"
             />
 
             <!-- Section: Main title -->
             <div
+                v-if="checkVisible(model?.main_title?.visible || null, isLoggedIn) && textReplaceVariables(model?.main_title?.text, layout.iris_variables)"
                 class="text-center flex items-center"
                 v-html="textReplaceVariables(model?.main_title?.text, layout.iris_variables)"
             />
         </div>
 
 
-        <div class="action_buttons flex items-center gap-x-3 flex-nowrap">
+        <div class="action_buttons flex justify-between md:justify-start items-center gap-x-1 flex-wrap md:flex-nowrap">
                 
             <!-- Section: Profile -->
             <a v-if="checkVisible(model?.profile?.visible || null, isLoggedIn)"
@@ -87,7 +89,6 @@ const onClickLogin = () => {
                 class="space-x-1.5 whitespace-nowrap"
                 :style="getStyles(model?.profile.container?.properties)"
             >
-                <!-- <i class="far fa-user fa-flip-horizontal  " title="Profile" aria-hidden="true"></i> -->
                 <FontAwesomeIcon icon='fal fa-user' class='' v-tooltip="trans('Profile')" fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.profile?.text, layout.iris_variables)" />
             </a>
@@ -97,8 +98,8 @@ const onClickLogin = () => {
                 id="favorites_button"
                 :href="model?.favourite?.link"
                 class="space-x-1.5 whitespace-nowrap"
+                :style="getStyles(model?.favourite.container?.properties)"
             >
-                <!-- <i class=" far fa-heart" title="My favourites" aria-hidden="true"></i> -->
                 <FontAwesomeIcon icon='fal fa-heart' class='' fixed-width aria-hidden='true' />
                 <span v-html="textReplaceVariables(model?.favourite?.text, layout.iris_variables)" />
             </a>
