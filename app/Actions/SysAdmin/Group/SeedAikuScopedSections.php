@@ -62,7 +62,7 @@ class SeedAikuScopedSections extends GrpAction
 
                 $aikuScopedSection = AikuScopedSection::where('code', $code)->first();
 
-                if($aikuScopedSection->exists()){
+                if($aikuScopedSection){
                     UpdateAikuScopedSection::make()->action($aikuScopedSection, [
                         'name' => $name
                     ]);
@@ -87,7 +87,7 @@ class SeedAikuScopedSections extends GrpAction
 
                 $aikuScopedSection = AikuScopedSection::where('code', $code)->first();
 
-                if($aikuScopedSection->exists()){
+                if($aikuScopedSection){
                     UpdateAikuScopedSection::make()->action($aikuScopedSection, [
                         'name' => $name
                     ]);
@@ -112,7 +112,7 @@ class SeedAikuScopedSections extends GrpAction
 
                 $aikuScopedSection = AikuScopedSection::where('code', $code)->first();
 
-                if($aikuScopedSection->exists()){
+                if($aikuScopedSection){
                     UpdateAikuScopedSection::make()->action($aikuScopedSection, [
                         'name' => $name
                     ]);
@@ -137,7 +137,7 @@ class SeedAikuScopedSections extends GrpAction
 
                 $aikuScopedSection = AikuScopedSection::where('code', $code)->first();
 
-                if($aikuScopedSection->exists()){
+                if($aikuScopedSection){
                     UpdateAikuScopedSection::make()->action($aikuScopedSection, [
                         'name' => $name
                     ]);
@@ -162,7 +162,7 @@ class SeedAikuScopedSections extends GrpAction
 
                 $aikuScopedSection = AikuScopedSection::where('code', $code)->first();
 
-                if($aikuScopedSection->exists()){
+                if($aikuScopedSection){
                     UpdateAikuScopedSection::make()->action($aikuScopedSection, [
                         'name' => $name
                     ]);
@@ -187,7 +187,7 @@ class SeedAikuScopedSections extends GrpAction
 
                 $aikuScopedSection = AikuScopedSection::where('code', $code)->first();
 
-                if($aikuScopedSection->exists()){
+                if($aikuScopedSection){
                     UpdateAikuScopedSection::make()->action($aikuScopedSection, [
                         'name' => $name
                     ]);
