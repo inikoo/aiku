@@ -42,6 +42,7 @@ class CustomerRecordSearch
 
                     'icon'        => [
                         'icon' => 'fal fa-user',
+                        'model' => 'customer'
                     ],
                     'code'        => [
                         'label'   => $customer->reference,
