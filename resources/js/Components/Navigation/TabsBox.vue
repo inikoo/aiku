@@ -97,10 +97,10 @@ const renderLabelBasedOnType = (data?: {label: string | number, type?: string}, 
         </div>
 
         <div class="px-6 flex gap-x-6 my-4 border-b border-gray-300">
-            <div v-for="fake in tabs_box" class="relative border border-gray-300 w-full flex flex-col  py-2 transition-all z-10"
+            <div v-for="fake in tabs_box" class="px-3 relative border border-gray-300 w-full flex flex-col  py-2 transition-all z-10"
                 :class="fake.tabs.some(tab => tab.tab_slug === currentTab) ? 'mt-3 rounded-t-xl border-b-0 -mb-0.5 bg-white' : 'bg-gray-500/10 shadow-xl mb-3 rounded-md '"
             >
-                <div class="text-center text-gray-500 mb-2">{{ fake.label }}</div>
+                <div class="text-center text-gray-500 mb-2 text-xs">{{ fake.label }}</div>
                 <div class="flex gap-x-2 ">
                     <div v-for="tab in fake.tabs" class="w-full flex flex-col items-center"
                         :class="tab.tab_slug === currentTab ? 'text-indigo-600' : ''"
