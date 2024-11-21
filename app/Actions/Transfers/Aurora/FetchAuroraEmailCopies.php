@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraEmailCopies extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:email_copy {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
+    public string $commandSignature = 'fetch:email_copies {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?EmailCopy

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraNoProductTransaction extends FetchAurora
 {
-    protected function parseNoProductTransaction(Order $order): void
+    public function parseNoProductTransaction(Order $order): void
     {
         $shippingZone = null;
         $charge       = null;

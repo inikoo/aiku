@@ -34,14 +34,15 @@ return new class () extends Migration {
             $table->string('trigger_id')->nullable();
             $table->string('target_type')->nullable()->index();
             $table->boolean('is_discretionary')->default(false)->index();
+            $table->boolean('is_locked')->default(false)->index();
             $table->timestampsTz();
             $table->datetimeTz('start_at')->nullable();
             $table->datetimeTz('end_at')->nullable();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->string('source_id')->nullable()->unique();
-
             $table->softDeletesTz();
+            $table->string('source_id')->nullable()->unique();
+            $table->jsonb('source_data');
 
             $table->index(['trigger_type','trigger_id']);
             $table->index(['trigger_type','trigger_id','trigger_scope']);

@@ -50,6 +50,7 @@ use App\Transfers\Aurora\FetchAuroraLocation;
 use App\Transfers\Aurora\FetchAuroraMailshot;
 use App\Transfers\Aurora\FetchAuroraNoProductInvoiceTransaction;
 use App\Transfers\Aurora\FetchAuroraNoProductTransaction;
+use App\Transfers\Aurora\FetchAuroraNoProductTransactionHasOfferComponent;
 use App\Transfers\Aurora\FetchAuroraOffer;
 use App\Transfers\Aurora\FetchAuroraOfferCampaign;
 use App\Transfers\Aurora\FetchAuroraOfferComponent;
@@ -89,6 +90,7 @@ use App\Transfers\Aurora\FetchAuroraTopUp;
 use App\Transfers\Aurora\FetchAuroraTradeUnit;
 use App\Transfers\Aurora\FetchAuroraTradeUnitImages;
 use App\Transfers\Aurora\FetchAuroraTransaction;
+use App\Transfers\Aurora\FetchAuroraTransactionHasOfferComponent;
 use App\Transfers\Aurora\FetchAuroraUpload;
 use App\Transfers\Aurora\FetchAuroraUser;
 use App\Transfers\Aurora\FetchAuroraWarehouse;
@@ -553,6 +555,16 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchSalesChannel($id): ?array
     {
         return (new FetchAuroraSalesChannel($this))->fetch($id);
+    }
+
+    public function fetchTransactionHasOfferComponent($id, Order $order): ?array
+    {
+        return (new FetchAuroraTransactionHasOfferComponent($this))->fetchTransactionHasOfferComponent($id, $order);
+    }
+
+    public function fetchNoProductTransactionHasOfferComponent($id, Order $order): ?array
+    {
+        return (new FetchAuroraNoProductTransactionHasOfferComponent($this))->fetchNoProductTransactionHasOfferComponent($id, $order);
     }
 
 }

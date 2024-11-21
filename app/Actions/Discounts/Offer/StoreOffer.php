@@ -83,6 +83,8 @@ class StoreOffer extends OrgAction
             $rules['finish_at'] = ['sometimes', 'nullable', 'date'];
             $rules['state']     = ['sometimes', Rule::enum(OfferStateEnum::class)];
             $rules['is_discretionary'] = ['sometimes', 'boolean'];
+            $rules['is_locked'] = ['sometimes', 'boolean'];
+            $rules['source_data'] = ['sometimes', 'array'];
 
             $rules = $this->noStrictStoreRules($rules);
         }

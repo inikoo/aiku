@@ -66,7 +66,10 @@ class StoreOfferComponent extends OrgAction
             $rules['state']            = ['required', Rule::enum(OfferComponentStateEnum::class)];
             $rules['start_at']         = ['sometimes', 'nullable', 'date'];
             $rules['is_discretionary'] = ['sometimes', 'boolean'];
-            $rules                     = $this->noStrictStoreRules($rules);
+            $rules['is_locked']        = ['sometimes', 'boolean'];
+            $rules['source_data']      = ['sometimes', 'array'];
+
+            $rules = $this->noStrictStoreRules($rules);
         }
 
         return $rules;

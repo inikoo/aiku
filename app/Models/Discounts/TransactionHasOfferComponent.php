@@ -15,7 +15,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  *
  * @property int $id
+ * @property int $order_id
  * @property int $transaction_id
+ * @property string|null $model_type
+ * @property int|null $model_id
  * @property int $offer_campaign_id
  * @property int $offer_id
  * @property int $offer_component_id
@@ -23,13 +26,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $discounted_percentage
  * @property string|null $info
  * @property bool $is_pinned
+ * @property string|null $precursor
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
- * @property string|null $alt_source_id
+ * @property string|null $source_alt_id
  * @property string|null $deleted_at
  * @property-read \App\Models\Discounts\Offer $offer
  * @property-read \App\Models\Discounts\OfferCampaign $offerCampaign
