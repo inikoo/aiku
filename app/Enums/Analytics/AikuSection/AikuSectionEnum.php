@@ -43,6 +43,12 @@ enum AikuSectionEnum: string
     case FULFILMENT_CRM = 'fulfilment-crm';
     case FULFILMENT_SETTINGS = 'fulfilment-settings';
 
+    case AGENT_DASHBOARD = 'agent-dashboard';
+    case AGENT_PROCUREMENT = 'agent-procurement';
+    case AGENT_ACCOUNTING = 'agent-accounting';
+    case AGENT_REPORT = 'agent-report';
+    case AGENT_SETTING = 'agent-setting';
+
     case PRODUCTION_CRAFT = 'production-craft';
     case PRODUCTION_OPERATION = 'production-operation';
 
@@ -86,6 +92,12 @@ enum AikuSectionEnum: string
             'fulfilment-website'   => __('Fulfilment Website'),
             'fulfilment-crm'       => __('Fulfilment CRM'),
             'fulfilment-settings'  => __('Fulfilment Settings'),
+
+            'agent-dashboard' => __('Agent Dashboard'),
+            'agent-procurement' => __('Agent Procurement'),
+            'agent-accounting' => __('Agent Accounting'),
+            'agent-report' => __('Agent Report'),
+            'agent-setting' => __('Agent Setting'),
 
             'production-craft'     => __('Production Craft'),
             'production-operation' => __('Production Operation'),
@@ -139,6 +151,12 @@ enum AikuSectionEnum: string
             AikuSectionEnum::FULFILMENT_CRM,
             AikuSectionEnum::FULFILMENT_SETTINGS,
             => 'Fulfilment',
+
+            AikuSectionEnum::AGENT_DASHBOARD,
+            AikuSectionEnum::AGENT_PROCUREMENT,
+            AikuSectionEnum::AGENT_ACCOUNTING,
+            AikuSectionEnum::AGENT_REPORT,
+            AikuSectionEnum::AGENT_SETTING => 'Agent',
 
             // Production section
             AikuSectionEnum::PRODUCTION_CRAFT,
