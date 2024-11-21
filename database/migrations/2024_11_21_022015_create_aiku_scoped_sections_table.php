@@ -16,6 +16,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('aiku_section_id')->index();
             $table->foreign('aiku_section_id')->references('id')->on('aiku_sections')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
+            $table->string('code')->index();
             $table->string('name');
             $table->string('model_type')->index();
             $table->unsignedInteger('model_id')->index();

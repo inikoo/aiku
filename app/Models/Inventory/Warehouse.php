@@ -8,6 +8,8 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
+use App\Models\Analytics\AikuScopedSection;
+use App\Models\Analytics\AikuSection;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\PickingRoute;
 use App\Models\Fulfilment\Fulfilment;
@@ -211,6 +213,11 @@ class Warehouse extends Model implements Auditable
     public function pickingRoutes(): HasMany
     {
         return $this->hasMany(PickingRoute::class);
+    }
+
+    public function aikuScopedSections(): MorphToMany
+    {
+        return $this->morphToMany(AikuSection::class, 'model', 'aiku_scoped_sections');
     }
 
 }
