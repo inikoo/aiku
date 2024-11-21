@@ -37,14 +37,17 @@ class InverseBase32PathGenerator implements PathGenerator
         if ($path !== '') {
             $path .= '/';
         }
+
         $base32 = new Base32([
-            "characters" => Base32::HEX,
-            "padding" => false
+            "characters" => Base32::CROCKFORD,
+            "padding" => false,
+            "crockford" => true,
         ]);
+
 
         $encodedId = $base32->encode(sprintf("%010d", $media->id));
 
-        $path .= substr($encodedId, -1).'/'.substr($encodedId, -2, 1).'/'.$encodedId;
+        $path .= substr($encodedId, -2, 2).'/'.substr($encodedId, -4, 2).'/'.$encodedId;
 
         return $path;
     }

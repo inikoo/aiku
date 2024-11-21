@@ -49,6 +49,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read ShopifyUserHasProduct|null $shopifyPortfolio
  * @property-read \App\Models\Dropshipping\PortfolioStats|null $stats
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Portfolio newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Portfolio newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Portfolio query()

@@ -7,8 +7,6 @@
 
 namespace App\Actions\Discounts\TransactionHasOfferComponent;
 
-;
-
 use App\Actions\Discounts\Offer\Hydrators\OfferHydrateOrders;
 use App\Actions\Discounts\OfferCampaign\Hydrators\OfferCampaignHydrateOrders;
 use App\Actions\Discounts\OfferComponent\Hydrators\OfferComponentHydrateOrders;
@@ -28,6 +26,12 @@ class StoreTransactionHasOfferComponent extends OrgAction
         data_set($modelData, 'offer_campaign_id', $offerComponent->offer_campaign_id);
         data_set($modelData, 'offer_id', $offerComponent->offer_id);
         data_set($modelData, 'offer_component_id', $offerComponent->id);
+
+        data_set($modelData, 'model_type', $transaction->model_type);
+        data_set($modelData, 'model_id', $transaction->model_id);
+
+        data_set($modelData, 'order_id', $transaction->order_id);
+
 
         /** @var TransactionHasOfferComponent $transactionHasOfferComponent */
         $transactionHasOfferComponent = $transaction->offerComponents()->create($modelData);
@@ -49,6 +53,7 @@ class StoreTransactionHasOfferComponent extends OrgAction
             'data'                  => ['sometimes', 'nullable', 'array'],
             'discounted_amount'     => ['required', 'nullable', 'numeric'],
             'discounted_percentage' => ['required', 'nullable', 'numeric', 'min:0', 'max:1'],
+            'precursor'             => ['sometimes', 'nullable', 'string'],
         ];
 
         if (!$this->strict) {

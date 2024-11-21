@@ -111,18 +111,6 @@
     "outboxes": [
       "Marketing"
     ],
-    "name": "New Year party",
-    "content": "NewYearparty.json",
-    "image": "NewYearparty.jpg",
-    "provider": "unlayer",
-    "tags": [
-      "New Year"
-    ]
-  },
-  {
-    "outboxes": [
-      "Marketing"
-    ],
     "name": "New Year Sale",
     "content": "NewYearSale.json",
     "image": "NewYearSale.jpg",

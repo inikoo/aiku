@@ -30,22 +30,22 @@ class FetchAuroraOffers extends FetchAuroraAction
 
         if ($offer = Offer::withTrashed()->where('source_id', $offerData['offer']['source_id'])
             ->first()) {
-               try {
-            $offer = UpdateOffer::make()->action(
-                offer: $offer,
-                modelData: $offerData['offer'],
-                hydratorsDelay: 60,
-                strict: false,
-                audit: false
-            );
-            $this->recordChange($organisationSource, $offer->wasChanged());
-                            } catch (Exception $e) {
-                                $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'update');
+            try {
+                $offer = UpdateOffer::make()->action(
+                    offer: $offer,
+                    modelData: $offerData['offer'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
+                $this->recordChange($organisationSource, $offer->wasChanged());
+            } catch (Exception $e) {
+                $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'update');
 
-                                return null;
-                            }
+                return null;
+            }
         } else {
-              try {
+            //  try {
             $offer = StoreOffer::make()->action(
                 offerCampaign: $offerData['offer_campaign'],
                 trigger: $offerData['trigger'],
@@ -68,11 +68,11 @@ class FetchAuroraOffers extends FetchAuroraAction
             DB::connection('aurora')->table('Deal Dimension')
                 ->where('Deal Key', $sourceData[1])
                 ->update(['aiku_id' => $offer->id]);
-              } catch (Exception|Throwable $e) {
-                  $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'store');
-
-                  return null;
-              }
+            //            } catch (Exception|Throwable $e) {
+            //                $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'store');
+            //
+            //                return null;
+            //            }
         }
 
 

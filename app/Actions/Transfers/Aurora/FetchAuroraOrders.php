@@ -42,7 +42,6 @@ class FetchAuroraOrders extends FetchAuroraAction
         $order = $this->processFetchOrder($organisationSource, $orderData);
 
 
-
         if (!$order) {
             if (!$this->errorReported) {
                 $this->recordFetchError($organisationSource, $orderData, 'Order', 'fetching');
@@ -184,7 +183,6 @@ class FetchAuroraOrders extends FetchAuroraAction
 
     private function fetchTransactions($organisationSource, Order $order): void
     {
-
         $transactionsToDelete = $order->transactions()->whereIn('model_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
 
 
@@ -200,6 +198,19 @@ class FetchAuroraOrders extends FetchAuroraAction
             FetchAuroraTransactions::run($organisationSource, $auroraData->{'Order Transaction Fact Key'}, $order);
         }
         $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->forceDelete();
+
+        $offerComponentsToDelete = $order->offerComponents()->whereIn('model_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
+        foreach (
+            DB::connection('aurora')
+                ->table('Order Transaction Deal Bridge')
+                ->select('Order Transaction Deal Key')
+                ->where('Order Key', $sourceData[1])
+                ->get() as $auroraData
+        ) {
+            $offerComponentsToDelete = array_diff($offerComponentsToDelete, [$organisationSource->getOrganisation()->id.':'.$auroraData->{'Order Transaction Deal Key'}]);
+            FetchAuroraTransactionHasOfferComponents::run($organisationSource, $auroraData->{'Order Transaction Deal Key'}, $order);
+        }
+        $order->offerComponents()->whereIn('id', array_keys($offerComponentsToDelete))->forceDelete();
     }
 
     private function fetchNoProductTransactions($organisationSource, Order $order): void
@@ -219,6 +230,21 @@ class FetchAuroraOrders extends FetchAuroraAction
             FetchAuroraNoProductTransactions::run($organisationSource, $auroraData->{'Order No Product Transaction Fact Key'}, $order);
         }
         $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->forceDelete();
+
+        $offerComponentsToDelete = $order->offerComponents()->whereNotIn('model_type', ['Product', 'Service'])->pluck('source_alt_id', 'id')->all();
+        foreach (
+            DB::connection('aurora')
+                ->table('Order No Product Transaction Deal Bridge')
+                ->select('Order No Product Transaction Deal Key')
+                ->where('Order Key', $sourceData[1])
+                ->get() as $auroraData
+        ) {
+            $offerComponentsToDelete = array_diff($offerComponentsToDelete, [$organisationSource->getOrganisation()->id.':'.$auroraData->{'Order No Product Transaction Deal Key'}]);
+            FetchAuroraNoProductTransactionHasOfferComponents::run($organisationSource, $auroraData->{'Order No Product Transaction Deal Key'}, $order);
+        }
+        $order->offerComponents()->whereIn('id', array_keys($offerComponentsToDelete))->forceDelete();
+
+
     }
 
     public function getModelsQuery(): Builder

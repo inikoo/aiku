@@ -7,18 +7,13 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Discounts\TransactionHasOfferComponent\StoreTransactionHasOfferComponent;
-use App\Actions\Discounts\TransactionHasOfferComponent\UpdateTransactionHasOfferComponent;
 use App\Actions\Helpers\CurrencyExchange\GetHistoricCurrencyExchange;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
-use App\Models\Discounts\TransactionHasOfferComponent;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Transaction;
-use App\Models\SysAdmin\Organisation;
 use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\SourceOrganisationService;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -72,89 +67,9 @@ class FetchAuroraTransactions
                 ->update(['aiku_id' => $transaction->id]);
         }
 
-        $this->fetchOfferComponents($organisationSource, $transaction);
-
-
         return $transaction;
     }
 
-    private function fetchOfferComponents($organisationSource, Transaction $transaction): void
-    {
-        $organisation            = $organisationSource->getOrganisation();
-        $offerComponentsToDelete = $transaction->offerComponents()->pluck('source_id')->all();
-        $sourceData              = explode(':', $transaction->source_id);
 
-        foreach (
-
-            DB::connection('aurora')
-                ->table('Order Transaction Deal Bridge')
-                ->where('Order Transaction Fact Key', $sourceData[1])
-                ->get() as $auroraData
-        ) {
-            $transactionHasOfferComponentData = $this->parseTransactionHasOfferComponentData($transaction, $organisation, $auroraData);
-            $offerComponent                   = Arr::pull($transactionHasOfferComponentData, 'offerComponent');
-            $transactionHasOfferComponent      = TransactionHasOfferComponent::where('source_id', $transactionHasOfferComponentData['source_id'])->first();
-
-            if ($transactionHasOfferComponent) {
-                $transactionHasOfferComponent = UpdateTransactionHasOfferComponent::make()->action(
-                    transactionHasOfferComponent: $transactionHasOfferComponent,
-                    modelData: $transactionHasOfferComponentData,
-                    hydratorsDelay: 60,
-                    strict: false
-                );
-            }
-
-            if (!$transactionHasOfferComponent) {
-                $transactionHasOfferComponent = StoreTransactionHasOfferComponent::make()->action(
-                    transaction: $transaction,
-                    offerComponent: $offerComponent,
-                    modelData: $transactionHasOfferComponentData,
-                    hydratorsDelay: 60,
-                    strict: false
-                );
-            }
-
-            if ($transactionHasOfferComponent) {
-                $offerComponentsToDelete = array_diff($offerComponentsToDelete, [$organisation->id.':'.$auroraData->{'Order Transaction Deal Key'}]);
-            }
-        }
-
-        $transaction->offerComponents()->whereIn('id', $offerComponentsToDelete)->delete();
-    }
-
-
-    private function parseTransactionHasOfferComponentData(Transaction $transaction, Organisation $organisation, $auroraData): array
-    {
-
-        if ($auroraData->{'Deal Component Key'} == '0') {
-            $offerComponent = $transaction->shop->offerComponents()->where('is_discretionary', true)->first();
-        } else {
-            $offerComponent = $this->parseOfferComponent($organisation->id.':'.$auroraData->{'Deal Component Key'});
-        }
-
-        if (!$offerComponent) {
-            print 'No offer component found for '.$auroraData->{'Deal Component Key'}."\n";
-            dd($auroraData);
-        }
-
-        $data = [
-            'source_id'             => $organisation->id.':'.$auroraData->{'Order Transaction Deal Key'},
-            'offer_component_id'     => $offerComponent->id,
-            'discounted_amount'     => $auroraData->{'Amount Discount'},
-            'discounted_percentage' => $auroraData->{'Fraction Discount'},
-            'info'                  => $auroraData->{'Deal Info'},
-            'is_pinned'             => $auroraData->{'Order Transaction Deal Pinned'} == 'Yes',
-            'offerComponent'        => $offerComponent,
-            'fetched_at'      => now(),
-            'last_fetched_at' => now(),
-        ];
-
-        if (!($auroraData->{'Order Transaction Deal Metadata'} == '' or $auroraData->{'Order Transaction Deal Metadata'} == '{}')) {
-            $data['data'] = json_decode($auroraData->{'Order Transaction Deal Metadata'}, true);
-        }
-
-
-        return $data;
-    }
 
 }

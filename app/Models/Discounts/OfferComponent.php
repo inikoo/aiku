@@ -41,14 +41,16 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $trigger_id
  * @property string|null $target_type
  * @property bool $is_discretionary
+ * @property bool $is_locked
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $start_at
  * @property \Illuminate\Support\Carbon|null $end_at
  * @property \Illuminate\Support\Carbon|null $fetched_at
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
- * @property string|null $source_id
  * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $source_id
+ * @property array $source_data
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $invoiceTransactions
@@ -77,8 +79,9 @@ class OfferComponent extends Model implements Auditable
     use InShop;
 
     protected $casts = [
-        'data'  => 'array',
-        'state' => OfferComponentStateEnum::class,
+        'data'            => 'array',
+        'source_data'     => 'array',
+        'state'           => OfferComponentStateEnum::class,
         'begin_at'        => 'datetime',
         'end_at'          => 'datetime',
         'fetched_at'      => 'datetime',
@@ -86,7 +89,8 @@ class OfferComponent extends Model implements Auditable
     ];
 
     protected $attributes = [
-        'data' => '{}'
+        'data'        => '{}',
+        'source_data' => '{}',
     ];
 
     protected $guarded = [];
@@ -139,13 +143,13 @@ class OfferComponent extends Model implements Auditable
     public function invoiceTransactions(): HasMany
     {
         return $this->hasMany(ModelHasOfferComponent::class)
-                    ->where('model_type', 'InvoiceTransaction');
+            ->where('model_type', 'InvoiceTransaction');
     }
 
     public function orderTransactions(): HasMany
     {
         return $this->hasMany(ModelHasOfferComponent::class)
-                    ->where('model_type', 'Transaction');
+            ->where('model_type', 'Transaction');
     }
 
 }

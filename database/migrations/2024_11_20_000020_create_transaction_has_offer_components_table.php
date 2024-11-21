@@ -14,8 +14,15 @@ return new class () extends Migration {
     {
         Schema::create('transaction_has_offer_components', function (Blueprint $table) {
             $table->id();
+            $table->unsignedInteger('order_id');
+            $table->foreign('order_id')->references('id')->on('orders');
+
             $table->unsignedBigInteger('transaction_id');
             $table->foreign('transaction_id')->references('id')->on('transactions');
+
+            $table->string('model_type')->index()->nullable();
+            $table->unsignedInteger('model_id')->index()->nullable();
+
             $table->unsignedSmallInteger('offer_campaign_id');
             $table->foreign('offer_campaign_id')->references('id')->on('offer_campaigns');
             $table->unsignedInteger('offer_id');
@@ -26,12 +33,13 @@ return new class () extends Migration {
             $table->decimal('discounted_percentage', 6, 4)->default(0);
             $table->string('info')->nullable();
             $table->boolean('is_pinned')->default('false')->index();
+            $table->string('precursor')->nullable();
             $table->jsonb('data');
             $table->timestampsTz();
             $table->dateTimeTz('fetched_at')->nullable();
             $table->dateTimeTz('last_fetched_at')->nullable();
             $table->string('source_id')->nullable();
-            $table->string('alt_source_id')->nullable();
+            $table->string('source_alt_id')->nullable();
             $table->softDeletesTz();
         });
     }

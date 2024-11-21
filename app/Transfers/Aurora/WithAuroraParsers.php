@@ -643,6 +643,11 @@ trait WithAuroraParsers
         return Transaction::where('source_id', $sourceId)->first();
     }
 
+    public function parseTransactionNoProduct($sourceId): ?Transaction
+    {
+        return Transaction::where('source_alt_id', $sourceId)->first();
+    }
+
     public function parseIngredient($sourceId): ?Ingredient
     {
         $ingredient = Ingredient::where('source_id', $sourceId)->first();
@@ -877,8 +882,8 @@ trait WithAuroraParsers
 
         $offerComponent = OfferComponent::withTrashed()->where('source_id', $sourceId)->first();
         if (!$offerComponent) {
-            $sourceData = explode(':', $sourceId);
-            $offerComponent      = FetchAuroraOfferComponents::run($this->organisationSource, $sourceData[1]);
+            $sourceData     = explode(':', $sourceId);
+            $offerComponent = FetchAuroraOfferComponents::run($this->organisationSource, $sourceData[1]);
         }
 
         return $offerComponent;
@@ -1005,6 +1010,7 @@ trait WithAuroraParsers
 
 
         $sourceData = explode(':', $sourceId);
+
         return FetchAuroraSalesChannels::run($this->organisationSource, $sourceData[1]);
     }
 
