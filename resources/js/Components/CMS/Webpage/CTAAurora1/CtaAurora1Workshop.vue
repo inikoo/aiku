@@ -14,7 +14,8 @@ library.add(faCube, faLink)
 
 const props = defineProps<{
     modelValue: any
-    isEditable?: boolean
+	webpageData: any
+	blockData: Object
 }>()
 
 
@@ -29,9 +30,9 @@ const emits = defineEmits<{
     <div :style="getStyles(modelValue.container.properties)">
         <div class="w-full">
             <div class="relative isolate overflow-hidden px-6 py-24 text-center shadow-2xl sm:px-16">
-                <Editor :editable="isEditable" v-model="modelValue.title"
+                <Editor  v-model="modelValue.title"
                     @update:modelValue="() => emits('autoSave')" />
-                <Editor :editable="isEditable" v-model="modelValue.text" @update:modelValue="() => emits('autoSave')" />
+                <Editor  v-model="modelValue.text" @update:modelValue="() => emits('autoSave')" />
 
                 <div class="flex justify-center">
                     <div typeof="button" :style="getStyles(modelValue.button.container.properties)"

@@ -18,12 +18,10 @@ library.add(faCube, faLink, faImage)
 const props = defineProps<{
 	modelValue: any
 	webpageData: any
-	web_block: Object
-	id: Number
-	type: String
-	isEditable?: boolean
-	properties: {}
+	blockData: Object
 }>()
+
+console.log(props)
 
 const emits = defineEmits<{
 	(e: "update:modelValue", value: string): void
@@ -56,7 +54,6 @@ const onUpload = (e) => {
 			class="relative h-80 overflow-hidden bg-indigo-600 md:absolute md:left-0 md:h-full md:w-1/3 lg:w-1/2">
 			<!-- Edit button to open the gallery, conditionally shown based on isEditable -->
 			<button
-				v-if="isEditable"
 				@click.stop="openGallery.value = !openGallery.value"
 				style="position: absolute; top: 10px; left: 10px; z-index: 10">
 				<FontAwesomeIcon :icon="faImage" class="text-lg h-4 text-indigo-500" />
@@ -94,7 +91,6 @@ const onUpload = (e) => {
 				<Editor
 					v-if="modelValue?.text"
 					v-model="modelValue.text"
-					:editable="isEditable"
 					@update:modelValue="() => emits('autoSave')"
 					class="mb-4" />
 				<div
@@ -110,7 +106,7 @@ const onUpload = (e) => {
 	<Gallery
 		:open="openGallery"
 		@on-close="openGallery = false"
-		:uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: id })"
+		:uploadRoutes="route(webpageData?.images_upload_route.name, { modelHasWebBlocks: blockData.id })"
 		@onPick="setImage"
 		@onUpload="onUpload">
 	</Gallery>

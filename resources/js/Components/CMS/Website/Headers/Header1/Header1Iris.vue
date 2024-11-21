@@ -21,8 +21,6 @@ const props = defineProps<{
         chip_text: string
     }
     loginMode: boolean
-    previewMode: boolean
-    uploadImageRoute: routeType
     colorThemed?: {
         color: Array
     }

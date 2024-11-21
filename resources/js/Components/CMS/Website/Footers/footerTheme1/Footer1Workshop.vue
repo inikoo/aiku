@@ -22,7 +22,6 @@ library.add(faFacebookF, faInstagram, faTiktok, faPinterest, faYoutube, faLinked
 const props = defineProps<{
     modelValue: FieldValue,
     keyTemplate: String
-    previewMode: Boolean
     colorThemed?: Object
 }>();
 
@@ -31,7 +30,7 @@ const emits = defineEmits<{
 }>()
 
 const editorKey = ref(uuidv4())
-const editable = ref(!props.previewMode)
+const editable = ref(true)
 const selectedData = ref(null)
 const selectedIndex = ref(null)
 const selectedColumn = ref(null)
@@ -227,7 +226,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                             <div class="flex w-full items-center gap- mt-2">
                                                 <div class="flex items-center w-full"
                                                     @contextmenu="onRightClickSubMenu($event, item, modelValue.columns['column_1']['data'], subIndex)">
-                                                    <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
+                                                    <FontAwesomeIcon icon="fal fa-bars" 
                                                         class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
                                                     <div class="w-full">
                                                         <Editor
@@ -299,7 +298,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                     class="hidden md:block grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
                                     <div class="flex text-xl font-semibold  leading-6"
                                         @contextmenu="onRightClickMenu($event, item, modelValue.columns['column_2']['data'], index)">
-                                        <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
+                                        <FontAwesomeIcon icon="fal fa-bars" 
                                             class="handle text-white cursor-grab pr-3 mr-2" />
                                         <div class="w-full">
                                             <Editor :key="editorKey"
@@ -323,7 +322,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                             <div class="flex w-full items-center gap- mt-2">
                                                 <div class="flex items-center w-full"
                                                     @contextmenu="onRightClickSubMenu($event, item, modelValue.columns['column_2']['data'], subIndex)">
-                                                    <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
+                                                    <FontAwesomeIcon icon="fal fa-bars" 
                                                         class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
                                                     <div class="w-full">
                                                         <Editor
@@ -395,7 +394,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                     class="hidden md:block grid grid-cols-1 md:cursor-default space-y-1 border-b pb-2 md:border-none">
                                     <div class="flex text-xl font-semibold  leading-6"
                                         @contextmenu="onRightClickMenu($event, item, modelValue.columns['column_3']['data'], index)">
-                                        <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
+                                        <FontAwesomeIcon icon="fal fa-bars"
                                             class="handle text-white cursor-grab pr-3 mr-2" />
                                         <div class="w-full">
                                             <Editor
@@ -419,7 +418,7 @@ watch(() => props.previewMode, (newStatus, oldStatus) => {
                                             <div class="flex w-full items-center gap- mt-2">
                                                 <div class="flex items-center w-full"
                                                     @contextmenu="onRightClickSubMenu($event, item, modelValue.columns['column_3']['data'], subIndex)">
-                                                    <FontAwesomeIcon icon="fal fa-bars" v-if="!previewMode"
+                                                    <FontAwesomeIcon icon="fal fa-bars" 
                                                         class="handle-sub text-sm text-white cursor-grab pr-3 mr-2" />
                                                     <div class="w-full">
                                                         <Editor

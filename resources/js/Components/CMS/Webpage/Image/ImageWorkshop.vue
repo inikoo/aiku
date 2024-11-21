@@ -17,7 +17,6 @@ library.add(faCube, faStar, faImage, faPencil)
 const props = defineProps<{
 	modelValue: any
 	webpageData?: any
-	isEditable?: boolean
 	blockData:Object
 }>()
 console.log('Images',props)
@@ -128,18 +127,14 @@ const openImageGallery = (index: number) => {
 	openGallery.value = true
 }
 
-const getHref = (index: number, isEditable: any) => {
+const getHref = (index: number) => {
 	const image = props.modelValue?.value?.images?.[index]
-
-	if (isEditable) {
-		return image?.link_data?.workshop_url
-	}
 
 	if (image?.link_data?.url) {
 		return image.link_data.url
 	}
 
-	return null
+	return image?.link_data?.workshop_url
 }
 
 const getColumnWidthClass = (layoutType: string, index: number) => {
@@ -193,7 +188,7 @@ const getImageSlots = (layoutType: string) => {
 			:class="getColumnWidthClass(modelValue?.value?.layout_type, index - 1)">
 			<a
 				v-if="modelValue?.value?.images?.[index - 1]?.source"
-				:href="getHref(index - 1, isEditable)"
+				:href="getHref(index - 1)"
 				target="_blank"
 				rel="noopener noreferrer"
 				class="transition-shadow aspect-h-1 aspect-w-1 w-full">
@@ -201,7 +196,7 @@ const getImageSlots = (layoutType: string) => {
 					:src="modelValue?.value?.images?.[index - 1]?.source"
 					class="w-full object-cover object-center group-hover:opacity-75" />
 
-				<div v-if="isEditable" class="absolute top-2 right-2 z-10 flex space-x-2">
+				<div  class="absolute top-2 right-2 z-10 flex space-x-2">
 					<Button
 						:icon="['far', 'fa-pencil']"
 						size="xs"
@@ -210,7 +205,6 @@ const getImageSlots = (layoutType: string) => {
 			</a>
 
 			<div
-				v-else-if="isEditable"
 				class="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 				@click="openImageGallery(index - 1)">
 				<font-awesome-icon

@@ -32,7 +32,7 @@ const fontFamilies = [...useFontFamilyList];
                 <ColorPicker :color="model.color"
                     @changeColor="(newColor) => model.color = `rgba(${newColor.rgba.r}, ${newColor.rgba.g}, ${newColor.rgba.b}, ${newColor.rgba.a})`"
                     closeButton
-                    :isEditable="!model.color.includes('var')"
+                    :isEditable="!model.color?.includes('var')"
                 >
                     <template #button>
                         <div v-bind="$attrs"
@@ -51,8 +51,8 @@ const fontFamilies = [...useFontFamilyList];
                         
                         <div class="flex items-center gap-2">
                             <RadioButton size="small"
-                                :modelValue="!model.color.includes('var') ? '#111111' : null"
-                                @update:modelValue="(e) => model.color.includes('var') ? model.color = '#111111' : false"
+                                :modelValue="!model.color?.includes('var') ? '#111111' : null"
+                                @update:modelValue="(e) => model.color?.includes('var') ? model.color = '#111111' : false"
                                 inputId="bg-color-picker-3"
                                 name="bg-color-picker"
                                 value="#111111" />

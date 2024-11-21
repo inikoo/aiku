@@ -1,16 +1,11 @@
 <script setup lang="ts">
 import { getStyles } from '@/Composables/styles'
 
-const props = withDefaults(defineProps<{
-    modelValue: {
-        value: string,
-        container : {
-            properties : Object 
-        }
-    }
-}>(), {
-})
-
+const props = defineProps<{
+	modelValue: any
+	webpageData: any
+	blockData: Object
+}>()
 
 </script>
 

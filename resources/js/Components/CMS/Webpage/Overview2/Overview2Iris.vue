@@ -22,11 +22,7 @@ library.add(faCube, faLink)
 const props = defineProps<{
 	modelValue: any
 	webpageData: any
-	web_block: Object
-	id: Number
-	type: String
-	isEditable?: boolean
-	properties: {}
+	blockData: Object
 }>()
 
 const emits = defineEmits<{
@@ -71,7 +67,7 @@ function onSave() {
 
 		<!-- Details Section -->
 		<div class="details flex flex-col justify-center w-1/2 p-10">
-			<Editor v-model="modelValue.text" />
+			<div v-html="modelValue.text" />
 		</div>
 	</div>
 </template>

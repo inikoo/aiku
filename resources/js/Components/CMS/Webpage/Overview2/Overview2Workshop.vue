@@ -22,11 +22,7 @@ library.add(faCube, faLink)
 const props = defineProps<{
 	modelValue: any
 	webpageData: any
-	web_block: Object
-	id: Number
-	type: String
-	isEditable?: boolean
-	properties: {}
+	blockData: Object
 }>()
 
 const emits = defineEmits<{
