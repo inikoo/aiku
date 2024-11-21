@@ -37,6 +37,8 @@ class SeedAikuScopedSections extends GrpAction
     {
         foreach (AikuSectionEnum::cases() as $case) {
             if ($case->scopeType() == 'Group') {
+                $name= $case->labels()[$case->value].' '.$group->code;
+                // if exist  call Update  (name) of not
                 //call StoreAikuScopedSection::
             }
         }
@@ -46,6 +48,8 @@ class SeedAikuScopedSections extends GrpAction
     {
         foreach (AikuSectionEnum::cases() as $case) {
             if ($case->scopeType() == 'Shop') {
+                $name= $case->labels()[$case->value].' '.$shop->code;
+                // if exist  call Update  (name)  of not
                 //call StoreAikuScopedSection::
             }
         }
