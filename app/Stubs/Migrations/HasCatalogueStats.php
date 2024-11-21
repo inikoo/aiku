@@ -52,7 +52,19 @@ trait HasCatalogueStats
         $table = $this->assetStats($table);
         $table = $this->catalogueProductsStats($table);
 
-        return $this->productVariantFields($table);
+        $table = $this->productVariantFields($table);
+        $timesUpdate = ['1d', '1w', '1m', '1y', 'all'];
+        foreach ($timesUpdate as $timeUpdate) {
+            $table->unsignedInteger("top_{$timeUpdate}_product_id");
+            $table->foreign("top_{$timeUpdate}_product_id")->references('id')->on('products');
+
+            $table->unsignedInteger("top_{$timeUpdate}_id");
+            $table->foreign("top_{$timeUpdate}_id")->references('id')->on('product_categories');
+
+            $table->unsignedInteger("top_{$timeUpdate}_department_id");
+            $table->foreign("top_{$timeUpdate}_id")->references('id')->on('product_categories');
+        }
+        return $table;
     }
 
     public function catalogueFamilyStats(Blueprint $table): Blueprint

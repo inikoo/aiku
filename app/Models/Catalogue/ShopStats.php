@@ -103,4 +103,70 @@ class ShopStats extends Model
     {
         return $this->belongsTo(Shop::class);
     }
+
+    public function top1dProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'top_1d_product_id');
+    }
+    public function top1dFamily(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'top_1d_family_id');
+    }
+    public function top1dDepartment(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'top_1d_department_id');
+    }
+
+    public function top1wProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'top_1w_product_id');
+    }
+    public function top1wFamily(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'top_1w_family_id');
+    }
+    public function top1wDepartment(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'top_1w_department_id');
+    }
+
+    public function top1mProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'top_1m_product_id');
+    }
+    public function top1mFamily(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'top_1m_family_id');
+    }
+    public function top1mDepartment(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'top_1m_department_id');
+    }
+
+    public function top1yProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'top_1y_product_id');
+    }
+    public function top1yFamily(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'top_1y_family_id');
+    }
+    public function top1yDepartment(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'top_1y_department_id');
+    }
+
+    public function topAllProduct(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'top_all_product_id');
+    }
+    public function topAllFamily(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'top_all_family_id');
+    }
+    public function topAllDepartment(): BelongsTo
+    {
+        return $this->belongsTo(ProductCategory::class, 'top_all_department_id');
+    }
+
 }
