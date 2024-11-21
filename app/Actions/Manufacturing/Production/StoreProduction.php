@@ -10,6 +10,7 @@ namespace App\Actions\Manufacturing\Production;
 use App\Actions\Manufacturing\Production\Hydrators\ProductionHydrateUniversalSearch;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateProductions;
+use App\Actions\SysAdmin\Group\SeedAikuScopedSections;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateProductions;
 use App\Actions\SysAdmin\Organisation\SeedJobPositions;
 use App\Actions\SysAdmin\User\UserAddRoles;
@@ -56,6 +57,7 @@ class StoreProduction extends OrgAction
                 ]);
             }
             SeedJobPositions::run($organisation);
+            SeedAikuScopedSections::make()->seedProductionAikuScopedSection($production);
 
             return $production;
         });

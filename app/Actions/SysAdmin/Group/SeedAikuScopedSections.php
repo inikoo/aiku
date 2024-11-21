@@ -65,7 +65,10 @@ class SeedAikuScopedSections extends GrpAction
                 $code        = $aikuSection->slug;
                 $name        = $case->labels()[$case->value].' '.$model->code;
 
-                $aikuScopedSection = AikuScopedSection::where('code', $code)->first();
+                $aikuScopedSection = AikuScopedSection::where('code', $code)
+                    ->where('model_type',class_basename($model))
+                    ->where('model_id',$model->id)
+                    ->first();
 
                 if ($aikuScopedSection) {
                     UpdateAikuScopedSection::make()->action($aikuScopedSection, [

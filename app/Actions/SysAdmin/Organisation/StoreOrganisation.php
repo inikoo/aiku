@@ -10,6 +10,7 @@ namespace App\Actions\SysAdmin\Organisation;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
 use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
+use App\Actions\SysAdmin\Group\SeedAikuScopedSections;
 use App\Actions\SysAdmin\User\UserAddRoles;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
@@ -146,6 +147,7 @@ class StoreOrganisation
             );
 
             SeedOrganisationOutboxes::run($organisation);
+            SeedAikuScopedSections::make()->seedOrganisationAikuScopedSection($organisation);
 
             return $organisation;
         });
