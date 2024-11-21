@@ -12,10 +12,10 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('aiku_section_stats', function (Blueprint $table) {
+        Schema::create('aiku_scoped_section_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('aiku_section_id')->index();
-            $table->foreign('aiku_section_id')->references('id')->on('aiku_sections')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('aiku_scoped_section_id')->index();
+            $table->foreign('aiku_scoped_section_id')->references('id')->on('aiku_scoped_sections')->onUpdate('cascade')->onDelete('cascade');
             $table->timestampsTz();
         });
     }
@@ -23,6 +23,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('aiku_section_stats');
+        Schema::dropIfExists('aiku_scoped_section_stats');
     }
 };

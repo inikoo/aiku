@@ -8,20 +8,22 @@
 
 namespace App\Models\Analytics;
 
-use App\Models\Catalogue\Shop;
-use App\Models\Fulfilment\Fulfilment;
-use App\Models\Inventory\Warehouse;
-use App\Models\Manufacturing\Production;
-use App\Models\SysAdmin\Group;
-use App\Models\SysAdmin\Organisation;
-use App\Models\SysAdmin\User;
-use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
-use Spatie\Sluggable\HasSlug;
-use Spatie\Sluggable\SlugOptions;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property int $aiku_section_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Analytics\AikuSection $aikuSection
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AikuSectionStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AikuSectionStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AikuSectionStats query()
+ * @mixin \Eloquent
+ */
 class AikuSectionStats extends Model
 {
     protected $table = 'aiku_section_stats';

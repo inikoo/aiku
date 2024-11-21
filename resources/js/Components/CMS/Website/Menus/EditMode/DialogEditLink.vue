@@ -15,7 +15,6 @@ library.add(faChevronRight, faSignOutAlt, faShoppingCart, faHeart, faSearch, faC
 
 const props = defineProps<{
     modelValue: Object,
-    parent : Object
 }>()
 
 const emits = defineEmits<{

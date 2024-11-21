@@ -13,6 +13,7 @@ use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
 use App\Actions\Helpers\Query\Seeders\ProspectQuerySeeder;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateShops;
+use App\Actions\SysAdmin\Group\SeedAikuScopedSections;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateShops;
 use App\Actions\SysAdmin\Organisation\SeedJobPositions;
 use App\Actions\SysAdmin\Organisation\SetIconAsShopLogo;
@@ -91,6 +92,9 @@ class StoreShop extends OrgAction
             $shop->orderIntervals()->create();
             $shop->mailshotsIntervals()->create();
             $shop->discountsStats()->create();
+
+            SeedAikuScopedSections::make()->seedShopAikuScopedSection($shop);
+
 
             if ($shop->type === ShopTypeEnum::DROPSHIPPING) {
                 $shop->dropshippingStats()->create();
