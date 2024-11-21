@@ -77,6 +77,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_subscriptions_state_active
  * @property int $number_subscriptions_state_discontinued
  * @property int $number_product_variants
+ * @property int|null $top_1d_department_id
+ * @property int|null $top_1d_family_id
+ * @property int|null $top_1d_product_id
+ * @property int|null $top_1w_department_id
+ * @property int|null $top_1w_family_id
+ * @property int|null $top_1w_product_id
+ * @property int|null $top_1m_department_id
+ * @property int|null $top_1m_family_id
+ * @property int|null $top_1m_product_id
+ * @property int|null $top_1y_department_id
+ * @property int|null $top_1y_family_id
+ * @property int|null $top_1y_product_id
+ * @property int|null $top_all_department_id
+ * @property int|null $top_all_family_id
+ * @property int|null $top_all_product_id
  * @property int $number_charges
  * @property int $number_charges_state_in_process
  * @property int $number_charges_state_active
