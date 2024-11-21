@@ -48,18 +48,9 @@ class ShowCatalogue extends OrgAction
 
     public function htmlResponse(Shop $shop, ActionRequest $request): Response
     {
-        $topFamily = $shop->families()->sortByDesc(function ($family) {
-            return $family->stats->shop_amount_all;
-        })->first();
-
-        $topDepartment = $shop->departments()->sortByDesc(function ($department) {
-            return $department->stats->shop_amount_all;
-        })->first();
-
-        $topProduct = $shop->products()
-            ->join('product_sales_intervals', 'products.id', '=', 'product_sales_intervals.product_id')
-            ->orderByDesc('product_sales_intervals.shop_amount_all')
-            ->first();
+        $topFamily = $shop->stats->topFamily;
+        $topDepartment = $shop->stats->topDepartment;
+        $topProduct = $shop->stats->topProduct;
 
         $totalProducts = $shop->stats->number_products;
 
@@ -153,16 +144,6 @@ class ShowCatalogue extends OrgAction
                             'icon'  => 'fal fa-folder-tree',
                             'value' => $shop->stats->number_current_families,
                         ],
-                        // [
-                        //     'label' => __('Active Families'),
-                        //     'icon'  => 'fal fa-folder-tree',
-                        //     'value' => $shop->stats->number_families_state_active,
-                        // ],
-                        // [
-                        //     'label' => __('Discontinued Families'),
-                        //     'icon'  => 'fal fa-folder-tree',
-                        //     'value' => $shop->stats->number_families_state_discontinued,
-                        // ],
                         [
                             'label' => __('Discontinuing Families'),
                             'icon'  => 'fal fa-folder-tree',
@@ -173,11 +154,6 @@ class ShowCatalogue extends OrgAction
                             'icon'  => 'fal fa-folder-tree',
                             'value' => $shop->stats->number_families_state_in_process,
                         ],
-                        // [
-                        //     'label' => __('Top Family'),
-                        //     'icon'  => 'fal fa-folder-tree',
-                        //     'value' => $topFamily,
-                        // ],
                     ],
                     'products' => [
                         [
@@ -190,49 +166,29 @@ class ShowCatalogue extends OrgAction
                             'icon'  => 'fal fa-folder-tree',
                             'value' => $shop->stats->number_current_products,
                         ],
-                        // [
-                        //     'label' => __('Active Products'),
-                        //     'icon'  => 'fal fa-folder-tree',
-                        //     'value' => $shop->stats->number_products_state_active,
-                        // ],
-                        // [
-                        //     'label' => __('Discontinued Products'),
-                        //     'icon'  => 'fal fa-folder-tree',
-                        //     'value' => $shop->stats->number_products_state_discontinued,
-                        // ],
-                        // [
-                        //     'label' => __('Discontinuing Products'),
-                        //     'icon'  => 'fal fa-folder-tree',
-                        //     'value' => $shop->stats->number_products_state_discontinuing,
-                        // ],
                         [
                             'label' => __('Products In Process'),
                             'icon'  => 'fal fa-folder-tree',
                             'value' => $shop->stats->number_products_state_in_process,
                         ],
-                        // [
-                        //     'label' => __('Top Product'),
-                        //     'icon'  => 'fal fa-folder-tree',
-                        //     'value' => $topProduct ? ProductResource::make($topProduct) : null,
-                        // ],
                         [
                             'out_of_stock' => $percentageWithZeroQuantity
                         ]
                     ],
-                    // 'collections' => [
-                    //     [
-                    //         'label' => __('Collection'),
-                    //         'icon'  => 'fal fa-folder-tree',
-                    //         'value' => $shop->stats->number_collections,
-                    //     ],
-                        // [
-                        //     'label' => __('Collection Categories'),
-                        //     'icon'  => 'fal fa-folder-tree',
-                        //     'value' => $shop->stats->number_collection_categories,
-                        // ],
-                    // ],
+                    'collections' => [
+                        [
+                            'label' => __('Collection'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_collections,
+                        ],
+                        [
+                            'label' => __('Collection Categories'),
+                            'icon'  => 'fal fa-folder-tree',
+                            'value' => $shop->stats->number_collection_categories,
+                        ],
+                    ],
                 ],
-                'totm'  => [
+                'top_selling'  => [
                     'family'    => [
                         'label' => __('Top Family'),
                         'icon'  => 'fal fa-folder',
