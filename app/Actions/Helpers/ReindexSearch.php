@@ -17,6 +17,7 @@ use App\Actions\CRM\Prospect\Search\ReindexProspectSearch;
 use App\Actions\Discounts\Offer\Search\ReindexOfferSearch;
 use App\Actions\Dispatching\DeliveryNote\Search\ReindexDeliveryNotesSearch;
 use App\Actions\Dropshipping\CustomerClient\Search\ReindexCustomerClientSearch;
+use App\Actions\Dropshipping\Portfolio\Search\ReindexPortfolioSearch;
 use App\Actions\Fulfilment\FulfilmentCustomer\Search\ReindexFulfilmentCustomerSearch;
 use App\Actions\Fulfilment\Pallet\Search\ReindexPalletSearch;
 use App\Actions\Fulfilment\PalletDelivery\Search\ReindexPalletDeliverySearch;
@@ -50,6 +51,7 @@ use App\Models\CRM\Prospect;
 use App\Models\Discounts\Offer;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dropshipping\CustomerClient;
+use App\Models\Dropshipping\Portfolio;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Models\Fulfilment\Pallet;
 use App\Models\Fulfilment\PalletDelivery;
@@ -198,6 +200,9 @@ class ReindexSearch extends HydrateModel
         }
         foreach (CustomerClient::withTrashed()->get() as $model) {
             ReindexCustomerClientSearch::run($model);
+        }
+        foreach (Portfolio::all() as $model) {
+            ReindexPortfolioSearch::run($model);
         }
     }
 

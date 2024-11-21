@@ -1,21 +1,21 @@
 <?php
 /*
- * author Arya Permana - Kirin
- * created on 20-11-2024-16h-54m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Thu, 21 Nov 2024 10:24:50 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
-namespace App\Actions\SysAdmin\User;
+namespace App\Actions\Analytics\UserRequest;
 
 use App\Actions\GrpAction;
 use App\Actions\Helpers\UniversalSearch\Trait\WithSectionsRoute;
+use App\Actions\SysAdmin\User\StoreUserRequest;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Models\Analytics\UserRequest;
 use App\Models\SysAdmin\User;
-use App\Models\SysAdmin\UserRequest;
-use Stevebauman\Location\Facades\Location as FacadesLocation;
 use hisorange\BrowserDetect\Parser as Browser;
 use Illuminate\Support\Carbon;
+use Stevebauman\Location\Facades\Location as FacadesLocation;
 
 class ProcessUserRequest extends GrpAction
 {
@@ -28,11 +28,12 @@ class ProcessUserRequest extends GrpAction
     public function handle(User $user, Carbon $datetime, array $routeData, string $ip, string $userAgent): UserRequest
     {
         $parsedUserAgent = (new Browser())->parse($userAgent);
+        $section = $this->parseSections($routeData['name']);
         $modelData = [
             'date'          => $datetime,
             'route_name'    => $routeData['name'],
             'route_params'  => json_encode($routeData['arguments']),
-            'section'       => $this->parseSections($routeData['name']),
+            'section'       => $section[0],
             'os'            => $this->detectWindows11($parsedUserAgent),
             'device'        => $parsedUserAgent->deviceType(),
             'browser'       => explode(' ', $parsedUserAgent->browserName())[0],
