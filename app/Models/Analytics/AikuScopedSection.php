@@ -28,6 +28,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $name
  * @property string $model_type
  * @property int $model_id
+ * @property string $model_slug
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group

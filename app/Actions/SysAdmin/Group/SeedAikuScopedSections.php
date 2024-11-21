@@ -14,12 +14,14 @@ use App\Actions\GrpAction;
 use App\Actions\Traits\WithAttachMediaToModel;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Analytics\AikuSection;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Production;
+use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Console\Command;
@@ -34,8 +36,13 @@ class SeedAikuScopedSections extends GrpAction
     {
         $this->seedGroupAikuScopedSection($group);
 
+        /** @var Organisation $organisation */
         foreach ($group->organisations()->get() as $organisation) {
-            $this->seedOrganisationAikuScopedSection($organisation);
+            if ($organisation->type == OrganisationTypeEnum::SHOP) {
+                $this->seedOrganisationAikuScopedSection($organisation);
+            } elseif ($organisation->type == OrganisationTypeEnum::AGENT) {
+                $this->seedAgentAikuScopedSection($organisation);
+            }
         }
         /** @var Shop $shop */
         foreach ($group->shops()->get() as $shop) {
@@ -53,21 +60,26 @@ class SeedAikuScopedSections extends GrpAction
         foreach ($group->warehouses()->get() as $warehouse) {
             $this->seedWarehouseAikuScopedSection($warehouse);
         }
-
     }
 
 
-    public function seedAikuScopedSection(Group|Shop|Organisation|Fulfilment|Production|Warehouse $model): void
+    public function seedAikuScopedSection(Group|Shop|Organisation|Fulfilment|Production|Warehouse|Agent $model): void
     {
         foreach (AikuSectionEnum::cases() as $case) {
-            if ($case->scopeType() == class_basename($model)) {
+            $scope = class_basename($model);
+            if ($scope == 'Organisation' and $model->type == OrganisationTypeEnum::DIGITAL_AGENCY) {
+                $scope = 'DigitalAgency';
+            }
+
+
+            if (in_array($scope, $case->scopes())) {
                 $aikuSection = AikuSection::where('code', $case->value)->first();
                 $code        = $aikuSection->slug;
                 $name        = $case->labels()[$case->value].' '.$model->code;
 
                 $aikuScopedSection = AikuScopedSection::where('code', $code)
-                    ->where('model_type',class_basename($model))
-                    ->where('model_id',$model->id)
+                    ->where('model_type', class_basename($model))
+                    ->where('model_id', $model->id)
                     ->first();
 
                 if ($aikuScopedSection) {
@@ -112,6 +124,11 @@ class SeedAikuScopedSections extends GrpAction
     public function seedWarehouseAikuScopedSection(Warehouse $warehouse): void
     {
         $this->seedAikuScopedSection($warehouse);
+    }
+
+    public function seedAgentAikuScopedSection(Agent $agent): void
+    {
+        $this->seedAikuScopedSection($agent);
     }
 
 

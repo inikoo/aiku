@@ -11,6 +11,7 @@ use App\Actions\SysAdmin\User\SendLinkResetPassword;
 use App\Audits\Redactors\PasswordRedactor;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
+use App\Models\Analytics\UserRequest;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\ModelSubscribedToOutbox;
 use App\Models\Fulfilment\Fulfilment;

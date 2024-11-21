@@ -28,19 +28,18 @@ class ProcessUserRequest extends GrpAction
         $parsedUserAgent = (new Browser())->parse($userAgent);
         // $section = $this->parseSections($routeData['name']);
         $modelData = [
-            'date'          => $datetime,
-            'route_name'    => $routeData['name'],
-            'route_params'  => json_encode($routeData['arguments']),
-            // 'section'       => $section[0],
-            'os'            => $this->detectWindows11($parsedUserAgent),
-            'device'        => $parsedUserAgent->deviceType(),
-            'browser'       => explode(' ', $parsedUserAgent->browserName())[0],
-            'ip_address'    => $ip,
-            'location'      => json_encode($this->getLocation($ip))
+            'date'                   => $datetime,
+            'route_name'             => $routeData['name'],
+            'route_params'           => json_encode($routeData['arguments']),
+            'aiku_scoped_section_id' => 1,// GetRootSection::run($routeData), -> AikuScopedSection
+            'os'                     => $this->detectWindows11($parsedUserAgent),
+            'device'                 => $parsedUserAgent->deviceType(),
+            'browser'                => explode(' ', $parsedUserAgent->browserName())[0],
+            'ip_address'             => $ip,
+            'location'               => json_encode($this->getLocation($ip))
         ];
 
-        $userRequest = StoreUserRequest::make()->action($user, $modelData);
-        return $userRequest;
+        return StoreUserRequest::make()->action($user, $modelData);
     }
 
     public function getLocation(string|null $ip): false|array|null

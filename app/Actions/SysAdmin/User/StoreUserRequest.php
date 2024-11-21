@@ -23,10 +23,7 @@ class StoreUserRequest extends GrpAction
      */
     public function handle(User $user, array $modelData): UserRequest
     {
-        data_set($modelData, 'group_id', $user->group_id);
-        $userRequest = $user->userRequests()->create($modelData);
-
-        return $userRequest;
+        return $user->userRequests()->create($modelData);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -41,15 +38,15 @@ class StoreUserRequest extends GrpAction
     public function rules(): array
     {
         $rules = [
-            'date' => ['required', 'date'],
-            'os'   => ['required', 'string'],
-            'route_name' => ['required', 'string'],
-            'route_params' => ['required'],
-            'section'   => ['required', 'string'],
-            'device' => ['required', 'string'],
-            'browser' => ['required', 'string'],
-            'ip_address' => ['required', 'string'],
-            'location'  => ['required']
+            'date'                   => ['required', 'date'],
+            'os'                     => ['required', 'string'],
+            'route_name'             => ['required', 'string'],
+            'route_params'           => ['required'],
+            'aiku_scoped_section_id' => ['required', 'integer'],
+            'device'                 => ['required', 'string'],
+            'browser'                => ['required', 'string'],
+            'ip_address'             => ['required', 'string'],
+            'location'               => ['required']
         ];
 
         if (!$this->strict) {
@@ -58,6 +55,7 @@ class StoreUserRequest extends GrpAction
 
         return $rules;
     }
+
     /**
      * @throws \Throwable
      */

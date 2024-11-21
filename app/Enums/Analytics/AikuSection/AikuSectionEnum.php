@@ -103,7 +103,7 @@ enum AikuSectionEnum: string
         ];
     }
 
-    public function scopeType(): array
+    public function scopes(): array
     {
         return match ($this) {
             // Group section

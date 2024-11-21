@@ -8,7 +8,6 @@
 namespace App\Models\Analytics;
 
 use App\Models\SysAdmin\User;
-use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -36,7 +35,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class UserRequest extends Model
 {
-    use InGroup;
+    public $timestamps = false;
 
     protected $guarded = [
     ];

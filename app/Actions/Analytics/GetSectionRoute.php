@@ -18,7 +18,7 @@ class GetSectionRoute extends OrgAction
 {
     use AsController;
 
-    public function handle(string $routeName, array $routeParameters): string
+    public function handle(string $routeName, array $routeParameters): AikuScopedSection
     {
         // if (str_starts_with($routeName, 'grp.org.')) {
         //     return $this->parseOrganisationSections(
@@ -29,10 +29,10 @@ class GetSectionRoute extends OrgAction
         // grp.org.shops.show.dashboard
 
         if ($routeName == "grp.org.shops.show.dashboard") {
-            AikuScopedSection::where('code', AikuSectionEnum::SHOP_DASHBOARD)->where('model_slug', $routeParameters['shop']);
+            $aikuScopedSection = AikuScopedSection::where('code', AikuSectionEnum::SHOP_DASHBOARD)->where('model_slug', $routeParameters['shop']);
         }
 
 
-        return "";
+        return $aikuScopedSection;
     }
 }
