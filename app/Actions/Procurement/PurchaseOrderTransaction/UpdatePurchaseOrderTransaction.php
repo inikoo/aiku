@@ -14,6 +14,7 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Http\Resources\Procurement\PurchaseOrderResource;
 use App\Models\Procurement\PurchaseOrderTransaction;
 use Lorisleiva\Actions\ActionRequest;
+use App\Models\Procurement\PurchaseOrder;
 
 class UpdatePurchaseOrderTransaction extends OrgAction
 {
@@ -40,8 +41,8 @@ class UpdatePurchaseOrderTransaction extends OrgAction
     {
         $rules = [
             'quantity_ordered' => ['sometimes', 'numeric', 'min:0'],
-            'unit_quantity' => ['sometimes', 'required', 'numeric', 'gt:0'],
-            'unit_price'    => ['sometimes', 'required', 'numeric'],
+            'unit_quantity' => ['sometimes', 'nullable', 'numeric', 'gt:0'],
+            'unit_price'    => ['sometimes', 'nullable', 'numeric'],
         ];
         if (!$this->strict) {
             $rules = $this->noStrictUpdateRules($rules);
@@ -64,7 +65,7 @@ class UpdatePurchaseOrderTransaction extends OrgAction
     }
 
 
-    public function asController(PurchaseOrderTransaction $purchaseOrderTransaction, ActionRequest $request): PurchaseOrderTransaction
+    public function asController(PurchaseOrder $purchaseOrder, PurchaseOrderTransaction $purchaseOrderTransaction, ActionRequest $request): PurchaseOrderTransaction
     {
         $this->initialisation($purchaseOrderTransaction->organisation, $request);
         return $this->handle($purchaseOrderTransaction, $this->validatedData);
