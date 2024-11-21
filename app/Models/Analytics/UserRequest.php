@@ -26,7 +26,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $ip_address
  * @property string $location
  * @property-read User $aikuScopedSection
- * @property-read \App\Models\SysAdmin\Group|null $group
  * @property-read User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserRequest newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserRequest newQuery()
