@@ -28,11 +28,12 @@ class ProcessUserRequest extends GrpAction
     public function handle(User $user, Carbon $datetime, array $routeData, string $ip, string $userAgent): UserRequest
     {
         $parsedUserAgent = (new Browser())->parse($userAgent);
+        $section = $this->parseSections($routeData['name']);
         $modelData = [
             'date'          => $datetime,
             'route_name'    => $routeData['name'],
             'route_params'  => json_encode($routeData['arguments']),
-            'section'       => $this->parseSections($routeData['name']),
+            'section'       => $section[0],
             'os'            => $this->detectWindows11($parsedUserAgent),
             'device'        => $parsedUserAgent->deviceType(),
             'browser'       => explode(' ', $parsedUserAgent->browserName())[0],
