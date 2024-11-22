@@ -13,7 +13,13 @@ return new class () extends Migration {
             $table->id();
             $table->unsignedInteger('master_product_id')->index();
             $table->foreign('master_product_id')->references('id')->on('master_products');
-            $table = $this->salesIntervalFields($table, ['master_shop_amount', 'group_amount']);
+            $table = $this->salesIntervalFields($table, [
+                'sales_grp_currency',
+                'invoices',
+                'orders',
+                'delivery_notes',
+                'customers'
+            ]);
             $table->timestampsTz();
         });
     }

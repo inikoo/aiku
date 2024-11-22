@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 14 Apr 2023 12:56:18 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Sun, 23 Apr 2023 11:32:22 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\Catalogue;
+namespace App\Models\SysAdmin;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
@@ -13,10 +13,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Catalogue\ShopMailStats
+ *
  *
  * @property int $id
- * @property int $shop_id
+ * @property int $organisation_id
  * @property int $number_outboxes
  * @property int $number_outboxes_type_basket_low_stock
  * @property int $number_outboxes_type_basket_reminder_1
@@ -71,20 +71,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_provoked_unsubscribe
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Catalogue\Shop $shop
- * @method static Builder<static>|ShopMailStats newModelQuery()
- * @method static Builder<static>|ShopMailStats newQuery()
- * @method static Builder<static>|ShopMailStats query()
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @method static Builder<static>|OrganisationCommsStats newModelQuery()
+ * @method static Builder<static>|OrganisationCommsStats newQuery()
+ * @method static Builder<static>|OrganisationCommsStats query()
  * @mixin Eloquent
  */
-class ShopMailStats extends Model
+class OrganisationCommsStats extends Model
 {
-    protected $table = 'shop_mail_stats';
+    protected $table = 'organisation_comms_stats';
 
     protected $guarded = [];
 
-    public function shop(): BelongsTo
+    public function organisation(): BelongsTo
     {
-        return $this->belongsTo(Shop::class);
+        return $this->belongsTo(Organisation::class);
     }
 }

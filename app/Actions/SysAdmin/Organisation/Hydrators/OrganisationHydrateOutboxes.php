@@ -66,7 +66,7 @@ class OrganisationHydrateOutboxes
             )
         );
 
-        $organisation->mailStats()->update($stats);
+        $organisation->commsStats()->update($stats);
 
     }
 

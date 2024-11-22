@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 14 Apr 2023 15:22:38 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 11 Jun 2024 20:25:31 Central European Summer Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 
@@ -14,12 +14,14 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     use HasMailStats;
 
-    public function up()
+
+    public function up(): void
     {
-        Schema::create('shop_mail_stats', function (Blueprint $table) {
+        Schema::create('group_comms_stats', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('shop_id');
-            $table->foreign('shop_id')->references('id')->on('shops')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('group_id');
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
+            $table = $this->postRoomsStats($table);
             $table = $this->outboxesStats($table);
             $table = $this->mailshotsStats($table);
             $table = $this->dispatchedEmailStats($table);
@@ -29,8 +31,8 @@ return new class () extends Migration {
     }
 
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('shop_mail_stats');
+        Schema::dropIfExists('group_comms_stats');
     }
 };

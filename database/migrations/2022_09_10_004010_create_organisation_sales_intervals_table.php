@@ -5,13 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasSalesIntervals;
+use App\Stubs\Migrations\HasDateIntervalsStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use  HasSalesIntervals;
+    use  HasDateIntervalsStats;
 
     public function up(): void
     {
@@ -19,7 +19,10 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
-            $table = $this->salesIntervalFields($table, ['org_amount', 'group_amount', 'invoices', 'refunds','orders','delivery_notes','new_customers']);
+            $table = $this->dateIntervals($table, [
+                'sales_org_currency',
+                'sales_grp_currency'
+            ]);
             $table->timestampsTz();
         });
     }

@@ -7,13 +7,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasSalesIntervals;
+
     public function up(): void
     {
         Schema::create('master_product_category_sales_intervals', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('master_product_category_id')->index();
             $table->foreign('master_product_category_id')->references('id')->on('master_product_categories');
-            $table = $this->salesIntervalFields($table, ['master_shop_amount', 'group_amount']);
+            $table = $this->salesIntervalFields($table, [
+                'sales_grp_currency',
+                'invoices',
+                'orders',
+                'delivery_notes',
+                'customers'
+            ]);
             $table->timestampsTz();
         });
     }

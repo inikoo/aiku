@@ -140,6 +140,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Address|null $collectionAddress
  * @property-read LaravelCollection<int, \App\Models\Catalogue\CollectionCategory> $collectionCategories
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Collection> $collections
+ * @property-read \App\Models\Catalogue\ShopCommsStats|null $commsStats
  * @property-read Country $country
  * @property-read LaravelCollection<int, CreditTransaction> $creditTransactions
  * @property-read \App\Models\Catalogue\ShopCRMStats|null $crmStats
@@ -157,7 +158,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, Issue> $issues
- * @property-read \App\Models\Catalogue\ShopMailStats|null $mailStats
  * @property-read LaravelCollection<int, Mailshot> $mailshots
  * @property-read ShopMailshotsIntervals|null $mailshotsIntervals
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
@@ -430,9 +430,9 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->morphOne(TaxNumber::class, 'owner');
     }
 
-    public function mailStats(): HasOne
+    public function commsStats(): HasOne
     {
-        return $this->hasOne(ShopMailStats::class);
+        return $this->hasOne(ShopCommsStats::class);
     }
 
     public function discountsStats(): HasOne

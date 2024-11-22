@@ -140,6 +140,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ClockingMachine> $clockingMachines
  * @property-read LaravelCollection<int, CollectionCategory> $collectionCategories
  * @property-read LaravelCollection<int, Collection> $collections
+ * @property-read \App\Models\SysAdmin\OrganisationCommsStats|null $commsStats
  * @property-read Country $country
  * @property-read LaravelCollection<int, CreditTransaction> $creditTransactions
  * @property-read \App\Models\SysAdmin\OrganisationCRMStats|null $crmStats
@@ -163,7 +164,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Language $language
  * @property-read LaravelCollection<int, Location> $locations
  * @property-read Media|null $logo
- * @property-read \App\Models\SysAdmin\OrganisationMailStats|null $mailStats
  * @property-read \App\Models\SysAdmin\OrganisationMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\OrganisationManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
@@ -328,9 +328,9 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->hasOne(OrganisationCatalogueStats::class);
     }
 
-    public function mailStats(): HasOne
+    public function commsStats(): HasOne
     {
-        return $this->hasOne(OrganisationMailStats::class);
+        return $this->hasOne(OrganisationCommsStats::class);
     }
 
     public function orderingStats(): HasOne

@@ -131,6 +131,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ClockingMachine> $clockingMachines
  * @property-read LaravelCollection<int, CollectionCategory> $collectionCategories
  * @property-read LaravelCollection<int, Collection> $collections
+ * @property-read \App\Models\SysAdmin\GroupCommsStats|null $commsStats
  * @property-read LaravelCollection<int, CreditTransaction> $creditTransactions
  * @property-read \App\Models\SysAdmin\GroupCRMStats|null $crmStats
  * @property-read Currency $currency
@@ -155,7 +156,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\JobPositionCategory> $jobPositionCategories
  * @property-read LaravelCollection<int, JobPosition> $jobPositions
  * @property-read LaravelCollection<int, Location> $locations
- * @property-read \App\Models\SysAdmin\GroupMailStats|null $mailStats
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
@@ -381,9 +381,9 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasOne(GroupWebStats::class);
     }
 
-    public function mailStats(): HasOne
+    public function commsStats(): HasOne
     {
-        return $this->hasOne(GroupMailStats::class);
+        return $this->hasOne(GroupCommsStats::class);
     }
 
     public function organisations(): HasMany

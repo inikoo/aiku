@@ -66,7 +66,7 @@ class ShopHydrateOutboxes
             )
         );
 
-        $shop->mailStats()->update($stats);
+        $shop->commsStats()->update($stats);
     }
 
 

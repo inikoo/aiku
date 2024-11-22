@@ -101,7 +101,7 @@ class StoreOrganisation
             $organisation->accountingStats()->create();
             $organisation->dropshippingStats()->create();
             $organisation->webStats()->create();
-            $organisation->mailStats()->create();
+            $organisation->commsStats()->create();
 
             if ($organisation->type == OrganisationTypeEnum::SHOP) {
                 $organisation->crmStats()->create();
