@@ -7,6 +7,7 @@
 
 namespace App\Actions\Analytics\UserRequest;
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\User\StoreUserRequest;
 use App\Actions\Traits\Rules\WithNoStrictRules;
@@ -23,15 +24,21 @@ class ProcessUserRequest extends GrpAction
     /**
      * @throws \Throwable
      */
-    public function handle(User $user, Carbon $datetime, array $routeData, string $ip, string $userAgent): UserRequest
+    public function handle(User $user, Carbon $datetime, array $routeData, string $ip, string $userAgent): UserRequest|null
     {
+        $section = GetSectionRoute::dispatch($routeData['name'], $routeData['arguments']);
+        $aiku_scoped_section_id = $section?->id ?? null;
+
+        if ($aiku_scoped_section_id == null) {
+            return null;
+        }
+
         $parsedUserAgent = (new Browser())->parse($userAgent);
-        // $section = $this->parseSections($routeData['name']);
         $modelData = [
             'date'                   => $datetime,
             'route_name'             => $routeData['name'],
             'route_params'           => json_encode($routeData['arguments']),
-            'aiku_scoped_section_id' => 1,// GetRootSection::run($routeData), -> AikuScopedSection
+            'aiku_scoped_section_id' => $aiku_scoped_section_id,
             'os'                     => $this->detectWindows11($parsedUserAgent),
             'device'                 => $parsedUserAgent->deviceType(),
             'browser'                => explode(' ', $parsedUserAgent->browserName())[0],
