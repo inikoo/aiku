@@ -14,7 +14,10 @@ import type { Navigation } from '@/types/Tabs'
 import { routeType } from "@/types/route"
 import { Link } from "@inertiajs/vue3"
 import { aikuLocaleStructure } from "@/Composables/useLocaleStructure"
-import LoadingIcon from "../Utils/LoadingIcon.vue";
+import LoadingIcon from "@/Components/Utils/LoadingIcon.vue"
+import Select from 'primevue/select'
+import IftaLabel from 'primevue/iftalabel'
+import { trans } from "laravel-vue-i18n";
 
 library.add(faInfoCircle, faRoad, faClock, faDatabase, faPallet, faCircle, faNetworkWired, faSpinnerThird, faEye, faThLarge,faTachometerAltFast, faMoneyBillWave, faHeart, faShoppingCart, faCameraRetro, faStream)
 
@@ -41,6 +44,12 @@ const props = defineProps<{
     }[]
     current: string | Number
 }>()
+
+const mergeTabs = () => {
+    return props.tabs_box.reduce((acc, current) => {
+        return acc.concat(current.tabs);
+    }, []);
+};
 
 const emits = defineEmits<{
     (e: 'update:tab', value: string): void
@@ -81,23 +90,8 @@ const renderLabelBasedOnType = (data?: {label: string | number, type?: string}, 
 
 <template>
     <div>
-        <!-- Tabs: Mobile view -->
-        <div class="sm:hidden px-3 pt-2">
-            <label for="tabs" class="sr-only">Select a tab</label>
-
-            <!-- TODO: use Headless or component Dropdown so the icon is able to show (currrently not) -->
-            <!-- <select id="tabs" name="tabs" class="block w-full capitalize rounded-md border-gray-300 focus:border-gray-500 focus:ring-gray-500"
-                @input="(val: any) => onChangeTab(val.target.value)"
-            >
-                <option v-for="(tab, tabSlug) in navigation" :key="tabSlug" :selected="tabSlug == currentTab" :value="tabSlug" class="capitalize">
-                    <FontAwesomeIcon v-if="tabLoading == tabSlug" icon="fad fa-spinner-third" class="animate-spin" :class="tabIconClass(tabSlug === currentTab, tab.type, tab.align, tab.iconClass || '')" aria-hidden="true"/>
-                    <FontAwesomeIcon v-else-if="tab.icon" :icon="tab.icon" aria-hidden="true"/>
-                    {{ tab.title }}
-                </option>
-            </select> -->
-        </div>
-
-        <div class="px-6 flex gap-x-6 my-2 border-b border-gray-300">
+        <!-- Desktop -->
+        <div class="hidden px-6 md:flex gap-x-6 my-2 border-b border-gray-300">
             <div v-for="box in tabs_box" class="px-3 relative border border-gray-300 w-full flex flex-col  py-2 transition-all z-10"
                 :class="box.tabs.some(tab => tab.tab_slug === currentTab) ? 'mt-3 rounded-t-xl border-b-0 -mb-0.5 bg-white' : 'bg-gray-500/10 shadow-xl mb-2 rounded-md '"
             >
@@ -136,6 +130,27 @@ const renderLabelBasedOnType = (data?: {label: string | number, type?: string}, 
                 </div>
 
             </div>
+        </div>
+
+        <!-- Mobile -->
+        <div class="mt-2 px-2 md:hidden">
+            <IftaLabel>
+                <Select
+                    :modelValue="current"
+                    :options="mergeTabs()"
+                    optionValue="tab_slug"
+                    optionLabel="label"
+                    checkmark
+                    :loading="!!tabLoading"
+                    class="w-full"
+                    @change="(ee) => onChangeTab(ee.value)"
+                >
+                    <template #loadingicon>
+                        <LoadingIcon />
+                    </template>
+                </Select>
+                <label for="dd-city">{{ trans("Tabs") }}</label>
+            </IftaLabel>
         </div>
         
 
