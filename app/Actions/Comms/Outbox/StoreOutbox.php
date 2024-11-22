@@ -15,7 +15,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
 use App\Enums\Comms\Outbox\OutboxBlueprintEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
@@ -79,7 +79,7 @@ class StoreOutbox extends OrgAction
     public function rules(): array
     {
         return [
-            'type'      => ['required', Rule::enum(OutboxTypeEnum::class)],
+            'type'      => ['required', Rule::enum(OutboxCodeEnum::class)],
             'name'      => ['required', 'max:250', 'string'],
             'blueprint' => ['required', Rule::enum(OutboxBlueprintEnum::class)],
         ];

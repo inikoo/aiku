@@ -65,7 +65,7 @@ class ShopHydratePurges
             )
         );
 
-        $shop->salesStats()->update($stats);
+        $shop->orderingStats()->update($stats);
     }
 
 }

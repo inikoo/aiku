@@ -7,7 +7,7 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraOrderDispatchedEmail extends FetchAurora
@@ -24,11 +24,11 @@ class FetchAuroraOrderDispatchedEmail extends FetchAurora
         }
 
         $outboxType = match ($this->auroraModelData->{'Order Sent Email Type'}) {
-            'Order Notification' => OutboxTypeEnum::ORDER_CONFIRMATION,
-            'Dispatch Notification' => OutboxTypeEnum::DELIVERY_CONFIRMATION,
-            'Basket Reminder 1' => OutboxTypeEnum::BASKET_REMINDER_1,
-            'Basket Reminder 2' => OutboxTypeEnum::BASKET_REMINDER_2,
-            'Basket Reminder 3' => OutboxTypeEnum::BASKET_REMINDER_3,
+            'Order Notification' => OutboxCodeEnum::ORDER_CONFIRMATION,
+            'Dispatch Notification' => OutboxCodeEnum::DELIVERY_CONFIRMATION,
+            'Basket Reminder 1' => OutboxCodeEnum::BASKET_REMINDER_1,
+            'Basket Reminder 2' => OutboxCodeEnum::BASKET_REMINDER_2,
+            'Basket Reminder 3' => OutboxCodeEnum::BASKET_REMINDER_3,
             default => null
         };
         if ($outboxType == null) {

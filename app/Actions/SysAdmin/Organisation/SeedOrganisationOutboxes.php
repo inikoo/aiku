@@ -8,7 +8,7 @@
 namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\Comms\Outbox\StoreOutbox;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\PostRoom;
 use App\Models\SysAdmin\Organisation;
 use Exception;
@@ -21,17 +21,18 @@ class SeedOrganisationOutboxes
 
     public function handle(Organisation $organisation): void
     {
-        foreach (OutboxTypeEnum::cases() as $case) {
+        foreach (OutboxCodeEnum::cases() as $case) {
             if ($case->scope() == 'Organisation') {
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
 
-                if (!$organisation->outboxes()->where('type', $case)->exists()) {
+                if (!$organisation->outboxes()->where('code', $case)->exists()) {
                     StoreOutbox::run(
                         $postRoom,
                         $organisation,
                         [
                             'name'      => $case->label(),
-                            'type'      => $case,
+                            'code'      => $case,
+                            'type'      => $case->type(),
                             'state'     => $case->defaultState(),
                             'blueprint' => $case->blueprint(),
 

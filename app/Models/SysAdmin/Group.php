@@ -97,7 +97,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\SysAdmin\Group
+ *
  *
  * @property int $id
  * @property string $ulid
@@ -131,6 +131,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ClockingMachine> $clockingMachines
  * @property-read LaravelCollection<int, CollectionCategory> $collectionCategories
  * @property-read LaravelCollection<int, Collection> $collections
+ * @property-read \App\Models\SysAdmin\GroupCommsStats|null $commsStats
  * @property-read LaravelCollection<int, CreditTransaction> $creditTransactions
  * @property-read \App\Models\SysAdmin\GroupCRMStats|null $crmStats
  * @property-read Currency $currency
@@ -150,11 +151,11 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read LaravelCollection<int, Ingredient> $ingredients
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
+ * @property-read LaravelCollection<int, InvoiceCategory> $invoiceCategories
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\JobPositionCategory> $jobPositionCategories
  * @property-read LaravelCollection<int, JobPosition> $jobPositions
  * @property-read LaravelCollection<int, Location> $locations
- * @property-read \App\Models\SysAdmin\GroupMailStats|null $mailStats
  * @property-read \App\Models\SysAdmin\GroupMailshotsIntervals|null $mailshotsIntervals
  * @property-read \App\Models\SysAdmin\GroupManufactureStats|null $manufactureStats
  * @property-read LaravelCollection<int, ManufactureTask> $manufactureTasks
@@ -163,6 +164,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, Offer> $offers
+ * @property-read \App\Models\SysAdmin\GroupOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read \App\Models\SysAdmin\GroupOrdersIntervals|null $ordersIntervals
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
@@ -188,7 +190,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read LaravelCollection<int, SalesChannel> $salesChannels
  * @property-read \App\Models\SysAdmin\GroupSalesIntervals|null $salesIntervals
- * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
  * @property-read LaravelCollection<int, Service> $services
  * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
  * @property-read LaravelCollection<int, ShippingZone> $shippingZones
@@ -340,9 +341,9 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasOne(GroupDiscountsStats::class);
     }
 
-    public function salesStats(): HasOne
+    public function orderingStats(): HasOne
     {
-        return $this->hasOne(GroupSalesStats::class);
+        return $this->hasOne(GroupOrderingStats::class);
     }
 
     public function salesIntervals(): HasOne
@@ -380,9 +381,9 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasOne(GroupWebStats::class);
     }
 
-    public function mailStats(): HasOne
+    public function commsStats(): HasOne
     {
-        return $this->hasOne(GroupMailStats::class);
+        return $this->hasOne(GroupCommsStats::class);
     }
 
     public function organisations(): HasMany

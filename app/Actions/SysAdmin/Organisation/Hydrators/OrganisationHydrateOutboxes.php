@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\Organisation\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\Outbox;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -44,7 +44,7 @@ class OrganisationHydrateOutboxes
             $this->getEnumStats(
                 model: 'outboxes',
                 field: 'type',
-                enum: OutboxTypeEnum::class,
+                enum: OutboxCodeEnum::class,
                 models: Outbox::class,
                 where: function ($q) use ($organisation) {
                     $q->where('organisation_id', $organisation->id);
@@ -66,7 +66,7 @@ class OrganisationHydrateOutboxes
             )
         );
 
-        $organisation->mailStats()->update($stats);
+        $organisation->commsStats()->update($stats);
 
     }
 

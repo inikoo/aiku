@@ -1,12 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 23 Apr 2023 11:32:22 Malaysia Time, Sanur, Bali, Indonesia
+ * Created: Fri, 14 Apr 2023 12:56:18 Malaysia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-namespace App\Models\SysAdmin;
+namespace App\Models\Catalogue;
 
+use Eloquent;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -14,8 +16,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  *
  * @property int $id
- * @property int $group_id
- * @property int $number_post_rooms
+ * @property int $shop_id
  * @property int $number_outboxes
  * @property int $number_outboxes_type_basket_low_stock
  * @property int $number_outboxes_type_basket_reminder_1
@@ -70,20 +71,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_provoked_unsubscribe
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\SysAdmin\Group $group
- * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupMailStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupMailStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupMailStats query()
- * @mixin \Eloquent
+ * @property-read \App\Models\Catalogue\Shop $shop
+ * @method static Builder<static>|ShopCommsStats newModelQuery()
+ * @method static Builder<static>|ShopCommsStats newQuery()
+ * @method static Builder<static>|ShopCommsStats query()
+ * @mixin Eloquent
  */
-class GroupMailStats extends Model
+class ShopCommsStats extends Model
 {
-    protected $table = 'group_mail_stats';
+    protected $table = 'shop_comms_stats';
 
     protected $guarded = [];
 
-    public function group(): BelongsTo
+    public function shop(): BelongsTo
     {
-        return $this->belongsTo(Group::class);
+        return $this->belongsTo(Shop::class);
     }
 }

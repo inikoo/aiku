@@ -3,7 +3,7 @@
 namespace App\Notifications;
 
 use App\Channel\CustomMailMessage;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\User;
@@ -35,7 +35,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
     public function toMail(WebUser|User $notifiable): MailMessage
     {
         /** @var Outbox $outbox */
-        $outbox = $notifiable->shop->outboxes()->where('type', OutboxTypeEnum::PASSWORD_REMINDER->value)
+        $outbox = $notifiable->shop->outboxes()->where('type', OutboxCodeEnum::PASSWORD_REMINDER->value)
             ->first();
 
         $data = $outbox->emailTemplate->published_layout;

@@ -9,7 +9,7 @@
 
 use App\Actions\Comms\Outbox\StoreOutbox;
 use App\Enums\Comms\Outbox\OutboxBlueprintEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\Outbox;
 use Inertia\Testing\AssertableInertia;
 
@@ -33,7 +33,7 @@ beforeEach(function () {
             $postRoom,
             $this->shop,
             [
-                'type'      => OutboxTypeEnum::NEWSLETTER,
+                'type'      => OutboxCodeEnum::NEWSLETTER,
                 'name'      => 'Test',
                 'blueprint' => OutboxBlueprintEnum::EMAIL_TEMPLATE,
                 'layout'    => []

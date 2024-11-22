@@ -10,6 +10,7 @@ namespace App\Models\Comms;
 use App\Actions\Utils\Abbreviate;
 use App\Enums\Comms\Outbox\OutboxBlueprintEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
@@ -38,6 +39,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int|null $website_id
  * @property int|null $fulfilment_id
  * @property string $slug
+ * @property OutboxCodeEnum $code
  * @property OutboxTypeEnum $type
  * @property string $name
  * @property OutboxBlueprintEnum $blueprint
@@ -85,6 +87,7 @@ class Outbox extends Model
     protected $casts = [
         'data'  => 'array',
         'sources' => 'array',
+        'code'  => OutboxCodeEnum::class,
         'type'  => OutboxTypeEnum::class,
         'state' => OutboxStateEnum::class,
         'blueprint' => OutboxBlueprintEnum::class

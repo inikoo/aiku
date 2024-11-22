@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Catalogue\ShopSalesStats
+ * App\Models\Catalogue\ShopOrderingStats
  *
  * @property int $id
  * @property int $product_category_id
@@ -20,27 +20,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $shop_amount_1q
  * @property string $shop_amount_1m
  * @property string $shop_amount_1w
+ * @property string $shop_amount_3d
+ * @property string $shop_amount_1d
  * @property string $shop_amount_ytd
  * @property string $shop_amount_qtd
  * @property string $shop_amount_mtd
  * @property string $shop_amount_wtd
  * @property string $shop_amount_lm
  * @property string $shop_amount_lw
- * @property string $shop_amount_yda
- * @property string $shop_amount_tdy
  * @property string $shop_amount_all_ly
  * @property string $shop_amount_1y_ly
  * @property string $shop_amount_1q_ly
  * @property string $shop_amount_1m_ly
  * @property string $shop_amount_1w_ly
+ * @property string $shop_amount_3d_ly
+ * @property string $shop_amount_1d_ly
  * @property string $shop_amount_ytd_ly
  * @property string $shop_amount_qtd_ly
  * @property string $shop_amount_mtd_ly
  * @property string $shop_amount_wtd_ly
  * @property string $shop_amount_lm_ly
  * @property string $shop_amount_lw_ly
- * @property string $shop_amount_yda_ly
- * @property string $shop_amount_tdy_ly
  * @property string $shop_amount_py1
  * @property string $shop_amount_py2
  * @property string $shop_amount_py3
@@ -56,27 +56,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $org_amount_1q
  * @property string $org_amount_1m
  * @property string $org_amount_1w
+ * @property string $org_amount_3d
+ * @property string $org_amount_1d
  * @property string $org_amount_ytd
  * @property string $org_amount_qtd
  * @property string $org_amount_mtd
  * @property string $org_amount_wtd
  * @property string $org_amount_lm
  * @property string $org_amount_lw
- * @property string $org_amount_yda
- * @property string $org_amount_tdy
  * @property string $org_amount_all_ly
  * @property string $org_amount_1y_ly
  * @property string $org_amount_1q_ly
  * @property string $org_amount_1m_ly
  * @property string $org_amount_1w_ly
+ * @property string $org_amount_3d_ly
+ * @property string $org_amount_1d_ly
  * @property string $org_amount_ytd_ly
  * @property string $org_amount_qtd_ly
  * @property string $org_amount_mtd_ly
  * @property string $org_amount_wtd_ly
  * @property string $org_amount_lm_ly
  * @property string $org_amount_lw_ly
- * @property string $org_amount_yda_ly
- * @property string $org_amount_tdy_ly
  * @property string $org_amount_py1
  * @property string $org_amount_py2
  * @property string $org_amount_py3
@@ -92,27 +92,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_1q
  * @property string $group_amount_1m
  * @property string $group_amount_1w
+ * @property string $group_amount_3d
+ * @property string $group_amount_1d
  * @property string $group_amount_ytd
  * @property string $group_amount_qtd
  * @property string $group_amount_mtd
  * @property string $group_amount_wtd
  * @property string $group_amount_lm
  * @property string $group_amount_lw
- * @property string $group_amount_yda
- * @property string $group_amount_tdy
  * @property string $group_amount_all_ly
  * @property string $group_amount_1y_ly
  * @property string $group_amount_1q_ly
  * @property string $group_amount_1m_ly
  * @property string $group_amount_1w_ly
+ * @property string $group_amount_3d_ly
+ * @property string $group_amount_1d_ly
  * @property string $group_amount_ytd_ly
  * @property string $group_amount_qtd_ly
  * @property string $group_amount_mtd_ly
  * @property string $group_amount_wtd_ly
  * @property string $group_amount_lm_ly
  * @property string $group_amount_lw_ly
- * @property string $group_amount_yda_ly
- * @property string $group_amount_tdy_ly
  * @property string $group_amount_py1
  * @property string $group_amount_py2
  * @property string $group_amount_py3

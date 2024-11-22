@@ -21,27 +21,27 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $amount_1q
  * @property string $amount_1m
  * @property string $amount_1w
+ * @property string $amount_3d
+ * @property string $amount_1d
  * @property string $amount_ytd
  * @property string $amount_qtd
  * @property string $amount_mtd
  * @property string $amount_wtd
  * @property string $amount_lm
  * @property string $amount_lw
- * @property string $amount_yda
- * @property string $amount_tdy
  * @property string $amount_all_ly
  * @property string $amount_1y_ly
  * @property string $amount_1q_ly
  * @property string $amount_1m_ly
  * @property string $amount_1w_ly
+ * @property string $amount_3d_ly
+ * @property string $amount_1d_ly
  * @property string $amount_ytd_ly
  * @property string $amount_qtd_ly
  * @property string $amount_mtd_ly
  * @property string $amount_wtd_ly
  * @property string $amount_lm_ly
  * @property string $amount_lw_ly
- * @property string $amount_yda_ly
- * @property string $amount_tdy_ly
  * @property string $amount_py1
  * @property string $amount_py2
  * @property string $amount_py3

@@ -22,7 +22,7 @@ use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
@@ -179,7 +179,7 @@ test('prospect query count', function () {
 
 test('create prospect mailshot', function () {
     $shop         = $this->shop;
-    $outbox       = Outbox::where('shop_id', $shop->id)->where('type', OutboxTypeEnum::INVITE)->first();
+    $outbox       = Outbox::where('shop_id', $shop->id)->where('type', OutboxCodeEnum::INVITE)->first();
     $dataModel    = [
         'subject'    => 'hello',
         'type'       => MailshotTypeEnum::PROSPECT_MAILSHOT,

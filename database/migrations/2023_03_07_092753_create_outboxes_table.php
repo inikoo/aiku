@@ -26,6 +26,7 @@ return new class () extends Migration {
             $table->foreign('website_id')->references('id')->on('websites');
             $table->unsignedSmallInteger('fulfilment_id')->nullable();
             $table->string('slug')->unique()->collation('und_ns');
+            $table->string('code')->index();
             $table->string('type')->index();
             $table->string('name');
             $table->string('blueprint')->index();

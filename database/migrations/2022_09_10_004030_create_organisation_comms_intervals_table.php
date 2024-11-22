@@ -1,30 +1,26 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 11 Nov 2023 23:23:00 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Fri, 22 Nov 2024 13:13:16 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 
-use App\Stubs\Migrations\HasMailStats;
+use App\Stubs\Migrations\HasCommsIntervals;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasMailStats;
-
+    use HasCommsIntervals;
 
     public function up(): void
     {
-        Schema::create('organisation_mail_stats', function (Blueprint $table) {
+        Schema::create('organisation_comms_intervals', function (Blueprint $table) {
             $table->smallIncrements('id');
             $table->unsignedSmallInteger('organisation_id');
             $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
-            $table = $this->outboxesStats($table);
-            $table = $this->mailshotsStats($table);
-            $table = $this->dispatchedEmailStats($table);
-
+            $table = $this->getCommsIntervals($table);
             $table->timestampsTz();
         });
     }
@@ -32,6 +28,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('organisation_mail_stats');
+        Schema::dropIfExists('organisation_comms_intervals');
     }
 };
