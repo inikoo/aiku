@@ -9,7 +9,7 @@ namespace App\Actions\Catalogue\Shop\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -44,7 +44,7 @@ class ShopHydrateOutboxes
             $this->getEnumStats(
                 model: 'outboxes',
                 field: 'type',
-                enum: OutboxTypeEnum::class,
+                enum: OutboxCodeEnum::class,
                 models: Outbox::class,
                 where: function ($q) use ($shop) {
                     $q->where('shop_id', $shop->id);

@@ -9,7 +9,7 @@ namespace App\Actions\Comms\PostRoom\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -43,7 +43,7 @@ class PostRoomHydrateOutboxes
             $this->getEnumStats(
                 model: 'outboxes',
                 field: 'type',
-                enum: OutboxTypeEnum::class,
+                enum: OutboxCodeEnum::class,
                 models: Outbox::class,
                 where: function ($q) use ($postRoom) {
                     $q->where('post_room_id', $postRoom->id);

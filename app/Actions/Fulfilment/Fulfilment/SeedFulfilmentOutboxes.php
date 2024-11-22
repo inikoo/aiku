@@ -8,7 +8,7 @@
 namespace App\Actions\Fulfilment\Fulfilment;
 
 use App\Actions\Comms\Outbox\StoreOutbox;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
 use App\Models\Fulfilment\Fulfilment;
@@ -22,17 +22,18 @@ class SeedFulfilmentOutboxes
 
     public function handle(Fulfilment $fulfilment): void
     {
-        foreach (OutboxTypeEnum::cases() as $case) {
+        foreach (OutboxCodeEnum::cases() as $case) {
             if ($case->scope() == 'Fulfilment') {
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
 
-                if (!Outbox::where('type', $case)->exists()) {
+                if (!Outbox::where('fulfilment_id', $fulfilment->id)->where('code', $case)->exists()) {
                     StoreOutbox::run(
                         $postRoom,
                         $fulfilment,
                         [
                             'name'      => $case->label(),
-                            'type'      => $case,
+                            'code'      => $case,
+                            'type'      => $case->type(),
                             'state'     => $case->defaultState(),
                             'blueprint' => $case->blueprint(),
                         ]
@@ -46,12 +47,12 @@ class SeedFulfilmentOutboxes
 
     public function asCommand(Command $command): int
     {
-
         if ($command->argument('fulfilment') == null) {
             $fulfilments = Fulfilment::all();
             foreach ($fulfilments as $fulfilment) {
                 $this->handle($fulfilment);
             }
+
             return 0;
         }
 
@@ -59,6 +60,7 @@ class SeedFulfilmentOutboxes
             $fulfilment = Fulfilment::where('slug', $command->argument('fulfilment'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
+
             return 1;
         }
 

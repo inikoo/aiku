@@ -9,7 +9,7 @@ namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\Outbox;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
@@ -44,7 +44,7 @@ class GroupHydrateOutboxes
             $this->getEnumStats(
                 model: 'outboxes',
                 field: 'type',
-                enum: OutboxTypeEnum::class,
+                enum: OutboxCodeEnum::class,
                 models: Outbox::class,
                 where: function ($q) use ($group) {
                     $q->where('group_id', $group->id);

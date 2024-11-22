@@ -8,7 +8,7 @@
 namespace App\Actions\Catalogue\Shop;
 
 use App\Actions\Comms\Outbox\StoreOutbox;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
@@ -22,16 +22,17 @@ class SeedShopOutboxes
 
     public function handle(Shop $shop): void
     {
-        foreach (OutboxTypeEnum::cases() as $case) {
+        foreach (OutboxCodeEnum::cases() as $case) {
             if ($case->scope() == 'Shop' and in_array($shop->type->value, $case->shopTypes())) {
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
-                if (!Outbox::where('shop_id', $shop->id)->where('type', $case)->exists()) {
+                if (!Outbox::where('shop_id', $shop->id)->where('code', $case)->exists()) {
                     StoreOutbox::run(
                         $postRoom,
                         $shop,
                         [
                             'name'      => $case->label(),
-                            'type'      => $case,
+                            'code'      => $case,
+                            'type'      => $case->type(),
                             'state'     => $case->defaultState(),
                             'blueprint' => $case->blueprint(),
 
@@ -46,12 +47,12 @@ class SeedShopOutboxes
 
     public function asCommand(Command $command): int
     {
-
         if ($command->argument('shop') == null) {
             $shops = Shop::all();
             foreach ($shops as $shop) {
                 $this->handle($shop);
             }
+
             return 0;
         }
         try {

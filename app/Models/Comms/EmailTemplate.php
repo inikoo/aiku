@@ -35,6 +35,7 @@ use Spatie\Tags\HasTags;
  * @property bool $is_seeded
  * @property array|null $layout
  * @property array $data
+ * @property int|null $outbox_id
  * @property int|null $screenshot_id
  * @property int $language_id
  * @property \Illuminate\Support\Carbon|null $active_at
