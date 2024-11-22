@@ -70,8 +70,6 @@ const getMergeTagData = () => {
         });
 }
 
-console.log(props);
-
 
 onMounted(async () => {
     await loadScript();

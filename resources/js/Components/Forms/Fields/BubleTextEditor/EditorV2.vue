@@ -82,6 +82,7 @@ import { Plugin } from "prosemirror-state"
 import Variabel from "./Variables/Variables"
 import CustomLink from "./CustomLink/CustomLink.vue"
 import { trans } from "laravel-vue-i18n"
+import { routeType } from "@/types/route"
 
 const props = withDefaults(defineProps<{
     modelValue: string,
@@ -89,6 +90,7 @@ const props = withDefaults(defineProps<{
     type?: string,
     editable?: boolean
     placeholder?: any | String
+    uploadImageRoute? : routeType
 }>(), {
     editable: true,
     type: 'Bubble',
@@ -519,7 +521,7 @@ console.log(editorInstance)
                         </TiptapToolbarButton>
 
                         <TiptapToolbarButton v-if="toogle.includes('image')" label="Image"
-                            @click="showAddImageDialog = true">
+                            @click="()=>{showAddImageDialog = true, showDialog = true }">
                             <FontAwesomeIcon :icon="faImage" class="h-5 w-5" />
                         </TiptapToolbarButton>
 
@@ -593,8 +595,13 @@ console.log(editorInstance)
 
         <TiptapLinkCustomDialog v-if="showLinkDialogCustom" :show="showLinkDialogCustom" :attribut="currentLinkInDialog"
             @close="() => { showLinkDialogCustom = false; showDialog = false; }" @update="updateLinkCustom" />
-        <TiptapImageDialog v-if="showAddImageDialog" :show="showAddImageDialog" @close="showAddImageDialog = false"
-            @insert="insertImage" />
+        <TiptapImageDialog 
+            v-if="showAddImageDialog" 
+            :show="showAddImageDialog" 
+            @close="()=>{showAddImageDialog = false, showDialog = false}"
+            @insert="insertImage" 
+            :uploadImageRoute="uploadImageRoute"
+        />
         <TiptapLinkDialog v-if="showLinkDialog" :show="showLinkDialog" :current-url="currentLinkInDialog"
             @close="() => { showLinkDialog = false; showDialog = false; }" @update="updateLink" />
         <TiptapVideoDialog v-if="showAddYoutubeDialog" :show="showAddYoutubeDialog" @insert="insertYoutubeVideo"

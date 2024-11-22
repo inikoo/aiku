@@ -18,6 +18,7 @@ enum OrdersTabsEnum: string
     case ORDERS    = 'orders';
     case STATS     = 'stats';
     case HISTORY   = 'history';
+    case INVOICE   = 'invoice';
 
     public function blueprint(): array
     {
@@ -30,6 +31,10 @@ enum OrdersTabsEnum: string
             OrdersTabsEnum::STATS => [
                 'title' => __('stats'),
                 'icon'  => 'fal fa-chart-pie',
+            ],
+            OrdersTabsEnum::INVOICE => [
+                'title' => __('invoice'),
+                'icon'  => 'fal fa-file-invoice',
             ],
             OrdersTabsEnum::HISTORY => [
                 'title' => __('history'),
