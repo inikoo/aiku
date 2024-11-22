@@ -31,7 +31,6 @@ class CustomerRecordSearch
             'organisation_slug' => $customer->organisation->slug,
             'shop_id'           => $customer->shop_id,
             'shop_slug'         => $customer->shop->slug,
-            'sections'          => [AikuSectionEnum::SHOP_CRM->value, AikuSectionEnum::FULFILMENT_CRM->value],
             'haystack_tier_1'   => trim($customer->email.' '.$customer->contact_name.' '.$customer->company_name),
             'haystack_tier_2'   => trim($customer->internal_notes.' '.$customer->warehouse_internal_notes.' '.$customer->warehouse_public_notes),
 
@@ -87,18 +86,31 @@ class CustomerRecordSearch
             ]
         ];
 
-        // dd($customer->shop->type);
-        // if($customer->shop->type == 'fulfilment') {
-        //     $modelData['sections'][] = AikuSectionEnum::FULFILMENT_CRM->value;
-        //     'route' => [
-        //             'name'          => 'grp.org.shops.show.crm.customers.show',
-        //             'parameters'    => [
-        //                 $customer->organisation->slug,
-        //                 $customer->shop->slug,
-        //                 $customer->slug
-        //             ]
-        //         ],
-        // }
+        if ($customer->shop->type == 'fulfilment') {
+            $modelData['sections'][] = AikuSectionEnum::FULFILMENT_CRM->value;
+            $modelData['result'] = array_merge_recursive($modelData['result'], [
+                'route' => [
+                    'name'          => 'grp.org.fulfilments.show.crm.customers.show',
+                    'parameters'    => [
+                        $customer->organisation->slug,
+                        $customer->shop->slug,
+                        $customer->slug
+                    ]
+                ]
+            ]);
+        } else {
+            $modelData['sections'][] = AikuSectionEnum::SHOP_CRM->value;
+            $modelData['result'] = array_merge_recursive($modelData['result'], [
+                'route' => [
+                    'name'          => 'grp.org.shops.show.crm.customers.show',
+                    'parameters'    => [
+                        $customer->organisation->slug,
+                        $customer->shop->slug,
+                        $customer->slug
+                    ]
+                ]
+            ]);
+        }
 
 
 
