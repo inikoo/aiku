@@ -13,7 +13,6 @@ use App\Actions\Comms\PostRoom\Hydrators\PostRoomHydrateOutboxes;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
-use App\Enums\Comms\EmailTemplate\EmailTemplateProviderEnum;
 use App\Enums\Comms\Outbox\OutboxBlueprintEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
@@ -30,8 +29,8 @@ class StoreOutbox extends OrgAction
 {
     public function handle(PostRoom $postRoom, Organisation|Shop|Website|Fulfilment $parent, array $modelData): Outbox
     {
-        $layout = Arr::get($modelData, 'layout', []);
-        data_forget($modelData, 'layout');
+        // $layout = Arr::get($modelData, 'layout', []);
+        // data_forget($modelData, 'layout');
 
         data_set($modelData, 'group_id', $parent->group_id);
 
@@ -60,14 +59,11 @@ class StoreOutbox extends OrgAction
         $outbox = $postRoom->outboxes()->create($modelData);
         $outbox->stats()->create();
 
-        if ($outbox->blueprint == OutboxBlueprintEnum::EMAIL_TEMPLATE) {
-            StoreEmailTemplate::make()->action($outbox, [
-                'layout' => $layout,
-                'name' => $outbox->name,
-                'provider' => EmailTemplateProviderEnum::HARD_CODED,
-                'language_id' => $outbox->organisation->language_id,
-            ]);
-        }
+        //if ($outbox->blueprint == OutboxBlueprintEnum::EMAIL_TEMPLATE) {
+        //    StoreEmailTemplate::make()->action($outbox, [
+        //        'layout' => $layout
+        //    ]);
+        //}
 
         GroupHydrateOutboxes::run($outbox->group);
         OrganisationHydrateOutboxes::run($outbox->organisation);

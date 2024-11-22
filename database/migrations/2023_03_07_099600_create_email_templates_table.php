@@ -27,9 +27,6 @@ return new class () extends Migration {
             $table->jsonb('layout')->nullable();
             $table->json('data');
 
-            $table->unsignedBigInteger('outbox_id')->nullable();
-            $table->foreign('outbox_id')->references('id')->on('outboxes');
-
             $table->unsignedInteger('screenshot_id')->nullable();
             $table->foreign('screenshot_id')->references('id')->on('media');
             $table->unsignedSmallInteger('language_id')->default(68);
