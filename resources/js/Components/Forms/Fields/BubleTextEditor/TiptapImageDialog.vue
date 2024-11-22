@@ -1,24 +1,20 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue"
-/* import { useDropzone } from "vue3-dropzone" */
 import Dialog from "./Dialog.vue"
 import axios from "axios"
-/* import type ImageData from "@/models/image" */
+import GalleryManagement from "@/Components/Utils/GalleryManagement/GalleryManagement.vue"
+import { routeType } from "@/types/route";
 
 defineProps<{
-  show: boolean
+  show: boolean,
+  uploadImageRoute?: routeType
 }>()
+
 const emit = defineEmits<{
   (e: "close"): void
   (e: "insert", url: string): void
 }>()
 
-/* const { getRootProps, getInputProps, isDragActive } = useDropzone({
-  accept: "image/png,image/jpeg",
-  multiple: false,
-  onDrop: onDropImage,
-  noClick: true,
-}) */
 
 const imageListRef = ref<ImageData[]>([])
 
@@ -51,6 +47,11 @@ function loadData() {
   })
 }
 
+
+const onPick = (e) =>{
+  insertImage(e[0].source.original)
+}
+
 function insertImage(url: string) {
   emit("insert", url)
   closeDialog()
@@ -63,8 +64,15 @@ onMounted(() => {
 
 
 <template>
-    <Dialog title="Pilih Gambar" :show="show" @close="closeDialog">
-      gfddgsfdg
+    <Dialog title="Pilih Gambar" :show="show" @close="closeDialog" class="w-[700px]">
+      <GalleryManagement 
+				:maxSelected="1" 
+				:closePopup="closeDialog" 
+        @selectImage="(e)=>{console.log(e)}"
+        @submitSelectedImages="onPick"
+				:submitUpload="()=>console.log('sdsd')"
+				:uploadRoute="uploadImageRoute"
+			/>
     </Dialog>
   </template>
   
