@@ -86,6 +86,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laravel\Sanctum\HasApiTokens;
@@ -118,6 +119,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\GroupAccountingStats|null $accountingStats
  * @property-read LaravelCollection<int, Agent> $agents
+ * @property-read LaravelCollection<int, AikuSection> $aikuScopedSections
  * @property-read LaravelCollection<int, AikuSection> $aikuSections
  * @property-read LaravelCollection<int, Artefact> $artefacts
  * @property-read LaravelCollection<int, Asset> $assets
@@ -140,8 +142,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, EmailTemplate> $emailTemplates
  * @property-read LaravelCollection<int, Employee> $employees
  * @property-read LaravelCollection<int, ExternalLink> $externalLinks
- * @property-read LaravelCollection<int, Fulfilment> $fulfilment
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
+ * @property-read LaravelCollection<int, Fulfilment> $fulfilments
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\Helpers\Media|null $image
@@ -444,7 +446,7 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasOne(GroupFulfilmentStats::class);
     }
 
-    public function fulfilment(): HasMany
+    public function fulfilments(): HasMany
     {
         return $this->hasMany(Fulfilment::class);
     }
@@ -764,5 +766,10 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function aikuSections(): HasMany
     {
         return $this->hasMany(AikuSection::class);
+    }
+
+    public function aikuScopedSections(): MorphToMany
+    {
+        return $this->morphToMany(AikuSection::class, 'model', 'aiku_scoped_sections');
     }
 }

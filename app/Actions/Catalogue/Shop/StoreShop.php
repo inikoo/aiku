@@ -93,7 +93,6 @@ class StoreShop extends OrgAction
             $shop->mailshotsIntervals()->create();
             $shop->discountsStats()->create();
 
-            SeedAikuScopedSections::make()->seedShopAikuScopedSection($shop);
 
 
             if ($shop->type === ShopTypeEnum::DROPSHIPPING) {
@@ -130,14 +129,18 @@ class StoreShop extends OrgAction
 
 
             if ($shop->type == ShopTypeEnum::FULFILMENT) {
-                StoreFulfilment::make()->make()->action(
+                $fulfilment = StoreFulfilment::make()->make()->action(
                     $shop,
                     [
                         'warehouses' => $warehouses,
                     ]
                 );
+                SeedAikuScopedSections::make()->seedFulfilmentAikuScopedSection($fulfilment);
+
             } else {
                 SeedShopPermissions::run($shop);
+                SeedAikuScopedSections::make()->seedShopAikuScopedSection($shop);
+
 
                 $orgAdmins = $organisation->group->users()->with('roles')->get()->filter(
                     fn ($user) => $user->roles->where('name', "org-admin-$organisation->id")->toArray()

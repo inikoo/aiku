@@ -19,6 +19,8 @@ class LogUserRequestMiddleware
     public function handle(Request $request, Closure $next)
     {
 
+
+
         if (!str_starts_with($request->route()->getName(), 'grp.')) {
             return $next($request);
         }
@@ -31,14 +33,14 @@ class LogUserRequestMiddleware
         /* @var \App\Models\SysAdmin\User $user */
         $user = $request->user();
 
-        if (!app()->runningUnitTests() && $user && env('USER_REQUEST_LOGGING')) {
+        if (!app()->runningUnitTests() && $user) {
             ProcessUserRequest::dispatch(
                 $user,
                 now(),
                 [
                 'name'      => $request->route()->getName(),
                 'arguments' => $request->route()->originalParameters(),
-                'url'       => $request->path()
+                'url'       => $request->path(),
             ],
                 $request->ip(),
                 $request->header('User-Agent')

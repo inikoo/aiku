@@ -11,6 +11,7 @@ use App\Actions\SysAdmin\User\SendLinkResetPassword;
 use App\Audits\Redactors\PasswordRedactor;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Enums\SysAdmin\User\UserAuthTypeEnum;
+use App\Models\Analytics\UserRequest;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\ModelSubscribedToOutbox;
 use App\Models\Fulfilment\Fulfilment;
@@ -102,6 +103,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \Laravel\Sanctum\PersonalAccessToken> $tokens
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @property-read \Illuminate\Database\Eloquent\Collection<int, ModelSubscribedToOutbox> $unsubscribedOutboxes
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, UserRequest> $userRequests
  * @method static \Database\Factories\SysAdmin\UserFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User newQuery()

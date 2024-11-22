@@ -7,6 +7,7 @@
 
 namespace App\Actions\Dispatching\DeliveryNote\UI;
 
+use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\WithCustomerSubNavigation;
 use App\Actions\OrgAction;
@@ -95,9 +96,9 @@ class IndexDeliveryNotes extends OrgAction
     }
 
 
-    public function tableStructure($parent, ?array $modelOperations = null, $prefix = null): Closure
+    public function tableStructure($parent, $prefix = null): Closure
     {
-        return function (InertiaTable $table) use ($parent, $modelOperations, $prefix) {
+        return function (InertiaTable $table) use ($parent, $prefix) {
             if ($prefix) {
                 $table
                     ->name($prefix)
@@ -141,7 +142,7 @@ class IndexDeliveryNotes extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        if ($this->parent instanceof Customer) {
+        if ($this->parent instanceof Customer || $this->parent instanceof Shop) {
             return $request->user()->hasPermissionTo("orders.{$this->shop->id}.view");
         } else {
             return $request->user()->hasPermissionTo("dispatching.{$this->warehouse->id}.view");
@@ -239,8 +240,8 @@ class IndexDeliveryNotes extends OrgAction
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
+        $this->parent = $shop;
         $this->initialisationFromShop($shop, $request)->withTab(DeliveryNotesTabsEnum::values());
-
         return $this->handle($shop);
     }
 
@@ -291,6 +292,16 @@ class IndexDeliveryNotes extends OrgAction
                             ],
                             $routeParameters
                         )
+                    ]
+                )
+            ),
+            'grp.org.shops.show.ordering.delivery-notes.index' =>
+            array_merge(
+                ShowShop::make()->getBreadcrumbs($routeParameters),
+                $headCrumb(
+                    [
+                        'name'       => 'grp.org.shops.show.ordering.delivery-notes.index',
+                        'parameters' => $routeParameters
                     ]
                 )
             ),

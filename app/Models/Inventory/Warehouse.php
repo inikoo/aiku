@@ -8,6 +8,7 @@
 namespace App\Models\Inventory;
 
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
+use App\Models\Analytics\AikuSection;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\PickingRoute;
 use App\Models\Fulfilment\Fulfilment;
@@ -65,6 +66,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Address|null $address
  * @property-read Collection<int, Address> $addresses
+ * @property-read Collection<int, AikuSection> $aikuScopedSections
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, DeliveryNote> $deliveryNotes
  * @property-read Collection<int, Fulfilment> $fulfilments
@@ -211,6 +213,11 @@ class Warehouse extends Model implements Auditable
     public function pickingRoutes(): HasMany
     {
         return $this->hasMany(PickingRoute::class);
+    }
+
+    public function aikuScopedSections(): MorphToMany
+    {
+        return $this->morphToMany(AikuSection::class, 'model', 'aiku_scoped_sections');
     }
 
 }

@@ -19,6 +19,7 @@ use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentAccountShop;
 use App\Models\Accounting\TopUp;
+use App\Models\Analytics\AikuSection;
 use App\Models\Billables\Charge;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
@@ -130,6 +131,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Address|null $address
  * @property-read LaravelCollection<int, Address> $addresses
  * @property-read LaravelCollection<int, Adjustment> $adjustments
+ * @property-read LaravelCollection<int, AikuSection> $aikuScopedSections
  * @property-read LaravelCollection<int, Appointment> $appointments
  * @property-read LaravelCollection<int, \App\Models\Catalogue\Asset> $assets
  * @property-read LaravelCollection<int, \App\Models\Helpers\Audit> $audits
@@ -604,5 +606,9 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasMany(InvoiceTransactionHasFeedback::class);
     }
 
+    public function aikuScopedSections(): MorphToMany
+    {
+        return $this->morphToMany(AikuSection::class, 'model', 'aiku_scoped_sections');
+    }
 
 }

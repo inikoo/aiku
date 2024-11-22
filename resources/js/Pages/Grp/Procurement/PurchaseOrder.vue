@@ -27,6 +27,7 @@ import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import Popover from "@/Components/Popover.vue"
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
 import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
+import ModalProductList from "@/Components/Utils/ModalProductList.vue"
 import { Timeline as TSTimeline } from "@/types/Timeline"
 import { Currency } from "@/types/LayoutRules"
 import Modal from "@/Components/Utils/Modal.vue"
@@ -84,8 +85,8 @@ const props = defineProps<{
 		navigation: {}
 	}
 	data?: {
-        data: PalletDelivery
-    }
+		data: PalletDelivery
+	}
 	showcase: {}
 	transactions: {}
 	history: {}
@@ -136,8 +137,8 @@ const component = computed(() => {
 	return components[currentTab.value]
 })
 const isModalOpen = ref(false)
-const noteModalValue = ref(props.box_stats.mid_block.note)
-
+const noteModalValue = ref(props.box_stats.mid_block.notes || "")
+const currentAction = ref(null);
 const isLoadingButton = ref<string | boolean>(false)
 const isModalUploadOpen = ref(false)
 const isSubmitNoteLoading = ref(false)
@@ -148,7 +149,10 @@ const onSubmitNote = async () => {
 
 	try {
 		const response = await axios.patch(
-			route(props.routes.updatePurchaseOrderRoute.name, props.routes.updatePurchaseOrderRoute.parameters),
+			route(
+				props.routes.updatePurchaseOrderRoute.name,
+				props.routes.updatePurchaseOrderRoute.parameters
+			),
 			{
 				notes: noteModalValue.value,
 			},
@@ -158,8 +162,8 @@ const onSubmitNote = async () => {
 		)
 		props.box_stats.mid_block.notes = noteModalValue.value
 	} catch (error) {
-	console.log(error,'faf');
-	
+		console.log(error, "faf")
+
 		notify({
 			title: "Failed",
 			text: "Failed to update the note, try again.",
@@ -171,8 +175,16 @@ const onSubmitNote = async () => {
 	isModalOpen.value = false
 }
 
-// Tabs: Products
-const formProducts = useForm({ historic_id: null, quantity_ordered: 1 })
+const closeModal = () => {
+	isModalOpen.value = false
+	noteModalValue.value = props.box_stats.mid_block.notes || ""
+}
+
+const openModal = (action :any) => {
+	currentAction.value = action;
+    isModalUploadOpen.value = true;
+};
+/* const formProducts = useForm({ historic_id: null, quantity_ordered: 1 })
 const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
 	isLoadingButton.value = "addProducts"
 
@@ -181,6 +193,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
 			route(data.route?.name || "#", {
 				...data.route?.parameters,
 				historicSupplierProduct: formProducts.historic_id,
+				orgStock
 			}),
 			{
 				preserveScroll: true,
@@ -204,9 +217,7 @@ const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
 		)
 		
 }
-console.log(props);
-
-
+ */
 const fallbackBgColor = "#f9fafb" // Background
 const fallbackColor = "#374151"
 </script>
@@ -222,11 +233,12 @@ const fallbackColor = "#374151"
 							:style="action.style"
 							:label="action.label"
 							:icon="action.icon"
+							@click="() => openModal(action)"
 							:key="`ActionButton${action.label}${action.style}`"
 							:tooltip="action.tooltip" />
 					</template>
 
-					<template #content="{ close: closed }">
+					<!-- <template #content="{ close: closed }">
 						<div class="w-[350px]">
 							<div class="text-xs px-1 my-2">{{ trans("Products") }}:</div>
 							<div class="">
@@ -307,14 +319,14 @@ const fallbackColor = "#374151"
 									"
 									label="Save"
 									full />
-							</div>
+							</div> -->
 
-							<!-- Loading: fetching service list -->
-							<!-- <div v-if="isLoadingData === 'addProducts'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
+					<!-- Loading: fetching service list -->
+					<!-- <div v-if="isLoadingData === 'addProducts'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
                                 <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
                             </div> -->
-						</div>
-					</template>
+					<!-- </div>
+					</template> -->
 				</Popover>
 			</div>
 		</template>
@@ -452,35 +464,34 @@ const fallbackColor = "#374151"
 						color: fallbackColor,
 					}">
 					<!-- Edit Icon in Corner -->
-				
-						<div
-							v-if="box_stats.mid_block.notes"
-							@click="isModalOpen = true"
-							v-tooltip="trans('Edit note')"
-							class="absolute top-2 right-2 group cursor-pointer w-fit h-5 flex items-center">
-							<FontAwesomeIcon
-								icon="fas fa-pencil"
-								size="xs"
-								class="group-hover:text-gray-600 text-gray-500"
-								fixed-width
-								aria-hidden="true" />
-						</div>
 
-						<div
-							v-else
-							@click="isModalOpen = true"
-							class="absolute top-2 right-2 group cursor-pointer w-fit h-5 flex items-center">
-							<FontAwesomeIcon
-								v-tooltip="trans('Add note')"
-								icon="far fa-plus"
-								class=""
-								fixed-width
-								aria-hidden="true"
-								:style="{
-									color: fallbackColor,
-								}" />
-						</div>
-					
+					<div
+						v-if="box_stats.mid_block.notes"
+						@click="isModalOpen = true"
+						v-tooltip="trans('Edit note')"
+						class="absolute top-2 right-2 group cursor-pointer w-fit h-5 flex items-center">
+						<FontAwesomeIcon
+							icon="fas fa-pencil"
+							size="xs"
+							class="group-hover:text-gray-600 text-gray-500"
+							fixed-width
+							aria-hidden="true" />
+					</div>
+
+					<div
+						v-else
+						@click="isModalOpen = true"
+						class="absolute top-2 right-2 group cursor-pointer w-fit h-5 flex items-center">
+						<FontAwesomeIcon
+							v-tooltip="trans('Add note')"
+							icon="far fa-plus"
+							class=""
+							fixed-width
+							aria-hidden="true"
+							:style="{
+								color: fallbackColor,
+							}" />
+					</div>
 
 					<!-- Note Text -->
 					<p
@@ -488,7 +499,9 @@ const fallbackColor = "#374151"
 						:style="{
 							color: fallbackColor,
 						}">
-						<template v-if="box_stats?.mid_block.notes">{{ box_stats?.mid_block.notes }}</template>
+						<template v-if="box_stats?.mid_block.notes">{{
+							box_stats?.mid_block.notes
+						}}</template>
 						<span
 							v-else
 							class="italic opacity-75 animate-pulse"
@@ -529,19 +542,9 @@ const fallbackColor = "#374151"
 			:detachRoute="attachmentRoutes?.detachRoute" />
 	</div>
 
-	<UploadAttachment
-		v-model="isModalUploadOpen"
-		scope="attachment"
-		:title="{
-			label: 'Upload your file',
-			information: 'The list of column file: customer_reference, notes, stored_items',
-		}"
-		progressDescription="Adding Pallet Deliveries"
-		:attachmentRoutes="attachmentRoutes" />
+	<ModalProductList v-model="isModalUploadOpen" :fetchRoute="routes.products_list" :action="currentAction" />
 
-	<Modal
-		:isOpen="isModalOpen"
-		@onClose="() => ((isModalOpen = false), (noteModalValue = box_stats?.mid_block.note))">
+	<Modal :isOpen="isModalOpen" @onClose="closeModal">
 		<div class="min-h-72 max-h-96 px-2 overflow-auto">
 			<div class="text-xl font-semibold mb-2">{{ box_stats?.mid_block.notes }}'s note</div>
 			<div class="relative isolate">
@@ -553,7 +556,6 @@ const fallbackColor = "#374151"
 				</div>
 				<PureTextarea
 					v-model="noteModalValue"
-					
 					:rows="6"
 					@keydown.ctrl.enter="() => onSubmitNote()"
 					maxLength="5000" />

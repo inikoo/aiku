@@ -27,6 +27,9 @@ return new class () extends Migration {
             $table->foreign('product_category_id')->references('id')->on('product_categories');
             $table = $this->catalogueFamilyStats($table);
             $table = $this->catalogueProductsStats($table);
+            $table = $this->topSellersStats($table);
+
+
             $table = $this->getCustomersWhoFavouritedStatsFields($table);
             $table = $this->getCustomersWhoRemindedStatsFields($table);
 

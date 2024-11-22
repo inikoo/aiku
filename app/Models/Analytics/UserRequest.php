@@ -8,7 +8,6 @@
 namespace App\Models\Analytics;
 
 use App\Models\SysAdmin\User;
-use App\Models\Traits\InGroup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -16,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  *
  * @property int $id
- * @property int $aiku_scoped_section_id
+ * @property int|null $aiku_scoped_section_id
  * @property int $user_id
  * @property string $date
  * @property string $route_name
@@ -26,8 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $browser
  * @property string $ip_address
  * @property string $location
- * @property-read User $aikuScopedSection
- * @property-read \App\Models\SysAdmin\Group|null $group
+ * @property-read User|null $aikuScopedSection
  * @property-read User $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserRequest newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|UserRequest newQuery()
@@ -36,7 +34,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class UserRequest extends Model
 {
-    use InGroup;
+    public $timestamps = false;
 
     protected $guarded = [
     ];

@@ -65,7 +65,8 @@ class FetchAuroraDispatchedEmail extends FetchAurora
         };
 
         if (!$recipient) {
-            dd($this->auroraModelData);
+            return;
+            // print_r($this->auroraModelData);
         }
 
         $this->parsedData['recipient'] = $recipient;

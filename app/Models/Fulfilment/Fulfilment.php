@@ -7,6 +7,7 @@
 
 namespace App\Models\Fulfilment;
 
+use App\Models\Analytics\AikuSection;
 use App\Models\Billables\Rental;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\SerialReference;
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -40,6 +42,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property string|null $source_id
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, AikuSection> $aikuScopedSections
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\PalletDelivery> $deliveries
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Fulfilment\FulfilmentCustomer> $fulfilmentCustomers
  * @property-read Group $group
@@ -131,6 +134,11 @@ class Fulfilment extends Model
     public function website(): HasOneThrough
     {
         return $this->HasOneThrough(Shop::class, Website::class);
+    }
+
+    public function aikuScopedSections(): MorphToMany
+    {
+        return $this->morphToMany(AikuSection::class, 'model', 'aiku_scoped_sections');
     }
 
 
