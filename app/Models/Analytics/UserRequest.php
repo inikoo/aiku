@@ -46,7 +46,7 @@ class UserRequest extends Model
 
     public function aikuScopedSection(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(AikuScopedSection::class);
     }
 
 }
