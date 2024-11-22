@@ -129,13 +129,13 @@ class StoreShop extends OrgAction
 
 
             if ($shop->type == ShopTypeEnum::FULFILMENT) {
-                StoreFulfilment::make()->make()->action(
+                $fulfilment = StoreFulfilment::make()->make()->action(
                     $shop,
                     [
                         'warehouses' => $warehouses,
                     ]
                 );
-                SeedAikuScopedSections::make()->seedFulfilmentAikuScopedSection($shop);
+                SeedAikuScopedSections::make()->seedFulfilmentAikuScopedSection($fulfilment);
 
             } else {
                 SeedShopPermissions::run($shop);

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed, onBeforeMount } from 'vue';
+import { ref, watch, computed, onBeforeMount, toRaw } from 'vue';
 import DimensionProperty from '@/Components/Workshop/Properties/DimensionProperty.vue';
 import { trans } from 'laravel-vue-i18n';
 
@@ -22,7 +22,7 @@ const localModel = ref({
 // Sync with the prop value initially
 onBeforeMount(() => {
     if (props.modelValue) {
-        localModel.value = { ...props.modelValue };
+        localModel.value = toRaw(props.modelValue);
     }
 });
 

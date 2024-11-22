@@ -40,6 +40,7 @@ import FontSize from 'tiptap-extension-font-size'
 import FontFamily from '@tiptap/extension-font-family'
 /* import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue' */
 import ColorPicker from 'primevue/colorpicker';
+import suggestion from './Variables/suggestion'
 import Dialog from 'primevue/dialog';
 
 import {
@@ -78,6 +79,7 @@ import TiptapVideoDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapV
 /* import TiptapTableDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapTableDialog.vue" */
 import TiptapImageDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapImageDialog.vue"
 import { Plugin } from "prosemirror-state"
+import Variabel from "./Variables/Variables"
 import CustomLink from "./CustomLink/CustomLink.vue"
 import { trans } from "laravel-vue-i18n"
 
@@ -214,6 +216,12 @@ const editorInstance = useEditor({
         Color.configure({
             types: ['textStyle'],
         }),
+        Variabel.configure({
+          HTMLAttributes: {
+            class: 'mention',
+          },
+          suggestion,
+        }),
     ],
     onUpdate: ({ editor }) => {
         contentResult.value = editor.getHTML()
@@ -310,6 +318,13 @@ defineExpose({
 })
 
 
+const setVariabel = (value) => {
+    console.log('dfsdfsfd',value)
+    const content = `<span class="mention" data-type="mention" data-id="username" contenteditable="false">{{ ${value} }}</span>`;
+    editorInstance.value?.chain().focus().insertContent(content).run();
+};
+
+
 const irisVariablesList = [
     {
         label: trans("Name"),
@@ -336,6 +351,8 @@ const irisVariablesList = [
         value: "{{ cart_amount }}",
     },
 ]
+
+console.log(editorInstance)
 </script>
 
 <template>
@@ -527,7 +544,7 @@ const irisVariablesList = [
                 <!-- 2nd row -->
                 <section id="tiptap-toolbar" class="py-1 px-2 flex items-center divide-x divide-gray-400 gap-2">
                     <Select v-if="toogle.includes('query')"
-                        @change="(e) => editorInstance?.chain().focus().insertContent(e.value.value).focus().run()"
+                        @change="(e) => setVariabel(e.value.value)"
                         :options="irisVariablesList" optionLabel="label" size="small"
                         :placeholder="trans('Select a variable to put')" class="w-full md:w-56" />
 
@@ -733,6 +750,14 @@ const irisVariablesList = [
 :deep(.ProseMirror-gapcursor:after) {
     animation: ProseMirror-cursor-blink 1.1s steps(2, start) infinite;
 }
+
+:deep(.mention) {
+    background-color: #F6F2FF;
+    border-radius: 0.4rem;
+    box-decoration-break: clone;
+    color: #6A00F5;
+    padding: 0.1rem 0.3rem;
+  }
 
 /* 
 :deep(.ProseMirror > p > br:first-child:last-child) {

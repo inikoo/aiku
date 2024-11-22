@@ -19,7 +19,6 @@ const props = defineProps<{
 	webpageData?: any
 	blockData:Object
 }>()
-console.log('Images',props)
 const emits = defineEmits<{
 	(e: "update:modelValue", value: any): void
 	(e: "autoSave"): void
