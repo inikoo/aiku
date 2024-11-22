@@ -58,73 +58,65 @@ class ShowOrdersBacklog extends OrgAction
 
                 'tabs_box' => [
                     [
-                        'label' => 'Showcase',
+                        'label' => __('In basket'),
                         'tabs' => [
                             [
-                                'label' => 12456,
-                                'icon' => 'fal fa-tachometer-alt',
-                                'indicator' => true,
                                 'tab_slug' => 'showcase',
+                                'label' => 12456,
                                 'type' => 'number',
+                                'icon' => 'fal fa-tachometer-alt',
                                 'information' => [
                                     'label' => 999999998,
                                     'type' => 'number'
                                 ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'label' => __('Submitted'),
+                        'tabs' => [
+                            [
+                                'tab_slug' => 'submitted_not_paid',
+                                'label' => '999999999',
+                                'type' => 'currency',
+                                'information' => [
+                                    'label' => '777777777777777',
+                                    'type' => 'currency'
+                                ]
                             ],
                             [
-                                'label' => 'History',
-                                'indicator' => false,
-                                'tab_slug' => 'history',
-                                'type' => 'date',
-                                'iconClass' => 'text-green-500',
+                                'tab_slug' => 'submitted',
+                                'label' => '999999999',
+                                'type' => 'currency',
                                 'information' => [
-                                    'label' => 'Info 2',
-                                    'type' => 'date'
-                                ]
-                            ]
-                        ]
-                    ],
-                    [
-                        'label' => 'Navigation 2',
-                        'tabs' => [
-                            [
-                                'label' => 'Tab 1',
-                                'icon' => 'icon-chart',
-                                'indicator' => true,
-                                'tab_slug' => 'attachments',
-                                'type' => 'number',
-                                'iconClass' => 'text-red-500',
-                                'information' => [
-                                    'label' => 'Info 1',
-                                    'type' => 'number'
-                                ]
-                            ]
-                        ]
-                    ],
-                    [
-                        'label' => 'Images',
-                        'tabs' => [
-                            [
-                                'label' => 'Avatar',
-                                'icon' => 'icon-wallet',
-                                'indicator' => false,
-                                'tab_slug' => 'images',
-                                'iconClass' => 'text-yellow-500',
-                                'information' => [
-                                    'label' => 'Info 1',
+                                    'label' => '777777777777777',
+                                    'type' => 'currency'
                                 ]
                             ],
                         ]
                     ],
                     [
-                        'label' => 'Navigation 4',
+                        'label' => __('In warehouse'),
                         'tabs' => [
                             [
-                                'label' => 'Tab 1',
-                                'icon' => 'icon-mail',
+                                'tab_slug' => 'in_warehouse',
+                                'label' => '77777777',
+                                'type'  => 'number',
+                                'information' => [
+                                    'label' => '99999999999999',
+                                    'type'  => 'number',
+                                ]
+                            ],
+                        ]
+                    ],
+                    [
+                        'label' => __('Invoicing'),
+                        'tabs' => [
+                            [
+                                'tab_slug' => 'packed',
+                                'label' => 99999,
+                                'icon' => 'fal fa-box',
                                 'indicator' => true,
-                                'tab_slug' => 'attachments',
-                                'type' => 'icon',
                                 'iconClass' => 'text-teal-500',
                                 'information' => [
                                     'label' => 'Info 1',
@@ -132,17 +124,39 @@ class ShowOrdersBacklog extends OrgAction
                                 ]
                             ],
                             [
-                                'label' => 'Tab 2',
-                                'icon' => 'icon-phone',
-                                'indicator' => false,
+                                'tab_slug' => 'packed_done',
+                                'label' => 777777777,
+                                'icon' => 'fal fa-box-check',
+                                'iconClass' => 'text-orange-500',
+                                'information' => [
+                                    'label' => 'Info 2',
+                                    'type' => 'icon'
+                                ]
+                            ],
+                            [
                                 'tab_slug' => 'images',
-                                'type' => 'icon',
+                                'label' => 88888888,
+                                'icon' => 'fal fa-file-invoice',
                                 'iconClass' => 'text-orange-500',
                                 'information' => [
                                     'label' => 'Info 2',
                                     'type' => 'icon'
                                 ]
                             ]
+                        ]
+                    ],
+                    [
+                        'label' => __('Dispatched today'),
+                        'tabs' => [
+                            [
+                                'tab_slug' => 'dispatched_today',
+                                'label' => '12313',
+                                'type'  => 'number',
+                                'information' => [
+                                    'label' => '000000000000',
+                                    'type' => 'currency'
+                                ]
+                            ],
                         ]
                     ]
                 ],
