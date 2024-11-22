@@ -97,7 +97,7 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\SysAdmin\Group
+ *
  *
  * @property int $id
  * @property string $ulid
@@ -150,6 +150,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read LaravelCollection<int, Ingredient> $ingredients
  * @property-read \App\Models\SysAdmin\GroupInventoryStats|null $inventoryStats
+ * @property-read LaravelCollection<int, InvoiceCategory> $invoiceCategories
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\JobPositionCategory> $jobPositionCategories
  * @property-read LaravelCollection<int, JobPosition> $jobPositions
@@ -163,6 +164,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, Offer> $offers
+ * @property-read \App\Models\SysAdmin\GroupOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read \App\Models\SysAdmin\GroupOrdersIntervals|null $ordersIntervals
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
@@ -188,7 +190,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read LaravelCollection<int, SalesChannel> $salesChannels
  * @property-read \App\Models\SysAdmin\GroupSalesIntervals|null $salesIntervals
- * @property-read \App\Models\SysAdmin\GroupSalesStats|null $salesStats
  * @property-read LaravelCollection<int, Service> $services
  * @property-read LaravelCollection<int, ShippingZoneSchema> $shippingZoneSchemas
  * @property-read LaravelCollection<int, ShippingZone> $shippingZones
@@ -340,9 +341,9 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasOne(GroupDiscountsStats::class);
     }
 
-    public function salesStats(): HasOne
+    public function orderingStats(): HasOne
     {
-        return $this->hasOne(GroupSalesStats::class);
+        return $this->hasOne(GroupOrderingStats::class);
     }
 
     public function salesIntervals(): HasOne

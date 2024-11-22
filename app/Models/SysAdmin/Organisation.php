@@ -170,6 +170,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, Offer> $offers
+ * @property-read \App\Models\SysAdmin\OrganisationOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read \App\Models\SysAdmin\OrganisationOrdersIntervals|null $ordersIntervals
  * @property-read LaravelCollection<int, OrgAgent> $orgAgents
@@ -199,7 +200,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Rental> $rentals
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Role> $roles
  * @property-read \App\Models\SysAdmin\OrganisationSalesIntervals|null $salesIntervals
- * @property-read \App\Models\SysAdmin\OrganisationSalesStats|null $salesStats
  * @property-read LaravelCollection<int, SerialReference> $serialReferences
  * @property-read LaravelCollection<int, Service> $services
  * @property-read LaravelCollection<int, Shipper> $shippers
@@ -333,9 +333,9 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->hasOne(OrganisationMailStats::class);
     }
 
-    public function salesStats(): HasOne
+    public function orderingStats(): HasOne
     {
-        return $this->hasOne(OrganisationSalesStats::class);
+        return $this->hasOne(OrganisationOrderingStats::class);
     }
 
     public function manufactureStats(): HasOne

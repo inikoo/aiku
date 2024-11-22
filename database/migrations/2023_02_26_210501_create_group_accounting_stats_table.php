@@ -7,6 +7,7 @@
 
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Stubs\Migrations\HasCreditsStats;
+use App\Stubs\Migrations\HasOrderingStats;
 use App\Stubs\Migrations\HasPaymentStats;
 use App\Stubs\Migrations\HasSalesStats;
 use Illuminate\Database\Migrations\Migration;
@@ -17,6 +18,7 @@ return new class () extends Migration {
     use HasPaymentStats;
     use HasSalesStats;
     use HasCreditsStats;
+    use HasOrderingStats;
 
     public function up(): void
     {

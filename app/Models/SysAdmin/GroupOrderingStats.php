@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 03 May 2024 18:31:10 British Summer Time, Sheffield, UK
+ * Created: Fri, 03 May 2024 19:11:23 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Catalogue;
+namespace App\Models\SysAdmin;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  *
  * @property int $id
- * @property int $shop_id
+ * @property int $group_id
  * @property int|null $currency_id
  * @property string|null $last_order_created_at
  * @property string|null $last_order_submitted_at
@@ -81,20 +81,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_purges_type_manual
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Catalogue\Shop $shop
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopSalesStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopSalesStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopSalesStats query()
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupOrderingStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupOrderingStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupOrderingStats query()
  * @mixin \Eloquent
  */
-class ShopSalesStats extends Model
+class GroupOrderingStats extends Model
 {
-    protected $table = 'shop_sales_stats';
+    protected $table = 'group_ordering_stats';
 
     protected $guarded = [];
 
-    public function shop(): BelongsTo
+    public function group(): BelongsTo
     {
-        return $this->belongsTo(Shop::class);
+        return $this->belongsTo(Group::class);
     }
 }

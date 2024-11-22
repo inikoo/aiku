@@ -80,7 +80,7 @@ class OrganisationHydrateDeliveryNotes
 
 
 
-        $organisation->salesStats()->update($stats);
+        $organisation->orderingStats()->update($stats);
     }
 
 

@@ -165,6 +165,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OfferComponent> $offerComponents
  * @property-read LaravelCollection<int, Offer> $offers
  * @property-read ShopOrdersIntervals|null $orderIntervals
+ * @property-read \App\Models\Catalogue\ShopOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read PaymentAccountShop|OrgPaymentServiceProviderShop|null $pivot
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
@@ -184,7 +185,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Rental> $rentals
  * @property-read LaravelCollection<int, Role> $roles
  * @property-read \App\Models\Catalogue\ShopSalesIntervals|null $salesIntervals
- * @property-read \App\Models\Catalogue\ShopSalesStats|null $salesStats
  * @property-read SenderEmail|null $senderEmail
  * @property-read LaravelCollection<int, SerialReference> $serialReferences
  * @property-read LaravelCollection<int, Service> $services
@@ -280,9 +280,9 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasOne(ShopCRMStats::class);
     }
 
-    public function salesStats(): HasOne
+    public function orderingStats(): HasOne
     {
-        return $this->hasOne(ShopSalesStats::class);
+        return $this->hasOne(ShopOrderingStats::class);
     }
 
     public function salesIntervals(): HasOne

@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\SysAdmin\OrganisationSalesStats
+ * App\Models\SysAdmin\OrganisationOrderingStats
  *
  * @property int $id
  * @property int $organisation_id

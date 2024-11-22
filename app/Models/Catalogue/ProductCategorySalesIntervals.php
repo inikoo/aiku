@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Catalogue\ShopSalesStats
+ * App\Models\Catalogue\ShopOrderingStats
  *
  * @property int $id
  * @property int $product_category_id

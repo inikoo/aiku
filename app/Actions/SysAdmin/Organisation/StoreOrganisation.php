@@ -105,7 +105,7 @@ class StoreOrganisation
 
             if ($organisation->type == OrganisationTypeEnum::SHOP) {
                 $organisation->crmStats()->create();
-                $organisation->salesStats()->create();
+                $organisation->orderingStats()->create();
                 $organisation->salesIntervals()->create();
                 $organisation->ordersIntervals()->create();
                 $organisation->mailshotsIntervals()->create();
