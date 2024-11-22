@@ -54,7 +54,6 @@ const getTemplate= async (id) => {
           const response = await axios.get(
               route('grp.json.email_templates.show.compiled_layout', { emailTemplate: id}),
           )
-          console.log(response)
           return response.data
       } catch (error) {
           console.log(error)
