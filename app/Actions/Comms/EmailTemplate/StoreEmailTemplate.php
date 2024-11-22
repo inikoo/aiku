@@ -11,15 +11,21 @@ use App\Actions\OrgAction;
 use App\Enums\Comms\EmailTemplate\EmailTemplateProviderEnum;
 use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum;
 use App\Models\Comms\EmailTemplate;
+use App\Models\Comms\Outbox;
 use App\Models\SysAdmin\Group;
 use Illuminate\Validation\Rule;
 
 class StoreEmailTemplate extends OrgAction
 {
-    public function handle(Group $group, array $modelData): EmailTemplate
+    public function handle(Group|Outbox $parent, array $modelData): EmailTemplate
     {
         /** @var EmailTemplate $emailTemplate */
-        $emailTemplate = $group->emailTemplates()->create($modelData);
+        if ($parent instanceof Outbox) {
+            data_set($modelData, 'group_id', $parent->group_id);
+            $emailTemplate = $parent->emailTemplate()->create($modelData);
+        } else {
+            $emailTemplate = $parent->emailTemplates()->create($modelData);
+        }
 
 
         return $emailTemplate;
@@ -45,12 +51,17 @@ class StoreEmailTemplate extends OrgAction
     }
 
 
-    public function action(Group $group, array $modelData, bool $strict = true): EmailTemplate
+    public function action(Group|Outbox $parent, array $modelData, bool $strict = true): EmailTemplate
     {
         $this->asAction = true;
         $this->strict   = $strict;
+        if ($parent instanceof Outbox) {
+            $group = $parent->group;
+        } else {
+            $group = $parent;
+        }
         $this->initialisationFromGroup($group, $modelData);
 
-        return $this->handle($group, $this->validatedData);
+        return $this->handle($parent, $this->validatedData);
     }
 }
