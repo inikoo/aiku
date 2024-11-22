@@ -41,7 +41,7 @@ class SeedAikuScopedSections extends GrpAction
             if ($organisation->type == OrganisationTypeEnum::SHOP) {
                 $this->seedOrganisationAikuScopedSection($organisation);
             } elseif ($organisation->type == OrganisationTypeEnum::AGENT) {
-                $this->seedAgentAikuScopedSection($organisation);
+                $this->seedAgentAikuScopedSection($organisation->agent);
             }
         }
         /** @var Shop $shop */

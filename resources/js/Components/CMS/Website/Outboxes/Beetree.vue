@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { onMounted, defineExpose, } from "vue";
 import axios from "axios"
-import { notify } from "@kyvg/vue3-notification";
-import BeefreeSDK from '@beefree.io/sdk'
 import Bee from "@mailupinc/bee-plugin";
 
 
@@ -19,12 +17,11 @@ onMounted(() => {
     const beeInstance = new Bee();
     var endpoint = "https://auth.getbee.io/apiauth";
     var payload = {
-      client_id: "4b5904bb-6352-43f4-b283-c20ff8fefff5",
-      client_secret: "URLe7euPSiwpvBv3ZvKwTrkOUqneeGNjN93QsmesVY4mhFdfxvgF",
-      grant_type:
-        "Basic VGhpc0lzTXlTdXBlckxvbmdUZXN0VXNlcm5hbWU6VGhpc1Bhc3N3b3JkSXNBTGll",
+        client_id: "4b5904bb-6352-43f4-b283-c20ff8fefff5",
+        client_secret: "URLe7euPSiwpvBv3ZvKwTrkOUqneeGNjN93QsmesVY4mhFdfxvgF",
+        grant_type:
+            "Basic VGhpc0lzTXlTdXBlckxvbmdUZXN0VXNlcm5hbWU6VGhpc1Bhc3N3b3JkSXNBTGll",
     };
-
 
     axios
         .post(endpoint, payload)
@@ -36,6 +33,33 @@ onMounted(() => {
                 uid: token.userName,
                 container: "bee-plugin-container",
                 language: "en-US",
+                customCss: "https://bee-plugin-demos.getbee.io/themes/coral.css",
+                userColor: "#F1EDFF",
+                loadingSpinnerDisableOnDialog: true,
+                saveRows: true,
+                disableBaseColors: true,
+                disableColorHistory: true,
+                templateLanguageAutoTranslation: true,
+                customAttributes: {
+                    attributes: [
+                        {
+                            key: "data-segment",
+                            value: [
+                                "1.2",
+                                "1.3"
+                            ],
+                            target: "link"
+                        },
+                        {
+                            key: "class",
+                            target: "tag"
+                        },
+                        {
+                            key: "class",
+                            target: "link"
+                        }
+                    ]
+                },
                 onSave: (jsonFile, htmlFile) => {
                     const params = {
                         layout_json: jsonFile,
@@ -46,18 +70,17 @@ onMounted(() => {
                 },
             };
 
-        var template = {}
-        beeInstance
-            .getToken(payload.client_id, payload.client_secret)
-            .then(() => beeInstance.start(config, template));
+            var template = {}
+            beeInstance
+                .getToken(payload.client_id, payload.client_secret)
+                .then(() => beeInstance.start(config, template));
         })
         .catch((error) => {
             console.error("Error authenticating:", error);
         });
 });
 
-defineExpose({
-})
+defineExpose({})
 
 </script>
 
@@ -71,4 +94,5 @@ defineExpose({
 <style>
 .unlayer {
     height: calc(100vh - 177px);
-}</style>
+}
+</style>

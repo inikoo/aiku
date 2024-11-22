@@ -39,12 +39,19 @@ console.log(props)
             <Button @click="openTemplates = true" icon="fas fa-th-large" label="Templates" :style="'tertiary'"  />
         </template>
     </PageHeading>
-    <Beetree />
-    <!-- <Unlayer :updateRoute="updateRoute" :loadRoute="loadRoute" :imagesUploadRoute="imagesUploadRoute" :mailshot="{}"/> -->
+
+    befree
+     <!-- beefree -->
+    <Beetree :updateRoute="updateRoute" :loadRoute="loadRoute" :imagesUploadRoute="imagesUploadRoute" :mailshot="{}" />
+
+
+    Unlayer
+     <!-- unlayer -->
+    <Unlayer :updateRoute="updateRoute" :loadRoute="loadRoute" :imagesUploadRoute="imagesUploadRoute" :mailshot="{}" />
 
     <Modal :isOpen="openTemplates" @onClose="openTemplates = false" width="w-[600px]">
         <div class="overflow-y-auto">
             <TemplateMailshot @changeTemplate="changeTemplate" :mailshot="mailshot"/>
         </div>
-        </Modal>
+    </Modal>
 </template>

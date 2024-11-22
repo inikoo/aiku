@@ -15,6 +15,7 @@ use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Manufacturing\Production;
+use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -25,7 +26,7 @@ class StoreAikuScopedSection extends GrpAction
     use AsAction;
     use WithAttributes;
 
-    public function handle(Group|Organisation|Shop|Fulfilment|Warehouse|Production $scope, AikuSection $aikuSection, array $modelData): AikuScopedSection
+    public function handle(Group|Organisation|Shop|Fulfilment|Warehouse|Production|Agent $scope, AikuSection $aikuSection, array $modelData): AikuScopedSection
     {
         if ($scope instanceof Group) {
             data_set($modelData, 'group_id', $scope->id);
@@ -52,7 +53,7 @@ class StoreAikuScopedSection extends GrpAction
         ];
     }
 
-    public function action(Group|Organisation|Shop|Fulfilment|Warehouse|Production $scope, AikuSection $aikuSection, array $modelData): AikuScopedSection
+    public function action(Group|Organisation|Shop|Fulfilment|Warehouse|Production|Agent $scope, AikuSection $aikuSection, array $modelData): AikuScopedSection
     {
         if ($scope instanceof Group) {
             $group = $scope;
