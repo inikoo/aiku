@@ -24,7 +24,8 @@ return new class () extends Migration {
                 'refunds',
                 'orders',
                 'delivery_notes',
-                'new_customers'
+                'registrations',
+                'customers_invoiced'
             ]);
             $table->timestampsTz();
         });

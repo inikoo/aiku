@@ -11,7 +11,6 @@ use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -48,9 +47,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read \App\Models\Catalogue\HistoricAsset|null $historicAsset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read \App\Models\Catalogue\SubscriptionSalesInterval|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
- * @property-read \App\Models\Catalogue\SubscriptionStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Subscription newQuery()
@@ -81,13 +78,5 @@ class Subscription extends Model implements Auditable
         'settings' => '{}',
     ];
 
-    public function stats(): HasOne
-    {
-        return $this->hasOne(SubscriptionStats::class);
-    }
 
-    public function salesIntervals(): HasOne
-    {
-        return $this->hasOne(SubscriptionSalesInterval::class);
-    }
 }

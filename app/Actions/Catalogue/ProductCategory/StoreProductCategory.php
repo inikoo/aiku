@@ -53,9 +53,9 @@ class StoreProductCategory extends OrgAction
         $productCategory = DB::transaction(function () use ($parent, $modelData) {
             /** @var ProductCategory $productCategory */
             $productCategory = ProductCategory::create($modelData);
-            $productCategory->refresh();
 
             $productCategory->stats()->create();
+            $productCategory->orderingIntervals()->create();
             $productCategory->salesIntervals()->create();
 
             return $productCategory;

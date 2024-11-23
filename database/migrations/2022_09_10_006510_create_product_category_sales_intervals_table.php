@@ -15,17 +15,21 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('asset_sales_intervals', function (Blueprint $table) {
+        Schema::create('product_category_sales_intervals', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('asset_id')->index();
-            $table->foreign('asset_id')->references('id')->on('assets');
-            $table = $this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
+            $table->unsignedInteger('product_category_id')->index();
+            $table->foreign('product_category_id')->references('id')->on('product_categories');
+            $table = $this->dateIntervals($table, [
+                'sales',
+                'sales_org_currency',
+                'sales_grp_currency'
+            ]);
             $table->timestampsTz();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('asset_sales_intervals');
+        Schema::dropIfExists('product_category_sales_intervals');
     }
 };

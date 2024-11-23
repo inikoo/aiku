@@ -81,4 +81,9 @@ class InvoiceCategory extends Model implements Auditable
     {
         return $this->hasOne(InvoiceCategorySalesIntervals::class);
     }
+
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(InvoiceCategoryOrderingIntervals::class);
+    }
 }

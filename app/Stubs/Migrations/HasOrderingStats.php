@@ -21,16 +21,15 @@ trait HasOrderingStats
 {
     public function orderingStatsFields(Blueprint $table): Blueprint
     {
-        $table->unsignedSmallInteger('currency_id')->nullable();
-        $table->foreign('currency_id')->references('id')->on('currencies');
 
         $table = $this->ordersStatsFields($table);
         $table = $this->invoicesStatsFields($table);
+        $table = $this->invoicedCustomersStatsFields($table);
+
         $table = $this->deliveryNotesStatsFields($table);
 
-        if (!in_array($table->getTable(), ['customer_stats','customer_client_id', 'platform_stats'])) {
+        if (!in_array($table->getTable(), ['customer_stats', 'customer_client_id', 'platform_stats'])) {
             $table = $this->purgeStatsFields($table);
-
         }
 
         return $table;
@@ -61,9 +60,6 @@ trait HasOrderingStats
 
     public function invoicesStatsFields(Blueprint $table): Blueprint
     {
-        $table->decimal('invoiced_net_amount', 16)->default(0);
-        $table->decimal('invoiced_org_net_amount', 16)->default(0);
-        $table->decimal('invoiced_grp_net_amount', 16)->default(0);
         $table->unsignedInteger('number_invoices')->default(0);
         $table->unsignedInteger('number_invoices_type_invoice')->default(0);
         $table->unsignedInteger('number_invoices_type_refund')->default(0);
@@ -71,6 +67,16 @@ trait HasOrderingStats
 
         return $table;
     }
+
+
+    public function invoicedCustomersStatsFields(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_invoiced_customers')->default(0);
+
+
+        return $table;
+    }
+
 
     public function deliveryNotesStatsFields(Blueprint $table): Blueprint
     {

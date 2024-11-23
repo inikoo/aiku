@@ -1,10 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 22 Nov 2024 10:47:22 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Sat, 01 Jun 2024 21:14:16 Central European Summer Time, Mijas Costa, Spain
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Stubs\Migrations\HasBackInStockReminderStats;
 use App\Stubs\Migrations\HasCatalogueStats;
 use App\Stubs\Migrations\HasFavouritesStats;
@@ -21,13 +22,18 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('product_sales_stats', function (Blueprint $table) {
+        Schema::create('product_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('product_id')->index();
             $table->foreign('product_id')->references('id')->on('products');
 
+            $table = $this->productVariantFields($table);
+            $table = $this->getCustomersWhoFavouritedStatsFields($table);
+            $table = $this->getCustomersWhoRemindedStatsFields($table);
 
-
+            foreach (ProductStateEnum::cases() as $case) {
+                $table->unsignedInteger('number_products_state_'.$case->snake())->default(0);
+            }
 
             $table->timestampsTz();
         });
@@ -36,6 +42,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('product_sales_stats');
+        Schema::dropIfExists('product_stats');
     }
 };

@@ -76,6 +76,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \App\Models\Helpers\Media|null $image
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $images
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
+ * @property-read \App\Models\Catalogue\ProductCategoryOrderingIntervals|null $orderingIntervals
  * @property-read Organisation $organisation
  * @property-read ProductCategory|null $parent
  * @property-read \App\Models\Catalogue\ProductCategorySalesIntervals|null $salesIntervals
@@ -155,6 +156,11 @@ class ProductCategory extends Model implements Auditable, HasMedia
     public function stats(): HasOne
     {
         return $this->hasOne(ProductCategoryStats::class);
+    }
+
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(ProductCategoryOrderingIntervals::class);
     }
 
     public function salesIntervals(): HasOne

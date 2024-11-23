@@ -94,7 +94,6 @@ use Spatie\Tags\HasTags;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, OrgStock> $orgStocks
  * @property-read Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Product> $productVariants
- * @property-read \App\Models\Catalogue\ProductSalesIntervals|null $salesIntervals
  * @property \Illuminate\Database\Eloquent\Collection<int, \Spatie\Tags\Tag> $tags
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @property-read \App\Models\Catalogue\ProductStats|null $stats
@@ -193,11 +192,6 @@ class Product extends Model implements Auditable, HasMedia
     public function stats(): HasOne
     {
         return $this->hasOne(ProductStats::class);
-    }
-
-    public function salesIntervals(): HasOne
-    {
-        return $this->hasOne(ProductSalesIntervals::class);
     }
 
     public function orgStocks(): BelongsToMany

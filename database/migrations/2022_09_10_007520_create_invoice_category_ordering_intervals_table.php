@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 22 Nov 2024 13:10:01 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Sat, 23 Nov 2024 10:21:22 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -11,20 +11,17 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use  HasDateIntervalsStats;
+    use HasDateIntervalsStats;
 
     public function up(): void
     {
-        Schema::create('organisation_ordering_intervals', function (Blueprint $table) {
+        Schema::create('invoice_category_ordering_intervals', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedSmallInteger('organisation_id');
-            $table->foreign('organisation_id')->references('id')->on('organisations')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedInteger('invoice_category_id')->index();
+            $table->foreign('invoice_category_id')->references('id')->on('invoice_categories')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->dateIntervals($table, [
                 'invoices',
                 'refunds',
-                'orders',
-                'delivery_notes',
-                'registrations',
                 'customers_invoiced'
             ]);
             $table->timestampsTz();
@@ -34,6 +31,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('organisation_ordering_intervals');
+        Schema::dropIfExists('invoice_category_ordering_intervals');
     }
 };

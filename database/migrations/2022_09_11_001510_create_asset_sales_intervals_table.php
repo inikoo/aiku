@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Mon, 08 Apr 2024 10:50:24 Central Indonesia Time, Bali Office , Indonesia
+ * Created: Fri, 26 Apr 2024 16:17:51 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -12,20 +12,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasSalesIntervals;
+
     public function up(): void
     {
-        Schema::create('product_sales_intervals', function (Blueprint $table) {
+        Schema::create('asset_sales_intervals', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('product_id')->index();
-            $table->foreign('product_id')->references('id')->on('products');
-            $table = $this->salesIntervalFields($table, ['shop_amount', 'org_amount', 'group_amount']);
+            $table->unsignedInteger('asset_id')->index();
+            $table->foreign('asset_id')->references('id')->on('assets');
+            $table = $this->dateIntervals($table, [
+                'sales',
+                'sales_org_currency',
+                'sales_grp_currency'
+            ]);
             $table->timestampsTz();
         });
     }
 
-
     public function down(): void
     {
-        Schema::dropIfExists('product_sales_intervals');
+        Schema::dropIfExists('asset_sales_intervals');
     }
 };

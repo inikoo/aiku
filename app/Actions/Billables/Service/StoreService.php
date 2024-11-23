@@ -41,8 +41,6 @@ class StoreService extends OrgAction
 
         /** @var Service $service */
         $service = $shop->services()->create($modelData);
-        $service->stats()->create();
-        $service->salesIntervals()->create();
         $service->refresh();
 
         $asset = StoreAsset::run(
