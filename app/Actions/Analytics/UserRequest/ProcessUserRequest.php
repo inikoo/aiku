@@ -29,9 +29,6 @@ class ProcessUserRequest extends GrpAction
         $section = GetSectionRoute::dispatch($routeData['name'], $routeData['arguments']);
         $aiku_scoped_section_id = $section?->id ?? null;
 
-        if ($aiku_scoped_section_id == null) {
-            return null;
-        }
 
         $parsedUserAgent = (new Browser())->parse($userAgent);
         $modelData = [
@@ -49,9 +46,9 @@ class ProcessUserRequest extends GrpAction
         return StoreUserRequest::make()->action($user, $modelData);
     }
 
-    public function getLocation(string|null $ip): false|array|null
+    public function getLocation(string|null $ip): array
     {
-        if ($position = FacadesLocation::get($ip == '127.0.0.1' ? '103.121.18.96' : $ip)) {
+        if ($position = FacadesLocation::get($ip)) {
             return [
                 $position->countryCode,
                 $position->countryName,
@@ -59,7 +56,7 @@ class ProcessUserRequest extends GrpAction
             ];
         }
 
-        return false;
+        return [];
     }
 
     public function detectWindows11($parsedUserAgent): string
