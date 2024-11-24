@@ -9,7 +9,6 @@
 namespace App\Actions\Accounting\InvoiceCategory;
 
 use App\Actions\GrpAction;
-use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Accounting\Invoice\InvoiceCategoryStateEnum;
 use App\Models\Accounting\InvoiceCategory;
