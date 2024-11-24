@@ -73,7 +73,6 @@ class StoreWebpage extends OrgAction
             $webpage->update(
                 [
                     'unpublished_snapshot_id' => $snapshot->id,
-
                 ]
             );
 

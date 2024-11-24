@@ -24,6 +24,8 @@ return new class () extends Migration {
             $table->foreign('outbox_id')->references('id')->on('outboxes');
             $table->unsignedInteger('mailshot_id')->nullable();
             $table->foreign('mailshot_id')->references('id')->on('mailshots');
+            $table->unsignedInteger('email_run_id')->nullable();
+            $table->foreign('email_run_id')->references('id')->on('email_runs');
             $table->unsignedInteger('email_address_id')->nullable();
             $table->foreign('email_address_id')->references('id')->on('email_addresses');
             $table->string('type')->index();

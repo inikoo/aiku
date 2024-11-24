@@ -9,13 +9,13 @@ namespace App\Enums\Comms\EmailTemplate;
 
 use App\Enums\EnumHelperTrait;
 
-enum EmailTemplateProviderEnum: string
+enum EmailTemplateBuilderEnum: string
 {
     use EnumHelperTrait;
 
     case UNLAYER = 'unlayer';
     case BEEFREE = 'beefree';
-    case HARD_CODED = 'hard-coded';
+    case REPO_SOURCE_CODE = 'repo-source-code';
 
 
     public static function labels(): array
@@ -23,7 +23,7 @@ enum EmailTemplateProviderEnum: string
         return [
             'unlayer'    => __('Unlayer'),
             'beefree'    => __('BeeFree'),
-            'hard-coded' => __('Hard Coded')
+            'repo-source-code' => __('Hard Coded')
         ];
     }
 

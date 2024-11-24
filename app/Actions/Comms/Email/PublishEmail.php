@@ -1,20 +1,21 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 19 Nov 2024 11:09:35 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Sun, 24 Nov 2024 22:48:57 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Comms\EmailTemplate;
+namespace App\Actions\Comms\Email;
 
 use App\Actions\Helpers\Deployment\StoreDeployment;
-use App\Actions\Helpers\Snapshot\StoreEmailTemplateSnapshot;
+use App\Actions\Helpers\Snapshot\StoreEmailSnapshot;
 use App\Actions\Helpers\Snapshot\UpdateSnapshot;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum as EmailTemplateEmailTemplateStateEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
+use App\Models\Comms\Email;
 use App\Models\Comms\EmailTemplate;
 use App\Models\Helpers\Snapshot;
 use App\Models\SysAdmin\User;
@@ -23,12 +24,12 @@ use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use OwenIt\Auditing\Resolvers\UserResolver;
 
-class PublishEmailTemplate extends OrgAction
+class PublishEmail extends OrgAction
 {
     use WithActionUpdate;
     use HasWebAuthorisation;
 
-    public function handle(EmailTemplate $emailtemplate, array $modelData): EmailTemplate
+    public function handle(Email $email, array $modelData): Email
     {
         /** @var User $user */
         $user = UserResolver::resolve();
@@ -39,23 +40,23 @@ class PublishEmailTemplate extends OrgAction
         }
 
         $firstCommit = false;
-        if ($emailtemplate->state == EmailTemplateEmailTemplateStateEnum::IN_PROCESS) {
-            $firstCommit = true;
-        }
+        //        if ($email->state == EmailTemplateEmailTemplateStateEnum::IN_PROCESS) {
+        //            $firstCommit = true;
+        //        }
 
-        foreach ($emailtemplate->snapshots()->where('state', SnapshotStateEnum::LIVE)->get() as $liveSnapshot) {
+        foreach ($email->snapshots()->where('state', SnapshotStateEnum::LIVE)->get() as $liveSnapshot) {
             UpdateSnapshot::run($liveSnapshot, [
                 'state'           => SnapshotStateEnum::HISTORIC,
                 'published_until' => now()
             ]);
         }
 
-        $currentUnpublishedLayout = $emailtemplate->unpublishedSnapshot->layout;
+        $currentUnpublishedLayout = $email->unpublishedSnapshot->layout;
 
 
         /** @var Snapshot $snapshot */
-        $snapshot = StoreEmailTemplateSnapshot::run(
-            $emailtemplate,
+        $snapshot = StoreEmailSnapshot::run(
+            $email,
             [
                 'state'          => SnapshotStateEnum::LIVE,
                 'published_at'   => now(),
@@ -68,7 +69,7 @@ class PublishEmailTemplate extends OrgAction
         );
 
         $deployment = StoreDeployment::run(
-            $emailtemplate,
+            $email,
             [
                 'snapshot_id'    => $snapshot->id,
                 'publisher_id'   => Arr::get($modelData, 'publisher_id'),
@@ -76,34 +77,33 @@ class PublishEmailTemplate extends OrgAction
             ]
         );
 
-        $emailtemplate->stats()->update([
-            'last_deployed_at' => $deployment->date
-        ]);
+//        $email->stats()->update([
+//            'last_deployed_at' => $deployment->date
+//        ]);
 
         $updateData = [
             'live_snapshot_id'   => $snapshot->id,
             'published_layout'   => $snapshot->layout,
             'published_checksum' => md5(json_encode($snapshot->layout)),
-            'state'              => EmailTemplateEmailTemplateStateEnum::LIVE,
+         //   'state'              => EmailTemplateEmailTemplateStateEnum::LIVE,
             'is_dirty'           => false,
         ];
 
-        if ($emailtemplate->state == EmailTemplateEmailTemplateStateEnum::IN_PROCESS) {
-            $updateData['live_at'] = now();
-        }
+//        if ($email->state == EmailTemplateEmailTemplateStateEnum::IN_PROCESS) {
+//            $updateData['live_at'] = now();
+//        }
 
-        $emailtemplate->update($updateData);
+        $email->update($updateData);
 
-        return $emailtemplate;
+        return $email;
     }
 
-    public function asController(EmailTemplate $emailtemplate, ActionRequest $request): EmailTemplate
+    public function asController(Email $email, ActionRequest $request): Email
     {
-        $this->scope = $emailtemplate->website->shop;
-        $this->initialisationFromShop($emailtemplate->website->shop, $request);
 
+        $this->initialisation($email->organisation, $request);
 
-        return $this->handle($emailtemplate, $this->validatedData);
+        return $this->handle($email, $this->validatedData);
     }
 
     public function rules(): array
@@ -121,18 +121,19 @@ class PublishEmailTemplate extends OrgAction
     }
 
 
-    public function jsonResponse(EmailTemplate $emailtemplate): string
+    public function jsonResponse(Email $email): string
     {
         return "🚀";
     }
 
-    public function action(EmailTemplate $emailtemplate, array $modelData, bool $strict = true): EmailTemplate
+    public function action(Email $email, array $modelData, bool $strict = true): Email
     {
         $this->strict   = $strict;
         $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
 
-        return $this->handle($emailtemplate, $validatedData);
+
+        $this->initialisation($email->organisation, $modelData);
+
+        return $this->handle($email, $this->validatedData);
     }
 }

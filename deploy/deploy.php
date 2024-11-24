@@ -42,7 +42,7 @@ set('shared_files', [
     'aurora_procurement_migration.sh',
     'aurora_sales_migration.sh',
     'aurora_warehouse_migration.sh',
-    'aurora_emails_migration.sh',
+    'aurora_comms_migration.sh',
     'aurora_discounts_migration.sh',
     'aurora_create_group.sh',
     'aurora_create_organisations.sh',

@@ -13,11 +13,10 @@ enum MailshotTypeEnum: string
 {
     use EnumHelperTrait;
 
-    case PROSPECT_MAILSHOT          = 'prospect_mailshot';
-    case NEWSLETTER                 = 'newsletter';
-    case CUSTOMER_PROSPECT_MAILSHOT = 'customer_prospect_mailshot';
-    case MARKETING                  = 'marketing';
-    case ANNOUNCEMENT               = 'announcement';
+    case NEWSLETTER = 'newsletter';
+    case MARKETING = 'marketing';
+    case INVITE = 'invite';
+    case ABANDONED_CART = 'abandoned_cart';
 
 
 }

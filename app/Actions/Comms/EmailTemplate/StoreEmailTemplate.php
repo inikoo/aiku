@@ -8,7 +8,7 @@
 namespace App\Actions\Comms\EmailTemplate;
 
 use App\Actions\OrgAction;
-use App\Enums\Comms\EmailTemplate\EmailTemplateProviderEnum;
+use App\Enums\Comms\EmailTemplate\EmailTemplateBuilderEnum;
 use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum;
 use App\Models\Comms\EmailTemplate;
 use App\Models\SysAdmin\Group;
@@ -30,7 +30,7 @@ class StoreEmailTemplate extends OrgAction
         $rules = [
             'layout'      => ['sometimes', 'array'],
             'name'        => ['required', 'string', 'max:255'],
-            'provider'    => ['required', Rule::enum(EmailTemplateProviderEnum::class)],
+            'builder'     => ['required', Rule::enum(EmailTemplateBuilderEnum::class)],
             'language_id' => ['required', 'exists:languages,id'],
             'data'        => ['sometimes', 'array'],
         ];

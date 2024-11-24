@@ -50,42 +50,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $invoices_pq3
  * @property string $invoices_pq4
  * @property string $invoices_pq5
- * @property string $refunds_all
- * @property string $refunds_1y
- * @property string $refunds_1q
- * @property string $refunds_1m
- * @property string $refunds_1w
- * @property string $refunds_3d
- * @property string $refunds_1d
- * @property string $refunds_ytd
- * @property string $refunds_qtd
- * @property string $refunds_mtd
- * @property string $refunds_wtd
- * @property string $refunds_lm
- * @property string $refunds_lw
- * @property string $refunds_all_ly
- * @property string $refunds_1y_ly
- * @property string $refunds_1q_ly
- * @property string $refunds_1m_ly
- * @property string $refunds_1w_ly
- * @property string $refunds_3d_ly
- * @property string $refunds_1d_ly
- * @property string $refunds_ytd_ly
- * @property string $refunds_qtd_ly
- * @property string $refunds_mtd_ly
- * @property string $refunds_wtd_ly
- * @property string $refunds_lm_ly
- * @property string $refunds_lw_ly
- * @property string $refunds_py1
- * @property string $refunds_py2
- * @property string $refunds_py3
- * @property string $refunds_py4
- * @property string $refunds_py5
- * @property string $refunds_pq1
- * @property string $refunds_pq2
- * @property string $refunds_pq3
- * @property string $refunds_pq4
- * @property string $refunds_pq5
  * @property string $orders_all
  * @property string $orders_1y
  * @property string $orders_1q

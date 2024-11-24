@@ -146,7 +146,7 @@ class AppServiceProvider extends ServiceProvider
                 'OrgStockMovement'              => 'App\Models\Inventory\OrgStockMovement',
                 'OrgStockFamily'                => 'App\Models\Inventory\OrgStockFamily',
 
-                // Mail
+                // Comms
                 'DispatchedEmail'               => 'App\Models\Comms\DispatchedEmail',
                 'EmailAddress'                  => 'App\Models\Comms\EmailAddress',
                 'EmailTemplate'                 => 'App\Models\Comms\EmailTemplate',
@@ -157,6 +157,8 @@ class AppServiceProvider extends ServiceProvider
                 'SenderEmail'                   => 'App\Models\Comms\SenderEmail',
                 'SesNotification'               => 'App\Models\Comms\SesNotification',
                 'EmailCopy'                     => 'App\Models\Comms\EmailCopy',
+                'Email'                         => 'App\Models\Comms\Email',
+                'EmailRun'                      => 'App\Models\Comms\EmailRun',
 
 
                 // Catalogue

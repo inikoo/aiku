@@ -402,8 +402,10 @@ class FetchReset
                     ->whereNotNull($aikuIdField)
                     ->update([$aikuIdField => null]);
                 DB::connection('aurora')->table('Email Campaign Dimension')
-                    ->whereNotNull($aikuIdField)
-                    ->update([$aikuIdField => null]);
+                    ->update([
+                        $aikuIdField => null,
+                        'alt_aiku_id' => null
+                    ]);
                 DB::connection('aurora')->table('Email Tracking Dimension')
                     ->whereNotNull($aikuIdField)
                     ->update([$aikuIdField => null]);

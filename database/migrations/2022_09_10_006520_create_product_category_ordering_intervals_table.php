@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sat, 23 Nov 2024 10:25:46 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Sat, 23 Nov 2024 17:48:16 Central Indonesia Time, Kuta, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -15,10 +15,10 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('asset_ordering_intervals', function (Blueprint $table) {
+        Schema::create('product_category_ordering_intervals', function (Blueprint $table) {
             $table->smallIncrements('id');
-            $table->unsignedInteger('asset_id')->index();
-            $table->foreign('asset_id')->references('id')->on('assets');
+            $table->unsignedInteger('product_category_id')->index();
+            $table->foreign('product_category_id')->references('id')->on('product_categories');
             $table = $this->dateIntervals($table, [
                 'invoices',
                 'orders',
@@ -32,6 +32,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('asset_ordering_intervals');
+        Schema::dropIfExists('product_category_ordering_intervals');
     }
 };

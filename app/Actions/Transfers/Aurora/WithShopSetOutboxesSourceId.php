@@ -23,13 +23,7 @@ trait WithShopSetOutboxesSourceId
             ->get() as $auroraOutboxes) {
 
             $outboxType = $this->mapAuroraOutboxCode($auroraOutboxes->{'Email Campaign Type Code'});
-            //print '>>'.$auroraOutboxes->{'Email Campaign Type Code'}."\n";
-            //print_r($outboxType);
-            $outbox = $shop->outboxes()->where('type', $outboxType)->first();
-            //print "==========\n";
-            //print_r($outbox);
-            //print "==========\n";
-
+            $outbox = $shop->outboxes()->where('code', $outboxType)->first();
 
             if ($outbox) {
 

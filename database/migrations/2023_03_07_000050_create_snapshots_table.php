@@ -23,6 +23,7 @@ return new class () extends Migration {
             $table->unsignedInteger('parent_id')->nullable();
             $table->unsignedInteger('customer_id')->nullable();
             $table->foreign('customer_id')->references('id')->on('customers')->onUpdate('cascade')->onDelete('cascade');
+            $table->string('builder')->index();
             $table->string('state')->default(SnapshotStateEnum::UNPUBLISHED->value);
             $table->dateTimeTz('published_at')->nullable();
             $table->dateTimeTz('published_until')->nullable();

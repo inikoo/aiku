@@ -182,7 +182,7 @@ test('create prospect mailshot', function () {
     $outbox       = Outbox::where('shop_id', $shop->id)->where('type', OutboxCodeEnum::INVITE)->first();
     $dataModel    = [
         'subject'    => 'hello',
-        'type'       => MailshotTypeEnum::PROSPECT_MAILSHOT,
+        'type'       => MailshotTypeEnum::INVITE,
         'state'      => MailshotStateEnum::IN_PROCESS,
         'recipients_recipe' => []
 

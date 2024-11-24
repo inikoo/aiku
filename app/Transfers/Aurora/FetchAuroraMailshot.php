@@ -9,13 +9,14 @@ namespace App\Transfers\Aurora;
 
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraMailshot extends FetchAurora
 {
     protected function parseModel(): void
     {
-        if (!in_array($this->auroraModelData->{'Email Campaign Type'}, ['Newsletter', 'Marketing'])) {
+        if (!in_array($this->auroraModelData->{'Email Campaign Type'}, ['Newsletter', 'Marketing', 'Invite Full Mailshot', 'AbandonedCart'])) {
             return;
         }
 
@@ -32,18 +33,22 @@ class FetchAuroraMailshot extends FetchAurora
             'Stopped' => MailshotStateEnum::STOPPED,
         };
 
-        //enum('Newsletter','Marketing','GR Reminder','AbandonedCart','Invite Mailshot','OOS Notification','Invite Full Mailshot')
-        $type = match ($this->auroraModelData->{'Email Campaign Type'}) {
-            'Newsletter' => MailshotTypeEnum::NEWSLETTER,
-            'Marketing' => MailshotTypeEnum::MARKETING
-        };
+
 
         if ($this->auroraModelData->{'Email Campaign Type'} == 'Newsletter') {
             $type   = MailshotTypeEnum::NEWSLETTER;
-            $outbox = $shop->outboxes()->where('type', MailshotTypeEnum::NEWSLETTER)->first();
-        } else {
+            $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::NEWSLETTER)->first();
+        } elseif ($this->auroraModelData->{'Email Campaign Type'} == 'Marketing') {
             $type   = MailshotTypeEnum::MARKETING;
-            $outbox = $shop->outboxes()->where('type', MailshotTypeEnum::MARKETING)->first();
+            $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::MARKETING)->first();
+        } elseif ($this->auroraModelData->{'Email Campaign Type'} == 'Invite Full Mailshot') {
+            $type   = MailshotTypeEnum::INVITE;
+            $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::INVITE)->first();
+        } elseif ($this->auroraModelData->{'Email Campaign Type'} == 'AbandonedCart') {
+            $type   = MailshotTypeEnum::ABANDONED_CART;
+            $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::ABANDONED_CART)->first();
+        } else {
+            dd($this->auroraModelData->{'Email Campaign Type'});
         }
 
 
