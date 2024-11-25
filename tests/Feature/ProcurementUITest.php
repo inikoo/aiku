@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
 use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
@@ -14,7 +15,9 @@ use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
 use App\Actions\SysAdmin\Organisation\StoreOrganisation;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;
@@ -281,4 +284,14 @@ test('UI show org partners', function () {
             ->has('tabs');
 
     });
+});
+
+test('UI get section route index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.procurement.dashboard', [
+        'organisation' => $this->organisation->slug
+    ]);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->organisation_id)->toBe($this->organisation->id)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_PROCUREMENT->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
 });

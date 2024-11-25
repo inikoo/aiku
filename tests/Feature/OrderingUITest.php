@@ -7,12 +7,15 @@
  *
 */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Purge\StorePurge;
 use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
 use App\Actions\Ordering\Transaction\StoreTransaction;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Purge\PurgeTypeEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
@@ -92,7 +95,6 @@ beforeEach(function () {
         ], );
     }
     $this->purge = $purge;
-    // dd($purge);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -260,4 +262,16 @@ test('UI edit ordering purge', function () {
                         ->etc()
             );
     });
+});
+
+
+test('UI get section route index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.ordering.orders.index', [
+        'organisation' => $this->organisation->slug,
+        'shop' => $this->shop->slug
+    ]);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->organisation_id)->toBe($this->organisation->id)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_ORDERING->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
 });

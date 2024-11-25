@@ -6,8 +6,11 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\SupplyChain\Agent\StoreAgent;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use Inertia\Testing\AssertableInertia;
@@ -139,4 +142,11 @@ test('UI create agent', function () {
             ->has('formData');
 
     });
+});
+
+test('UI get section route index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.supply-chain.suppliers.index', []);
+    dd($sectionScope, $this->supplier);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_SUPPLY_CHAIN->value);
 });
