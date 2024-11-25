@@ -7,7 +7,7 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Catalogue\Shop;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
@@ -23,13 +23,7 @@ trait WithShopSetOutboxesSourceId
             ->get() as $auroraOutboxes) {
 
             $outboxType = $this->mapAuroraOutboxCode($auroraOutboxes->{'Email Campaign Type Code'});
-            //print '>>'.$auroraOutboxes->{'Email Campaign Type Code'}."\n";
-            //print_r($outboxType);
-            $outbox = $shop->outboxes()->where('type', $outboxType)->first();
-            //print "==========\n";
-            //print_r($outbox);
-            //print "==========\n";
-
+            $outbox = $shop->outboxes()->where('code', $outboxType)->first();
 
             if ($outbox) {
 
@@ -51,30 +45,30 @@ trait WithShopSetOutboxesSourceId
 
     }
 
-    private function mapAuroraOutboxCode($auroraCode): OutboxTypeEnum
+    private function mapAuroraOutboxCode($auroraCode): OutboxCodeEnum
     {
         return match($auroraCode) {
-            'New Customer' => OutboxTypeEnum::NEW_CUSTOMER,
-            'AbandonedCart' => OutboxTypeEnum::ABANDONED_CART,
-            'Basket Low Stock' => OutboxTypeEnum::BASKET_LOW_STOCK,
-            'Basket Reminder 1' => OutboxTypeEnum::BASKET_REMINDER_1,
-            'Basket Reminder 2' => OutboxTypeEnum::BASKET_REMINDER_2,
-            'Basket Reminder 3' => OutboxTypeEnum::BASKET_REMINDER_3,
-            'Delivery Confirmation' => OutboxTypeEnum::DELIVERY_CONFIRMATION,
-            'Delivery Note Dispatched' => OutboxTypeEnum::DELIVERY_NOTE_DISPATCHED,
-            'Delivery Note Undispatched' => OutboxTypeEnum::DELIVERY_NOTE_UNDISPATCHED,
-            'Invite', 'Invite Full Mailshot', 'Invite Mailshot' => OutboxTypeEnum::INVITE,
-            'Marketing' => OutboxTypeEnum::MARKETING,
-            'New Order' => OutboxTypeEnum::NEW_ORDER,
-            'Newsletter' => OutboxTypeEnum::NEWSLETTER,
-            'OOS Notification' => OutboxTypeEnum::OOS_NOTIFICATION,
-            'Order Confirmation' => OutboxTypeEnum::ORDER_CONFIRMATION,
-            'Password Reminder' => OutboxTypeEnum::PASSWORD_REMINDER,
-            'Registration' => OutboxTypeEnum::REGISTRATION,
-            'Registration Approved' => OutboxTypeEnum::REGISTRATION_APPROVED,
-            'Registration Rejected' => OutboxTypeEnum::REGISTRATION_REJECTED,
-            'GR Reminder' => OutboxTypeEnum::REORDER_REMINDER,
-            'Invoice Deleted' => OutboxTypeEnum::INVOICE_DELETED,
+            'New Customer' => OutboxCodeEnum::NEW_CUSTOMER,
+            'AbandonedCart' => OutboxCodeEnum::ABANDONED_CART,
+            'Basket Low Stock' => OutboxCodeEnum::BASKET_LOW_STOCK,
+            'Basket Reminder 1' => OutboxCodeEnum::BASKET_REMINDER_1,
+            'Basket Reminder 2' => OutboxCodeEnum::BASKET_REMINDER_2,
+            'Basket Reminder 3' => OutboxCodeEnum::BASKET_REMINDER_3,
+            'Delivery Confirmation' => OutboxCodeEnum::DELIVERY_CONFIRMATION,
+            'Delivery Note Dispatched' => OutboxCodeEnum::DELIVERY_NOTE_DISPATCHED,
+            'Delivery Note Undispatched' => OutboxCodeEnum::DELIVERY_NOTE_UNDISPATCHED,
+            'Invite', 'Invite Full Mailshot', 'Invite Mailshot' => OutboxCodeEnum::INVITE,
+            'Marketing' => OutboxCodeEnum::MARKETING,
+            'New Order' => OutboxCodeEnum::NEW_ORDER,
+            'Newsletter' => OutboxCodeEnum::NEWSLETTER,
+            'OOS Notification' => OutboxCodeEnum::OOS_NOTIFICATION,
+            'Order Confirmation' => OutboxCodeEnum::ORDER_CONFIRMATION,
+            'Password Reminder' => OutboxCodeEnum::PASSWORD_REMINDER,
+            'Registration' => OutboxCodeEnum::REGISTRATION,
+            'Registration Approved' => OutboxCodeEnum::REGISTRATION_APPROVED,
+            'Registration Rejected' => OutboxCodeEnum::REGISTRATION_REJECTED,
+            'GR Reminder' => OutboxCodeEnum::REORDER_REMINDER,
+            'Invoice Deleted' => OutboxCodeEnum::INVOICE_DELETED,
         };
     }
 

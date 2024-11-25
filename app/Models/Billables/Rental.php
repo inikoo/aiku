@@ -13,12 +13,10 @@ use App\Enums\Billables\Rental\RentalUnitEnum;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\InAssetModel;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Fulfilment\RentalSalesIntervals;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -62,9 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read HistoricAsset|null $historicAsset
  * @property-read \Illuminate\Database\Eloquent\Collection<int, HistoricAsset> $historicAssets
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read RentalSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
- * @property-read \App\Models\Billables\RentalStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Rental newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Rental newQuery()
@@ -138,15 +134,6 @@ class Rental extends Model implements Auditable
             ->slugsShouldBeNoLongerThan(64);
     }
 
-    public function stats(): HasOne
-    {
-        return $this->hasOne(RentalStats::class);
-    }
-
-    public function salesIntervals(): HasOne
-    {
-        return $this->hasOne(RentalSalesIntervals::class);
-    }
 
     public function fulfilment(): BelongsTo
     {

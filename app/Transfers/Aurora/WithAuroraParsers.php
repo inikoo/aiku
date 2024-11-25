@@ -21,6 +21,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraDeletedSuppliers;
 use App\Actions\Transfers\Aurora\FetchAuroraDeliveryNotes;
 use App\Actions\Transfers\Aurora\FetchAuroraDepartments;
 use App\Actions\Transfers\Aurora\FetchAuroraDispatchedEmails;
+use App\Actions\Transfers\Aurora\FetchAuroraEmailRunFromCampaigns;
 use App\Actions\Transfers\Aurora\FetchAuroraEmployees;
 use App\Actions\Transfers\Aurora\FetchAuroraFamilies;
 use App\Actions\Transfers\Aurora\FetchAuroraHistoricAssets;
@@ -71,7 +72,9 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\DispatchedEmail;
+use App\Models\Comms\EmailRun;
 use App\Models\Comms\Mailshot;
+use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Poll;
 use App\Models\CRM\PollOption;
@@ -1012,6 +1015,27 @@ trait WithAuroraParsers
         $sourceData = explode(':', $sourceId);
 
         return FetchAuroraSalesChannels::run($this->organisationSource, $sourceData[1]);
+    }
+
+    public function parseOutbox(string $sourceId): ?Outbox
+    {
+        return Outbox::whereJsonContains('sources->outboxes', $sourceId)->first();
+
+    }
+
+    public function parseEmailRun($sourceId): ?EmailRun
+    {
+        if (!$sourceId) {
+            return null;
+        }
+
+        $emailRun = EmailRun::where('source_id', $sourceId)->first();
+        if (!$emailRun) {
+            $sourceData = explode(':', $sourceId);
+            $emailRun   = FetchAuroraEmailRunFromCampaigns::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $emailRun;
     }
 
 

@@ -49,7 +49,7 @@ class StoreTransactionHasOfferComponent extends OrgAction
     {
         $rules = [
             'is_pinned'             => ['sometimes', 'boolean'],
-            'info'                  => ['sometimes', 'nullable', 'string'],
+            'info'                  => ['sometimes', 'nullable', 'string', 'max:10000'],
             'data'                  => ['sometimes', 'nullable', 'array'],
             'discounted_amount'     => ['required', 'nullable', 'numeric'],
             'discounted_percentage' => ['required', 'nullable', 'numeric', 'min:0', 'max:1'],

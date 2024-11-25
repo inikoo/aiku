@@ -47,8 +47,6 @@ class StoreRental extends OrgAction
 
         /** @var Rental $rental */
         $rental = $shop->rentals()->create($modelData);
-        $rental->stats()->create();
-        $rental->salesIntervals()->create();
         $rental->refresh();
 
         $asset = StoreAsset::run(

@@ -14,7 +14,6 @@ use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -60,9 +59,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Catalogue\HistoricAsset> $historicAssets
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \Illuminate\Database\Eloquent\Collection<int, RecurringBill> $recurringBills
- * @property-read \App\Models\Billables\ServiceSalesIntervals|null $salesIntervals
  * @property-read \App\Models\Catalogue\Shop|null $shop
- * @property-read \App\Models\Billables\ServiceStats|null $stats
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Service newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Service newQuery()
@@ -133,16 +130,6 @@ class Service extends Model implements Auditable
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate()
             ->slugsShouldBeNoLongerThan(64);
-    }
-
-    public function stats(): HasOne
-    {
-        return $this->hasOne(ServiceStats::class);
-    }
-
-    public function salesIntervals(): HasOne
-    {
-        return $this->hasOne(ServiceSalesIntervals::class);
     }
 
     public function recurringBills(): MorphToMany

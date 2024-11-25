@@ -34,7 +34,7 @@ class GroupHydratePostRooms
             'number_post_rooms' => $group->postRooms()->count(),
         ];
 
-        $group->mailStats()->update($stats);
+        $group->commsStats()->update($stats);
 
 
     }

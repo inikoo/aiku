@@ -8,7 +8,7 @@
 namespace App\Actions\Web\Website;
 
 use App\Actions\Comms\Outbox\StoreOutbox;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
 use App\Models\Web\Website;
@@ -22,17 +22,18 @@ class SeedWebsiteOutboxes
 
     public function handle(Website $website): void
     {
-        foreach (OutboxTypeEnum::cases() as $case) {
+        foreach (OutboxCodeEnum::cases() as $case) {
             if ($case->scope() == 'Website' and  in_array($website->shop->type->value, $case->shopTypes())) {
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
 
-                if (!Outbox::where('website_id', $website->id)->where('type', $case)->exists()) {
+                if (!Outbox::where('website_id', $website->id)->where('code', $case)->exists()) {
                     StoreOutbox::run(
                         $postRoom,
                         $website,
                         [
                             'name'      => $case->label(),
-                            'type'      => $case,
+                            'code'      => $case,
+                            'type'      => $case->type(),
                             'state'     => $case->defaultState(),
                             'blueprint' => $case->blueprint(),
 

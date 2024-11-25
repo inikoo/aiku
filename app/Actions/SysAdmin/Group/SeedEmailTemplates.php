@@ -65,7 +65,7 @@ class SeedEmailTemplates
                         'name'        => Arr::get($template, 'name'),
                         'layout'      => $layout,
                         'is_seeded'   => true,
-                        'provider'    => Arr::get($template, 'provider'),
+                        'builder'    => Arr::get($template, 'builder'),
                         'state'       => EmailTemplateStateEnum::ACTIVE,
                         'active_at'   => now(),
                         'language_id' => $language->id,

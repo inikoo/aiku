@@ -7,6 +7,7 @@
 
 namespace App\Models\Helpers;
 
+use App\Enums\Helpers\Snapshot\SnapshotBuilderEnum;
 use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Http\Resources\Web\SlideResource;
@@ -28,6 +29,7 @@ use Illuminate\Support\Arr;
  * @property string|null $parent_type
  * @property int|null $parent_id
  * @property int|null $customer_id
+ * @property SnapshotBuilderEnum $builder
  * @property SnapshotStateEnum $state
  * @property string|null $published_at
  * @property string|null $published_until
@@ -50,13 +52,14 @@ use Illuminate\Support\Arr;
  */
 class Snapshot extends Model
 {
-    protected $dateFormat  = 'Y-m-d H:i:s P';
+    protected $dateFormat = 'Y-m-d H:i:s P';
     protected array $dates = ['published_at', 'published_until'];
 
     protected $casts = [
-        'layout' => 'array',
-        'state'  => SnapshotStateEnum::class,
-        'scope'  => SnapshotScopeEnum::class
+        'layout'  => 'array',
+        'state'   => SnapshotStateEnum::class,
+        'scope'   => SnapshotScopeEnum::class,
+        'builder' => SnapshotBuilderEnum::class
     ];
 
     protected $attributes = [

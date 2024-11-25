@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -37,7 +38,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $subject
  * @property int|null $outbox_id
- * @property int|null $email_template_id
+ * @property int|null $email_id
  * @property MailshotStateEnum $state
  * @property MailshotTypeEnum $type
  * @property \Illuminate\Support\Carbon $date
@@ -47,7 +48,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $sent_at
  * @property \Illuminate\Support\Carbon|null $cancelled_at
  * @property \Illuminate\Support\Carbon|null $stopped_at
- * @property array $layout
  * @property array $recipients_recipe
  * @property int|null $publisher_id org user
  * @property array $data
@@ -60,6 +60,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
+ * @property-read \App\Models\Comms\Email|null $email
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Comms\Outbox|null $outbox
@@ -86,7 +87,6 @@ class Mailshot extends Model implements Auditable
 
     protected $casts = [
         'recipients_recipe' => 'array',
-        'layout'            => 'array',
         'data'              => 'array',
         'type'              => MailshotTypeEnum::class,
         'state'             => MailshotStateEnum::class,
@@ -97,12 +97,9 @@ class Mailshot extends Model implements Auditable
         'sent_at'           => 'datetime',
         'cancelled_at'      => 'datetime',
         'stopped_at'        => 'datetime',
-
-
     ];
 
     protected $attributes = [
-        'layout'            => '{}',
         'data'              => '{}',
         'recipients_recipe' => '{}',
     ];
@@ -159,6 +156,11 @@ class Mailshot extends Model implements Auditable
     public function dispatchedEmails(): HasMany
     {
         return $this->hasMany(DispatchedEmail::class);
+    }
+
+    public function email(): MorphOne
+    {
+        return $this->morphOne(Email::class, 'parent');
     }
 
 

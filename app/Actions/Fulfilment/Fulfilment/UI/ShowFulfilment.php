@@ -98,7 +98,7 @@ class ShowFulfilment extends OrgAction
                             'parameters' => [$fulfilment->organisation->slug, $fulfilment->slug]
                         ],
                         'index' => [
-                            'number' => $fulfilment->shop->salesStats->number_invoices
+                            'number' => $fulfilment->shop->orderingStats->number_invoices
                         ],
                     ],
 

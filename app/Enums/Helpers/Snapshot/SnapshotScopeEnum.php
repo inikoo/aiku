@@ -13,25 +13,27 @@ enum SnapshotScopeEnum: string
 {
     use EnumHelperTrait;
 
-    case WEBPAGE        = 'webpage';
-    case HEADER         = 'header';
-    case FOOTER         = 'footer';
-    case MENU           = 'menu';
-    case THEME          = 'theme';
-    case BANNER         = 'banner';
-    case EMAIL_TEMPLATE = 'email_template';
-    case PRODUCT_TEMPLATE = 'product_template';
+    case WEBPAGE = 'webpage';
+    case HEADER = 'header';
+    case FOOTER = 'footer';
+    case MENU = 'menu';
+    case THEME = 'theme';
+    case BANNER = 'banner';
+    case EMAIL = 'email';
+    case PRODUCT_TEMPLATE = 'product_template'; // for website web block
 
     public static function labels(): array
     {
         return [
-            'webpage'        => __('Webpage'),
-            'header'         => __('Header'),
-            'footer'         => __('Footer'),
-            'banner'         => __('Banner'),
-            'theme'          => __('Theme'),
-            'menu'           => __('Menu'),
-            'email_template' => __('Email Template')
+            'webpage'          => __('Webpage'),
+            'header'           => __('Header'),
+            'footer'           => __('Footer'),
+            'menu'             => __('Menu'),
+            'theme'            => __('Theme'),
+            'banner'           => __('Banner'),
+            'email'            => __('Email'),
+            'product_template' => __('Product template'),
+
         ];
     }
 }

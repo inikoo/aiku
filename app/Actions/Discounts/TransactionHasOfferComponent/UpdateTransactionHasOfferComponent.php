@@ -30,7 +30,7 @@ class UpdateTransactionHasOfferComponent extends OrgAction
     {
         $rules = [
             'is_pinned'             => ['sometimes', 'boolean'],
-            'info'                  => ['sometimes', 'nullable', 'string'],
+            'info'                  => ['sometimes', 'nullable', 'string', 'max:10000'],
             'data'                  => ['sometimes', 'nullable', 'array'],
             'discounted_amount'     => ['sometimes', 'required', 'nullable', 'numeric'],
             'discounted_percentage' => ['sometimes', 'required', 'nullable', 'numeric', 'min:0', 'max:1'],

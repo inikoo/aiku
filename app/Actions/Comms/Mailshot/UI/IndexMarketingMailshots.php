@@ -9,7 +9,7 @@ namespace App\Actions\Comms\Mailshot\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\MarketingMailshotsResource;
 use App\InertiaTable\InertiaTable;
@@ -56,7 +56,7 @@ class IndexMarketingMailshots extends OrgAction
                                 $query->where('mailshots.post_room_id', $parent->id);
                             }
                         });
-        $queryBuilder->where('outboxes.type', OutboxTypeEnum::MARKETING->value);
+        $queryBuilder->where('outboxes.type', OutboxCodeEnum::MARKETING->value);
         return $queryBuilder
             ->defaultSort('mailshots.id')
             ->select([

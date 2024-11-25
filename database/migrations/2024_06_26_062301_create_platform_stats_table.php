@@ -8,6 +8,7 @@
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\CRM\Customer\CustomerStateEnum;
 use App\Stubs\Migrations\HasCatalogueStats;
+use App\Stubs\Migrations\HasOrderingStats;
 use App\Stubs\Migrations\HasSalesIntervals;
 use App\Stubs\Migrations\HasSalesStats;
 use Illuminate\Database\Migrations\Migration;
@@ -18,6 +19,7 @@ return new class () extends Migration {
     use HasSalesIntervals;
     use HasCatalogueStats;
     use HasSalesStats;
+    use HasOrderingStats;
 
     public function up(): void
     {
@@ -40,7 +42,7 @@ return new class () extends Migration {
             }
 
 
-            $table = $this->salesStatsFields($table);
+            $table = $this->orderingStatsFields($table);
 
 
 

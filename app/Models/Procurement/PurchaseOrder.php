@@ -98,6 +98,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read Model|\Eloquent $parent
  * @property-read Collection<int, \App\Models\Procurement\PurchaseOrderTransaction> $purchaseOrderTransactions
+ * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Procurement\PurchaseOrderFactory factory($count = null, $state = [])
  * @method static Builder<static>|PurchaseOrder newModelQuery()
  * @method static Builder<static>|PurchaseOrder newQuery()

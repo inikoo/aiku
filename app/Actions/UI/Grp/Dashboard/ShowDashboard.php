@@ -25,7 +25,7 @@ class ShowDashboard
         $group   = Group::first();
         $testOrg = $group->organisations->skip(1)->first();
         $sales   = [
-            'sales'         => JsonResource::make($group->salesStats),
+            'sales'         => JsonResource::make($group->orderingStats),
             'currency'      => $group->currency,
             'total'         => [
                 'ytd' => [
@@ -161,9 +161,9 @@ class ShowDashboard
                     }),
                 ],
                 'all' => [
-                    'total_invoices' => $group->salesStats->number_invoices_type_invoice,
-                    'total_refunds'  => $group->salesStats->number_invoices_type_refund,
-                    'total_sales'    => $group->salesIntervals->group_amount_all
+                    'total_invoices' => $group->orderingStats->number_invoices_type_invoice,
+                    'total_refunds'  => $group->orderingStats->number_invoices_type_refund,
+                    'total_sales'    => $group->salesIntervals->sales_grp_currency_all
                 ]
             ],
             'organisations' => $group->organisations->map(function (Organisation $organisation) {

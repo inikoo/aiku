@@ -7,16 +7,21 @@
 
 namespace App\Actions\Helpers\Snapshot;
 
+use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Web\Slide\StoreSlide;
 use App\Models\Helpers\Snapshot;
 use App\Models\Web\Banner;
 use Illuminate\Support\Arr;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Illuminate\Support\Facades\DB;
 
-class StoreBannerSnapshot
+class StoreBannerSnapshot extends OrgAction
 {
-    use AsAction;
+    use WithNoStrictRules;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Banner $banner, array $modelData, ?array $slides): Snapshot
     {
         data_set(
@@ -31,20 +36,50 @@ class StoreBannerSnapshot
 
         data_set($modelData, 'scope', 'banner');
 
-        $snapshot = Snapshot::create($modelData);
-        $banner->snapshots()->save($snapshot);
-        $snapshot->saveQuietly();
-        $snapshot->stats()->create();
+        return DB::transaction(function () use ($banner, $modelData, $slides) {
+            /** @var Snapshot $snapshot */
+            $snapshot = $banner->snapshots()->create($modelData);
+            $snapshot->stats()->create();
 
-        if ($slides) {
-            foreach ($slides as $slide) {
-                StoreSlide::run(
-                    snapshot: $snapshot,
-                    modelData: $slide,
-                );
+            if ($slides) {
+                foreach ($slides as $slide) {
+                    StoreSlide::run(
+                        snapshot: $snapshot,
+                        modelData: $slide,
+                    );
+                }
             }
+
+            return $snapshot;
+        });
+    }
+
+    public function rules(): array
+    {
+        $rules = [
+            'layout' => ['required', 'array'],
+        ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictStoreRules($rules);
         }
 
-        return $snapshot;
+        return $rules;
     }
+
+    /**
+     * @throws \Throwable
+     */
+    public function action(Banner $banner, array $modelData, ?array $slides, int $hydratorsDelay = 0, bool $strict = true): Snapshot
+    {
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+
+
+        $this->initialisationFromShop($banner->shop, $modelData);
+
+        return $this->handle($banner, $this->validatedData, $slides);
+    }
+
 }

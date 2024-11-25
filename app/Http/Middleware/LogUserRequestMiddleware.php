@@ -8,18 +8,14 @@
 namespace App\Http\Middleware;
 
 use App\Actions\Analytics\UserRequest\ProcessUserRequest;
+use App\Models\SysAdmin\User;
 use Closure;
 use Illuminate\Http\Request;
 
 class LogUserRequestMiddleware
 {
-    /**
-     * Handle an incoming request.
-     */
     public function handle(Request $request, Closure $next)
     {
-
-
 
         if (!str_starts_with($request->route()->getName(), 'grp.')) {
             return $next($request);
@@ -30,9 +26,8 @@ class LogUserRequestMiddleware
         }
 
 
-        /* @var \App\Models\SysAdmin\User $user */
+        /* @var User $user */
         $user = $request->user();
-
         if (!app()->runningUnitTests() && $user) {
             ProcessUserRequest::dispatch(
                 $user,

@@ -20,7 +20,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_customers_who_un_favourited
  * @property int $number_customers_who_reminded
  * @property int $number_customers_who_un_reminded
- * @property int $number_historic_assets
  * @property int $number_products_state_in_process
  * @property int $number_products_state_active
  * @property int $number_products_state_discontinuing
