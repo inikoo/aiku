@@ -83,6 +83,7 @@ class GetSectionRoute extends OrgAction
             );
         }
 
+
         return null;
     }
 
@@ -190,6 +191,7 @@ class GetSectionRoute extends OrgAction
 
     public function parseGroupSections(string $route, $routeParameters): AikuScopedSection|null
     {
+
         $sectionCode = match (true) {
             str_starts_with($route, 'dashboard') => AikuSectionEnum::GROUP_DASHBOARD,
             str_starts_with($route, 'goods') => AikuSectionEnum::GROUP_GOODS,
@@ -205,6 +207,10 @@ class GetSectionRoute extends OrgAction
             return null;
         }
 
-        return AikuScopedSection::where('code', $sectionCode)->where('model_slug', end($routeParameters))->first();
+        if ($routeParameters) {
+            return AikuScopedSection::where('code', $sectionCode)->where('model_slug', end($routeParameters))->first();
+        } else {
+            return AikuScopedSection::where('code', $sectionCode)->first();
+        }
     }
 }
