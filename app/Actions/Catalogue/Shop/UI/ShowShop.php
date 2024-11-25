@@ -138,7 +138,7 @@ class ShowShop extends OrgAction
                             'icon'  => ['fal', 'fa-shopping-cart'],
                             'route'  => ['grp.crm.shops.show.orders.index', $shop->slug],
                             'index' => [
-                                'number' => $shop->salesStats->number_orders
+                                'number' => $shop->orderingStats->number_orders
                             ]
                         ],
                         [
@@ -146,7 +146,7 @@ class ShowShop extends OrgAction
                             'icon'  => ['fal', 'fa-file-invoice'],
                             'route'  => ['grp.crm.shops.show.invoices.index', $shop->slug],
                             'index' => [
-                                'number' => $shop->salesStats->number_invoices
+                                'number' => $shop->orderingStats->number_invoices
                             ]
                         ],
                         [
@@ -154,7 +154,7 @@ class ShowShop extends OrgAction
                             'icon'  => ['fal', 'fa-sticky-note'],
                             'route'  => ['grp.crm.shops.show.delivery-notes.index', $shop->slug],
                             'index' => [
-                                'number' => $shop->salesStats->number_deliveries
+                                'number' => $shop->orderingStats->number_deliveries
                             ]
                         ]
                     ]
