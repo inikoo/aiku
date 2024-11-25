@@ -41,6 +41,8 @@ enum AikuSectionEnum: string
     case SHOP_ORDERING = 'shop-ordering';
     case SHOP_SETTINGS = 'shop-settings';
 
+    case DROPSHIPPING = 'dropshipping';
+
     case FULFILMENT_DASHBOARD = 'fulfilment-dashboard';
     case FULFILMENT_BILLABLES = 'fulfilment-billables';
     case FULFILMENT_OPERATION = 'fulfilment-operation';
@@ -91,6 +93,8 @@ enum AikuSectionEnum: string
             'shop-crm'       => __('Shop CRM'),
             'shop-ordering'  => __('Shop Ordering'),
             'shop-settings'  => __('Shop Settings'),
+
+            'dropshipping'   => __('Dropshipping'),
 
             'fulfilment-dashboard' => __('Fulfilment Dashboard'),
             'fulfilment-billables' => __('Fulfilment Billables'),
@@ -152,6 +156,9 @@ enum AikuSectionEnum: string
             AikuSectionEnum::SHOP_ORDERING,
             AikuSectionEnum::SHOP_SETTINGS,
             => ['Shop'],
+
+            AikuSectionEnum::DROPSHIPPING,
+            => ['Dropshipping'],
 
             // Fulfilment section
             AikuSectionEnum::FULFILMENT_DASHBOARD,

@@ -70,7 +70,9 @@ class SeedAikuScopedSections extends GrpAction
             if ($scope == 'Organisation' and $model->type == OrganisationTypeEnum::DIGITAL_AGENCY) {
                 $scope = 'DigitalAgency';
             }
-
+            if ($scope == 'Shop' and $model->type == ShopTypeEnum::DROPSHIPPING) {
+                $scope = 'Dropshipping';
+            }
 
             if (in_array($scope, $case->scopes())) {
                 $aikuSection = AikuSection::where('code', $case->value)->first();
