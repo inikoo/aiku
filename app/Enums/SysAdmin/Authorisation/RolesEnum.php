@@ -11,7 +11,7 @@ use App\Enums\EnumHelperTrait;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
-use App\Models\Manufacturing\Production;
+use App\Models\Production\Production;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -94,11 +94,11 @@ enum RolesEnum: string
     case SAAS_SUPERVISOR   = 'saas-supervisor';
     case SAAS_CLERK        = 'saas-clerk';
 
-    case MANUFACTURING_ADMIN             = 'manufacturing-admin';
-    case MANUFACTURING_ORCHESTRATOR      = 'manufacturing-orchestrator';
-    case MANUFACTURING_LINE_MANAGER      = 'manufacturing-line-manager';
-    case MANUFACTURING_OPERATOR          = 'manufacturing-operator';
-    case MANUFACTURING_PRODUCT_DEVELOPER = 'manufacturing-product-developer';
+    case MANUFACTURING_ADMIN             = 'production-admin';
+    case MANUFACTURING_ORCHESTRATOR      = 'production-orchestrator';
+    case MANUFACTURING_LINE_MANAGER      = 'production-line-manager';
+    case MANUFACTURING_OPERATOR          = 'production-operator';
+    case MANUFACTURING_PRODUCT_DEVELOPER = 'production-product-developer';
 
 
     public function label(): string
@@ -143,11 +143,11 @@ enum RolesEnum: string
             RolesEnum::DISCOUNTS_SUPERVISOR               => __('Discounts supervisor'),
             RolesEnum::MARKETING_CLERK                    => __('Marketing clerk'),
             RolesEnum::MARKETING_SUPERVISOR               => __('Marketing supervisor'),
-            RolesEnum::MANUFACTURING_ADMIN                => __('Manufacturing admin'),
-            RolesEnum::MANUFACTURING_ORCHESTRATOR         => __('Manufacturing orchestrator'),
-            RolesEnum::MANUFACTURING_LINE_MANAGER         => __('Manufacturing line manager'),
-            RolesEnum::MANUFACTURING_OPERATOR             => __('Manufacturing operator'),
-            RolesEnum::MANUFACTURING_PRODUCT_DEVELOPER    => __('Manufacturing product developer'),
+            RolesEnum::MANUFACTURING_ADMIN                => __('Production admin'),
+            RolesEnum::MANUFACTURING_ORCHESTRATOR         => __('Production orchestrator'),
+            RolesEnum::MANUFACTURING_LINE_MANAGER         => __('Production line manager'),
+            RolesEnum::MANUFACTURING_OPERATOR             => __('Production operator'),
+            RolesEnum::MANUFACTURING_PRODUCT_DEVELOPER    => __('Production product developer'),
             RolesEnum::GOODS_IN_SUPERVISOR                => __('Goods in supervisor'),
             RolesEnum::GOODS_IN_CLERK                     => __('Goods in clerk'),
         };

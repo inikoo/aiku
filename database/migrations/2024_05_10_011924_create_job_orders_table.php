@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\Manufacturing\JobOrder\JobOrderStateEnum;
+use App\Enums\Production\JobOrder\JobOrderStateEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;

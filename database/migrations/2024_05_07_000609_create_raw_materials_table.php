@@ -5,9 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialStockStatusEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
+use App\Enums\Production\RawMaterial\RawMaterialStateEnum;
+use App\Enums\Production\RawMaterial\RawMaterialStockStatusEnum;
+use App\Enums\Production\RawMaterial\RawMaterialUnitEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

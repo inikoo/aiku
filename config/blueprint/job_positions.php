@@ -314,7 +314,7 @@ return [
         ],
         'prod-d'   => [
             'code'               => 'prod-d',
-            'name'               => 'Manufacturing dispatcher',
+            'name'               => 'Production dispatcher',
             'scope'              => JobPositionScopeEnum::PRODUCTIONS,
             'team'               => 'production',
             'department'         => 'production',
@@ -326,7 +326,7 @@ return [
         ],
         'prod-m'   => [
             'code'               => 'prod-m',
-            'name'               => 'Manufacturing floor supervisor',
+            'name'               => 'Production floor supervisor',
             'scope'              => JobPositionScopeEnum::PRODUCTIONS,
             'team'               => 'production',
             'department'         => 'production',
@@ -338,7 +338,7 @@ return [
         ],
         'prod-c'   => [
             'code'       => 'prod-c',
-            'name'       => 'Manufacturing operative',
+            'name'       => 'Production operative',
             'scope'      => JobPositionScopeEnum::PRODUCTIONS,
             'team'       => 'production',
             'department' => 'production',

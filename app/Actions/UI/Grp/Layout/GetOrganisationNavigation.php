@@ -106,7 +106,7 @@ class GetOrganisationNavigation
         ) {
             $production         = $authorisedModel->model;
             $navigation['productions_navigation']
-            [$production->slug] = GetManufacturingNavigation::run($production, $user);
+            [$production->slug] = GetProductionNavigation::run($production, $user);
         }
 
 

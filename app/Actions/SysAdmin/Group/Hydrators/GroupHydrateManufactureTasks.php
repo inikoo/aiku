@@ -8,9 +8,9 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
-use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
-use App\Models\Manufacturing\ManufactureTask;
+use App\Enums\Production\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
+use App\Enums\Production\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
+use App\Models\Production\ManufactureTask;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;

@@ -2,9 +2,9 @@
 
 namespace App\Models\SysAdmin;
 
-use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
-use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
-use App\Models\Manufacturing\Production;
+use App\Enums\Production\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
+use App\Enums\Production\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
+use App\Models\Production\Production;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;

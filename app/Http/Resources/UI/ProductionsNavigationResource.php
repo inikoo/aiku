@@ -7,7 +7,7 @@
 
 namespace App\Http\Resources\UI;
 
-use App\Models\Manufacturing\Production;
+use App\Models\Production\Production;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProductionsNavigationResource extends JsonResource
