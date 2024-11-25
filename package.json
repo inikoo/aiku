@@ -122,7 +122,6 @@
         "vue3-moveable": "^0.28.0",
         "vue3-popper": "^1.5.0",
         "vuedraggable": "^4.1.0",
-        "@beefree.io/sdk": "^7.0.1",
         "@mailupinc/bee-plugin": "^2.3.0"
     }
 }

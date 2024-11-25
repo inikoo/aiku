@@ -26,7 +26,7 @@ class ProcessUserRequest extends GrpAction
      */
     public function handle(User $user, Carbon $datetime, array $routeData, string $ip, string $userAgent): UserRequest|null
     {
-        $section = GetSectionRoute::dispatch($routeData['name'], $routeData['arguments']);
+        $section = GetSectionRoute::run($routeData['name'], $routeData['arguments']);
         $aiku_scoped_section_id = $section?->id ?? null;
 
 
