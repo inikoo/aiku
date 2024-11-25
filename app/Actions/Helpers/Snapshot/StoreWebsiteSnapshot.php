@@ -7,17 +7,24 @@
 
 namespace App\Actions\Helpers\Snapshot;
 
+use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Enums\Helpers\Snapshot\SnapshotBuilderEnum;
 use App\Models\Helpers\Snapshot;
 use App\Models\Web\Website;
 use Illuminate\Support\Arr;
-use Lorisleiva\Actions\Concerns\AsAction;
+use Illuminate\Support\Facades\DB;
 
-class StoreWebsiteSnapshot
+class StoreWebsiteSnapshot extends OrgAction
 {
-    use AsAction;
+    use WithNoStrictRules;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Website $website, array $modelData): Snapshot
     {
+        data_set($modelData, 'builder', SnapshotBuilderEnum::AIKU_WEB_BLOCKS_V1);
         data_set(
             $modelData,
             'checksum',
@@ -28,11 +35,40 @@ class StoreWebsiteSnapshot
             )
         );
 
-        $snapshot = Snapshot::create($modelData);
-        $website->snapshots()->save($snapshot);
-        $snapshot->saveQuietly();
-        $snapshot->stats()->create();
+        return DB::transaction(function () use ($website, $modelData) {
 
-        return $snapshot;
+            /** @var Snapshot $snapshot */
+            $snapshot = $website->snapshots()->create($modelData);
+            $snapshot->stats()->create();
+            return $snapshot;
+        });
+    }
+
+    public function rules(): array
+    {
+        $rules = [
+            'layout' => ['required', 'array'],
+        ];
+
+        if (!$this->strict) {
+            $rules = $this->noStrictStoreRules($rules);
+        }
+
+        return $rules;
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function action(Website $website, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Snapshot
+    {
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+
+
+        $this->initialisationFromShop($website->shop, $modelData);
+
+        return $this->handle($website, $this->validatedData);
     }
 }

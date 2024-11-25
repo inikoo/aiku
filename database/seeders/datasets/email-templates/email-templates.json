@@ -6,7 +6,7 @@
     "name": "Blank",
     "content": "default.json",
     "image": "",
-    "provider": "unlayer",
+    "builder": "unlayer",
     "tags": [
       "Blank"
     ]
@@ -18,7 +18,7 @@
     "name": "Christmas Discount",
     "content": "ChristmasDiscount.json",
     "image": "ChristmasDiscount.jpg",
-    "provider": "unlayer",
+    "builder": "unlayer",
     "tags": [
       "Christmas"
     ]
@@ -30,7 +30,7 @@
     "name": "Christmas Eve",
     "content": "ChristmasEve.json",
     "image": "ChristmasEve.jpg",
-    "provider": "unlayer",
+    "builder": "unlayer",
     "tags": [
       "Christmas"
     ]
@@ -42,7 +42,7 @@
     "name": "Christmas Mega Discount",
     "content": "ChristmasMegaDiscount.json",
     "image": "ChristmasMegaDiscount.jpg",
-    "provider": "unlayer",
+    "builder": "unlayer",
     "tags": [
       "Christmas"
     ]
@@ -54,7 +54,7 @@
     "name": "Christmas Movie Night",
     "content": "ChristmasMovieNight.json",
     "image": "ChristmasMovieNight.jpg",
-    "provider": "unlayer",
+    "builder": "unlayer",
     "tags": [
       "Christmas"
     ]
@@ -66,7 +66,7 @@
     "name": "Sweet Treat",
     "content": "SweetTreat.json",
     "image": "SweetTreat.png",
-    "provider": "unlayer",
+    "builder": "unlayer",
     "tags": [
       "Christmas"
     ]
@@ -78,7 +78,7 @@
     "name": "Halloween Party",
     "content": "HalloweenParty.json",
     "image": "HalloweenParty.jpg",
-    "provider": "unlayer",
+    "builder": "unlayer",
     "tags": [
       "Halloween"
     ]
@@ -90,7 +90,7 @@
     "name": "Halloween Sale",
     "content": "HalloweenSale.json",
     "image": "HalloweenSale.jpg",
-    "provider": "unlayer",
+    "builder": "unlayer",
     "tags": [
       "Halloween"
     ]
@@ -102,7 +102,7 @@
     "name": "Happy New Year Email to Employee",
     "content": "HappyNewYearEmailToEmployee.json",
     "image": "HappyNewYearEmailToEmployee.jpg",
-    "provider": "unlayer",
+    "builder": "unlayer",
     "tags": [
       "New Year"
     ]
@@ -114,7 +114,7 @@
     "name": "New Year Sale",
     "content": "NewYearSale.json",
     "image": "NewYearSale.jpg",
-    "provider": "unlayer",
+    "builder": "unlayer",
     "tags": [
       "New Year"
     ]
@@ -126,7 +126,7 @@
     "name": "Event Announcement",
     "content": "EventAnnouncement.json",
     "image": "EventAnnouncement.jpg",
-    "provider": "unlayer",
+    "builder": "unlayer",
     "tags": [
       "marketing"
     ]
@@ -138,7 +138,7 @@
     "name": "Simple Offer",
     "content": "SimpleOffer.json",
     "image": "SimpleOffer.jpg",
-    "provider": "unlayer",
+    "builder": "unlayer",
     "tags": [
       "marketing"
     ]

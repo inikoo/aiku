@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
+
     public function up(): void
     {
         Schema::create('email_templates', function (Blueprint $table) {
@@ -21,7 +22,7 @@ return new class () extends Migration {
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('name')->index()->collation('und_ns');
-            $table->string('provider')->index();
+            $table->string('builder')->index();
             $table->string('state')->index()->default(EmailTemplateStateEnum::IN_PROCESS);
             $table->boolean('is_seeded')->index()->default(false);
             $table->jsonb('layout')->nullable();

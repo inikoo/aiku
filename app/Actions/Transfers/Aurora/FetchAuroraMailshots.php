@@ -81,7 +81,7 @@ class FetchAuroraMailshots extends FetchAuroraAction
         //enum('Newsletter','Marketing','GR Reminder','AbandonedCart','Invite Mailshot','OOS Notification','Invite Full Mailshot')
         $query = DB::connection('aurora')
             ->table('Email Campaign Dimension')
-            ->whereIn('Email Campaign Type', ['Newsletter', 'Marketing']);
+            ->whereIn('Email Campaign Type', ['Newsletter', 'Marketing', 'Invite Full Mailshot', 'AbandonedCart']);
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
@@ -95,7 +95,7 @@ class FetchAuroraMailshots extends FetchAuroraAction
     {
         $query = DB::connection('aurora')
             ->table('Email Campaign Dimension')
-            ->whereIn('Email Campaign Type', ['Newsletter', 'Marketing']);
+            ->whereIn('Email Campaign Type', ['Newsletter', 'Marketing', 'Invite Full Mailshot', 'AbandonedCart']);
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }

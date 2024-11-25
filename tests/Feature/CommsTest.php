@@ -19,7 +19,7 @@ use App\Actions\Comms\Outbox\UpdateModelToOutbox;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\Outbox\OutboxBlueprintEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\ModelSubscribedToOutbox;
@@ -118,7 +118,7 @@ test('seed fulfilments outboxes by command', function (Fulfilment $fulfilment) {
 test('create mailshot', function (Shop $shop) {
 
     /** @var Outbox $outbox */
-    $outbox = $shop->outboxes()->where('type', OutboxTypeEnum::MARKETING)->first();
+    $outbox = $shop->outboxes()->where('type', OutboxCodeEnum::MARKETING)->first();
 
     $mailshot = StoreMailshot::make()->action($outbox, Mailshot::factory()->definition());
     $this->assertModelExists($mailshot);
@@ -134,7 +134,7 @@ test('update mailshot', function ($mailshot) {
 
 test('create dispatched email in outbox', function (Shop $shop) {
     /** @var Outbox $outbox */
-    $outbox          = $shop->outboxes()->where('type', OutboxTypeEnum::MARKETING)->first();
+    $outbox          = $shop->outboxes()->where('type', OutboxCodeEnum::MARKETING)->first();
     $dispatchedEmail = StoreDispatchEmail::make()->action(
         $outbox,
         $this->customer,
@@ -179,7 +179,7 @@ test('test post room hydrator', function ($shop) {
         $postRoom,
         $shop,
         [
-            'type'      => OutboxTypeEnum::NEWSLETTER,
+            'type'      => OutboxCodeEnum::NEWSLETTER,
             'name'      => 'Test',
             'blueprint' => OutboxBlueprintEnum::EMAIL_TEMPLATE,
         ]

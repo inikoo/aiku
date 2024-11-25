@@ -72,9 +72,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount Group currency, amount_successfully_paid-amount_returned
  * @property string $group_amount_successfully_paid
  * @property string $group_amount_refunded
- * @property string $invoiced_net_amount
- * @property string $invoiced_org_net_amount
- * @property string $invoiced_grp_net_amount
  * @property int $number_invoices
  * @property int $number_invoices_type_invoice
  * @property int $number_invoices_type_refund

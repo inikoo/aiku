@@ -27,6 +27,7 @@ enum AikuSectionEnum: string
     case ORG_REPORT = 'org-report';
 
     case ORG_SHOP = 'org-shop';
+    case ORG_FULFILMENT = 'org-fulfilment';
     case ORG_PRODUCTION = 'org-production';
     case ORG_WAREHOUSE = 'org-warehouse';
 
@@ -77,8 +78,9 @@ enum AikuSectionEnum: string
             'org-hr'          => __('Organisation HR'),
             'org-report'      => __('Organisation Report'),
             'org-shop'        => __('Shop'),
-            'org-production'  => __('Production'),
             'org-warehouse'   => __('Warehouse'),
+            'org-fulfilment'  => __('Fulfilment'),
+            'org-production'  => __('Production'),
 
             'shop-dashboard' => __('Shop Dashboard'),
             'shop-catalogue' => __('Shop Catalogue'),
@@ -129,6 +131,7 @@ enum AikuSectionEnum: string
             AikuSectionEnum::ORG_SHOP,
             AikuSectionEnum::ORG_PRODUCTION,
             AikuSectionEnum::ORG_WAREHOUSE,
+            AikuSectionEnum::ORG_FULFILMENT,
             => ['Organisation'],
 
             // Organisation + Agent + DigitalAgency share sections

@@ -26,9 +26,15 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property string $name
  * @property InvoiceCategoryStateEnum $state
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
+ * @property string|null $source_id
+ * @property string|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\Accounting\InvoiceCategoryOrderingIntervals|null $orderingIntervals
  * @property-read \App\Models\Accounting\InvoiceCategorySalesIntervals|null $salesIntervals
  * @property-read \App\Models\Accounting\InvoiceCategoryStats|null $stats
  * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceCategory newModelQuery()
@@ -80,5 +86,10 @@ class InvoiceCategory extends Model implements Auditable
     public function salesIntervals(): HasOne
     {
         return $this->hasOne(InvoiceCategorySalesIntervals::class);
+    }
+
+    public function orderingIntervals(): HasOne
+    {
+        return $this->hasOne(InvoiceCategoryOrderingIntervals::class);
     }
 }

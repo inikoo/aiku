@@ -54,7 +54,7 @@ import {
 } from "@fal"
 import { Action } from "@/types/Action"
 import { get } from "lodash"
-import { faPlus } from "@far"
+import { faMinus, faPlus } from "@far"
 import { PalletDelivery } from "@/types/Pallet"
 library.add(
 	faStickyNote,
@@ -74,7 +74,8 @@ library.add(
 	faFilePdf,
 	faPaperclip,
 	faPencil,
-	faPlus
+	faPlus,
+	faMinus
 )
 
 const props = defineProps<{
@@ -184,40 +185,7 @@ const openModal = (action :any) => {
 	currentAction.value = action;
     isModalUploadOpen.value = true;
 };
-/* const formProducts = useForm({ historic_id: null, quantity_ordered: 1 })
-const onSubmitAddProducts = (data: Action, closedPopover: Function) => {
-	isLoadingButton.value = "addProducts"
 
-	formProducts
-		.post(
-			route(data.route?.name || "#", {
-				...data.route?.parameters,
-				historicSupplierProduct: formProducts.historic_id,
-				orgStock
-			}),
-			{
-				preserveScroll: true,
-				onSuccess: () => {
-					closedPopover()
-					formProducts.reset()
-				},
-				onError: (errors) => {
-					console.log(errors,'errorss');
-					
-					notify({
-						title: trans("Something went wrong."),
-						text: trans("Failed to add service, please try again."),
-						type: "error",
-					})
-				},
-				onFinish: () => {
-					isLoadingButton.value = false
-				},
-			}
-		)
-		
-}
- */
 const fallbackBgColor = "#f9fafb" // Background
 const fallbackColor = "#374151"
 </script>

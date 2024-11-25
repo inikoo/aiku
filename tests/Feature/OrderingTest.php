@@ -117,15 +117,15 @@ test('create order', function () {
     expect($order)->toBeInstanceOf(Order::class)
         ->and($order->state)->toBe(OrderStateEnum::CREATING)
         ->and($order->customer)->toBeInstanceOf(Customer::class)
-        ->and($this->group->salesStats->number_orders)->toBe(1)
-        ->and($this->group->salesStats->number_orders_state_creating)->toBe(1)
-        ->and($this->group->salesStats->number_orders_handing_type_shipping)->toBe(1)
+        ->and($this->group->orderingStats->number_orders)->toBe(1)
+        ->and($this->group->orderingStats->number_orders_state_creating)->toBe(1)
+        ->and($this->group->orderingStats->number_orders_handing_type_shipping)->toBe(1)
         ->and($this->organisation->salesStats->number_orders)->toBe(1)
         ->and($this->organisation->salesStats->number_orders_state_creating)->toBe(1)
         ->and($this->organisation->salesStats->number_orders_handing_type_shipping)->toBe(1)
-        ->and($this->shop->salesStats->number_orders)->toBe(1)
-        ->and($this->shop->salesStats->number_orders_state_creating)->toBe(1)
-        ->and($this->shop->salesStats->number_orders_handing_type_shipping)->toBe(1)
+        ->and($this->shop->orderingStats->number_orders)->toBe(1)
+        ->and($this->shop->orderingStats->number_orders_state_creating)->toBe(1)
+        ->and($this->shop->orderingStats->number_orders_handing_type_shipping)->toBe(1)
         ->and($this->customer->stats->number_orders)->toBe(1)
         ->and($this->customer->stats->number_orders_state_creating)->toBe(1)
         ->and($this->customer->stats->number_orders_handing_type_shipping)->toBe(1)
@@ -166,7 +166,7 @@ test('update order', function ($order) {
 test('update order state to submitted', function (Order $order) {
     $order = UpdateOrderStateToSubmitted::make()->action($order);
     expect($order->state)->toEqual(OrderStateEnum::SUBMITTED)
-        ->and($order->shop->salesStats->number_orders_state_submitted)->toBe(1)
+        ->and($order->shop->orderingStats->number_orders_state_submitted)->toBe(1)
         ->and($order->organisation->salesStats->number_orders_state_submitted)->toBe(1)
         ->and($order->group->salesStats->number_orders_state_submitted)->toBe(1)
         ->and($order->stats->number_transactions)->toBe(1);
@@ -308,7 +308,7 @@ test('create invoice from order', function (Order $order) {
         ->and($invoice->customer->id)->toBe($order->customer_id)
         ->and($invoice->reference)->toBe('00002')
         ->and($customer->stats->number_invoices)->toBe(2)
-        ->and($this->shop->salesStats->number_invoices)->toBe(2);
+        ->and($this->shop->orderingStats->number_invoices)->toBe(2);
     expect($invoiceTransaction)->toBeInstanceOf(InvoiceTransaction::class);
 
 

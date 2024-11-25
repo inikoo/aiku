@@ -19,7 +19,7 @@ class GetOrderStats
         $orders = $shop->orders;
         $total  = $orders->sum('net_amount');
         return [
-            'number_orders' => $shop->salesStats->number_orders,
+            'number_orders' => $shop->orderingStats->number_orders,
             'total'         => $total
         ];
     }

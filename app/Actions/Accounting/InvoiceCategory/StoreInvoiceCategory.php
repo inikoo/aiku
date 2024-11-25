@@ -9,7 +9,6 @@
 namespace App\Actions\Accounting\InvoiceCategory;
 
 use App\Actions\GrpAction;
-use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Accounting\Invoice\InvoiceCategoryStateEnum;
 use App\Models\Accounting\InvoiceCategory;
@@ -22,18 +21,20 @@ class StoreInvoiceCategory extends GrpAction
 {
     use WithNoStrictRules;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Group $group, array $modelData): InvoiceCategory
     {
-        $invoiceCategory = DB::transaction(function () use ($group, $modelData) {
+        return DB::transaction(function () use ($group, $modelData) {
             /** @var InvoiceCategory $invoiceCategory */
             $invoiceCategory = $group->invoiceCategories()->create($modelData);
-            $invoiceCategory->refresh();
             $invoiceCategory->stats()->create();
+            $invoiceCategory->orderingIntervals()->create();
+            $invoiceCategory->salesIntervals()->create();
 
             return $invoiceCategory;
         });
-
-        return $invoiceCategory;
     }
 
     public function authorize(ActionRequest $request): bool
@@ -59,6 +60,9 @@ class StoreInvoiceCategory extends GrpAction
         return $rules;
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function action(Group $group, array $modelData, int $hydratorsDelay = 0, bool $strict = true): InvoiceCategory
     {
         $this->asAction = true;

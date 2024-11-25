@@ -10,10 +10,13 @@ namespace App\Stubs\Migrations;
 use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Enums\Catalogue\Asset\AssetStateEnum;
+use App\Enums\Catalogue\Charge\ChargeStateEnum;
 use App\Enums\Catalogue\Product\ProductStateEnum;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryStateEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\Ordering\Adjustment\AdjustmentTypeEnum;
+use App\Enums\Ordering\ShippingZoneSchema\ShippingZoneSchemaStateEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasCatalogueStats
@@ -152,4 +155,27 @@ trait HasCatalogueStats
 
         return $table;
     }
+
+    public function billableFields(Blueprint $table): Blueprint
+    {
+        $table->unsignedInteger('number_charges')->default(0);
+        foreach (ChargeStateEnum::cases() as $case) {
+            $table->unsignedInteger('number_charges_state_'.$case->snake())->default(0);
+        }
+
+        $table->unsignedInteger('number_shipping_zone_schemas')->default(0);
+        foreach (ShippingZoneSchemaStateEnum::cases() as $case) {
+            $table->unsignedInteger('number_shipping_zone_schemas_state_'.$case->snake())->default(0);
+        }
+
+        $table->unsignedInteger('number_shipping_zones')->default(0);
+
+        $table->unsignedInteger('number_adjustments')->default(0);
+        foreach (AdjustmentTypeEnum::cases() as $case) {
+            $table->unsignedInteger('number_adjustments_type_'.$case->snake())->default(0);
+        }
+
+        return $table;
+    }
+
 }

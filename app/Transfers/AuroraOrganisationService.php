@@ -33,7 +33,9 @@ use App\Transfers\Aurora\FetchAuroraDeliveryNote;
 use App\Transfers\Aurora\FetchAuroraDeliveryNoteItem;
 use App\Transfers\Aurora\FetchAuroraDepartment;
 use App\Transfers\Aurora\FetchAuroraDispatchedEmail;
+use App\Transfers\Aurora\FetchAuroraEmail;
 use App\Transfers\Aurora\FetchAuroraEmailCopy;
+use App\Transfers\Aurora\FetchAuroraEmailRunFromCampaign;
 use App\Transfers\Aurora\FetchAuroraEmailTrackingEvent;
 use App\Transfers\Aurora\FetchAuroraEmployee;
 use App\Transfers\Aurora\FetchAuroraFamily;
@@ -565,6 +567,16 @@ class AuroraOrganisationService implements SourceOrganisationService
     public function fetchNoProductTransactionHasOfferComponent($id, Order $order): ?array
     {
         return (new FetchAuroraNoProductTransactionHasOfferComponent($this))->fetchNoProductTransactionHasOfferComponent($id, $order);
+    }
+
+    public function fetchEmail($id): ?array
+    {
+        return (new FetchAuroraEmail($this))->fetch($id);
+    }
+
+    public function fetchEmailRunFromCampaign($id): ?array
+    {
+        return (new FetchAuroraEmailRunFromCampaign($this))->fetch($id);
     }
 
 }

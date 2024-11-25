@@ -56,14 +56,14 @@ class StoreGroup
         $group->accountingStats()->create();
         $group->catalogueStats()->create();
         $group->fulfilmentStats()->create();
-        $group->salesStats()->create();
+        $group->orderingStats()->create();
         $group->salesIntervals()->create();
         $group->ordersIntervals()->create();
         $group->mailshotsIntervals()->create();
         $group->manufactureStats()->create();
         $group->webStats()->create();
         $group->dropshippingStats()->create();
-        $group->mailStats()->create();
+        $group->commsStats()->create();
         $group->discountsStats()->create();
 
         SetGroupLogo::run($group);

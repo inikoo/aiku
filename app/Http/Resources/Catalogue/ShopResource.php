@@ -31,7 +31,7 @@ class ShopResource extends JsonResource
             'name'    => $shop->name,
             'type'    => $shop->type,
             'state'   => $shop->state,
-            'sales'   => $shop->salesStats
+            'sales'   => $shop->orderingStats
         ];
     }
 }

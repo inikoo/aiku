@@ -96,9 +96,6 @@ class StoreProduct extends OrgAction
             }
 
             $product->stats()->create();
-            $product->salesIntervals()->create();
-
-
             $product->refresh();
 
 

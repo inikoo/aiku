@@ -190,4 +190,8 @@ interface SourceOrganisationService
 
     public function fetchNoProductTransactionHasOfferComponent($id, Order $order);
 
+    public function fetchEmail($id);
+
+    public function fetchEmailRunFromCampaign($id);
+
 }

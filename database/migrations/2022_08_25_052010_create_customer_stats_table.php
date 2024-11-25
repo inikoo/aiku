@@ -8,6 +8,7 @@
 use App\Stubs\Migrations\HasBackInStockReminderStats;
 use App\Stubs\Migrations\HasCreditsStats;
 use App\Stubs\Migrations\HasFavouritesStats;
+use App\Stubs\Migrations\HasOrderingStats;
 use App\Stubs\Migrations\HasSalesStats;
 use App\Stubs\Migrations\HasWebStats;
 use Illuminate\Database\Migrations\Migration;
@@ -20,13 +21,14 @@ return new class () extends Migration {
     use HasCreditsStats;
     use HasFavouritesStats;
     use HasBackInStockReminderStats;
+    use HasOrderingStats;
     public function up(): void
     {
         Schema::create('customer_stats', function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
-            $table = $this->salesStatsFields($table);
+            $table = $this->orderingStatsFields($table);
             $table = $this->getWebUsersStatsFields($table);
             $table->unsignedInteger('number_clients')->default(0);
             $table->unsignedInteger('number_current_clients')->default(0);

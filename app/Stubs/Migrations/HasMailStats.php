@@ -10,7 +10,7 @@ namespace App\Stubs\Migrations;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
+use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasMailStats
@@ -24,7 +24,7 @@ trait HasMailStats
     public function outboxesStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_outboxes')->default(0);
-        foreach (OutboxTypeEnum::cases() as $outboxTypeEnum) {
+        foreach (OutboxCodeEnum::cases() as $outboxTypeEnum) {
             $table->unsignedInteger('number_outboxes_type_'.$outboxTypeEnum->snake())->default(0);
         }
         foreach (OutboxStateEnum::cases() as $outboxStateEnum) {

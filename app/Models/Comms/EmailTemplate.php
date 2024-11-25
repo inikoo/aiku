@@ -7,7 +7,7 @@
 
 namespace App\Models\Comms;
 
-use App\Enums\Comms\EmailTemplate\EmailTemplateProviderEnum;
+use App\Enums\Comms\EmailTemplate\EmailTemplateBuilderEnum;
 use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum;
 use App\Models\Helpers\Media;
 use App\Models\Traits\HasHistory;
@@ -24,13 +24,13 @@ use Spatie\Sluggable\SlugOptions;
 use Spatie\Tags\HasTags;
 
 /**
- * App\Models\Mail\EmailTemplate
+ *
  *
  * @property int $id
  * @property int $group_id
  * @property string $slug
  * @property string $name
- * @property EmailTemplateProviderEnum $provider
+ * @property EmailTemplateBuilderEnum $builder
  * @property EmailTemplateStateEnum $state
  * @property bool $is_seeded
  * @property array|null $layout
@@ -76,7 +76,7 @@ class EmailTemplate extends Model implements HasMedia, Auditable
         'data'         => 'array',
         'layout'       => 'array',
         'state'        => EmailTemplateStateEnum::class,
-        'provider'     => EmailTemplateProviderEnum::class,
+        'builder'      => EmailTemplateBuilderEnum::class,
         'active_at'    => 'datetime',
         'suspended_at' => 'datetime',
     ];
@@ -119,7 +119,6 @@ class EmailTemplate extends Model implements HasMedia, Auditable
     {
         return $this->morphTo();
     }
-
 
     public function screenshot(): BelongsTo
     {

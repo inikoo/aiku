@@ -8,6 +8,7 @@
 use App\Stubs\Migrations\HasFulfilmentStats;
 use App\Stubs\Migrations\HasInventoryStats;
 use App\Stubs\Migrations\HasLocationsStats;
+use App\Stubs\Migrations\HasOrderingStats;
 use App\Stubs\Migrations\HasSalesStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -18,6 +19,7 @@ return new class () extends Migration {
     use HasFulfilmentStats;
     use HasSalesStats;
     use HasInventoryStats;
+    use HasOrderingStats;
 
     public function up(): void
     {
