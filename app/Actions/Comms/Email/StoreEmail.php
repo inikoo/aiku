@@ -51,7 +51,7 @@ class StoreEmail extends OrgAction
             );
             $email->update(
                 [
-                    'unpublished_snapshot_id' => $snapshot->id,
+                    'snapshot_id' => $snapshot->id,
                 ]
             );
 

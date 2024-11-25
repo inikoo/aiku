@@ -30,11 +30,9 @@ return new class () extends Migration {
             $table->string('subject')->index();
 
 
-            $table->unsignedSmallInteger('unpublished_snapshot_id')->nullable()->index();
-            $table->foreign('unpublished_snapshot_id')->references('id')->on('snapshots')->onUpdate('cascade')->onDelete('cascade');
+            $table->unsignedSmallInteger('snapshot_id')->nullable()->index();
+            $table->foreign('snapshot_id')->references('id')->on('snapshots')->onUpdate('cascade')->onDelete('cascade');
 
-            $table->unsignedSmallInteger('live_snapshot_id')->nullable()->index();
-            $table->foreign('live_snapshot_id')->references('id')->on('snapshots')->onUpdate('cascade')->onDelete('cascade');
 
             $table->unsignedInteger('screenshot_id')->nullable();
             $table->foreign('screenshot_id')->references('id')->on('media');

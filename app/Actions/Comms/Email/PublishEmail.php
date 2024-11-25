@@ -16,7 +16,6 @@ use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum as EmailTemplateEmailTemplateStateEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Models\Comms\Email;
-use App\Models\Comms\EmailTemplate;
 use App\Models\Helpers\Snapshot;
 use App\Models\SysAdmin\User;
 use Illuminate\Support\Arr;
@@ -77,21 +76,21 @@ class PublishEmail extends OrgAction
             ]
         );
 
-//        $email->stats()->update([
-//            'last_deployed_at' => $deployment->date
-//        ]);
+        //        $email->stats()->update([
+        //            'last_deployed_at' => $deployment->date
+        //        ]);
 
         $updateData = [
             'live_snapshot_id'   => $snapshot->id,
             'published_layout'   => $snapshot->layout,
             'published_checksum' => md5(json_encode($snapshot->layout)),
-         //   'state'              => EmailTemplateEmailTemplateStateEnum::LIVE,
+            //   'state'              => EmailTemplateEmailTemplateStateEnum::LIVE,
             'is_dirty'           => false,
         ];
 
-//        if ($email->state == EmailTemplateEmailTemplateStateEnum::IN_PROCESS) {
-//            $updateData['live_at'] = now();
-//        }
+        //        if ($email->state == EmailTemplateEmailTemplateStateEnum::IN_PROCESS) {
+        //            $updateData['live_at'] = now();
+        //        }
 
         $email->update($updateData);
 
@@ -100,7 +99,6 @@ class PublishEmail extends OrgAction
 
     public function asController(Email $email, ActionRequest $request): Email
     {
-
         $this->initialisation($email->organisation, $request);
 
         return $this->handle($email, $this->validatedData);
@@ -109,10 +107,11 @@ class PublishEmail extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'comment' => ['sometimes', 'required', 'string', 'max:1024'],
+            'comment' => ['sometimes','required', 'string', 'max:1024'],
         ];
 
         if (!$this->strict) {
+            $rules['comment']        = ['sometimes', 'nullable', 'string', 'max:1024'];
             $rules['publisher_type'] = ['sometimes', Rule::in(['User'])];
             $rules['publisher_id']   = ['sometimes', 'required', 'integer'];
         }
