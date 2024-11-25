@@ -1,23 +1,23 @@
 <?php
 /*
- * Author: Arya Permana <aryapermana02@gmail.com>
- * Created: Thu, 24 Jun 2024 13:27:40 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 25 Nov 2024 11:47:23 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Actions\Manufacturing\Artefact\StoreArtefact;
-use App\Actions\Manufacturing\ManufactureTask\StoreManufactureTask;
-use App\Actions\Manufacturing\Production\StoreProduction;
-use App\Actions\Manufacturing\RawMaterial\StoreRawMaterial;
-use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
-use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
-use App\Models\Manufacturing\Artefact;
-use App\Models\Manufacturing\ManufactureTask;
-use App\Models\Manufacturing\Production;
-use App\Models\Manufacturing\RawMaterial;
+use App\Actions\Production\Artefact\StoreArtefact;
+use App\Actions\Production\ManufactureTask\StoreManufactureTask;
+use App\Actions\Production\Production\StoreProduction;
+use App\Actions\Production\RawMaterial\StoreRawMaterial;
+use App\Enums\Production\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
+use App\Enums\Production\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
+use App\Enums\Production\RawMaterial\RawMaterialStateEnum;
+use App\Enums\Production\RawMaterial\RawMaterialTypeEnum;
+use App\Enums\Production\RawMaterial\RawMaterialUnitEnum;
+use App\Models\Production\Artefact;
+use App\Models\Production\ManufactureTask;
+use App\Models\Production\Production;
+use App\Models\Production\RawMaterial;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -105,7 +105,7 @@ test('UI Index productions', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Manufacturing/Productions')
+            ->component('Org/Production/Productions')
             ->has('title')
             ->has('tabs')
             ->has('breadcrumbs', 2);
@@ -116,7 +116,7 @@ test('UI show production', function () {
     $response = get(route('grp.org.productions.show', [$this->organisation->slug, $this->production->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Manufacturing/Production')
+            ->component('Org/Production/Production')
             ->has('title')
             ->has('breadcrumbs', 2)
             ->has(
@@ -135,7 +135,7 @@ test('UI Index raw materials', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Manufacturing/RawMaterials')
+            ->component('Org/Production/RawMaterials')
             ->has('title')
             ->has('tabs')
             ->has('breadcrumbs', 3);
@@ -155,7 +155,7 @@ test('UI show raw material', function () {
     $response = get(route('grp.org.productions.show.crafts.raw_materials.show', [$this->organisation->slug, $this->production->slug, $this->rawMaterial->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Manufacturing/RawMaterial')
+            ->component('Org/Production/RawMaterial')
             ->has('title')
             ->has('breadcrumbs', 3)
             ->has(
@@ -186,7 +186,7 @@ test('UI Index artefacts', function () {
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Manufacturing/Artefacts')
+            ->component('Org/Production/Artefacts')
             ->has('title')
             ->has('tabs')
             ->has('breadcrumbs', 3);
@@ -206,7 +206,7 @@ test('UI show artifact', function () {
     $response = get(route('grp.org.productions.show.crafts.artefacts.show', [$this->organisation->slug, $this->production->slug, $this->artefact->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Manufacturing/Artefact')
+            ->component('Org/Production/Artefact')
             ->has('title')
             ->has('breadcrumbs', 3)
             ->has(
@@ -224,7 +224,7 @@ test('UI show artifact (manufacture task tab)', function () {
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/factory/'.$this->production->slug.'/crafts/artefacts/'.$this->artefact->slug.'?tab=manufacture_tasks');
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Manufacturing/Artefact')
+            ->component('Org/Production/Artefact')
             ->has('title')
             ->has('breadcrumbs', 3)
             ->has(
@@ -250,19 +250,19 @@ test('UI edit artefact', function () {
     });
 });
 
-test('UI Index manufacturing task', function () {
+test('UI Index production task', function () {
     $response = $this->get(route('grp.org.productions.show.crafts.manufacture_tasks.index', [$this->organisation->slug, $this->production->slug]));
 
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Manufacturing/ManufactureTasks')
+            ->component('Org/Production/ManufactureTasks')
             ->has('title')
             ->has('tabs')
             ->has('breadcrumbs', 3);
     });
 });
 
-test('UI create manufacturing task', function () {
+test('UI create production task', function () {
     $response = get(route('grp.org.productions.show.crafts.manufacture_tasks.create', [$this->organisation->slug, $this->production->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -271,11 +271,11 @@ test('UI create manufacturing task', function () {
     });
 });
 
-test('UI show manufacturing task', function () {
+test('UI show production task', function () {
     $response = get(route('grp.org.productions.show.crafts.manufacture_tasks.show', [$this->organisation->slug, $this->production->slug, $this->manufactureTask->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Manufacturing/ManufactureTask')
+            ->component('Org/Production/ManufactureTask')
             ->has('title')
             ->has('breadcrumbs', 3)
             ->has(
@@ -289,11 +289,11 @@ test('UI show manufacturing task', function () {
     });
 });
 
-test('UI show manufacturing task (Artefacts tab)', function () {
+test('UI show production task (Artefacts tab)', function () {
     $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/factory/'.$this->production->slug.'/crafts/manufacture-tasks/'.$this->manufactureTask->slug.'?tab=artefact');
     $response->assertInertia(function (AssertableInertia $page) {
         $page
-            ->component('Org/Manufacturing/ManufactureTask')
+            ->component('Org/Production/ManufactureTask')
             ->has('title')
             ->has('breadcrumbs', 3)
             ->has(

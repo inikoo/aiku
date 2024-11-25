@@ -7,13 +7,13 @@
 
 namespace App\Stubs\Migrations;
 
-use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
-use App\Enums\Manufacturing\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
-use App\Enums\Manufacturing\Production\ProductionStateEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialStateEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialStockStatusEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialTypeEnum;
-use App\Enums\Manufacturing\RawMaterial\RawMaterialUnitEnum;
+use App\Enums\Production\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
+use App\Enums\Production\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
+use App\Enums\Production\Production\ProductionStateEnum;
+use App\Enums\Production\RawMaterial\RawMaterialStateEnum;
+use App\Enums\Production\RawMaterial\RawMaterialStockStatusEnum;
+use App\Enums\Production\RawMaterial\RawMaterialTypeEnum;
+use App\Enums\Production\RawMaterial\RawMaterialUnitEnum;
 use Illuminate\Database\Schema\Blueprint;
 
 trait HasManufactureStats

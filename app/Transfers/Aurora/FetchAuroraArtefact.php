@@ -7,7 +7,7 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Manufacturing\Artefact\ArtefactStateEnum;
+use App\Enums\Production\Artefact\ArtefactStateEnum;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 

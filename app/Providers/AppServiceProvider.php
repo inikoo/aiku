@@ -226,11 +226,11 @@ class AppServiceProvider extends ServiceProvider
                 'WebBlock'                      => 'App\Models\Web\WebBlock',
                 'WebBlockType'                  => 'App\Models\Web\WebBlockType',
 
-                //Manufacturing
-                'Production'                    => 'App\Models\Manufacturing\Production',
-                'RawMaterial'                   => 'App\Models\Manufacturing\RawMaterial',
-                'ManufactureTask'               => 'App\Models\Manufacturing\ManufactureTask',
-                'Artefact'                      => 'App\Models\Manufacturing\Artefact'
+                //Production
+                'Production'                    => 'App\Models\Production\Production',
+                'RawMaterial'                   => 'App\Models\Production\RawMaterial',
+                'ManufactureTask'               => 'App\Models\Production\ManufactureTask',
+                'Artefact'                      => 'App\Models\Production\Artefact'
             ]
         );
     }

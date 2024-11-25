@@ -8,8 +8,8 @@
 namespace App\Actions\SysAdmin\Group\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
-use App\Enums\Manufacturing\Production\ProductionStateEnum;
-use App\Models\Manufacturing\Production;
+use App\Enums\Production\Production\ProductionStateEnum;
+use App\Models\Production\Production;
 use App\Models\SysAdmin\Group;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;

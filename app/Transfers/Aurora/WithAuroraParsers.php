@@ -100,7 +100,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
-use App\Models\Manufacturing\Production;
+use App\Models\Production\Production;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;

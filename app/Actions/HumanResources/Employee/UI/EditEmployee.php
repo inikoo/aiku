@@ -13,7 +13,7 @@ use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\HumanResources\Employee\EmployeeStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
-use App\Enums\Manufacturing\Production\ProductionStateEnum;
+use App\Enums\Production\Production\ProductionStateEnum;
 use App\Http\Resources\HumanResources\JobPositionResource;
 use App\Http\Resources\Inventory\WarehouseResource;
 use App\Http\Resources\Catalogue\ShopResource;

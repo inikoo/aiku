@@ -7,9 +7,9 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Manufacturing\Artefact\StoreArtefact;
-use App\Actions\Manufacturing\Artefact\UpdateArtefact;
-use App\Models\Manufacturing\Artefact;
+use App\Actions\Production\Artefact\StoreArtefact;
+use App\Actions\Production\Artefact\UpdateArtefact;
+use App\Models\Production\Artefact;
 use App\Transfers\SourceOrganisationService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
