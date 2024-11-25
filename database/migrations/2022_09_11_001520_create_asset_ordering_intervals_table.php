@@ -16,7 +16,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::create('asset_ordering_intervals', function (Blueprint $table) {
-            $table->smallIncrements('id');
+            $table->increments('id');
             $table->unsignedInteger('asset_id')->index();
             $table->foreign('asset_id')->references('id')->on('assets');
             $table = $this->dateIntervals($table, [
