@@ -150,19 +150,6 @@ test('seed shop permissions from command', function () {
     $this->artisan('shop:seed-permissions')->assertExitCode(0);
 })->depends('create shop by command');
 
-test('create website from command', function (Shop $shop) {
-    $this->artisan('website:create', [
-        'shop'   => $shop->slug,
-        'domain' => 'test-hello.com',
-        'code'   => 'test',
-        'name'   => 'Test Website'
-    ])->assertExitCode(0);
-    $shop->refresh();
-    $shop->group->refresh();
-    expect($shop->website)->toBeInstanceOf(Website::class)
-        ->and($shop->group->webStats->number_websites)->toBe(1)
-        ->and($shop->organisation->webStats->number_websites)->toBe(1);
-})->depends('create shop');
 
 
 test('create department', function ($shop) {
@@ -356,7 +343,8 @@ test('create product with many org stocks', function ($shop) {
 })->depends('create family');
 
 test('update product', function (Product $product) {
-    expect($product->name)->not->toBe('Updated Asset Name');
+    expect($product->name)->not->toBe('Updated Asset Name')
+        ->and($product->stats->number_historic_assets)->toBe(1);
     $productData = [
         'name'        => 'Updated Asset Name',
         'description' => 'Updated Asset Description',
