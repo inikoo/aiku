@@ -9,12 +9,15 @@ use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Accounting\PaymentAccount\StorePaymentAccount;
 use App\Actions\Accounting\PaymentServiceProvider\StorePaymentServiceProvider;
+use App\Actions\Analytics\GetSectionRoute;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderEnum;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\PaymentAccount;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Helpers\Address;
 use App\Models\CRM\Customer;
 use Inertia\Testing\AssertableInertia;
@@ -507,4 +510,14 @@ test('UI index customer balances', function () {
             )
             ->has('data');
     });
+});
+
+test('UI get section route accounting balance index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.accounting.balances.index', [
+        'organisation' => $this->organisation->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_ACCOUNTING->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
 });
