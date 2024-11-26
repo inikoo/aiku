@@ -36,16 +36,16 @@ class ShopHydrateTopSallers
         $timesUpdate = ['1d', '1w', '1m', '1y', 'all'];
         foreach ($timesUpdate as $timeUpdate) {
             $topFamily = $shop->families()->sortByDesc(function ($family) use ($timeUpdate) {
-                return $family->stats->{'shop_amount_' . $timeUpdate};
+                return $family->stats->{'sales_grp_currency_' . $timeUpdate};
             })->first();
 
             $topDepartment = $shop->departments()->sortByDesc(function ($department) use ($timeUpdate) {
-                return $department->stats->{'shop_amount_' . $timeUpdate};
+                return $department->stats->{'sales_grp_currency_' . $timeUpdate};
             })->first();
 
             $topProduct = $shop->products()
                 ->join('product_sales_intervals', 'products.id', '=', 'product_sales_intervals.product_id')
-                ->orderByDesc('product_sales_intervals.shop_amount_' . $timesUpdate)
+                ->orderByDesc('product_sales_intervals.sales_grp_currency_' . $timesUpdate)
                 ->first();
 
 
