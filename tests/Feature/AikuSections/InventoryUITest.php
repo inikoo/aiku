@@ -8,12 +8,15 @@
  *
  */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\UI\Inventory\LocationTabsEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
@@ -77,6 +80,7 @@ beforeEach(function () {
 });
 
 test("UI Index locations", function () {
+    $this->withoutExceptionHandling();
     $response = get(
         route("grp.org.warehouses.show.infrastructure.locations.index", [
             $this->organisation->slug,
@@ -489,4 +493,14 @@ test("UI Create Stock in Stock Family Group", function () {
                 fn (AssertableInertia $page) => $page->where("title", 'new SKU')->etc()
             );
     });
+});
+
+test('UI get section route inventory dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.warehouses.show.inventory.dashboard', [
+        'organisation' => $this->organisation->slug,
+        'warehouse' => $this->warehouse->slug
+    ]);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::INVENTORY->value)
+        ->and($sectionScope->model_slug)->toBe($this->warehouse->slug);
 });
