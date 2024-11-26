@@ -333,7 +333,7 @@ test('create product with many org stocks', function ($shop) {
         ->and($product->unit_relationship_type)->toBe(ProductUnitRelationshipType::MULTIPLE)
         ->and($product->tradeUnits()->count())->toBe(2)
         ->and($shop->stats->number_products)->toBe(2)
-        ->and($product->stats->number_historic_assets)->toBe(1)
+        ->and($product->asset->stats->number_historic_assets)->toBe(1)
         ->and($shop->group->catalogueStats->number_products)->toBe(2)
         ->and($shop->group->catalogueStats->number_assets_type_product)->toBe(2)
         ->and($shop->organisation->catalogueStats->number_products)->toBe(2)
@@ -344,7 +344,7 @@ test('create product with many org stocks', function ($shop) {
 
 test('update product', function (Product $product) {
     expect($product->name)->not->toBe('Updated Asset Name')
-        ->and($product->stats->number_historic_assets)->toBe(1);
+        ->and($product->asset->stats->number_historic_assets)->toBe(1);
     $productData = [
         'name'        => 'Updated Asset Name',
         'description' => 'Updated Asset Description',
@@ -356,7 +356,7 @@ test('update product', function (Product $product) {
     $asset = $product->asset;
 
     expect($product->name)->toBe('Updated Asset Name')
-        ->and($product->stats->number_historic_assets)->toBe(2)
+        ->and($product->asset->stats->number_historic_assets)->toBe(2)
         ->and($asset->stats->number_historic_assets)->toBe(2)
         ->and($asset->name)->toBe('Updated Asset Name')
         ->and($product->name)->toBe('Updated Asset Name');
@@ -385,7 +385,7 @@ test('add variant to product', function (Product $product) {
         ->and($productVariant->is_main)->toBeFalse()
         ->and($productVariant->mainProduct->id)->toBe($product->id)
         ->and($product->stats->number_product_variants)->toBe(2)
-        ->and($product->stats->number_historic_assets)->toBe(2);
+        ->and($product->asset->stats->number_historic_assets)->toBe(2);
 
 
     return $productVariant;
@@ -452,7 +452,7 @@ test('create service', function (Shop $shop) {
 
     expect($service)->toBeInstanceOf(Service::class)
         ->and($asset)->toBeInstanceOf(Asset::class)
-        ->and($service->stats->number_historic_assets)->toBe(1)
+        ->and($service->asset->stats->number_historic_assets)->toBe(1)
         ->and($group->catalogueStats->number_assets)->toBe(2)
         ->and($group->catalogueStats->number_products)->toBe(1)
         ->and($group->catalogueStats->number_services)->toBe(1)
@@ -481,7 +481,7 @@ test('update service', function (Service $service) {
 
     expect($service->asset->name)->toBe('Updated Service Name')
         ->and($service->asset->stats->number_historic_assets)->toBe(2)
-        ->and($service->stats->number_historic_assets)->toBe(2);
+        ->and($service->asset->stats->number_historic_assets)->toBe(2);
 
     return $service;
 })->depends('create service');
