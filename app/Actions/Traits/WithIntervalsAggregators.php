@@ -49,8 +49,8 @@ trait WithIntervalsAggregators
     {
 
         $stats = [];
-        $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'shop_amount_', 'date', 'sum_shop'));
-        $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'shop_amount_', 'date', 'sum_shop'));
+        $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'sales_', 'date', 'sum_shop'));
+        $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'sales_', 'date', 'sum_shop'));
         $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'group_amount_', 'date', 'sum_group'));
         $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'group_amount_', 'date', 'sum_group'));
         $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'org_amount_', 'date', 'sum_org'));
