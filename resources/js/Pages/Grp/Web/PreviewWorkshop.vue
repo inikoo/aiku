@@ -107,7 +107,7 @@ provide('isPreviewMode', isPreviewMode)
             <span :class="isPreviewMode ? 'text-gray-600' : 'text-gray-400'">Preview</span>
         </div>
 
-        <div class=" shadow-xl" :class="layout.colorThemed.layout == 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto '">
+        <div class="shadow-xl" :class="layout.colorThemed.layout == 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto '">
             <div class="relative">
                 <RenderHeaderMenu v-if="header?.data" :data="layout.header" :menu="layout?.navigation"
                     :colorThemed="layout?.colorThemed"

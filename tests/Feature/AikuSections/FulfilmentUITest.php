@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Billables\Service\StoreService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
@@ -18,6 +19,7 @@ use App\Actions\Fulfilment\Rental\StoreRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\StoreStoredItem;
 use App\Actions\Inventory\Location\StoreLocation;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Enums\Billables\Rental\RentalUnitEnum;
 use App\Enums\Billables\Service\ServiceStateEnum;
@@ -33,6 +35,7 @@ use App\Enums\UI\Fulfilment\FulfilmentsTabsEnum;
 use App\Enums\UI\Fulfilment\PhysicalGoodsTabsEnum;
 use App\Enums\UI\Fulfilment\RentalsTabsEnum;
 use App\Enums\UI\Fulfilment\ServicesTabsEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
 use App\Models\Catalogue\Shop;
@@ -1027,4 +1030,15 @@ test('UI edit recurring bill', function () {
             )
             ->has('breadcrumbs', 4);
     });
+});
+
+test('UI get section route fulfilment dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.dashboard', [
+        'organisation' => $this->organisation->slug,
+        'fulfilment' => $this->fulfilment->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::FULFILMENT_DASHBOARD->value)
+        ->and($sectionScope->model_slug)->toBe($this->fulfilment->slug);
 });
