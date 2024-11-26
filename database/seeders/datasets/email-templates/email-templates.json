@@ -28,8 +28,8 @@
       "marketing"
     ],
     "name": "Christmas Eve",
-    "content": "ChristmasEve.json",
-    "image": "ChristmasEve.jpg",
+    "content": "christmas_eve.json",
+    "image": "christmas_eve.jpg",
     "builder": "unlayer",
     "tags": [
       "Christmas"
@@ -40,8 +40,8 @@
       "marketing"
     ],
     "name": "Christmas Mega Discount",
-    "content": "ChristmasMegaDiscount.json",
-    "image": "ChristmasMegaDiscount.jpg",
+    "content": "christmas_mega_discount.json",
+    "image": "christmas_mega_discount.jpg",
     "builder": "unlayer",
     "tags": [
       "Christmas"
@@ -52,8 +52,8 @@
       "marketing"
     ],
     "name": "Christmas Movie Night",
-    "content": "ChristmasMovieNight.json",
-    "image": "ChristmasMovieNight.jpg",
+    "content": "christmas_movie_night.json",
+    "image": "christmas_movie_night.jpg",
     "builder": "unlayer",
     "tags": [
       "Christmas"
@@ -64,8 +64,8 @@
       "marketing"
     ],
     "name": "Sweet Treat",
-    "content": "SweetTreat.json",
-    "image": "SweetTreat.png",
+    "content": "sweet_treat.json",
+    "image": "sweet_treat.png",
     "builder": "unlayer",
     "tags": [
       "Christmas"
@@ -76,8 +76,8 @@
       "marketing"
     ],
     "name": "Halloween Party",
-    "content": "HalloweenParty.json",
-    "image": "HalloweenParty.jpg",
+    "content": "halloween_party.json",
+    "image": "halloween_party.jpg",
     "builder": "unlayer",
     "tags": [
       "Halloween"
@@ -88,8 +88,8 @@
       "marketing"
     ],
     "name": "Halloween Sale",
-    "content": "HalloweenSale.json",
-    "image": "HalloweenSale.jpg",
+    "content": "halloween_sale.json",
+    "image": "halloween_sale.jpg",
     "builder": "unlayer",
     "tags": [
       "Halloween"
@@ -100,8 +100,8 @@
       "marketing"
     ],
     "name": "Happy New Year Email to Employee",
-    "content": "HappyNewYearEmailToEmployee.json",
-    "image": "HappyNewYearEmailToEmployee.jpg",
+    "content": "happy_new_year_email_to_employee.json",
+    "image": "happy_new_year_email_to_employee.jpg",
     "builder": "unlayer",
     "tags": [
       "New Year"
@@ -112,8 +112,8 @@
       "marketing"
     ],
     "name": "New Year Sale",
-    "content": "NewYearSale.json",
-    "image": "NewYearSale.jpg",
+    "content": "new_year_sale.json",
+    "image": "new_year_sale.jpg",
     "builder": "unlayer",
     "tags": [
       "New Year"
@@ -124,8 +124,8 @@
       "marketing"
     ],
     "name": "Event Announcement",
-    "content": "EventAnnouncement.json",
-    "image": "EventAnnouncement.jpg",
+    "content": "event_announcement.json",
+    "image": "event_announcement.jpg",
     "builder": "unlayer",
     "tags": [
       "marketing"
@@ -136,8 +136,8 @@
       "marketing"
     ],
     "name": "Simple Offer",
-    "content": "SimpleOffer.json",
-    "image": "SimpleOffer.jpg",
+    "content": "simple_offer.json",
+    "image": "simple_offer.jpg",
     "builder": "unlayer",
     "tags": [
       "marketing"

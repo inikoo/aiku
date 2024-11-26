@@ -5,6 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Analytics\GetSectionRoute;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
+use App\Models\Analytics\AikuScopedSection;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -112,4 +115,11 @@ test('UI organisation edit settings', function () {
                         ->etc()
             );
     });
+});
+
+test('UI get section route index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.sysadmin.dashboard', []);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_SYSADMIN->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->group->slug);
 });
