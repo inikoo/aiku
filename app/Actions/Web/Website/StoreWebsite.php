@@ -243,48 +243,5 @@ class StoreWebsite extends OrgAction
         return $this->handle($shop, $this->validatedData);
     }
 
-    public string $commandSignature = 'website:create {shop : shop slug} {domain} {code} {name}';
 
-    public function asCommand(Command $command): int
-    {
-        $this->asAction = true;
-
-        try {
-            /** @var Shop $shop */
-            $shop = Shop::where('slug', $command->argument('shop'))->firstOrFail();
-        } catch (Exception) {
-            $command->error('Shop not found');
-
-            return 1;
-        }
-        $this->organisation = $shop->organisation;
-        $this->shop         = $shop;
-        if ($shop->type == ShopTypeEnum::FULFILMENT) {
-            $this->parent = $shop->fulfilment;
-        } else {
-            $this->parent = $shop;
-        }
-
-
-        $this->setRawAttributes([
-            'domain' => $command->argument('domain'),
-            'code'   => $command->argument('code'),
-            'name'   => $command->argument('name'),
-        ]);
-
-
-        try {
-            $validatedData = $this->validateAttributes();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
-
-        $website = $this->handle($shop, $validatedData);
-
-        $command->info("Website $website->code [$website->domain] created successfully 🎉");
-
-        return 0;
-    }
 }
