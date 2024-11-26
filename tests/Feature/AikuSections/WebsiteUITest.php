@@ -5,14 +5,18 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Web\Banner\StoreBanner;
 use App\Actions\Web\Webpage\StoreWebpage;
 use App\Actions\Web\Website\LaunchWebsite;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\UI\Web\WebsiteTabsEnum;
 use App\Enums\Web\Banner\BannerTypeEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Web\Banner;
 use App\Models\Web\Webpage;
+use App\Models\Web\Website;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -24,14 +28,31 @@ beforeAll(function () {
     loadDB();
 });
 beforeEach(function () {
-    list(
-        $this->organisation,
-        $this->user,
-        $this->shop
-    )                        = createShop();
+    $web = Website::first();
+    if (!$web) {
+        list(
+            $this->organisation,
+            $this->user,
+            $this->shop
+        )                        = createShop();
+        $web = createWebsite($this->shop);
+    } else {
+        $this->organisation = $web->organisation;
+        $this->user         = createAdminGuest($this->organisation->group)->getUser();
+        $this->shop         = $web->shop;
+    }
+    $web->refresh();
+    $this->web               = $web;
     $this->warehouse         = createWarehouse();
-    $this->fulfilment        = createFulfilment($this->organisation);
-    $this->fulfilmentWebsite = createWebsite($this->fulfilment->shop);
+
+    if ($this->web->shop->fulfilment) {
+        $this->fulfilment = $this->web->shop->fulfilment;
+        $this->fulfilmentWebsite = $this->web;
+    } else {
+        $this->fulfilment = createFulfilment($this->organisation);
+        $this->fulfilmentWebsite = createWebsite($this->fulfilment->shop);
+    }
+
     if ($this->fulfilmentWebsite->state == WebsiteStateEnum::IN_PROCESS) {
         LaunchWebsite::make()->action($this->fulfilmentWebsite);
     }
@@ -47,17 +68,9 @@ beforeEach(function () {
     }
     $this->banner = $banner;
 
-    list(
-        $this->organisationNoFulfilment,
-        $this->userNoFulfilment,
-        $this->shopNoFulfilment
-    )                        = createShop();
-
-    $this->websiteNoFulfilment = createWebsite($this->shopNoFulfilment);
-
     $webpage = Webpage::first();
     if (!$webpage) {
-        $webpage = StoreWebpage::make()->action($this->websiteNoFulfilment->storefront, Webpage::factory()->definition());
+        $webpage = StoreWebpage::make()->action($this->web->storefront, Webpage::factory()->definition());
     }
     $this->webpage = $webpage;
 
@@ -79,7 +92,7 @@ test('can show fulfilment website', function () {
             'grp.org.fulfilments.show.web.websites.show',
             [
                 $this->organisation->slug,
-                $this->fulfilment->slug,
+                $this->fulfilment,
                 $website->slug
             ]
         )
@@ -423,8 +436,8 @@ test('can show webpages in shop website', function () {
             'grp.org.shops.show.web.webpages.show',
             [
                 $this->organisation->slug,
-                $this->shopNoFulfilment->slug,
-                $this->websiteNoFulfilment->slug,
+                $this->shop->slug,
+                $this->web->slug,
                 $this->webpage->slug
             ]
         )
@@ -449,8 +462,8 @@ test('can show workshop webpages in shop website', function () {
             'grp.org.shops.show.web.webpages.workshop',
             [
                 $this->organisation->slug,
-                $this->shopNoFulfilment->slug,
-                $this->websiteNoFulfilment->slug,
+                $this->shop->slug,
+                $this->web->slug,
                 $this->webpage->slug
             ]
         )
@@ -467,4 +480,15 @@ test('can show workshop webpages in shop website', function () {
             ->has('webpage')
             ->has('webBlockTypes');
     });
+});
+
+test('UI get section route show shop website', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.web.websites.show', [
+        'organisation' => $this->organisation->slug,
+        'shop' => $this->shop->slug,
+        'website' => $this->web->slug
+    ]);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_WEBSITE->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
 });
