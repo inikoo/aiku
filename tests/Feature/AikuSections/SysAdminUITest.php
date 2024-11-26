@@ -117,9 +117,30 @@ test('UI organisation edit settings', function () {
     });
 });
 
-test('UI get section route index', function () {
+test('UI get section route group sysadmin index', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.sysadmin.dashboard', []);
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_SYSADMIN->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->group->slug);
+});
+
+test('UI get section route group goods dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.goods.dashboard', []);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_GOODS->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->group->slug);
+});
+
+test('UI get section route group organisation dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.organisations.index', []);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_ORGANISATION->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->group->slug);
+});
+
+test('UI get section route group profile dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.profile.showcase.show', []);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_PROFILE->value)
         ->and($sectionScope->model_slug)->toBe($this->organisation->group->slug);
 });
