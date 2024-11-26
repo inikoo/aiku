@@ -1,7 +1,7 @@
 [
   {
     "outboxes": [
-      "Marketing"
+      "marketing"
     ],
     "name": "Blank",
     "content": "default.json",
@@ -13,11 +13,11 @@
   },
   {
     "outboxes": [
-      "Marketing"
+      "marketing"
     ],
     "name": "Christmas Discount",
-    "content": "ChristmasDiscount.json",
-    "image": "ChristmasDiscount.jpg",
+    "content": "christmas_discount.json",
+    "image": "christmas_discount.jpg",
     "builder": "unlayer",
     "tags": [
       "Christmas"
@@ -25,7 +25,7 @@
   },
   {
     "outboxes": [
-      "Marketing"
+      "marketing"
     ],
     "name": "Christmas Eve",
     "content": "ChristmasEve.json",
@@ -37,7 +37,7 @@
   },
   {
     "outboxes": [
-      "Marketing"
+      "marketing"
     ],
     "name": "Christmas Mega Discount",
     "content": "ChristmasMegaDiscount.json",
@@ -49,7 +49,7 @@
   },
   {
     "outboxes": [
-      "Marketing"
+      "marketing"
     ],
     "name": "Christmas Movie Night",
     "content": "ChristmasMovieNight.json",
@@ -61,7 +61,7 @@
   },
   {
     "outboxes": [
-      "Marketing"
+      "marketing"
     ],
     "name": "Sweet Treat",
     "content": "SweetTreat.json",
@@ -73,7 +73,7 @@
   },
   {
     "outboxes": [
-      "Marketing"
+      "marketing"
     ],
     "name": "Halloween Party",
     "content": "HalloweenParty.json",
@@ -85,7 +85,7 @@
   },
   {
     "outboxes": [
-      "Marketing"
+      "marketing"
     ],
     "name": "Halloween Sale",
     "content": "HalloweenSale.json",
@@ -97,7 +97,7 @@
   },
   {
     "outboxes": [
-      "Marketing"
+      "marketing"
     ],
     "name": "Happy New Year Email to Employee",
     "content": "HappyNewYearEmailToEmployee.json",
@@ -109,7 +109,7 @@
   },
   {
     "outboxes": [
-      "Marketing"
+      "marketing"
     ],
     "name": "New Year Sale",
     "content": "NewYearSale.json",
@@ -121,7 +121,7 @@
   },
   {
     "outboxes": [
-      "Marketing"
+      "marketing"
     ],
     "name": "Event Announcement",
     "content": "EventAnnouncement.json",
@@ -133,7 +133,7 @@
   },
   {
     "outboxes": [
-      "Marketing"
+      "marketing"
     ],
     "name": "Simple Offer",
     "content": "SimpleOffer.json",
@@ -141,6 +141,17 @@
     "builder": "unlayer",
     "tags": [
       "marketing"
+    ]
+  },
+  {
+    "outboxes": [
+      "new_customer"
+    ],
+    "name": "New customer",
+    "content": "new_customer.blade.php",
+    "builder": "blade",
+    "arguments": [
+      "customer"
     ]
   }
 ]
