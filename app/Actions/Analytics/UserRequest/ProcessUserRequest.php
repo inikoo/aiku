@@ -42,7 +42,7 @@ class ProcessUserRequest extends GrpAction
             'aiku_scoped_section_id' => $aiku_scoped_section_id,
             'os'                     => $this->detectWindows11($parsedUserAgent),
             'device'                 => $parsedUserAgent->deviceType(),
-            'browser'                => explode(' ', $parsedUserAgent->browserName())[0],
+            'browser'                => explode(' ', $parsedUserAgent->browserName())[0] ?: 'Unknown',
             'ip_address'             => $ip,
             'location'               => json_encode($this->getLocation($ip))
         ];
@@ -73,7 +73,7 @@ class ProcessUserRequest extends GrpAction
             return 'Windows 10';
         }
 
-        return $parsedUserAgent->platformName();
+        return $parsedUserAgent->platformName() ?: 'Unknown';
     }
 
 }
