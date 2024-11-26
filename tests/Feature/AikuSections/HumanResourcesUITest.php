@@ -5,13 +5,16 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\Employee\StoreEmployee;
 use App\Actions\HumanResources\JobPosition\StoreJobPosition;
 use App\Actions\HumanResources\Timesheet\StoreTimesheet;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\HumanResources\ClockingMachine\ClockingMachineTypeEnum;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\HumanResources\ClockingMachine;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
@@ -392,4 +395,13 @@ test('UI show timesheet', function () {
             )
             ->has('tabs');
     });
+});
+
+test('UI get section route hr employee index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.hr.employees.index', [
+        'organisation' => $this->organisation->slug
+    ]);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_HR->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
 });
