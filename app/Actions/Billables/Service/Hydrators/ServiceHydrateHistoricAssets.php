@@ -34,7 +34,7 @@ class ServiceHydrateHistoricAssets
             'number_historic_assets' => $service->historicAssets()->count(),
         ];
 
-        $service->stats->update($stats);
+        $service->asset->stats->update($stats);
     }
 
 }

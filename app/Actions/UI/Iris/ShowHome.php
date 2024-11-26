@@ -25,7 +25,8 @@ class ShowHome
         return Inertia::render(
             'Home',
             [
-                'blocks' => $home->published_layout
+                'blocks' => $home->published_layout,
+                'data' => $home->data,
             ]
         );
     }

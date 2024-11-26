@@ -35,7 +35,12 @@ class OrganisationHydrateInvoices
 
     public function handle(Organisation $organisation): void
     {
-        $stats = $this->getInvoicesStats($organisation);
+        // $stats = $this->getInvoicesStats($organisation);
+
+        $stats = [
+            'number_invoices'    => $organisation->invoices()->count(),
+            'last_invoiced_at'   => $organisation->invoices()->max('date'),
+        ];
 
         $stats = array_merge(
             $stats,

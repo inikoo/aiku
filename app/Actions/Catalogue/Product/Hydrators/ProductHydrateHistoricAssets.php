@@ -34,7 +34,7 @@ class ProductHydrateHistoricAssets
             'number_historic_assets' => $product->historicAssets()->count(),
         ];
 
-        $product->stats->update($stats);
+        $product->asset->stats->update($stats);
     }
 
 }
