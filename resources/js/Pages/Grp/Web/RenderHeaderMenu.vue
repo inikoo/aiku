@@ -82,14 +82,17 @@ const emits = defineEmits<{
 <template>
     <div>
         <!-- Section: TopBars -->
-        <component
-            v-if="data?.topBar?.data?.fieldValue"
-            :is="previewMode ? getIrisComponent(data?.topBar.code) : getComponent(data?.topBar.code)"
-            v-model="data.topBar.data.fieldValue"
-            :loginMode="loginMode"
-            :colorThemed="colorThemed"
-            @update:model-value="(e)=>emits('update:modelValue', e)"
-        />
+         <div class="hidden lg:block">
+            <component
+                v-if="data?.topBar?.data?.fieldValue"
+                :is="previewMode ? getIrisComponent(data?.topBar.code) : getComponent(data?.topBar.code)"
+                v-model="data.topBar.data.fieldValue"
+                :loginMode="loginMode"
+                :colorThemed="colorThemed"
+                @update:model-value="(e)=>emits('update:modelValue', e)"
+            />
+         </div>
+        
 
 
         <!-- Section: Header -->
