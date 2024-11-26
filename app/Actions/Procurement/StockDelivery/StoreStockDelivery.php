@@ -13,7 +13,7 @@ use App\Actions\Procurement\WithNoStrictProcurementOrderRules;
 use App\Actions\Procurement\WithPrepareDeliveryStoreFields;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Procurement\StockDelivery\StockDeliveryStateEnum;
-use App\Models\Manufacturing\Production;
+use App\Models\Production\Production;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgPartner;
 use App\Models\Procurement\OrgSupplier;

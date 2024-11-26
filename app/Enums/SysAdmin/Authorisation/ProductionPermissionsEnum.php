@@ -7,7 +7,7 @@
 
 namespace App\Enums\SysAdmin\Authorisation;
 
-use App\Models\Manufacturing\Production;
+use App\Models\Production\Production;
 
 enum ProductionPermissionsEnum: string
 {

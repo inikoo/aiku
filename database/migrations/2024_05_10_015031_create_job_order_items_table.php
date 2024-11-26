@@ -5,8 +5,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-use App\Enums\Manufacturing\JobOrder\JobOrderStateEnum;
-use App\Enums\Manufacturing\JobOrderItem\JobOrderItemStatusEnum;
+use App\Enums\Production\JobOrder\JobOrderStateEnum;
+use App\Enums\Production\JobOrderItem\JobOrderItemStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasSoftDeletes;
 use Illuminate\Database\Migrations\Migration;

@@ -26,6 +26,10 @@ class ProcessUserRequest extends GrpAction
      */
     public function handle(User $user, Carbon $datetime, array $routeData, string $ip, string $userAgent): UserRequest|null
     {
+        if ($routeData['name'] == 'grp.search.index') {
+            return null;
+        }
+
         $section = GetSectionRoute::run($routeData['name'], $routeData['arguments']);
         $aiku_scoped_section_id = $section?->id ?? null;
 

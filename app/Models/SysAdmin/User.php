@@ -18,7 +18,7 @@ use App\Models\Fulfilment\Fulfilment;
 use App\Models\HumanResources\Employee;
 use App\Models\HumanResources\JobPosition;
 use App\Models\Inventory\Warehouse;
-use App\Models\Manufacturing\Production;
+use App\Models\Production\Production;
 use App\Models\Traits\HasEmail;
 use App\Models\Traits\HasImage;
 use App\Models\Traits\HasRoles;

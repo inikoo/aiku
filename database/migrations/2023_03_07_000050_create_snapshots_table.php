@@ -29,6 +29,7 @@ return new class () extends Migration {
             $table->dateTimeTz('published_until')->nullable();
             $table->string('checksum')->index();
             $table->jsonb('layout');
+            $table->text('compiled_layout')->nullable()->comment('e.g. html in case of email builders');
             $table->string('comment')->nullable();
             $table->boolean('first_commit')->default(false);
             $table->boolean('recyclable')->nullable();
