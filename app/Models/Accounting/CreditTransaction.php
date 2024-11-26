@@ -30,7 +30,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property numeric|null $grp_exchange
  * @property numeric|null $org_exchange
  * @property numeric|null $grp_amount
- * @property numeric|null $org_amount
+ * @property numeric|null $sales_org_currency_
  * @property string|null $notes
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $fetched_at
@@ -62,7 +62,7 @@ class CreditTransaction extends Model
         'grp_exchange'                => 'decimal:4',
         'org_exchange'                => 'decimal:4',
         'grp_amount'                  => 'decimal:2',
-        'org_amount'                  => 'decimal:2',
+        'sales_org_currency_'                  => 'decimal:2',
         'fetched_at'                  => 'datetime',
         'last_fetched_at'             => 'datetime',
     ];

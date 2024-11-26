@@ -51,7 +51,7 @@ class Adjustment extends Model
     protected $casts = [
         'type'       => AdjustmentTypeEnum::class,
         'amount'     => 'decimal:2',
-        'org_amount' => 'decimal:2',
+        'sales_org_currency_currency_' => 'decimal:2',
         'grp_amount' => 'decimal:2',
     ];
 

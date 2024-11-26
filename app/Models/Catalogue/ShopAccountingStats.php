@@ -63,12 +63,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $amount amount_successfully_paid-amount_returned
  * @property string $amount_successfully_paid
  * @property string $amount_refunded
- * @property string $org_amount organisation currency, amount_successfully_paid-amount_returned
- * @property string $org_amount_successfully_paid
- * @property string $org_amount_refunded
- * @property string $group_amount Group currency, amount_successfully_paid-amount_returned
- * @property string $group_amount_successfully_paid
- * @property string $group_amount_refunded
+ * @property string $sales_org_currency_currency_ organisation currency, amount_successfully_paid-amount_returned
+ * @property string $sales_org_currency_successfully_paid
+ * @property string $sales_org_currency_refunded
+ * @property string $sales_grp_currency Group currency, amount_successfully_paid-amount_returned
+ * @property string $sales_grp_currencysuccessfully_paid
+ * @property string $sales_grp_currencyrefunded
  * @property int $number_credit_transactions
  * @property int $number_top_ups
  * @property int $number_top_ups_status_in_process

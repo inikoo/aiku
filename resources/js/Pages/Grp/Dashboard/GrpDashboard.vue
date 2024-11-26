@@ -139,7 +139,7 @@ const abcdef = computed(() => {
             // invoices: org.invoices.number_invoices || 0,
             // invoices_diff: get(org, ['sales', `invoices_${selectedDateOption.value}`], 0),
             sales: org.sales || 0,
-            // sales_diff: get(org, ['sales', `org_amount_${selectedDateOption.value}`], 0),
+            // sales_diff: get(org, ['sales', `sales_org_currency_${selectedDateOption.value}`], 0),
         }
     })
 })
@@ -243,8 +243,8 @@ const abcdef = computed(() => {
                     <template #body="{ data }">
                         <div class="flex justify-end relative">
                             <Transition name="spin-to-down" mode="out-in">
-                                <div :key="data.sales?.[`org_amount_${selectedDateOption}`]">
-                                    {{ useLocaleStore().currencyFormat(groupStats.currency.code, data.sales?.[`org_amount_${selectedDateOption}`] || 0) }}
+                                <div :key="data.sales?.[`sales_org_currency_${selectedDateOption}`]">
+                                    {{ useLocaleStore().currencyFormat(groupStats.currency.code, data.sales?.[`sales_org_currency_${selectedDateOption}`] || 0) }}
                                 </div>
                             </Transition>
                         </div>
@@ -285,14 +285,14 @@ const abcdef = computed(() => {
             </DataTable>
         </div>
 
-        <div v-if="groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)).some(i => {return !!Number(i)})" class="mt-10 w-1/2 flex flex-wrap gap-y-4 gap-x-4">
+        <div v-if="groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `sales_org_currency_all`], 0)).some(i => {return !!Number(i)})" class="mt-10 w-1/2 flex flex-wrap gap-y-4 gap-x-4">
             <div class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
                 <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Refunds')}} </div>
                 <div class="w-24">
                     <Pie :data="{
                         labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
                         datasets: [{
-                            data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
+                            data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `sales_org_currency_all`], 0)),
                             hoverOffset: 4
                         }]
                     }" :options="options" />
@@ -301,19 +301,19 @@ const abcdef = computed(() => {
                     <template v-for="org in groupStats.organisations">
                         <div v-if="org.type !== 'agent'" class="space-x-2">
                             <span class="text-lg">{{ org.code }}:</span>
-                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
+                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
                         </div>
                     </template>
                 </div> -->
             </div>
 
-            <div v-if="groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)).some(i => {return !!Number(i)})" class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+            <div v-if="groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `sales_org_currency_all`], 0)).some(i => {return !!Number(i)})" class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
                 <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Invoices')}} </div>
                 <div class="w-24">
                     <Pie :data="{
                         labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
                         datasets: [{
-                            data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
+                            data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `sales_org_currency_all`], 0)),
                             hoverOffset: 4
                         }]
                     }" :options="options" />
@@ -322,19 +322,19 @@ const abcdef = computed(() => {
                     <template v-for="org in groupStats.organisations">
                         <div v-if="org.type !== 'agent'" class="space-x-2">
                             <span class="text-lg">{{ org.code }}:</span>
-                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
+                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
                         </div>
                     </template>
                 </div> -->
             </div>
 
-            <div v-if="groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)).some(i => {return !!Number(i)})" class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
+            <div v-if="groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `sales_org_currency_all`], 0)).some(i => {return !!Number(i)})" class="py-5 px-5 flex gap-x-6 bg-gray-50 rounded-md border border-gray-300 w-fit">
                 <div class="w-fit font-semibold py-1 mb-1 text-center">{{ trans('Sales')}} </div>
                 <div class="w-24">
                     <Pie :data="{
                         labels: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => org.name),
                         datasets: [{
-                            data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `org_amount_all`], 0)),
+                            data: groupStats.organisations.filter((org) => org.type !== 'agent').map((org) => get(org, ['sales', `sales_org_currency_all`], 0)),
                             hoverOffset: 4
                         }]
                     }" :options="options" />
@@ -343,7 +343,7 @@ const abcdef = computed(() => {
                     <template v-for="org in groupStats.organisations">
                         <div v-if="org.type !== 'agent'" class="space-x-2">
                             <span class="text-lg">{{ org.code }}:</span>
-                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `org_amount_all`], 0)) }}</span>
+                            <span class="text-gray-500">{{ useLocaleStore().currencyFormat(currencyValue === 'organisation' ? org.currency.code : groupStats.currency.code, get(org, ['sales', `sales_org_currency_all`], 0)) }}</span>
                         </div>
                     </template>
                 </div> -->

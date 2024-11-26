@@ -38,12 +38,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_payments_type_refund_state_cancelled
  * @property int $number_payments_type_refund_state_error
  * @property int $number_payments_type_refund_state_declined
- * @property string $org_amount organisation currency, amount_successfully_paid-amount_returned
- * @property string $org_amount_successfully_paid
- * @property string $org_amount_refunded
- * @property string $group_amount Group currency, amount_successfully_paid-amount_returned
- * @property string $group_amount_successfully_paid
- * @property string $group_amount_refunded
+ * @property string $sales_org_currency_ organisation currency, amount_successfully_paid-amount_returned
+ * @property string $sales_org_currency_successfully_paid
+ * @property string $sales_org_currency_refunded
+ * @property string $sales_grp_currency Group currency, amount_successfully_paid-amount_returned
+ * @property string $sales_grp_currencysuccessfully_paid
+ * @property string $sales_grp_currencyrefunded
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Accounting\PaymentAccount $paymentAccount

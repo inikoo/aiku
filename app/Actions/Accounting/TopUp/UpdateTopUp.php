@@ -46,7 +46,7 @@ class UpdateTopUp extends OrgAction
         ];
         if (!$this->strict) {
             $rules['amount']     = ['sometimes', 'numeric'];
-            $rules['org_amount'] = ['sometimes', 'numeric'];
+            $rules['sales_org_currency_'] = ['sometimes', 'numeric'];
             $rules['grp_amount'] = ['sometimes', 'numeric'];
             $rules               = $this->noStrictStoreRules($rules);
         }

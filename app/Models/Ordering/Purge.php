@@ -63,10 +63,10 @@ class Purge extends Model implements Auditable
         'end_at'               => 'datetime',
         'cancelled_at'         => 'datetime',
         'estimated_amount'     => 'decimal:2',
-        'estimated_org_amount' => 'decimal:2',
+        'estimated_sales_org_currency_currency_' => 'decimal:2',
         'estimated_grp_amount' => 'decimal:2',
         'purged_amount'        => 'decimal:2',
-        'purged_org_amount'    => 'decimal:2',
+        'purged_sales_org_currency_currency_'    => 'decimal:2',
         'purged_grp_amount'    => 'decimal:2',
     ];
 

@@ -36,7 +36,7 @@ class StoreTopUp extends OrgAction
 
         data_set(
             $modelData,
-            'org_amount',
+            'sales_org_currency_',
             GetCurrencyExchange::run($payment->currency, $payment->organisation->currency) * $modelData['amount'],
             false
         );
@@ -69,7 +69,7 @@ class StoreTopUp extends OrgAction
 
         ];
         if (!$this->strict) {
-            $rules['org_amount'] = ['required', 'numeric'];
+            $rules['sales_org_currency_'] = ['required', 'numeric'];
             $rules['grp_amount'] = ['required', 'numeric'];
             $rules = $this->noStrictStoreRules($rules);
         }

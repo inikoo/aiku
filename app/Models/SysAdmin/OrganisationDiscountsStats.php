@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_invoices
  * @property int $number_delivery_notes
  * @property string $amount
- * @property string $group_amount
+ * @property string $sales_grp_currency
  * @property int $number_offer_campaigns
  * @property int $number_current_offer_campaigns
  * @property int $number_offer_campaigns_state_in_process

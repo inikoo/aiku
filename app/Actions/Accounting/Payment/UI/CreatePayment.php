@@ -60,12 +60,12 @@ class CreatePayment extends InertiaAction
                                     'label' => __('amount'),
                                     'value' => ''
                                 ],
-                                'group_amount' => [
+                                'sales_grp_currency' => [
                                     'type'  => 'input',
                                     'label' => __('group currency amount'),
                                     'value' => ''
                                 ],
-                                'org_amount' => [
+                                'sales_org_currency_' => [
                                     'type'  => 'input',
                                     'label' => __('organisation currency amount'),
                                     'value' => ''

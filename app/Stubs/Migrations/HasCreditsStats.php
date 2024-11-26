@@ -40,9 +40,9 @@ trait HasCreditsStats
 
     public function getOrganisationBalanceStats(Blueprint $table): Blueprint
     {
-        $table->decimal('customer_balances_org_amount', 16)->default(0);
-        $table->decimal('customer_positive_balances_org_amount', 16)->default(0);
-        $table->decimal('customer_negative_balances_org_amount', 16)->default(0);
+        $table->decimal('customer_balances_sales_org_currency_currency_', 16)->default(0);
+        $table->decimal('customer_positive_balances_sales_org_currency_currency_', 16)->default(0);
+        $table->decimal('customer_negative_balances_sales_org_currency_currency_', 16)->default(0);
 
 
         return $table;
