@@ -20,7 +20,7 @@ class FetchAuroraEmailBulkRun extends FetchAurora
             return;
         }
 
-        if($this->auroraModelData->{'Email Campaign State'}=='InProcess') {
+        if ($this->auroraModelData->{'Email Campaign State'} == 'InProcess') {
             return;
         }
 

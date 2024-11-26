@@ -22,10 +22,15 @@ trait WithHydrateInvoices
             'number_invoices'              => $numberInvoices,
             'number_invoices_type_invoice' => $model->invoices()->where('type', InvoiceTypeEnum::INVOICE)->count(),
             'last_invoiced_at'             => $model->invoices()->max('date'),
-            'invoiced_net_amount'          => $model->invoices()->sum('net_amount'),
-            'invoiced_org_net_amount'      => $model->invoices()->sum('org_net_amount'),
-            'invoiced_grp_net_amount'      => $model->invoices()->sum('grp_net_amount'),
         ];
+
+        if($model instanceof Customer){
+            $stats['sales_all']=$model->invoices()->sum('net_amount');
+            $stats['sales_org_currency_all']=$model->invoices()->sum('org_net_amount');
+            $stats['sales_grp_currency_all']=$model->invoices()->sum('grp_net_amount');
+        }
+
+
         $stats['number_invoices_type_refund'] = $stats['number_invoices'] - $stats['number_invoices_type_invoice'];
 
         return $stats;

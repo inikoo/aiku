@@ -28,6 +28,19 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('customer_id')->index();
             $table->foreign('customer_id')->references('id')->on('customers');
+
+            $salesFields = [
+                'sales',
+                'sales_org_currency',
+                'sales_grp_currency'
+            ];
+
+            foreach ($salesFields as $salesField) {
+                $col = '_all';
+                $table->decimal($salesField.$col, 16)->default(0);
+            }
+
+
             $table = $this->orderingStatsFields($table);
             $table = $this->getWebUsersStatsFields($table);
             $table->unsignedInteger('number_clients')->default(0);

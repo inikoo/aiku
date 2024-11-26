@@ -22,12 +22,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $email
  * @property mixed $created_at
  * @property mixed $last_invoiced_at
- * @property mixed $invoiced_net_amount
- * @property mixed $invoiced_org_net_amount
- * @property mixed $invoiced_grp_net_amount
+ * @property mixed $sales_all
+ * @property mixed $sales_org_currency_all
+ * @property mixed $sales_grp_currency_all
  * @property mixed $number_invoices_type_invoice
  * @property mixed $number_current_portfolios
  * @property mixed $currency_code
+ * @property bool $is_dropshipping
  */
 class CustomersResource extends JsonResource
 {
@@ -39,11 +40,11 @@ class CustomersResource extends JsonResource
             'slug'                         => $this->slug,
             'reference'                    => $this->reference,
             'name'                         => $this->name,
-            'email'                         => $this->email,
-            'phone'                         => $this->phone,
-            'state'                         => $this->state,
-            'address'                       => AddressResource::make($this->address),
-            'is_dropshipping'                 => $this->is_dropshipping,
+            'email'                        => $this->email,
+            'phone'                        => $this->phone,
+            'state'                        => $this->state,
+            'address'                      => AddressResource::make($this->address),
+            'is_dropshipping'              => $this->is_dropshipping,
             'contact_name'                 => $this->contact_name,
             'company_name'                 => $this->company_name,
             'location'                     => $this->location,
@@ -53,9 +54,9 @@ class CustomersResource extends JsonResource
             'platforms'                    => $this->platform_name ?? 'none',
             'last_invoiced_at'             => $this->last_invoiced_at,
             'number_invoices_type_invoice' => $this->number_invoices_type_invoice,
-            'invoiced_net_amount'          => $this->invoiced_net_amount,
-            'invoiced_org_net_amount'      => $this->invoiced_org_net_amount,
-            'invoiced_grp_net_amount'      => $this->invoiced_grp_net_amount,
+            'sales_all'                    => $this->sales_all,
+            'sales_org_currency_all'       => $this->sales_org_currency_all,
+            'sales_grp_currency_all'       => $this->sales_grp_currency_all,
             'currency_code'                => $this->currency_code,
         ];
     }
