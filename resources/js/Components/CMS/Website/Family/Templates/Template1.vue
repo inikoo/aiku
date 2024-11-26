@@ -22,8 +22,8 @@ const props = defineProps<{
 
 <template>
     <div class="border-2 p-4 rounded-lg">
-    <img  src="https://tailwindui.com/img/ecommerce-images/product-page-03-related-product-02.jpg"  alt="" class="h-auto w-full rounded-t-full">
-    <div class="mb-0.5 font-bold leading-5">
+    <img  src="https://tailwindui.com/plus/img/ecommerce-images/product-page-01-product-shot-02.jpg"  alt="" class="h-auto w-full mb-3">
+    <div class="my-0.5 font-bold leading-5">
         8x Monkey Bath Bomb 90g - Guava & Strawberry
     </div>
 
