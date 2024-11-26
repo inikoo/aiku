@@ -22,6 +22,8 @@ class FetchAuroraMailshot extends FetchAurora
 
         $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Email Campaign Store Key'});
 
+
+
         //enum('InProcess','SetRecipients','ComposingEmail','Ready','Scheduled','Sending','Sent','Cancelled','Stopped')
         $state = match ($this->auroraModelData->{'Email Campaign State'}) {
             'InProcess', 'SetRecipients', 'ComposingEmail' => MailshotStateEnum::IN_PROCESS,
@@ -52,7 +54,15 @@ class FetchAuroraMailshot extends FetchAurora
         }
 
 
+        if (!$outbox) {
+            dd($this->auroraModelData);
+        }
+
+
         $this->parsedData['outbox']   = $outbox;
+
+        $this->parsedData['source_template_id'] = $this->auroraModelData->{'Email Campaign Email Template Key'};
+
         $this->parsedData['mailshot'] = [
             'subject'    => $this->auroraModelData->{'Email Campaign Name'},
             'type'       => $type,

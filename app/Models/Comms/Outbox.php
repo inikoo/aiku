@@ -8,7 +8,6 @@
 namespace App\Models\Comms;
 
 use App\Actions\Utils\Abbreviate;
-use App\Enums\Comms\Outbox\OutboxBlueprintEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
@@ -42,7 +41,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property OutboxCodeEnum $code
  * @property OutboxTypeEnum $type
  * @property string $name
- * @property OutboxBlueprintEnum $blueprint
  * @property OutboxStateEnum $state
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -50,7 +48,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property array $sources
  * @property-read Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
- * @property-read Collection<int, \App\Models\Comms\EmailRun> $emailRuns
+ * @property-read Collection<int, \App\Models\Comms\EmailBulkRun> $emailBulkRuns
+ * @property-read Collection<int, \App\Models\Comms\EmailOngoingRun> $emailOngoingRuns
  * @property-read \App\Models\Comms\EmailTemplate|null $emailTemplate
  * @property-read Collection<int, \App\Models\Comms\Email> $emails
  * @property-read Fulfilment|null $fulfilment
@@ -92,7 +91,6 @@ class Outbox extends Model
         'code'  => OutboxCodeEnum::class,
         'type'  => OutboxTypeEnum::class,
         'state' => OutboxStateEnum::class,
-        'blueprint' => OutboxBlueprintEnum::class
     ];
 
     protected $attributes = [
@@ -133,9 +131,14 @@ class Outbox extends Model
         return $this->hasMany(Email::class);
     }
 
-    public function emailRuns(): HasMany
+    public function emailBulkRuns(): HasMany
     {
-        return $this->hasMany(EmailRun::class);
+        return $this->hasMany(EmailBulkRun::class);
+    }
+
+    public function emailOngoingRuns(): HasMany
+    {
+        return $this->hasMany(EmailOngoingRun::class);
     }
 
     public function mailshots(): HasMany

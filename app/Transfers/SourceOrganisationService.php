@@ -192,6 +192,6 @@ interface SourceOrganisationService
 
     public function fetchEmail($id);
 
-    public function fetchEmailRunFromCampaign($id);
+    public function fetchEmailBulkRun($id);
 
 }

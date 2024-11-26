@@ -15,15 +15,15 @@ enum EmailBuilderEnum: string
 
     case UNLAYER = 'unlayer';
     case BEEFREE = 'beefree';
-    case REPO_SOURCE_CODE = 'repo-source-code';
+    case BLADE = 'blade';
 
 
     public static function labels(): array
     {
         return [
-            'unlayer'          => __('Unlayer'),
-            'beefree'          => __('BeeFree'),
-            'repo-source-code' => __('Hard Coded')
+            'unlayer' => __('Unlayer'),
+            'beefree' => __('BeeFree'),
+            'blade'   => __('Blade (Hard coded)')
         ];
     }
 

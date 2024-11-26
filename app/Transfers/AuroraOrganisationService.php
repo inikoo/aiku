@@ -35,7 +35,8 @@ use App\Transfers\Aurora\FetchAuroraDepartment;
 use App\Transfers\Aurora\FetchAuroraDispatchedEmail;
 use App\Transfers\Aurora\FetchAuroraEmail;
 use App\Transfers\Aurora\FetchAuroraEmailCopy;
-use App\Transfers\Aurora\FetchAuroraEmailRunFromCampaign;
+use App\Transfers\Aurora\FetchAuroraEmailBulkRun;
+use App\Transfers\Aurora\FetchAuroraEmailOngoingRun;
 use App\Transfers\Aurora\FetchAuroraEmailTrackingEvent;
 use App\Transfers\Aurora\FetchAuroraEmployee;
 use App\Transfers\Aurora\FetchAuroraFamily;
@@ -574,9 +575,14 @@ class AuroraOrganisationService implements SourceOrganisationService
         return (new FetchAuroraEmail($this))->fetch($id);
     }
 
-    public function fetchEmailRunFromCampaign($id): ?array
+    public function fetchEmailBulkRun($id): ?array
     {
-        return (new FetchAuroraEmailRunFromCampaign($this))->fetch($id);
+        return (new FetchAuroraEmailBulkRun($this))->fetch($id);
+    }
+
+    public function fetchEmailOngoingRun($id): ?array
+    {
+        return (new FetchAuroraEmailOngoingRun($this))->fetch($id);
     }
 
 }

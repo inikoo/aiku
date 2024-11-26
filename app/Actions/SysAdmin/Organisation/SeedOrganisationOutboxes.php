@@ -26,15 +26,14 @@ class SeedOrganisationOutboxes
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
 
                 if (!$organisation->outboxes()->where('code', $case)->exists()) {
-                    StoreOutbox::run(
+                    StoreOutbox::make()->action(
                         $postRoom,
                         $organisation,
                         [
-                            'name'      => $case->label(),
-                            'code'      => $case,
-                            'type'      => $case->type(),
-                            'state'     => $case->defaultState(),
-                            'blueprint' => $case->blueprint(),
+                            'name' => $case->label(),
+                            'code' => $case,
+                            'type' => $case->type(),
+                            'state' => $case->defaultState(),
 
                         ]
                     );
@@ -47,12 +46,12 @@ class SeedOrganisationOutboxes
 
     public function asCommand(Command $command): int
     {
-
         if ($command->argument('organisation') == null) {
             $organisations = Organisation::all();
             foreach ($organisations as $organisation) {
                 $this->handle($organisation);
             }
+
             return 0;
         }
 
@@ -60,6 +59,7 @@ class SeedOrganisationOutboxes
             $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
         } catch (Exception $e) {
             $command->error($e->getMessage());
+
             return 1;
         }
 

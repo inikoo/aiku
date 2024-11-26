@@ -153,5 +153,16 @@
     "arguments": [
       "customer"
     ]
+  },
+  {
+    "outboxes": [
+      "new_order"
+    ],
+    "name": "New order",
+    "content": "new_order.blade.php",
+    "builder": "blade",
+    "arguments": [
+      "order"
+    ]
   }
 ]

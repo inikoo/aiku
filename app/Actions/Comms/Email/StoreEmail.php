@@ -11,10 +11,12 @@ use App\Actions\Helpers\Snapshot\StoreEmailSnapshot;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\Email\EmailBuilderEnum;
+use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Models\Comms\Email;
-use App\Models\Comms\EmailRun;
+use App\Models\Comms\EmailBulkRun;
+use App\Models\Comms\EmailOngoingRun;
+use App\Models\Comms\EmailTemplate;
 use App\Models\Comms\Mailshot;
-use App\Models\Comms\Outbox;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -27,34 +29,62 @@ class StoreEmail extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(Outbox $outbox, Mailshot|EmailRun|Outbox $parent, array $modelData): Email
+    public function handle(Mailshot|EmailBulkRun|EmailOngoingRun $parent, ?EmailTemplate $emailTemplate, array $modelData): Email
     {
-        data_set($modelData, 'group_id', $outbox->group_id);
-        data_set($modelData, 'organisation_id', $outbox->organisation_id);
-        data_set($modelData, 'shop_id', $outbox->shop_id);
+        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'organisation_id', $parent->organisation_id);
+        data_set($modelData, 'shop_id', $parent->shop_id);
+        data_set($modelData, 'outbox_id', $parent->outbox_id);
+        data_set($modelData, 'subject', $parent->subject);
 
 
-        data_set($modelData, 'parent_id', $parent->id);
-        data_set($modelData, 'parent_type', class_basename($parent));
+        $snapshotData = null;
+        if (!$this->strict) {
+            $snapshotData = [
+                'layout'          => Arr::pull($modelData, 'layout'),
+                'compiled_layout' => Arr::pull($modelData, 'compiled_layout'),
+                'state'           => Arr::pull($modelData, 'snapshot_state'),
+                'recyclable'      => Arr::pull($modelData, 'snapshot_recyclable'),
+                'first_commit'    => Arr::pull($modelData, 'snapshot_first_commit'),
+            ];
 
-        $layout = Arr::pull($modelData, 'layout', []);
+            if ($publishedAt = Arr::pull($modelData, 'snapshot_published_at')) {
+                $snapshotData['published_at'] = $publishedAt;
+            }
 
-        return DB::transaction(function () use ($outbox, $modelData, $layout) {
+
+            /** @var EmailBuilderEnum $builder */
+            $builder = Arr::get($modelData, 'builder');
+
+            if ($builder) {
+                $snapshotData['builder'] = $builder->value;
+            }
+        }
+
+        if ($emailTemplate) {
+            data_set($modelData, 'builder', $emailTemplate->builder->value);
+
+            $snapshotData['builder'] = $emailTemplate->builder->value;
+            $snapshotData['layout']  = $emailTemplate->layout;
+            // dd($modelData);
+        }
+
+        return DB::transaction(function () use ($parent, $modelData, $snapshotData) {
             /** @var Email $email */
-            $email    = $outbox->emails()->create($modelData);
-            $snapshot = StoreEmailSnapshot::run(
-                $email,
-                [
-                    'builder' => $email->builder->value,
-                    'layout'  => $layout
-                ],
-            );
-            $email->update(
-                [
-                    'snapshot_id' => $snapshot->id,
-                ]
-            );
+            $email = $parent->email()->create($modelData);
 
+            if ($snapshotData) {
+                $snapshot = StoreEmailSnapshot::make()->action(
+                    $email,
+                    $snapshotData,
+                    strict: $this->strict,
+                );
+                $email->update(
+                    [
+                        'snapshot_id' => $snapshot->id,
+                    ]
+                );
+            }
 
             return $email;
         });
@@ -72,12 +102,18 @@ class StoreEmail extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'subject' => ['required', 'string', 'max:255'],
-            'builder' => ['required', Rule::enum(EmailBuilderEnum::class)],
-            'layout'  => ['sometimes', 'array']
+
         ];
 
         if (!$this->strict) {
+            $rules['builder']               = ['sometimes', 'required', Rule::enum(EmailBuilderEnum::class)];
+            $rules['layout']                = ['sometimes', 'required', 'array'];
+            $rules['compiled_layout']       = ['sometimes', 'string'];
+            $rules['snapshot_state']        = ['sometimes', 'required', Rule::enum(SnapshotStateEnum::class)];
+            $rules['snapshot_published_at'] = ['sometimes', 'required', 'date'];
+            $rules['snapshot_recyclable']   = ['sometimes', 'required', 'boolean'];
+            $rules['snapshot_first_commit'] = ['sometimes', 'required', 'boolean'];
+
             $rules = $this->noStrictStoreRules($rules);
         }
 
@@ -88,7 +124,7 @@ class StoreEmail extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(Outbox $outbox, Mailshot|EmailRun|Outbox $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Email
+    public function action(Mailshot|EmailBulkRun|EmailOngoingRun $parent, ?EmailTemplate $emailTemplate, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Email
     {
         if (!$audit) {
             Email::disableAuditing();
@@ -98,10 +134,9 @@ class StoreEmail extends OrgAction
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
 
+        $this->initialisation($parent->organisation, $modelData);
 
-        $this->initialisation($outbox->organisation, $modelData);
-
-        return $this->handle($outbox, $parent, $this->validatedData);
+        return $this->handle($parent, $emailTemplate, $this->validatedData);
     }
 
 

@@ -27,7 +27,7 @@ class SeedWebsiteOutboxes
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
 
                 if (!Outbox::where('website_id', $website->id)->where('code', $case)->exists()) {
-                    StoreOutbox::run(
+                    StoreOutbox::make()->action(
                         $postRoom,
                         $website,
                         [
@@ -35,7 +35,6 @@ class SeedWebsiteOutboxes
                             'code'      => $case,
                             'type'      => $case->type(),
                             'state'     => $case->defaultState(),
-                            'blueprint' => $case->blueprint(),
 
                         ]
                     );

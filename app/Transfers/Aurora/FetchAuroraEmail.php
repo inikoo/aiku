@@ -8,6 +8,8 @@
 namespace App\Transfers\Aurora;
 
 use App\Enums\Comms\Email\EmailBuilderEnum;
+use App\Enums\Comms\Mailshot\MailshotStateEnum;
+use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraEmail extends FetchAurora
@@ -15,6 +17,11 @@ class FetchAuroraEmail extends FetchAurora
     protected function parseModel(): void
     {
         $parent = null;
+
+        $snapshotState      = null;
+        $snapshotRecyclable = false;
+        $publishedAt        = null;
+        $firstCommit        = false;
 
         $builder = EmailBuilderEnum::BEEFREE;
 
@@ -31,6 +38,21 @@ class FetchAuroraEmail extends FetchAurora
                 if (!$mailshot) {
                     dd($emailCampaignData);
                 }
+
+                $snapshotState = match ($mailshot->state) {
+                    MailshotStateEnum::IN_PROCESS => SnapshotStateEnum::UNPUBLISHED,
+                    default => SnapshotStateEnum::LIVE
+                };
+
+
+                $firstCommit = $snapshotState == SnapshotStateEnum::LIVE;
+
+
+                if ($mailshot->state == MailshotStateEnum::SENT) {
+                    $snapshotRecyclable = true;
+                }
+                $publishedAt = $mailshot->ready_at;
+
 
                 $outbox = $mailshot->outbox;
                 $parent = $mailshot;
@@ -71,14 +93,29 @@ class FetchAuroraEmail extends FetchAurora
         $this->parsedData['parent'] = $parent;
         $this->parsedData['email']  = [
 
-            'subject'         => $subject,
-            'builder'         => $builder,
-            'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Email Template Key'},
-            'fetched_at'      => now(),
-            'last_fetched_at' => now(),
-            'layout'          => json_decode($this->auroraModelData->{'Email Template Editing JSON'}, true)
+            'subject'               => $subject,
+            'builder'               => $builder,
+            'source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Email Template Key'},
+            'fetched_at'            => now(),
+            'last_fetched_at'       => now(),
+            'layout'                => json_decode($this->auroraModelData->{'Email Template Editing JSON'}, true),
+            'snapshot_state'        => $snapshotState,
+            'snapshot_recyclable'   => $snapshotRecyclable,
+            'snapshot_first_commit' => $firstCommit,
+
 
         ];
+
+        if ($publishedAt) {
+            $this->parsedData['email']['snapshot_published_at'] = $publishedAt;
+        }
+
+
+        if ($this->auroraModelData->{'Email Template HTML'}) {
+            $this->parsedData['email']['compiled_layout'] = $this->auroraModelData->{'Email Template HTML'};
+        }
+
+
     }
 
 

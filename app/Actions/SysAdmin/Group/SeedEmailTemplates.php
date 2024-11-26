@@ -44,20 +44,27 @@ class SeedEmailTemplates
                 'outboxes' => Arr::get($template, 'outboxes', [])
             ];
 
+            $builder = Arr::get($template, 'builder');
 
-            $layout = json_decode(file_get_contents($filePath), true);
+            $layout = [];
+            if (in_array($builder, ['unlayer','beefree'])) {
+                $layout = json_decode(file_get_contents($filePath), true);
+            } elseif ($builder == 'blade') {
+                $layout = [
+                    'blade_template' => file_get_contents($filePath)
+                ];
+            }
 
             if ($emailTemplate = EmailTemplate::where('name', Arr::get($template, 'name'))->where('is_seeded', true)->first()) {
-
                 UpdateEmailTemplate::make()->action(
                     $emailTemplate,
                     [
-                        'name'   => Arr::get($template, 'name'),
-                        'layout' => $layout,
-                        'data'   => $data
+                        'name'      => Arr::get($template, 'name'),
+                        'layout'    => $layout,
+                        'arguments' => Arr::get($template, 'arguments', []),
+                        'data'      => $data
                     ]
                 );
-
             } else {
                 $emailTemplate = StoreEmailTemplate::make()->action(
                     $group,
@@ -65,7 +72,7 @@ class SeedEmailTemplates
                         'name'        => Arr::get($template, 'name'),
                         'layout'      => $layout,
                         'is_seeded'   => true,
-                        'builder'    => Arr::get($template, 'builder'),
+                        'builder'     => $builder,
                         'state'       => EmailTemplateStateEnum::ACTIVE,
                         'active_at'   => now(),
                         'language_id' => $language->id,

@@ -29,7 +29,7 @@ return new class () extends Migration {
             $table->string('code')->index();
             $table->string('type')->index();
             $table->string('name');
-            $table->string('blueprint')->index();
+            //$table->string('blueprint')->index();
             $table->string('state')->index()->default(OutboxStateEnum::IN_PROCESS->value);
             $table->jsonb('data');
             $table->timestampsTz();

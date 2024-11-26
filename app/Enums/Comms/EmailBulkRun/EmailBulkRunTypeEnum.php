@@ -5,11 +5,11 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Comms\EmailRun;
+namespace App\Enums\Comms\EmailBulkRun;
 
 use App\Enums\EnumHelperTrait;
 
-enum EmailRunTypeEnum: string
+enum EmailBulkRunTypeEnum: string
 {
     use EnumHelperTrait;
 

@@ -30,10 +30,11 @@ use Spatie\Tags\HasTags;
  * @property int $group_id
  * @property string $slug
  * @property string $name
- * @property EmailTemplateBuilderEnum $builder
  * @property EmailTemplateStateEnum $state
  * @property bool $is_seeded
- * @property array|null $layout
+ * @property EmailTemplateBuilderEnum $builder
+ * @property array $layout
+ * @property array $arguments
  * @property array $data
  * @property int|null $screenshot_id
  * @property int $language_id
@@ -75,6 +76,7 @@ class EmailTemplate extends Model implements HasMedia, Auditable
     protected $casts = [
         'data'         => 'array',
         'layout'       => 'array',
+        'arguments'       => 'array',
         'state'        => EmailTemplateStateEnum::class,
         'builder'      => EmailTemplateBuilderEnum::class,
         'active_at'    => 'datetime',
@@ -84,6 +86,7 @@ class EmailTemplate extends Model implements HasMedia, Auditable
     protected $attributes = [
         'data'   => '{}',
         'layout' => '{}',
+        'arguments' => '{}',
     ];
 
 

@@ -1,22 +1,22 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 24 Nov 2024 11:23:23 Central Indonesia Time, Kuta, Bali, Indonesia
+ * Created: Tue, 26 Nov 2024 08:14:59 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Comms\Email\EmailRunStateEnum;
-use App\Enums\Comms\EmailRun\EmailRunTypeEnum;
+use App\Enums\Comms\EmailBulkRun\EmailBulkRunTypeEnum;
+use App\Enums\Comms\EmailBulkRun\EmailBulkRunStateEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use Illuminate\Support\Facades\DB;
 
-class FetchAuroraEmailRunFromCampaign extends FetchAurora
+class FetchAuroraEmailOngoingRun extends FetchAurora
 {
     protected function parseModel(): void
     {
-        if (in_array($this->auroraModelData->{'Email Campaign Type'}, ['Newsletter', 'Marketing', 'Invite Full Mailshot', 'AbandonedCart'])) {
+        if (in_array($this->auroraModelData->{'Email Campaign Type'}, ['GR Reminder', 'OOS Notification'])) {
             return;
         }
 
@@ -24,11 +24,11 @@ class FetchAuroraEmailRunFromCampaign extends FetchAurora
 
         //enum('InProcess','SetRecipients','ComposingEmail','Ready','Scheduled','Sending','Sent','Cancelled','Stopped')
         $state = match ($this->auroraModelData->{'Email Campaign State'}) {
-            'Scheduled','Ready' => EmailRunStateEnum::SCHEDULED,
-            'Sending' => EmailRunStateEnum::SENDING,
-            'Sent' => EmailRunStateEnum::SENT,
-            'Cancelled' => EmailRunStateEnum::CANCELLED,
-            'Stopped' => EmailRunStateEnum::STOPPED,
+            'Scheduled','Ready' => EmailBulkRunStateEnum::SCHEDULED,
+            'Sending' => EmailBulkRunStateEnum::SENDING,
+            'Sent' => EmailBulkRunStateEnum::SENT,
+            'Cancelled' => EmailBulkRunStateEnum::CANCELLED,
+            'Stopped' => EmailBulkRunStateEnum::STOPPED,
             default => null
         };
 
@@ -44,16 +44,16 @@ class FetchAuroraEmailRunFromCampaign extends FetchAurora
 
         switch ($this->auroraModelData->{'Email Campaign Type'}) {
             case 'GR Reminder':
-                $type = EmailRunTypeEnum::REORDER_REMINDER;
+                $type = EmailBulkRunTypeEnum::REORDER_REMINDER;
                 $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::REORDER_REMINDER)->first();
 
                 break;
             case 'AbandonedCart':
-                $type = EmailRunTypeEnum::ABANDONED_CART;
+                $type = EmailBulkRunTypeEnum::ABANDONED_CART;
                 $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::ABANDONED_CART)->first();
                 break;
             case 'OOS Notification':
-                $type = EmailRunTypeEnum::OOS_NOTIFICATION;
+                $type = EmailBulkRunTypeEnum::OOS_NOTIFICATION;
                 $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::OOS_NOTIFICATION)->first();
                 break;
             default:
@@ -72,7 +72,7 @@ class FetchAuroraEmailRunFromCampaign extends FetchAurora
 
 
         $this->parsedData['outbox']   = $outbox;
-        $this->parsedData['email_run'] = [
+        $this->parsedData['email_bulk_run'] = [
             'subject'    => $this->auroraModelData->{'Email Campaign Name'},
             'type'       => $type,
             'state'      => $state,

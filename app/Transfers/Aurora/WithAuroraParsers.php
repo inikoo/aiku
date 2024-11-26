@@ -21,7 +21,8 @@ use App\Actions\Transfers\Aurora\FetchAuroraDeletedSuppliers;
 use App\Actions\Transfers\Aurora\FetchAuroraDeliveryNotes;
 use App\Actions\Transfers\Aurora\FetchAuroraDepartments;
 use App\Actions\Transfers\Aurora\FetchAuroraDispatchedEmails;
-use App\Actions\Transfers\Aurora\FetchAuroraEmailRunFromCampaigns;
+use App\Actions\Transfers\Aurora\FetchAuroraEmailBulkRuns;
+use App\Actions\Transfers\Aurora\FetchAuroraEmails;
 use App\Actions\Transfers\Aurora\FetchAuroraEmployees;
 use App\Actions\Transfers\Aurora\FetchAuroraFamilies;
 use App\Actions\Transfers\Aurora\FetchAuroraHistoricAssets;
@@ -72,7 +73,8 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\DispatchedEmail;
-use App\Models\Comms\EmailRun;
+use App\Models\Comms\Email;
+use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
@@ -1023,19 +1025,34 @@ trait WithAuroraParsers
 
     }
 
-    public function parseEmailRun($sourceId): ?EmailRun
+    public function parseEmailRun($sourceId): ?EmailBulkRun
     {
         if (!$sourceId) {
             return null;
         }
 
-        $emailRun = EmailRun::where('source_id', $sourceId)->first();
+        $emailRun = EmailBulkRun::where('source_id', $sourceId)->first();
         if (!$emailRun) {
             $sourceData = explode(':', $sourceId);
-            $emailRun   = FetchAuroraEmailRunFromCampaigns::run($this->organisationSource, $sourceData[1]);
+            $emailRun   = FetchAuroraEmailBulkRuns::run($this->organisationSource, $sourceData[1]);
         }
 
         return $emailRun;
+    }
+
+    public function parseEmail($sourceId): ?Email
+    {
+        if (!$sourceId) {
+            return null;
+        }
+
+        $email = Email::where('source_id', $sourceId)->first();
+        if (!$email) {
+            $sourceData = explode(':', $sourceId);
+            $email   = FetchAuroraEmails::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $email;
     }
 
 
