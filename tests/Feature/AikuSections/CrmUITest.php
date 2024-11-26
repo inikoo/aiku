@@ -486,3 +486,15 @@ test('UI get section route crm dashboard', function () {
         ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_CRM->value)
         ->and($sectionScope->model_slug)->toBe($this->shop->slug);
 });
+
+test('UI get section route client dropshipping', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.crm.customers.show.customer-clients.index', [
+        'organisation' => $this->organisation->slug,
+        'shop' => $this->shop->slug,
+        'customer' => $this->customer->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::DROPSHIPPING->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
