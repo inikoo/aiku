@@ -38,11 +38,11 @@ class OrganisationHydrateSales
 
         $queryBase = Invoice::where('organisation_id', $organisation->id)->selectRaw('sum(grp_net_amount) as  sum_group  , sum(grp_net_amount) as  sum_org  ');
 
-        $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'sales_grp_currency_', 'date', 'sum_group'));
-        $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'sales_grp_currency_', 'date', 'sum_group'));
+        $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'group_amount_', 'date', 'sum_group'));
+        $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'group_amount_', 'date', 'sum_group'));
 
-        $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'sales_org_currency_', 'date', 'sum_org'));
-        $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'sales_org_currency_', 'date', 'sum_org'));
+        $stats = array_merge($stats, $this->getIntervalStats($queryBase, 'org_amount_', 'date', 'sum_org'));
+        $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'org_amount_', 'date', 'sum_org'));
 
 
         $organisation->salesIntervals()->update($stats);
