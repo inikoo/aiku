@@ -39,15 +39,15 @@ class ShowOrganisationDashboard extends OrgAction
         if ($organisation->type == OrganisationTypeEnum::SHOP) {
             $data = [
                 'sales_intervals' => [
-                    'all' => $organisation->salesIntervals->sales_org_currency_all,
-                    'ytd' => $organisation->salesIntervals->sales_org_currency_ytd,
-                    'mtd' => $organisation->salesIntervals->sales_org_currency_mtd,
-                    'lw'  => $organisation->salesIntervals->sales_org_currency_lw,
-                    'lm'  => $organisation->salesIntervals->sales_org_currency_lm,
-                    '1w'  => $organisation->salesIntervals->sales_org_currency_1w,
-                    '1m'  => $organisation->salesIntervals->sales_org_currency_1m,
-                    '1q'  => $organisation->salesIntervals->sales_org_currency_1q,
-                    '1y'  => $organisation->salesIntervals->sales_org_currency_1y,
+                    'all' => $organisation->salesIntervals->org_amount_all,
+                    'ytd' => $organisation->salesIntervals->org_amount_ytd,
+                    'mtd' => $organisation->salesIntervals->org_amount_mtd,
+                    'lw'  => $organisation->salesIntervals->org_amount_lw,
+                    'lm'  => $organisation->salesIntervals->org_amount_lm,
+                    '1w'  => $organisation->salesIntervals->org_amount_1w,
+                    '1m'  => $organisation->salesIntervals->org_amount_1m,
+                    '1q'  => $organisation->salesIntervals->org_amount_1q,
+                    '1y'  => $organisation->salesIntervals->org_amount_1y,
                 ],
                 'human_resources' => [
                     'job_positions' => $organisation->humanResourcesStats->number_job_positions,

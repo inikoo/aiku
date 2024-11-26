@@ -68,7 +68,7 @@ class FetchAuroraTopUp extends FetchAurora
             'last_fetched_at' => now(),
             'status'          => $status,
             'amount'          => $amount,
-            'sales_org_currency_'      => round($amount * $orgExchange, 2),
+            'org_amount'      => round($amount * $orgExchange, 2),
             'grp_amount'      => round($amount * $grpExchange, 2),
         ];
     }

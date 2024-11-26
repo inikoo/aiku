@@ -35,7 +35,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $operation_id
  * @property numeric $quantity
  * @property numeric $amount
- * @property numeric $sales_grp_currency
+ * @property numeric $group_amount
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -63,8 +63,8 @@ class OrgStockMovement extends Model
         'date'         => 'datetime',
         'quantity'     => 'decimal:3',
         'amount'       => 'decimal:3',
-        'sales_grp_currency' => 'decimal:3',
-        'sales_org_currency_currency_'   => 'decimal:3',
+        'group_amount' => 'decimal:3',
+        'org_amount'   => 'decimal:3',
     ];
 
     protected $attributes = [

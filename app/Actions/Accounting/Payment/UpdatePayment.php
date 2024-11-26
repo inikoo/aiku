@@ -41,8 +41,8 @@ class UpdatePayment extends OrgAction
         $rules = [
             'reference'    => ['sometimes', 'nullable', 'max:255', 'string'],
             'amount'       => ['sometimes', 'decimal:0,2'],
-            'sales_org_currency_'   => ['sometimes', 'numeric'],
-            'sales_grp_currency' => ['sometimes', 'numeric'],
+            'org_amount'   => ['sometimes', 'numeric'],
+            'group_amount' => ['sometimes', 'numeric'],
         ];
 
         if (!$this->strict) {

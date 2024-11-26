@@ -28,21 +28,21 @@ class LogUserRequestMiddleware
 
         /* @var User $user */
         $user = $request->user();
-        // if (!app()->runningUnitTests() && $user) {
-        //     ProcessUserRequest::dispatch(
-        //         $user,
-        //         now(),
-        //         [
-        //         'name'      => $request->route()->getName(),
-        //         'arguments' => $request->route()->originalParameters(),
-        //         'url'       => $request->path(),
-        //     ],
-        //         $request->ip(),
-        //         $request->header('User-Agent')
-        //     );
+        if (!app()->runningUnitTests() && $user) {
+            ProcessUserRequest::dispatch(
+                $user,
+                now(),
+                [
+                'name'      => $request->route()->getName(),
+                'arguments' => $request->route()->originalParameters(),
+                'url'       => $request->path(),
+            ],
+                $request->ip(),
+                $request->header('User-Agent')
+            );
 
-        //     $user->stats()->update(['last_active_at' => now()]);
-        // }
+            $user->stats()->update(['last_active_at' => now()]);
+        }
 
         return $next($request);
     }

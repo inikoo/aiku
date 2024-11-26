@@ -38,17 +38,17 @@ class PaymentAccountHydratePayments
         $amountOrganisationCurrencySuccessfullyPaid = $paymentAccount->payments()
             ->where('type', 'payment')
             ->where('status', 'success')
-            ->sum('sales_org_currency_');
+            ->sum('org_amount');
         $amountOrganisationCurrencyRefunded         = $paymentAccount->payments()
             ->where('payments.type', 'refund')
             ->where('status', 'success')
-            ->sum('sales_org_currency_');
+            ->sum('org_amount');
 
         $stats = [
             'number_payments'                => $paymentAccount->payments()->count(),
-            'sales_org_currency_'                     => $amountOrganisationCurrencySuccessfullyPaid + $amountOrganisationCurrencyRefunded,
-            'sales_org_currency_successfully_paid'   => $amountOrganisationCurrencySuccessfullyPaid,
-            'sales_org_currency_refunded'            => $amountOrganisationCurrencyRefunded
+            'org_amount'                     => $amountOrganisationCurrencySuccessfullyPaid + $amountOrganisationCurrencyRefunded,
+            'org_amount_successfully_paid'   => $amountOrganisationCurrencySuccessfullyPaid,
+            'org_amount_refunded'            => $amountOrganisationCurrencyRefunded
         ];
 
         $stats = array_merge(

@@ -27,11 +27,11 @@ trait HasUsageStats
         $table->unsignedInteger('number_delivery_notes')->default(0);
         $table->decimal('amount')->default(0);
         if (!in_array($table->getTable(), ['group_discounts_stats', 'organisation_discounts_stats'])) {
-            $table->decimal('sales_org_currency_')->default(0);
+            $table->decimal('org_amount')->default(0);
         }
 
         if ($table->getTable() != 'group_discounts_stats') {
-            $table->decimal('sales_grp_currency')->default(0);
+            $table->decimal('group_amount')->default(0);
         }
 
         return $table;

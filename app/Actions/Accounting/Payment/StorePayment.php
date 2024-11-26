@@ -55,8 +55,8 @@ class StorePayment extends OrgAction
         data_set($modelData, 'currency_id', $customer->shop->currency_id);
 
 
-        data_set($modelData, 'sales_org_currency_', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->currency), overwrite: false);
-        data_set($modelData, 'sales_grp_currency', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->group->currency), overwrite: false);
+        data_set($modelData, 'org_amount', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->currency), overwrite: false);
+        data_set($modelData, 'group_amount', Arr::get($modelData, 'amount') * GetCurrencyExchange::run($customer->shop->currency, $paymentAccount->organisation->group->currency), overwrite: false);
 
 
         $payment = DB::transaction(function () use ($paymentAccount, $modelData, $currencyCode, $totalAmount) {
@@ -110,8 +110,8 @@ class StorePayment extends OrgAction
             'reference'     => ['nullable', 'string', 'max:255'],
             'amount'        => ['required', 'decimal:0,2'],
             'total_amount'  => ['sometimes', 'decimal:0,2'],
-            'sales_org_currency_'    => ['sometimes', 'numeric'],
-            'sales_grp_currency'  => ['sometimes', 'numeric'],
+            'org_amount'    => ['sometimes', 'numeric'],
+            'group_amount'  => ['sometimes', 'numeric'],
             'data'          => ['sometimes', 'array'],
             'date'          => ['sometimes', 'date'],
             'status'        => ['sometimes', 'required', Rule::enum(PaymentStatusEnum::class)],

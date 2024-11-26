@@ -37,16 +37,16 @@ class GroupHydratePayments
     {
         $amountGroupCurrencySuccessfullyPaid = $group->payments()->where('type', 'payment')
             ->where('status', 'success')
-            ->sum('sales_grp_currency');
+            ->sum('group_amount');
         $amountGroupCurrencyRefunded         = $group->payments()->where('type', 'refund')
             ->where('status', 'success')
-            ->sum('sales_grp_currency');
+            ->sum('group_amount');
 
         $stats = [
             'number_payments'                       => $group->payments()->count(),
-            'sales_grp_currency'                          => $amountGroupCurrencySuccessfullyPaid + $amountGroupCurrencyRefunded,
-            'sales_grp_currencysuccessfully_paid'        => $amountGroupCurrencySuccessfullyPaid,
-            'sales_grp_currencyrefunded'                 => $amountGroupCurrencyRefunded,
+            'group_amount'                          => $amountGroupCurrencySuccessfullyPaid + $amountGroupCurrencyRefunded,
+            'group_amount_successfully_paid'        => $amountGroupCurrencySuccessfullyPaid,
+            'group_amount_refunded'                 => $amountGroupCurrencyRefunded,
         ];
 
         $stats = array_merge(

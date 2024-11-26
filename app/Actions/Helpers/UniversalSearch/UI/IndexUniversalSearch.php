@@ -7,7 +7,6 @@
 
 namespace App\Actions\Helpers\UniversalSearch\UI;
 
-use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\OrgAction;
 use App\Http\Resources\Helpers\UniversalSearchResource;
 use App\Models\Helpers\UniversalSearch;
@@ -68,12 +67,9 @@ class IndexUniversalSearch extends OrgAction
 
     public function asController(ActionRequest $request): AnonymousResourceCollection
     {
-        // get route parameter from request
-        $queryParams = $request->query();
-        $routeParams = collect($queryParams)->except(['q', 'route_src'])->toArray();
         $searchResults = $this->handle(
             query: $request->input('q', '') ?? '',
-            sections: [GetSectionRoute::run($request->input('route_src'), $routeParams)->code],
+            sections: $this->parseSections($request->input('route_src')),
             organisationSlug: $request->input('organisation'),
             shopSlug: $request->input('shop'),
             warehouseSlug: $request->input('warehouse'),
