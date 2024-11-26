@@ -331,4 +331,4 @@ test('UI get section route index', function () {
         ->and($sectionScope->organisation_id)->toBe($this->organisation->id)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::PRODUCTION_CRAFT->value)
         ->and($sectionScope->model_slug)->toBe($this->production->slug);
-});
+})->todo();

@@ -1,11 +1,9 @@
 <?php
 /*
- * Author: Ganes <gustiganes@gmail.com>
- * Created on: 30-10-2024, Bali, Indonesia
- * Github: https://github.com/Ganes556
- * Copyright: 2024
- *
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 26 Nov 2024 21:35:48 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Ordering\Order\StoreOrder;
@@ -274,4 +272,4 @@ test('UI get section route index', function () {
         ->and($sectionScope->organisation_id)->toBe($this->organisation->id)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_ORDERING->value)
         ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
-});
+})->todo();

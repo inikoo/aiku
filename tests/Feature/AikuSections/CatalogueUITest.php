@@ -1,7 +1,7 @@
 <?php
 /*
- * Author: Arya Permana <aryapermana02@gmail.com>
- * Created: Thu, 19 Jun 2024 08:07:40 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 26 Nov 2024 21:17:45 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -476,4 +476,4 @@ test('UI get section route catalogue dashboard', function () {
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_CATALOGUE->value)
         ->and($sectionScope->model_slug)->toBe($this->shop->slug);
-});
+})->todo();

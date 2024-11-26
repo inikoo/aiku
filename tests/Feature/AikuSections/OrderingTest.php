@@ -1,8 +1,8 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Mon, 08 May 2023 09:03:42 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 26 Nov 2024 21:36:24 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 
@@ -120,9 +120,9 @@ test('create order', function () {
         ->and($this->group->orderingStats->number_orders)->toBe(1)
         ->and($this->group->orderingStats->number_orders_state_creating)->toBe(1)
         ->and($this->group->orderingStats->number_orders_handing_type_shipping)->toBe(1)
-        ->and($this->organisation->salesStats->number_orders)->toBe(1)
-        ->and($this->organisation->salesStats->number_orders_state_creating)->toBe(1)
-        ->and($this->organisation->salesStats->number_orders_handing_type_shipping)->toBe(1)
+        ->and($this->organisation->orderingStats->number_orders)->toBe(1)
+        ->and($this->organisation->orderingStats->number_orders_state_creating)->toBe(1)
+        ->and($this->organisation->orderingStats->number_orders_handing_type_shipping)->toBe(1)
         ->and($this->shop->orderingStats->number_orders)->toBe(1)
         ->and($this->shop->orderingStats->number_orders_state_creating)->toBe(1)
         ->and($this->shop->orderingStats->number_orders_handing_type_shipping)->toBe(1)
@@ -167,8 +167,8 @@ test('update order state to submitted', function (Order $order) {
     $order = UpdateOrderStateToSubmitted::make()->action($order);
     expect($order->state)->toEqual(OrderStateEnum::SUBMITTED)
         ->and($order->shop->orderingStats->number_orders_state_submitted)->toBe(1)
-        ->and($order->organisation->salesStats->number_orders_state_submitted)->toBe(1)
-        ->and($order->group->salesStats->number_orders_state_submitted)->toBe(1)
+        ->and($order->organisation->orderingStats->number_orders_state_submitted)->toBe(1)
+        ->and($order->group->orderingStats->number_orders_state_submitted)->toBe(1)
         ->and($order->stats->number_transactions)->toBe(1);
 
     return $order;

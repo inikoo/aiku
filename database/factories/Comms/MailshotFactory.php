@@ -19,7 +19,7 @@ class MailshotFactory extends Factory
             'code' => fake()->lexify(),
             'name' => fake()->company(),
             'subject' => fake()->text(10),
-            'type' => MailshotTypeEnum::ANNOUNCEMENT,
+            'type' => MailshotTypeEnum::NEWSLETTER,
             'state' => MailshotStateEnum::IN_PROCESS,
             'recipients_recipe' => [],
         ];
