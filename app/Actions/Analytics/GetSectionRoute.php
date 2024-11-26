@@ -95,6 +95,7 @@ class GetSectionRoute extends OrgAction
             str_starts_with($route, 'offer') => AikuSectionEnum::SHOP_OFFER,
             str_starts_with($route, 'marketing') => AikuSectionEnum::SHOP_MARKETING,
             str_starts_with($route, 'web') => AikuSectionEnum::SHOP_WEBSITE,
+            str_starts_with($route, 'crm.customers.show.customer-clients') => AikuSectionEnum::DROPSHIPPING,
             str_starts_with($route, 'crm') => AikuSectionEnum::SHOP_CRM,
             str_starts_with($route, 'ordering') => AikuSectionEnum::SHOP_ORDERING,
             str_starts_with($route, 'settings') => AikuSectionEnum::SHOP_SETTINGS,
@@ -106,12 +107,14 @@ class GetSectionRoute extends OrgAction
             return null;
         }
 
-        return AikuScopedSection::where('code', $sectionCode)->where('model_slug', end($routeParameters))->first();
+        return AikuScopedSection::where('code', $sectionCode)->where('model_slug', $routeParameters['shop'])->first();
     }
 
     public function parseOrganisationSections(string $route, $routeParameters): AikuScopedSection|null
     {
-        $org = Organisation::where('slug', end($routeParameters))->first();
+        $org = $routeParameters['organisation'];
+        $org = Organisation::where('slug', $org)->first();
+
         if (!$org) {
             return null;
         }
@@ -135,7 +138,7 @@ class GetSectionRoute extends OrgAction
             return null;
         }
 
-        return AikuScopedSection::where('code', $sectionCode)->where('model_slug', end($routeParameters))->first();
+        return AikuScopedSection::where('code', $sectionCode)->where('model_slug', $org->slug)->first();
     }
 
     public function parseFulfilmentSections(string $route, $routeParameters): AikuScopedSection|null
@@ -154,7 +157,7 @@ class GetSectionRoute extends OrgAction
             return null;
         }
 
-        return AikuScopedSection::where('code', $sectionCode)->where('model_slug', end($routeParameters))->first();
+        return AikuScopedSection::where('code', $sectionCode)->where('model_slug', $routeParameters['fulfilment'])->first();
     }
 
     public function parseProductionSections(string $route, $routeParameters): AikuScopedSection|null
@@ -169,7 +172,7 @@ class GetSectionRoute extends OrgAction
             return null;
         }
 
-        return AikuScopedSection::where('code', $sectionCode)->where('model_slug', end($routeParameters))->first();
+        return AikuScopedSection::where('code', $sectionCode)->where('model_slug', $routeParameters['production'])->first();
     }
 
     public function parseWarehouseSections(string $route, $routeParameters): AikuScopedSection|null
@@ -186,7 +189,7 @@ class GetSectionRoute extends OrgAction
             return null;
         }
 
-        return AikuScopedSection::where('code', $sectionCode)->where('model_slug', end($routeParameters))->first();
+        return AikuScopedSection::where('code', $sectionCode)->where('model_slug', $routeParameters['warehouse'])->first();
     }
 
     public function parseGroupSections(string $route, $routeParameters): AikuScopedSection|null
@@ -208,7 +211,7 @@ class GetSectionRoute extends OrgAction
         }
 
         if ($routeParameters) {
-            return AikuScopedSection::where('code', $sectionCode)->where('model_slug', end($routeParameters))->first();
+            return AikuScopedSection::where('code', $sectionCode)->where('model_slug', $routeParameters['group'])->first();
         } else {
             return AikuScopedSection::where('code', $sectionCode)->first();
         }

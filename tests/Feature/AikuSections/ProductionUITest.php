@@ -5,15 +5,18 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Production\Artefact\StoreArtefact;
 use App\Actions\Production\ManufactureTask\StoreManufactureTask;
 use App\Actions\Production\Production\StoreProduction;
 use App\Actions\Production\RawMaterial\StoreRawMaterial;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Production\ManufactureTask\ManufactureTaskOperativeRewardAllowanceTypeEnum;
 use App\Enums\Production\ManufactureTask\ManufactureTaskOperativeRewardTermsEnum;
 use App\Enums\Production\RawMaterial\RawMaterialStateEnum;
 use App\Enums\Production\RawMaterial\RawMaterialTypeEnum;
 use App\Enums\Production\RawMaterial\RawMaterialUnitEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Production\Artefact;
 use App\Models\Production\ManufactureTask;
 use App\Models\Production\Production;
@@ -317,4 +320,15 @@ test('UI edit manufacture task', function () {
             ->has('pageHead')
             ->has('breadcrumbs', 4);
     });
+});
+
+test('UI get section route index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.productions.show.crafts.manufacture_tasks.index', [
+        'organisation' => $this->organisation->slug,
+        'factory'      => $this->production->slug
+    ]);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->organisation_id)->toBe($this->organisation->id)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::PRODUCTION_CRAFT->value)
+        ->and($sectionScope->model_slug)->toBe($this->production->slug);
 });

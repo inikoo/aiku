@@ -11,6 +11,7 @@ use App\Actions\Helpers\Snapshot\StoreBannerSnapshot;
 use App\Actions\OrgAction;
 use App\Actions\Web\Banner\Search\BannerRecordSearch;
 use App\Actions\Web\Banner\UI\ParseBannerLayout;
+use App\Enums\Helpers\Snapshot\SnapshotBuilderEnum;
 use App\Enums\Web\Banner\BannerTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -81,7 +82,8 @@ class StoreBanner extends OrgAction
         $snapshot = StoreBannerSnapshot::run(
             $banner,
             [
-                'layout' => $layout
+                'layout' => $layout,
+                'builder' => SnapshotBuilderEnum::AIKU_WEB_BLOCKS_V1
             ],
             $slides
         );
