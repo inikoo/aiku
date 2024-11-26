@@ -110,7 +110,7 @@ const onPublishTheme = () => {
                 </div>
 
                 <!-- Color Options -->
-                <div class="flex flex-wrap justify-center gap-3">
+                <div class="flex flex-wrap justify-center gap-8">
                     <div v-for="(colorTheme, index) in listColorTheme" :key="index" class="relative flex items-center gap-x-1">
                         <div
                             @click="onClickColor(colorTheme, index)"
