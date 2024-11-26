@@ -21,7 +21,9 @@ class DeletePurchaseOrderTransaction extends OrgAction
 
     public function handle(PurchaseOrderTransaction $purchaseOrderTransaction): void
     {
-        $purchaseOrderTransaction->delete();
+        $transaction = $purchaseOrderTransaction;
+        $transaction->delete();
+        CalculatePurchaseOrderTotalAmounts::run($transaction->purchaseOrder);
     }
 
     public function action(PurchaseOrderTransaction $purchaseOrderTransaction): void

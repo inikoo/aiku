@@ -313,14 +313,14 @@ class StoreOrganisation
             return 1;
         }
 
-        try {
-            $organisation = $this->handle($group, $validatedData);
-            $command->info("Organisation $organisation->slug created successfully 🎉");
-        } catch (Exception|Throwable $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
+        //try {
+        $organisation = $this->handle($group, $validatedData);
+        $command->info("Organisation $organisation->slug created successfully 🎉");
+        //        } catch (Exception|Throwable $e) {
+        //            $command->error($e->getMessage());
+        //
+        //            return 1;
+        //        }
 
         return 0;
     }

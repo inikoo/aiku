@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 24 Nov 2024 10:35:14 Central Indonesia Time, Sanur, Kuta, Indonesia
+ * Created: Tue, 26 Nov 2024 08:14:59 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  *
  * @property int $id
- * @property int|null $email_run_id
+ * @property int|null $email_ongoing_run_id
  * @property int $number_dispatched_emails
  * @property int $number_dispatched_emails_state_ready
  * @property int $number_dispatched_emails_state_sent_to_provider
@@ -31,20 +31,20 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_provoked_unsubscribe
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Comms\EmailRun|null $emailRun
- * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailRunStats newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailRunStats newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailRunStats query()
+ * @property-read \App\Models\Comms\EmailOngoingRun|null $emailOngoingRun
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailOngoingRunStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailOngoingRunStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailOngoingRunStats query()
  * @mixin \Eloquent
  */
-class EmailRunStats extends Model
+class EmailOngoingRunStats extends Model
 {
-    protected $table = 'email_run_stats';
+    protected $table = 'email_ongoing_run_stats';
 
     protected $guarded = [];
 
-    public function emailRun(): BelongsTo
+    public function emailOngoingRun(): BelongsTo
     {
-        return $this->belongsTo(EmailRun::class);
+        return $this->belongsTo(EmailOngoingRun::class);
     }
 }

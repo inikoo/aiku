@@ -34,7 +34,7 @@ class RentalHydrateHistoricAssets
             'number_historic_assets' => $rental->historicAssets()->count(),
         ];
 
-        $rental->stats->update($stats);
+        $rental->asset->stats->update($stats);
     }
 
 }

@@ -1,18 +1,18 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 19 Nov 2024 11:09:36 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Tue, 26 Nov 2024 13:30:40 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Comms\EmailRun;
+namespace App\Actions\Comms\EmailBulkRun;
 
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmailRuns;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
-use App\Enums\Comms\Email\EmailRunStateEnum;
-use App\Enums\Comms\EmailRun\EmailRunTypeEnum;
-use App\Models\Comms\EmailRun;
+use App\Enums\Comms\EmailBulkRun\EmailBulkRunTypeEnum;
+use App\Enums\Comms\EmailBulkRun\EmailBulkRunStateEnum;
+use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\Outbox;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -20,7 +20,7 @@ use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
 
-class StoreEmailRun extends OrgAction
+class StoreEmailBulkRun extends OrgAction
 {
     use AsAction;
     use WithAttributes;
@@ -29,7 +29,7 @@ class StoreEmailRun extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(Outbox $outbox, array $modelData): EmailRun
+    public function handle(Outbox $outbox, array $modelData): EmailBulkRun
     {
         data_set($modelData, 'group_id', $outbox->group_id);
         data_set($modelData, 'organisation_id', $outbox->organisation_id);
@@ -37,8 +37,8 @@ class StoreEmailRun extends OrgAction
 
 
         $emailRun = DB::transaction(function () use ($outbox, $modelData) {
-            /** @var EmailRun $emailRun */
-            $emailRun = $outbox->emailRuns()->create($modelData);
+            /** @var EmailBulkRun $emailRun */
+            $emailRun = $outbox->emailBulkRuns()->create($modelData);
             $emailRun->stats()->create();
 
             return $emailRun;
@@ -63,8 +63,8 @@ class StoreEmailRun extends OrgAction
     {
         $rules = [
             'subject'           => ['required', 'string', 'max:255'],
-            'type'              => ['sometimes', 'required', Rule::enum(EmailRunTypeEnum::class)],
-            'state'             => ['required', Rule::enum(EmailRunStateEnum::class)],
+            'type'              => ['sometimes', 'required', Rule::enum(EmailBulkRunTypeEnum::class)],
+            'state'             => ['required', Rule::enum(EmailBulkRunStateEnum::class)],
         ];
 
         if (!$this->strict) {
@@ -84,7 +84,7 @@ class StoreEmailRun extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(Outbox $outbox, array $modelData, int $hydratorsDelay = 0, bool $strict = true): EmailRun
+    public function action(Outbox $outbox, array $modelData, int $hydratorsDelay = 0, bool $strict = true): EmailBulkRun
     {
 
 

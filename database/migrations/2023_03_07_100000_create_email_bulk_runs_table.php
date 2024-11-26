@@ -15,7 +15,7 @@ return new class () extends Migration {
 
     public function up(): void
     {
-        Schema::create('email_runs', function (Blueprint $table) {
+        Schema::create('email_bulk_runs', function (Blueprint $table) {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->nullable()->index();
@@ -50,6 +50,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('email_runs');
+        Schema::dropIfExists('email_bulk_runs');
     }
 };

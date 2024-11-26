@@ -158,7 +158,8 @@ class AppServiceProvider extends ServiceProvider
                 'SesNotification'               => 'App\Models\Comms\SesNotification',
                 'EmailCopy'                     => 'App\Models\Comms\EmailCopy',
                 'Email'                         => 'App\Models\Comms\Email',
-                'EmailRun'                      => 'App\Models\Comms\EmailRun',
+                'EmailBulkRun'                  => 'App\Models\Comms\EmailBulkRun',
+                'EmailOngoingRun'               => 'App\Models\Comms\EmailOngoingRun',
 
 
                 // Catalogue

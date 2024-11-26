@@ -29,6 +29,7 @@ class StoreEmailTemplate extends OrgAction
     {
         $rules = [
             'layout'      => ['sometimes', 'array'],
+            'arguments'   => ['sometimes', 'array'],
             'name'        => ['required', 'string', 'max:255'],
             'builder'     => ['required', Rule::enum(EmailTemplateBuilderEnum::class)],
             'language_id' => ['required', 'exists:languages,id'],

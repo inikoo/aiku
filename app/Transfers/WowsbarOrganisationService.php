@@ -490,7 +490,12 @@ class WowsbarOrganisationService implements SourceOrganisationService
         return null;
     }
 
-    public function fetchEmailRunFromCampaign($id): ?array
+    public function fetchEmailBulkRun($id): ?array
+    {
+        return null;
+    }
+
+    public function fetchEmailOngoingRun($id): ?array
     {
         return null;
     }

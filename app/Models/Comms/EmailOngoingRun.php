@@ -1,19 +1,21 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 24 Nov 2024 10:15:14 Central Indonesia Time, Kuta, Bali, Indonesia
+ * Created: Tue, 26 Nov 2024 08:14:59 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Models\Comms;
 
-use App\Enums\Comms\Email\EmailRunStateEnum;
-use App\Enums\Comms\EmailRun\EmailRunTypeEnum;
+use App\Enums\Comms\EmailBulkRun\EmailBulkRunTypeEnum;
+use App\Enums\Comms\EmailBulkRun\EmailBulkRunStateEnum;
+use App\Models\Catalogue\Shop;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
  *
@@ -25,40 +27,34 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property string $subject
  * @property int|null $outbox_id
  * @property int|null $email_id
- * @property int|null $snapshot_id
- * @property EmailRunStateEnum $state
- * @property EmailRunTypeEnum $type
- * @property \Illuminate\Support\Carbon|null $scheduled_at
- * @property \Illuminate\Support\Carbon|null $start_sending_at
- * @property \Illuminate\Support\Carbon|null $sent_at
- * @property \Illuminate\Support\Carbon|null $cancelled_at
- * @property \Illuminate\Support\Carbon|null $stopped_at
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property string|null $fetched_at
  * @property string|null $last_fetched_at
  * @property string|null $source_id
+ * @property EmailBulkRunTypeEnum $type
+ * @property EmailBulkRunStateEnum $state
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
  * @property-read \App\Models\Comms\Email|null $email
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Comms\Outbox|null $outbox
- * @property-read \App\Models\Catalogue\Shop|null $shop
- * @property-read \App\Models\Comms\EmailRunStats|null $stats
- * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailRun newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailRun newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailRun query()
+ * @property-read Shop|null $shop
+ * @property-read \App\Models\Comms\EmailOngoingRunStats|null $stats
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailOngoingRun newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailOngoingRun newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailOngoingRun query()
  * @mixin \Eloquent
  */
-class EmailRun extends Model
+class EmailOngoingRun extends Model
 {
     use InShop;
 
     protected $casts = [
         'data'              => 'array',
-        'type'              => EmailRunTypeEnum::class,
-        'state'             => EmailRunStateEnum::class,
+        'type'              => EmailBulkRunTypeEnum::class,
+        'state'             => EmailBulkRunStateEnum::class,
         'date'              => 'datetime',
         'scheduled_at'      => 'datetime',
         'start_sending_at'  => 'datetime',
@@ -76,7 +72,7 @@ class EmailRun extends Model
     public function generateTags(): array
     {
         return [
-            'marketing'
+            'comms'
         ];
     }
 
@@ -86,10 +82,11 @@ class EmailRun extends Model
     ];
 
 
-    public function email(): BelongsTo
+    public function email(): MorphOne
     {
-        return $this->belongsTo(Email::class);
+        return $this->morphOne(Email::class, 'parent');
     }
+
 
     public function outbox(): BelongsTo
     {
@@ -98,7 +95,7 @@ class EmailRun extends Model
 
     public function stats(): HasOne
     {
-        return $this->hasOne(EmailRunStats::class);
+        return $this->hasOne(EmailOngoingRunStats::class);
     }
 
     public function dispatchedEmails(): HasMany

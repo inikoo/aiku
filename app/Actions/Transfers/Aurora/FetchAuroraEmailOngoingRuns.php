@@ -1,52 +1,52 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 24 Nov 2024 11:36:53 Central Indonesia Time, Kuta, Bali, Indonesia
+ * Created: Tue, 26 Nov 2024 08:14:59 Central Indonesia Time, Sanur, Bali, Indonesia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Comms\EmailRun\StoreEmailRun;
-use App\Actions\Comms\EmailRun\UpdateEmailRun;
-use App\Models\Comms\EmailRun;
+use App\Actions\Comms\EmailOngoingRun\StoreEmailOngoingRun;
+use App\Actions\Comms\EmailOngoingRun\UpdateEmailOngoingRun;
+use App\Models\Comms\EmailOngoingRun;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
-class FetchAuroraEmailRunFromCampaigns extends FetchAuroraAction
+class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:email_runs_from_campaigns {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
+    public string $commandSignature = 'fetch:email_ongoing_runs {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
 
 
-    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?EmailRun
+    public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?EmailOngoingRun
     {
-        $emailRunData = $organisationSource->fetchEmailRunFromCampaign($organisationSourceId);
+        $emailRunData = $organisationSource->fetchEmailOngoingRun($organisationSourceId);
         if (!$emailRunData) {
             return null;
         }
 
 
-        if ($emailRun = EmailRun::where('source_id', $emailRunData['email_run']['source_id'])->first()) {
+        if ($emailRun = EmailOngoingRun::where('source_id', $emailRunData['email_ongoing_run']['source_id'])->first()) {
             //  try {
-            $emailRun = UpdateEmailRun::make()->action(
+            $emailRun = UpdateEmailOngoingRun::make()->action(
                 emailRun: $emailRun,
-                modelData: $emailRunData['email_run'],
+                modelData: $emailRunData['email_ongoing_run'],
                 hydratorsDelay: 60,
                 strict: false,
             );
             $this->recordChange($organisationSource, $emailRun->wasChanged());
             //            } catch (Exception $e) {
-            //                $this->recordError($organisationSource, $e, $emailRunData['email_run'], 'EmailRun', 'update');
+            //                $this->recordError($organisationSource, $e, $emailRunData['email_ongoing_run'], 'EmailOngoingRun', 'update');
             //
             //                return null;
             //            }
         } else {
             // try {
-            $emailRun = StoreEmailRun::make()->action(
+            $emailRun = StoreEmailOngoingRun::make()->action(
                 outbox: $emailRunData['outbox'],
-                modelData: $emailRunData['email_run'],
+                modelData: $emailRunData['email_ongoing_run'],
                 hydratorsDelay: 60,
                 strict: false,
             );
@@ -59,7 +59,7 @@ class FetchAuroraEmailRunFromCampaigns extends FetchAuroraAction
                 ->update(['alt_aiku_id' => $emailRun->id]);
             //                } catch (Exception|Throwable $e) {
             //
-            //                    $this->recordError($organisationSource, $e, $emailRunData['emailRun'], 'EmailRun', 'store');
+            //                    $this->recordError($organisationSource, $e, $emailRunData['emailRun'], 'EmailOngoingRun', 'store');
             //
             //                    return null;
             //                }
@@ -72,7 +72,7 @@ class FetchAuroraEmailRunFromCampaigns extends FetchAuroraAction
 
     public function getModelsQuery(): Builder
     {
-        //enum('Newsletter','Marketing','GR Reminder','AbandonedCart','Invite EmailRun','OOS Notification','Invite Full EmailRun')
+        //enum('Newsletter','Marketing','GR Reminder','AbandonedCart','Invite EmailOngoingRun','OOS Notification','Invite Full EmailOngoingRun')
         $query = DB::connection('aurora')
             ->table('Email Campaign Dimension')
             ->whereNotIn('Email Campaign Type', ['Newsletter', 'Marketing', 'Invite Full Mailshot', 'AbandonedCart']);

@@ -1,9 +1,11 @@
 <!--
   ~ Author: Raul Perusquia <raul@inikoo.com>
     Based on alert.tpl : 2 February 2019 at 17:20:13 GMT+8, Kuala Lumpur Malaysia
-  ~ Created: Mon, 25 Nov 2024 15:06:46 Central Indonesia Time, Bali Airport, Indonesia
+  ~ Created: Mon, 26 Nov 2024 08:23:00 Kuala Lumpur, Malaysia
   ~ Copyright (c) 2024, Raul A Perusquia Flores
   -->
+
+
 
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -11,7 +13,7 @@
 <head>
   <meta name="viewport" content="width=device-width"/>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-  <title>New customer registration {{$customer->shop->name}}</title>
+  <title>New order {{$order->shop->name}}</title>
 
 
   <style type="text/css">
@@ -134,7 +136,7 @@
               <td class="aligncenter content-block"
                   style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 12px; vertical-align: top; color: #999; text-align: center; margin: 0; padding: 0 0 20px;"
                   align="center" valign="top">
-                {{$customer->organisation->name}}<br/>{{now()}}
+                {{$customer->organisation->name}}<br/>{{now()->toDayDateTimeString()}}
               </td>
             </tr>
 

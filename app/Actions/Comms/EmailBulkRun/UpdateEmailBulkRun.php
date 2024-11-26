@@ -1,27 +1,27 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 19 Nov 2024 11:09:35 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Tue, 26 Nov 2024 13:30:40 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Comms\EmailRun;
+namespace App\Actions\Comms\EmailBulkRun;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Comms\Email\EmailRunStateEnum;
-use App\Models\Comms\EmailRun;
+use App\Enums\Comms\EmailBulkRun\EmailBulkRunStateEnum;
+use App\Models\Comms\EmailBulkRun;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdateEmailRun extends OrgAction
+class UpdateEmailBulkRun extends OrgAction
 {
     use WithActionUpdate;
     use WithNoStrictRules;
 
 
-    public function handle(EmailRun $emailRun, array $modelData): EmailRun
+    public function handle(EmailBulkRun $emailRun, array $modelData): EmailBulkRun
     {
         return $this->update($emailRun, $modelData, ['data']);
     }
@@ -38,7 +38,7 @@ class UpdateEmailRun extends OrgAction
     {
         $rules = [
             'subject'           => ['sometimes','required', 'string', 'max:255'],
-            'state'             => ['required', Rule::enum(EmailRunStateEnum::class)],
+            'state'             => ['required', Rule::enum(EmailBulkRunStateEnum::class)],
         ];
 
         if (!$this->strict) {
@@ -48,7 +48,7 @@ class UpdateEmailRun extends OrgAction
         return $rules;
     }
 
-    public function action(EmailRun $emailRun, array $modelData, int $hydratorsDelay = 0, bool $strict = true): EmailRun
+    public function action(EmailBulkRun $emailRun, array $modelData, int $hydratorsDelay = 0, bool $strict = true): EmailBulkRun
     {
         $this->strict = $strict;
         $this->asAction       = true;
@@ -57,7 +57,7 @@ class UpdateEmailRun extends OrgAction
 
         return $this->handle($emailRun, $this->validatedData);
     }
-    public function asController(EmailRun $emailRun, ActionRequest $request): EmailRun
+    public function asController(EmailBulkRun $emailRun, ActionRequest $request): EmailBulkRun
     {
         $this->initialisationFromShop($emailRun->shop, $request);
 

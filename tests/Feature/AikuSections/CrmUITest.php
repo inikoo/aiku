@@ -5,6 +5,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\CRM\Customer\StoreCustomer;
@@ -13,8 +14,10 @@ use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Web\Website\StoreWebsite;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
@@ -471,4 +474,27 @@ test('can show list of tags', function () {
             ->component('Org/Shop/CRM/Tags')
             ->has('title');
     });
+});
+
+test('UI get section route crm dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.crm.customers.index', [
+        'organisation' => $this->organisation->slug,
+        'shop' => $this->shop->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_CRM->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
+
+test('UI get section route client dropshipping', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.crm.customers.show.customer-clients.index', [
+        'organisation' => $this->organisation->slug,
+        'shop' => $this->shop->slug,
+        'customer' => $this->customer->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::DROPSHIPPING->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
 });

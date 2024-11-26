@@ -23,56 +23,60 @@ class FetchAuroraEmails extends FetchAuroraAction
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Email
     {
-        if ($emailData = $organisationSource->fetchEmail($organisationSourceId)) {
-            if ($email = Email::where('source_id', $emailData['email']['source_id'])
-                ->first()) {
-                //try {
-                $email = UpdateEmail::make()->action(
-                    email: $email,
-                    modelData: $emailData['email'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
-                $this->recordChange($organisationSource, $email->wasChanged());
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $emailData['email'], 'Email', 'update');
-                //                    return null;
-                //                }
-            } else {
-                //  try {
-                $email = StoreEmail::make()->action(
-                    outbox: $emailData['outbox'],
-                    parent: $emailData['parent'],
-                    modelData: $emailData['email'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
-
-                Email::enableAuditing();
-                $this->saveMigrationHistory(
-                    $email,
-                    Arr::except($emailData['email'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                );
-
-                $this->recordNew($organisationSource);
-
-                $sourceData = explode(':', $email->source_id);
-                DB::connection('aurora')->table('Email Template Dimension')
-                    ->where('Email Template Key', $sourceData[1])
-                    ->update(['aiku_id' => $email->id]);
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $emailData['email'], 'Email', 'store');
-                //                    return null;
-                //                }
-            }
-
-
-            return $email;
+        $emailData = $organisationSource->fetchEmail($organisationSourceId);
+        if (!$emailData) {
+            return null;
         }
 
-        return null;
+
+        if ($email = Email::where('source_id', $emailData['email']['source_id'])
+            ->first()) {
+            //try {
+            $email = UpdateEmail::make()->action(
+                email: $email,
+                modelData: $emailData['email'],
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+            $this->recordChange($organisationSource, $email->wasChanged());
+            //                } catch (Exception $e) {
+            //                    $this->recordError($organisationSource, $e, $emailData['email'], 'Email', 'update');
+            //                    return null;
+            //                }
+        } else {
+
+
+            //  try {
+            $email = StoreEmail::make()->action(
+                parent: $emailData['parent'],
+                emailTemplate: null,
+                modelData: $emailData['email'],
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+
+            Email::enableAuditing();
+            $this->saveMigrationHistory(
+                $email,
+                Arr::except($emailData['email'], ['fetched_at', 'last_fetched_at', 'source_id'])
+            );
+
+            $this->recordNew($organisationSource);
+
+            $sourceData = explode(':', $email->source_id);
+            DB::connection('aurora')->table('Email Template Dimension')
+                ->where('Email Template Key', $sourceData[1])
+                ->update(['aiku_id' => $email->id]);
+            //                } catch (Exception|Throwable $e) {
+            //                    $this->recordError($organisationSource, $e, $emailData['email'], 'Email', 'store');
+            //                    return null;
+            //                }
+        }
+
+
+        return $email;
     }
 
     public function getModelsQuery(): Builder
@@ -81,8 +85,6 @@ class FetchAuroraEmails extends FetchAuroraAction
             ->table('Email Template Dimension')
             ->select('Email Template Key as source_id')
             ->orderBy('source_id');
-
-
     }
 
 

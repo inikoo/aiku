@@ -1,15 +1,15 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 24 Nov 2024 10:16:34 Central Indonesia Time, Kuta, Bali, Indonesia
+ * Created: Tue, 26 Nov 2024 13:30:40 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Enums\Comms\EmailRun;
+namespace App\Enums\Comms\EmailBulkRun;
 
 use App\Enums\EnumHelperTrait;
 
-enum EmailRunTypeEnum: string
+enum EmailBulkRunTypeEnum: string
 {
     use EnumHelperTrait;
 

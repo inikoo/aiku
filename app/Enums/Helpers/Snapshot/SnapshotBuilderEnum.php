@@ -15,7 +15,7 @@ enum SnapshotBuilderEnum: string
 
     case UNLAYER = 'unlayer';
     case BEEFREE = 'beefree';
-    case REPO_SOURCE_CODE = 'repo-source-code';
+    case BLADE = 'blade';
     case AIKU_WEB_BLOCKS_V1 = 'aiku-web-blocks-v1';
 
 
@@ -24,7 +24,7 @@ enum SnapshotBuilderEnum: string
         return [
             'unlayer'          => __('Unlayer'),
             'beefree'          => __('BeeFree'),
-            'repo-source-code' => __('Hard Coded')
+            'blade'   => __('Blade (Hard coded)')
         ];
     }
 
