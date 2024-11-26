@@ -1,11 +1,11 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Thu, 25 Jul 2024 14:06:15 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 26 Nov 2024 20:58:56 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Fulfilment\Rental\Search;
+namespace App\Actions\Billables\Rental\Search;
 
 use App\Models\Billables\Rental;
 use Illuminate\Console\Command;

@@ -7,12 +7,7 @@
 
 namespace App\Actions\Catalogue\HistoricAsset;
 
-use App\Actions\Billables\Charge\Hydrators\ChargeHydrateHistoricAssets;
-use App\Actions\Billables\Service\Hydrators\ServiceHydrateHistoricAssets;
-use App\Actions\Billables\Subscription\Hydrators\SubscriptionHydrateHistoricAssets;
 use App\Actions\Catalogue\Asset\Hydrators\AssetHydrateHistoricAssets;
-use App\Actions\Catalogue\Product\Hydrators\ProductHydrateHistoricAssets;
-use App\Actions\Fulfilment\Rental\Hydrators\RentalHydrateHistoricAssets;
 use App\Models\Billables\Charge;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
@@ -74,21 +69,7 @@ class StoreHistoricAsset
         $historicAsset = $assetModel->historicAssets()->create($historicAssetData);
         $historicAsset->stats()->create();
 
-        if ($assetModel instanceof Product) {
-            ProductHydrateHistoricAssets::dispatch($assetModel)->delay($hydratorsDelay);
-        }
-        if ($assetModel instanceof Service) {
-            ServiceHydrateHistoricAssets::dispatch($assetModel)->delay($hydratorsDelay);
-        }
-        if ($assetModel instanceof Rental) {
-            RentalHydrateHistoricAssets::dispatch($assetModel)->delay($hydratorsDelay);
-        }
-        if ($assetModel instanceof Subscription) {
-            SubscriptionHydrateHistoricAssets::dispatch($assetModel)->delay($hydratorsDelay);
-        }
-        if ($assetModel instanceof Charge) {
-            ChargeHydrateHistoricAssets::dispatch($assetModel)->delay($hydratorsDelay);
-        }
+
         AssetHydrateHistoricAssets::dispatch($assetModel->asset)->delay($hydratorsDelay);
 
         return $historicAsset;
