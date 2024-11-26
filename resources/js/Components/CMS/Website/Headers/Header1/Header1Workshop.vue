@@ -59,7 +59,7 @@ const toggle = (event) => {
 
 <template>
     <div class="shadow-sm" :style="getStyles(modelValue.container.properties)">
-        <div class="flex flex-col justify-between items-center py-4 px-6">
+        <div class="flex flex-col justify-between items-center py-4 px-6 hidden lg:block">
             <div class="w-full grid grid-cols-3 items-center gap-6">
                 <!-- Logo -->
                 <div :style="getStyles(modelValue.logo.properties)">
