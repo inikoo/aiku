@@ -88,6 +88,7 @@ onMounted(() => {
 });
 
 
+console.log(layout.colorThemed)
 provide('isPreviewLoggedIn', isPreviewLoggedIn)
 provide('isPreviewMode', isPreviewMode)
 
@@ -96,84 +97,67 @@ provide('isPreviewMode', isPreviewMode)
 
 <template>
     <div class="editor-class">
-    <div v-if="isInWorkshop" class="bg-gray-200 shadow-xl px-8 py-4 flex items-center gap-x-2">
-        <span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged out</span>
-        <Toggle v-model="isPreviewLoggedIn" class="" />
-        <span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged in</span>
-        <div class="h-6 w-px bg-gray-400 mx-2"></div>
-        <span :class="!isPreviewMode ? 'text-gray-600' : 'text-gray-400'">Edit</span>
-        <Toggle v-model="isPreviewMode" class="" />
-        <span :class="isPreviewMode ? 'text-gray-600' : 'text-gray-400'">Preview</span>
-    </div>
-
-    <div class="container max-w-7xl mx-auto shadow-xl">
-        <div class="relative">
-            <RenderHeaderMenu 
-                v-if="header?.data" 
-                :data="layout.header" 
-                :menu="layout?.navigation"
-                :colorThemed="layout?.colorThemed" 
-                :previewMode="route().current() == 'grp.websites.preview' ? true : isPreviewMode"
-                :loginMode="isPreviewLoggedIn" 
-                @update:model-value="() => {updateData(layout.header)}" 
-            />
+        <div v-if="isInWorkshop" class="bg-gray-200 shadow-xl px-8 py-4 flex items-center gap-x-2">
+            <span :class="!isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged out</span>
+            <Toggle v-model="isPreviewLoggedIn" />
+            <span :class="isPreviewLoggedIn ? 'text-gray-600' : 'text-gray-400'">Logged in</span>
+            <div class="h-6 w-px bg-gray-400 mx-2"></div>
+            <span :class="!isPreviewMode ? 'text-gray-600' : 'text-gray-400'">Edit</span>
+            <Toggle v-model="isPreviewMode" />
+            <span :class="isPreviewMode ? 'text-gray-600' : 'text-gray-400'">Preview</span>
         </div>
 
-        <div v-if="data" class="relative editor-class">
-            <div class="container max-w-7xl mx-auto">
-                <div class="h-full overflow-auto w-full ">
-                    <div v-if="data?.layout?.web_blocks?.length">
-                        <TransitionGroup tag="div" name="zzz" class="relative">
-                            <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
-                                :key="activityItem.id" class="w-full">
-                                <component 
-                                    v-if="ShowWebpage(activityItem)" 
-                                    :key="activityItemIdx"
-                                    class="w-full"
-                                    :is="isPreviewMode ? getIrisComponent(activityItem?.type) : getComponent(activityItem?.type)" 
-                                    :webpageData="webpage" 
-                                    :blockData="activityItem"
-                                    v-model="activityItem.web_block.layout.data.fieldValue"
-                                    @autoSave="() => debouncedSendUpdateBlock(activityItem)" 
-                                />
-                            </section>
-                        </TransitionGroup>
-                    </div>
-                    <div v-else class="py-8">
-                        <div v-if="!isInWorkshop" class="mx-auto">
-                            <div class="text-center text-gray-500">
-                                {{ trans('Your journey starts here') }}
-                            </div>
-                            <div class="w-64 mx-auto">
-                                <Button label="add new block" class="mt-3" full type="dashed"
-                                    @click="() => iframeToParent('openModalBlockList')">
-                                    <div class="text-gray-500">
-                                        <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
-                                        {{ trans('Add block') }}
-                                    </div>
-                                </Button>
-                            </div>
-                        </div>
+        <div class=" shadow-xl" :class="layout.colorThemed.layout == 'fullscreen' ? 'w-full' : 'container max-w-7xl mx-auto '">
+            <div class="relative">
+                <RenderHeaderMenu v-if="header?.data" :data="layout.header" :menu="layout?.navigation"
+                    :colorThemed="layout?.colorThemed"
+                    :previewMode="route().current() == 'grp.websites.preview' ? true : isPreviewMode"
+                    :loginMode="isPreviewLoggedIn" @update:model-value="() => {updateData(layout.header)}" />
+            </div>
 
-                        <EmptyState v-else :data="{
-                            title: 'Pick First Block For Your Website',
-                            description: 'Pick block from list'
-                        }">
-                        </EmptyState>
+            <div v-if="data" class="relative editor-class">
+                <div v-if="data?.layout?.web_blocks?.length">
+                    <TransitionGroup tag="div" name="zzz" class="relative">
+                        <section v-for="(activityItem, activityItemIdx) in data?.layout?.web_blocks"
+                            :key="activityItem.id" class="w-full">
+                            <component v-if="ShowWebpage(activityItem)" :key="activityItemIdx" class="w-full"
+                                :is="isPreviewMode ? getIrisComponent(activityItem?.type) : getComponent(activityItem?.type)"
+                                :webpageData="webpage" :blockData="activityItem"
+                                v-model="activityItem.web_block.layout.data.fieldValue"
+                                @autoSave="() => debouncedSendUpdateBlock(activityItem)" />
+                        </section>
+                    </TransitionGroup>
+                </div>
+                <div v-else class="py-8">
+                    <div v-if="!isInWorkshop" class="mx-auto">
+                        <div class="text-center text-gray-500">
+                            {{ trans('Your journey starts here') }}
+                        </div>
+                        <div class="w-64 mx-auto">
+                            <Button label="add new block" class="mt-3" full type="dashed"
+                                @click="() => iframeToParent('openModalBlockList')">
+                                <div class="text-gray-500">
+                                    <FontAwesomeIcon icon='fal fa-plus' class='' fixed-width aria-hidden='true' />
+                                    {{ trans('Add block') }}
+                                </div>
+                            </Button>
+                        </div>
                     </div>
+
+                    <EmptyState v-else :data="{
+                        title: 'Pick First Block For Your Website',
+                        description: 'Pick block from list'
+                    }">
+                    </EmptyState>
                 </div>
             </div>
-        </div>
 
-        <component 
-            v-if="footer?.footer?.data" 
-            :is="isPreviewMode || route().current() == 'grp.websites.preview' ? getIrisComponent(layout.footer.code) : getComponent(layout.footer.code)"
-            v-model="layout.footer.data.fieldValue"
-            :colorThemed="layout.colorThemed" 
-            @update:model-value="() => {updateData(layout.footer)}" 
-        />
+            <component v-if="footer?.footer?.data"
+                :is="isPreviewMode || route().current() == 'grp.websites.preview' ? getIrisComponent(layout.footer.code) : getComponent(layout.footer.code)"
+                v-model="layout.footer.data.fieldValue" :colorThemed="layout.colorThemed"
+                @update:model-value="() => {updateData(layout.footer)}" />
+        </div>
     </div>
-</div>
 
 </template>
 
