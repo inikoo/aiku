@@ -1,10 +1,9 @@
 <?php
 /*
- * author Arya Permana - Kirin
- * created on 18-11-2024-14h-13m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Wed, 27 Nov 2024 18:19:13 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace App\Actions\Ordering\Order\Hydrators;
 
@@ -14,7 +13,7 @@ use App\Models\Ordering\Order;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class OrderHydrateOffers
+class OrderHydrateOfferComponents
 {
     use AsAction;
     use WithEnumStats;
@@ -34,7 +33,7 @@ class OrderHydrateOffers
     public function handle(Order $order): void
     {
         $stats = [
-            'number_offers' => TransactionHasOfferComponent::where('order_id', $order->id)->distinct()->count('transaction_has_offer_components.offer_id'),
+            'number_offer_components' => TransactionHasOfferComponent::where('order_id', $order->id)->distinct()->count('transaction_has_offer_components.offer_component_id'),
         ];
 
 

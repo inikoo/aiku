@@ -35,17 +35,17 @@ class HydratePortfolio extends OrgAction
 
     public function handle(Portfolio $portfolio): void
     {
-        $customer=$portfolio->customer;
+        $customer = $portfolio->customer;
 
         // ALl this is wrong, it should only take stats of product_id in portfolio, it should query transactions table
-//        $stats = [
-//            'amount'                  => $customer->orders()->sum('net_amount'),
-//            'number_orders'           => $customer->orders()->count(),
-//            'number_ordered_quantity' => $customer->orders()->where('state', OrderStateEnum::DISPATCHED->value)->count(),
-//            'number_clients'          => $customer->clients()->count(),
-//            'last_ordered_at'         => $portfolio->last_added_at,
-//        ];
-//
-//        $portfolio->stats()->update($stats);
+        //        $stats = [
+        //            'amount'                  => $customer->orders()->sum('net_amount'),
+        //            'number_orders'           => $customer->orders()->count(),
+        //            'number_ordered_quantity' => $customer->orders()->where('state', OrderStateEnum::DISPATCHED->value)->count(),
+        //            'number_clients'          => $customer->clients()->count(),
+        //            'last_ordered_at'         => $portfolio->last_added_at,
+        //        ];
+        //
+        //        $portfolio->stats()->update($stats);
     }
 }

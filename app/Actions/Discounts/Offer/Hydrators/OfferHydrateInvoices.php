@@ -32,7 +32,7 @@ class OfferHydrateInvoices
     public function handle(Offer $offer): void
     {
         $stats = [
-            'number_invoices'   => $offer->invoiceTransactions()->distinct()->count('invoice_id'),
+            'number_invoices'   => $offer->invoiceTransactions()->distinct()->count('invoice_transaction_has_offer_components.invoice_id'),
         ];
 
 

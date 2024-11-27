@@ -7,19 +7,23 @@
 
 namespace App\Actions\Discounts\OfferCampaign;
 
+use App\Actions\Discounts\OfferCampaign\Hydrators\OfferCampaignHydrateInvoices;
 use App\Actions\Discounts\OfferCampaign\Hydrators\OfferCampaignHydrateOffers;
+use App\Actions\Discounts\OfferCampaign\Hydrators\OfferCampaignHydrateOrders;
 use App\Actions\HydrateModel;
 use App\Models\Discounts\OfferCampaign;
 use Illuminate\Support\Collection;
 
 class HydrateOfferCampaigns extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:offer-campaigns {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'hydrate:offer_campaigns {organisations?*} {--s|slugs=}';
 
 
     public function handle(OfferCampaign $offerCampaign): void
     {
+        OfferCampaignHydrateInvoices::run($offerCampaign);
         OfferCampaignHydrateOffers::run($offerCampaign);
+        OfferCampaignHydrateOrders::run($offerCampaign);
     }
 
     protected function getModel(string $slug): OfferCampaign
