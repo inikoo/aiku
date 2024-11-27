@@ -7,7 +7,7 @@
 
 namespace App\Actions\Comms\EmailBulkRun;
 
-use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmailRuns;
+use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmailBulkRuns;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\EmailBulkRun\EmailBulkRunTypeEnum;
@@ -36,7 +36,7 @@ class StoreEmailBulkRun extends OrgAction
         data_set($modelData, 'shop_id', $outbox->shop_id);
 
 
-        $emailRun = DB::transaction(function () use ($outbox, $modelData) {
+        $emailBulkRun = DB::transaction(function () use ($outbox, $modelData) {
             /** @var EmailBulkRun $emailRun */
             $emailRun = $outbox->emailBulkRuns()->create($modelData);
             $emailRun->stats()->create();
@@ -45,9 +45,9 @@ class StoreEmailBulkRun extends OrgAction
         });
 
 
-        OutboxHydrateEmailRuns::dispatch($outbox)->delay($this->hydratorsDelay);
+        OutboxHydrateEmailBulkRuns::dispatch($outbox)->delay($this->hydratorsDelay);
 
-        return $emailRun;
+        return $emailBulkRun;
     }
 
     public function authorize(ActionRequest $request): bool

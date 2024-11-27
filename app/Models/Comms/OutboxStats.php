@@ -7,20 +7,19 @@
 
 namespace App\Models\Comms;
 
-use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Mail\OutboxStats
+ *
  *
  * @property int $id
  * @property int|null $outbox_id
  * @property int $number_subscribers
  * @property int $number_unsubscribed
  * @property int $number_mailshots
- * @property int $number_email_runs
+ * @property int $number_email_bulk_runs
+ * @property int $number_email_ongoings_runs
  * @property int $number_dispatched_emails
  * @property int $number_dispatched_emails_state_ready
  * @property int $number_dispatched_emails_state_sent_to_provider
@@ -38,10 +37,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Comms\Outbox|null $outbox
- * @method static Builder<static>|OutboxStats newModelQuery()
- * @method static Builder<static>|OutboxStats newQuery()
- * @method static Builder<static>|OutboxStats query()
- * @mixin Eloquent
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OutboxStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OutboxStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OutboxStats query()
+ * @mixin \Eloquent
  */
 class OutboxStats extends Model
 {

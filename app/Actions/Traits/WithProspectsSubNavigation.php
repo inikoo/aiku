@@ -41,7 +41,7 @@ trait WithProspectsSubNavigation
                     'name'       => 'grp.org.shops.show.crm.prospects.mailshots.index',
                     'parameters' => $request->route()->originalParameters()
                 ],
-                'number'   => $this->parent->mailStats->number_mailshots_type_prospect_mailshot,
+                'number'   => $this->parent->commsStats->number_mailshots_type_prospect_mailshot,
                 'label'    => __('Mailshots'),
                 'leftIcon' => [
                     'icon'    => 'fal fa-mail-bulk',

@@ -5,13 +5,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
-use App\Stubs\Migrations\HasMailStats;
+use App\Stubs\Migrations\HasCommsStats;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    use HasMailStats;
+    use HasCommsStats;
     public function up(): void
     {
         Schema::create('outbox_stats', function (Blueprint $table) {
@@ -22,7 +22,8 @@ return new class () extends Migration {
             $table->unsignedInteger('number_subscribers')->default(0);
             $table->unsignedInteger('number_unsubscribed')->default(0);
             $table->unsignedSmallInteger('number_mailshots')->default(0);
-            $table->unsignedSmallInteger('number_email_runs')->default(0);
+            $table->unsignedSmallInteger('number_email_bulk_runs')->default(0);
+            $table->unsignedSmallInteger('number_email_ongoing_runs')->default(0);
 
             $table = $this->dispatchedEmailStats($table);
 

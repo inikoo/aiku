@@ -1,8 +1,8 @@
 <?php
 /*
- * Author: Artha <artha@aw-advantage.com>
- * Created: Mon, 08 May 2023 09:03:42 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 26 Nov 2024 21:37:12 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 
@@ -45,15 +45,15 @@ test('seed offer campaigns', function ($shop) {
     $this->group->refresh();
     $this->organisation->refresh();
 
-    expect($this->group->discountsStats->number_offer_campaigns)->toBe(7)
+    expect($this->group->discountsStats->number_offer_campaigns)->toBe(8)
         ->and($this->group->discountsStats->number_current_offer_campaigns)->toBe(0)
-        ->and($this->group->discountsStats->number_offer_campaigns_state_in_process)->toBe(7)
-        ->and($this->organisation->discountsStats->number_offer_campaigns)->toBe(7)
+        ->and($this->group->discountsStats->number_offer_campaigns_state_in_process)->toBe(8)
+        ->and($this->organisation->discountsStats->number_offer_campaigns)->toBe(8)
         ->and($this->organisation->discountsStats->number_current_offer_campaigns)->toBe(0)
-        ->and($this->organisation->discountsStats->number_offer_campaigns_state_in_process)->toBe(7)
-        ->and($shop->discountsStats->number_offer_campaigns)->toBe(7)
+        ->and($this->organisation->discountsStats->number_offer_campaigns_state_in_process)->toBe(8)
+        ->and($shop->discountsStats->number_offer_campaigns)->toBe(8)
         ->and($shop->discountsStats->number_current_offer_campaigns)->toBe(0)
-        ->and($shop->discountsStats->number_offer_campaigns_state_in_process)->toBe(7);
+        ->and($shop->discountsStats->number_offer_campaigns_state_in_process)->toBe(8);
 })->depends('create shop');
 
 test('update offer campaign', function (Shop $shop) {
@@ -73,9 +73,9 @@ test('create offer', function (Shop $shop) {
 
     expect($offer)->toBeInstanceOf(Offer::class)
         ->and($offerCampaign->stats->number_offers)->toBe(1)
-        ->and($this->group->discountsStats->number_offers)->toBe(1)
-        ->and($this->organisation->discountsStats->number_offers)->toBe(1)
-        ->and($offerCampaign->shop->discountsStats->number_offers)->toBe(1);
+        ->and($this->group->discountsStats->number_offers)->toBe(2)
+        ->and($this->organisation->discountsStats->number_offers)->toBe(2)
+        ->and($offerCampaign->shop->discountsStats->number_offers)->toBe(2);
 
     return $offer;
 })->depends('create shop');

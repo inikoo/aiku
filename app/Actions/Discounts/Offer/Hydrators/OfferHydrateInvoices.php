@@ -32,14 +32,7 @@ class OfferHydrateInvoices
     public function handle(Offer $offer): void
     {
         $stats = [
-            'number_invoices'   => $offer->invoiceTransactions()
-            ->with('model')
-            ->get()
-            ->pluck('model.invoice_id')
-            ->unique()
-            ->count()
-            ->distinct('invoice_id')
-            ->count('invoice_id'),
+            'number_invoices'   => $offer->invoiceTransactions()->distinct()->count('invoice_id'),
         ];
 
 

@@ -1,7 +1,7 @@
 <?php
 /*
- * Author: Arya Permana <aryapermana02@gmail.com>
- * Created: Thu, 19 Jun 2024 08:07:40 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Tue, 26 Nov 2024 21:17:45 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -468,12 +468,14 @@ test('UI edit Charges', function () {
 
 
 test('UI get section route catalogue dashboard', function () {
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
     $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.catalogue.dashboard', [
         'organisation' => $this->organisation->slug,
         'shop' => $this->shop->slug
     ]);
 
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope)->not->toBeNull()
         ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_CATALOGUE->value)
         ->and($sectionScope->model_slug)->toBe($this->shop->slug);
 });

@@ -1,22 +1,21 @@
 <script setup lang="ts">
 import Modal from "@/Components/Utils/Modal.vue"
-import { onMounted, onUnmounted, ref, watch } from "vue"
+import { onMounted, onUnmounted, ref } from "vue"
 import DataTable from "primevue/datatable"
 import Column from "primevue/column"
 import IconField from "primevue/iconfield"
 import InputIcon from "primevue/inputicon"
 import InputNumber from "primevue/inputnumber"
 import InputText from "primevue/inputtext"
+import InputGroup from "primevue/inputgroup"
+import InputGroupAddon from "primevue/inputgroupaddon"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { routeType } from "@/types/route"
 import axios from "axios"
 import { debounce } from "lodash"
-import { Action } from "@/types/Action"
 import { useForm } from "@inertiajs/vue3"
 import { faCloud, faMinus, faPlus, faSearch, faSpinner, faUndo } from "@fal"
-import InputGroup from "primevue/inputgroup"
-import InputGroupAddon from "primevue/inputgroupaddon"
 
 library.add(faSearch, faPlus, faMinus, faSpinner, faCloud, faUndo)
 
@@ -30,31 +29,45 @@ const emits = defineEmits<{
 }>()
 
 const model = defineModel()
-const products = ref<any[]>([]) // Product list
+const products = ref<any[]>([])
 const optionsMeta = ref(null)
 const optionsLinks = ref(null)
 const isLoading = ref<string | boolean>(false)
-const searchQuery = ref("") // Search input state
+const searchQuery = ref("")
 const iconStates = ref<Record<number, { increment: string; decrement: string }>>({})
+const addedProductIds = ref(new Set<number>())
+
+// Check if a product is already added
+const isProductAdded = (id: number): boolean => {
+	return addedProductIds.value.has(id)
+}
+
+const resetIcons = (id: number) => {
+	const product = products.value.find((product) => product.id === id)
+
+	// Reset inputTriggered for the product
+	if (product) {
+		product.inputTriggered = false
+	}
+
+	iconStates.value[id] = {
+		increment: "fal fa-plus",
+		decrement: "fal fa-minus",
+	}
+}
+
+const onUndoClick = (id: number) => {
+	resetIcons(id)
+}
 
 const onManualInputChange = (value: number, slotProps: any) => {
+	slotProps.data.quantity_ordered = value
+
+	// Mark input as triggered and update icons
 	slotProps.data.inputTriggered = true
 	iconStates.value[slotProps.data.id] = {
 		increment: "fal fa-cloud",
 		decrement: "fal fa-undo",
-	}
-	slotProps.data.quantity_ordered = value
-}
-
-const resetIcons = (id: number) => {
-	// Reset to initial state
-	if (products.value.find((product) => product.id === id)) {
-		const product = products.value.find((product) => product.id === id)
-		product.inputTriggered = false
-	}
-	iconStates.value[id] = {
-		increment: "fal fa-plus",
-		decrement: "fal fa-minus",
 	}
 }
 
@@ -62,7 +75,6 @@ const closeModal = () => {
 	model.value = false
 }
 
-// Cleanup and reset products
 const resetProducts = () => {
 	products.value = []
 	optionsMeta.value = null
@@ -76,7 +88,6 @@ const getUrlFetch = (additionalParams: {}) => {
 	})
 }
 
-// Fetch product list function
 const fetchProductList = async (url?: string) => {
 	isLoading.value = "fetchProduct"
 	const urlToFetch = url || route(props.fetchRoute.name, props.fetchRoute.parameters)
@@ -95,6 +106,17 @@ const fetchProductList = async (url?: string) => {
 		optionsMeta.value = data.meta
 		optionsLinks.value = data.links
 
+		// Populate addedProductIds with product IDs from fetched data
+		if (!addedProductIds.value) {
+			addedProductIds.value = new Set() // Initialize the set if null
+		}
+		data.data.forEach((product: any) => {
+			if (product.purchase_order_id) {
+				console.log(product, "product is ni")
+				addedProductIds.value.add(product.purchase_order_id)
+			}
+		})
+
 		emits("optionsList", products.value)
 	} catch (error) {
 		console.error("Error fetching product list:", error)
@@ -103,7 +125,6 @@ const fetchProductList = async (url?: string) => {
 	}
 }
 
-// Debounced fetch logic
 const debouncedFetch = debounce((query: string) => {
 	fetchProductList(getUrlFetch({ "filter[global]": query }))
 }, 500)
@@ -116,44 +137,95 @@ const formProducts = useForm({
 	quantity_ordered: 0,
 })
 
-const onSubmitAddProducts = (data: any, slotProps: any) => {
-	const purchaseOrderId = slotProps.data?.purchase_order_id
+const onSubmitAddProducts = async (data: any, slotProps: any) => {
+	const productId = slotProps.data.purchase_order_id
+	try {
+		if (slotProps.data.quantity_ordered > 0) {
+			// Handle update or add
+			if (addedProductIds.value && addedProductIds.value.has(productId)) {
+				// Update product
+				if (slotProps.data.purchase_order_id) {
+					await formProducts
+						.transform(() => ({
+							quantity_ordered: slotProps.data.quantity_ordered,
+						}))
+						.patch(
+							route(slotProps?.data?.updateRoute?.name || "#", {
+								...slotProps.data.updateRoute?.parameters,
+							})
+						)
+				}
+			} else {
+				// Add product
+				await formProducts
+					.transform(() => ({
+						quantity_ordered: slotProps.data.quantity_ordered,
+					}))
+					.post(
+						route(data.route?.name || "#", {
+							...data.route?.parameters,
+							historicSupplierProduct: slotProps.data.historic_id,
+							orgStock: slotProps.data.org_stock_id,
+						})
+					)
 
-	if (purchaseOrderId && slotProps.data.quantity_ordered > 1) {
-		formProducts
-			.transform(() => ({
-				quantity_ordered: slotProps.data.quantity_ordered,
-			}))
-			.patch(
-				route(slotProps?.data?.updateRoute?.name || "#", {
-					...slotProps.data.updateRoute?.parameters,
-				})
-			)
-	} else {
-		formProducts.post(
-			route(data.route?.name || "#", {
-				...data.route?.parameters,
-				historicSupplierProduct: slotProps.data.historic_id,
-				orgStock: slotProps.data.org_stock_id,
-			})
-		)
+				// Refresh list and update addedProductIds
+				await fetchProductList()
+				addedProductIds.value.add(productId)
+				iconStates.value[productId] = {
+					increment: "fal fa-cloud",
+					decrement: "fal fa-undo",
+				}
+			}
+		} else if (slotProps.data.quantity_ordered === 0) {
+			// Handle delete
+			if (addedProductIds.value && addedProductIds.value.has(productId)) {
+				await formProducts.delete(
+					route(slotProps?.data?.deleteRoute?.name || "#", {
+						...slotProps.data.deleteRoute?.parameters,
+					})
+				)
+
+				// Remove product ID from the addedProductIds set
+				addedProductIds.value.delete(productId)
+
+				// Refresh list to reflect changes
+				await fetchProductList()
+			}
+		}
+	} catch (error) {
+		console.error("Error adding/updating/deleting product:", error)
 	}
 }
 
-// Scroll listener for pagination
 const onFetchNext = async () => {
 	if (optionsLinks.value?.next && !isLoading.value) {
 		await fetchProductList(optionsLinks.value.next)
 	}
 }
 
+const onKeyDown = (slotProps: any) => {
+	console.log(slotProps, "we ap ni")
+	if (!slotProps.data.inputTriggered) {
+		slotProps.data.inputTriggered = true
+		iconStates.value[slotProps.data.id] = {
+			increment: "fal fa-cloud",
+			decrement: "fal fa-undo",
+		}
+	}
+}
+
+const onValueChange = (slotProps: any) => {
+	slotProps.data.quantity_ordered = parseFloat(slotProps.data.quantity_ordered || 0)
+}
+
 onMounted(() => {
 	const tableBody = document.querySelector(".p-datatable-scrollable-body")
 	if (tableBody) {
-		tableBody.addEventListener("scroll", debounce(onFetchNext, 200)) // Debounced scroll
+		tableBody.addEventListener("scroll", debounce(onFetchNext, 200))
 	}
 
-	fetchProductList() // Initial fetch
+	fetchProductList()
 })
 
 onUnmounted(() => {
@@ -171,9 +243,7 @@ onUnmounted(() => {
 				<div>
 					<!-- Title -->
 					<div class="flex justify-center py-2 text-gray-600 font-medium mb-3">
-						<div>
-							<div class="flex gap-x-0.5">Product List</div>
-						</div>
+						<div>Product List</div>
 					</div>
 
 					<!-- Search and Table -->
@@ -207,10 +277,9 @@ onUnmounted(() => {
 
 									<template #empty> No Product found. </template>
 
-									<!-- Custom Loading Template -->
-									<template #loadingicon>
-										<div
-											class="flex flex-col items-center justify-center h-full text-center text-gray-600">
+									<!-- Loading Icon -->
+									<template #loading>
+										<div>
 											<FontAwesomeIcon
 												icon="fal fa-spinner"
 												class="text-2xl animate-spin mb-2" />
@@ -228,61 +297,64 @@ onUnmounted(() => {
 										</template>
 									</Column>
 									<Column field="name" header="Description"></Column>
-
 									<Column header="Action">
 										<template #body="slotProps">
 											<div>
-												<!-- Show Plus and Minus buttons initially -->
 												<div v-if="!slotProps.data.inputTriggered">
 													<InputNumber
 														v-model="slotProps.data.quantity_ordered"
 														inputClass="w-16"
 														showButtons
 														buttonLayout="horizontal"
-														
-														
+														@keydown.enter="onKeyDown(slotProps)"
+														@change="onValueChange(slotProps)"
+														@blur="onKeyDown(slotProps)"
 														:min="0">
 														<template #incrementicon>
-															<FontAwesomeIcon
-																icon="fal fa-plus"
-																class="text-gray-500"
-																fixed-width
-																aria-hidden="true"
+															<div
+																class="flex items-center justify-center cursor-pointer"
 																@click="
 																	onSubmitAddProducts(
 																		action,
 																		slotProps
 																	)
-																" />
+																"
+																style="width: 100%; height: 100%">
+																<FontAwesomeIcon
+																	icon="fal fa-plus"
+																	class="text-gray-500"
+																	fixed-width
+																	aria-hidden="true" />
+															</div>
 														</template>
 														<template #decrementicon>
-															<FontAwesomeIcon
-																icon="fal fa-minus"
-																class="text-gray-500"
-																fixed-width
-																aria-hidden="true"
+															<div
+																class="flex items-center justify-center cursor-pointer"
 																@click="
 																	onSubmitAddProducts(
 																		action,
 																		slotProps
 																	)
-																" />
+																"
+																style="width: 100%; height: 100%">
+																<FontAwesomeIcon
+																	icon="fal fa-minus"
+																	class="text-gray-500"
+																	fixed-width
+																	aria-hidden="true" />
+															</div>
 														</template>
 													</InputNumber>
 												</div>
-
-												<!-- Show Cloud and Undo when input is triggered -->
 												<div v-else>
 													<InputGroup>
-														<InputGroupAddon>
+														<InputGroupAddon
+															@click="onUndoClick(slotProps.data.id)">
 															<FontAwesomeIcon
 																icon="fal fa-undo"
 																class="text-gray-500"
 																fixed-width
-																aria-hidden="true"
-																@click="
-																	resetIcons(slotProps.data.id)
-																" />
+																aria-hidden="true" />
 														</InputGroupAddon>
 														<InputNumber
 															v-model="
@@ -298,18 +370,18 @@ onUnmounted(() => {
 															buttonLayout="horizontal"
 															:style="{ width: '64px' }"
 															:min="0" />
-														<InputGroupAddon>
+														<InputGroupAddon
+															@click="
+																onSubmitAddProducts(
+																	action,
+																	slotProps
+																)
+															">
 															<FontAwesomeIcon
 																icon="fal fa-cloud"
 																class="text-gray-500"
 																fixed-width
-																aria-hidden="true"
-																@click="
-																	onSubmitAddProducts(
-																		action,
-																		slotProps
-																	)
-																" />
+																aria-hidden="true" />
 														</InputGroupAddon>
 													</InputGroup>
 												</div>
@@ -317,11 +389,10 @@ onUnmounted(() => {
 										</template>
 									</Column>
 
-									<!-- Footer -->
 									<template #footer>
 										<div class="text-center">
-											In total there are {{ products ? products.length : 0 }}
-											products.
+											In total there are
+											{{ products ? products.length : 0 }} products.
 										</div>
 									</template>
 								</DataTable>
@@ -336,13 +407,13 @@ onUnmounted(() => {
 
 <style scoped>
 .p-datatable .p-datatable-loading-overlay {
-	background: transparent !important; 
-	box-shadow: none !important; 
+	background: transparent !important;
+	box-shadow: none !important;
 }
 
 .p-datatable .p-datatable-loading-overlay .p-datatable-loading {
-	background: none !important; 
-	border: none !important; 
+	background: none !important;
+	border: none !important;
 	box-shadow: none !important;
 }
 

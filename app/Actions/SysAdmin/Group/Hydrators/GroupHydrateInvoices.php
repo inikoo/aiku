@@ -35,12 +35,7 @@ class GroupHydrateInvoices
 
     public function handle(Group $group): void
     {
-        // $stats = $this->getInvoicesStats($group);
-
-        $stats = [
-            'number_invoices'    => $group->invoices()->count(),
-            'last_invoiced_at'   => $group->invoices()->max('date'),
-        ];
+        $stats = $this->getInvoicesStats($group);
 
         $stats = array_merge(
             $stats,

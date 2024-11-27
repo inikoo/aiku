@@ -36,12 +36,7 @@ class CustomerHydrateInvoices
 
     public function handle(Customer $customer): void
     {
-        // $stats = $this->getInvoicesStats($customer);
-
-        $stats = [
-            'number_invoices'    => $customer->invoices()->count(),
-            'last_invoiced_at'   => $customer->invoices()->max('date'),
-        ];
+        $stats = $this->getInvoicesStats($customer);
 
         $updateData['trade_state'] = match ($stats['number_invoices']) {
             0       => CustomerTradeStateEnum::NONE,

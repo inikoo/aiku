@@ -36,11 +36,7 @@ class ShopHydrateInvoices
     public function handle(Shop $shop): void
     {
 
-        // $stats = $this->getInvoicesStats($shop);
-        $stats = [
-            'number_invoices'    => $shop->invoices()->count(),
-            'last_invoiced_at'   => $shop->invoices()->max('date'),
-        ];
+        $stats = $this->getInvoicesStats($shop);
 
         $stats = array_merge(
             $stats,

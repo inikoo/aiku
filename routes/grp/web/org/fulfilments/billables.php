@@ -5,6 +5,9 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Billables\Rental\UI\CreateRental;
+use App\Actions\Billables\Rental\UI\EditRental;
+use App\Actions\Billables\Rental\UI\ShowRental;
 use App\Actions\Billables\Service\UI\CreateService;
 use App\Actions\Billables\Service\UI\EditService;
 use App\Actions\Billables\Service\UI\ShowService;
@@ -16,9 +19,6 @@ use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentAssets;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentPhysicalGoods;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentRentals;
 use App\Actions\Fulfilment\Fulfilment\UI\IndexFulfilmentServices;
-use App\Actions\Fulfilment\Rental\UI\CreateRental;
-use App\Actions\Fulfilment\Rental\UI\EditRental;
-use App\Actions\Fulfilment\Rental\UI\ShowRental;
 use App\Stubs\UIDummies\IndexDummies;
 
 Route::get('billables', IndexFulfilmentAssets::class)->name('index');

@@ -1,8 +1,8 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 21 Apr 2023 16:21:46 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Tue, 26 Nov 2024 21:34:34 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 use App\Actions\Helpers\Address\HydrateAddress;
@@ -550,7 +550,7 @@ test('get helpers select options data', function () {
     $currencyData = GetCurrenciesOptions::run();
     expect($currencyData)->toHaveCount(159);
     $timezonesData = GetTimeZonesOptions::run();
-    expect($timezonesData)->toHaveCount(419);
+    expect($timezonesData)->toHaveCount(418);
     $languagesData = GetLanguagesOptions::make()->all();
     expect($languagesData)->toHaveCount(279);
     $translatedLanguagesData = GetLanguagesOptions::make()->translated();

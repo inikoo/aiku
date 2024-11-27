@@ -9,11 +9,14 @@ namespace App\Models\Discounts;
 
 use App\Enums\Discounts\OfferCampaign\OfferCampaignStateEnum;
 use App\Enums\Discounts\OfferCampaign\OfferCampaignTypeEnum;
+use App\Models\Accounting\InvoiceTransaction;
+use App\Models\Ordering\Transaction;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\HasUniversalSearch;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -46,14 +49,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $source_id
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $invoiceTransactions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $modelHasOfferComponents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, InvoiceTransaction> $invoiceTransactions
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\OfferComponent> $offerComponents
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\Offer> $offers
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $orderTransactions
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Discounts\OfferCampaignStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaction> $transactions
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Discounts\OfferCampaignFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder<static>|OfferCampaign newModelQuery()
@@ -131,20 +133,13 @@ class OfferCampaign extends Model implements Auditable
         return $this->hasOne(OfferCampaignStats::class);
     }
 
-    public function modelHasOfferComponents(): HasMany
+    public function transactions(): BelongsToMany
     {
-        return $this->hasMany(ModelHasOfferComponent::class);
+        return $this->belongsToMany(Transaction::class, 'transaction_has_offer_components');
     }
 
-    public function invoiceTransactions(): HasMany
+    public function invoiceTransactions(): BelongsToMany
     {
-        return $this->hasMany(ModelHasOfferComponent::class)
-                    ->where('model_type', 'InvoiceTransaction');
-    }
-
-    public function orderTransactions(): HasMany
-    {
-        return $this->hasMany(ModelHasOfferComponent::class)
-                    ->where('model_type', 'Transaction');
+        return $this->belongsToMany(InvoiceTransaction::class, 'invoice_transaction_has_offer_components');
     }
 }

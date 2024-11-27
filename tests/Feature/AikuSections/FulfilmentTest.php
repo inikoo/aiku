@@ -1,12 +1,14 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 02 Jan 2024 22:04:10 Malaysia Time, Kuala Lumpur, Malaysia
+ * Created: Tue, 26 Nov 2024 20:48:28 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 use App\Actions\Accounting\Invoice\PayInvoice;
 use App\Actions\Accounting\InvoiceTransaction\UI\IndexInvoiceTransactions;
+use App\Actions\Billables\Rental\StoreRental;
+use App\Actions\Billables\Rental\UpdateRental;
 use App\Actions\Billables\Service\StoreService;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
@@ -52,8 +54,6 @@ use App\Actions\Fulfilment\PalletReturn\UpdatePalletReturn;
 use App\Actions\Fulfilment\RecurringBill\ConsolidateRecurringBill;
 use App\Actions\Fulfilment\RecurringBill\Search\ReindexRecurringBillSearch;
 use App\Actions\Fulfilment\RecurringBill\StoreRecurringBill;
-use App\Actions\Fulfilment\Rental\StoreRental;
-use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Actions\Fulfilment\RentalAgreement\StoreRentalAgreement;
 use App\Actions\Fulfilment\RentalAgreement\UpdateRentalAgreement;
 use App\Actions\Fulfilment\StoredItem\DeleteStoredItem;
@@ -252,7 +252,7 @@ test('create services in fulfilment shop', function (Fulfilment $fulfilment) {
         ->and($service2->organisation->catalogueStats->number_assets_type_service)->toBe(3)
         ->and($service2->organisation->catalogueStats->number_assets)->toBe(3)
         ->and($service2->shop->stats->number_assets)->toBe(3)
-        ->and($service2->stats->number_historic_assets)->toBe(1);
+        ->and($service2->asset->stats->number_historic_assets)->toBe(1);
 
     return $service1;
 })->depends('create fulfilment shop');
@@ -277,7 +277,7 @@ test('create rental product to fulfilment shop', function (Fulfilment $fulfilmen
         ->and($rental->organisation->catalogueStats->number_assets)->toBe(4)
         ->and($rental->organisation->catalogueStats->number_assets_type_rental)->toBe(1)
         ->and($rental->shop->stats->number_assets)->toBe(4)
-        ->and($rental->stats->number_historic_assets)->toBe(1);
+        ->and($rental->asset->stats->number_historic_assets)->toBe(1);
 
     return $rental;
 })->depends('create fulfilment shop');
@@ -297,7 +297,7 @@ test('update rental', function (Rental $rental) {
 
     expect($rental->asset->name)->toBe('Updated Rental Name')
         ->and($rental->asset->stats->number_historic_assets)->toBe(2)
-        ->and($rental->stats->number_historic_assets)->toBe(2);
+        ->and($rental->asset->stats->number_historic_assets)->toBe(2);
 
     return $rental;
 })->depends('create rental product to fulfilment shop');

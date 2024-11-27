@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 20 Nov 2024 16:01:17 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Wed, 27 Nov 2024 10:33:03 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -12,13 +12,10 @@ use Illuminate\Support\Facades\Schema;
 return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('transaction_has_offer_components', function (Blueprint $table) {
+        Schema::create('invoice_has_no_invoice_transaction_offer_components', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('order_id');
-            $table->foreign('order_id')->references('id')->on('orders');
-
-            $table->unsignedBigInteger('transaction_id');
-            $table->foreign('transaction_id')->references('id')->on('transactions');
+            $table->unsignedInteger('invoice_id');
+            $table->foreign('invoice_id')->references('id')->on('invoices');
 
             $table->string('model_type')->index()->nullable();
             $table->unsignedInteger('model_id')->index()->nullable();
@@ -30,27 +27,27 @@ return new class () extends Migration {
             $table->unsignedInteger('offer_component_id');
             $table->foreign('offer_component_id')->references('id')->on('offer_components');
 
+
             $table->decimal('discounted_amount', 12, 2)->default(0);
-            $table->decimal('discounted_percentage', 6, 4)->default(0);
+            $table->decimal('discounted_percentage', 6, 4)->nullable()->default(0);
+
 
             $table->decimal('free_items_value', 12, 2)->default(0);
             $table->decimal('number_of_free_items', 12, 2)->default(0);
 
+
             $table->text('info')->nullable();
-            $table->boolean('is_pinned')->default('false')->index();
-            $table->string('precursor')->nullable();
             $table->jsonb('data');
             $table->timestampsTz();
             $table->dateTimeTz('fetched_at')->nullable();
             $table->dateTimeTz('last_fetched_at')->nullable();
             $table->string('source_id')->nullable();
-            $table->string('source_alt_id')->nullable();
         });
     }
 
 
     public function down(): void
     {
-        Schema::dropIfExists('transaction_has_offer_components');
+        Schema::dropIfExists('invoice_has_no_invoice_transaction_offer_components');
     }
 };

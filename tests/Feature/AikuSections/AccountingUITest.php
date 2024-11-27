@@ -521,3 +521,10 @@ test('UI get section route accounting balance index', function () {
         ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_ACCOUNTING->value)
         ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
 });
+
+test('UI get section route group overview hub (accounting)', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.overview.hub', []);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_OVERVIEW->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->group->slug);
+});

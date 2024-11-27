@@ -10,7 +10,7 @@ return new class () extends Migration {
         Schema::create('portfolio_stats', function (Blueprint $table) {
             $table->id();
 
-            $table->unsignedInteger('portfolio_id')->index();
+            $table->unsignedBigInteger('portfolio_id')->index();
             $table->foreign('portfolio_id')->references('id')->on('portfolios');
 
             $table->unsignedSmallInteger('amount')->default(0);

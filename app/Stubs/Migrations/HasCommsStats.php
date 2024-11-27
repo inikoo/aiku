@@ -13,7 +13,7 @@ use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use Illuminate\Database\Schema\Blueprint;
 
-trait HasMailStats
+trait HasCommsStats
 {
     public function postRoomsStats(Blueprint $table): Blueprint
     {

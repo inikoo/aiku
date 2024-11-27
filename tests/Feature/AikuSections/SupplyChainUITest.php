@@ -144,9 +144,8 @@ test('UI create agent', function () {
     });
 });
 
-test('UI get section route index', function () {
+test('UI get section route group supply chain index', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.supply-chain.suppliers.index', []);
-    dd($sectionScope, $this->supplier);
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_SUPPLY_CHAIN->value);
 });

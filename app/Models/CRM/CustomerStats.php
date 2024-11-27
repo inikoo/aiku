@@ -17,6 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $customer_id
+ * @property string $sales_all
+ * @property string $sales_org_currency_all
+ * @property string $sales_grp_currency_all
  * @property string|null $last_order_created_at
  * @property string|null $last_order_submitted_at
  * @property string|null $last_order_dispatched_at

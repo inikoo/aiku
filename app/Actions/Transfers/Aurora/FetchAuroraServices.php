@@ -7,10 +7,10 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\Billables\Rental\StoreRental;
+use App\Actions\Billables\Rental\UpdateRental;
 use App\Actions\Billables\Service\StoreService;
 use App\Actions\Billables\Service\UpdateService;
-use App\Actions\Fulfilment\Rental\StoreRental;
-use App\Actions\Fulfilment\Rental\UpdateRental;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
