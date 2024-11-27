@@ -36,7 +36,7 @@ class OutboxHydrateEmailBulkRuns
 
         $outbox->stats()->update(
             [
-                'email_bulk_runs' => $count,
+                'number_email_bulk_runs' => $count,
             ]
         );
     }

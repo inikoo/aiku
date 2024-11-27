@@ -23,7 +23,7 @@ return new class () extends Migration {
             $table->unsignedInteger('number_unsubscribed')->default(0);
             $table->unsignedSmallInteger('number_mailshots')->default(0);
             $table->unsignedSmallInteger('number_email_bulk_runs')->default(0);
-            $table->unsignedSmallInteger('number_email_ongling_runs')->default(0);
+            $table->unsignedSmallInteger('number_email_ongoing_runs')->default(0);
 
             $table = $this->dispatchedEmailStats($table);
 
