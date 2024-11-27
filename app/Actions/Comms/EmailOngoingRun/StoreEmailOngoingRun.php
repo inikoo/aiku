@@ -7,6 +7,7 @@
 
 namespace App\Actions\Comms\EmailOngoingRun;
 
+use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmailOngoingRuns;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\Comms\EmailOngoingRun;
@@ -32,13 +33,18 @@ class StoreEmailOngoingRun extends OrgAction
         data_set($modelData, 'shop_id', $outbox->shop_id);
 
 
-        return DB::transaction(function () use ($outbox, $modelData) {
+        $emailOngoingRun = DB::transaction(function () use ($outbox, $modelData) {
             /** @var EmailOngoingRun $emailRun */
             $emailRun = $outbox->emailOngoingRuns()->create($modelData);
             $emailRun->stats()->create();
 
             return $emailRun;
         });
+
+        OutboxHydrateEmailOngoingRuns::dispatch($outbox)->delay($this->hydratorsDelay);
+
+        return $emailOngoingRun;
+
     }
 
     public function authorize(ActionRequest $request): bool
