@@ -468,12 +468,14 @@ test('UI edit Charges', function () {
 
 
 test('UI get section route catalogue dashboard', function () {
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
     $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.catalogue.dashboard', [
         'organisation' => $this->organisation->slug,
         'shop' => $this->shop->slug
     ]);
 
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope)->not->toBeNull()
         ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_CATALOGUE->value)
         ->and($sectionScope->model_slug)->toBe($this->shop->slug);
-})->todo();
+});
