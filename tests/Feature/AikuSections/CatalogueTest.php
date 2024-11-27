@@ -46,7 +46,6 @@ use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Permission;
 use App\Models\SysAdmin\Role;
-use App\Models\Web\Website;
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;

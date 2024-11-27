@@ -19,6 +19,7 @@ class OfferCampaignHydrateInvoices
     use WithEnumStats;
 
     private OfferCampaign $offerCampaign;
+
     public function __construct(OfferCampaign $offerCampaign)
     {
         $this->offerCampaign = $offerCampaign;
@@ -32,16 +33,8 @@ class OfferCampaignHydrateInvoices
     public function handle(OfferCampaign $offerCampaign): void
     {
         $stats = [
-            'number_invoices'   => $offerCampaign->invoiceTransactions()
-            ->with('model')
-            ->get()
-            ->pluck('model.invoice_id')
-            ->unique()
-            ->count()
-            ->distinct('invoice_id')
-            ->count('invoice_id'),
+            'number_invoices' => $offerCampaign->invoiceTransactions()->distinct()->count('invoice_id')
         ];
-
 
         $offerCampaign->stats()->update($stats);
     }

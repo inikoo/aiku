@@ -19,6 +19,7 @@ class OfferHydrateOrders
     use WithEnumStats;
 
     private Offer $offer;
+
     public function __construct(Offer $offer)
     {
         $this->offer = $offer;
@@ -32,16 +33,8 @@ class OfferHydrateOrders
     public function handle(Offer $offer): void
     {
         $stats = [
-            'number_orders'   => $offer->orderTransactions()
-            ->with('model')
-            ->get()
-            ->pluck('model.order_id')
-            ->unique()
-            ->count()
-            ->distinct('order_id')
-            ->count('order_id'),
+            'number_orders' => $offer->transactions()->distinct()->count('order_id'),
         ];
-
 
         $offer->stats()->update($stats);
     }

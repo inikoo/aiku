@@ -8,8 +8,6 @@
 namespace Tests\Feature;
 
 use App\Actions\Catalogue\Shop\StoreShop;
-use App\Actions\Comms\DispatchedEmail\StoreDispatchEmail;
-use App\Actions\Comms\DispatchedEmail\UpdateDispatchedEmail;
 use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\Comms\Mailshot\UpdateMailshot;
 use App\Actions\Comms\Outbox\AttachModelToOutbox;
@@ -17,7 +15,6 @@ use App\Actions\Comms\Outbox\DetachModelToOutbox;
 use App\Actions\Comms\Outbox\StoreOutbox;
 use App\Actions\Comms\Outbox\UpdateModelToOutbox;
 use App\Actions\Web\Website\StoreWebsite;
-use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\Outbox\OutboxBlueprintEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Catalogue\Shop;

@@ -12,7 +12,9 @@ use App\Enums\Ordering\Transaction\TransactionStatusEnum;
 use App\Models\Catalogue\Asset;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\CRM\Customer;
-use App\Models\Discounts\TransactionHasOfferComponent;
+use App\Models\Discounts\Offer;
+use App\Models\Discounts\OfferCampaign;
+use App\Models\Discounts\OfferComponent;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Catalogue\Shop;
 use App\Models\Helpers\Feedback;
@@ -23,6 +25,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
@@ -79,7 +82,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read HistoricAsset|null $historicAsset
  * @property-read Model|\Eloquent $item
- * @property-read Collection<int, TransactionHasOfferComponent> $offerComponents
+ * @property-read Collection<int, Offer> $offer
+ * @property-read Collection<int, OfferCampaign> $offerCampaign
+ * @property-read Collection<int, OfferComponent> $offerComponents
  * @property-read \App\Models\Ordering\Order|null $order
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read Shop $shop
@@ -156,8 +161,20 @@ class Transaction extends Model
         return $this->morphToMany(Feedback::class, 'model', 'model_has_feedbacks');
     }
 
-    public function offerComponents(): HasMany
+    public function offerCampaign(): BelongsToMany
     {
-        return $this->hasMany(TransactionHasOfferComponent::class);
+        return $this->belongsToMany(OfferCampaign::class, 'transaction_has_offer_components');
     }
+
+    public function offer(): BelongsToMany
+    {
+        return $this->belongsToMany(Offer::class, 'transaction_has_offer_components');
+    }
+
+    public function offerComponents(): BelongsToMany
+    {
+        return $this->belongsToMany(OfferComponent::class, 'transaction_has_offer_components');
+    }
+
+
 }

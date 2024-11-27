@@ -19,6 +19,7 @@ class OfferComponentHydrateOrders
     use WithEnumStats;
 
     private OfferComponent $offerComponent;
+
     public function __construct(OfferComponent $offerComponent)
     {
         $this->offerComponent = $offerComponent;
@@ -32,16 +33,8 @@ class OfferComponentHydrateOrders
     public function handle(OfferComponent $offerComponent): void
     {
         $stats = [
-            'number_orders'   => $offerComponent->orderTransactions()
-            ->with('model')
-            ->get()
-            ->pluck('model.order_id')
-            ->unique()
-            ->count()
-            ->distinct('order_id')
-            ->count('order_id'),
+            'number_orders' => $offerComponent->transactions()->distinct()->count('order_id'),
         ];
-
 
         $offerComponent->stats()->update($stats);
     }

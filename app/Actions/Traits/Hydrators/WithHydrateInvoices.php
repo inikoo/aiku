@@ -24,10 +24,10 @@ trait WithHydrateInvoices
             'last_invoiced_at'             => $model->invoices()->max('date'),
         ];
 
-        if($model instanceof Customer){
-            $stats['sales_all']=$model->invoices()->sum('net_amount');
-            $stats['sales_org_currency_all']=$model->invoices()->sum('org_net_amount');
-            $stats['sales_grp_currency_all']=$model->invoices()->sum('grp_net_amount');
+        if ($model instanceof Customer) {
+            $stats['sales_all'] = $model->invoices()->sum('net_amount');
+            $stats['sales_org_currency_all'] = $model->invoices()->sum('org_net_amount');
+            $stats['sales_grp_currency_all'] = $model->invoices()->sum('grp_net_amount');
         }
 
 

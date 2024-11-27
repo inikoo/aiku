@@ -17,6 +17,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $customer_id
+ * @property string $sales_all
+ * @property string $sales_org_currency_all
+ * @property string $sales_grp_currency_all
  * @property string|null $last_order_created_at
  * @property string|null $last_order_submitted_at
  * @property string|null $last_order_dispatched_at
@@ -71,9 +74,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_delivery_notes_cancelled_at_state_packed
  * @property int $number_delivery_notes_cancelled_at_state_finalised
  * @property int $number_delivery_notes_cancelled_at_state_settled
- * @property string $sales_all
- * @property string $sales_org_currency_all
- * @property string $sales_grp_currency_all
  * @property int $number_web_users
  * @property int $number_current_web_users
  * @property int $number_clients

@@ -1,13 +1,13 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 20 Nov 2024 16:01:17 Central Indonesia Time, Sanur, Bali, Indonesia
+ * Created: Wed, 27 Nov 2024 09:07:40 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace App\Models\Discounts;
 
-use App\Models\Ordering\Transaction;
+use App\Models\Accounting\InvoiceTransaction;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -15,8 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  *
  * @property int $id
- * @property int $order_id
- * @property int $transaction_id
+ * @property int $invoice_id
+ * @property int $invoice_transaction_id
  * @property string|null $model_type
  * @property int|null $model_id
  * @property int $offer_campaign_id
@@ -24,11 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $offer_component_id
  * @property string $discounted_amount
  * @property string $discounted_percentage
- * @property string $free_items_value
- * @property string $number_of_free_items
  * @property string|null $info
- * @property bool $is_pinned
- * @property string|null $precursor
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -36,22 +32,21 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
  * @property string|null $source_alt_id
+ * @property-read InvoiceTransaction $invoiceTransaction
  * @property-read \App\Models\Discounts\Offer $offer
  * @property-read \App\Models\Discounts\OfferCampaign $offerCampaign
  * @property-read \App\Models\Discounts\OfferComponent $offerComponent
- * @property-read Transaction $transaction
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionHasOfferComponent newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionHasOfferComponent newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|TransactionHasOfferComponent query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceTransactionHasOfferComponent newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceTransactionHasOfferComponent newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|InvoiceTransactionHasOfferComponent query()
  * @mixin \Eloquent
  */
-class TransactionHasOfferComponent extends Model
+class InvoiceTransactionHasOfferComponent extends Model
 {
-    protected $table = 'transaction_has_offer_components';
+    protected $table = 'invoice_transaction_has_offer_components';
 
     protected $casts = [
         'data'            => 'array',
-        'is_pinned'       => 'boolean',
         'fetched_at'      => 'datetime',
         'last_fetched_at' => 'datetime',
     ];
@@ -62,9 +57,9 @@ class TransactionHasOfferComponent extends Model
 
     protected $guarded = [];
 
-    public function transaction(): BelongsTo
+    public function invoiceTransaction(): BelongsTo
     {
-        return $this->belongsTo(Transaction::class);
+        return $this->belongsTo(InvoiceTransaction::class);
     }
 
     public function offerCampaign(): BelongsTo
@@ -81,5 +76,6 @@ class TransactionHasOfferComponent extends Model
     {
         return $this->belongsTo(OfferComponent::class);
     }
+
 
 }
