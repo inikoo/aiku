@@ -36,7 +36,7 @@ class OutboxHydrateEmailOngoingRuns
 
         $outbox->stats()->update(
             [
-                'email_ongoing_runs' => $count,
+                'number_email_ongoing_runs' => $count,
             ]
         );
     }

@@ -22,7 +22,6 @@ const props = defineProps<{
   blocks: any,
 }>()
 
-console.log('sdsd',props)
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
 
@@ -35,7 +34,7 @@ library.add(faCheck, faPlus, faMinus)
     <title>{{ data.seotitle }}</title>
     <meta property="og:title" :content="data.seotitle " />
     <meta name="description" :content="data.seodescription">
-    <meta property="og:image" content="https://cdn.example.com/uploads/images/webpage_300x200.png" />
+    <meta property="og:image" content="https://socialsharepreview.com/api/image-proxy?url=https%3A%2F%2Fwww.zelolab.com%2Fwp-content%2Fuploads%2F2022%2F12%2Fhow-to-create-and-set-up-a-social-share-preview-image-on-your-website.jpg" />
   </Head>
   <div class="bg-white">
     <template v-if="props.blocks?.web_blocks?.length">
