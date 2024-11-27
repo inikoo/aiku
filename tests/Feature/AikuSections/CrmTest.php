@@ -1,7 +1,7 @@
 <?php
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 07 Jun 2024 11:18:49 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
+ * Created: Wed, 27 Nov 2024 15:22:46 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -179,7 +179,8 @@ test('prospect query count', function () {
 
 test('create prospect mailshot', function () {
     $shop         = $this->shop;
-    $outbox       = Outbox::where('shop_id', $shop->id)->where('type', OutboxCodeEnum::INVITE)->first();
+    $outbox       = Outbox::where('shop_id', $shop->id)->where('code', OutboxCodeEnum::INVITE)->first();
+    expect($outbox)->toBeInstanceOf(Outbox::class);
     $dataModel    = [
         'subject'    => 'hello',
         'type'       => MailshotTypeEnum::INVITE,
