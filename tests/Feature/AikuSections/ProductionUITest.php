@@ -322,13 +322,24 @@ test('UI edit manufacture task', function () {
     });
 });
 
-test('UI get section route index', function () {
+test('UI get section route craft index', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.productions.show.crafts.manufacture_tasks.index', [
         'organisation' => $this->organisation->slug,
-        'factory'      => $this->production->slug
+        'production'      => $this->production->slug
     ]);
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->organisation_id)->toBe($this->organisation->id)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::PRODUCTION_CRAFT->value)
         ->and($sectionScope->model_slug)->toBe($this->production->slug);
-})->todo();
+});
+
+test('UI get section route operation dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.productions.show.operations.dashboard', [
+        'organisation' => $this->organisation->slug,
+        'production'      => $this->production->slug
+    ]);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->organisation_id)->toBe($this->organisation->id)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::PRODUCTION_OPERATION->value)
+        ->and($sectionScope->model_slug)->toBe($this->production->slug);
+});
