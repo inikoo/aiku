@@ -8,7 +8,7 @@
 namespace App\Actions\Production\ManufactureTask\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\Production\Production\UI\ShowProductionCrafts;
+use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\UI\Production\ManufactureTaskTabsEnum;
@@ -128,7 +128,7 @@ class ShowManufactureTask extends OrgAction
         $manufactureTask = ManufactureTask::where('slug', $routeParameters['manufactureTask'])->first();
 
         return array_merge(
-            ShowProductionCrafts::make()->getBreadcrumbs($routeParameters),
+            ShowCraftsDashboard::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'           => 'modelWithIndex',
