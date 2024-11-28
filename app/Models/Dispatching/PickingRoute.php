@@ -27,12 +27,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $warehouse_id
  * @property string $slug
  * @property string $name
- * @property string|null $fetched_at
- * @property string|null $last_fetched_at
- * @property string|null $source_id
- * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
+ * @property string|null $source_id
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Location> $locations
  * @property-read \App\Models\SysAdmin\Organisation $organisation

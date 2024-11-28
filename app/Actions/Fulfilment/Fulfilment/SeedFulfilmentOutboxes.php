@@ -27,7 +27,7 @@ class SeedFulfilmentOutboxes
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
 
                 if (!Outbox::where('fulfilment_id', $fulfilment->id)->where('code', $case)->exists()) {
-                    StoreOutbox::run(
+                    StoreOutbox::make()->action(
                         $postRoom,
                         $fulfilment,
                         [
@@ -35,7 +35,6 @@ class SeedFulfilmentOutboxes
                             'code'      => $case,
                             'type'      => $case->type(),
                             'state'     => $case->defaultState(),
-                            'blueprint' => $case->blueprint(),
                         ]
                     );
                 }

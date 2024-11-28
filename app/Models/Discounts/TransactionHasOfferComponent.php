@@ -24,6 +24,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $offer_component_id
  * @property string $discounted_amount
  * @property string $discounted_percentage
+ * @property string $free_items_value
+ * @property string $number_of_free_items
  * @property string|null $info
  * @property bool $is_pinned
  * @property string|null $precursor
@@ -34,7 +36,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
  * @property string|null $source_alt_id
- * @property string|null $deleted_at
  * @property-read \App\Models\Discounts\Offer $offer
  * @property-read \App\Models\Discounts\OfferCampaign $offerCampaign
  * @property-read \App\Models\Discounts\OfferComponent $offerComponent
@@ -66,11 +67,6 @@ class TransactionHasOfferComponent extends Model
         return $this->belongsTo(Transaction::class);
     }
 
-    public function offerComponent(): BelongsTo
-    {
-        return $this->belongsTo(OfferComponent::class);
-    }
-
     public function offerCampaign(): BelongsTo
     {
         return $this->belongsTo(OfferCampaign::class);
@@ -79,6 +75,11 @@ class TransactionHasOfferComponent extends Model
     public function offer(): BelongsTo
     {
         return $this->belongsTo(Offer::class);
+    }
+
+    public function offerComponent(): BelongsTo
+    {
+        return $this->belongsTo(OfferComponent::class);
     }
 
 }

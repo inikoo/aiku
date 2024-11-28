@@ -9,6 +9,7 @@ namespace App\Actions\Helpers;
 
 use App\Actions\Accounting\Invoice\Search\ReindexInvoiceSearch;
 use App\Actions\Accounting\TopUp\Search\ReindexTopUpSearch;
+use App\Actions\Billables\Rental\Search\ReindexRentalSearch;
 use App\Actions\Billables\Service\Search\ReindexServiceSearch;
 use App\Actions\Catalogue\Product\Search\ReindexProductSearch;
 use App\Actions\Catalogue\ProductCategory\Search\ReindexProductCategorySearch;
@@ -23,7 +24,6 @@ use App\Actions\Fulfilment\Pallet\Search\ReindexPalletSearch;
 use App\Actions\Fulfilment\PalletDelivery\Search\ReindexPalletDeliverySearch;
 use App\Actions\Fulfilment\PalletReturn\Search\ReindexPalletReturnSearch;
 use App\Actions\Fulfilment\RecurringBill\Search\ReindexRecurringBillSearch;
-use App\Actions\Fulfilment\Rental\Search\ReindexRentalSearch;
 use App\Actions\Fulfilment\StoredItem\Search\ReindexStoredItem;
 use App\Actions\Fulfilment\StoredItemAudit\Search\ReindexStoredItemAuditSearch;
 use App\Actions\HumanResources\ClockingMachine\Search\ReindexClockingMachineSearch;

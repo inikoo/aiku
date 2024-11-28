@@ -7,9 +7,6 @@
 
 namespace App\Models\Traits;
 
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -45,22 +42,7 @@ trait IsMedia
 
     public function getLocalImgProxyFilename(): string
     {
-        $rootPath = '/'.config('app.name');
-
-        if (App::environment('staging')) {
-            $rootPath .= '_staging';
-        }
-
-        $diskPath    = Storage::disk($this->disk)->path('');
-        $storagePath = storage_path();
-
-
-        $rootPath .= Str::after(
-            $diskPath,
-            $storagePath
-        );
-
-        return 'local://'.$rootPath.$this->getPathRelativeToRoot();
+        return 'local://media/'.$this->getPathRelativeToRoot();
     }
 
 

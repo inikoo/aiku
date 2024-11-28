@@ -10,6 +10,7 @@ namespace App\Actions\Transfers\Aurora;
 use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\Comms\Mailshot\UpdateMailshot;
 use App\Models\Comms\Mailshot;
+use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -18,61 +19,82 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraMailshots extends FetchAuroraAction
 {
+    use WithAuroraParsers;
+
     public string $commandSignature = 'fetch:mailshots {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Mailshot
     {
-        if ($mailshotData = $organisationSource->fetchMailshot($organisationSourceId)) {
-            if ($mailshot = Mailshot::where('source_id', $mailshotData['mailshot']['source_id'])->first()) {
-                try {
-                    $mailshot = UpdateMailshot::make()->action(
-                        mailshot: $mailshot,
-                        modelData: $mailshotData['mailshot'],
-                        hydratorsDelay: 60,
-                        strict: false,
-                        audit: false
-                    );
-                    $this->recordChange($organisationSource, $mailshot->wasChanged());
-                } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $mailshotData['mailshot'], 'Mailshot', 'update');
+        $this->organisationSource = $organisationSource;
+        $mailshotData = $organisationSource->fetchMailshot($organisationSourceId);
+        if (!$mailshotData) {
+            return null;
+        }
 
-                    return null;
-                }
-            } else {
-                // try {
-                $mailshot = StoreMailshot::make()->action(
-                    outbox: $mailshotData['outbox'],
+        if ($mailshot = Mailshot::where('source_id', $mailshotData['mailshot']['source_id'])->first()) {
+            try {
+                $mailshot = UpdateMailshot::make()->action(
+                    mailshot: $mailshot,
                     modelData: $mailshotData['mailshot'],
                     hydratorsDelay: 60,
                     strict: false,
                     audit: false
                 );
-                Mailshot::enableAuditing();
-                $this->saveMigrationHistory(
-                    $mailshot,
-                    Arr::except($mailshotData['mailshot'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                );
+                $this->recordChange($organisationSource, $mailshot->wasChanged());
+            } catch (Exception $e) {
+                $this->recordError($organisationSource, $e, $mailshotData['mailshot'], 'Mailshot', 'update');
 
-                $this->recordNew($organisationSource);
-
-                $sourceData = explode(':', $mailshot->source_id);
-                DB::connection('aurora')->table('Email Campaign Dimension')
-                    ->where('Email Campaign Key', $sourceData[1])
-                    ->update(['aiku_id' => $mailshot->id]);
-                //                } catch (Exception|Throwable $e) {
-                //
-                //                    $this->recordError($organisationSource, $e, $mailshotData['mailshot'], 'Mailshot', 'store');
-                //
-                //                    return null;
-                //                }
+                return null;
             }
+        } else {
+            // try {
+            $mailshot = StoreMailshot::make()->action(
+                outbox: $mailshotData['outbox'],
+                modelData: $mailshotData['mailshot'],
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+            Mailshot::enableAuditing();
+            $this->saveMigrationHistory(
+                $mailshot,
+                Arr::except($mailshotData['mailshot'], ['fetched_at', 'last_fetched_at', 'source_id'])
+            );
 
+            $this->recordNew($organisationSource);
 
-            return $mailshot;
+            $sourceData = explode(':', $mailshot->source_id);
+            DB::connection('aurora')->table('Email Campaign Dimension')
+                ->where('Email Campaign Key', $sourceData[1])
+                ->update(['aiku_id' => $mailshot->id]);
+            //                } catch (Exception|Throwable $e) {
+            //
+            //                    $this->recordError($organisationSource, $e, $mailshotData['mailshot'], 'Mailshot', 'store');
+            //
+            //                    return null;
+            //                }
         }
 
-        return null;
+
+        if ($mailshot) {
+            $organisation = $organisationSource->getOrganisation();
+
+            if ($mailshotData['source_template_id']) {
+                $email = $this->parseEmail($organisation->id.':'.$mailshotData['source_template_id']);
+
+                if ($email) {
+                    $mailshot->update(
+                        [
+                            'email_id' => $email->id
+                        ]
+                    );
+                }
+            }
+        }
+
+
+        return $mailshot;
     }
 
 

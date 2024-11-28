@@ -9,8 +9,8 @@
 namespace App\Actions\Ordering\Order\Hydrators;
 
 use App\Actions\Traits\WithEnumStats;
+use App\Models\Discounts\TransactionHasOfferComponent;
 use App\Models\Ordering\Order;
-use App\Models\Ordering\Transaction;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -18,6 +18,7 @@ class OrderHydrateOffers
 {
     use AsAction;
     use WithEnumStats;
+
     private Order $order;
 
     public function __construct(Order $order)
@@ -29,44 +30,16 @@ class OrderHydrateOffers
     {
         return [(new WithoutOverlapping($this->order->id))->dontRelease()];
     }
+
     public function handle(Order $order): void
     {
-
         $stats = [
-            'number_offer_components' => $order->transactions()->sum(function ($transaction) {
-                return $this->countOfferComponents($transaction);
-            }),
-            'number_offers' => $order->transactions()->sum(function ($transaction) {
-                return $this->countOffers($transaction);
-            }),
-            'number_offer_campaigns' => $order->transactions()->sum(function ($transaction) {
-                return $this->countOfferCampaigns($transaction);
-            }),
+            'number_offers' => TransactionHasOfferComponent::where('order_id', $order->id)->distinct()->count('transaction_has_offer_components.offer_id'),
         ];
 
 
         $order->stats()->update($stats);
     }
 
-    public function countOfferComponents(Transaction $transaction): int
-    {
-        return $transaction->offerComponents()
-            ->distinct('offer_component_id')
-            ->count('offer_component_id');
-    }
-
-    public function countOffers(Transaction $transaction): int
-    {
-        return $transaction->offerComponents()
-            ->distinct('offer_id')
-            ->count('offer_id');
-    }
-
-    public function countOfferCampaigns(Transaction $transaction): int
-    {
-        return $transaction->offerComponents()
-            ->distinct('offer_campaigns_id')
-            ->count('offer_campaigns_id');
-    }
 
 }

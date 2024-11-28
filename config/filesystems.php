@@ -61,6 +61,11 @@ return [
             'root'   => storage_path('media'),
             'throw'  => false,
         ],
+        'media_test'  => [
+            'driver' => 'local',
+            'root'   => storage_path('media_test'),
+            'throw'  => false,
+        ],
         'r2' => [
             'driver'   => 's3',
             'key'      => env('CLOUDFLARE_R2_ACCESS_KEY'),

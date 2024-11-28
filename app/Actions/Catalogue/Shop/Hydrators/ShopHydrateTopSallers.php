@@ -45,7 +45,7 @@ class ShopHydrateTopSallers
 
             $topProduct = $shop->products()
                 ->join('product_sales_intervals', 'products.id', '=', 'product_sales_intervals.product_id')
-                ->orderByDesc('product_sales_intervals.shop_amount_' . $timesUpdate)
+                ->orderByDesc('product_sales_intervals.shop_amount_' . $timeUpdate)
                 ->first();
 
 

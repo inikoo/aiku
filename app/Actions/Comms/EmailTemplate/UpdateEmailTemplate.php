@@ -41,7 +41,8 @@ class UpdateEmailTemplate extends OrgAction
             'state'      => ['sometimes', Rule::enum(EmailTemplateStateEnum::class)],
             'active_at'  => ['sometimes', 'date'],
             'suspend_at' => ['sometimes', 'date'],
-            'layout'     => ['sometimes', 'array']
+            'layout'     => ['sometimes', 'array'],
+            'arguments'  => ['sometimes', 'array'],
         ];
     }
 

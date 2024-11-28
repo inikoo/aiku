@@ -26,8 +26,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $newsletters_qtd
  * @property string $newsletters_mtd
  * @property string $newsletters_wtd
+ * @property string $newsletters_tdy
  * @property string $newsletters_lm
  * @property string $newsletters_lw
+ * @property string $newsletters_ld
  * @property string $newsletters_all_ly
  * @property string $newsletters_1y_ly
  * @property string $newsletters_1q_ly
@@ -39,8 +41,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $newsletters_qtd_ly
  * @property string $newsletters_mtd_ly
  * @property string $newsletters_wtd_ly
+ * @property string $newsletters_tdy_ly
  * @property string $newsletters_lm_ly
  * @property string $newsletters_lw_ly
+ * @property string $newsletters_ld_ly
  * @property string $newsletters_py1
  * @property string $newsletters_py2
  * @property string $newsletters_py3
@@ -62,8 +66,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $marketing_emails_qtd
  * @property string $marketing_emails_mtd
  * @property string $marketing_emails_wtd
+ * @property string $marketing_emails_tdy
  * @property string $marketing_emails_lm
  * @property string $marketing_emails_lw
+ * @property string $marketing_emails_ld
  * @property string $marketing_emails_all_ly
  * @property string $marketing_emails_1y_ly
  * @property string $marketing_emails_1q_ly
@@ -75,8 +81,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $marketing_emails_qtd_ly
  * @property string $marketing_emails_mtd_ly
  * @property string $marketing_emails_wtd_ly
+ * @property string $marketing_emails_tdy_ly
  * @property string $marketing_emails_lm_ly
  * @property string $marketing_emails_lw_ly
+ * @property string $marketing_emails_ld_ly
  * @property string $marketing_emails_py1
  * @property string $marketing_emails_py2
  * @property string $marketing_emails_py3
@@ -98,8 +106,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $abandoned_carts_qtd
  * @property string $abandoned_carts_mtd
  * @property string $abandoned_carts_wtd
+ * @property string $abandoned_carts_tdy
  * @property string $abandoned_carts_lm
  * @property string $abandoned_carts_lw
+ * @property string $abandoned_carts_ld
  * @property string $abandoned_carts_all_ly
  * @property string $abandoned_carts_1y_ly
  * @property string $abandoned_carts_1q_ly
@@ -111,8 +121,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $abandoned_carts_qtd_ly
  * @property string $abandoned_carts_mtd_ly
  * @property string $abandoned_carts_wtd_ly
+ * @property string $abandoned_carts_tdy_ly
  * @property string $abandoned_carts_lm_ly
  * @property string $abandoned_carts_lw_ly
+ * @property string $abandoned_carts_ld_ly
  * @property string $abandoned_carts_py1
  * @property string $abandoned_carts_py2
  * @property string $abandoned_carts_py3
@@ -134,8 +146,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $total_mailshots_qtd
  * @property string $total_mailshots_mtd
  * @property string $total_mailshots_wtd
+ * @property string $total_mailshots_tdy
  * @property string $total_mailshots_lm
  * @property string $total_mailshots_lw
+ * @property string $total_mailshots_ld
  * @property string $total_mailshots_all_ly
  * @property string $total_mailshots_1y_ly
  * @property string $total_mailshots_1q_ly
@@ -147,8 +161,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $total_mailshots_qtd_ly
  * @property string $total_mailshots_mtd_ly
  * @property string $total_mailshots_wtd_ly
+ * @property string $total_mailshots_tdy_ly
  * @property string $total_mailshots_lm_ly
  * @property string $total_mailshots_lw_ly
+ * @property string $total_mailshots_ld_ly
  * @property string $total_mailshots_py1
  * @property string $total_mailshots_py2
  * @property string $total_mailshots_py3
@@ -170,8 +186,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $total_emails_qtd
  * @property string $total_emails_mtd
  * @property string $total_emails_wtd
+ * @property string $total_emails_tdy
  * @property string $total_emails_lm
  * @property string $total_emails_lw
+ * @property string $total_emails_ld
  * @property string $total_emails_all_ly
  * @property string $total_emails_1y_ly
  * @property string $total_emails_1q_ly
@@ -183,8 +201,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $total_emails_qtd_ly
  * @property string $total_emails_mtd_ly
  * @property string $total_emails_wtd_ly
+ * @property string $total_emails_tdy_ly
  * @property string $total_emails_lm_ly
  * @property string $total_emails_lw_ly
+ * @property string $total_emails_ld_ly
  * @property string $total_emails_py1
  * @property string $total_emails_py2
  * @property string $total_emails_py3

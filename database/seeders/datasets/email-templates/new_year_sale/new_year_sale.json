@@ -1,0 +1,1478 @@
+{
+    "image": "new_year_sale.jpg",
+    "name": "NewYearSale",
+    "src": {
+        "item": {
+            "id": "dJlnDF5VnH",
+            "type": "text",
+            "values": {
+                "text": "<p style=\"line-height: 140%;\">{{unsubscribe}}</p>",
+                "_meta": {
+                    "htmlID": "u_content_text_2",
+                    "htmlClassNames": "u_content_text"
+                },
+                "anchor": null,
+                "fontSize": "14px",
+                "hideable": true,
+                "deletable": true,
+                "draggable": true,
+                "linkStyle": {
+                    "inherit": true,
+                    "linkColor": "#0000ee",
+                    "linkUnderline": true,
+                    "linkHoverColor": "#0000ee",
+                    "linkHoverUnderline": true
+                },
+                "textAlign": "left",
+                "lineHeight": "140%",
+                "selectable": true,
+                "duplicatable": true,
+                "containerPadding": "10px",
+                "displayCondition": null
+            }
+        },
+        "type": "content:modified",
+        "changes": {
+            "name": "textAlign",
+            "path": [
+                "textAlign"
+            ],
+            "value": "center"
+        }
+    },
+    "html": {
+        "amp": {
+            "format": "AMP4EMAIL",
+            "enabled": false,
+            "validation": {
+                "errors": [],
+                "status": "UNKNOWN"
+            }
+        },
+        "html": "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional //EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n<html xmlns=\"http://www.w3.org/1999/xhtml\" xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:o=\"urn:schemas-microsoft-com:office:office\">\n<head>\n<!--[if gte mso 9]>\n<xml>\n  <o:OfficeDocumentSettings>\n    <o:AllowPNG/>\n    <o:PixelsPerInch>96</o:PixelsPerInch>\n  </o:OfficeDocumentSettings>\n</xml>\n<![endif]-->\n  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <meta name=\"x-apple-disable-message-reformatting\">\n  <!--[if !mso]><!--><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><!--<![endif]-->\n  <title></title>\n  \n    <style type=\"text/css\">\n      @media only screen and (min-width: 620px) {\n  .u-row {\n    width: 600px !important;\n  }\n  .u-row .u-col {\n    vertical-align: top;\n  }\n\n  .u-row .u-col-50 {\n    width: 300px !important;\n  }\n\n  .u-row .u-col-100 {\n    width: 600px !important;\n  }\n\n}\n\n@media (max-width: 620px) {\n  .u-row-container {\n    max-width: 100% !important;\n    padding-left: 0px !important;\n    padding-right: 0px !important;\n  }\n  .u-row .u-col {\n    min-width: 320px !important;\n    max-width: 100% !important;\n    display: block !important;\n  }\n  .u-row {\n    width: 100% !important;\n  }\n  .u-col {\n    width: 100% !important;\n  }\n  .u-col > div {\n    margin: 0 auto;\n  }\n}\nbody {\n  margin: 0;\n  padding: 0;\n}\n\ntable,\ntr,\ntd {\n  vertical-align: top;\n  border-collapse: collapse;\n}\n\np {\n  margin: 0;\n}\n\n.ie-container table,\n.mso-container table {\n  table-layout: fixed;\n}\n\n* {\n  line-height: inherit;\n}\n\na[x-apple-data-detectors='true'] {\n  color: inherit !important;\n  text-decoration: none !important;\n}\n\ntable, td { color: #000; } #u_body a { color: #00e; text-decoration: underline; }\n    </style>\n  \n  \n\n<!--[if !mso]><!--><link href=\"https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap\" rel=\"stylesheet\" type=\"text/css\"><link href=\"https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap\" rel=\"stylesheet\" type=\"text/css\"><!--<![endif]-->\n\n</head>\n\n<body class=\"clean-body u_body\" style=\"margin: 0;padding: 0;-webkit-text-size-adjust: 100%;background-color: #f9f9f9;color: #000\">\n  <!--[if IE]><div class=\"ie-container\"><![endif]-->\n  <!--[if mso]><div class=\"mso-container\"><![endif]-->\n  <table id=\"u_body\" style=\"border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;min-width: 320px;Margin: 0 auto;background-color: #f9f9f9;width:100%\" cellpadding=\"0\" cellspacing=\"0\">\n  <tbody>\n  <tr style=\"vertical-align: top\">\n    <td style=\"word-break: break-word;border-collapse: collapse !important;vertical-align: top\">\n    <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td align=\"center\" style=\"background-color: #f9f9f9;\"><![endif]-->\n    \n  \n  \n<div class=\"u-row-container\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;\">\n    <div style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr style=\"background-color: transparent;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" style=\"width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-100\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div style=\"height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:5px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <table height=\"0px\" align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;border-top: 0px solid #BBB;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%\">\n    <tbody>\n      <tr style=\"vertical-align: top\">\n        <td style=\"word-break: break-word;border-collapse: collapse !important;vertical-align: top;font-size: 0px;line-height: 0px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%\">\n          <span>&#160;</span>\n        </td>\n      </tr>\n    </tbody>\n  </table>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n    <!--[if gte mso 9]>\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;\">\n        <tr>\n          <td background=\"https://cdn.templates.unlayer.com/assets/{{media(header_image.png)}}\" valign=\"top\" width=\"100%\">\n      <v:rect xmlns:v=\"urn:schemas-microsoft-com:vml\" fill=\"true\" stroke=\"false\" style=\"width: 600px;\">\n        <v:fill type=\"frame\" src=\"https://cdn.templates.unlayer.com/assets/{{media(header_image.png)}}\" /><v:textbox style=\"mso-fit-shape-to-text:true\" inset=\"0,0,0,0\">\n      <![endif]-->\n  \n<div class=\"u-row-container\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;\">\n    <div style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-image: url('https://cdn.templates.unlayer.com/assets/{{media(header_image.png)}}');background-repeat: no-repeat;background-position: center top;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr style=\"background-image: url('https://cdn.templates.unlayer.com/assets/{{media(header_image.png)}}');background-repeat: no-repeat;background-position: center top;background-color: transparent;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" style=\"width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-100\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div style=\"height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:150px 10px 10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <table height=\"0px\" align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;border-top: 0px solid #BBB;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%\">\n    <tbody>\n      <tr style=\"vertical-align: top\">\n        <td style=\"word-break: break-word;border-collapse: collapse !important;vertical-align: top;font-size: 0px;line-height: 0px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%\">\n          <span>&#160;</span>\n        </td>\n      </tr>\n    </tbody>\n  </table>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div style=\"font-size: 14px; color: #fff; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"text-align: center; font-size: 14px; line-height: 120%;\"><span style=\"font-size: 44px; line-height: 52.8px; font-family: Montserrat, sans-serif;\"><strong><span style=\"line-height: 52.8px; font-size: 44px;\">HAPPY NEW </span></strong></span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div style=\"font-size: 14px; color: #fff; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"text-align: center; font-size: 14px; line-height: 120%;\"><span style=\"font-size: 44px; line-height: 52.8px; font-family: Montserrat, sans-serif;\"><strong><span style=\"line-height: 52.8px; font-size: 44px;\">YEAR XXXX</span></strong></span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px 10px 50px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->\n<div align=\"center\">\n  <!--[if mso]><table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td align=\"center\" bgcolor=\"#e82479\" style=\"padding:12px 22px;\" valign=\"top\"><![endif]-->\n    <a href=\"\" target=\"_blank\" class=\"v-button\" style=\"box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFF; background-color: #e82479; border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;\">\n      <span style=\"display:block;padding:12px 22px;line-height:120%;\"><span style=\"font-size: 14px; line-height: 16.8px;\">SHOP NOW!</span></span>\n    </a>\n    <!--[if mso]></td></tr></table><![endif]-->\n</div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n    <!--[if gte mso 9]>\n      </v:textbox></v:rect>\n    </td>\n    </tr>\n    </table>\n    <![endif]-->\n    \n\n\n  \n  \n<div class=\"u-row-container\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #fff;\">\n    <div style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr style=\"background-color: #fff;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" style=\"background-color: #fff;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-100\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div style=\"background-color: #fff;height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:30px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div style=\"font-size: 14px; color: #000; line-height: 140%; text-align: center; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 30px; line-height: 42px;\"><strong>NEW YEAR! IT'S TIME FOR GIFT'S !</strong></span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div class=\"u-row-container\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #fff;\">\n    <div style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr style=\"background-color: #fff;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" style=\"background-color: #fff;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-100\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div style=\"background-color: #fff;height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->\n<div align=\"center\">\n  <!--[if mso]><v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"\" style=\"height:37px; v-text-anchor:middle; width:121px;\" arcsize=\"11%\"  stroke=\"f\" fillcolor=\"#ec5b5b\"><w:anchorlock/><center style=\"color:#FFF;\"><![endif]-->\n    <a href=\"\" target=\"_blank\" class=\"v-button\" style=\"box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFF; background-color: #ec5b5b; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:100%; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;\">\n      <span style=\"display:block;padding:5px 60px;line-height:120%;\"><span style=\"display:block;padding:13px 20px;line-height:120%;\"><span style=\"font-size: 16px; line-height: 19.2px;\"><strong><span style=\"line-height: 19.2px; font-size: 16px;\">Use code <span style=\"line-height: 19.2px; font-size: 16px;\">NEWYEAR</span> to get 30% OFF on all items</span></strong></span></span></span>\n    </a>\n    <!--[if mso]></center></v:roundrect><![endif]-->\n</div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div class=\"u-row-container\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;\">\n    <div style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr style=\"background-color: transparent;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"300\" style=\"background-color: #fff;width: 300px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-50\" style=\"max-width: 320px;min-width: 300px;display: table-cell;vertical-align: top;\">\n  <div style=\"background-color: #fff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div style=\"font-size: 14px; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 16px; line-height: 22.4px;\"><strong>Special Gift For Special One!!</strong></span><br /><span style=\"font-size: 16px; line-height: 22.4px;\">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpatLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam  </span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n<!--[if (mso)|(IE)]><td align=\"center\" width=\"300\" style=\"background-color: #fff;width: 300px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-50\" style=\"max-width: 320px;min-width: 300px;display: table-cell;vertical-align: top;\">\n  <div style=\"background-color: #fff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tr>\n    <td style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"center\" border=\"0\" src=\"https://cdn.templates.unlayer.com/assets/{{media(wine.png)}}\" alt=\"Image\" title=\"Image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 280px;\" width=\"280\"/>\n      \n    </td>\n  </tr>\n</table>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div class=\"u-row-container\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #fff;\">\n    <div style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr style=\"background-color: #fff;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" style=\"background-color: #fff;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-100\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div style=\"background-color: #fff;height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->\n<div align=\"center\">\n  <!--[if mso]><v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"\" style=\"height:37px; v-text-anchor:middle; width:121px;\" arcsize=\"11%\"  stroke=\"f\" fillcolor=\"#ec5b5b\"><w:anchorlock/><center style=\"color:#FFF;\"><![endif]-->\n    <a href=\"\" target=\"_blank\" class=\"v-button\" style=\"box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFF; background-color: #ec5b5b; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:100%; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;\">\n      <span style=\"display:block;padding:5px 60px;line-height:120%;\"><span style=\"display:block;padding:13px 20px;line-height:120%;\"><span style=\"font-size: 16px; line-height: 19.2px;\"><strong>Click here to get the @hottest gift items</strong></span><br></span></span>\n    </a>\n    <!--[if mso]></center></v:roundrect><![endif]-->\n</div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div class=\"u-row-container\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #fff;\">\n    <div style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr style=\"background-color: #fff;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"300\" style=\"width: 300px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-50\" style=\"max-width: 320px;min-width: 300px;display: table-cell;vertical-align: top;\">\n  <div style=\"height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tr>\n    <td style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"center\" border=\"0\" src=\"https://cdn.templates.unlayer.com/assets/{{media(wine.png)}}\" alt=\"Image\" title=\"Image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 250px;\" width=\"250\"/>\n      \n    </td>\n  </tr>\n</table>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div style=\"font-size: 14px; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 14px; line-height: 19.6px;\">$100</span></p>\n<p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 14px; line-height: 19.6px;\">Your awesome gift name!</span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n<!--[if (mso)|(IE)]><td align=\"center\" width=\"300\" style=\"width: 300px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-50\" style=\"max-width: 320px;min-width: 300px;display: table-cell;vertical-align: top;\">\n  <div style=\"height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tr>\n    <td style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"center\" border=\"0\" src=\"https://cdn.templates.unlayer.com/assets/{{media(wine.png)}}\" alt=\"Image\" title=\"Image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 250px;\" width=\"250\"/>\n      \n    </td>\n  </tr>\n</table>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div style=\"font-size: 14px; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 14px; line-height: 19.6px;\">$100</span></p>\n<p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 14px; line-height: 19.6px;\">Your awesome gift name!</span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div class=\"u-row-container\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #fff;\">\n    <div style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr style=\"background-color: #fff;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" style=\"background-color: #fff;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-100\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div style=\"background-color: #fff;height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->\n<div align=\"center\">\n  <!--[if mso]><v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"\" style=\"height:37px; v-text-anchor:middle; width:121px;\" arcsize=\"11%\"  stroke=\"f\" fillcolor=\"#ec5b5b\"><w:anchorlock/><center style=\"color:#FFF;\"><![endif]-->\n    <a href=\"\" target=\"_blank\" class=\"v-button\" style=\"box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFF; background-color: #ec5b5b; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:100%; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;\">\n      <span style=\"display:block;padding:5px 60px;line-height:120%;\"><span style=\"display:block;padding:13px 20px;line-height:120%;\"><span style=\"font-size: 16px; line-height: 19.2px;\"><strong>Click here to get the @hottest gift items</strong></span><br></span></span>\n    </a>\n    <!--[if mso]></center></v:roundrect><![endif]-->\n</div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div class=\"u-row-container\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;\">\n    <div style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr style=\"background-color: transparent;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"300\" style=\"background-color: #fff;width: 300px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-50\" style=\"max-width: 320px;min-width: 300px;display: table-cell;vertical-align: top;\">\n  <div style=\"background-color: #fff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tr>\n    <td style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"center\" border=\"0\" src=\"https://cdn.templates.unlayer.com/assets/{{media(blob.jpg)}}\" alt=\"Image\" title=\"Image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 280px;\" width=\"280\"/>\n      \n    </td>\n  </tr>\n</table>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n<!--[if (mso)|(IE)]><td align=\"center\" width=\"300\" style=\"background-color: #fff;width: 300px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-50\" style=\"max-width: 320px;min-width: 300px;display: table-cell;vertical-align: top;\">\n  <div style=\"background-color: #fff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div style=\"font-size: 14px; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 20px; line-height: 28px;\"><strong><span style=\"line-height: 28px; font-size: 20px;\">GFT box (package)</span></strong></span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div style=\"font-size: 14px; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%;\">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpatLorem ipsum dolor sit ame </p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div class=\"u-row-container\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #fff;\">\n    <div style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr style=\"background-color: #fff;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" style=\"background-color: #000;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-100\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div style=\"background-color: #000;height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:30px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div style=\"font-size: 14px; color: #bdbdbe; line-height: 140%; text-align: center; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%;\"><strong><span style=\"font-size: 14px; line-height: 19.6px;\">Get in Touch</span></strong></p><p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 12px; line-height: 16.8px;\">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpatLorem ipsum dolor sit ame  </span></p><p style=\"font-size: 14px; line-height: 140%;\"> </p><p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 12px; line-height: 16.8px;\">f you are no longer interested, you can  unsubscribe instantly </span></p><p style=\"line-height: 140%; font-size: 14px;\"><span style=\"font-size: 12px; line-height: 16.8px;\"> © Company |  All Rights Reserved </span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div class=\"u-row-container\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;\">\n    <div style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr style=\"background-color: transparent;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" style=\"width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\" valign=\"top\"><![endif]-->\n<div class=\"u-col u-col-100\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div style=\"height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\">\n  <!--[if (!mso)&(!IE)]><!--><div style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\"><!--<![endif]-->\n  \n<table style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div style=\"font-size: 14px; line-height: 140%; text-align: center; word-wrap: break-word;\">\n    <p style=\"line-height: 140%;\">{{unsubscribe}}</p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n    <!--[if (mso)|(IE)]></td></tr></table><![endif]-->\n    </td>\n  </tr>\n  </tbody>\n  </table>\n  <!--[if mso]></div><![endif]-->\n  <!--[if IE]></div><![endif]-->\n</body>\n\n</html>",
+        "chunks": {
+            "js": null,
+            "css": "@media only screen and (min-width: 620px) {\n  .u-row {\n    width: 600px !important;\n  }\n  .u-row .u-col {\n    vertical-align: top;\n  }\n\n  .u-row .u-col-50 {\n    width: 300px !important;\n  }\n\n  .u-row .u-col-100 {\n    width: 600px !important;\n  }\n\n}\n\n@media (max-width: 620px) {\n  .u-row-container {\n    max-width: 100% !important;\n    padding-left: 0px !important;\n    padding-right: 0px !important;\n  }\n  .u-row .u-col {\n    min-width: 320px !important;\n    max-width: 100% !important;\n    display: block !important;\n  }\n  .u-row {\n    width: 100% !important;\n  }\n  .u-col {\n    width: 100% !important;\n  }\n  .u-col > div {\n    margin: 0 auto;\n  }\n  .no-stack .u-col {\n    min-width: 0 !important;\n    display: table-cell !important;\n  }\n\n  .no-stack .u-col-50 {\n    width: 50% !important;\n  }\n\n  .no-stack .u-col-100 {\n    width: 100% !important;\n  }\n\n}\nbody {\n  margin: 0;\n  padding: 0;\n}\n\ntable,\ntr,\ntd {\n  vertical-align: top;\n  border-collapse: collapse;\n}\n\np {\n  margin: 0;\n}\n\n.ie-container table,\n.mso-container table {\n  table-layout: fixed;\n}\n\n* {\n  line-height: inherit;\n}\n\na[x-apple-data-detectors='true'] {\n  color: inherit !important;\n  text-decoration: none !important;\n}\n\n@media (min-width: 0px) {\n  .hide-default__display-block {\n    display: block !important;\n    mso-hide: unset !important;\n  }\n\n  .hide-default__display-table {\n    display: table !important;\n    mso-hide: unset !important;\n  }\n}\n\n@media (max-width: 480px) {\n  .hide-mobile {\n    max-height: 0px;\n    overflow: hidden;\n    display: none !important;\n  }\n}\n\n@media (min-width: 481px) and (max-width: 768px) {\n  .hide-tablet {\n    max-height: 0px;\n    overflow: hidden;\n    display: none !important;\n  }\n}\n\n@media (min-width: 481px) {\n  .hide-desktop {\n    max-height: 0px;\n    overflow: hidden;\n    display: none !important;\n  }\n}\ntable, td { color: #000; } #u_body a { color: #00e; text-decoration: underline; }",
+            "body": "<body class=\"clean-body u_body\" style=\"margin: 0;padding: 0;-webkit-text-size-adjust: 100%;background-color: #f9f9f9;color: #000\">\n  <!--[if IE]><div class=\"ie-container\"><![endif]-->\n  <!--[if mso]><div class=\"mso-container\"><![endif]-->\n  <table id=\"u_body\" style=\"border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;min-width: 320px;Margin: 0 auto;background-color: #f9f9f9;width:100%\" cellpadding=\"0\" cellspacing=\"0\">\n  <tbody>\n  <tr style=\"vertical-align: top\">\n    <td style=\"word-break: break-word;border-collapse: collapse !important;vertical-align: top\">\n    <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td align=\"center\" style=\"background-color: #f9f9f9;\"><![endif]-->\n    \n  \n  \n<div id=\"u_row_13\" class=\"u-row-container u_row v-row-padding--vertical v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row v-row-columns-background-color-background-color\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;\">\n    <div class=\"v-row-background-image--inner\" style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td class=\"v-row-padding v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr class=\"v-row-background-image--inner v-row-columns-background-color-background-color\" style=\"background-color: transparent;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_16\" class=\"u-col u-col-100 u_column\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table id=\"u_content_divider_6\" class=\"u_content_divider\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:5px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <table height=\"0px\" align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;border-top: 0px solid #BBB;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%\">\n    <tbody>\n      <tr style=\"vertical-align: top\">\n        <td style=\"word-break: break-word;border-collapse: collapse !important;vertical-align: top;font-size: 0px;line-height: 0px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%\">\n          <span>&#160;</span>\n        </td>\n      </tr>\n    </tbody>\n  </table>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n    <!--[if gte mso 9]>\n      <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;\">\n        <tr>\n          <td background=\"https://cdn.templates.unlayer.com/assets/{{media(header_image.png)}}\" valign=\"top\" width=\"100%\">\n      <v:rect xmlns:v=\"urn:schemas-microsoft-com:vml\" fill=\"true\" stroke=\"false\" style=\"width: 600px;\">\n        <v:fill type=\"frame\" src=\"https://cdn.templates.unlayer.com/assets/{{media(header_image.png)}}\" /><v:textbox style=\"mso-fit-shape-to-text:true\" inset=\"0,0,0,0\">\n      <![endif]-->\n  \n<div id=\"u_row_3\" class=\"u-row-container u_row v-row-padding--vertical v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row v-row-columns-background-color-background-color\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;\">\n    <div class=\"v-row-background-image--inner\" style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-image: url('https://cdn.templates.unlayer.com/assets/{{media(header_image.png)}}');background-repeat: no-repeat;background-position: center top;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td class=\"v-row-padding v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr class=\"v-row-background-image--inner v-row-columns-background-color-background-color\" style=\"background-image: url('https://cdn.templates.unlayer.com/assets/{{media(header_image.png)}}');background-repeat: no-repeat;background-position: center top;background-color: transparent;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_5\" class=\"u-col u-col-100 u_column\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table id=\"u_content_divider_2\" class=\"u_content_divider\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:150px 10px 10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <table height=\"0px\" align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"border-collapse: collapse;table-layout: fixed;border-spacing: 0;mso-table-lspace: 0pt;mso-table-rspace: 0pt;vertical-align: top;border-top: 0px solid #BBB;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%\">\n    <tbody>\n      <tr style=\"vertical-align: top\">\n        <td style=\"word-break: break-word;border-collapse: collapse !important;vertical-align: top;font-size: 0px;line-height: 0px;mso-line-height-rule: exactly;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%\">\n          <span>&#160;</span>\n        </td>\n      </tr>\n    </tbody>\n  </table>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<table id=\"u_content_text_1\" class=\"u_content_text\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-color v-text-align v-line-height v-font-weight v-font-family v-font-size\" style=\"font-size: 14px; color: #fff; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"text-align: center; font-size: 14px; line-height: 120%;\"><span style=\"font-size: 44px; line-height: 52.8px; font-family: Montserrat, sans-serif;\"><strong><span style=\"line-height: 52.8px; font-size: 44px;\">HAPPY NEW </span></strong></span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<table id=\"u_content_text_1\" class=\"u_content_text\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-color v-text-align v-line-height v-font-weight v-font-family v-font-size\" style=\"font-size: 14px; color: #fff; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"text-align: center; font-size: 14px; line-height: 120%;\"><span style=\"font-size: 44px; line-height: 52.8px; font-family: Montserrat, sans-serif;\"><strong><span style=\"line-height: 52.8px; font-size: 44px;\">YEAR XXXX</span></strong></span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<table id=\"u_content_button_1\" class=\"u_content_button\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px 10px 50px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->\n<div class=\"v-text-align\" align=\"center\">\n  <!--[if mso]><table border=\"0\" cellspacing=\"0\" cellpadding=\"0\"><tr><td align=\"center\" bgcolor=\"#e82479\" style=\"padding:12px 22px;\" valign=\"top\"><![endif]-->\n    <a href=\"\" target=\"_blank\" class=\"v-button v-size-width v-button-colors v-border v-border-radius v-font-family v-font-size v-font-weight\" style=\"box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFF; background-color: #e82479; border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;\">\n      <span class=\"v-line-height v-padding\" style=\"display:block;padding:12px 22px;line-height:120%;\"><span style=\"font-size: 14px; line-height: 16.8px;\">SHOP NOW!</span></span>\n    </a>\n    <!--[if mso]></td></tr></table><![endif]-->\n</div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n    <!--[if gte mso 9]>\n      </v:textbox></v:rect>\n    </td>\n    </tr>\n    </table>\n    <![endif]-->\n    \n\n\n  \n  \n<div id=\"u_row_5\" class=\"u-row-container u_row v-row-padding--vertical v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row v-row-columns-background-color-background-color\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #fff;\">\n    <div class=\"v-row-background-image--inner\" style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td class=\"v-row-padding v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr class=\"v-row-background-image--inner v-row-columns-background-color-background-color\" style=\"background-color: #fff;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"background-color: #fff;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_7\" class=\"u-col u-col-100 u_column\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"background-color: #fff;height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table id=\"u_content_text_2\" class=\"u_content_text\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:30px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-color v-text-align v-line-height v-font-weight v-font-family v-font-size\" style=\"font-size: 14px; color: #000; line-height: 140%; text-align: center; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 30px; line-height: 42px;\"><strong>NEW YEAR! IT'S TIME FOR GIFT'S !</strong></span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div id=\"u_row_12\" class=\"u-row-container u_row v-row-padding--vertical v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row v-row-columns-background-color-background-color\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #fff;\">\n    <div class=\"v-row-background-image--inner\" style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td class=\"v-row-padding v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr class=\"v-row-background-image--inner v-row-columns-background-color-background-color\" style=\"background-color: #fff;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"background-color: #fff;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_15\" class=\"u-col u-col-100 u_column\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"background-color: #fff;height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table id=\"u_content_button_5\" class=\"u_content_button\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->\n<div class=\"v-text-align\" align=\"center\">\n  <!--[if mso]><v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"\" style=\"height:37px; v-text-anchor:middle; width:121px;\" arcsize=\"11%\"  stroke=\"f\" fillcolor=\"#ec5b5b\"><w:anchorlock/><center style=\"color:#FFF;\"><![endif]-->\n    <a href=\"\" target=\"_blank\" class=\"v-button v-size-width v-button-colors v-border v-border-radius v-font-family v-font-size v-font-weight\" style=\"box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFF; background-color: #ec5b5b; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:100%; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;\">\n      <span class=\"v-line-height v-padding\" style=\"display:block;padding:5px 60px;line-height:120%;\"><span style=\"display:block;padding:13px 20px;line-height:120%;\"><span style=\"font-size: 16px; line-height: 19.2px;\"><strong><span style=\"line-height: 19.2px; font-size: 16px;\">Use code <span style=\"line-height: 19.2px; font-size: 16px;\">NEWYEAR</span> to get 30% OFF on all items</span></strong></span></span></span>\n    </a>\n    <!--[if mso]></center></v:roundrect><![endif]-->\n</div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div id=\"u_row_1\" class=\"u-row-container u_row v-row-padding--vertical v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row v-row-columns-background-color-background-color\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;\">\n    <div class=\"v-row-background-image--inner\" style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td class=\"v-row-padding v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr class=\"v-row-background-image--inner v-row-columns-background-color-background-color\" style=\"background-color: transparent;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"300\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"background-color: #fff;width: 300px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_1\" class=\"u-col u-col-50 u_column\" style=\"max-width: 320px;min-width: 300px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"background-color: #fff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\"><!--<![endif]-->\n  \n<table id=\"u_content_text_1\" class=\"u_content_text\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-color v-text-align v-line-height v-font-weight v-font-family v-font-size\" style=\"font-size: 14px; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 16px; line-height: 22.4px;\"><strong>Special Gift For Special One!!</strong></span><br /><span style=\"font-size: 16px; line-height: 22.4px;\">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpatLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam  </span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n<!--[if (mso)|(IE)]><td align=\"center\" width=\"300\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"background-color: #fff;width: 300px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_2\" class=\"u-col u-col-50 u_column\" style=\"max-width: 320px;min-width: 300px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"background-color: #fff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\"><!--<![endif]-->\n  \n<table id=\"u_content_image_3\" class=\"u_content_image\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tr>\n    <td class=\"v-text-align\" style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"center\" border=\"0\" src=\"https://cdn.templates.unlayer.com/assets/{{media(wine.png)}}\" alt=\"Image\" title=\"Image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 280px;\" width=\"280\" class=\"v-src-width v-src-max-width\"/>\n      \n    </td>\n  </tr>\n</table>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div id=\"u_row_1\" class=\"u-row-container u_row v-row-padding--vertical v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row v-row-columns-background-color-background-color\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #fff;\">\n    <div class=\"v-row-background-image--inner\" style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td class=\"v-row-padding v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr class=\"v-row-background-image--inner v-row-columns-background-color-background-color\" style=\"background-color: #fff;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"background-color: #fff;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_1\" class=\"u-col u-col-100 u_column\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"background-color: #fff;height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table id=\"u_content_button_1\" class=\"u_content_button\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->\n<div class=\"v-text-align\" align=\"center\">\n  <!--[if mso]><v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"\" style=\"height:37px; v-text-anchor:middle; width:121px;\" arcsize=\"11%\"  stroke=\"f\" fillcolor=\"#ec5b5b\"><w:anchorlock/><center style=\"color:#FFF;\"><![endif]-->\n    <a href=\"\" target=\"_blank\" class=\"v-button v-size-width v-button-colors v-border v-border-radius v-font-family v-font-size v-font-weight\" style=\"box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFF; background-color: #ec5b5b; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:100%; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;\">\n      <span class=\"v-line-height v-padding\" style=\"display:block;padding:5px 60px;line-height:120%;\"><span style=\"display:block;padding:13px 20px;line-height:120%;\"><span style=\"font-size: 16px; line-height: 19.2px;\"><strong>Click here to get the @hottest gift items</strong></span><br></span></span>\n    </a>\n    <!--[if mso]></center></v:roundrect><![endif]-->\n</div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div id=\"u_row_4\" class=\"u-row-container u_row v-row-padding--vertical v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row v-row-columns-background-color-background-color\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #fff;\">\n    <div class=\"v-row-background-image--inner\" style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td class=\"v-row-padding v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr class=\"v-row-background-image--inner v-row-columns-background-color-background-color\" style=\"background-color: #fff;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"300\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"width: 300px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_6\" class=\"u-col u-col-50 u_column\" style=\"max-width: 320px;min-width: 300px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table id=\"u_content_image_3\" class=\"u_content_image\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tr>\n    <td class=\"v-text-align\" style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"center\" border=\"0\" src=\"https://cdn.templates.unlayer.com/assets/{{media(wine.png)}}\" alt=\"Image\" title=\"Image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 250px;\" width=\"250\" class=\"v-src-width v-src-max-width\"/>\n      \n    </td>\n  </tr>\n</table>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<table id=\"u_content_text_2\" class=\"u_content_text\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-color v-text-align v-line-height v-font-weight v-font-family v-font-size\" style=\"font-size: 14px; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 14px; line-height: 19.6px;\">$100</span></p>\n<p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 14px; line-height: 19.6px;\">Your awesome gift name!</span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n<!--[if (mso)|(IE)]><td align=\"center\" width=\"300\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"width: 300px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_10\" class=\"u-col u-col-50 u_column\" style=\"max-width: 320px;min-width: 300px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table id=\"u_content_image_2\" class=\"u_content_image\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tr>\n    <td class=\"v-text-align\" style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"center\" border=\"0\" src=\"https://cdn.templates.unlayer.com/assets/{{media(wine.png)}}\" alt=\"Image\" title=\"Image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 250px;\" width=\"250\" class=\"v-src-width v-src-max-width\"/>\n      \n    </td>\n  </tr>\n</table>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<table id=\"u_content_text_1\" class=\"u_content_text\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-color v-text-align v-line-height v-font-weight v-font-family v-font-size\" style=\"font-size: 14px; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 14px; line-height: 19.6px;\">$100</span></p>\n<p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 14px; line-height: 19.6px;\">Your awesome gift name!</span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div id=\"u_row_12\" class=\"u-row-container u_row v-row-padding--vertical v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row v-row-columns-background-color-background-color\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #fff;\">\n    <div class=\"v-row-background-image--inner\" style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td class=\"v-row-padding v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr class=\"v-row-background-image--inner v-row-columns-background-color-background-color\" style=\"background-color: #fff;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"background-color: #fff;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_15\" class=\"u-col u-col-100 u_column\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"background-color: #fff;height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table id=\"u_content_button_5\" class=\"u_content_button\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->\n<div class=\"v-text-align\" align=\"center\">\n  <!--[if mso]><v:roundrect xmlns:v=\"urn:schemas-microsoft-com:vml\" xmlns:w=\"urn:schemas-microsoft-com:office:word\" href=\"\" style=\"height:37px; v-text-anchor:middle; width:121px;\" arcsize=\"11%\"  stroke=\"f\" fillcolor=\"#ec5b5b\"><w:anchorlock/><center style=\"color:#FFF;\"><![endif]-->\n    <a href=\"\" target=\"_blank\" class=\"v-button v-size-width v-button-colors v-border v-border-radius v-font-family v-font-size v-font-weight\" style=\"box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFF; background-color: #ec5b5b; border-radius: 4px;-webkit-border-radius: 4px; -moz-border-radius: 4px; width:100%; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;\">\n      <span class=\"v-line-height v-padding\" style=\"display:block;padding:5px 60px;line-height:120%;\"><span style=\"display:block;padding:13px 20px;line-height:120%;\"><span style=\"font-size: 16px; line-height: 19.2px;\"><strong>Click here to get the @hottest gift items</strong></span><br></span></span>\n    </a>\n    <!--[if mso]></center></v:roundrect><![endif]-->\n</div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div id=\"u_row_1\" class=\"u-row-container u_row v-row-padding--vertical v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row v-row-columns-background-color-background-color\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;\">\n    <div class=\"v-row-background-image--inner\" style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td class=\"v-row-padding v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr class=\"v-row-background-image--inner v-row-columns-background-color-background-color\" style=\"background-color: transparent;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"300\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"background-color: #fff;width: 300px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_1\" class=\"u-col u-col-50 u_column\" style=\"max-width: 320px;min-width: 300px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"background-color: #fff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\"><!--<![endif]-->\n  \n<table id=\"u_content_image_2\" class=\"u_content_image\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n  <tr>\n    <td class=\"v-text-align\" style=\"padding-right: 0px;padding-left: 0px;\" align=\"center\">\n      \n      <img align=\"center\" border=\"0\" src=\"https://cdn.templates.unlayer.com/assets/{{media(blob.jpg)}}\" alt=\"Image\" title=\"Image\" style=\"outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 280px;\" width=\"280\" class=\"v-src-width v-src-max-width\"/>\n      \n    </td>\n  </tr>\n</table>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n<!--[if (mso)|(IE)]><td align=\"center\" width=\"300\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"background-color: #fff;width: 300px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_2\" class=\"u-col u-col-50 u_column\" style=\"max-width: 320px;min-width: 300px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"background-color: #fff;height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\"><!--<![endif]-->\n  \n<table id=\"u_content_text_1\" class=\"u_content_text\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-color v-text-align v-line-height v-font-weight v-font-family v-font-size\" style=\"font-size: 14px; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 20px; line-height: 28px;\"><strong><span style=\"line-height: 28px; font-size: 20px;\">GFT box (package)</span></strong></span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n<table id=\"u_content_text_2\" class=\"u_content_text\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:0px 0px 0px 20px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-color v-text-align v-line-height v-font-weight v-font-family v-font-size\" style=\"font-size: 14px; line-height: 140%; text-align: left; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%;\">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpatLorem ipsum dolor sit ame </p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div id=\"u_row_5\" class=\"u-row-container u_row v-row-padding--vertical v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row v-row-columns-background-color-background-color\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #fff;\">\n    <div class=\"v-row-background-image--inner\" style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td class=\"v-row-padding v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr class=\"v-row-background-image--inner v-row-columns-background-color-background-color\" style=\"background-color: #fff;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"background-color: #000;width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_7\" class=\"u-col u-col-100 u_column\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"background-color: #000;height: 100%;width: 100% !important;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;\"><!--<![endif]-->\n  \n<table id=\"u_content_text_2\" class=\"u_content_text\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:30px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-color v-text-align v-line-height v-font-weight v-font-family v-font-size\" style=\"font-size: 14px; color: #bdbdbe; line-height: 140%; text-align: center; word-wrap: break-word;\">\n    <p style=\"font-size: 14px; line-height: 140%;\"><strong><span style=\"font-size: 14px; line-height: 19.6px;\">Get in Touch</span></strong></p><p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 12px; line-height: 16.8px;\">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpatLorem ipsum dolor sit ame  </span></p><p style=\"font-size: 14px; line-height: 140%;\"> </p><p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 12px; line-height: 16.8px;\">f you are no longer interested, you can  unsubscribe instantly </span></p><p style=\"line-height: 140%; font-size: 14px;\"><span style=\"font-size: 12px; line-height: 16.8px;\"> © Company |  All Rights Reserved </span></p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n  \n  \n<div id=\"u_row_2\" class=\"u-row-container u_row v-row-padding--vertical v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent\">\n  <div class=\"u-row v-row-columns-background-color-background-color\" style=\"margin: 0 auto;min-width: 320px;max-width: 600px;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: transparent;\">\n    <div class=\"v-row-background-image--inner\" style=\"border-collapse: collapse;display: table;width: 100%;height: 100%;background-color: transparent;\">\n      <!--[if (mso)|(IE)]><table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr><td class=\"v-row-padding v-row-background-image--outer v-row-background-color\" style=\"padding: 0px;background-color: transparent;\" align=\"center\"><table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"width:600px;\"><tr class=\"v-row-background-image--inner v-row-columns-background-color-background-color\" style=\"background-color: transparent;\"><![endif]-->\n      \n<!--[if (mso)|(IE)]><td align=\"center\" width=\"600\" class=\"v-col-padding v-col-background-color v-col-border v-col-border-radius\" style=\"width: 600px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\" valign=\"top\"><![endif]-->\n<div id=\"u_column_2\" class=\"u-col u-col-100 u_column\" style=\"max-width: 320px;min-width: 600px;display: table-cell;vertical-align: top;\">\n  <div class=\"v-col-background-color v-col-border-radius\" style=\"height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\">\n  <!--[if (!mso)&(!IE)]><!--><div class=\"v-col-padding v-col-border v-col-border-radius\" style=\"box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;\"><!--<![endif]-->\n  \n<table id=\"u_content_text_2\" class=\"u_content_text\" style=\"font-family:'Montserrat',sans-serif;\" role=\"presentation\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" border=\"0\">\n  <tbody>\n    <tr>\n      <td class=\"v-container-padding-padding\" style=\"overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;\" align=\"left\">\n        \n  <div class=\"v-color v-text-align v-line-height v-font-weight v-font-family v-font-size\" style=\"font-size: 14px; line-height: 140%; text-align: center; word-wrap: break-word;\">\n    <p style=\"line-height: 140%;\">{{unsubscribe}}</p>\n  </div>\n\n      </td>\n    </tr>\n  </tbody>\n</table>\n\n  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->\n  </div>\n</div>\n<!--[if (mso)|(IE)]></td><![endif]-->\n      <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->\n    </div>\n  </div>\n  </div>\n  \n\n\n    <!--[if (mso)|(IE)]></td></tr></table><![endif]-->\n    </td>\n  </tr>\n  </tbody>\n  </table>\n  <!--[if mso]></div><![endif]-->\n  <!--[if IE]></div><![endif]-->\n</body>",
+            "tags": [],
+            "fonts": [
+                {
+                    "url": "https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap",
+                    "label": "Montserrat",
+                    "value": "'Montserrat',sans-serif",
+                    "weights": [
+                        400,
+                        700
+                    ]
+                },
+                {
+                    "label": "sans serif",
+                    "value": "sans-serif"
+                },
+                {
+                    "url": "https://fonts.googleapis.com/css?family=Montserrat:400,700&display=swap",
+                    "label": "Montserrat",
+                    "value": "'Montserrat',sans-serif",
+                    "weights": [
+                        400,
+                        700
+                    ]
+                }
+            ]
+        },
+        "design": {
+            "body": {
+                "id": "VUPyIjiRWN",
+                "rows": [
+                    {
+                        "id": "uxaxM67cxT",
+                        "cells": [
+                            1
+                        ],
+                        "values": {
+                            "_meta": {
+                                "htmlID": "u_row_13",
+                                "htmlClassNames": "u_row"
+                            },
+                            "anchor": null,
+                            "columns": false,
+                            "padding": "0px",
+                            "hideable": true,
+                            "deletable": true,
+                            "draggable": true,
+                            "hideMobile": false,
+                            "selectable": true,
+                            "hideDesktop": false,
+                            "duplicatable": true,
+                            "noStackMobile": false,
+                            "backgroundColor": null,
+                            "backgroundImage": {
+                                "url": null,
+                                "size": "custom",
+                                "repeat": "no-repeat",
+                                "position": "top-center",
+                                "fullWidth": true,
+                                "customPosition": [
+                                    "50%",
+                                    "0%"
+                                ]
+                            },
+                            "displayCondition": null,
+                            "columnsBackgroundColor": null
+                        },
+                        "columns": [
+                            {
+                                "id": "jeE3F9OoJB",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_16",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "backgroundColor": null
+                                },
+                                "contents": [
+                                    {
+                                        "id": "ZLSYf6zvbI",
+                                        "type": "divider",
+                                        "values": {
+                                            "_meta": {
+                                                "htmlID": "u_content_divider_6",
+                                                "htmlClassNames": "u_content_divider"
+                                            },
+                                            "width": "100%",
+                                            "anchor": null,
+                                            "border": {
+                                                "borderTopColor": "#BBB",
+                                                "borderTopStyle": "solid",
+                                                "borderTopWidth": "0px"
+                                            },
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "textAlign": "center",
+                                            "hideMobile": false,
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "5px",
+                                            "displayCondition": null
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "Pt9V7YZsyD",
+                        "cells": [
+                            1
+                        ],
+                        "values": {
+                            "_meta": {
+                                "htmlID": "u_row_3",
+                                "htmlClassNames": "u_row"
+                            },
+                            "anchor": null,
+                            "columns": false,
+                            "padding": "0px",
+                            "hideable": true,
+                            "deletable": true,
+                            "draggable": true,
+                            "hideMobile": false,
+                            "selectable": true,
+                            "hideDesktop": false,
+                            "duplicatable": true,
+                            "noStackMobile": false,
+                            "backgroundColor": null,
+                            "backgroundImage": {
+                                "url": "https://cdn.templates.unlayer.com/assets/{{media(header_image.png)}}",
+                                "size": "custom",
+                                "width": 626,
+                                "height": 500,
+                                "repeat": "no-repeat",
+                                "position": "top-center",
+                                "fullWidth": false,
+                                "customPosition": [
+                                    "50%",
+                                    "0%"
+                                ]
+                            },
+                            "displayCondition": null,
+                            "columnsBackgroundColor": null
+                        },
+                        "columns": [
+                            {
+                                "id": "t6bhS5Q3ZK",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_5",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "backgroundColor": null
+                                },
+                                "contents": [
+                                    {
+                                        "id": "jnOaEyb8bM",
+                                        "type": "divider",
+                                        "values": {
+                                            "_meta": {
+                                                "htmlID": "u_content_divider_2",
+                                                "htmlClassNames": "u_content_divider"
+                                            },
+                                            "width": "100%",
+                                            "anchor": null,
+                                            "border": {
+                                                "borderTopColor": "#BBB",
+                                                "borderTopStyle": "solid",
+                                                "borderTopWidth": "0px"
+                                            },
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "textAlign": "center",
+                                            "hideMobile": false,
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "150px 10px 10px",
+                                            "displayCondition": null
+                                        }
+                                    },
+                                    {
+                                        "id": "UxgGnrAYrd",
+                                        "type": "text",
+                                        "values": {
+                                            "text": "<p style=\"text-align: center; font-size: 14px; line-height: 120%;\"><span style=\"font-size: 44px; line-height: 52.8px; font-family: Montserrat, sans-serif;\"><strong><span style=\"line-height: 52.8px; font-size: 44px;\">HAPPY NEW </span></strong></span></p>",
+                                            "_meta": {
+                                                "htmlID": "u_content_text_1",
+                                                "htmlClassNames": "u_content_text"
+                                            },
+                                            "color": "#fff",
+                                            "anchor": null,
+                                            "fontSize": "14px",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "linkStyle": {
+                                                "inherit": true,
+                                                "linkColor": "#00e",
+                                                "linkUnderline": true,
+                                                "linkHoverColor": "#00e",
+                                                "linkHoverUnderline": true
+                                            },
+                                            "textAlign": "left",
+                                            "hideMobile": false,
+                                            "lineHeight": "140%",
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "0px 0px 0px 20px",
+                                            "displayCondition": null
+                                        },
+                                        "hasDeprecatedFontControls": true
+                                    },
+                                    {
+                                        "id": "sY3iOODM0f",
+                                        "type": "text",
+                                        "values": {
+                                            "text": "<p style=\"text-align: center; font-size: 14px; line-height: 120%;\"><span style=\"font-size: 44px; line-height: 52.8px; font-family: Montserrat, sans-serif;\"><strong><span style=\"line-height: 52.8px; font-size: 44px;\">YEAR XXXX</span></strong></span></p>",
+                                            "_meta": {
+                                                "htmlID": "u_content_text_1",
+                                                "htmlClassNames": "u_content_text"
+                                            },
+                                            "color": "#fff",
+                                            "anchor": null,
+                                            "fontSize": "14px",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "linkStyle": {
+                                                "inherit": true,
+                                                "linkColor": "#00e",
+                                                "linkUnderline": true,
+                                                "linkHoverColor": "#00e",
+                                                "linkHoverUnderline": true
+                                            },
+                                            "textAlign": "left",
+                                            "hideMobile": false,
+                                            "lineHeight": "140%",
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "0px 0px 0px 20px",
+                                            "displayCondition": null
+                                        },
+                                        "hasDeprecatedFontControls": true
+                                    },
+                                    {
+                                        "id": "UImLhsOWpu",
+                                        "type": "button",
+                                        "values": {
+                                            "href": {
+                                                "name": "web",
+                                                "values": {
+                                                    "href": null,
+                                                    "target": "_blank"
+                                                }
+                                            },
+                                            "size": {
+                                                "width": "100%",
+                                                "autoWidth": true
+                                            },
+                                            "text": "<span style=\"font-size: 14px; line-height: 16.8px;\">SHOP NOW!</span>",
+                                            "_meta": {
+                                                "htmlID": "u_content_button_1",
+                                                "htmlClassNames": "u_content_button"
+                                            },
+                                            "anchor": null,
+                                            "border": [],
+                                            "padding": "12px 22px",
+                                            "fontSize": "14px",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "textAlign": "center",
+                                            "hideMobile": false,
+                                            "lineHeight": "120%",
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "borderRadius": "0px",
+                                            "buttonColors": {
+                                                "color": "#FFF",
+                                                "hoverColor": "#FFF",
+                                                "backgroundColor": "#e82479",
+                                                "hoverBackgroundColor": "#3AAEE0"
+                                            },
+                                            "duplicatable": true,
+                                            "calculatedWidth": 134,
+                                            "calculatedHeight": 40,
+                                            "containerPadding": "10px 10px 50px",
+                                            "displayCondition": null
+                                        },
+                                        "hasDeprecatedFontControls": true
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "lBA6ergFXW",
+                        "cells": [
+                            1
+                        ],
+                        "values": {
+                            "_meta": {
+                                "htmlID": "u_row_5",
+                                "htmlClassNames": "u_row"
+                            },
+                            "anchor": null,
+                            "columns": false,
+                            "padding": "0px",
+                            "hideable": true,
+                            "deletable": true,
+                            "draggable": true,
+                            "hideMobile": false,
+                            "selectable": true,
+                            "hideDesktop": false,
+                            "duplicatable": true,
+                            "noStackMobile": false,
+                            "backgroundColor": null,
+                            "backgroundImage": {
+                                "url": null,
+                                "size": "custom",
+                                "repeat": "no-repeat",
+                                "position": "top-center",
+                                "fullWidth": true,
+                                "customPosition": [
+                                    "50%",
+                                    "0%"
+                                ]
+                            },
+                            "displayCondition": null,
+                            "columnsBackgroundColor": "#fff"
+                        },
+                        "columns": [
+                            {
+                                "id": "44bTboKQQl",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_7",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "backgroundColor": "#fff"
+                                },
+                                "contents": [
+                                    {
+                                        "id": "0h8iWaib6b",
+                                        "type": "text",
+                                        "values": {
+                                            "text": "<p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 30px; line-height: 42px;\"><strong>NEW YEAR! IT'S TIME FOR GIFT'S !</strong></span></p>",
+                                            "_meta": {
+                                                "htmlID": "u_content_text_2",
+                                                "htmlClassNames": "u_content_text"
+                                            },
+                                            "color": "#000",
+                                            "anchor": null,
+                                            "fontSize": "14px",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "linkStyle": {
+                                                "inherit": true,
+                                                "linkColor": "#00e",
+                                                "linkUnderline": true,
+                                                "linkHoverColor": "#00e",
+                                                "linkHoverUnderline": true
+                                            },
+                                            "textAlign": "center",
+                                            "hideMobile": false,
+                                            "lineHeight": "140%",
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "30px",
+                                            "displayCondition": null
+                                        },
+                                        "hasDeprecatedFontControls": true
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "m8eWIN7HwS",
+                        "cells": [
+                            1
+                        ],
+                        "values": {
+                            "_meta": {
+                                "htmlID": "u_row_12",
+                                "htmlClassNames": "u_row"
+                            },
+                            "anchor": null,
+                            "columns": false,
+                            "padding": "0px",
+                            "hideable": true,
+                            "deletable": true,
+                            "draggable": true,
+                            "hideMobile": false,
+                            "selectable": true,
+                            "hideDesktop": false,
+                            "duplicatable": true,
+                            "noStackMobile": false,
+                            "backgroundColor": null,
+                            "backgroundImage": {
+                                "url": null,
+                                "size": "custom",
+                                "repeat": "no-repeat",
+                                "position": "top-center",
+                                "fullWidth": true,
+                                "customPosition": [
+                                    "50%",
+                                    "0%"
+                                ]
+                            },
+                            "displayCondition": null,
+                            "columnsBackgroundColor": "#fff"
+                        },
+                        "columns": [
+                            {
+                                "id": "NqMzl4dpn2",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_15",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "backgroundColor": "#fff"
+                                },
+                                "contents": [
+                                    {
+                                        "id": "o5zuSISOIY",
+                                        "type": "button",
+                                        "values": {
+                                            "href": {
+                                                "name": "web",
+                                                "values": {
+                                                    "href": null,
+                                                    "target": "_blank"
+                                                }
+                                            },
+                                            "size": {
+                                                "width": "100%",
+                                                "autoWidth": false
+                                            },
+                                            "text": "<span style=\"display:block;padding:13px 20px;line-height:120%;\"><span style=\"font-size: 16px; line-height: 19.2px;\"><strong><span style=\"line-height: 19.2px; font-size: 16px;\">Use code <span style=\"line-height: 19.2px; font-size: 16px;\">NEWYEAR</span> to get 30% OFF on all items</span></strong></span></span>",
+                                            "_meta": {
+                                                "htmlID": "u_content_button_5",
+                                                "htmlClassNames": "u_content_button"
+                                            },
+                                            "anchor": null,
+                                            "border": [],
+                                            "padding": "5px 60px",
+                                            "fontSize": "14px",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "textAlign": "center",
+                                            "lineHeight": "120%",
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "borderRadius": "4px",
+                                            "buttonColors": {
+                                                "color": "#FFF",
+                                                "hoverColor": "#FFF",
+                                                "backgroundColor": "#ec5b5b",
+                                                "hoverBackgroundColor": "#3AAEE0"
+                                            },
+                                            "duplicatable": true,
+                                            "calculatedWidth": 121,
+                                            "calculatedHeight": 37,
+                                            "containerPadding": "10px",
+                                            "displayCondition": null
+                                        },
+                                        "hasDeprecatedFontControls": true
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "p14iVIXY40",
+                        "cells": [
+                            1,
+                            1
+                        ],
+                        "values": {
+                            "_meta": {
+                                "htmlID": "u_row_1",
+                                "htmlClassNames": "u_row"
+                            },
+                            "anchor": null,
+                            "columns": false,
+                            "padding": "0px",
+                            "hideable": true,
+                            "deletable": true,
+                            "draggable": true,
+                            "selectable": true,
+                            "hideDesktop": false,
+                            "duplicatable": true,
+                            "backgroundColor": null,
+                            "backgroundImage": {
+                                "url": null,
+                                "size": "custom",
+                                "repeat": "no-repeat",
+                                "position": "top-center",
+                                "fullWidth": true,
+                                "customPosition": [
+                                    "50%",
+                                    "0%"
+                                ]
+                            },
+                            "displayCondition": null,
+                            "columnsBackgroundColor": null
+                        },
+                        "columns": [
+                            {
+                                "id": "oNXeflLjXi",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_1",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "borderRadius": "0px",
+                                    "backgroundColor": "#fff"
+                                },
+                                "contents": [
+                                    {
+                                        "id": "kqGzypX4AV",
+                                        "type": "text",
+                                        "values": {
+                                            "text": "<p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 16px; line-height: 22.4px;\"><strong>Special Gift For Special One!!</strong></span><br /><span style=\"font-size: 16px; line-height: 22.4px;\">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpatLorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam  </span></p>",
+                                            "_meta": {
+                                                "htmlID": "u_content_text_1",
+                                                "htmlClassNames": "u_content_text"
+                                            },
+                                            "anchor": null,
+                                            "fontSize": "14px",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "linkStyle": {
+                                                "inherit": true,
+                                                "linkColor": "#00e",
+                                                "linkUnderline": true,
+                                                "linkHoverColor": "#00e",
+                                                "linkHoverUnderline": true
+                                            },
+                                            "textAlign": "left",
+                                            "lineHeight": "140%",
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "0px 0px 0px 20px",
+                                            "displayCondition": null
+                                        },
+                                        "hasDeprecatedFontControls": true
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "McAeVJX_la",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_2",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "borderRadius": "0px",
+                                    "backgroundColor": "#fff"
+                                },
+                                "contents": [
+                                    {
+                                        "id": "5AarpCxJl1",
+                                        "type": "image",
+                                        "values": {
+                                            "src": {
+                                                "url": "https://cdn.templates.unlayer.com/assets/{{media(wine.png)}}",
+                                                "width": 250,
+                                                "height": 157,
+                                                "maxWidth": "100%",
+                                                "autoWidth": false
+                                            },
+                                            "_meta": {
+                                                "htmlID": "u_content_image_3",
+                                                "htmlClassNames": "u_content_image"
+                                            },
+                                            "action": {
+                                                "name": "web",
+                                                "values": {
+                                                    "href": null,
+                                                    "target": "_blank"
+                                                }
+                                            },
+                                            "anchor": null,
+                                            "altText": "Image",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "textAlign": "center",
+                                            "hideMobile": false,
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "10px",
+                                            "displayCondition": null
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "3rW65_frjY",
+                        "cells": [
+                            1
+                        ],
+                        "values": {
+                            "_meta": {
+                                "htmlID": "u_row_1",
+                                "htmlClassNames": "u_row"
+                            },
+                            "anchor": null,
+                            "columns": false,
+                            "padding": "0px",
+                            "hideable": true,
+                            "deletable": true,
+                            "draggable": true,
+                            "hideMobile": false,
+                            "selectable": true,
+                            "hideDesktop": false,
+                            "duplicatable": true,
+                            "noStackMobile": false,
+                            "backgroundColor": null,
+                            "backgroundImage": {
+                                "url": null,
+                                "size": "custom",
+                                "repeat": "no-repeat",
+                                "position": "top-center",
+                                "fullWidth": true,
+                                "customPosition": [
+                                    "50%",
+                                    "0%"
+                                ]
+                            },
+                            "displayCondition": null,
+                            "columnsBackgroundColor": "#fff"
+                        },
+                        "columns": [
+                            {
+                                "id": "jTjE3a99Q1",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_1",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "backgroundColor": "#fff"
+                                },
+                                "contents": [
+                                    {
+                                        "id": "XoyOGlwFfz",
+                                        "type": "button",
+                                        "values": {
+                                            "href": {
+                                                "name": "web",
+                                                "values": {
+                                                    "href": null,
+                                                    "target": "_blank"
+                                                }
+                                            },
+                                            "size": {
+                                                "width": "100%",
+                                                "autoWidth": false
+                                            },
+                                            "text": "<span style=\"display:block;padding:13px 20px;line-height:120%;\"><span style=\"font-size: 16px; line-height: 19.2px;\"><strong>Click here to get the @hottest gift items</strong></span><br></span>",
+                                            "_meta": {
+                                                "htmlID": "u_content_button_1",
+                                                "htmlClassNames": "u_content_button"
+                                            },
+                                            "anchor": null,
+                                            "border": [],
+                                            "padding": "5px 60px",
+                                            "fontSize": "14px",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "textAlign": "center",
+                                            "lineHeight": "120%",
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "borderRadius": "4px",
+                                            "buttonColors": {
+                                                "color": "#FFF",
+                                                "hoverColor": "#FFF",
+                                                "backgroundColor": "#ec5b5b",
+                                                "hoverBackgroundColor": "#3AAEE0"
+                                            },
+                                            "duplicatable": true,
+                                            "calculatedWidth": 121,
+                                            "calculatedHeight": 37,
+                                            "containerPadding": "10px",
+                                            "displayCondition": null
+                                        },
+                                        "hasDeprecatedFontControls": true
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "q8ExC00pNT",
+                        "cells": [
+                            1,
+                            1
+                        ],
+                        "values": {
+                            "_meta": {
+                                "htmlID": "u_row_4",
+                                "htmlClassNames": "u_row"
+                            },
+                            "anchor": null,
+                            "columns": false,
+                            "padding": "0px",
+                            "hideable": true,
+                            "deletable": true,
+                            "draggable": true,
+                            "hideMobile": false,
+                            "selectable": true,
+                            "hideDesktop": false,
+                            "duplicatable": true,
+                            "noStackMobile": false,
+                            "backgroundColor": null,
+                            "backgroundImage": {
+                                "url": null,
+                                "size": "custom",
+                                "repeat": "no-repeat",
+                                "position": "top-center",
+                                "fullWidth": true,
+                                "customPosition": [
+                                    "50%",
+                                    "0%"
+                                ]
+                            },
+                            "displayCondition": null,
+                            "columnsBackgroundColor": "#fff"
+                        },
+                        "columns": [
+                            {
+                                "id": "D8mvYCk5hG",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_6",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "backgroundColor": null
+                                },
+                                "contents": [
+                                    {
+                                        "id": "TIYjxdX9lT",
+                                        "type": "image",
+                                        "values": {
+                                            "src": {
+                                                "url": "https://cdn.templates.unlayer.com/assets/{{media(wine.png)}}",
+                                                "width": 250,
+                                                "height": 157
+                                            },
+                                            "_meta": {
+                                                "htmlID": "u_content_image_3",
+                                                "htmlClassNames": "u_content_image"
+                                            },
+                                            "action": {
+                                                "name": "web",
+                                                "values": {
+                                                    "href": null,
+                                                    "target": "_blank"
+                                                }
+                                            },
+                                            "anchor": null,
+                                            "altText": "Image",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "textAlign": "center",
+                                            "hideMobile": false,
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "10px",
+                                            "displayCondition": null
+                                        }
+                                    },
+                                    {
+                                        "id": "M6ywNfgFBx",
+                                        "type": "text",
+                                        "values": {
+                                            "text": "<p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 14px; line-height: 19.6px;\">$100</span></p>\n<p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 14px; line-height: 19.6px;\">Your awesome gift name!</span></p>",
+                                            "_meta": {
+                                                "htmlID": "u_content_text_2",
+                                                "htmlClassNames": "u_content_text"
+                                            },
+                                            "anchor": null,
+                                            "fontSize": "14px",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "linkStyle": {
+                                                "inherit": true,
+                                                "linkColor": "#00e",
+                                                "linkUnderline": true,
+                                                "linkHoverColor": "#00e",
+                                                "linkHoverUnderline": true
+                                            },
+                                            "textAlign": "left",
+                                            "lineHeight": "140%",
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "0px 0px 0px 20px",
+                                            "displayCondition": null
+                                        },
+                                        "hasDeprecatedFontControls": true
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "fIiRqP7PsZ",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_10",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "backgroundColor": null
+                                },
+                                "contents": [
+                                    {
+                                        "id": "vrVmpdJsdd",
+                                        "type": "image",
+                                        "values": {
+                                            "src": {
+                                                "url": "https://cdn.templates.unlayer.com/assets/{{media(wine.png)}}",
+                                                "width": 250,
+                                                "height": 157
+                                            },
+                                            "_meta": {
+                                                "htmlID": "u_content_image_2",
+                                                "htmlClassNames": "u_content_image"
+                                            },
+                                            "action": {
+                                                "name": "web",
+                                                "values": {
+                                                    "href": null,
+                                                    "target": "_blank"
+                                                }
+                                            },
+                                            "anchor": null,
+                                            "altText": "Image",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "textAlign": "center",
+                                            "hideMobile": false,
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "10px",
+                                            "displayCondition": null
+                                        }
+                                    },
+                                    {
+                                        "id": "iRH6fiNsEs",
+                                        "type": "text",
+                                        "values": {
+                                            "text": "<p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 14px; line-height: 19.6px;\">$100</span></p>\n<p style=\"font-size: 14px; line-height: 140%; text-align: center;\"><span style=\"font-size: 14px; line-height: 19.6px;\">Your awesome gift name!</span></p>",
+                                            "_meta": {
+                                                "htmlID": "u_content_text_1",
+                                                "htmlClassNames": "u_content_text"
+                                            },
+                                            "anchor": null,
+                                            "fontSize": "14px",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "linkStyle": {
+                                                "inherit": true,
+                                                "linkColor": "#00e",
+                                                "linkUnderline": true,
+                                                "linkHoverColor": "#00e",
+                                                "linkHoverUnderline": true
+                                            },
+                                            "textAlign": "left",
+                                            "lineHeight": "140%",
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "0px 0px 0px 20px",
+                                            "displayCondition": null
+                                        },
+                                        "hasDeprecatedFontControls": true
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "Es9p6gmr3b",
+                        "cells": [
+                            1
+                        ],
+                        "values": {
+                            "_meta": {
+                                "htmlID": "u_row_12",
+                                "htmlClassNames": "u_row"
+                            },
+                            "anchor": null,
+                            "columns": false,
+                            "padding": "0px",
+                            "hideable": true,
+                            "deletable": true,
+                            "draggable": true,
+                            "hideMobile": false,
+                            "selectable": true,
+                            "hideDesktop": false,
+                            "duplicatable": true,
+                            "noStackMobile": false,
+                            "backgroundColor": null,
+                            "backgroundImage": {
+                                "url": null,
+                                "size": "custom",
+                                "repeat": "no-repeat",
+                                "position": "top-center",
+                                "fullWidth": true,
+                                "customPosition": [
+                                    "50%",
+                                    "0%"
+                                ]
+                            },
+                            "displayCondition": null,
+                            "columnsBackgroundColor": "#fff"
+                        },
+                        "columns": [
+                            {
+                                "id": "mqgegcvqyo",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_15",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "backgroundColor": "#fff"
+                                },
+                                "contents": [
+                                    {
+                                        "id": "zcseXe0RHR",
+                                        "type": "button",
+                                        "values": {
+                                            "href": {
+                                                "name": "web",
+                                                "values": {
+                                                    "href": null,
+                                                    "target": "_blank"
+                                                }
+                                            },
+                                            "size": {
+                                                "width": "100%",
+                                                "autoWidth": false
+                                            },
+                                            "text": "<span style=\"display:block;padding:13px 20px;line-height:120%;\"><span style=\"font-size: 16px; line-height: 19.2px;\"><strong>Click here to get the @hottest gift items</strong></span><br></span>",
+                                            "_meta": {
+                                                "htmlID": "u_content_button_5",
+                                                "htmlClassNames": "u_content_button"
+                                            },
+                                            "anchor": null,
+                                            "border": [],
+                                            "padding": "5px 60px",
+                                            "fontSize": "14px",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "textAlign": "center",
+                                            "lineHeight": "120%",
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "borderRadius": "4px",
+                                            "buttonColors": {
+                                                "color": "#FFF",
+                                                "hoverColor": "#FFF",
+                                                "backgroundColor": "#ec5b5b",
+                                                "hoverBackgroundColor": "#3AAEE0"
+                                            },
+                                            "duplicatable": true,
+                                            "calculatedWidth": 121,
+                                            "calculatedHeight": 37,
+                                            "containerPadding": "10px",
+                                            "displayCondition": null
+                                        },
+                                        "hasDeprecatedFontControls": true
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "yZDWpRzWZn",
+                        "cells": [
+                            1,
+                            1
+                        ],
+                        "values": {
+                            "_meta": {
+                                "htmlID": "u_row_1",
+                                "htmlClassNames": "u_row"
+                            },
+                            "anchor": null,
+                            "columns": false,
+                            "padding": "0px",
+                            "hideable": true,
+                            "deletable": true,
+                            "draggable": true,
+                            "selectable": true,
+                            "hideDesktop": false,
+                            "duplicatable": true,
+                            "backgroundColor": null,
+                            "backgroundImage": {
+                                "url": null,
+                                "size": "custom",
+                                "repeat": "no-repeat",
+                                "position": "top-center",
+                                "fullWidth": true,
+                                "customPosition": [
+                                    "50%",
+                                    "0%"
+                                ]
+                            },
+                            "displayCondition": null,
+                            "columnsBackgroundColor": null
+                        },
+                        "columns": [
+                            {
+                                "id": "UL4JhsiW1S",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_1",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "borderRadius": "0px",
+                                    "backgroundColor": "#fff"
+                                },
+                                "contents": [
+                                    {
+                                        "id": "eOUiy0ayxg",
+                                        "type": "image",
+                                        "values": {
+                                            "src": {
+                                                "url": "https://cdn.templates.unlayer.com/assets/{{media(blob.jpg)}}",
+                                                "width": 640,
+                                                "height": 418
+                                            },
+                                            "_meta": {
+                                                "htmlID": "u_content_image_2",
+                                                "htmlClassNames": "u_content_image"
+                                            },
+                                            "action": {
+                                                "name": "web",
+                                                "values": {
+                                                    "href": null,
+                                                    "target": "_blank"
+                                                }
+                                            },
+                                            "anchor": null,
+                                            "altText": "Image",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "textAlign": "center",
+                                            "hideMobile": false,
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "10px",
+                                            "displayCondition": null
+                                        }
+                                    }
+                                ]
+                            },
+                            {
+                                "id": "u_Jj11wHAc",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_2",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "borderRadius": "0px",
+                                    "backgroundColor": "#fff"
+                                },
+                                "contents": [
+                                    {
+                                        "id": "PXYc6oL6Sa",
+                                        "type": "text",
+                                        "values": {
+                                            "text": "<p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 20px; line-height: 28px;\"><strong><span style=\"line-height: 28px; font-size: 20px;\">GFT box (package)</span></strong></span></p>",
+                                            "_meta": {
+                                                "htmlID": "u_content_text_1",
+                                                "htmlClassNames": "u_content_text"
+                                            },
+                                            "anchor": null,
+                                            "fontSize": "14px",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "linkStyle": {
+                                                "inherit": true,
+                                                "linkColor": "#00e",
+                                                "linkUnderline": true,
+                                                "linkHoverColor": "#00e",
+                                                "linkHoverUnderline": true
+                                            },
+                                            "textAlign": "left",
+                                            "lineHeight": "140%",
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "0px 0px 0px 20px",
+                                            "displayCondition": null
+                                        },
+                                        "hasDeprecatedFontControls": true
+                                    },
+                                    {
+                                        "id": "nA96npPx8n",
+                                        "type": "text",
+                                        "values": {
+                                            "text": "<p style=\"font-size: 14px; line-height: 140%;\">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpatLorem ipsum dolor sit ame </p>",
+                                            "_meta": {
+                                                "htmlID": "u_content_text_2",
+                                                "htmlClassNames": "u_content_text"
+                                            },
+                                            "anchor": null,
+                                            "fontSize": "14px",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "linkStyle": {
+                                                "inherit": true,
+                                                "linkColor": "#00e",
+                                                "linkUnderline": true,
+                                                "linkHoverColor": "#00e",
+                                                "linkHoverUnderline": true
+                                            },
+                                            "textAlign": "left",
+                                            "lineHeight": "140%",
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "0px 0px 0px 20px",
+                                            "displayCondition": null
+                                        },
+                                        "hasDeprecatedFontControls": true
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "Xa0216vtHy",
+                        "cells": [
+                            1
+                        ],
+                        "values": {
+                            "_meta": {
+                                "htmlID": "u_row_5",
+                                "htmlClassNames": "u_row"
+                            },
+                            "anchor": null,
+                            "columns": false,
+                            "padding": "0px",
+                            "hideable": true,
+                            "deletable": true,
+                            "draggable": true,
+                            "hideMobile": false,
+                            "selectable": true,
+                            "hideDesktop": false,
+                            "duplicatable": true,
+                            "noStackMobile": false,
+                            "backgroundColor": null,
+                            "backgroundImage": {
+                                "url": null,
+                                "size": "custom",
+                                "repeat": "no-repeat",
+                                "position": "top-center",
+                                "fullWidth": true,
+                                "customPosition": [
+                                    "50%",
+                                    "0%"
+                                ]
+                            },
+                            "displayCondition": null,
+                            "columnsBackgroundColor": "#fff"
+                        },
+                        "columns": [
+                            {
+                                "id": "qZ0e6tjz4t",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_7",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "backgroundColor": "#000"
+                                },
+                                "contents": [
+                                    {
+                                        "id": "hduObuhhvV",
+                                        "type": "text",
+                                        "values": {
+                                            "text": "<p style=\"font-size: 14px; line-height: 140%;\"><strong><span style=\"font-size: 14px; line-height: 19.6px;\">Get in Touch</span></strong></p><p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 12px; line-height: 16.8px;\">Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpatLorem ipsum dolor sit ame  </span></p><p style=\"font-size: 14px; line-height: 140%;\"> </p><p style=\"font-size: 14px; line-height: 140%;\"><span style=\"font-size: 12px; line-height: 16.8px;\">f you are no longer interested, you can  unsubscribe instantly </span></p><p style=\"line-height: 140%; font-size: 14px;\"><span style=\"font-size: 12px; line-height: 16.8px;\"> © Company |  All Rights Reserved </span></p>",
+                                            "_meta": {
+                                                "htmlID": "u_content_text_2",
+                                                "htmlClassNames": "u_content_text"
+                                            },
+                                            "color": "#bdbdbe",
+                                            "anchor": null,
+                                            "fontSize": "14px",
+                                            "hideable": true,
+                                            "deletable": true,
+                                            "draggable": true,
+                                            "linkStyle": {
+                                                "inherit": true,
+                                                "linkColor": "#00e",
+                                                "linkUnderline": true,
+                                                "linkHoverColor": "#00e",
+                                                "linkHoverUnderline": true
+                                            },
+                                            "textAlign": "center",
+                                            "hideMobile": false,
+                                            "lineHeight": "140%",
+                                            "selectable": true,
+                                            "hideDesktop": false,
+                                            "duplicatable": true,
+                                            "containerPadding": "30px",
+                                            "displayCondition": null
+                                        },
+                                        "hasDeprecatedFontControls": true
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "z7eCcYPkh0",
+                        "cells": [
+                            1
+                        ],
+                        "values": {
+                            "_meta": {
+                                "htmlID": "u_row_2",
+                                "htmlClassNames": "u_row"
+                            },
+                            "anchor": null,
+                            "columns": false,
+                            "padding": "0px",
+                            "hideable": false,
+                            "deletable": false,
+                            "draggable": false,
+                            "selectable": false,
+                            "duplicatable": false,
+                            "backgroundColor": null,
+                            "backgroundImage": {
+                                "url": null,
+                                "size": "custom",
+                                "repeat": "no-repeat",
+                                "position": "center",
+                                "fullWidth": true
+                            },
+                            "displayCondition": null,
+                            "columnsBackgroundColor": null
+                        },
+                        "columns": [
+                            {
+                                "id": "-S4Dk9ZXXl",
+                                "values": {
+                                    "_meta": {
+                                        "htmlID": "u_column_2",
+                                        "htmlClassNames": "u_column"
+                                    },
+                                    "border": [],
+                                    "padding": "0px",
+                                    "borderRadius": "0px",
+                                    "backgroundColor": null
+                                },
+                                "contents": [
+                                    {
+                                        "id": "dJlnDF5VnH",
+                                        "type": "text",
+                                        "values": {
+                                            "text": "<p style=\"line-height: 140%;\">{{unsubscribe}}</p>",
+                                            "_meta": {
+                                                "htmlID": "u_content_text_2",
+                                                "htmlClassNames": "u_content_text"
+                                            },
+                                            "anchor": null,
+                                            "fontSize": "14px",
+                                            "hideable": false,
+                                            "deletable": false,
+                                            "draggable": false,
+                                            "linkStyle": {
+                                                "inherit": true,
+                                                "linkColor": "#0000ee",
+                                                "linkUnderline": true,
+                                                "linkHoverColor": "#0000ee",
+                                                "linkHoverUnderline": true
+                                            },
+                                            "textAlign": "center",
+                                            "lineHeight": "140%",
+                                            "selectable": false,
+                                            "duplicatable": false,
+                                            "containerPadding": "10px",
+                                            "displayCondition": null
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "values": {
+                    "_meta": {
+                        "htmlID": "u_body",
+                        "htmlClassNames": "u_body"
+                    },
+                    "linkStyle": {
+                        "body": true,
+                        "linkColor": "#00e",
+                        "linkUnderline": true,
+                        "linkHoverColor": "#00e",
+                        "linkHoverUnderline": true
+                    },
+                    "textColor": "#000",
+                    "fontFamily": {
+                        "url": "https://fonts.googleapis.com/css?family=Montserrat:400,700",
+                        "label": "Montserrat",
+                        "value": "'Montserrat',sans-serif",
+                        "defaultFont": true
+                    },
+                    "popupWidth": "600px",
+                    "popupHeight": "auto",
+                    "borderRadius": "10px",
+                    "contentAlign": "center",
+                    "contentWidth": "600px",
+                    "popupPosition": "center",
+                    "preheaderText": null,
+                    "backgroundColor": "#f9f9f9",
+                    "backgroundImage": {
+                        "url": null,
+                        "size": "custom",
+                        "repeat": "no-repeat",
+                        "position": "top-center",
+                        "fullWidth": true,
+                        "customPosition": [
+                            "50%",
+                            "0%"
+                        ]
+                    },
+                    "contentVerticalAlign": "center",
+                    "popupBackgroundColor": "#FFFFFF",
+                    "popupBackgroundImage": {
+                        "url": null,
+                        "size": "cover",
+                        "repeat": "no-repeat",
+                        "position": "center",
+                        "fullWidth": true
+                    },
+                    "popupCloseButton_action": {
+                        "name": "close_popup",
+                        "attrs": {
+                            "onClick": "document.querySelector('.u-popup-container').style.display = 'none';"
+                        }
+                    },
+                    "popupCloseButton_margin": "0px",
+                    "popupCloseButton_position": "top-right",
+                    "popupCloseButton_iconColor": "#000000",
+                    "popupOverlay_backgroundColor": "rgba(0, 0, 0, 0.1)",
+                    "popupCloseButton_borderRadius": "0px",
+                    "popupCloseButton_backgroundColor": "#DDDDDD"
+                },
+                "footers": [],
+                "headers": []
+            },
+            "counters": {
+                "u_row": 2,
+                "u_column": 2,
+                "u_content_text": 2,
+                "u_content_image": 3,
+                "u_content_button": 1
+            },
+            "schemaVersion": 16
+        }
+    }
+}

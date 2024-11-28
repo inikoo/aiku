@@ -8,18 +8,26 @@
 namespace App\Actions\Ordering\Order;
 
 use App\Actions\HydrateModel;
+use App\Actions\Ordering\Order\Hydrators\OrderHydrateOfferCampaigns;
+use App\Actions\Ordering\Order\Hydrators\OrderHydrateOfferComponents;
+use App\Actions\Ordering\Order\Hydrators\OrderHydrateOffers;
 use App\Actions\Ordering\Order\Hydrators\OrderHydrateTransactions;
 use App\Models\Ordering\Order;
 use Illuminate\Support\Collection;
 
 class HydrateOrder extends HydrateModel
 {
-    public string $commandSignature = 'order:hydrate {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'hydrate:orders {organisations?*} {--s|slugs=}';
 
 
     public function handle(Order $order): void
     {
         OrderHydrateTransactions::run($order);
+        OrderHydrateOfferCampaigns::run($order);
+        OrderHydrateOffers::run($order);
+        OrderHydrateOfferComponents::run($order);
+
+
     }
 
 

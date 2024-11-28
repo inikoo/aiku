@@ -7,7 +7,7 @@
 
 namespace App\Models\Traits;
 
-use App\Models\Manufacturing\Production;
+use App\Models\Production\Production;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;

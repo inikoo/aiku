@@ -29,8 +29,8 @@ class CustomerRecordSearch
             'group_id'          => $customer->group_id,
             'organisation_id'   => $customer->organisation_id,
             'organisation_slug' => $customer->organisation->slug,
-            'shop_id'           => $customer->shop_id,
-            'shop_slug'         => $customer->shop->slug,
+            'customer_id'       => $customer->id,
+            'customer_slug'     => $customer->slug,
             'haystack_tier_1'   => trim($customer->email.' '.$customer->contact_name.' '.$customer->company_name),
             'haystack_tier_2'   => trim($customer->internal_notes.' '.$customer->warehouse_internal_notes.' '.$customer->warehouse_public_notes),
 
@@ -86,8 +86,10 @@ class CustomerRecordSearch
             ]
         ];
 
-        if ($customer->shop->type == 'fulfilment') {
+        if ($customer->is_fulfilment && $customer->shop->exists) {
             $modelData['sections'][] = AikuSectionEnum::FULFILMENT_CRM->value;
+            $modelData['fulfilment_id'] = $customer->shop->fulfilment_id;
+            $modelData['fulfilment_slug'] = $customer->shop->fulfilment->slug;
             $modelData['result'] = array_merge_recursive($modelData['result'], [
                 'route' => [
                     'name'          => 'grp.org.fulfilments.show.crm.customers.show',
@@ -100,6 +102,8 @@ class CustomerRecordSearch
             ]);
         } else {
             $modelData['sections'][] = AikuSectionEnum::SHOP_CRM->value;
+            $modelData['shop_id'] = $customer->shop_id;
+            $modelData['shop_slug'] = $customer->shop->slug;
             $modelData['result'] = array_merge_recursive($modelData['result'], [
                 'route' => [
                     'name'          => 'grp.org.shops.show.crm.customers.show',

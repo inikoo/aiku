@@ -8,7 +8,9 @@
 namespace App\Models\Accounting;
 
 use App\Models\Catalogue\Asset;
-use App\Models\Discounts\ModelHasOfferComponent;
+use App\Models\Discounts\Offer;
+use App\Models\Discounts\OfferCampaign;
+use App\Models\Discounts\OfferComponent;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\InvoiceTransactionHasFeedback;
 use App\Models\Ordering\Transaction;
@@ -17,8 +19,8 @@ use Eloquent;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -64,7 +66,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\Accounting\Invoice|null $invoice
  * @property-read Model|\Eloquent $item
- * @property-read \Illuminate\Database\Eloquent\Collection<int, ModelHasOfferComponent> $offerComponents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Offer> $offer
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OfferCampaign> $offerCampaign
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, OfferComponent> $offerComponents
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read Transaction|null $transaction
@@ -131,8 +135,18 @@ class InvoiceTransaction extends Model
         return $this->hasMany(InvoiceTransactionHasFeedback::class);
     }
 
-    public function offerComponents(): MorphMany
+    public function offerCampaign(): BelongsToMany
     {
-        return $this->morphMany(ModelHasOfferComponent::class, 'model');
+        return $this->belongsToMany(OfferCampaign::class, 'invoice_transaction_has_offer_components');
+    }
+
+    public function offer(): BelongsToMany
+    {
+        return $this->belongsToMany(Offer::class, 'invoice_transaction_has_offer_components');
+    }
+
+    public function offerComponents(): BelongsToMany
+    {
+        return $this->belongsToMany(OfferComponent::class, 'invoice_transaction_has_offer_components');
     }
 }

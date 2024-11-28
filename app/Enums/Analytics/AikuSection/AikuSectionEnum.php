@@ -30,6 +30,7 @@ enum AikuSectionEnum: string
     case ORG_FULFILMENT = 'org-fulfilment';
     case ORG_PRODUCTION = 'org-production';
     case ORG_WAREHOUSE = 'org-warehouse';
+    case ORG_WEBSITE = 'org-website';
 
     case SHOP_DASHBOARD = 'shop-dashboard';
     case SHOP_CATALOGUE = 'shop-catalogue';
@@ -40,6 +41,8 @@ enum AikuSectionEnum: string
     case SHOP_CRM = 'shop-crm';
     case SHOP_ORDERING = 'shop-ordering';
     case SHOP_SETTINGS = 'shop-settings';
+
+    case DROPSHIPPING = 'dropshipping';
 
     case FULFILMENT_DASHBOARD = 'fulfilment-dashboard';
     case FULFILMENT_BILLABLES = 'fulfilment-billables';
@@ -81,6 +84,7 @@ enum AikuSectionEnum: string
             'org-warehouse'   => __('Warehouse'),
             'org-fulfilment'  => __('Fulfilment'),
             'org-production'  => __('Production'),
+            'org-website'  => __('Website'),
 
             'shop-dashboard' => __('Shop Dashboard'),
             'shop-catalogue' => __('Shop Catalogue'),
@@ -91,6 +95,8 @@ enum AikuSectionEnum: string
             'shop-crm'       => __('Shop CRM'),
             'shop-ordering'  => __('Shop Ordering'),
             'shop-settings'  => __('Shop Settings'),
+
+            'dropshipping'   => __('Dropshipping'),
 
             'fulfilment-dashboard' => __('Fulfilment Dashboard'),
             'fulfilment-billables' => __('Fulfilment Billables'),
@@ -132,6 +138,7 @@ enum AikuSectionEnum: string
             AikuSectionEnum::ORG_PRODUCTION,
             AikuSectionEnum::ORG_WAREHOUSE,
             AikuSectionEnum::ORG_FULFILMENT,
+            AikuSectionEnum::ORG_WEBSITE,
             => ['Organisation'],
 
             // Organisation + Agent + DigitalAgency share sections
@@ -152,6 +159,9 @@ enum AikuSectionEnum: string
             AikuSectionEnum::SHOP_ORDERING,
             AikuSectionEnum::SHOP_SETTINGS,
             => ['Shop'],
+
+            AikuSectionEnum::DROPSHIPPING,
+            => ['Dropshipping'],
 
             // Fulfilment section
             AikuSectionEnum::FULFILMENT_DASHBOARD,

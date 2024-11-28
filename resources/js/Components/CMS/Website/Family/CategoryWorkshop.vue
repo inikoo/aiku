@@ -11,8 +11,8 @@ import { library } from "@fortawesome/fontawesome-svg-core"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 import { ref } from "vue"
 import Button from '@/Components/Elements/Buttons/Button.vue';
-/* import { getComponent } from "@/Components/Websites/Category/Content"
-import FamilyList from "@/Components/Websites/Category/FamilyList" */
+import { getComponent } from "./Content"
+import FamilyList from "./FamilyList"
 import Modal from '@/Components/Utils/Modal.vue'
 
 library.add(faCube, faLink, faStar, faCircle)
@@ -38,7 +38,7 @@ const onPickTemplate = (family) => {
 </script>
 
 <template>
-    <!-- <div id="app" class="mx-10 my-10  text-gray-600">
+    <div id="app" class="mx-10 my-10  text-gray-600">
         <div class="py-3">
             <Button label="Templates" @click="isModalOpen = true"></Button>
         </div>
@@ -112,7 +112,7 @@ const onPickTemplate = (family) => {
                 </form>
             </div>
         </div>
-    </div> -->
+    </div>
 
 
     <Modal :isOpen="isModalOpen" @onClose="isModalOpen = false" width="w-2/5">

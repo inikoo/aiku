@@ -7,8 +7,7 @@
 
 namespace App\Transfers\Aurora;
 
-use App\Enums\Comms\Email\EmailRunStateEnum;
-use App\Enums\Comms\EmailRun\EmailRunTypeEnum;
+use App\Enums\Comms\EmailBulkRun\EmailBulkRunTypeEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -24,11 +23,11 @@ class FetchAuroraEmailRunFromCampaignType extends FetchAurora
 
 
         //        $state = match ($this->auroraModelData->{'Email Campaign Type Code'}) {
-        //            'Scheduled','Ready' => EmailRunStateEnum::SCHEDULED,
-        //            'Sending' => EmailRunStateEnum::SENDING,
-        //            'Sent' => EmailRunStateEnum::SENT,
-        //            'Cancelled' => EmailRunStateEnum::CANCELLED,
-        //            'Stopped' => EmailRunStateEnum::STOPPED,
+        //            'Scheduled','Ready' => EmailBulkRunStateEnum::SCHEDULED,
+        //            'Sending' => EmailBulkRunStateEnum::SENDING,
+        //            'Sent' => EmailBulkRunStateEnum::SENT,
+        //            'Cancelled' => EmailBulkRunStateEnum::CANCELLED,
+        //            'Stopped' => EmailBulkRunStateEnum::STOPPED,
         //            default => null
         //        };
         //
@@ -42,31 +41,31 @@ class FetchAuroraEmailRunFromCampaignType extends FetchAurora
         //enum('Basket Low Stock','New Customer','Delivery Note Dispatched','Delivery Note Undispatched','Invoice Deleted','New Order','AbandonedCart','Delivery Confirmation','GR Reminder','Invite','Invite Mailshot','Invite Full Mailshot','Marketing','Newsletter','OOS Notification','Order Confirmation','Password Reminder','Registration','Registration Approved','Registration Rejected')
         switch ($this->auroraModelData->{'Email Campaign Type Code'}) {
             case 'Basket Low Stock':
-                $type = EmailRunTypeEnum::BASKET_LOW_STOCK;
+                $type = EmailBulkRunTypeEnum::BASKET_LOW_STOCK;
                 $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::BASKET_LOW_STOCK)->first();
                 break;
             case 'Basket Reminder 1':
-                $type = EmailRunTypeEnum::BASKET_REMINDER_1;
+                $type = EmailBulkRunTypeEnum::BASKET_REMINDER_1;
                 $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::BASKET_REMINDER_1)->first();
                 break;
             case 'Basket Reminder 2':
-                $type = EmailRunTypeEnum::BASKET_REMINDER_2;
+                $type = EmailBulkRunTypeEnum::BASKET_REMINDER_2;
                 $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::BASKET_REMINDER_2)->first();
                 break;
             case 'Basket Reminder 3':
-                $type = EmailRunTypeEnum::BASKET_REMINDER_3;
+                $type = EmailBulkRunTypeEnum::BASKET_REMINDER_3;
                 $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::BASKET_REMINDER_3)->first();
                 break;
             case 'AbandonedCart':
-                $type = EmailRunTypeEnum::ABANDONED_CART;
+                $type = EmailBulkRunTypeEnum::ABANDONED_CART;
                 $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::ABANDONED_CART)->first();
                 break;
             case 'GR Reminder':
-                $type = EmailRunTypeEnum::REORDER_REMINDER;
+                $type = EmailBulkRunTypeEnum::REORDER_REMINDER;
                 $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::REORDER_REMINDER)->first();
                 break;
             case 'OOS Notification':
-                $type = EmailRunTypeEnum::OOS_NOTIFICATION;
+                $type = EmailBulkRunTypeEnum::OOS_NOTIFICATION;
                 $outbox = $shop->outboxes()->where('code', OutboxCodeEnum::OOS_NOTIFICATION)->first();
                 break;
             default:

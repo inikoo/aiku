@@ -11,6 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Helpers\Snapshot\SnapshotBuilderEnum;
 use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
+use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Models\Comms\Email;
 use App\Models\Helpers\Snapshot;
 use Illuminate\Support\Arr;
@@ -53,16 +54,31 @@ class StoreEmailSnapshot extends OrgAction
 
     public function rules(): array
     {
-        $rules = [
-            'builder' => ['required', Rule::enum(SnapshotBuilderEnum::class)],
-            'layout' => ['required', 'array'],
-        ];
+        $rules = [];
 
         if (!$this->strict) {
-            $rules = $this->noStrictStoreRules($rules);
+            $rules['builder']         = ['required', Rule::enum(SnapshotBuilderEnum::class)];
+            $rules['layout']          = ['required', 'array'];
+            $rules['compiled_layout'] = ['nullable', 'string'];
+            $rules['state']           = ['sometimes', 'required', Rule::enum(SnapshotStateEnum::class)];
+            $rules['published_at']    = ['sometimes', 'required',  'date'];
+            $rules['recyclable']      = ['sometimes', 'required', 'boolean'];
+            $rules['first_commit']    = ['sometimes', 'required', 'boolean'];
+            $rules                    = $this->noStrictStoreRules($rules);
         }
 
         return $rules;
+    }
+
+    public function action(Email $email, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Snapshot
+    {
+        $this->asAction       = true;
+        $this->strict         = $strict;
+        $this->hydratorsDelay = $hydratorsDelay;
+
+        $this->initialisation($email->organisation, $modelData);
+
+        return $this->handle($email, $this->validatedData);
     }
 
 

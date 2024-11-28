@@ -32,14 +32,7 @@ class OfferCampaignHydrateOrders
     public function handle(OfferCampaign $offerCampaign): void
     {
         $stats = [
-            'number_orders'   => $offerCampaign->orderTransactions()
-            ->with('model')
-            ->get()
-            ->pluck('model.order_id')
-            ->unique()
-            ->count()
-            ->distinct('order_id')
-            ->count('order_id'),
+            'number_orders'   => $offerCampaign->transactions()->distinct()->count('transaction_has_offer_components.order_id'),
         ];
 
 

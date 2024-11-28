@@ -17,11 +17,10 @@ import { getComponent } from '@/Composables/getIrisComponents'
 // import "https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap"
 
 const props = defineProps<{
-  /*    data: any,
-     header : any, */
+  data: any,
+  header : any,
   blocks: any,
 }>()
-
 
 defineOptions({ layout: LayoutIris })
 library.add(faCheck, faPlus, faMinus)
@@ -31,16 +30,18 @@ library.add(faCheck, faPlus, faMinus)
 
 <template>
 
-  <Head title="Warehouse Solution" />
-
+  <Head>
+    <title>{{ data.seotitle }}</title>
+    <meta property="og:title" :content="data.seotitle " />
+    <meta name="description" :content="data.seodescription">
+    <meta property="og:image" content="https://socialsharepreview.com/api/image-proxy?url=https%3A%2F%2Fwww.zelolab.com%2Fwp-content%2Fuploads%2F2022%2F12%2Fhow-to-create-and-set-up-a-social-share-preview-image-on-your-website.jpg" />
+  </Head>
   <div class="bg-white">
     <template v-if="props.blocks?.web_blocks?.length">
-      <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id" class="w-full">
-        <component  
-          :is="getComponent(activityItem.type)"
-          :key="activityItemIdx"
-          v-model="activityItem.web_block.layout.data.fieldValue" 
-        />
+      <div v-for="(activityItem, activityItemIdx) in props.blocks.web_blocks" :key="'block' + activityItem.id"
+        class="w-full">
+        <component :is="getComponent(activityItem.type)" :key="activityItemIdx"
+          v-model="activityItem.web_block.layout.data.fieldValue" />
       </div>
     </template>
 
@@ -48,7 +49,6 @@ library.add(faCheck, faPlus, faMinus)
       This page have no data
     </div>
   </div>
-
 </template>
 
 <style>

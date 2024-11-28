@@ -109,10 +109,10 @@ class IndexCustomers extends OrgAction
                 'customer_stats.number_current_clients',
                 'customer_stats.last_invoiced_at',
                 'customer_stats.number_invoices_type_invoice',
-                'customer_stats.invoiced_net_amount',
-                'customer_stats.invoiced_org_net_amount',
-                'customer_stats.invoiced_grp_net_amount',
-                'customer_stats.currency_id',
+                'customer_stats.sales_all',
+                'customer_stats.sales_org_currency_all',
+                'customer_stats.sales_grp_currency_all',
+                'shops.currency_id',
                 'platforms.name as platform_name',
                 'currencies.code as currency_code',
             ])
@@ -125,7 +125,6 @@ class IndexCustomers extends OrgAction
             ->leftJoin('customer_stats', 'customers.id', 'customer_stats.customer_id')
             ->leftJoin('shops', 'customers.shop_id', 'shops.id')
             ->leftJoin('currencies', 'shops.currency_id', 'currencies.id')
-
             ->allowedSorts([
                 'reference',
                 'name',
@@ -230,7 +229,6 @@ class IndexCustomers extends OrgAction
                 ->column(key: 'invoiced_net_amount', label: __('sales'), canBeHidden: false, sortable: true, searchable: true);
 
             $table->defaultSort('-created_at');
-
         };
     }
 

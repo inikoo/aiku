@@ -20,29 +20,32 @@ class HydratePortfolio extends OrgAction
     use WithEnumStats;
 
 
-    private Portfolio $dropshippingCustomerPortfolio;
+    private Portfolio $portfolio;
 
-    public function __construct(Portfolio $dropshippingCustomerPortfolio)
+    public function __construct(Portfolio $portfolio)
     {
-        $this->dropshippingCustomerPortfolio = $dropshippingCustomerPortfolio;
+        $this->portfolio = $portfolio;
     }
 
     public function getJobMiddleware(): array
     {
-        return [(new WithoutOverlapping($this->dropshippingCustomerPortfolio->id))->dontRelease()];
+        return [(new WithoutOverlapping($this->portfolio->id))->dontRelease()];
     }
 
 
-    public function handle(Portfolio $dropshippingCustomerPortfolio): void
+    public function handle(Portfolio $portfolio): void
     {
-        $stats = [
-            'amount'                  => $dropshippingCustomerPortfolio->customer->orders()->sum('net_amount'),
-            'number_orders'           => $dropshippingCustomerPortfolio->customer->orders()->count(),
-            'number_ordered_quantity' => $dropshippingCustomerPortfolio->customer->orders()->where('state', OrderStateEnum::DISPATCHED->value)->count(),
-            'number_clients'          => $dropshippingCustomerPortfolio->customer->clients()->count(),
-            'last_ordered_at'         => $dropshippingCustomerPortfolio->last_added_at,
-        ];
+        $customer = $portfolio->customer;
 
-        $dropshippingCustomerPortfolio->stats()->update($stats);
+        // ALl this is wrong, it should only take stats of product_id in portfolio, it should query transactions table
+        //        $stats = [
+        //            'amount'                  => $customer->orders()->sum('net_amount'),
+        //            'number_orders'           => $customer->orders()->count(),
+        //            'number_ordered_quantity' => $customer->orders()->where('state', OrderStateEnum::DISPATCHED->value)->count(),
+        //            'number_clients'          => $customer->clients()->count(),
+        //            'last_ordered_at'         => $portfolio->last_added_at,
+        //        ];
+        //
+        //        $portfolio->stats()->update($stats);
     }
 }

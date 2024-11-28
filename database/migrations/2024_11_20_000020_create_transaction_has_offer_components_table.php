@@ -29,8 +29,13 @@ return new class () extends Migration {
             $table->foreign('offer_id')->references('id')->on('offers');
             $table->unsignedInteger('offer_component_id');
             $table->foreign('offer_component_id')->references('id')->on('offer_components');
+
             $table->decimal('discounted_amount', 12, 2)->default(0);
             $table->decimal('discounted_percentage', 6, 4)->default(0);
+
+            $table->decimal('free_items_value', 12, 2)->default(0);
+            $table->decimal('number_of_free_items', 12, 2)->default(0);
+
             $table->text('info')->nullable();
             $table->boolean('is_pinned')->default('false')->index();
             $table->string('precursor')->nullable();
@@ -40,7 +45,6 @@ return new class () extends Migration {
             $table->dateTimeTz('last_fetched_at')->nullable();
             $table->string('source_id')->nullable();
             $table->string('source_alt_id')->nullable();
-            $table->softDeletesTz();
         });
     }
 

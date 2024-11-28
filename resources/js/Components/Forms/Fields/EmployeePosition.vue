@@ -426,7 +426,7 @@ const optionsJob = reactive<optionsJob>({
 
     prod: {
         key: 'prod',
-        department: trans("Manufacturing"),
+        department: trans("Production"),
         subDepartment: [
             {
                 slug: "prod-m",

@@ -31,10 +31,11 @@ class StoreTransactionHasOfferComponent extends OrgAction
         data_set($modelData, 'model_id', $transaction->model_id);
 
         data_set($modelData, 'order_id', $transaction->order_id);
+        data_set($modelData, 'transaction_id', $transaction->id);
 
 
         /** @var TransactionHasOfferComponent $transactionHasOfferComponent */
-        $transactionHasOfferComponent = $transaction->offerComponents()->create($modelData);
+        $transactionHasOfferComponent = TransactionHasOfferComponent::create($modelData);
 
         OfferComponentHydrateOrders::dispatch($transactionHasOfferComponent->offerComponent);
         OfferHydrateOrders::dispatch($transactionHasOfferComponent->offer);

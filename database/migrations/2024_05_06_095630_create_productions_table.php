@@ -6,7 +6,7 @@
  */
 
 
-use App\Enums\Manufacturing\Production\ProductionStateEnum;
+use App\Enums\Production\Production\ProductionStateEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

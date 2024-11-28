@@ -20,7 +20,7 @@ use App\Models\Analytics\AikuSection;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
-use App\Models\Manufacturing\Production;
+use App\Models\Production\Production;
 use App\Models\SupplyChain\Agent;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
@@ -70,7 +70,6 @@ class SeedAikuScopedSections extends GrpAction
             if ($scope == 'Organisation' and $model->type == OrganisationTypeEnum::DIGITAL_AGENCY) {
                 $scope = 'DigitalAgency';
             }
-
 
             if (in_array($scope, $case->scopes())) {
                 $aikuSection = AikuSection::where('code', $case->value)->first();

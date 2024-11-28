@@ -35,6 +35,7 @@ use Illuminate\Support\Arr;
  * @property string|null $published_until
  * @property string $checksum
  * @property array $layout
+ * @property string|null $compiled_layout e.g. html in case of email builders
  * @property string|null $comment
  * @property bool $first_commit
  * @property bool|null $recyclable

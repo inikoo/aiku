@@ -93,6 +93,7 @@ const selectedPreview = ref('facebook')
                 </div>
             </div>
 
+            <!-- Preview: Google -->
             <div v-if="selectedPreview === 'google'" class="h-fit mx-auto mb-4 bg-white rounded-lg border border-gray-200 p-4">
                 <div class="text-blue-600 hover:text-blue-700 font-medium text-2xl text-ellipsis overflow-hidden">
                     {{ form[fieldName].seotitle || 'Wall paint - Bight, Shine, Protection'}}

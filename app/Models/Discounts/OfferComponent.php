@@ -8,6 +8,8 @@
 namespace App\Models\Discounts;
 
 use App\Enums\Discounts\OfferComponent\OfferComponentStateEnum;
+use App\Models\Accounting\InvoiceTransaction;
+use App\Models\Ordering\Transaction;
 use App\Models\Traits\HasHistory;
 use App\Models\Traits\InShop;
 use Eloquent;
@@ -15,7 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
@@ -53,14 +55,13 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $source_data
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Helpers\Audit> $audits
  * @property-read \App\Models\SysAdmin\Group $group
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $invoiceTransactions
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $modelHasOfferComponents
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, InvoiceTransaction> $invoiceTransactions
  * @property-read \App\Models\Discounts\Offer $offer
  * @property-read \App\Models\Discounts\OfferCampaign $offerCampaign
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Discounts\ModelHasOfferComponent> $orderTransactions
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Catalogue\Shop $shop
  * @property-read \App\Models\Discounts\OfferComponentStats|null $stats
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, Transaction> $transactions
  * @method static \Database\Factories\Discounts\OfferComponentFactory factory($count = null, $state = [])
  * @method static Builder<static>|OfferComponent newModelQuery()
  * @method static Builder<static>|OfferComponent newQuery()
@@ -135,21 +136,14 @@ class OfferComponent extends Model implements Auditable
         return $this->hasOne(OfferComponentStats::class);
     }
 
-    public function modelHasOfferComponents(): HasMany
+    public function transactions(): BelongsToMany
     {
-        return $this->hasMany(ModelHasOfferComponent::class);
+        return $this->belongsToMany(Transaction::class, 'transaction_has_offer_components');
     }
 
-    public function invoiceTransactions(): HasMany
+    public function invoiceTransactions(): BelongsToMany
     {
-        return $this->hasMany(ModelHasOfferComponent::class)
-            ->where('model_type', 'InvoiceTransaction');
-    }
-
-    public function orderTransactions(): HasMany
-    {
-        return $this->hasMany(ModelHasOfferComponent::class)
-            ->where('model_type', 'Transaction');
+        return $this->belongsToMany(InvoiceTransaction::class, 'invoice_transaction_has_offer_components');
     }
 
 }

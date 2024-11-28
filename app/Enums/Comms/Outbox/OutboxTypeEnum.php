@@ -19,6 +19,7 @@ enum OutboxTypeEnum: string
     case TRANSACTIONAL = 'transactional';
     case COLD_EMAIL = 'cold-email';
     case APP_COMMS = 'app-comms';
+    case TEST = 'test';
 
 
 
