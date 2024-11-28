@@ -25,8 +25,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $sales_qtd
  * @property string $sales_mtd
  * @property string $sales_wtd
+ * @property string $sales_tdy
  * @property string $sales_lm
  * @property string $sales_lw
+ * @property string $sales_ld
  * @property string $sales_all_ly
  * @property string $sales_1y_ly
  * @property string $sales_1q_ly
@@ -38,8 +40,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $sales_qtd_ly
  * @property string $sales_mtd_ly
  * @property string $sales_wtd_ly
+ * @property string $sales_tdy_ly
  * @property string $sales_lm_ly
  * @property string $sales_lw_ly
+ * @property string $sales_ld_ly
  * @property string $sales_py1
  * @property string $sales_py2
  * @property string $sales_py3
@@ -61,8 +65,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $sales_org_currency_qtd
  * @property string $sales_org_currency_mtd
  * @property string $sales_org_currency_wtd
+ * @property string $sales_org_currency_tdy
  * @property string $sales_org_currency_lm
  * @property string $sales_org_currency_lw
+ * @property string $sales_org_currency_ld
  * @property string $sales_org_currency_all_ly
  * @property string $sales_org_currency_1y_ly
  * @property string $sales_org_currency_1q_ly
@@ -74,8 +80,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $sales_org_currency_qtd_ly
  * @property string $sales_org_currency_mtd_ly
  * @property string $sales_org_currency_wtd_ly
+ * @property string $sales_org_currency_tdy_ly
  * @property string $sales_org_currency_lm_ly
  * @property string $sales_org_currency_lw_ly
+ * @property string $sales_org_currency_ld_ly
  * @property string $sales_org_currency_py1
  * @property string $sales_org_currency_py2
  * @property string $sales_org_currency_py3
@@ -97,8 +105,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $sales_grp_currency_qtd
  * @property string $sales_grp_currency_mtd
  * @property string $sales_grp_currency_wtd
+ * @property string $sales_grp_currency_tdy
  * @property string $sales_grp_currency_lm
  * @property string $sales_grp_currency_lw
+ * @property string $sales_grp_currency_ld
  * @property string $sales_grp_currency_all_ly
  * @property string $sales_grp_currency_1y_ly
  * @property string $sales_grp_currency_1q_ly
@@ -110,8 +120,10 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $sales_grp_currency_qtd_ly
  * @property string $sales_grp_currency_mtd_ly
  * @property string $sales_grp_currency_wtd_ly
+ * @property string $sales_grp_currency_tdy_ly
  * @property string $sales_grp_currency_lm_ly
  * @property string $sales_grp_currency_lw_ly
+ * @property string $sales_grp_currency_ld_ly
  * @property string $sales_grp_currency_py1
  * @property string $sales_grp_currency_py2
  * @property string $sales_grp_currency_py3
