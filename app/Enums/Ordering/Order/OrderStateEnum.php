@@ -130,7 +130,7 @@ enum OrderStateEnum: string
     public static function count(Organisation|Shop|Customer|CustomerClient|Asset $parent): array
     {
         if ($parent instanceof Organisation || $parent instanceof Shop) {
-            $stats = $parent->salesStats;
+            $stats = $parent->orderingStats;
         } elseif ($parent instanceof CustomerClient) {
             $stats = $parent->customer->stats;
         } else {
