@@ -93,6 +93,7 @@ beforeEach(function () {
         ], );
     }
     $this->purge = $purge;
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -271,5 +272,5 @@ test('UI get section route index', function () {
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->organisation_id)->toBe($this->organisation->id)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_ORDERING->value)
-        ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
-})->todo();
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});

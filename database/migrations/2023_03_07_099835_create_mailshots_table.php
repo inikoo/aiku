@@ -27,7 +27,7 @@ return new class () extends Migration {
 
             $table->unsignedSmallInteger('outbox_id')->nullable()->index();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
-            $table->unsignedSmallInteger('email_id')->nullable()->index();
+            $table->unsignedInteger('email_id')->nullable()->index();
             $table->foreign('email_id')->references('id')->on('emails');
             $table->string('state')->index()->default(MailshotStateEnum::IN_PROCESS->value);
             $table->string('type')->index();
@@ -41,7 +41,7 @@ return new class () extends Migration {
             $table->dateTimeTz('cancelled_at')->nullable();
             $table->dateTimeTz('stopped_at')->nullable();
             $table->jsonb('recipients_recipe');
-            $table->unsignedSmallInteger('publisher_id')->nullable()->comment('org user');
+            $table->unsignedSmallInteger('publisher_id')->nullable();
             $table->foreign('publisher_id')->references('id')->on('users');
 
 

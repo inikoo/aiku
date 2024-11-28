@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->unsignedInteger('model_id');
             $table->string('scope')->nullable()->index();
             $table->string('publisher_type')->nullable();
-            $table->unsignedSmallInteger('publisher_id')->nullable();
+            $table->unsignedInteger('publisher_id')->nullable();
             $table->unsignedInteger('snapshot_id')->nullable();
             $table->foreign('snapshot_id')->references('id')->on('snapshots')->onUpdate('cascade')->onDelete('cascade');
             $table->timestampsTz();

@@ -18,7 +18,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->string('scope')->index();
             $table->string('publisher_type')->nullable();
-            $table->unsignedSmallInteger('publisher_id')->nullable();
+            $table->unsignedInteger('publisher_id')->nullable();
             $table->string('parent_type')->nullable();
             $table->unsignedInteger('parent_id')->nullable();
             $table->unsignedInteger('customer_id')->nullable();

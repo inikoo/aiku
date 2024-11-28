@@ -25,7 +25,7 @@ return new class () extends Migration {
             $table->string('reference')->unique()->index();
             $table->unsignedSmallInteger('rental_agreement_id');
             $table->foreign('rental_agreement_id')->references('id')->on('rental_agreements');
-            $table->unsignedSmallInteger('fulfilment_customer_id');
+            $table->unsignedInteger('fulfilment_customer_id');
             $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
             $table->unsignedSmallInteger('fulfilment_id');
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments');

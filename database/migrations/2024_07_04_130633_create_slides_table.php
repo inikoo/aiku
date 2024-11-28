@@ -18,7 +18,7 @@ return new class () extends Migration {
         Schema::create('slides', function (Blueprint $table) {
             $table->increments('id');
             $table->ulid()->index()->nullable();
-            $table->unsignedSmallInteger('snapshot_id');
+            $table->unsignedInteger('snapshot_id');
             $table->boolean('visibility')->default(true)->index();
             $table->jsonb('layout')->nullable();
             $table->unsignedInteger('image_id')->nullable();

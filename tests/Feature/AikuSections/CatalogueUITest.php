@@ -104,7 +104,7 @@ beforeEach(function () {
         $this->shop->refresh();
     }
     $this->charge = $charge;
-
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -468,7 +468,6 @@ test('UI edit Charges', function () {
 
 
 test('UI get section route catalogue dashboard', function () {
-    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
     $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.catalogue.dashboard', [
         'organisation' => $this->organisation->slug,
         'shop' => $this->shop->slug
