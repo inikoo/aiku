@@ -7,9 +7,12 @@
 
 namespace App\Actions\Transfers\Aurora;
 
+use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
+use App\Actions\Ordering\Order\UpdateOrderFixedAddress;
 use App\Models\Discounts\TransactionHasOfferComponent;
+use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
 use App\Transfers\Aurora\WithAuroraAttachments;
 use App\Transfers\Aurora\WithAuroraParsers;
@@ -107,9 +110,45 @@ class FetchAuroraOrders extends FetchAuroraAction
         $order = null;
         if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])->first()) {
             //try {
+
+            /** @var Address $billingAddress */
+            $deliveryAddress = Arr::pull($orderData['order'], 'delivery_address');
+
+            if ($order->delivery_locked) {
+                UpdateOrderFixedAddress::make()->action(
+                    order: $order,
+                    modelData: [
+                        'address' => $deliveryAddress,
+                        'type'    => 'delivery'
+                    ],
+                    hydratorsDelay: 60,
+                    audit: false
+                );
+            } else {
+                UpdateAddress::run($order->deliveryAddress, $deliveryAddress->toArray());
+            }
+
+
+            /** @var Address $billingAddress */
+            $billingAddress = Arr::pull($orderData['order'], 'billing_address');
+            if ($order->billing_locked) {
+                UpdateOrderFixedAddress::make()->action(
+                    order: $order,
+                    modelData: [
+                        'address' => $billingAddress,
+                        'type'    => 'billing'
+                    ],
+                    hydratorsDelay: 60,
+                    audit: false
+                );
+            } else {
+                UpdateAddress::run($order->billingAddress, $billingAddress->toArray());
+            }
+
+
             $order = UpdateOrder::make()->action(
                 order: $order,
-                modelData: ['order'],
+                modelData: $orderData['order'],
                 hydratorsDelay: 60,
                 strict: false,
                 audit: false
@@ -200,7 +239,7 @@ class FetchAuroraOrders extends FetchAuroraAction
         }
         $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->forceDelete();
 
-        $offerComponentsToDelete =  TransactionHasOfferComponent::where('order_id', $order->id)->whereIn('model_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
+        $offerComponentsToDelete = TransactionHasOfferComponent::where('order_id', $order->id)->whereIn('model_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
         foreach (
             DB::connection('aurora')
                 ->table('Order Transaction Deal Bridge')
@@ -244,8 +283,6 @@ class FetchAuroraOrders extends FetchAuroraAction
             FetchAuroraNoProductTransactionHasOfferComponents::run($organisationSource, $auroraData->{'Order No Product Transaction Deal Key'}, $order);
         }
         TransactionHasOfferComponent::where('order_id', $order->id)->whereIn('id', array_keys($offerComponentsToDelete))->forceDelete();
-
-
     }
 
     public function getModelsQuery(): Builder

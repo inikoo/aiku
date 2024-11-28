@@ -27,7 +27,7 @@ class AddDeliveryAddressToCustomer extends OrgAction
     {
 
 
-        $customer = $this->addAddressToModel(
+        $customer = $this->addAddressToModelFromArray(
             model: $customer,
             addressData: $modelData['delivery_address'],
             scope: 'delivery',

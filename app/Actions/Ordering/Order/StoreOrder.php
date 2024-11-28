@@ -53,6 +53,9 @@ class StoreOrder extends OrgAction
      */
     public function handle(Shop|Customer|CustomerClient $parent, array $modelData): Order
     {
+
+
+
         if (!Arr::get($modelData, 'reference')) {
             data_set(
                 $modelData,
@@ -63,12 +66,10 @@ class StoreOrder extends OrgAction
                 )
             );
         }
-        data_set($modelData, 'date', now());
+        data_set($modelData, 'date', now(), overwrite: false);
 
-        $billingAddress  = Arr::pull($modelData, 'billing_address');
-        $deliveryAddress = Arr::pull($modelData, 'delivery_address');
 
-        if (!$billingAddress && !$deliveryAddress) {
+        if ($this->strict) {
             if ($parent instanceof Customer) {
                 $billingAddress  = $parent->address;
                 $deliveryAddress = $parent->deliveryAddress;
@@ -76,7 +77,11 @@ class StoreOrder extends OrgAction
                 $billingAddress  = $parent->customer->address;
                 $deliveryAddress = $parent->address;
             }
+        } else {
+            $billingAddress  = Arr::pull($modelData, 'billing_address');
+            $deliveryAddress = Arr::pull($modelData, 'delivery_address');
         }
+
 
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
@@ -125,7 +130,7 @@ class StoreOrder extends OrgAction
             $order->stats()->create();
 
             if ($order->billing_locked) {
-                $order = $this->createFixedAddress(
+                $this->createFixedAddress(
                     $order,
                     $billingAddress,
                     'Ordering',
@@ -133,25 +138,21 @@ class StoreOrder extends OrgAction
                     'billing_address_id'
                 );
             } else {
-                $order = $this->addAddressToModel(
-                    model: $order,
-                    addressData: Arr::except($billingAddress->toArray(), ['id']),
-                    scope: 'billing',
-                    updateLocation: false,
-                    updateAddressField: 'billing_address_id'
+                StoreOrderAddress::make()->action(
+                    $order,
+                    [
+                        'address' => $billingAddress,
+                        'type' => 'billing'
+                    ]
                 );
             }
 
-            $order->updateQuietly(
-                [
-                    'billing_country_id' => $order->billingAddress->country_id
-                ]
-            );
+
 
 
             if ($order->handing_type == OrderHandingTypeEnum::SHIPPING) {
                 if ($order->delivery_locked) {
-                    $order = $this->createFixedAddress(
+                    $this->createFixedAddress(
                         $order,
                         $deliveryAddress,
                         'Ordering',
@@ -159,20 +160,16 @@ class StoreOrder extends OrgAction
                         'delivery_address_id'
                     );
                 } else {
-                    $order = $this->addAddressToModel(
-                        model: $order,
-                        addressData: Arr::except($deliveryAddress->toArray(), ['id']),
-                        scope: 'delivery',
-                        updateLocation: false,
-                        updateAddressField: 'delivery_address_id'
+                    StoreOrderAddress::make()->action(
+                        $order,
+                        [
+                            'address' => $deliveryAddress,
+                            'type' => 'delivery'
+                        ]
                     );
                 }
 
-                $order->updateQuietly(
-                    [
-                        'delivery_country_id' => $order->deliveryAddress->country_id
-                    ]
-                );
+
             } else {
                 $order->updateQuietly(
                     [
@@ -195,7 +192,7 @@ class StoreOrder extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'          => [
+            'reference' => [
                 'sometimes',
                 'max:64',
                 'string',
@@ -206,22 +203,17 @@ class StoreOrder extends OrgAction
                     ]
                 ),
             ],
-            'date'               => ['sometimes', 'date'],
-            'submitted_at'       => ['sometimes', 'nullable', 'date'],
-            'in_warehouse_at'    => ['sometimes', 'nullable', 'date'],
-            'packed_at'          => ['sometimes', 'nullable', 'date'],
-            'finalised_at'       => ['sometimes', 'nullable', 'date'],
-            'dispatched_at'      => ['sometimes', 'nullable', 'date'],
-            'customer_reference' => ['sometimes', 'string', 'max:64'],
-            'state'              => ['sometimes', Rule::enum(OrderStateEnum::class)],
-            'status'             => ['sometimes', Rule::enum(OrderStatusEnum::class)],
-            'handing_type'       => ['sometimes', 'required', Rule::enum(OrderHandingTypeEnum::class)],
-            'billing_address'    => ['sometimes', new ValidAddress()],
-            'delivery_address'   => ['sometimes', new ValidAddress()],
-            'billing_locked'     => ['sometimes', 'boolean'],
-            'delivery_locked'    => ['sometimes', 'boolean'],
-            'tax_category_id'    => ['sometimes', 'required', 'exists:tax_categories,id'],
-            'sales_channel_id'   => [
+
+
+            'customer_reference' => ['sometimes', 'string', 'max:255'],
+
+            'state'        => ['sometimes', Rule::enum(OrderStateEnum::class)],
+            'status'       => ['sometimes', Rule::enum(OrderStatusEnum::class)],
+            'handing_type' => ['sometimes', 'required', Rule::enum(OrderHandingTypeEnum::class)],
+
+
+            'tax_category_id'  => ['sometimes', 'required', 'exists:tax_categories,id'],
+            'sales_channel_id' => [
                 'sometimes',
                 'required',
                 Rule::exists('sales_channels', 'id')->where(function ($query) {
@@ -232,8 +224,23 @@ class StoreOrder extends OrgAction
         ];
 
         if (!$this->strict) {
+            $rules['billing_address']  = ['required', new ValidAddress()];
+            $rules['delivery_address'] = ['required', new ValidAddress()];
+            $rules['billing_locked']   = ['sometimes', 'boolean'];
+            $rules['delivery_locked']  = ['sometimes', 'boolean'];
+
+            $rules['submitted_at']    = ['sometimes', 'nullable', 'date'];
+            $rules['in_warehouse_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['packed_at']       = ['sometimes', 'nullable', 'date'];
+            $rules['finalised_at']    = ['sometimes', 'nullable', 'date'];
+            $rules['dispatched_at']   = ['sometimes', 'nullable', 'date'];
+
+            $rules['payment_amount'] = ['sometimes', 'numeric'];
+
+            $rules['data']         = ['sometimes', 'array'];
             $rules['reference']    = ['sometimes', 'string', 'max:64'];
             $rules['source_id']    = ['sometimes', 'string', 'max:64'];
+            $rules['date']         = ['sometimes', 'required', 'date'];
             $rules['fetched_at']   = ['sometimes', 'required', 'date'];
             $rules['created_at']   = ['sometimes', 'required', 'date'];
             $rules['cancelled_at'] = ['sometimes', 'nullable', 'date'];

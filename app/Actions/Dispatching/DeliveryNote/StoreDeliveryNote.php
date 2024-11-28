@@ -54,7 +54,7 @@ class StoreDeliveryNote extends OrgAction
             $deliveryNote->stats()->create();
 
             if ($deliveryNote->delivery_locked) {
-                $deliveryNote = $this->createFixedAddress(
+                $this->createFixedAddress(
                     $deliveryNote,
                     $deliveryAddress,
                     'Ordering',
@@ -62,7 +62,7 @@ class StoreDeliveryNote extends OrgAction
                     'address_id'
                 );
             } else {
-                $deliveryNote = $this->addAddressToModel(
+                $deliveryNote = $this->addAddressToModelFromArray(
                     model: $deliveryNote,
                     addressData: $deliveryAddress->toArray(),
                     scope: 'delivery',

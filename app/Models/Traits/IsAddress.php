@@ -60,20 +60,15 @@ trait IsAddress
             array_filter(
                 array_map(
                     'strtolower',
-                    array_diff_key(
-                        $this->toArray(),
-                        array_flip(
-                            [
-                                'id',
-                                'usage',
-                                'country_code',
-                                'checksum',
-                                'created_at',
-                                'updated_at',
-                                'is_fixed',
-                                'fixed_scope'
-                            ]
-                        )
+                    $this->only(
+                        'address_line_1',
+                        'address_line_2',
+                        'sorting_code',
+                        'postal_code',
+                        'dependent_locality',
+                        'locality',
+                        'administrative_area',
+                        'country_id'
                     )
                 )
             )

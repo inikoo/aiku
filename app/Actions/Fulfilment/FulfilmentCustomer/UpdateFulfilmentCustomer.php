@@ -45,7 +45,7 @@ class UpdateFulfilmentCustomer extends OrgAction
             if ($fulfilmentCustomer->customer->address) {
                 UpdateAddress::run($fulfilmentCustomer->customer->address, $contactAddressData);
             } else {
-                $this->addAddressToModel(
+                $this->addAddressToModelFromArray(
                     model: $fulfilmentCustomer->customer,
                     addressData: $contactAddressData,
                     scope: 'billing',

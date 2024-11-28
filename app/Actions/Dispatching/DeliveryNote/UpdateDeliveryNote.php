@@ -49,7 +49,7 @@ class UpdateDeliveryNote extends OrgAction
         if ($deliveryAddressData) {
             if ($deliveryNote->delivery_locked) {
                 if ($deliveryNote->deliveryAddress->is_fixed) {
-                    $deliveryNote = $this->updateFixedAddress(
+                    $this->updateFixedAddress(
                         $deliveryNote,
                         $deliveryNote->deliveryAddress,
                         $deliveryAddressData,
@@ -59,7 +59,7 @@ class UpdateDeliveryNote extends OrgAction
                     );
                 } else {
                     // todo remove non fixed address
-                    $deliveryNote = $this->createFixedAddress(
+                    $this->createFixedAddress(
                         $deliveryNote,
                         $deliveryAddressData,
                         'Ordering',
@@ -74,25 +74,25 @@ class UpdateDeliveryNote extends OrgAction
         $deliveryNote->refresh();
         /** @var DeliveryNote $deliveryNote */
 
-        if(Arr::get($modelData, 'picker_id'))
-        {
-            foreach($deliveryNote->deliveryNoteItems as $item)
-            {
-                AssignPickerToPicking::make()->action($item->pickings,
-                [
+        if (Arr::get($modelData, 'picker_id')) {
+            foreach ($deliveryNote->deliveryNoteItems as $item) {
+                AssignPickerToPicking::make()->action(
+                    $item->pickings,
+                    [
                     'picker_id' => $deliveryNote->picker_id
-                ]);
+                ]
+                );
             }
         }
 
-        if(Arr::get($modelData, 'packer_id'))
-        {
-            foreach($deliveryNote->deliveryNoteItems as $item)
-            {
-                AssignPackerToPicking::make()->action($item->pickings,
-                [
+        if (Arr::get($modelData, 'packer_id')) {
+            foreach ($deliveryNote->deliveryNoteItems as $item) {
+                AssignPackerToPicking::make()->action(
+                    $item->pickings,
+                    [
                     'picker_id' => $deliveryNote->packer_id
-                ]);
+                ]
+                );
             }
         }
 
@@ -163,7 +163,7 @@ class UpdateDeliveryNote extends OrgAction
         return new DeliveryNoteResource($deliveryNote);
     }
 
-    public function asController(DeliveryNote $deliveryNote, ActionRequest $request,  int $hydratorsDelay = 0): DeliveryNote
+    public function asController(DeliveryNote $deliveryNote, ActionRequest $request, int $hydratorsDelay = 0): DeliveryNote
     {
         $this->deliveryNote   = $deliveryNote;
         $this->hydratorsDelay = $hydratorsDelay;

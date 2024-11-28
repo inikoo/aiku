@@ -43,7 +43,7 @@ class StoreWorkplace extends OrgAction
         if (Arr::get($workplace->settings, 'address_link')) {
             $workplace = $this->addLinkedAddress($workplace);
         } else {
-            $workplace = $this->addAddressToModel($workplace, $addressData);
+            $workplace = $this->addAddressToModelFromArray($workplace, $addressData);
         }
 
         OrganisationHydrateWorkplaces::run($organisation);

@@ -7,19 +7,14 @@
 
 namespace App\Actions\Ordering\Order;
 
-use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Ordering\Order\Search\OrderRecordSearch;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Ordering\Order\OrderStateEnum;
-use App\Models\Helpers\Address;
-use App\Models\Helpers\Country;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
-use App\Rules\ValidAddress;
-use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -34,65 +29,8 @@ class UpdateOrder extends OrgAction
 
     public function handle(Order $order, array $modelData): Order
     {
-        // dd($modelData);
-        /** @var Address $billingAddressData */
-        $billingAddressData = Arr::get($modelData, 'billing_address');
-        data_forget($modelData, 'billing_address');
-        /** @var Address $deliveryAddressData */
-        $deliveryAddressData = Arr::get($modelData, 'delivery_address');
-        data_forget($modelData, 'delivery_address');
-
-
         $order         = $this->update($order, $modelData, ['data']);
         $changedFields = $order->getChanges();
-
-        if ($billingAddressData) {
-            if ($order->billing_locked) {
-                if ($order->billingAddress->is_fixed) {
-                    $order = $this->updateFixedAddress(
-                        $order,
-                        $order->billingAddress,
-                        $billingAddressData,
-                        'Ordering',
-                        'billing',
-                        'billing_address_id'
-                    );
-                } else {
-                    // todo remove non fixed address
-                    $order = $this->createFixedAddress($order, $billingAddressData, 'Ordering', 'billing', 'billing_address_id');
-                }
-            } else {
-                UpdateAddress::run($order->billingAddress, $billingAddressData->toArray());
-            }
-        }
-        if ($deliveryAddressData) {
-            $groupId = $order->group_id;
-
-            data_set($deliveryAddressData, 'group_id', $groupId);
-
-            if (Arr::exists($deliveryAddressData, 'id')) {
-                $countryCode = Country::find(Arr::get($deliveryAddressData, 'country_id'))->code;
-                data_set($deliveryAddressData, 'country_code', $countryCode);
-                $label = $deliveryAddressData['label'] ?? null;
-                unset($deliveryAddressData['label']);
-                unset($deliveryAddressData['can_edit']);
-                unset($deliveryAddressData['can_delete']);
-                $updatedAddress     = UpdateAddress::run(Address::find(Arr::get($deliveryAddressData, 'id')), $deliveryAddressData);
-                $pivotData['label'] = $label;
-                $order->customer->addresses()->updateExistingPivot(
-                    $updatedAddress->id,
-                    $pivotData
-                );
-            } else {
-                $this->addAddressToModel(
-                    $order->customer,
-                    $deliveryAddressData,
-                    'delivery',
-                    false,
-                    'delivery_address_id'
-                );
-            }
-        }
 
 
         OrderRecordSearch::dispatch($order);
@@ -108,7 +46,7 @@ class UpdateOrder extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'           => [
+            'reference' => [
                 'sometimes',
                 'string',
                 'max:64',
@@ -120,28 +58,30 @@ class UpdateOrder extends OrgAction
                     ]
                 ),
             ],
-            'date'                => ['sometimes', 'required', 'date'],
-            'billing_address'     => ['sometimes', 'required', new ValidAddress()],
-            'delivery_address'    => ['sometimes', 'required', new ValidAddress()],
-            'billing_locked'      => ['sometimes', 'boolean'],
-            'delivery_locked'     => ['sometimes', 'boolean'],
+
             'in_warehouse_at'     => ['sometimes', 'date'],
-            'payment_amount'      => ['sometimes'],
             'delivery_address_id' => ['sometimes', Rule::exists('addresses', 'id')],
             'public_notes'        => ['sometimes', 'nullable', 'string', 'max:4000'],
             'internal_notes'      => ['sometimes', 'nullable', 'string', 'max:4000'],
             'state'               => ['sometimes', Rule::enum(OrderStateEnum::class)],
-            'sales_channel_id'   => [
+            'sales_channel_id'    => [
                 'sometimes',
                 'required',
                 Rule::exists('sales_channels', 'id')->where(function ($query) {
                     $query->where('group_id', $this->shop->group_id);
                 })
             ],
-            // 'customer_notes' => ['sometimes', 'nullable', 'string', 'max:4000'],
         ];
 
+
         if (!$this->strict) {
+            $rules['payment_amount'] = ['sometimes', 'numeric'];
+
+            $rules['billing_locked']  = ['sometimes', 'boolean'];
+            $rules['delivery_locked'] = ['sometimes', 'boolean'];
+
+            $rules['data']            = ['sometimes', 'array'];
+            $rules['date']            = ['sometimes', 'required', 'date'];
             $rules['reference']       = ['sometimes', 'string', 'max:64'];
             $rules['last_fetched_at'] = ['sometimes', 'date'];
         }
@@ -158,7 +98,6 @@ class UpdateOrder extends OrgAction
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->order          = $order;
-
 
         $this->initialisationFromShop($order->shop, $modelData);
 

@@ -60,7 +60,7 @@ class StoreSupplier extends GrpAction
             $supplier->stats()->create();
             SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
 
-            $supplier = $this->addAddressToModel($supplier, $addressData, 'contact');
+            $supplier = $this->addAddressToModelFromArray($supplier, $addressData, 'contact');
 
 
 

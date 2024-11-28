@@ -75,7 +75,7 @@ class StoreShop extends OrgAction
             if (Arr::get($shop->settings, 'address_link')) {
                 $shop = $this->addLinkedAddress($shop);
             } else {
-                $shop = $this->addAddressToModel($shop, $addressData);
+                $shop = $this->addAddressToModelFromArray($shop, $addressData);
             }
 
             if (Arr::get($shop->settings, 'collect_address_link')) {

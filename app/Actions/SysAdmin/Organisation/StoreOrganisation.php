@@ -69,7 +69,7 @@ class StoreOrganisation
             SeedJobPositions::run($organisation);
 
 
-            $organisation = $this->addAddressToModel($organisation, $addressData);
+            $organisation = $this->addAddressToModelFromArray($organisation, $addressData);
 
 
             $superAdmins = $group->users()->with('roles')->get()->filter(

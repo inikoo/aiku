@@ -62,7 +62,7 @@ class UpdatePalletReturn extends OrgAction
                     $pivotData
                 );
             } else {
-                $this->addAddressToModel(
+                $this->addAddressToModelFromArray(
                     $palletReturn->fulfilmentCustomer->customer,
                     $addressData,
                     'delivery',

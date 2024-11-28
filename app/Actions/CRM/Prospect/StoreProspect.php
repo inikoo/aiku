@@ -87,7 +87,7 @@ class StoreProspect extends OrgAction
             );
 
             if ($addressData) {
-                $prospect = $this->addAddressToModel(
+                $prospect = $this->addAddressToModelFromArray(
                     model: $prospect,
                     addressData: $addressData,
                     scope: 'contact'

@@ -52,7 +52,7 @@ class StoreCustomerClient extends OrgAction
             $customerClient = $customer->clients()->create($modelData);
             $customerClient->stats()->create();
 
-            return $this->addAddressToModel(
+            return $this->addAddressToModelFromArray(
                 model: $customerClient,
                 addressData: $address,
                 scope: 'delivery',

@@ -74,7 +74,7 @@ class UpdateShop extends OrgAction
             if ($shop->collection_address_id) {
                 UpdateAddress::run($shop->collectionAddress, $collectionAddressData);
             } else {
-                return $this->addAddressToModel(model: $shop, addressData: $collectionAddressData, updateLocation: false, updateAddressField: 'collection_address_id');
+                return $this->addAddressToModelFromArray(model: $shop, addressData: $collectionAddressData, updateLocation: false, updateAddressField: 'collection_address_id');
             }
         }
 

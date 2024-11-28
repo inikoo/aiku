@@ -36,7 +36,7 @@ class UpdateInvoice extends OrgAction
 
         if ($billingAddressData) {
 
-            $invoice = $this->updateFixedAddress(
+            $this->updateFixedAddress(
                 $invoice,
                 $invoice->billingAddress,
                 $billingAddressData,

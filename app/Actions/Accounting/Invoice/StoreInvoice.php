@@ -95,7 +95,7 @@ class StoreInvoice extends OrgAction
             /** @var Invoice $invoice */
             $invoice = $parent->invoices()->create($modelData);
             $invoice->stats()->create();
-            $invoice = $this->createFixedAddress(
+            $this->createFixedAddress(
                 $invoice,
                 $billingAddressData,
                 'Ordering',

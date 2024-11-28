@@ -98,7 +98,7 @@ class StoreCustomer extends OrgAction
                 StoreFulfilmentCustomerFromCustomer::run($customer, $shop, ['source_id' => $customer->source_id]);
             }
 
-            $customer = $this->addAddressToModel(
+            $customer = $this->addAddressToModelFromArray(
                 model: $customer,
                 addressData: $contactAddressData,
                 scope: 'billing',
@@ -107,7 +107,7 @@ class StoreCustomer extends OrgAction
             $customer->refresh();
 
             if ($deliveryAddressData) {
-                $customer = $this->addAddressToModel(
+                $customer = $this->addAddressToModelFromArray(
                     model: $customer,
                     addressData: $deliveryAddressData,
                     scope: 'delivery',

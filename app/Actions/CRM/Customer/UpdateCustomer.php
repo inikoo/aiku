@@ -44,7 +44,7 @@ class UpdateCustomer extends OrgAction
                 if ($customer->address) {
                     UpdateAddress::run($customer->address, $contactAddressData);
                 } else {
-                    $this->addAddressToModel(
+                    $this->addAddressToModelFromArray(
                         model: $customer,
                         addressData: $contactAddressData,
                         scope: 'billing',
