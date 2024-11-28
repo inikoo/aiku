@@ -311,8 +311,10 @@ class ShowDeliveryNote extends OrgAction
                 ],
                 'routes'    => [
                     'update'    => [
-                        'name'          => 'xxxxxxxxxxxxx',
-                        'parameters'    => 'xxxxxxx'
+                        'name'          => 'grp.models.delivery-note.update',
+                        'parameters'    => [
+                            'deliveryNote'  => $deliveryNote->id
+                        ]
                     ],
                     'products_list'    => [
                         'name'          => 'xxxxxxxxxxxxx',

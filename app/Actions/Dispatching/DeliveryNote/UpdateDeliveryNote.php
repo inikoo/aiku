@@ -10,6 +10,8 @@ namespace App\Actions\Dispatching\DeliveryNote;
 use App\Actions\Catalogue\Shop\Hydrators\ShopHydrateDeliveryNotes;
 use App\Actions\CRM\Customer\Hydrators\CustomerHydrateDeliveryNotes;
 use App\Actions\Dispatching\DeliveryNote\Search\DeliveryNoteRecordSearch;
+use App\Actions\Dispatching\Picking\AssignPackerToPicking;
+use App\Actions\Dispatching\Picking\AssignPickerToPicking;
 use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDeliveryNotes;
@@ -25,6 +27,7 @@ use App\Rules\IUnique;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\Enum;
+use Lorisleiva\Actions\ActionRequest;
 
 class UpdateDeliveryNote extends OrgAction
 {
@@ -68,6 +71,30 @@ class UpdateDeliveryNote extends OrgAction
                 UpdateAddress::run($deliveryNote->deliveryAddress, $deliveryAddressData->toArray());
             }
         }
+        $deliveryNote->refresh();
+        /** @var DeliveryNote $deliveryNote */
+
+        if(Arr::get($modelData, 'picker_id'))
+        {
+            foreach($deliveryNote->deliveryNoteItems as $item)
+            {
+                AssignPickerToPicking::make()->action($item->pickings,
+                [
+                    'picker_id' => $deliveryNote->picker_id
+                ]);
+            }
+        }
+
+        if(Arr::get($modelData, 'packer_id'))
+        {
+            foreach($deliveryNote->deliveryNoteItems as $item)
+            {
+                AssignPackerToPicking::make()->action($item->pickings,
+                [
+                    'picker_id' => $deliveryNote->packer_id
+                ]);
+            }
+        }
 
         DeliveryNoteRecordSearch::dispatch($deliveryNote);
 
@@ -77,7 +104,6 @@ class UpdateDeliveryNote extends OrgAction
             OrganisationHydrateDeliveryNotes::dispatch($deliveryNote->organisation)->delay($this->hydratorsDelay);
             ShopHydrateDeliveryNotes::dispatch($deliveryNote->shop)->delay($this->hydratorsDelay);
             CustomerHydrateDeliveryNotes::dispatch($deliveryNote->customer)->delay($this->hydratorsDelay);
-
         }
 
 
@@ -135,5 +161,14 @@ class UpdateDeliveryNote extends OrgAction
     public function jsonResponse(DeliveryNote $deliveryNote): DeliveryNoteResource
     {
         return new DeliveryNoteResource($deliveryNote);
+    }
+
+    public function asController(DeliveryNote $deliveryNote, ActionRequest $request,  int $hydratorsDelay = 0): DeliveryNote
+    {
+        $this->deliveryNote   = $deliveryNote;
+        $this->hydratorsDelay = $hydratorsDelay;
+        $this->initialisationFromShop($deliveryNote->shop, $request);
+
+        return $this->handle($deliveryNote, $this->validatedData);
     }
 }
