@@ -30,7 +30,7 @@ return new class () extends Migration {
             $table->string('subject')->index();
 
 
-            $table->unsignedSmallInteger('snapshot_id')->nullable()->index();
+            $table->unsignedInteger('snapshot_id')->nullable()->index();
             $table->foreign('snapshot_id')->references('id')->on('snapshots')->onUpdate('cascade')->onDelete('cascade');
 
 
