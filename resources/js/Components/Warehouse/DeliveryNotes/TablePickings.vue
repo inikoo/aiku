@@ -80,10 +80,10 @@ const onSubmitPickerPacker = (fetchRoute: routeType, selectedPicker: {}, rowInde
                     :fetchRoute="routes.pickers_list"
                     :placeholder="trans('Select picker')"
                     labelProp="contact_name"
-                    valueProp="user_id"
+                    valueProp="id"
                     object
                     clearOnBlur
-                    :loading="isLoading[item.rowIndex + 'picker' + item.picker?.selected?.user_id]"
+                    :loading="isLoading[item.rowIndex + 'picker' + item.picker?.selected?.id]"
                     :disabled="isLoading[item.rowIndex + 'picker' + item.picker?.selected?.user_id]"
                 >
                     <template #singlelabel="{ value }">
@@ -115,7 +115,7 @@ const onSubmitPickerPacker = (fetchRoute: routeType, selectedPicker: {}, rowInde
                     :fetchRoute="routes.packers_list"
                     :placeholder="trans('Select packer')"
                     labelProp="contact_name"
-                    valueProp="user_id"
+                    valueProp="id"
                     object
                     clearOnBlur
                     :loading="isLoading[item.rowIndex + 'packer' + item.packer?.selected?.user_id]"

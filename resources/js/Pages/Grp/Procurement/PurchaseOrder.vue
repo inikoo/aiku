@@ -26,6 +26,7 @@ import PureMultiselectInfiniteScroll from "@/Components/Pure/PureMultiselectInfi
 import BoxNote from "@/Components/Pallet/BoxNote.vue"
 import Popover from "@/Components/Popover.vue"
 import TableAttachments from "@/Components/Tables/Grp/Helpers/TableAttachments.vue"
+import TableProductList from "@/Components/Tables/Grp/Helpers/TableProductList.vue"
 import UploadAttachment from "@/Components/Upload/UploadAttachment.vue"
 import ModalProductList from "@/Components/Utils/ModalProductList.vue"
 import { Timeline as TSTimeline } from "@/types/Timeline"
@@ -133,6 +134,7 @@ const component = computed(() => {
 		history: TableHistories,
 		transactions: TablePurchaseOrderTransactions,
 		attachments: TableAttachments,
+		products: TableProductList
 	}
 
 	return components[currentTab.value]
@@ -510,7 +512,7 @@ const fallbackColor = "#374151"
 			:detachRoute="attachmentRoutes?.detachRoute" />
 	</div>
 
-	<ModalProductList v-model="isModalUploadOpen" :fetchRoute="routes.products_list" :action="currentAction" />
+	<ModalProductList v-model="isModalUploadOpen" :fetchRoute="routes.products_list" :action="currentAction"  @update:tab="handleTabUpdate" />
 
 	<Modal :isOpen="isModalOpen" @onClose="closeModal">
 		<div class="min-h-72 max-h-96 px-2 overflow-auto">
