@@ -23,7 +23,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowProductionCrafts extends OrgAction
+class ShowCraftsDashboard extends OrgAction
 {
     use WithActionButtons;
 
@@ -61,9 +61,9 @@ class ShowProductionCrafts extends OrgAction
     {
 
         return Inertia::render(
-            'Org/Production/Production',
+            'Org/Production/CraftsDashboard',
             [
-                'title'                            => __('Craft'),
+                'title'                            => __('Crafts'),
                 'breadcrumbs'                      => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'navigation'                       => [
                     'previous' => $this->getPrevious($production, $request),
@@ -79,21 +79,9 @@ class ShowProductionCrafts extends OrgAction
                             'icon'  => ['fal', 'fa-chart-network'],
                             'title' => __('Craft')
                         ],
-                    'title'   => $production->name,
+                    'title'   => __('Crafts'),
                     'actions' => [
-                        $this->canEdit ?
-                            [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('new job order'),
-                                'label'   => __('job order'),
-                                'route'   => [
-                                    'name'       => 'grp.org.productions.show.job-orders.create',
-                                    'parameters' => $request->route()->originalParameters()
-                                ]
-                            ]
-                            : null,
-                        $this->canEdit ? $this->getEditActionIcon($request) : null,
+
 
                     ],
 
@@ -183,7 +171,7 @@ class ShowProductionCrafts extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.productions.show.infrastructure.dashboard' => [
+            'grp.org.productions.show.crafts.dashboard' => [
                 'label' => $production->name,
                 'route' => [
                     'name'       => $routeName,

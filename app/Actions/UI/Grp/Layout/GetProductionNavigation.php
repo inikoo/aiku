@@ -92,7 +92,7 @@ class GetProductionNavigation
 
             $navigation['operations'] = [
                 'root'  => 'grp.org.productions.show.operations.',
-                'label' => __('Production'),
+                'label' => __('Operations'),
                 'icon'  => ['fal', 'fa-fill-drip'],
 
                 'route' => [
