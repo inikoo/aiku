@@ -106,6 +106,8 @@ class UpdateDeliveryNote extends OrgAction
             'phone'            => ['sometimes', 'nullable', 'string'],
             'date'             => ['sometimes', 'date'],
             'delivery_address' => ['sometimes', 'required', new ValidAddress()],
+            'picker_id'        => ['sometimes'],
+            'packer_id'        => ['sometimes']
         ];
 
         if (!$this->strict) {
