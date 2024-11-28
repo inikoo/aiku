@@ -106,7 +106,7 @@ test('UI Index offers', function () {
 });
 
 test('UI get section route offer dashboard', function () {
-    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.discounts.dashboard', [
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.discounts.offers.index', [
         'organisation' => $this->organisation->slug,
         'shop' => $this->shop->slug
     ]);
