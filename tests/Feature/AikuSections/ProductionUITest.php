@@ -95,6 +95,7 @@ beforeEach(function () {
         );
     }
     $this->manufactureTask = $manufactureTask;
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
 
     Config::set(
         'inertia.testing.page_paths',

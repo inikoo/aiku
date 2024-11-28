@@ -74,6 +74,7 @@ beforeEach(function () {
         $tradeUnit = StoreTradeUnit::make()->action($this->group, $tradeUnitData);
     }
     $this->tradeUnit = $tradeUnit;
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
 
     Config::set("inertia.testing.page_paths", [resource_path("js/Pages/Grp")]);
     actingAs($this->adminGuest->getUser());
@@ -502,5 +503,16 @@ test('UI get section route inventory dashboard', function () {
     ]);
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::INVENTORY->value)
+        ->and($sectionScope->model_slug)->toBe($this->warehouse->slug);
+});
+
+test('UI get section route infrastructure index', function () {
+    $sectionScope = GetSectionRoute::make()->handle("grp.org.warehouses.show.infrastructure.locations.index", [
+        'organisation' => $this->organisation->slug,
+        'warehouse' => $this->warehouse->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::INVENTORY_INFRASTRUCTURE->value)
         ->and($sectionScope->model_slug)->toBe($this->warehouse->slug);
 });

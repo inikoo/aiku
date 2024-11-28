@@ -94,6 +94,7 @@ beforeEach(function () {
         $invoice = StoreInvoice::make()->action($this->customer, $invoiceData);
     }
     $this->invoice = $invoice;
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
 
     Config::set(
         'inertia.testing.page_paths',
