@@ -8,7 +8,7 @@
 namespace App\Actions\Production\Artefact\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\Production\Production\UI\ShowProductionCrafts;
+use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\UI\Production\ArtefactTabsEnum;
@@ -169,7 +169,7 @@ class ShowArtefact extends OrgAction
         $artefact = Artefact::where('slug', $routeParameters['artefact'])->first();
 
         return array_merge(
-            ShowProductionCrafts::make()->getBreadcrumbs($routeParameters),
+            ShowCraftsDashboard::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'           => 'modelWithIndex',

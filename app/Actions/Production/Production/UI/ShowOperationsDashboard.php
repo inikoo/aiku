@@ -23,7 +23,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowProductionOperations extends OrgAction
+class ShowOperationsDashboard extends OrgAction
 {
     use WithActionButtons;
 
@@ -61,9 +61,9 @@ class ShowProductionOperations extends OrgAction
     {
 
         return Inertia::render(
-            'Org/Production/Production',
+            'Org/Production/OperationsDashboard',
             [
-                'title'                            => __('Factory operations'),
+                'title'                            => __('Operations'),
                 'breadcrumbs'                      => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'navigation'                       => [
                     'previous' => $this->getPrevious($production, $request),
@@ -79,7 +79,7 @@ class ShowProductionOperations extends OrgAction
                             'icon'  => ['fal', 'fa-chart-network'],
                             'title' => __('Factory operations')
                         ],
-                    'title'   => $production->name,
+                    'title'   => __('Operations'),
                     'actions' => [
                         $this->canEdit ?
                             [
@@ -183,7 +183,7 @@ class ShowProductionOperations extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.productions.show.infrastructure.dashboard' => [
+            'grp.org.productions.show.operations.dashboard' => [
                 'label' => $production->name,
                 'route' => [
                     'name'       => $routeName,
