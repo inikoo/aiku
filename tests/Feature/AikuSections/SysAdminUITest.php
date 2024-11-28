@@ -124,6 +124,13 @@ test('UI get section route group sysadmin index', function () {
         ->and($sectionScope->model_slug)->toBe($this->organisation->group->slug);
 });
 
+test('UI get section route group dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.dashboard', []);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_DASHBOARD->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->group->slug);
+});
+
 test('UI get section route group goods dashboard', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.goods.dashboard', []);
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
@@ -143,4 +150,46 @@ test('UI get section route group profile dashboard', function () {
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_PROFILE->value)
         ->and($sectionScope->model_slug)->toBe($this->organisation->group->slug);
+});
+
+test('UI get section route org dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.dashboard.show', [
+        'organisation' => $this->organisation->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_DASHBOARD->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
+});
+
+test('UI get section route org setting edit', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.settings.edit', [
+        'organisation' => $this->organisation->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_SETTINGS->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
+});
+
+// other section org
+
+test('UI get section route org reports index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.reports.index', [
+        'organisation' => $this->organisation->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_REPORT->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
+});
+
+test('UI get section route org shops index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.index', [
+        'organisation' => $this->organisation->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_SHOP->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
 });

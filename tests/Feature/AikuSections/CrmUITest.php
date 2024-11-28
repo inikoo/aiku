@@ -499,3 +499,14 @@ test('UI get section route client dropshipping', function () {
         ->and($sectionScope->code)->toBe(AikuSectionEnum::DROPSHIPPING->value)
         ->and($sectionScope->model_slug)->toBe($this->shop->slug);
 });
+
+test('UI get section route marketing mailshots index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.marketing.mailshots.index', [
+        'organisation' => $this->organisation->slug,
+        'shop' => $this->shop->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_MARKETING->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
