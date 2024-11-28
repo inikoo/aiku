@@ -225,7 +225,12 @@ test('UI show artifact', function () {
 });
 
 test('UI show artifact (manufacture task tab)', function () {
-    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/factory/'.$this->production->slug.'/crafts/artefacts/'.$this->artefact->slug.'?tab=manufacture_tasks');
+    $response = get(route('grp.org.productions.show.crafts.artefacts.show', [
+        $this->organisation->slug,
+        $this->production->slug,
+        $this->artefact->slug,
+        'tab' => 'manufacture_tasks'
+    ]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Production/Artefact')
@@ -294,7 +299,12 @@ test('UI show production task', function () {
 });
 
 test('UI show production task (Artefacts tab)', function () {
-    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/factory/'.$this->production->slug.'/crafts/manufacture-tasks/'.$this->manufactureTask->slug.'?tab=artefact');
+    $response = get(route('grp.org.productions.show.crafts.manufacture_tasks.show', [
+        $this->organisation->slug,
+        $this->production->slug,
+        $this->manufactureTask->slug,
+        'tab' => 'artefact'
+    ]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Production/ManufactureTask')
