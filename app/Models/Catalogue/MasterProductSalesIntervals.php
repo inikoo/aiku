@@ -27,8 +27,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $sales_grp_currency_qtd
  * @property string $sales_grp_currency_mtd
  * @property string $sales_grp_currency_wtd
+ * @property string $sales_grp_currency_tdy
  * @property string $sales_grp_currency_lm
  * @property string $sales_grp_currency_lw
+ * @property string $sales_grp_currency_ld
  * @property string $sales_grp_currency_all_ly
  * @property string $sales_grp_currency_1y_ly
  * @property string $sales_grp_currency_1q_ly
@@ -40,8 +42,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $sales_grp_currency_qtd_ly
  * @property string $sales_grp_currency_mtd_ly
  * @property string $sales_grp_currency_wtd_ly
+ * @property string $sales_grp_currency_tdy_ly
  * @property string $sales_grp_currency_lm_ly
  * @property string $sales_grp_currency_lw_ly
+ * @property string $sales_grp_currency_ld_ly
  * @property string $sales_grp_currency_py1
  * @property string $sales_grp_currency_py2
  * @property string $sales_grp_currency_py3
@@ -63,8 +67,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $invoices_qtd
  * @property string $invoices_mtd
  * @property string $invoices_wtd
+ * @property string $invoices_tdy
  * @property string $invoices_lm
  * @property string $invoices_lw
+ * @property string $invoices_ld
  * @property string $invoices_all_ly
  * @property string $invoices_1y_ly
  * @property string $invoices_1q_ly
@@ -76,8 +82,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $invoices_qtd_ly
  * @property string $invoices_mtd_ly
  * @property string $invoices_wtd_ly
+ * @property string $invoices_tdy_ly
  * @property string $invoices_lm_ly
  * @property string $invoices_lw_ly
+ * @property string $invoices_ld_ly
  * @property string $invoices_py1
  * @property string $invoices_py2
  * @property string $invoices_py3
@@ -99,8 +107,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $orders_qtd
  * @property string $orders_mtd
  * @property string $orders_wtd
+ * @property string $orders_tdy
  * @property string $orders_lm
  * @property string $orders_lw
+ * @property string $orders_ld
  * @property string $orders_all_ly
  * @property string $orders_1y_ly
  * @property string $orders_1q_ly
@@ -112,8 +122,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $orders_qtd_ly
  * @property string $orders_mtd_ly
  * @property string $orders_wtd_ly
+ * @property string $orders_tdy_ly
  * @property string $orders_lm_ly
  * @property string $orders_lw_ly
+ * @property string $orders_ld_ly
  * @property string $orders_py1
  * @property string $orders_py2
  * @property string $orders_py3
@@ -135,8 +147,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $delivery_notes_qtd
  * @property string $delivery_notes_mtd
  * @property string $delivery_notes_wtd
+ * @property string $delivery_notes_tdy
  * @property string $delivery_notes_lm
  * @property string $delivery_notes_lw
+ * @property string $delivery_notes_ld
  * @property string $delivery_notes_all_ly
  * @property string $delivery_notes_1y_ly
  * @property string $delivery_notes_1q_ly
@@ -148,8 +162,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $delivery_notes_qtd_ly
  * @property string $delivery_notes_mtd_ly
  * @property string $delivery_notes_wtd_ly
+ * @property string $delivery_notes_tdy_ly
  * @property string $delivery_notes_lm_ly
  * @property string $delivery_notes_lw_ly
+ * @property string $delivery_notes_ld_ly
  * @property string $delivery_notes_py1
  * @property string $delivery_notes_py2
  * @property string $delivery_notes_py3
@@ -171,8 +187,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $customers_qtd
  * @property string $customers_mtd
  * @property string $customers_wtd
+ * @property string $customers_tdy
  * @property string $customers_lm
  * @property string $customers_lw
+ * @property string $customers_ld
  * @property string $customers_all_ly
  * @property string $customers_1y_ly
  * @property string $customers_1q_ly
@@ -184,8 +202,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $customers_qtd_ly
  * @property string $customers_mtd_ly
  * @property string $customers_wtd_ly
+ * @property string $customers_tdy_ly
  * @property string $customers_lm_ly
  * @property string $customers_lw_ly
+ * @property string $customers_ld_ly
  * @property string $customers_py1
  * @property string $customers_py2
  * @property string $customers_py3

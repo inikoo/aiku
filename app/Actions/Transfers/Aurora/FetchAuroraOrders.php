@@ -9,6 +9,7 @@ namespace App\Actions\Transfers\Aurora;
 
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
+use App\Models\Discounts\TransactionHasOfferComponent;
 use App\Models\Ordering\Order;
 use App\Transfers\Aurora\WithAuroraAttachments;
 use App\Transfers\Aurora\WithAuroraParsers;
@@ -199,7 +200,7 @@ class FetchAuroraOrders extends FetchAuroraAction
         }
         $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->forceDelete();
 
-        $offerComponentsToDelete = $order->offerComponents()->whereIn('model_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
+        $offerComponentsToDelete =  TransactionHasOfferComponent::where('order_id', $order->id)->whereIn('model_type', ['Product', 'Service'])->pluck('source_id', 'id')->all();
         foreach (
             DB::connection('aurora')
                 ->table('Order Transaction Deal Bridge')
@@ -210,7 +211,7 @@ class FetchAuroraOrders extends FetchAuroraAction
             $offerComponentsToDelete = array_diff($offerComponentsToDelete, [$organisationSource->getOrganisation()->id.':'.$auroraData->{'Order Transaction Deal Key'}]);
             FetchAuroraTransactionHasOfferComponents::run($organisationSource, $auroraData->{'Order Transaction Deal Key'}, $order);
         }
-        $order->offerComponents()->whereIn('id', array_keys($offerComponentsToDelete))->forceDelete();
+        TransactionHasOfferComponent::where('order_id', $order->id)->whereIn('id', array_keys($offerComponentsToDelete))->forceDelete();
     }
 
     private function fetchNoProductTransactions($organisationSource, Order $order): void
@@ -231,7 +232,7 @@ class FetchAuroraOrders extends FetchAuroraAction
         }
         $order->transactions()->whereIn('id', array_keys($transactionsToDelete))->forceDelete();
 
-        $offerComponentsToDelete = $order->offerComponents()->whereNotIn('model_type', ['Product', 'Service'])->pluck('source_alt_id', 'id')->all();
+        $offerComponentsToDelete = TransactionHasOfferComponent::where('order_id', $order->id)->whereNotIn('model_type', ['Product', 'Service'])->pluck('source_alt_id', 'id')->all();
         foreach (
             DB::connection('aurora')
                 ->table('Order No Product Transaction Deal Bridge')
@@ -242,7 +243,7 @@ class FetchAuroraOrders extends FetchAuroraAction
             $offerComponentsToDelete = array_diff($offerComponentsToDelete, [$organisationSource->getOrganisation()->id.':'.$auroraData->{'Order No Product Transaction Deal Key'}]);
             FetchAuroraNoProductTransactionHasOfferComponents::run($organisationSource, $auroraData->{'Order No Product Transaction Deal Key'}, $order);
         }
-        $order->offerComponents()->whereIn('id', array_keys($offerComponentsToDelete))->forceDelete();
+        TransactionHasOfferComponent::where('order_id', $order->id)->whereIn('id', array_keys($offerComponentsToDelete))->forceDelete();
 
 
     }
