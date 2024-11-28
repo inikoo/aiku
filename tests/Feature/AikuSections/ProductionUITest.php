@@ -344,3 +344,13 @@ test('UI get section route operation dashboard', function () {
         ->and($sectionScope->code)->toBe(AikuSectionEnum::PRODUCTION_OPERATION->value)
         ->and($sectionScope->model_slug)->toBe($this->production->slug);
 });
+
+test('UI get section route org productions index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.productions.index', [
+        'organisation' => $this->organisation->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_PRODUCTION->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
+});

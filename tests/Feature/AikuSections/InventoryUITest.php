@@ -516,3 +516,24 @@ test('UI get section route infrastructure index', function () {
         ->and($sectionScope->code)->toBe(AikuSectionEnum::INVENTORY_INFRASTRUCTURE->value)
         ->and($sectionScope->model_slug)->toBe($this->warehouse->slug);
 });
+
+test('UI get section route incoming backlog', function () {
+    $sectionScope = GetSectionRoute::make()->handle("grp.org.warehouses.show.incoming.backlog", [
+        'organisation' => $this->organisation->slug,
+        'warehouse' => $this->warehouse->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::INVENTORY_INCOMING->value)
+        ->and($sectionScope->model_slug)->toBe($this->warehouse->slug);
+});
+
+test('UI get section route org warehouses index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.warehouses.index', [
+        'organisation' => $this->organisation->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_WAREHOUSE->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
+});
