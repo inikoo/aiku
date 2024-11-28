@@ -220,5 +220,10 @@ class Supplier extends Model implements HasMedia, Auditable
         return $this->hasMany(OrgSupplier::class);
     }
 
+    public function agentSupplierPurchaseOrder(): HasMany
+    {
+        return $this->hasMany(AgentSupplierPurchaseOrder::class);
+    }
+
 
 }
