@@ -550,7 +550,7 @@ test('get helpers select options data', function () {
     $currencyData = GetCurrenciesOptions::run();
     expect($currencyData)->toHaveCount(159);
     $timezonesData = GetTimeZonesOptions::run();
-    expect($timezonesData)->toHaveCount(418);
+    expect($timezonesData)->toHaveCount(419);
     $languagesData = GetLanguagesOptions::make()->all();
     expect($languagesData)->toHaveCount(279);
     $translatedLanguagesData = GetLanguagesOptions::make()->translated();
