@@ -48,7 +48,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('estimated_weight')->nullable()->comment('grams');
             $table->unsignedInteger('weight')->nullable()->comment('actual weight, grams');
-
+            $table->jsonb('payment_data');
 
             $table->unsignedInteger('billing_address_id')->index()->nullable();
             $table->foreign('billing_address_id')->references('id')->on('addresses');
