@@ -30,7 +30,7 @@ class StoreOrderAddress extends OrgAction
     {
         $type = Arr::get($modelData, 'type');
 
-        $addressData = $modelData['address']->toArray();
+        $addressData = Arr::except($modelData['address']->toArray(), ['id']);
         data_set($addressData, 'group_id', $order->group_id);
         data_set($addressData, 'is_fixed', false);
         data_set($addressData, 'usage', 1);
