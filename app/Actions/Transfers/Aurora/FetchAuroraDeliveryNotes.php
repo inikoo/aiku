@@ -34,12 +34,10 @@ class FetchAuroraDeliveryNotes extends FetchAuroraAction
             return null;
         }
 
-
         if ($deliveryNote = DeliveryNote::withTrashed()->where('source_id', $deliveryNoteData['delivery_note']['source_id'])->first()) {
             try {
                 /** @var Address $deliveryAddress */
-                $deliveryAddress = Arr::pull($orderData['delivery_note'], 'delivery_address');
-
+                $deliveryAddress = Arr::pull($deliveryNoteData, 'delivery_note.delivery_address');
                 if ($deliveryNote->delivery_locked) {
                     UpdateDeliveryNoteFixedAddress::make()->action(
                         deliveryNote: $deliveryNote,
