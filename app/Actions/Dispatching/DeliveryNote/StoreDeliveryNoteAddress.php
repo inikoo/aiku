@@ -5,63 +5,56 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\Ordering\Order;
+namespace App\Actions\Dispatching\DeliveryNote;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Actions\Traits\WithStoringOrderingAddress;
-use App\Models\Ordering\Order;
+use App\Models\Dispatching\DeliveryNote;
 use App\Rules\ValidAddress;
-use Illuminate\Support\Arr;
-use Illuminate\Validation\Rule;
 
-class StoreOrderAddress extends OrgAction
+class StoreDeliveryNoteAddress extends OrgAction
 {
     use WithActionUpdate;
     use WithFixedAddressActions;
     use WithModelAddressActions;
-    use HasOrderHydrators;
     use WithStoringOrderingAddress;
 
-    public function handle(Order $order, array $modelData): Order
+    private DeliveryNote $deliveryNote;
+
+    public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNote
     {
-        $type = Arr::get($modelData, 'type');
-
         $address = $this->storeOrderingAddress($modelData['address']->toArray());
-
-        $order->updateQuietly(
+        $deliveryNote->updateQuietly(
             [
-                $type.'_address_id' => $address->id,
-                $type.'_country_id' => $address->country_id,
+                'address_id'          => $address->id,
+                'delivery_country_id' => $address->country_id,
             ]
         );
 
-        return $order;
+        return $deliveryNote;
     }
 
     public function rules(): array
     {
         return [
-
             'address' => ['required', new ValidAddress()],
-            'type'    => ['required', Rule::in(['billing', 'delivery'])],
-
         ];
     }
 
-    public function action(Order $order, array $modelData, int $hydratorsDelay = 0, bool $audit = true): Order
+    public function action(DeliveryNote $deliveryNote, array $modelData, int $hydratorsDelay = 0, bool $audit = true): DeliveryNote
     {
         if (!$audit) {
-            Order::disableAuditing();
+            DeliveryNote::disableAuditing();
         }
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
 
-        $this->initialisationFromShop($order->shop, $modelData);
+        $this->initialisationFromShop($deliveryNote->shop, $modelData);
 
-        return $this->handle($order, $this->validatedData);
+        return $this->handle($deliveryNote, $this->validatedData);
     }
 
 
