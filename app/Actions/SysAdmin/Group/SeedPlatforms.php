@@ -48,6 +48,7 @@ class SeedPlatforms extends GrpAction
     public function asCommand(Command $command): int
     {
         try {
+            /** @var Group $group */
             $group       = Group::where('slug', $command->argument('group'))->firstOrFail();
             $this->group = $group;
             app()->instance('group', $group);

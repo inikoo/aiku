@@ -54,11 +54,11 @@ class SeedShopOutboxes
 
                         ]
                     );
-                    if ($outbox->type == OutboxTypeEnum::APP_COMMS or $outbox->type == OutboxTypeEnum::TRANSACTIONAL ) {
-                        // try {
-                        $emailOngoingRun = StoreEmailOngoingRun::make()->action($outbox, [
-                            'subject' => $case->label(),
-                        ]);
+                    if ($outbox->type == OutboxTypeEnum::USER_NOTIFICATION or $outbox->type == OutboxTypeEnum::CUSTOMER_NOTIFICATION) {
+                        try {
+                            $emailOngoingRun = StoreEmailOngoingRun::make()->action($outbox, [
+                                'subject' => $case->label(),
+                            ]);
 
                             $emailTemplate = EmailTemplate::where('state', EmailTemplateStateEnum::ACTIVE)
                                 ->whereJsonContains('data->outboxes', $outbox->code)->first();

@@ -7,9 +7,7 @@
 
 namespace App\Actions\SysAdmin\Group;
 
-use App\Actions\Comms\PostRoom\StorePostRoom;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateJobPositions;
-use App\Enums\Comms\PostRoom\PostRoomCodeEnum;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Language;
@@ -34,18 +32,6 @@ class StoreGroup
         $group = Group::create($modelData);
 
         app()->instance('group', $group);
-        SeedGroupPermissions::run($group);
-        SeedGroupPaymentServiceProviders::run($group);
-        SeedJobPositionCategories::run($group);
-        SeedJobPositionsScopeGroup::run($group);
-        SeedStockImages::run($group);
-        SeedWebBlockTypes::run($group);
-        SeedPlatforms::run($group);
-        SeedEmailTemplates::run($group);
-        SeedSalesChannels::run($group);
-        SeedAikuSections::run($group);
-
-        SeedAikuScopedSections::make()->seedGroupAikuScopedSection($group);
 
         $group->stats()->create();
         $group->supplyChainStats()->create();
@@ -82,15 +68,6 @@ class StoreGroup
 
         SetGroupLogo::run($group);
 
-        foreach (PostRoomCodeEnum::cases() as $case) {
-            StorePostRoom::run(
-                $group,
-                [
-                    'name' => $case->label(),
-                    'code' => $case
-                ]
-            );
-        }
 
         GroupHydrateJobPositions::run($group);
 

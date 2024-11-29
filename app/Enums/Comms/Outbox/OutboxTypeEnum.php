@@ -15,12 +15,24 @@ enum OutboxTypeEnum: string
 
     case NEWSLETTER = 'newsletter';
     case MARKETING  = 'marketing';
-    case NOTIFICATION = 'notification'; // halfway between marketing and transactional
-    case TRANSACTIONAL = 'transactional';
-    case COLD_EMAIL = 'cold-email';
-    case APP_COMMS = 'app-comms';
+    case MARKETING_NOTIFICATION = 'marketing-notification'; // halfway between marketing and transactional
+    case CUSTOMER_NOTIFICATION = 'customer-notification'; // e.g. forgot email, welcome email, etc
+    case COLD_EMAIL = 'cold-emails'; // send to prospects
+    case USER_NOTIFICATION =  'user-notification'; // internal notifications
     case TEST = 'test';
 
+    public function label(): string
+    {
+        return match ($this) {
+            OutboxTypeEnum::NEWSLETTER => 'Newsletters',
+            OutboxTypeEnum::MARKETING => 'Marketing',
+            OutboxTypeEnum::MARKETING_NOTIFICATION => 'Marketing notifications',
+            OutboxTypeEnum::CUSTOMER_NOTIFICATION => 'Customer notifications',
+            OutboxTypeEnum::COLD_EMAIL => 'Cold emails',
+            OutboxTypeEnum::USER_NOTIFICATION => 'User notifications',
+            OutboxTypeEnum::TEST => 'Tests',
+        };
+    }
 
 
 }

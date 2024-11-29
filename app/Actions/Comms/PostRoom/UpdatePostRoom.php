@@ -7,16 +7,19 @@
 
 namespace App\Actions\Comms\PostRoom;
 
+use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Http\Resources\Mail\PostRoomResource;
+use App\Enums\Comms\PostRoom\PostRoomCodeEnum;
 use App\Models\Comms\PostRoom;
+use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class UpdatePostRoom
+class UpdatePostRoom extends OrgAction
 {
     use WithActionUpdate;
 
-    private bool $asAction = false;
+    private PostRoom $postRoom;
 
     public function handle(PostRoom $postRoom, array $modelData): PostRoom
     {
@@ -28,33 +31,46 @@ class UpdatePostRoom
         if ($this->asAction) {
             return true;
         }
-        return $request->user()->hasPermissionTo("mail.edit");
+
+        return false;
     }
+
     public function rules(): array
     {
         return [
-            'code'         => ['sometimes', 'required', 'unique:post_rooms', 'between:2,9', 'alpha_dash'],
-            'name'         => ['sometimes', 'required', 'max:250', 'string'],
+            'code' => [
+                'sometimes',
+                'required',
+                new IUnique(
+                    table: 'post_rooms',
+                    extraConditions: [
+                        [
+                            'column' => 'group_id',
+                            'value'  => $this->group->id
+                        ],
+                        [
+                            'column'   => 'id',
+                            'value'    => $this->postRoom->id,
+                            'operator' => '!='
+                        ]
+                    ]
+                ),
+                Rule::enum(PostRoomCodeEnum::class)
+            ],
+            'name' => ['sometimes', 'required', 'string', 'max:250'],
         ];
     }
 
-    public function asController(PostRoom $postRoom, ActionRequest $request): PostRoom
-    {
-        $request->validate();
-        return $this->handle($postRoom, $request->all());
-    }
 
     public function action(PostRoom $postRoom, $modelData): PostRoom
     {
         $this->asAction = true;
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->postRoom = $postRoom;
 
-        return $this->handle($postRoom, $validatedData);
+        $this->initialisationFromGroup($postRoom->group, $modelData);
+
+        return $this->handle($postRoom, $this->validatedData);
     }
 
-    public function jsonResponse(PostRoom $postRoom): PostRoomResource
-    {
-        return new PostRoomResource($postRoom);
-    }
+
 }
