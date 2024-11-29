@@ -174,9 +174,13 @@ console.log(props,'dsad');
     <div v-show="!isUnlayerLoading" class="unlayer" :id="editorId"></div>
 </template>
 
-<style>
+<style lang="scss">
 .unlayer {
     height: calc(100vh - 177px);
+    width: 100%;
+}
+:deep( .unlayer .blockbuilder-branding) {
+    @apply hidden
 }
 </style>
       
