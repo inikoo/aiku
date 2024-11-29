@@ -51,7 +51,7 @@ class UpdateStateToFinalizedOrder extends OrgAction
             'tax_amount'       => $order->tax_amount
         ];
 
-        $invoice = StoreInvoice::make()->action($order, $invoiceData);
+        $invoice = StoreInvoice::make()->action(parent: $order, modelData: $invoiceData, strict: false);
 
         $transactions = $order->transactions;
 
