@@ -11,6 +11,7 @@ use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Order\UpdateOrder;
 use App\Actions\Ordering\Order\UpdateOrderFixedAddress;
+use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Models\Discounts\TransactionHasOfferComponent;
 use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
@@ -114,18 +115,23 @@ class FetchAuroraOrders extends FetchAuroraAction
             /** @var Address $deliveryAddress */
             $deliveryAddress = Arr::pull($orderData['order'], 'delivery_address');
 
-            if ($order->delivery_locked) {
-                UpdateOrderFixedAddress::make()->action(
-                    order: $order,
-                    modelData: [
-                        'address' => $deliveryAddress,
-                        'type'    => 'delivery'
-                    ],
-                    hydratorsDelay: 60,
-                    audit: false
-                );
-            } else {
-                UpdateAddress::run($order->deliveryAddress, $deliveryAddress->toArray());
+            if ($order->handing_type == OrderHandingTypeEnum::SHIPPING) {
+                if ($order->delivery_locked) {
+                    UpdateOrderFixedAddress::make()->action(
+                        order: $order,
+                        modelData: [
+                            'address' => $deliveryAddress,
+                            'type'    => 'delivery'
+                        ],
+                        hydratorsDelay: 60,
+                        audit: false
+                    );
+                } else {
+                    UpdateAddress::run($order->deliveryAddress, $deliveryAddress->toArray());
+                }
+            } elseif ($order->deliveryAddress) {
+                dd('todo make order to be collected');
+
             }
 
 
