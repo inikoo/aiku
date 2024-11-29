@@ -32,7 +32,9 @@ class SeedShopOutboxes
         foreach (OutboxCodeEnum::cases() as $case) {
             if ($case->scope() == 'Shop' and in_array($shop->type->value, $case->shopTypes())) {
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
-                if (!Outbox::where('shop_id', $shop->id)->where('code', $case)->exists()) {
+                if ($outbox = Outbox::where('shop_id', $shop->id)->where('code', $case)->exists()) {
+                    // run UpdateOutbox action
+                } else {
                     $outbox = StoreOutbox::make()->action(
                         $postRoom,
                         $shop,
