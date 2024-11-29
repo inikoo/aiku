@@ -12,7 +12,6 @@ use App\Actions\CRM\Customer\Hydrators\CustomerHydrateDeliveryNotes;
 use App\Actions\Dispatching\DeliveryNote\Search\DeliveryNoteRecordSearch;
 use App\Actions\Dispatching\Picking\AssignPackerToPicking;
 use App\Actions\Dispatching\Picking\AssignPickerToPicking;
-use App\Actions\Helpers\Address\UpdateAddress;
 use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateDeliveryNotes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDeliveryNotes;
@@ -22,9 +21,7 @@ use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Models\Dispatching\DeliveryNote;
-use App\Models\Helpers\Address;
 use App\Rules\IUnique;
-use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rules\Enum;
 use Lorisleiva\Actions\ActionRequest;
@@ -39,40 +36,11 @@ class UpdateDeliveryNote extends OrgAction
 
     public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNote
     {
-        /** @var Address $deliveryAddressData */
-        $deliveryAddressData = Arr::get($modelData, 'delivery_address');
-        data_forget($modelData, 'delivery_address');
 
         $deliveryNote = $this->update($deliveryNote, $modelData, ['data']);
         $changes      = $deliveryNote->getChanges();
 
-        if ($deliveryAddressData) {
-            if ($deliveryNote->delivery_locked) {
-                if ($deliveryNote->deliveryAddress->is_fixed) {
-                    $this->updateFixedAddress(
-                        $deliveryNote,
-                        $deliveryNote->deliveryAddress,
-                        $deliveryAddressData,
-                        'Ordering',
-                        'delivery',
-                        'address_id'
-                    );
-                } else {
-                    // todo remove non fixed address
-                    $this->createFixedAddress(
-                        $deliveryNote,
-                        $deliveryAddressData,
-                        'Ordering',
-                        'delivery',
-                        'address_id'
-                    );
-                }
-            } else {
-                UpdateAddress::run($deliveryNote->deliveryAddress, $deliveryAddressData->toArray());
-            }
-        }
         $deliveryNote->refresh();
-        /** @var DeliveryNote $deliveryNote */
 
         if (Arr::get($modelData, 'picker_id')) {
             foreach ($deliveryNote->deliveryNoteItems as $item) {
@@ -131,7 +99,6 @@ class UpdateDeliveryNote extends OrgAction
             'email'            => ['sometimes', 'nullable', 'string', 'email'],
             'phone'            => ['sometimes', 'nullable', 'string'],
             'date'             => ['sometimes', 'date'],
-            'delivery_address' => ['sometimes', 'required', new ValidAddress()],
             'picker_id'        => ['sometimes'],
             'packer_id'        => ['sometimes']
         ];
