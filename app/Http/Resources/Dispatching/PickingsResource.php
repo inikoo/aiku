@@ -19,7 +19,8 @@ class PickingsResource extends JsonResource
             'org_stock_name'      => $this->org_stock_name,
             'state'               => $this->state->stateIcon()[$this->state->value],
             'state_icon'          => $this->state->stateIcon()[$this->state->value],
-            // 'picker_name'         => $this->picker_name    ?? null,
+            'picker_name'         => $this->picker_name    ?? null,
+            'packer_name'         => $this->packer_name    ?? null,
             'picker'            => [
                 'selected' => ($this->picker_id === null && $this->picker_name === null)
                     ? null
