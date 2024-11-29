@@ -279,14 +279,14 @@ onUnmounted(() => {
 													placeholder="Search"
 													@input="onSearchQuery(searchQuery)" />
 											</IconField>
-											<IconField>
+										<!-- 	<IconField>
 												<InputIcon />
 												<FontAwesomeIcon  @click="onClickProduct('product')"
 													icon="fal fa-expand-arrows-alt"
 													class="text-gray-500 w-12 h-12"
 													fixed-width
 													aria-hidden="true" />
-											</IconField>
+											</IconField> -->
 										</div>
 									</template>
 
