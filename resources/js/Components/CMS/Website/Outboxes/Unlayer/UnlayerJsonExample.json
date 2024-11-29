@@ -1,0 +1,1921 @@
+{
+  "page": {
+    "body": {
+      "container": {
+        "style": {
+          "background-color": "#FFFFFF"
+        }
+      },
+      "content": {
+        "computedStyle": {
+          "linkColor": "#0068A5",
+          "messageBackgroundColor": "transparent",
+          "messageWidth": "725px"
+        },
+        "style": {
+          "color": "#000000",
+          "font-family": "Arial, Helvetica Neue, Helvetica, sans-serif"
+        }
+      },
+      "type": "mailup-bee-page-properties",
+      "webFonts": [
+        {
+          "fontFamily": "Arial, 'Helvetica Neue', Helvetica, sans-serif",
+          "name": "Arial",
+          "url": ""
+        }
+      ]
+    },
+    "description": "Test template for BEE",
+    "rows": [
+      {
+        "columns": [
+          {
+            "grid-columns": 12,
+            "modules": [
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnMobile": false
+                  },
+                  "mergeContent": {
+                    "name": "Unsubscribe",
+                    "value": "[Unsubscribe]"
+                  },
+                  "style": {
+                    "padding-bottom": "0px",
+                    "padding-left": "0px",
+                    "padding-right": "0px",
+                    "padding-top": "0px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-merge-content"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "class": "center fixedwidth",
+                    "width": "326.25px"
+                  },
+                  "image": {
+                    "alt": "Limited Time! Vouchers Inside",
+                    "height": "875px",
+                    "href": "https://www.ancientwisdom.biz/",
+                    "percWidth": 45,
+                    "prefix": "",
+                    "src": "https://d15k2d11r6t6rl.cloudfront.net/public/users/Integrators/4886b492-5fdb-4271-b8b1-285505192afd/CmsUserName/AW_RGB_Strapline%20Header.png",
+                    "target": "_self",
+                    "width": "1920px"
+                  },
+                  "style": {
+                    "padding-bottom": "0px",
+                    "padding-left": "0px",
+                    "padding-right": "0px",
+                    "padding-top": "0px",
+                    "width": "100%"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-image"
+              }
+            ],
+            "style": {
+              "background-color": "transparent",
+              "border-bottom": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "border-right": "0px solid transparent",
+              "border-top": "0px solid transparent",
+              "padding-bottom": "5px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "padding-top": "5px"
+            }
+          }
+        ],
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat"
+          }
+        },
+        "content": {
+          "computedStyle": {
+            "hideContentOnDesktop": false,
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "rowReverseColStackOnMobile": false,
+            "verticalAlign": "top"
+          },
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat",
+            "color": "#000000",
+            "width": "725px"
+          }
+        },
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "type": "one-column-empty"
+      },
+      {
+        "columns": [
+          {
+            "grid-columns": 12,
+            "modules": [
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnMobile": false
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  },
+                  "text": {
+                    "computedStyle": {
+                      "linkColor": "#ffffff"
+                    },
+                    "html": "<div class=\"txtTinyMce-wrapper\" style=\"font-size:14px;line-height:16px;font-family:inherit;\" data-mce-style=\"font-size:14px;line-height:16px;font-family:inherit;\"><p style=\"font-size:14px;line-height:16px;word-break:break-word;text-align:center;\" data-mce-style=\"font-size:14px;line-height:16px;word-break:break-word;text-align:center;\"><span style=\"color:#ffffff;line-height:14px;\" data-mce-style=\"color:#ffffff;line-height:14px;\"><a href=\"https://www.ancientwisdom.biz/pastpay\" target=\"_blank\" style=\"text-decoration: none;\" rel=\"noopener\">Buy Now Pay Later - </a><a href=\"https://www.ancientwisdom.biz/new\" target=\"_blank\" style=\"text-decoration: none;\" rel=\"noopener\"></a><a href=\"https://www.ancientwisdom.biz/bathroomheaven\" target=\"_blank\" style=\"text-decoration: none;\" rel=\"noopener\">N</a><a href=\"https://www.ancientwisdom.biz/new\" target=\"_blank\" style=\"text-decoration: none;\" rel=\"noopener\">ew In</a><a href=\"https://www.ancientwisdom.biz/new\" target=\"_blank\" style=\"text-decoration: none;\" rel=\"noopener\"></a></span></p></div>",
+                    "style": {
+                      "color": "#555555",
+                      "font-family": "inherit",
+                      "line-height": "120%"
+                    }
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-text"
+              }
+            ],
+            "style": {
+              "background-color": "transparent",
+              "border-bottom": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "border-right": "0px solid transparent",
+              "border-top": "0px solid transparent",
+              "padding-bottom": "5px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "padding-top": "5px"
+            }
+          }
+        ],
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat"
+          }
+        },
+        "content": {
+          "computedStyle": {
+            "hideContentOnDesktop": false,
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "rowReverseColStackOnMobile": false,
+            "verticalAlign": "top"
+          },
+          "style": {
+            "background-color": "#4b5058",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat",
+            "color": "#000000",
+            "width": "725px"
+          }
+        },
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "type": "one-column-empty"
+      },
+      {
+        "columns": [
+          {
+            "grid-columns": 12,
+            "modules": [
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#dd6034",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>Hello <code spellcheck=\"false\" data-bee-type=\"mergetag\" data-bee-code=\"\" data-bee-name=\"Customer name\">[Customer Name]!&nbsp;</code></p>\n<p>Unlock the ultimate convenience with our <strong>Buy Now, Pay Later</strong> option! We're here to remind you of this fantastic feature, designed to give you the financial flexibility you deserve while shopping for all your business needs. This payment method ensures you can stock up on essentials or explore new products without immediate financial pressure.</p>\n<p>Also, get ready to be amazed by our latest product arrivals! Explore these exciting additions and discover how they can transform your operations and boost your success.</p>\n<p>More info below :)&nbsp;<br />Have a lovely rest of the day<br />Rodrigo and AW Team</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "Arial, 'Helvetica Neue', Helvetica, sans-serif",
+                      "font-size": "13px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "center"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              }
+            ],
+            "style": {
+              "background-color": "transparent",
+              "border-bottom": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "border-right": "0px solid transparent",
+              "border-top": "0px solid transparent",
+              "padding-bottom": "5px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "padding-top": "5px"
+            }
+          }
+        ],
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat"
+          }
+        },
+        "content": {
+          "computedStyle": {
+            "hideContentOnDesktop": false,
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "rowReverseColStackOnMobile": false,
+            "verticalAlign": "top"
+          },
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat",
+            "border-bottom": "0px solid transparent",
+            "border-left": "0px solid transparent",
+            "border-radius": "0px",
+            "border-right": "0px solid transparent",
+            "border-top": "0px solid transparent",
+            "color": "#000000",
+            "width": "725px"
+          }
+        },
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "type": "one-column-empty"
+      },
+      {
+        "columns": [
+          {
+            "grid-columns": 12,
+            "modules": [
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "align": "center",
+                    "hideContentOnMobile": false
+                  },
+                  "divider": {
+                    "style": {
+                      "border-top": "1px solid #BBBBBB",
+                      "width": "100%"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-divider"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnDesktop": false,
+                    "hideContentOnMobile": false
+                  },
+                  "heading": {
+                    "style": {
+                      "color": "#555555",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "27px",
+                      "font-weight": "700",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "link-color": "#E01253",
+                      "text-align": "center"
+                    },
+                    "text": "<span class=\"tinyMce-placeholder\">Buy Now Pay Later</span>",
+                    "title": "h1"
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px",
+                    "text-align": "center",
+                    "width": "100%"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-heading"
+              }
+            ],
+            "style": {
+              "background-color": "transparent",
+              "border-bottom": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "border-right": "0px solid transparent",
+              "border-top": "0px solid transparent",
+              "padding-bottom": "5px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "padding-top": "5px"
+            }
+          }
+        ],
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat"
+          }
+        },
+        "content": {
+          "computedStyle": {
+            "hideContentOnDesktop": false,
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "rowReverseColStackOnMobile": false,
+            "verticalAlign": "top"
+          },
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat",
+            "border-bottom": "0px solid transparent",
+            "border-left": "0px solid transparent",
+            "border-radius": "0px",
+            "border-right": "0px solid transparent",
+            "border-top": "0px solid transparent",
+            "color": "#000000",
+            "width": "725px"
+          }
+        },
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "type": "one-column-empty"
+      },
+      {
+        "columns": [
+          {
+            "grid-columns": 12,
+            "modules": [
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "class": "center autowidth",
+                    "hideContentOnMobile": false,
+                    "width": "725px"
+                  },
+                  "image": {
+                    "alt": "Buy Now Pay Later",
+                    "href": "https://www.ancientwisdom.biz/pastpay",
+                    "prefix": "",
+                    "src": "https://d15k2d11r6t6rl.cloudfront.net/public/users/Integrators/b69c2965-f488-4b63-877e-3bd2d8b77d86/CmsUserName/Untitled%20design%20%281%29_1.jpg",
+                    "target": "_blank"
+                  },
+                  "style": {
+                    "padding-bottom": "0px",
+                    "padding-left": "0px",
+                    "padding-right": "0px",
+                    "padding-top": "0px",
+                    "width": "100%"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-image"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "15px"
+                    },
+                    "html": "<p>Have you heard about the new payment method in our store? The <a href=\"https://www.ancientwisdom.biz/pastpay\" target=\"_blank\" style=\"text-decoration: underline;\" rel=\"noopener\"><strong>PastPay</strong></a> <strong>Buy Now Pay Later</strong> payment method is available to our corporate clients from Great Britain with valid Company Registration number.<strong>&nbsp;</strong></p>\n<p><strong>Please note: The Buy Now, Pay Later (BNPL) payment option is available only to customers with a valid company number. To ensure BNPL functionality, make sure your profile account includes a valid and updated company registration number. The BNPL option will be displayed at checkout.</strong></p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "Arial, 'Helvetica Neue', Helvetica, sans-serif",
+                      "font-size": "13px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "left"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "align": "center",
+                    "hideContentOnMobile": false
+                  },
+                  "divider": {
+                    "style": {
+                      "border-top": "1px solid #BBBBBB",
+                      "width": "100%"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-divider"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p><strong>NEW IN</strong></p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "29px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "center"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>Home Fresh Room Sprays</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "23px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "center"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "class": "center autowidth",
+                    "hideContentOnMobile": false,
+                    "width": "725px"
+                  },
+                  "image": {
+                    "alt": "Home Fresh Room Sprays",
+                    "href": "https://www.ancientwisdom.biz/hfrs",
+                    "prefix": "",
+                    "src": "https://d15k2d11r6t6rl.cloudfront.net/pub/uj60/2qz8xjkd/1pu/gqf/2x0/HFRS-newsletter.jpg",
+                    "target": "_blank"
+                  },
+                  "style": {
+                    "border-radius": "0px",
+                    "padding-bottom": "0px",
+                    "padding-left": "0px",
+                    "padding-right": "0px",
+                    "padding-top": "0px",
+                    "width": "100%"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-image"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>Boost your retail offerings with line of Home Fresh Room Sprays, designed to bring a touch of nature's finest scents into every home. Ancient Wisdom Room Sprays are crafted with the highest quality ingredients, ensuring a superior product that your customers will love. Perfect for boutique stores, Home Decor Shops., Fragrance Shops, Gift Shops.</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "12px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "left"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "button": {
+                    "href": "https://www.ancientwisdom.biz/hfrs",
+                    "label": "<div class=\"txtTinyMce-wrapper\" style=\"\" data-mce-style=\"\"><p style=\"word-break:break-word;\" data-mce-style=\"word-break:break-word;\">SHOP NOW</p></div>",
+                    "style": {
+                      "background-color": "#4b5058",
+                      "border-bottom": "0px solid transparent",
+                      "border-left": "0px solid transparent",
+                      "border-radius": "4px",
+                      "border-right": "0px solid transparent",
+                      "border-top": "0px solid transparent",
+                      "color": "#ffffff",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "16px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "200%",
+                      "max-width": "100%",
+                      "padding-bottom": "5px",
+                      "padding-left": "20px",
+                      "padding-right": "20px",
+                      "padding-top": "5px",
+                      "width": "auto"
+                    },
+                    "target": "_blank"
+                  },
+                  "computedStyle": {
+                    "height": 42,
+                    "hideContentOnMobile": false,
+                    "width": 128
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px",
+                    "text-align": "center"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-button"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "align": "center",
+                    "hideContentOnMobile": false
+                  },
+                  "divider": {
+                    "style": {
+                      "border-top": "1px solid #BBBBBB",
+                      "width": "100%"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-divider"
+              }
+            ],
+            "style": {
+              "background-color": "transparent",
+              "border-bottom": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "border-right": "0px solid transparent",
+              "border-top": "0px solid transparent",
+              "padding-bottom": "5px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "padding-top": "5px"
+            }
+          }
+        ],
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat"
+          }
+        },
+        "content": {
+          "computedStyle": {
+            "hideContentOnDesktop": false,
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "rowReverseColStackOnMobile": false,
+            "verticalAlign": "top"
+          },
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat",
+            "border-bottom": "0px solid transparent",
+            "border-left": "0px solid transparent",
+            "border-radius": "0px",
+            "border-right": "0px solid transparent",
+            "border-top": "0px solid transparent",
+            "color": "#000000",
+            "width": "725px"
+          }
+        },
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "type": "one-column-empty"
+      },
+      {
+        "columns": [
+          {
+            "grid-columns": 12,
+            "modules": [
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>Chakra Bath Salt - Gift Pack of 7</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "23px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "center"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "class": "center autowidth",
+                    "hideContentOnMobile": false,
+                    "width": "725px"
+                  },
+                  "image": {
+                    "alt": "Chakra Bath Salt - Gift Pack of 7",
+                    "href": "https://www.ancientwisdom.biz/bsv-02",
+                    "prefix": "",
+                    "src": "https://d15k2d11r6t6rl.cloudfront.net/pub/uj60/2qz8xjkd/hqp/x96/cbh/bsv-02medium.jpg",
+                    "target": "_blank"
+                  },
+                  "style": {
+                    "border-radius": "0px",
+                    "padding-bottom": "0px",
+                    "padding-left": "0px",
+                    "padding-right": "0px",
+                    "padding-top": "0px",
+                    "width": "100%"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-image"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>Unleash the power of self-discovery with these exquisite collection of aromatherapy&nbsp;<strong>Chakra Bath Salt Vials</strong>, designed to balance and harmonize the body's energy centres.</p>\n<p>This exclusive collection features&nbsp;<strong>seven distinct bath salts</strong>, each tailored to a specific chakra. Made from from high quality essential oils.</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "12px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "left"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "button": {
+                    "href": "https://www.ancientwisdom.biz/bsv-02",
+                    "label": "<div class=\"txtTinyMce-wrapper\" style=\"\" data-mce-style=\"\"><p style=\"word-break:break-word;\" data-mce-style=\"word-break:break-word;\">SHOP NOW</p></div>",
+                    "style": {
+                      "background-color": "#4b5058",
+                      "border-bottom": "0px solid transparent",
+                      "border-left": "0px solid transparent",
+                      "border-radius": "4px",
+                      "border-right": "0px solid transparent",
+                      "border-top": "0px solid transparent",
+                      "color": "#ffffff",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "16px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "200%",
+                      "max-width": "100%",
+                      "padding-bottom": "5px",
+                      "padding-left": "20px",
+                      "padding-right": "20px",
+                      "padding-top": "5px",
+                      "width": "auto"
+                    },
+                    "target": "_blank"
+                  },
+                  "computedStyle": {
+                    "height": 42,
+                    "hideContentOnMobile": false,
+                    "width": 128
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px",
+                    "text-align": "center"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-button"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "align": "center",
+                    "hideContentOnMobile": false
+                  },
+                  "divider": {
+                    "style": {
+                      "border-top": "1px solid #BBBBBB",
+                      "width": "100%"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-divider"
+              }
+            ],
+            "style": {
+              "background-color": "transparent",
+              "border-bottom": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "border-right": "0px solid transparent",
+              "border-top": "0px solid transparent",
+              "padding-bottom": "5px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "padding-top": "5px"
+            }
+          }
+        ],
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat"
+          }
+        },
+        "content": {
+          "computedStyle": {
+            "hideContentOnDesktop": false,
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "rowReverseColStackOnMobile": false,
+            "verticalAlign": "top"
+          },
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat",
+            "border-bottom": "0px solid transparent",
+            "border-left": "0px solid transparent",
+            "border-radius": "0px",
+            "border-right": "0px solid transparent",
+            "border-top": "0px solid transparent",
+            "color": "#000000",
+            "width": "725px"
+          }
+        },
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "type": "one-column-empty"
+      },
+      {
+        "columns": [
+          {
+            "grid-columns": 12,
+            "modules": [
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>Vintage Hand Carved Buddha Statues</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "23px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "center"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "class": "center autowidth",
+                    "hideContentOnMobile": false,
+                    "width": "725px"
+                  },
+                  "image": {
+                    "alt": "Vintage Hand Carved Buddha Statues",
+                    "href": "https://www.ancientwisdom.biz/vhcbs",
+                    "prefix": "",
+                    "src": "https://d15k2d11r6t6rl.cloudfront.net/public/users/Integrators/b69c2965-f488-4b63-877e-3bd2d8b77d86/CmsUserName/VHCBS-04-Photoroom.jpg",
+                    "target": "_blank"
+                  },
+                  "style": {
+                    "border-radius": "0px",
+                    "padding-bottom": "0px",
+                    "padding-left": "0px",
+                    "padding-right": "0px",
+                    "padding-top": "0px",
+                    "width": "100%"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-image"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>Embrace the timeless beauty of Southeast Asian artistry with our collection of Wholesale Vintage Hand-Carved Buddha Statues. Each statue, meticulously&nbsp;<strong>crafted by skilled artisans in Indonesia</strong>, tells a story through its intricate carvings and artfully aged appearance.</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "12px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "left"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "button": {
+                    "href": "https://www.ancientwisdom.biz/vhcbs",
+                    "label": "<div class=\"txtTinyMce-wrapper\" style=\"\" data-mce-style=\"\"><p style=\"word-break:break-word;\" data-mce-style=\"word-break:break-word;\">SHOP NOW</p></div>",
+                    "style": {
+                      "background-color": "#4b5058",
+                      "border-bottom": "0px solid transparent",
+                      "border-left": "0px solid transparent",
+                      "border-radius": "4px",
+                      "border-right": "0px solid transparent",
+                      "border-top": "0px solid transparent",
+                      "color": "#ffffff",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "16px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "200%",
+                      "max-width": "100%",
+                      "padding-bottom": "5px",
+                      "padding-left": "20px",
+                      "padding-right": "20px",
+                      "padding-top": "5px",
+                      "width": "auto"
+                    },
+                    "target": "_blank"
+                  },
+                  "computedStyle": {
+                    "height": 42,
+                    "hideContentOnMobile": false,
+                    "width": 128
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px",
+                    "text-align": "center"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-button"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "align": "center",
+                    "hideContentOnMobile": false
+                  },
+                  "divider": {
+                    "style": {
+                      "border-top": "1px solid #BBBBBB",
+                      "width": "100%"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-divider"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>Palo Santo Heaters</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "23px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "center"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "class": "center autowidth",
+                    "hideContentOnMobile": false,
+                    "width": "725px"
+                  },
+                  "image": {
+                    "alt": "Palo Santo Heaters",
+                    "href": "https://www.ancientwisdom.biz/psh",
+                    "prefix": "",
+                    "src": "https://d15k2d11r6t6rl.cloudfront.net/public/users/Integrators/b69c2965-f488-4b63-877e-3bd2d8b77d86/CmsUserName/psh-banner-mobile-b.jpg",
+                    "target": "_blank"
+                  },
+                  "style": {
+                    "border-radius": "0px",
+                    "padding-bottom": "0px",
+                    "padding-left": "0px",
+                    "padding-right": "0px",
+                    "padding-top": "0px",
+                    "width": "100%"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-image"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>A must have in your shop or website,&nbsp;<strong>Ancient Wisdom's captivating Palo Santo Heaters.</strong>&nbsp;Handcrafted from premium teak wood in Indonesia, these heaters boast sleek shapes (rectangular, square, or teardrop) and come in eight stunning designs featuring symbols like the Hamsa, Mandala, and Tree of Life. Each adds a touch of spiritual elegance to any space.</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "12px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "left"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "button": {
+                    "href": "https://www.ancientwisdom.biz/psh",
+                    "label": "<div class=\"txtTinyMce-wrapper\" style=\"\" data-mce-style=\"\"><p style=\"word-break:break-word;\" data-mce-style=\"word-break:break-word;\">SHOP NOW</p></div>",
+                    "style": {
+                      "background-color": "#4b5058",
+                      "border-bottom": "0px solid transparent",
+                      "border-left": "0px solid transparent",
+                      "border-radius": "4px",
+                      "border-right": "0px solid transparent",
+                      "border-top": "0px solid transparent",
+                      "color": "#ffffff",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "16px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "200%",
+                      "max-width": "100%",
+                      "padding-bottom": "5px",
+                      "padding-left": "20px",
+                      "padding-right": "20px",
+                      "padding-top": "5px",
+                      "width": "auto"
+                    },
+                    "target": "_blank"
+                  },
+                  "computedStyle": {
+                    "height": 42,
+                    "hideContentOnMobile": false,
+                    "width": 128
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px",
+                    "text-align": "center"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-button"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "align": "center",
+                    "hideContentOnMobile": false
+                  },
+                  "divider": {
+                    "style": {
+                      "border-top": "1px solid #BBBBBB",
+                      "width": "100%"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-divider"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>Boho Seashell Lamps</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "23px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "center"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "class": "center autowidth",
+                    "hideContentOnMobile": false,
+                    "width": "725px"
+                  },
+                  "image": {
+                    "alt": "Boho Seashell Lamps",
+                    "href": "https://www.ancientwisdom.biz/bbsl",
+                    "prefix": "",
+                    "src": "https://d15k2d11r6t6rl.cloudfront.net/public/users/Integrators/b69c2965-f488-4b63-877e-3bd2d8b77d86/CmsUserName/bbsl-newsletter.jpg",
+                    "target": "_blank"
+                  },
+                  "style": {
+                    "border-radius": "0px",
+                    "padding-bottom": "0px",
+                    "padding-left": "0px",
+                    "padding-right": "0px",
+                    "padding-top": "0px",
+                    "width": "100%"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-image"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>Immerse yourself in the beauty of the sea with our captivating collection of&nbsp;<strong>Wholesale Boho Seashell Lamps</strong>.&nbsp;<strong>Handcrafted in Indonesia</strong>&nbsp;by skilled artisans, these unique lamps bring a touch of coastal flair and bohemian style to any space.</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "12px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "left"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "button": {
+                    "href": "https://www.ancientwisdom.biz/bbsl",
+                    "label": "<div class=\"txtTinyMce-wrapper\" style=\"\" data-mce-style=\"\"><p style=\"word-break:break-word;\" data-mce-style=\"word-break:break-word;\">SHOP NOW</p></div>",
+                    "style": {
+                      "background-color": "#4b5058",
+                      "border-bottom": "0px solid transparent",
+                      "border-left": "0px solid transparent",
+                      "border-radius": "4px",
+                      "border-right": "0px solid transparent",
+                      "border-top": "0px solid transparent",
+                      "color": "#ffffff",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "16px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "200%",
+                      "max-width": "100%",
+                      "padding-bottom": "5px",
+                      "padding-left": "20px",
+                      "padding-right": "20px",
+                      "padding-top": "5px",
+                      "width": "auto"
+                    },
+                    "target": "_blank"
+                  },
+                  "computedStyle": {
+                    "height": 42,
+                    "hideContentOnMobile": false,
+                    "width": 128
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px",
+                    "text-align": "center"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-button"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "align": "center",
+                    "hideContentOnMobile": false
+                  },
+                  "divider": {
+                    "style": {
+                      "border-top": "1px solid #BBBBBB",
+                      "width": "100%"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-divider"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>Home Decoration Buddha Heads</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "23px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "center"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "class": "center autowidth",
+                    "hideContentOnMobile": false,
+                    "width": "725px"
+                  },
+                  "image": {
+                    "alt": "Home Decoration Buddha Heads",
+                    "href": "https://www.ancientwisdom.biz/hdbh",
+                    "prefix": "",
+                    "src": "https://d15k2d11r6t6rl.cloudfront.net/public/users/Integrators/b69c2965-f488-4b63-877e-3bd2d8b77d86/CmsUserName/hdbh.jpg",
+                    "target": "_blank"
+                  },
+                  "style": {
+                    "border-radius": "0px",
+                    "padding-bottom": "0px",
+                    "padding-left": "0px",
+                    "padding-right": "0px",
+                    "padding-top": "0px",
+                    "width": "100%"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-image"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>In today's design landscape, home d&eacute;cor trends lean towards mindfulness and Zen-inspired spaces. Expand your product portfolio and cater to this growing customer segment with our captivating selection of&nbsp;<strong>Wholesale Home Decoration Buddha Heads</strong>. Handcrafted by skilled&nbsp;<strong>artisans in Indonesia</strong>, these unique pieces are a guaranteed conversation starter and will draw in customers seeking spiritual or cultural accents for their homes.</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "12px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "left"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "button": {
+                    "href": "https://www.ancientwisdom.biz/hdbh",
+                    "label": "<div class=\"txtTinyMce-wrapper\" style=\"\" data-mce-style=\"\"><p style=\"word-break:break-word;\" data-mce-style=\"word-break:break-word;\">SHOP NOW</p></div>",
+                    "style": {
+                      "background-color": "#4b5058",
+                      "border-bottom": "0px solid transparent",
+                      "border-left": "0px solid transparent",
+                      "border-radius": "4px",
+                      "border-right": "0px solid transparent",
+                      "border-top": "0px solid transparent",
+                      "color": "#ffffff",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "16px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "200%",
+                      "max-width": "100%",
+                      "padding-bottom": "5px",
+                      "padding-left": "20px",
+                      "padding-right": "20px",
+                      "padding-top": "5px",
+                      "width": "auto"
+                    },
+                    "target": "_blank"
+                  },
+                  "computedStyle": {
+                    "height": 42,
+                    "hideContentOnMobile": false,
+                    "width": 128
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px",
+                    "text-align": "center"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-button"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "align": "center",
+                    "hideContentOnMobile": false
+                  },
+                  "divider": {
+                    "style": {
+                      "border-top": "1px solid #BBBBBB",
+                      "width": "100%"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-divider"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>Ultimate Spa Experience Starter</p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "23px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "center"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "class": "center autowidth",
+                    "hideContentOnMobile": false,
+                    "width": "725px"
+                  },
+                  "image": {
+                    "alt": "Ultimate Spa Experience Starter",
+                    "href": "https://www.ancientwisdom.biz/bhs-01",
+                    "prefix": "",
+                    "src": "https://d15k2d11r6t6rl.cloudfront.net/pub/uj60/2qz8xjkd/bz9/zfl/x98/1857704.jpeg",
+                    "target": "_blank"
+                  },
+                  "style": {
+                    "border-radius": "0px",
+                    "padding-bottom": "0px",
+                    "padding-left": "0px",
+                    "padding-right": "0px",
+                    "padding-top": "0px",
+                    "width": "100%"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-image"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnAmp": false,
+                    "hideContentOnDesktop": false,
+                    "hideContentOnHtml": false,
+                    "hideContentOnMobile": false
+                  },
+                  "paragraph": {
+                    "computedStyle": {
+                      "linkColor": "#0068a5",
+                      "paragraphSpacing": "16px"
+                    },
+                    "html": "<p>Ultimate Spa Experience Starter: Everything You Need for a Relaxing Retail Oasis. This Starter provides everything you need to create a stunning spa product display and stock it with top-selling bath treats.&nbsp;</p>\n<p><strong>You will get 1x</strong><strong>&nbsp;Standard Four Shelf Stand &amp; Cupboard, 48x Zen Shower Steamer 50g, 32x Bath Bombs, 6x Glass Jars, 4x Floral Bath Soak, 12x Heart Bath Bomb Gift Sets, 12x Chakra Bath Fizz + 2x FREE Display Tray worth &pound;19.95 &nbsp;</strong></p>\n<p><strong>The retail value of all products included is&nbsp;</strong><strong>&pound;470.10</strong></p>",
+                    "style": {
+                      "color": "#000000",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "12px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "120%",
+                      "text-align": "left"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-paragraph"
+              },
+              {
+                "descriptor": {
+                  "button": {
+                    "href": "https://www.ancientwisdom.biz/bhs-01",
+                    "label": "<div class=\"txtTinyMce-wrapper\" style=\"\" data-mce-style=\"\"><p style=\"word-break:break-word;\" data-mce-style=\"word-break:break-word;\">SHOP NOW</p></div>",
+                    "style": {
+                      "background-color": "#4b5058",
+                      "border-bottom": "0px solid transparent",
+                      "border-left": "0px solid transparent",
+                      "border-radius": "4px",
+                      "border-right": "0px solid transparent",
+                      "border-top": "0px solid transparent",
+                      "color": "#ffffff",
+                      "direction": "ltr",
+                      "font-family": "inherit",
+                      "font-size": "16px",
+                      "font-weight": "400",
+                      "letter-spacing": "0px",
+                      "line-height": "200%",
+                      "max-width": "100%",
+                      "padding-bottom": "5px",
+                      "padding-left": "20px",
+                      "padding-right": "20px",
+                      "padding-top": "5px",
+                      "width": "auto"
+                    },
+                    "target": "_blank"
+                  },
+                  "computedStyle": {
+                    "height": 42,
+                    "hideContentOnMobile": false,
+                    "width": 128
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px",
+                    "text-align": "center"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-button"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "align": "center",
+                    "hideContentOnMobile": false
+                  },
+                  "divider": {
+                    "style": {
+                      "border-top": "1px solid #BBBBBB",
+                      "width": "100%"
+                    }
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-divider"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "height": 57,
+                    "hideContentOnMobile": false,
+                    "iconsDefaultWidth": 32,
+                    "padding": "0 5px 0 5px",
+                    "width": 151
+                  },
+                  "iconsList": {
+                    "icons": [
+                      {
+                        "id": "3831ac95-e857-488d-9113-d4da665a0663",
+                        "image": {
+                          "alt": "Facebook",
+                          "href": "https://www.facebook.com/AncientWisdom.biz",
+                          "prefix": "https://www.facebook.com/",
+                          "src": "https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-outline-circle-dark-gray/facebook@2x.png",
+                          "target": "_self",
+                          "title": "Facebook"
+                        },
+                        "name": "Facebook",
+                        "text": "",
+                        "type": "follow"
+                      },
+                      {
+                        "id": "e9fadf56-039a-47ae-81f0-1c1fa1091486",
+                        "image": {
+                          "alt": "Instagram",
+                          "href": "https://www.instagram.com/ancient_wisdom_wholesale/",
+                          "prefix": "https://instagram.com/",
+                          "src": "https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-outline-circle-dark-gray/instagram@2x.png",
+                          "target": "_self",
+                          "title": "Instagram"
+                        },
+                        "name": "Instagram",
+                        "text": "",
+                        "type": "follow"
+                      },
+                      {
+                        "id": "pinterest",
+                        "image": {
+                          "alt": "Pinterest",
+                          "href": "https://www.pinterest.co.uk/ancient_wisdom_wholesale/",
+                          "prefix": "https://www.pinterest.com/",
+                          "src": "https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-outline-circle-dark-gray/pinterest@2x.png",
+                          "target": "_self",
+                          "title": "Pinterest"
+                        },
+                        "name": "pinterest",
+                        "text": "",
+                        "type": "follow"
+                      },
+                      {
+                        "id": "tiktok",
+                        "image": {
+                          "alt": "TikTok",
+                          "href": "https://www.tiktok.com/@ancientwisdomwholesale",
+                          "prefix": "https://www.tiktok.com",
+                          "src": "https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/t-outline-circle-dark-gray/tiktok@2x.png",
+                          "target": "_blank",
+                          "title": "TikTok"
+                        },
+                        "name": "TikTok",
+                        "text": "",
+                        "type": "follow"
+                      }
+                    ]
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px",
+                    "text-align": "center"
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-social"
+              },
+              {
+                "descriptor": {
+                  "computedStyle": {
+                    "hideContentOnMobile": false
+                  },
+                  "style": {
+                    "padding-bottom": "10px",
+                    "padding-left": "10px",
+                    "padding-right": "10px",
+                    "padding-top": "10px"
+                  },
+                  "text": {
+                    "computedStyle": {
+                      "linkColor": "#0068A5"
+                    },
+                    "html": "<div class=\"txtTinyMce-wrapper\" style=\"font-size:12px;line-height:14px;font-family:Arial, &#39;Helvetica Neue&#39;, Helvetica, sans-serif;\" data-mce-style=\"font-size:12px;line-height:14px;font-family:Arial, &#39;Helvetica Neue&#39;, Helvetica, sans-serif;\"><p style=\"font-size:14px;line-height:16px;text-align:center;word-break:break-word;\" data-mce-style=\"font-size:14px;line-height:16px;text-align:center;word-break:break-word;\"><span style=\"color:#4b5058;font-size:12px;line-height:14px;\" data-mce-style=\"color:#4b5058;font-size:12px;line-height:14px;\"><a style=\"text-decoration: underline; color: #4b5058;\" href=\"https://www.ancientwisdom.biz\" target=\"_blank\" rel=\"noopener\"><strong><span style=\"font-size:13px;line-height:15px;\" data-mce-style=\"font-size:13px;line-height:15px;\">www.AncientWisdom.biz</span></strong></a></span></p><p style=\"font-size:14px;line-height:16px;text-align:center;word-break:break-word;\" data-mce-style=\"font-size:14px;line-height:16px;text-align:center;word-break:break-word;\"><span style=\"color:#4b5058;font-size:12px;line-height:14px;\" data-mce-style=\"color:#4b5058;font-size:12px;line-height:14px;\">Ancient Wisdom Marketing Limited, Affinity Park, Europa Drive </span></p><p style=\"font-size:14px;line-height:16px;text-align:center;word-break:break-word;\" data-mce-style=\"font-size:14px;line-height:16px;text-align:center;word-break:break-word;\"><span style=\"color:#4b5058;font-size:12px;line-height:14px;\" data-mce-style=\"color:#4b5058;font-size:12px;line-height:14px;\">Sheffield, S9 1XT, United Kingdom<br/>Reg No.: 04108870 VAT No.: GB764298589<br/>+44 (0)1142 729 165</span></p></div>",
+                    "style": {
+                      "color": "#555555",
+                      "font-family": "Arial, 'Helvetica Neue', Helvetica, sans-serif",
+                      "line-height": "120%"
+                    }
+                  }
+                },
+                "locked": false,
+                "type": "mailup-bee-newsletter-modules-text"
+              }
+            ],
+            "style": {
+              "background-color": "transparent",
+              "border-bottom": "0px solid transparent",
+              "border-left": "0px solid transparent",
+              "border-right": "0px solid transparent",
+              "border-top": "0px solid transparent",
+              "padding-bottom": "5px",
+              "padding-left": "0px",
+              "padding-right": "0px",
+              "padding-top": "5px"
+            }
+          }
+        ],
+        "container": {
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat"
+          }
+        },
+        "content": {
+          "computedStyle": {
+            "hideContentOnDesktop": false,
+            "hideContentOnMobile": false,
+            "rowColStackOnMobile": true,
+            "rowReverseColStackOnMobile": false,
+            "verticalAlign": "top"
+          },
+          "style": {
+            "background-color": "transparent",
+            "background-image": "none",
+            "background-position": "top left",
+            "background-repeat": "no-repeat",
+            "color": "#000000",
+            "width": "725px"
+          }
+        },
+        "empty": false,
+        "locked": false,
+        "synced": false,
+        "type": "row-1-columns-12"
+      }
+    ],
+    "template": {
+      "name": "template-base",
+      "type": "basic",
+      "version": "2.0.0"
+    },
+    "title": ""
+  }
+}

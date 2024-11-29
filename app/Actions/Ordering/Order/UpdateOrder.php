@@ -9,6 +9,7 @@ namespace App\Actions\Ordering\Order;
 
 use App\Actions\Ordering\Order\Search\OrderRecordSearch;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
@@ -24,6 +25,7 @@ class UpdateOrder extends OrgAction
     use WithFixedAddressActions;
     use WithModelAddressActions;
     use HasOrderHydrators;
+    use WithNoStrictRules;
 
     private Order $order;
 
@@ -75,15 +77,9 @@ class UpdateOrder extends OrgAction
 
 
         if (!$this->strict) {
-            $rules['payment_amount'] = ['sometimes', 'numeric'];
 
-            $rules['billing_locked']  = ['sometimes', 'boolean'];
-            $rules['delivery_locked'] = ['sometimes', 'boolean'];
-
-            $rules['data']            = ['sometimes', 'array'];
-            $rules['date']            = ['sometimes', 'required', 'date'];
-            $rules['reference']       = ['sometimes', 'string', 'max:64'];
-            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules = $this->orderNoStrictFields($rules);
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;
