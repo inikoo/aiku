@@ -94,7 +94,7 @@ class ShowOutbox extends OrgAction
                     'next'     => $this->getNext($outbox, $request),
                 ],
                 'pageHead'    => [
-                    'title'   => $outbox->slug,
+                    'title'   => $outbox->name,
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-inbox-out'],
@@ -131,7 +131,7 @@ class ShowOutbox extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => $outbox->slug,
+                        'label' => $outbox->code,
                     ],
                     'suffix' => $suffix
                 ],
