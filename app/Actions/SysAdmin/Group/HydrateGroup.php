@@ -21,6 +21,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateGuests;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOfferCampaigns;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOffers;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrders;
+use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOrgPostRooms;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletDeliveries;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydratePalletReturns;
@@ -109,6 +110,7 @@ class HydrateGroup extends HydrateModel
         GroupHydrateSubDepartments::run($group);
         GroupHydrateFamilies::run($group);
         GroupHydratePostRooms::run($group);
+        GroupHydrateOrgPostRooms::run($group);
         GroupHydrateOutboxes::run($group);
         GroupHydrateSupplierProducts::run($group);
 

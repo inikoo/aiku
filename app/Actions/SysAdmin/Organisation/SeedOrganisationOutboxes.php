@@ -10,13 +10,12 @@ namespace App\Actions\SysAdmin\Organisation;
 use App\Actions\Comms\Outbox\StoreOutbox;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\SysAdmin\Organisation;
-use Exception;
-use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class SeedOrganisationOutboxes
 {
     use AsAction;
+    use WithOrganisationCommand;
 
     public function handle(Organisation $organisation): void
     {
@@ -43,29 +42,7 @@ class SeedOrganisationOutboxes
 
     public string $commandSignature = 'org:seed-outboxes {organisation? : The organisation slug}';
 
-    public function asCommand(Command $command): int
-    {
-        if ($command->argument('organisation') == null) {
-            $organisations = Organisation::all();
-            foreach ($organisations as $organisation) {
-                $this->handle($organisation);
-            }
 
-            return 0;
-        }
-
-        try {
-            $organisation = Organisation::where('slug', $command->argument('organisation'))->firstOrFail();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
-
-        $this->handle($organisation);
-
-        return 0;
-    }
 
 
 }

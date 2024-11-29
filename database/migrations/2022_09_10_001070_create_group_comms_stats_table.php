@@ -22,6 +22,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->postRoomsStats($table);
+            $table = $this->orgPostRoomsStats($table);
             $table = $this->outboxesStats($table);
             $table = $this->mailshotsStats($table);
             $table = $this->dispatchedEmailStats($table);

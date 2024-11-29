@@ -33,6 +33,7 @@ use App\Models\Catalogue\Subscription;
 use App\Models\Comms\EmailAddress;
 use App\Models\Comms\EmailTemplate;
 use App\Models\Comms\ModelSubscribedToOutbox;
+use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
 use App\Models\CRM\Customer;
@@ -168,6 +169,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read \App\Models\SysAdmin\GroupOrdersIntervals|null $ordersIntervals
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
+ * @property-read LaravelCollection<int, OrgPostRoom> $orgPostRooms
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Organisation> $organisations
  * @property-read LaravelCollection<int, ModelSubscribedToOutbox> $outboxSubscribers
  * @property-read LaravelCollection<int, Outbox> $outboxes
@@ -394,6 +396,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function postRooms(): HasMany
     {
         return $this->hasMany(PostRoom::class);
+    }
+
+    public function orgPostRooms(): HasMany
+    {
+        return $this->hasMany(OrgPostRoom::class);
     }
 
     public function users(): HasMany

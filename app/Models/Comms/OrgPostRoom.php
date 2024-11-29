@@ -1,19 +1,14 @@
 <?php
 /*
- * author Arya Permana - Kirin
- * created on 29-11-2024-16h-57m
- * github: https://github.com/KirinZero0
- * copyright 2024
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Fri, 29 Nov 2024 17:18:23 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 namespace App\Models\Comms;
 
-use App\Enums\Comms\PostRoom\PostRoomCodeEnum;
-use App\Models\SysAdmin\Group;
+use App\Enums\Comms\OrgPostRoom\OrgPostRoomTypeEnum;
 use App\Models\Traits\InOrganisation;
-use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -22,23 +17,28 @@ use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
 /**
- * App\Models\Mail\Mail
+ *
  *
  * @property int $id
  * @property int $group_id
+ * @property int $organisation_id
+ * @property int $post_room_id
  * @property string $slug
- * @property PostRoomCodeEnum $code
+ * @property OrgPostRoomTypeEnum $type
  * @property string $name
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Group $group
- * @property-read Collection<int, \App\Models\Comms\Outbox> $outboxes
- * @property-read \App\Models\Comms\PostRoomStats|null $stats
- * @method static Builder<static>|PostRoom newModelQuery()
- * @method static Builder<static>|PostRoom newQuery()
- * @method static Builder<static>|PostRoom query()
- * @mixin Eloquent
+ * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\Comms\OrgPostRoomIntervals|null $intervals
+ * @property-read \App\Models\SysAdmin\Organisation $organisation
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Comms\Outbox> $outboxes
+ * @property-read \App\Models\Comms\PostRoom $postRoom
+ * @property-read \App\Models\Comms\OrgPostRoomStats|null $stats
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPostRoom newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPostRoom newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPostRoom query()
+ * @mixin \Eloquent
  */
 class OrgPostRoom extends Model
 {
@@ -46,7 +46,7 @@ class OrgPostRoom extends Model
     use InOrganisation;
 
     protected $casts = [
-        'code' => PostRoomCodeEnum::class,
+        'type' => OrgPostRoomTypeEnum::class,
         'data' => 'array',
     ];
 
@@ -60,7 +60,7 @@ class OrgPostRoom extends Model
     {
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
-                return $this->code->value.'-'.$this->group->slug;
+                return $this->type->value.'-'.$this->organisation->slug;
             })
             ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
@@ -73,7 +73,12 @@ class OrgPostRoom extends Model
 
     public function stats(): HasOne
     {
-        return $this->hasOne(PostRoomStats::class);
+        return $this->hasOne(OrgPostRoomStats::class);
+    }
+
+    public function intervals(): HasOne
+    {
+        return $this->hasOne(OrgPostRoomIntervals::class);
     }
 
     public function outboxes(): HasMany
@@ -81,8 +86,8 @@ class OrgPostRoom extends Model
         return $this->hasMany(Outbox::class);
     }
 
-    public function postRoom(): HasOne
+    public function postRoom(): BelongsTo
     {
-        return $this->hasOne(PostRoom::class);
+        return $this->belongsTo(PostRoom::class);
     }
 }

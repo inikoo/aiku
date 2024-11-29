@@ -8,16 +8,13 @@
 
 namespace App\Models\Comms;
 
-use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Mail\PostRoomStats
+ *
  *
  * @property int $id
- * @property int|null $post_room_id
+ * @property int|null $org_post_room_id
  * @property int $number_outboxes
  * @property int $number_outboxes_type_basket_low_stock
  * @property int $number_outboxes_type_basket_reminder_1
@@ -72,11 +69,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_provoked_unsubscribe
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Comms\PostRoom|null $postRoom
- * @method static Builder<static>|PostRoomStats newModelQuery()
- * @method static Builder<static>|PostRoomStats newQuery()
- * @method static Builder<static>|PostRoomStats query()
- * @mixin Eloquent
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPostRoomStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPostRoomStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OrgPostRoomStats query()
+ * @mixin \Eloquent
  */
 class OrgPostRoomStats extends Model
 {
@@ -84,8 +80,5 @@ class OrgPostRoomStats extends Model
 
     protected $guarded = [];
 
-    public function orgPostRoom(): BelongsTo
-    {
-        return $this->belongsTo(OrgPostRoom::class);
-    }
+
 }

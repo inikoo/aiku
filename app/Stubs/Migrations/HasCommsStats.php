@@ -21,6 +21,12 @@ trait HasCommsStats
         return $table;
     }
 
+    public function orgPostRoomsStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_org_post_rooms')->default(0);
+        return $table;
+    }
+
     public function outboxesStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_outboxes')->default(0);

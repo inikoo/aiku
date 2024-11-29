@@ -69,6 +69,10 @@ class StoreOrganisation
             SetOrganisationLogo::run($organisation);
             SeedOrganisationPermissions::run($organisation);
             SeedJobPositions::run($organisation);
+            if ($organisation->type == OrganisationTypeEnum::SHOP or $organisation->type == OrganisationTypeEnum::DIGITAL_AGENCY) {
+                SeedOrgPostRooms::run($organisation);
+            }
+
 
             StoreOrganisationAddress::make()->action(
                 $organisation,
@@ -318,14 +322,14 @@ class StoreOrganisation
             return 1;
         }
 
-        //try {
-        $organisation = $this->handle($group, $validatedData);
-        $command->info("Organisation $organisation->slug created successfully 🎉");
-        //        } catch (Exception|Throwable $e) {
-        //            $command->error($e->getMessage());
-        //
-        //            return 1;
-        //        }
+        try {
+            $organisation = $this->handle($group, $validatedData);
+            $command->info("Organisation $organisation->slug created successfully 🎉");
+        } catch (Exception|Throwable $e) {
+            $command->error($e->getMessage());
+
+            return 1;
+        }
 
         return 0;
     }
