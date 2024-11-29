@@ -40,6 +40,7 @@ class StoreEmailBulkRun extends OrgAction
             /** @var EmailBulkRun $emailRun */
             $emailRun = $outbox->emailBulkRuns()->create($modelData);
             $emailRun->stats()->create();
+            $emailRun->intervals()->create();
 
             return $emailRun;
         });
