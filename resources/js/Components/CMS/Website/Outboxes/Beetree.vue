@@ -2,6 +2,7 @@
 import { onMounted, defineExpose, } from "vue";
 import axios from "axios"
 import Bee from "@mailupinc/bee-plugin";
+import data from '@/Components/CMS/Website/Outboxes/Unlayer/UnlayerJsonExample.json'
 
 
 import { routeType } from "@/types/route";
@@ -13,6 +14,7 @@ const props = withDefaults(defineProps<{
     mailshot?: object
 }>(), {});
 
+console.log(data)
 onMounted(() => {
     const beeInstance = new Bee();
     var endpoint = "https://auth.getbee.io/apiauth";
@@ -70,15 +72,17 @@ onMounted(() => {
                 },
             };
 
-            var template = {}
+           /*  var template = JSON.parse(data) */
             beeInstance
                 .getToken(payload.client_id, payload.client_secret)
-                .then(() => beeInstance.start(config, template));
+                .then(() => beeInstance.start(config, data));
         })
         .catch((error) => {
             console.error("Error authenticating:", error);
         });
 });
+
+
 
 defineExpose({})
 

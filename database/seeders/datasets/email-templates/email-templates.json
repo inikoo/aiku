@@ -164,5 +164,38 @@
     "arguments": [
       "order"
     ]
+  },
+  {
+    "outboxes": [
+      "invoice_deleted"
+    ],
+    "name": "Invoice deleted",
+    "content": "invoice_deleted.blade.php",
+    "builder": "blade",
+    "arguments": [
+      "invoice"
+    ]
+  },
+  {
+    "outboxes": [
+      "Delivery note dispatched"
+    ],
+    "name": "Delivery note dispatched",
+    "content": "delivery_note_dispatched.blade.php",
+    "builder": "blade",
+    "arguments": [
+      "delivery_note"
+    ]
+  },
+  {
+    "outboxes": [
+      "Delivery note undispatched"
+    ],
+    "name": "Delivery note undispatched",
+    "content": "delivery_note_undispatched.blade.php",
+    "builder": "blade",
+    "arguments": [
+      "delivery_note"
+    ]
   }
 ]

@@ -58,7 +58,7 @@ class UpdateDeliveryNote extends OrgAction
                 AssignPackerToPicking::make()->action(
                     $item->pickings,
                     [
-                    'picker_id' => $deliveryNote->packer_id
+                    'packer_id' => $deliveryNote->packer_id
                 ]
                 );
             }

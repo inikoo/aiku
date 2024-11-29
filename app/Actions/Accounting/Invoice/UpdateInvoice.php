@@ -9,6 +9,7 @@ namespace App\Actions\Accounting\Invoice;
 
 use App\Actions\Accounting\Invoice\Search\InvoiceRecordSearch;
 use App\Actions\OrgAction;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Http\Resources\Accounting\InvoicesResource;
@@ -22,7 +23,7 @@ class UpdateInvoice extends OrgAction
 {
     use WithActionUpdate;
     use WithFixedAddressActions;
-
+    use WithNoStrictRules;
 
     private Invoice $invoice;
 
@@ -73,7 +74,6 @@ class UpdateInvoice extends OrgAction
             'date'             => ['sometimes', 'date'],
             'tax_liability_at' => ['sometimes', 'date'],
             'billing_address'  => ['sometimes', 'required', new ValidAddress()],
-            'last_fetched_at'  => ['sometimes', 'date'],
             'sales_channel_id'   => [
                 'sometimes',
                 'required',
@@ -85,7 +85,8 @@ class UpdateInvoice extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['reference'] = ['required', 'max:64', 'string'];
+            $rules = $this->orderNoStrictFields($rules);
+            $rules = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;
