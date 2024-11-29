@@ -61,20 +61,17 @@ class StoreDeliveryNote extends OrgAction
                     'delivery',
                     'address_id'
                 );
-            } else {
-                $deliveryNote = $this->addAddressToModelFromArray(
-                    model: $deliveryNote,
-                    addressData: $deliveryAddress->toArray(),
-                    scope: 'delivery',
-                    updateLocation: false,
+                $deliveryNote->updateQuietly(
+                    [
+                        'delivery_country_id' => $deliveryNote->address->country_id
+                    ]
                 );
+            } else {
+                StoreDeliveryNoteAddress::make()->action($deliveryNote, [
+                    'address' => $deliveryAddress
+                ]);
             }
 
-            $deliveryNote->updateQuietly(
-                [
-                    'delivery_country_id' => $deliveryNote->address->country_id
-                ]
-            );
 
             return $deliveryNote;
         });

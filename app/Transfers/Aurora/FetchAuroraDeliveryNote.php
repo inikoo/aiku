@@ -103,10 +103,7 @@ class FetchAuroraDeliveryNote extends FetchAurora
             prefix: "Delivery Note",
             auAddressData: $this->auroraModelData,
         );
-        $deliveryAddress     = new Address(
-            $deliveryAddressData,
-        );
-
+        $deliveryAddress     = new Address($deliveryAddressData);
 
         $deliveryLocked = false;
         if (in_array($this->auroraModelData->{'Delivery Note State'}, ['Cancelled', 'Approved', 'Dispatched', 'Cancelled to Restock'])) {
