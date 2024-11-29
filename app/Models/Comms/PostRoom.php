@@ -82,4 +82,9 @@ class PostRoom extends Model
     {
         return $this->belongsTo(Group::class);
     }
+
+    public function orgPostRooms(): HasMany
+    {
+        return $this->hasMany(OrgPostRoom::class);
+    }
 }
