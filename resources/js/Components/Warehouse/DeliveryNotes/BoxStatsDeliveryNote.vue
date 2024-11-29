@@ -234,7 +234,8 @@ const onSubmitPickerPacker = (selectedPicker: {}, scope: string) => {
 							valueProp="id"
 							object
 							clearOnBlur
-							:loading="disable === 'picking'"
+							:loading="isLoading['picker' + selectedPicker?.id]"
+							:disabled="disable == 'picker_assigned'"
 							>
 							<template #singlelabel="{ value }">
 								<div
@@ -281,7 +282,7 @@ const onSubmitPickerPacker = (selectedPicker: {}, scope: string) => {
 							object
 							clearOnBlur
 							:loading="isLoading['packer' + selectedPacker?.id]"
-							:disabled="disable == 'packing'">
+							:disabled="disable == 'Packing'">
 							<template #singlelabel="{ value }">
 								<div
 									class="w-full text-left pl-3 pr-2 text-sm whitespace-nowrap truncate">
