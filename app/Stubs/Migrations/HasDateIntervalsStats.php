@@ -14,9 +14,8 @@ use Illuminate\Database\Schema\Blueprint;
 
 trait HasDateIntervalsStats
 {
-    public function dateIntervals(Blueprint $table, array $subjects = []): Blueprint
+    public function salesDateIntervals(Blueprint $table, array $subjects = []): Blueprint
     {
-
         foreach ($subjects as $subject) {
             $subject = $subject ? $subject.'_' : '';
 
@@ -34,7 +33,27 @@ trait HasDateIntervalsStats
             }
         }
 
+        return $table;
+    }
 
+    public function unsignedIntegerDateIntervals(Blueprint $table, array $subjects = []): Blueprint
+    {
+        foreach ($subjects as $subject) {
+            $subject = $subject ? $subject.'_' : '';
+
+            foreach (DateIntervalEnum::values() as $col) {
+                $table->unsignedInteger($subject.$col)->default(0);
+            }
+            foreach (DateIntervalEnum::lastYearValues() as $col) {
+                $table->unsignedInteger($subject.$col.'_ly')->default(0);
+            }
+            foreach (PreviousYearsEnum::values() as $col) {
+                $table->unsignedInteger($subject.$col)->default(0);
+            }
+            foreach (PreviousQuartersEnum::values() as $col) {
+                $table->unsignedInteger($subject.$col)->default(0);
+            }
+        }
 
         return $table;
     }

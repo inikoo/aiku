@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedInteger('product_category_id')->index();
             $table->foreign('product_category_id')->references('id')->on('product_categories');
-            $table = $this->dateIntervals($table, [
+            $table = $this->unsignedIntegerDateIntervals($table, [
                 'invoices',
                 'orders',
                 'delivery_notes',

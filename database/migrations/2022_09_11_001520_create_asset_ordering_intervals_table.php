@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('asset_id')->index();
             $table->foreign('asset_id')->references('id')->on('assets');
-            $table = $this->dateIntervals($table, [
+            $table = $this->unsignedIntegerDateIntervals($table, [
                 'invoices',
                 'orders',
                 'delivery_notes',

@@ -19,7 +19,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedInteger('invoice_category_id')->index();
             $table->foreign('invoice_category_id')->references('id')->on('invoice_categories')->onUpdate('cascade')->onDelete('cascade');
-            $table = $this->dateIntervals($table, [
+            $table = $this->unsignedIntegerDateIntervals($table, [
                 'invoices',
                 'refunds',
                 'customers_invoiced'

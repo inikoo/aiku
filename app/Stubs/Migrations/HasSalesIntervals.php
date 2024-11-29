@@ -15,6 +15,6 @@ trait HasSalesIntervals
 
     public function salesIntervalFields(Blueprint $table, $dateIntervals): Blueprint
     {
-        return $this->dateIntervals($table, $dateIntervals);
+        return $this->salesDateIntervals($table, $dateIntervals);
     }
 }

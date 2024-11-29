@@ -36,7 +36,7 @@ trait HasCommsIntervals
                 unset($fields[$case->value.'_clicked_emails']);
             }
 
-            $table = $this->dateIntervals($table, $fields);
+            $table = $this->unsignedIntegerDateIntervals($table, $fields);
         }
 
         return $table;
