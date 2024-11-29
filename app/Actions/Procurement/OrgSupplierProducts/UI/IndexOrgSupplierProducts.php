@@ -40,7 +40,7 @@ class IndexOrgSupplierProducts extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('supplier_products.code', $value)
-                    ->orWhereANyWordStartWith('supplier_products.name', $value);
+                    ->orWhereAnyWordStartWith('supplier_products.name', $value);
             });
         });
         if ($prefix) {
