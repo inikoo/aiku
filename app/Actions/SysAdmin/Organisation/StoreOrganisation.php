@@ -18,6 +18,7 @@ use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Accounting\PaymentServiceProvider;
+use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Language;
@@ -51,8 +52,9 @@ class StoreOrganisation
      */
     public function handle(Group $group, array $modelData): Organisation
     {
-        $addressData = Arr::get($modelData, 'address');
-        Arr::forget($modelData, 'address');
+        /** @var Address $addressData */
+        $addressData = Arr::pull($modelData, 'address');
+
 
         data_set($modelData, 'ulid', Str::ulid());
         data_set($modelData, 'settings.ui.name', Arr::get($modelData, 'name'));
@@ -67,9 +69,12 @@ class StoreOrganisation
             SetOrganisationLogo::run($organisation);
             SeedOrganisationPermissions::run($organisation);
             SeedJobPositions::run($organisation);
-
-
-            $organisation = $this->addAddressToModelFromArray($organisation, $addressData);
+            StoreOrganisationAddress::make()->action(
+                $organisation,
+                [
+                    'address' => $addressData
+                ]
+            );
 
 
             $superAdmins = $group->users()->with('roles')->get()->filter(
@@ -87,7 +92,6 @@ class StoreOrganisation
                     )->where('scope_id', $organisation->id)->first()
                 ]);
             }
-
 
 
             $organisation->refresh();
@@ -168,7 +172,7 @@ class StoreOrganisation
             'timezone_id'  => ['required', 'exists:timezones,id'],
             'source'       => ['sometimes', 'array'],
             'type'         => ['required', Rule::enum(OrganisationTypeEnum::class)],
-            'address'      => ['sometimes', 'required', new ValidAddress()],
+            'address'      => ['required', new ValidAddress()],
             'created_at'   => ['sometimes', 'date'],
         ];
     }

@@ -31,21 +31,26 @@ beforeAll(function () {
 });
 
 
-beforeEach(function () {
-    list(
-        $this->organisation,
-        $this->user,
-        $this->shop
-    ) = createShop();
-    $this->customer = createCustomer($this->shop);
-    $this->group    = $this->organisation->group;
-});
+beforeEach(
+    /**
+     * @throws \Throwable
+     */
+    function () {
+        list(
+            $this->organisation,
+            $this->user,
+            $this->shop
+        ) = createShop();
+        $this->customer = createCustomer($this->shop);
+        $this->group    = $this->organisation->group;
+    }
+);
 
 test('post rooms seeded correctly', function () {
 
     $postRooms = $this->group->postRooms;
-    expect($postRooms->count())->toBe(5)
-        ->and($this->group->commsStats->number_post_rooms)->toBe(5);
+    expect($postRooms->count())->toBe(7)
+        ->and($this->group->commsStats->number_post_rooms)->toBe(7);
 });
 
 test('seed organisation outboxes customers command', function () {
@@ -58,15 +63,21 @@ test('seed organisation outboxes customers command', function () {
         ->and($this->organisation->commsStats->number_outboxes_state_active)->toBe(9);
 });
 
-test('outbox seeded when shop created', function () {
-    $shop   = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
-    expect($shop->group->commsStats->number_outboxes)->toBe(23)
-        ->and($shop->organisation->commsStats->number_outboxes)->toBe(23)
-        ->and($shop->commsStats->number_outboxes)->toBe(11);
+test(
+    /**
+     * @throws \Throwable
+     */
+    'outbox seeded when shop created',
+    function () {
+        $shop   = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
+        expect($shop->group->commsStats->number_outboxes)->toBe(23)
+            ->and($shop->organisation->commsStats->number_outboxes)->toBe(23)
+            ->and($shop->commsStats->number_outboxes)->toBe(11);
 
-    return $shop;
+        return $shop;
 
-});
+    }
+);
 
 test('seed shop outboxes by command', function (Shop $shop) {
     $this->artisan('shop:seed-outboxes '.$shop->slug)->assertExitCode(0);
@@ -95,15 +106,21 @@ test('seed websites outboxes by command', function (Website $website) {
 })->depends('outbox seeded when website created');
 
 
-test('outbox seeded when fulfilment created', function () {
-    $fulfilment = createFulfilment($this->organisation);
-    expect($fulfilment->group->commsStats->number_outboxes)->toBe(37)
-        ->and($fulfilment->organisation->commsStats->number_outboxes)->toBe(37)
-        ->and($fulfilment->shop->commsStats->number_outboxes)->toBe(4);
+test(
+    /**
+     * @throws \Throwable
+     */
+    'outbox seeded when fulfilment created',
+    function () {
+        $fulfilment = createFulfilment($this->organisation);
+        expect($fulfilment->group->commsStats->number_outboxes)->toBe(37)
+            ->and($fulfilment->organisation->commsStats->number_outboxes)->toBe(37)
+            ->and($fulfilment->shop->commsStats->number_outboxes)->toBe(4);
 
-    return $fulfilment;
+        return $fulfilment;
 
-});
+    }
+);
 
 test('seed fulfilments outboxes by command', function (Fulfilment $fulfilment) {
     $this->artisan('fulfilment:seed-outboxes '.$fulfilment->slug)->assertExitCode(0);
@@ -112,16 +129,22 @@ test('seed fulfilments outboxes by command', function (Fulfilment $fulfilment) {
 })->depends('outbox seeded when fulfilment created');
 
 
-test('create mailshot', function (Shop $shop) {
+test(
+    /**
+     * @throws \Throwable
+     */
+    'create mailshot',
+    function (Shop $shop) {
 
-    /** @var Outbox $outbox */
-    $outbox = $shop->outboxes()->where('type', OutboxCodeEnum::MARKETING)->first();
+        /** @var Outbox $outbox */
+        $outbox = $shop->outboxes()->where('type', OutboxCodeEnum::MARKETING)->first();
 
-    $mailshot = StoreMailshot::make()->action($outbox, Mailshot::factory()->definition());
-    $this->assertModelExists($mailshot);
+        $mailshot = StoreMailshot::make()->action($outbox, Mailshot::factory()->definition());
+        $this->assertModelExists($mailshot);
 
-    return $mailshot;
-})->depends('outbox seeded when shop created');
+        return $mailshot;
+    }
+)->depends('outbox seeded when shop created');
 
 test('update mailshot', function ($mailshot) {
     $mailshot = UpdateMailshot::make()->action($mailshot, Mailshot::factory()->definition());

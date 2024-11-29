@@ -8,6 +8,7 @@
 namespace Database\Factories\SysAdmin;
 
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
+use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Language;
@@ -32,7 +33,8 @@ class OrganisationFactory extends Factory
             'language_id' => $language->id,
             'timezone_id' => $timezone->id,
             'currency_id' => $currency->id,
-            'type'        => OrganisationTypeEnum::SHOP->value
+            'type'        => OrganisationTypeEnum::SHOP->value,
+            'address'     => Address::factory()->definition()
         ];
     }
 }

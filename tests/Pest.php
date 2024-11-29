@@ -72,6 +72,9 @@ function createGroup(): Group
     return $group;
 }
 
+/**
+ * @throws \Throwable
+ */
 function createOrganisation(): Organisation
 {
     GetDiceBearAvatar::mock()
@@ -124,6 +127,9 @@ function createAdminGuest(Group $group): Guest
     return $guest;
 }
 
+/**
+ * @throws \Throwable
+ */
 function createShop(): array
 {
     $organisation = createOrganisation();
@@ -146,6 +152,9 @@ function createShop(): array
     ];
 }
 
+/**
+ * @throws \Throwable
+ */
 function createFulfilment(Organisation $organisation): Fulfilment
 {
     $group = $organisation->group;
@@ -174,6 +183,9 @@ function createFulfilment(Organisation $organisation): Fulfilment
 }
 
 
+/**
+ * @throws \Throwable
+ */
 function createWarehouse(): Warehouse
 {
     $organisation = createOrganisation();
@@ -193,6 +205,9 @@ function createWarehouse(): Warehouse
 }
 
 
+/**
+ * @throws \Throwable
+ */
 function createCustomer(Shop $shop): Customer
 {
     $customer = $shop->customers()->first();
@@ -236,6 +251,9 @@ function createTradeUnits(Group $group): array
 
 }
 
+/**
+ * @throws \Throwable
+ */
 function createStocks(Group $group): array
 {
     $tradeUnits  = createTradeUnits($group);
@@ -285,6 +303,9 @@ function createStocks(Group $group): array
 
 }
 
+/**
+ * @throws \Throwable
+ */
 function createOrgStocks(Organisation $organisation, array $stocks): array
 {
 
@@ -305,6 +326,9 @@ function createOrgStocks(Organisation $organisation, array $stocks): array
 
 }
 
+/**
+ * @throws \Throwable
+ */
 function createProduct(Shop $shop): array
 {
 
@@ -356,6 +380,9 @@ function createProduct(Shop $shop): array
     ];
 }
 
+/**
+ * @throws \Throwable
+ */
 function createOrder(Customer $customer, Product $product): Order
 {
     $order = $customer->organisation->orders()->first();
@@ -392,6 +419,9 @@ function createWebsite(Shop $shop): Website
 
 }
 
+/**
+ * @throws \Throwable
+ */
 function createWebUser(Customer $customer): WebUser
 {
 
