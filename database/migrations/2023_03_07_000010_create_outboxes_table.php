@@ -20,6 +20,8 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('post_room_id')->nullable();
             $table->foreign('post_room_id')->references('id')->on('post_rooms');
+            $table->unsignedSmallInteger('org_post_room_id')->nullable();
+            $table->foreign('org_post_room_id')->references('id')->on('org_post_rooms');
             $table->unsignedSmallInteger('shop_id')->nullable();
             $table->foreign('shop_id')->references('id')->on('shops');
             $table->unsignedSmallInteger('website_id')->nullable();

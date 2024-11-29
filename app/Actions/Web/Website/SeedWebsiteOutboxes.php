@@ -25,10 +25,11 @@ class SeedWebsiteOutboxes
         foreach (OutboxCodeEnum::cases() as $case) {
             if ($case->scope() == 'Website' and  in_array($website->shop->type->value, $case->shopTypes())) {
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
+                $orgPostRoom = $postRoom->orgPostRooms()->where('organisation_id', $website->organisation->id)->first();
 
                 if (!Outbox::where('website_id', $website->id)->where('code', $case)->exists()) {
                     StoreOutbox::make()->action(
-                        $postRoom,
+                        $orgPostRoom,
                         $website,
                         [
                             'name'      => $case->label(),
@@ -43,7 +44,7 @@ class SeedWebsiteOutboxes
         }
     }
 
-    public string $commandSignature = 'website:seed-outboxes {website? : The website slug}';
+    public string $commandSignature = 'website:seed_outboxes {website? : The website slug}';
 
     public function asCommand(Command $command): int
     {

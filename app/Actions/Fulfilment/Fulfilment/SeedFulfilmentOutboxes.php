@@ -25,10 +25,11 @@ class SeedFulfilmentOutboxes
         foreach (OutboxCodeEnum::cases() as $case) {
             if ($case->scope() == 'Fulfilment') {
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
+                $orgPostRoom = $postRoom->orgPostRooms()->where('organisation_id', $fulfilment->organisation->id)->first();
 
                 if (!Outbox::where('fulfilment_id', $fulfilment->id)->where('code', $case)->exists()) {
                     StoreOutbox::make()->action(
-                        $postRoom,
+                        $orgPostRoom,
                         $fulfilment,
                         [
                             'name'      => $case->label(),
@@ -42,7 +43,7 @@ class SeedFulfilmentOutboxes
         }
     }
 
-    public string $commandSignature = 'fulfilment:seed-outboxes {fulfilment? : The fulfilment slug}';
+    public string $commandSignature = 'fulfilment:seed_outboxes {fulfilment? : The fulfilment slug}';
 
     public function asCommand(Command $command): int
     {

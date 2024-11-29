@@ -58,8 +58,8 @@ test('run seed post rooms command', function () {
 });
 
 test('seed organisation outboxes customers command', function () {
-    $this->artisan('org:seed-outboxes '.$this->organisation->slug)->assertExitCode(0);
-    $this->artisan('org:seed-outboxes')->assertExitCode(0);
+    $this->artisan('org:seed_outboxes '.$this->organisation->slug)->assertExitCode(0);
+    $this->artisan('org:seed_outboxes')->assertExitCode(0);
     expect($this->group->commsStats->number_outboxes)->toBe(12)
         ->and($this->organisation->commsStats->number_outboxes)->toBe(12)
         ->and($this->organisation->commsStats->number_outboxes_type_test)->toBe(1)
@@ -79,8 +79,8 @@ test(
 );
 
 test('seed shop outboxes by command', function (Shop $shop) {
-    $this->artisan('shop:seed-outboxes '.$shop->slug)->assertExitCode(0);
-    $this->artisan('shop:seed-outboxes')->assertExitCode(0);
+    $this->artisan('shop:seed_outboxes '.$shop->slug)->assertExitCode(0);
+    $this->artisan('shop:seed_outboxes')->assertExitCode(0);
     expect($shop->group->commsStats->number_outboxes)->toBe(23);
 })->depends('outbox seeded when shop created');
 
@@ -98,8 +98,8 @@ test('outbox seeded when website created', function (Shop $shop) {
 
 
 test('seed websites outboxes by command', function (Website $website) {
-    $this->artisan('website:seed-outboxes '.$website->slug)->assertExitCode(0);
-    $this->artisan('website:seed-outboxes')->assertExitCode(0);
+    $this->artisan('website:seed_outboxes '.$website->slug)->assertExitCode(0);
+    $this->artisan('website:seed_outboxes')->assertExitCode(0);
     expect($website->group->commsStats->number_outboxes)->toBe(33);
 })->depends('outbox seeded when website created');
 
@@ -117,8 +117,8 @@ test(
 );
 
 test('seed fulfilments outboxes by command', function (Fulfilment $fulfilment) {
-    $this->artisan('fulfilment:seed-outboxes '.$fulfilment->slug)->assertExitCode(0);
-    $this->artisan('fulfilment:seed-outboxes')->assertExitCode(0);
+    $this->artisan('fulfilment:seed_outboxes '.$fulfilment->slug)->assertExitCode(0);
+    $this->artisan('fulfilment:seed_outboxes')->assertExitCode(0);
     expect($fulfilment->group->commsStats->number_outboxes)->toBe(37);
 })->depends('outbox seeded when fulfilment created');
 

@@ -17,8 +17,8 @@ use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Models\Catalogue\Shop;
+use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
-use App\Models\Comms\PostRoom;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use App\Models\Web\Website;
@@ -28,32 +28,28 @@ class StoreOutbox extends OrgAction
 {
     use WithNoStrictRules;
 
-    public function handle(PostRoom $postRoom, Organisation|Shop|Website|Fulfilment $parent, array $modelData): Outbox
+    public function handle(OrgPostRoom $orgPostRoom, Organisation|Shop|Website|Fulfilment $parent, array $modelData): Outbox
     {
-
-
         data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'post_room_id', $orgPostRoom->post_room_id);
+        data_set($modelData, 'organisation_id', $orgPostRoom->organisation_id);
+
 
         if ($parent instanceof Shop) {
-            data_set($modelData, 'organisation_id', $parent->organisation_id);
             data_set($modelData, 'shop_id', $parent->id);
         } elseif ($parent instanceof Website) {
-            data_set($modelData, 'organisation_id', $parent->organisation_id);
             data_set($modelData, 'shop_id', $parent->shop_id);
             data_set($modelData, 'website_id', $parent->id);
         } elseif ($parent instanceof Fulfilment) {
-            data_set($modelData, 'organisation_id', $parent->organisation_id);
             data_set($modelData, 'shop_id', $parent->shop_id);
             data_set($modelData, 'fulfilment_id', $parent->id);
-        } else {
-            data_set($modelData, 'organisation_id', $parent->id);
         }
 
 
         /** @var Outbox $outbox */
-        $outbox = $postRoom->outboxes()->create($modelData);
+        $outbox = $orgPostRoom->outboxes()->create($modelData);
         $outbox->stats()->create();
-
+        $outbox->intervals()->create();
 
 
         GroupHydrateOutboxes::run($outbox->group);
@@ -70,32 +66,27 @@ class StoreOutbox extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'code'      => ['required', Rule::enum(OutboxCodeEnum::class)],
-            'type'      => ['required', Rule::enum(OutboxTypeEnum::class)],
-            'state'     => ['required', Rule::enum(OutboxStateEnum::class)],
-            'name'      => ['required', 'max:250', 'string'],
+            'code'  => ['required', Rule::enum(OutboxCodeEnum::class)],
+            'type'  => ['required', Rule::enum(OutboxTypeEnum::class)],
+            'state' => ['required', Rule::enum(OutboxStateEnum::class)],
+            'name'  => ['required', 'max:250', 'string'],
         ];
         if (!$this->strict) {
             $rules = $this->noStrictStoreRules($rules);
-
         }
 
         return $rules;
     }
 
-    public function action(PostRoom $postRoom, Organisation|Shop|Website|Fulfilment $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Outbox
+    public function action(OrgPostRoom $orgPostRoom, Organisation|Shop|Website|Fulfilment $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true): Outbox
     {
-        $this->asAction = true;
+        $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
 
-        if ($parent instanceof Organisation) {
-            $organisation = $parent;
-        } else {
-            $organisation = $parent->organisation;
-        }
-        $this->initialisation($organisation, $modelData);
 
-        return $this->handle($postRoom, $parent, $this->validatedData);
+        $this->initialisation($orgPostRoom->organisation, $modelData);
+
+        return $this->handle($orgPostRoom, $parent, $this->validatedData);
     }
 }

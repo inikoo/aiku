@@ -23,9 +23,14 @@ class SeedOrganisationOutboxes
             if ($case->scope() == 'Organisation') {
                 $postRoom = $organisation->group->postRooms()->where('code', $case->postRoomCode())->first();
 
+                $orgPostRoom = $postRoom->orgPostRooms()->where('organisation_id', $organisation->id)->first();
+
                 if (!$organisation->outboxes()->where('code', $case)->exists()) {
+
+
+
                     StoreOutbox::make()->action(
-                        $postRoom,
+                        $orgPostRoom,
                         $organisation,
                         [
                             'name' => $case->label(),
@@ -40,7 +45,7 @@ class SeedOrganisationOutboxes
         }
     }
 
-    public string $commandSignature = 'org:seed-outboxes {organisation? : The organisation slug}';
+    public string $commandSignature = 'org:seed_outboxes {organisation? : The organisation slug}';
 
 
 
