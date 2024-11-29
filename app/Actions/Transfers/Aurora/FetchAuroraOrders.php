@@ -111,7 +111,7 @@ class FetchAuroraOrders extends FetchAuroraAction
         if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])->first()) {
             //try {
 
-            /** @var Address $billingAddress */
+            /** @var Address $deliveryAddress */
             $deliveryAddress = Arr::pull($orderData['order'], 'delivery_address');
 
             if ($order->delivery_locked) {

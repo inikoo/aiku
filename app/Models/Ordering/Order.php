@@ -158,6 +158,7 @@ class Order extends Model implements HasMedia, Auditable
 
     protected $casts = [
         'data'         => 'array',
+        'payment_data' => 'array',
         'date'         => 'datetime',
         'state'        => OrderStateEnum::class,
         'status'       => OrderStatusEnum::class,
@@ -165,7 +166,8 @@ class Order extends Model implements HasMedia, Auditable
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'         => '{}',
+        'payment_data' => '{}',
     ];
 
     protected $guarded = [];

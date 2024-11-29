@@ -60,7 +60,7 @@ trait WithFixedAddressActions
             return $this->createFixedAddress($model, $addressData, $fixedScope, $scope, $addressField);
         }
 
-        return $model;
+        return $currentAddress;
     }
 
 }
