@@ -14,8 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::table('invoices', function (Blueprint $table) {
-            $table->jsonb('payment_data')->after('data');
+            $table->jsonb('payment_data')->default('{}');
         });
+
+        DB::statement("UPDATE invoices SET payment_data = '{}'::jsonb");
     }
 
     /**
