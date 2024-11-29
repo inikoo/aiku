@@ -42,7 +42,6 @@ return new class () extends Migration {
             $table->dateTimeTz('paid_at')->nullable();
 
             $table->jsonb('data');
-            $table->jsonb('payment_data');
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
