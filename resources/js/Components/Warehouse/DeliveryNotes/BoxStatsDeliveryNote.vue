@@ -84,7 +84,6 @@ const onSubmitPickerPacker = (selectedPicker: {}, scope: string) => {
 </script>
 
 <template>
-	<pre>{{ disable }}</pre>
 	<div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
 		<BoxStatPallet class="py-2 px-3" icon="fal fa-user">
 			<!-- Field: Reference Number -->
@@ -235,7 +234,7 @@ const onSubmitPickerPacker = (selectedPicker: {}, scope: string) => {
 							object
 							clearOnBlur
 							:loading="isLoading['picker' + selectedPicker?.id]"
-							:disabled="disable == 'picker_assigned'"
+							:disabled="disable == 'picker_assigned' || disable == 'packing' || disable == 'packed' || disable == 'finalised' || disable == 'settled'"
 							>
 							<template #singlelabel="{ value }">
 								<div
@@ -282,7 +281,7 @@ const onSubmitPickerPacker = (selectedPicker: {}, scope: string) => {
 							object
 							clearOnBlur
 							:loading="isLoading['packer' + selectedPacker?.id]"
-							:disabled="disable == 'Packing'">
+							:disabled="disable == 'packing' ||  disable == 'packed' || disable == 'finalised' || disable == 'settled'">
 							<template #singlelabel="{ value }">
 								<div
 									class="w-full text-left pl-3 pr-2 text-sm whitespace-nowrap truncate">
