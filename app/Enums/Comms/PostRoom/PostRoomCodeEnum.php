@@ -22,8 +22,9 @@ enum PostRoomCodeEnum: string
     public function label(): string
     {
         return match ($this) {
-            PostRoomCodeEnum::MARKETING             => 'Deals',
-            PostRoomCodeEnum::LEADS                 => 'Leads',
+            PostRoomCodeEnum::NEWSLETTER => 'Newsletters',
+            PostRoomCodeEnum::MARKETING => 'Marketing',
+            PostRoomCodeEnum::MARKETING_NOTIFICATION => 'Marketing notifications',
             PostRoomCodeEnum::CUSTOMER_NOTIFICATION => 'Customer notifications',
             PostRoomCodeEnum::USER_NOTIFICATION     => 'User notifications',
             PostRoomCodeEnum::TESTS                 => 'tests',
