@@ -32,7 +32,17 @@ class SeedShopOutboxes
         foreach (OutboxCodeEnum::cases() as $case) {
             if ($case->scope() == 'Shop' and in_array($shop->type->value, $case->shopTypes())) {
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
-                if (!Outbox::where('shop_id', $shop->id)->where('code', $case)->exists()) {
+                if ($outbox = Outbox::where('shop_id', $shop->id)->where('code', $case)->exists()) {
+                    // run UpdateOutbox action
+
+//                    if ($outbox->type == OutboxTypeEnum::APP_COMMS) {
+//                        // try {
+//                        $emailOngoingRun = StoreEmailOngoingRun::make()->action($outbox, [
+//                            'subject' => $case->label(),
+//                        ]);
+
+
+                } else {
                     $outbox = StoreOutbox::make()->action(
                         $postRoom,
                         $shop,
@@ -44,7 +54,7 @@ class SeedShopOutboxes
 
                         ]
                     );
-                    if ($outbox->type == OutboxTypeEnum::APP_COMMS) {
+                    if ($outbox->type == OutboxTypeEnum::APP_COMMS or $outbox->type == OutboxTypeEnum::TRANSACTIONAL ) {
                         // try {
                         $emailOngoingRun = StoreEmailOngoingRun::make()->action($outbox, [
                             'subject' => $case->label(),

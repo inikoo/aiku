@@ -87,7 +87,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::ABANDONED_CART => 'Abandoned cart',
             OutboxCodeEnum::DELIVERY_CONFIRMATION => 'Delivery confirmation',
             OutboxCodeEnum::REORDER_REMINDER => 'Reorder reminder',
-            OutboxCodeEnum::MARKETING => 'Deals',
+            OutboxCodeEnum::MARKETING => 'Marketing',
             OutboxCodeEnum::NEWSLETTER => 'Newsletter',
             OutboxCodeEnum::OOS_NOTIFICATION => 'Out of stock notification',
             OutboxCodeEnum::ORDER_CONFIRMATION => 'Order confirmation',

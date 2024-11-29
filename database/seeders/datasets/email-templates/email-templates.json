@@ -164,5 +164,16 @@
     "arguments": [
       "order"
     ]
+  },
+  {
+    "outboxes": [
+      "invoice_deleted"
+    ],
+    "name": "Invoice deleted",
+    "content": "invoice_deleted.blade.php",
+    "builder": "blade",
+    "arguments": [
+      "invoice"
+    ]
   }
 ]
