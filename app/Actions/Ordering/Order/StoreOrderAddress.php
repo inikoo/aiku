@@ -34,6 +34,9 @@ class StoreOrderAddress extends OrgAction
         data_set($addressData, 'group_id', $order->group_id);
         data_set($addressData, 'is_fixed', false);
         data_set($addressData, 'usage', 1);
+        data_set($addressData, 'fixed_scope', 'Ordering');
+
+        $addressData = Arr::only($addressData, ['group_id', 'address_line_1','address_line_2', 'sorting_code', 'postal_code', 'dependent_locality', 'locality', 'administrative_area', 'country_code', 'country_id', 'is_fixed', 'fixed_scope', 'usage']);
 
         $address = Address::create($addressData);
 

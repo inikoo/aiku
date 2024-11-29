@@ -21,6 +21,10 @@ class GetCurrencyExchange
 
     public function handle(Currency $baseCurrency, Currency $targetCurrency): float|null
     {
+        if ($baseCurrency->code === $targetCurrency->code) {
+            return 1.0;
+        }
+
         $key  = 'current-currency-exchange:'.$baseCurrency->code.'-'.$targetCurrency->code;
 
         $currencyExchange = (float)Cache::get($key);
