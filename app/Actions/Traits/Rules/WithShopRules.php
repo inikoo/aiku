@@ -47,7 +47,7 @@ trait WithShopRules
             'settings'                 => ['sometimes', 'array'],
             'warehouses'               => ['sometimes', 'array'],
             'warehouses.*'             => [Rule::Exists('warehouses', 'id')->where('organisation_id', $this->organisation->id)],
-            'address'                  => ['sometimes', 'required', new ValidAddress()],
+            'address'                  => ['sometimes','required', new ValidAddress()],
 
         ];
 

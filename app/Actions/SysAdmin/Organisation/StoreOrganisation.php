@@ -69,6 +69,7 @@ class StoreOrganisation
             SetOrganisationLogo::run($organisation);
             SeedOrganisationPermissions::run($organisation);
             SeedJobPositions::run($organisation);
+
             StoreOrganisationAddress::make()->action(
                 $organisation,
                 [

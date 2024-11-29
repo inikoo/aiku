@@ -11,7 +11,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
-use App\Actions\Traits\WithStoringOrderingAddress;
+use App\Actions\Traits\WithStoreModelAddress;
 use App\Models\Ordering\Order;
 use App\Rules\ValidAddress;
 use Illuminate\Support\Arr;
@@ -23,13 +23,13 @@ class StoreOrderAddress extends OrgAction
     use WithFixedAddressActions;
     use WithModelAddressActions;
     use HasOrderHydrators;
-    use WithStoringOrderingAddress;
+    use WithStoreModelAddress;
 
     public function handle(Order $order, array $modelData): Order
     {
         $type = Arr::get($modelData, 'type');
 
-        $address = $this->storeOrderingAddress($modelData['address']->toArray());
+        $address = $this->storeModelAddress($modelData['address']->toArray());
 
         $order->updateQuietly(
             [

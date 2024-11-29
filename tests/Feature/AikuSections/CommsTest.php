@@ -47,14 +47,17 @@ beforeEach(
 );
 
 test('post rooms seeded correctly', function () {
-
     $postRooms = $this->group->postRooms;
     expect($postRooms->count())->toBe(7)
         ->and($this->group->commsStats->number_post_rooms)->toBe(7);
 });
 
-test('seed organisation outboxes customers command', function () {
+test('run seed post rooms command', function () {
+    $this->artisan('group:seed_post_rooms '.$this->group->slug)->assertExitCode(0);
+    expect($this->group->commsStats->number_post_rooms)->toBe(7);
+});
 
+test('seed organisation outboxes customers command', function () {
     $this->artisan('org:seed-outboxes '.$this->organisation->slug)->assertExitCode(0);
     $this->artisan('org:seed-outboxes')->assertExitCode(0);
     expect($this->group->commsStats->number_outboxes)->toBe(12)
@@ -64,18 +67,14 @@ test('seed organisation outboxes customers command', function () {
 });
 
 test(
-    /**
-     * @throws \Throwable
-     */
     'outbox seeded when shop created',
     function () {
-        $shop   = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
+        $shop = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
         expect($shop->group->commsStats->number_outboxes)->toBe(23)
             ->and($shop->organisation->commsStats->number_outboxes)->toBe(23)
             ->and($shop->commsStats->number_outboxes)->toBe(11);
 
         return $shop;
-
     }
 );
 
@@ -95,7 +94,6 @@ test('outbox seeded when website created', function (Shop $shop) {
         ->and($website->shop->commsStats->number_outboxes)->toBe(21);
 
     return $website;
-
 })->depends('outbox seeded when shop created');
 
 
@@ -107,9 +105,6 @@ test('seed websites outboxes by command', function (Website $website) {
 
 
 test(
-    /**
-     * @throws \Throwable
-     */
     'outbox seeded when fulfilment created',
     function () {
         $fulfilment = createFulfilment($this->organisation);
@@ -118,7 +113,6 @@ test(
             ->and($fulfilment->shop->commsStats->number_outboxes)->toBe(4);
 
         return $fulfilment;
-
     }
 );
 
@@ -130,12 +124,8 @@ test('seed fulfilments outboxes by command', function (Fulfilment $fulfilment) {
 
 
 test(
-    /**
-     * @throws \Throwable
-     */
     'create mailshot',
     function (Shop $shop) {
-
         /** @var Outbox $outbox */
         $outbox = $shop->outboxes()->where('type', OutboxCodeEnum::MARKETING)->first();
 
@@ -149,10 +139,9 @@ test(
 test('update mailshot', function ($mailshot) {
     $mailshot = UpdateMailshot::make()->action($mailshot, Mailshot::factory()->definition());
     $this->assertModelExists($mailshot);
+
     return $mailshot;
 })->depends('create mailshot');
-
-
 
 
 test('test post room hydrator', function ($shop) {
@@ -173,12 +162,9 @@ test('test post room hydrator', function ($shop) {
         ->and($outbox->postRoom->stats->number_outboxes_type_newsletter)->toBe(4);
 
     return $outbox;
-
-
 })->depends('outbox seeded when shop created')->todo();
 
 test('test attach model to outbox', function (Outbox $outbox) {
-
     AttachModelToOutbox::make()->action(
         $this->customer,
         $outbox,
@@ -200,13 +186,12 @@ test('test attach model to outbox', function (Outbox $outbox) {
 })->depends('test post room hydrator');
 
 test('test update model to outbox', function (Outbox $outbox) {
-
     $unsubscribedAt = Date::now()->toDateString();
     UpdateModelToOutbox::make()->action(
         $this->customer,
         $outbox,
         [
-            'data' => "{'test': '1'}",
+            'data'            => "{'test': '1'}",
             'unsubscribed_at' => $unsubscribedAt
         ]
     );
@@ -214,17 +199,15 @@ test('test update model to outbox', function (Outbox $outbox) {
     $this->customer->refresh();
 
     $modelUnsubscribedToOutbox = $this->customer->unsubscribedOutboxes()
-    ->where('outbox_id', $outbox->id)
-    ->first();
+        ->where('outbox_id', $outbox->id)
+        ->first();
 
     $outbox->refresh();
 
     expect($modelUnsubscribedToOutbox)->toBeInstanceOf(ModelSubscribedToOutbox::class)
         ->and($modelUnsubscribedToOutbox->data)->toBe("{'test': '1'}")
-        ->and(Carbon::parse($modelUnsubscribedToOutbox->unsubscribed_at)->toDateString())->toBe($unsubscribedAt);
-
-
-    expect($this->customer->subscribedOutboxes()->count())->toBe(0)
+        ->and(Carbon::parse($modelUnsubscribedToOutbox->unsubscribed_at)->toDateString())->toBe($unsubscribedAt)
+        ->and($this->customer->subscribedOutboxes()->count())->toBe(0)
         ->and($this->customer->unsubscribedOutboxes()->count())->toBe(1)
         ->and($outbox->group->commsStats->number_outbox_subscribers)->toBe(0)
         ->and($outbox->organisation->commsStats->number_outbox_subscribers)->toBe(0)
@@ -232,11 +215,11 @@ test('test update model to outbox', function (Outbox $outbox) {
         ->and($outbox->stats->number_subscribers)->toBe(0)
         ->and($outbox->stats->number_unsubscribed)->toBe(1);
 
+
     return $outbox;
 })->depends('test post room hydrator');
 
 test('test detach model to outbox', function (Outbox $outbox) {
-
     DetachModelToOutbox::make()->action(
         $this->customer,
         $outbox,
@@ -252,5 +235,4 @@ test('test detach model to outbox', function (Outbox $outbox) {
         ->and($outbox->shop->commsStats->number_outbox_subscribers)->toBe(0)
         ->and($outbox->stats->number_subscribers)->toBe(0)
         ->and($outbox->stats->number_unsubscribed)->toBe(0);
-
 })->depends('test update model to outbox');

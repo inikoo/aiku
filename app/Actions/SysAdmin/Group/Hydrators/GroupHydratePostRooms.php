@@ -16,6 +16,7 @@ class GroupHydratePostRooms
 {
     use AsAction;
     use WithEnumStats;
+
     private Group $group;
 
     public function __construct(Group $group)
@@ -27,16 +28,14 @@ class GroupHydratePostRooms
     {
         return [(new WithoutOverlapping($this->group->id))->dontRelease()];
     }
+
     public function handle(Group $group): void
     {
-
-        $stats         = [
+        $stats = [
             'number_post_rooms' => $group->postRooms()->count(),
         ];
 
         $group->commsStats()->update($stats);
-
-
     }
 
 }

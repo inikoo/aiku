@@ -66,6 +66,20 @@ class StoreGroup
         $group->commsStats()->create();
         $group->discountsStats()->create();
 
+        SeedGroupPermissions::run($group);
+        SeedGroupPaymentServiceProviders::run($group);
+        SeedJobPositionCategories::run($group);
+        SeedJobPositionsScopeGroup::run($group);
+        SeedStockImages::run($group);
+        SeedWebBlockTypes::run($group);
+        SeedPlatforms::run($group);
+        SeedEmailTemplates::run($group);
+        SeedSalesChannels::run($group);
+        SeedAikuSections::run($group);
+        SeedPostRooms::run($group);
+        SeedAikuScopedSections::make()->seedGroupAikuScopedSection($group);
+
+
         SetGroupLogo::run($group);
 
         foreach (PostRoomCodeEnum::cases() as $case) {
