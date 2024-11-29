@@ -41,8 +41,9 @@ class UpdateOrderFixedAddress extends OrgAction
             return $order;
         }
 
-        $order->fixedAddresses()->detach($oldAddress->id);
-
+        if ($oldAddress) {
+            $order->fixedAddresses()->detach($oldAddress->id);
+        }
 
         $address = $this->createFixedAddress($order, $modelData['address'], 'Ordering', $type, $type == 'billing' ? 'billing_address_id' : 'delivery_address_id');
 

@@ -17,7 +17,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
-use App\Actions\Traits\Rules\WithOrderingAmountNoStrictFields;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
@@ -35,7 +35,7 @@ class StoreInvoice extends OrgAction
 {
     use WithFixedAddressActions;
     use WithOrderExchanges;
-    use WithOrderingAmountNoStrictFields;
+    use WithNoStrictRules;
 
 
     private Order|Customer|RecurringBill $parent;
@@ -149,7 +149,6 @@ class StoreInvoice extends OrgAction
                 ),
             ],
             'currency_id'      => ['required', 'exists:currencies,id'],
-            'billing_address'  => ['required', new ValidAddress()],
             'type'             => ['required', Rule::enum(InvoiceTypeEnum::class)],
             'net_amount'       => ['required', 'numeric'],
             'total_amount'     => ['required', 'numeric'],
@@ -160,7 +159,7 @@ class StoreInvoice extends OrgAction
             'source_id'        => ['sometimes', 'string'],
             'tax_category_id'  => ['sometimes', 'required', 'exists:tax_categories,id'],
             'fetched_at'       => ['sometimes', 'date'],
-            'sales_channel_id'   => [
+            'sales_channel_id' => [
                 'sometimes',
                 'required',
                 Rule::exists('sales_channels', 'id')->where(function ($query) {
@@ -170,8 +169,9 @@ class StoreInvoice extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['reference'] = ['required', 'max:64', 'string'];
-            $rules              = $this->mergeOrderingAmountNoStrictFields($rules);
+            $rules['billing_address'] = ['required', new ValidAddress()];
+            $rules                    = $this->orderingAmountNoStrictFields($rules);
+            $rules                    = $this->noStrictStoreRules($rules);
         }
 
 

@@ -11,7 +11,7 @@ use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\Ordering\Order\Search\OrderRecordSearch;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Rules\WithOrderingAmountNoStrictFields;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
@@ -25,14 +25,14 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-use Symfony\Component\HttpFoundation\Response;
 
 class StoreOrder extends OrgAction
 {
@@ -42,7 +42,7 @@ class StoreOrder extends OrgAction
     use WithModelAddressActions;
     use HasOrderHydrators;
     use WithOrderExchanges;
-    use WithOrderingAmountNoStrictFields;
+    use WithNoStrictRules;
 
     public int $hydratorsDelay = 0;
 
@@ -53,9 +53,6 @@ class StoreOrder extends OrgAction
      */
     public function handle(Shop|Customer|CustomerClient $parent, array $modelData): Order
     {
-
-
-
         if (!Arr::get($modelData, 'reference')) {
             data_set(
                 $modelData,
@@ -142,12 +139,10 @@ class StoreOrder extends OrgAction
                     $order,
                     [
                         'address' => $billingAddress,
-                        'type' => 'billing'
+                        'type'    => 'billing'
                     ]
                 );
             }
-
-
 
 
             if ($order->handing_type == OrderHandingTypeEnum::SHIPPING) {
@@ -164,12 +159,10 @@ class StoreOrder extends OrgAction
                         $order,
                         [
                             'address' => $deliveryAddress,
-                            'type' => 'delivery'
+                            'type'    => 'delivery'
                         ]
                     );
                 }
-
-
             } else {
                 $order->updateQuietly(
                     [
@@ -226,25 +219,9 @@ class StoreOrder extends OrgAction
         if (!$this->strict) {
             $rules['billing_address']  = ['required', new ValidAddress()];
             $rules['delivery_address'] = ['required', new ValidAddress()];
-            $rules['billing_locked']   = ['sometimes', 'boolean'];
-            $rules['delivery_locked']  = ['sometimes', 'boolean'];
 
-            $rules['submitted_at']    = ['sometimes', 'nullable', 'date'];
-            $rules['in_warehouse_at'] = ['sometimes', 'nullable', 'date'];
-            $rules['packed_at']       = ['sometimes', 'nullable', 'date'];
-            $rules['finalised_at']    = ['sometimes', 'nullable', 'date'];
-            $rules['dispatched_at']   = ['sometimes', 'nullable', 'date'];
-
-            $rules['payment_amount'] = ['sometimes', 'numeric'];
-
-            $rules['data']         = ['sometimes', 'array'];
-            $rules['reference']    = ['sometimes', 'string', 'max:64'];
-            $rules['source_id']    = ['sometimes', 'string', 'max:64'];
-            $rules['date']         = ['sometimes', 'required', 'date'];
-            $rules['fetched_at']   = ['sometimes', 'required', 'date'];
-            $rules['created_at']   = ['sometimes', 'required', 'date'];
-            $rules['cancelled_at'] = ['sometimes', 'nullable', 'date'];
-            $rules                 = $this->mergeOrderingAmountNoStrictFields($rules);
+            $rules = $this->orderNoStrictFields($rules);
+            $rules = $this->noStrictStoreRules($rules);
         }
 
         return $rules;
@@ -261,24 +238,24 @@ class StoreOrder extends OrgAction
         }
     }
 
-    public function htmlResponse(Order $order, ActionRequest $request): Response
+    public function htmlResponse(Order $order, ActionRequest $request): RedirectResponse
     {
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.customer.order.store' => Inertia::location(route('grp.org.shops.show.crm.customers.show.orders.show', [
-                'organisation' => $order->organisation->slug,
-                'shop'         => $order->shop->slug,
-                'customer'     => $order->customer->slug,
-                'order'        => $order->slug
-            ])),
-            'grp.models.customer-client.order.store' => Inertia::location(route('grp.org.shops.show.crm.customers.show.customer-clients.orders.show', [
-                'organisation'   => $order->organisation->slug,
-                'shop'           => $order->shop->slug,
-                'customer'       => $order->customer->slug,
-                'customerClient' => $order->customerClient->ulid,
-                'order'          => $order->slug
-            ])),
+            'grp.models.customer.order.store' => Redirect::route('grp.org.shops.show.crm.customers.show.orders.show', [
+                $order->organisation->slug,
+                $order->shop->slug,
+                $order->customer->slug,
+                $order->slug
+            ]),
+            'grp.models.customer-client.order.store' => Redirect::route('grp.org.shops.show.crm.customers.show.customer-clients.orders.show', [
+                $order->organisation->slug,
+                $order->shop->slug,
+                $order->customer->slug,
+                $order->customerClient->ulid,
+                $order->slug
+            ]),
         };
     }
 
