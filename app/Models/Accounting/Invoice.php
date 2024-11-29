@@ -124,6 +124,7 @@ class Invoice extends Model implements Auditable
     protected $casts = [
         'type'             => InvoiceTypeEnum::class,
         'data'             => 'array',
+        'payment_data'     => 'array',
         'paid_at'          => 'datetime',
         'tax_liability_at' => 'datetime',
         'fetched_at'       => 'datetime',
@@ -131,7 +132,8 @@ class Invoice extends Model implements Auditable
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'         => '{}',
+        'payment_data' => '{}',
     ];
 
     protected $guarded = [];
