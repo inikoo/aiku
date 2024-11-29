@@ -304,6 +304,8 @@ class ShowDeliveryNote extends OrgAction
                         'estimated_weight' => $estWeight,
                         'number_items'     => $deliveryNote->stats->number_items,
                     ],
+                    'picker' => $deliveryNote->picker,
+                    'packer' => $deliveryNote->packer,
                     // 'warehouse' => [
                     //     'picker' => $deliveryNote->picker->alias ?? null,
                     //     'packer' => $deliveryNote->packer->alias ?? null
