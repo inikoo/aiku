@@ -211,8 +211,8 @@ class ShowOrder extends OrgAction
                     [
                         'type'    => 'button',
                         'style'   => 'save',
-                        'tooltip' => __('In Warehouse'),
-                        'label'   => __('in warehouse'),
+                        'tooltip' => __('Send to Warehouse'),
+                        'label'   => __('send to warehouse'),
                         'key'     => 'action',
                         'route'   => [
                             'method'     => 'patch',
