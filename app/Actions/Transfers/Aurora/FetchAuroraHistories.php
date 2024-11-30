@@ -12,6 +12,7 @@ use App\Actions\Helpers\History\StoreHistory;
 use App\Actions\Helpers\History\UpdateHistory;
 use App\Models\Helpers\History;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\WarehouseArea;
 use App\Transfers\SourceOrganisationService;
 use Exception;
 use Illuminate\Database\Query\Builder;
@@ -77,6 +78,11 @@ class FetchAuroraHistories extends FetchAuroraAction
                 $location = Location::withTrashed()->find($history->auditable_id);
                 if ($location) {
                     $location->update(['created_at' => $history->created_at]);
+                }
+            } elseif ($history->auditable_type == 'WarehouseArea') {
+                $warehouseArea = WarehouseArea::withTrashed()->find($history->auditable_id);
+                if ($warehouseArea) {
+                    $warehouseArea->update(['created_at' => $history->created_at]);
                 }
             }
         }
