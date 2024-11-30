@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 05 Oct 2024 17:14:39 Malaysia Time, Kuala Lumpur, Malaysia
@@ -15,6 +16,7 @@ trait WithParseCreatedHistory
             'Customer' => $this->parseCustomerHistoryCreatedNewValues(),
             'Location' => $this->parseLocationHistoryCreatedNewValues(),
             'Product' => $this->parseProductHistoryCreatedNewValues(),
+            'WarehouseArea' => $this->parseWarehouseAreaHistoryCreatedNewValues(),
             default => []
         };
     }
@@ -170,5 +172,24 @@ trait WithParseCreatedHistory
         return $data;
     }
 
+
+    protected function parseWarehouseAreaHistoryCreatedNewValues(): array
+    {
+        $newValues = [];
+        $abstract  = $this->auroraModelData->{'History Abstract'};
+
+
+
+
+        if (preg_match('/Warehouse area <span class="italic">([a-zA-Z0-9_\s]+)/', $abstract, $matches)) {
+            $newValues['code'] = trim($matches[1]);
+        }
+
+        if (count($newValues) == 0) {
+            dd($this->auroraModelData);
+        }
+
+        return $newValues;
+    }
 
 }

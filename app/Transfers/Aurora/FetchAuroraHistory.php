@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Fri, 04 Oct 2024 11:58:26 Malaysia Time, Kuala Lumpur, Malaysia
@@ -10,6 +11,7 @@ namespace App\Transfers\Aurora;
 use App\Models\Catalogue\Product;
 use App\Models\CRM\Customer;
 use App\Models\Inventory\Location;
+use App\Models\Inventory\WarehouseArea;
 use Illuminate\Support\Facades\DB;
 
 class FetchAuroraHistory extends FetchAurora
@@ -51,7 +53,7 @@ class FetchAuroraHistory extends FetchAurora
 
         $newValues = $this->parseHistoryNewValues($auditable, $event);
         $oldValues = $this->parseHistoryOldValues($auditable, $event);
-        $data = $this->parseHistoryData($auditable, $event);
+        $data      = $this->parseHistoryData($auditable, $event);
 
         if ($event == 'updated' and
             (
@@ -78,7 +80,7 @@ class FetchAuroraHistory extends FetchAurora
                 'tags'            => $tags,
                 'new_values'      => $newValues,
                 'old_values'      => $oldValues,
-                'data'      => $data,
+                'data'            => $data,
             ];
 
 
@@ -86,7 +88,12 @@ class FetchAuroraHistory extends FetchAurora
             $this->parsedData['history']['user_type'] = class_basename($user);
             $this->parsedData['history']['user_id']   = $user->id;
         }
-        //dd($this->parsedData['history']);
+
+        //        if ($this->parsedData['history']['event'] == 'updated') {
+        //            print "=======. ".$this->parsedData['history']['event']."=============\n";
+        //            print_r($this->parsedData['history']['old_values']);
+        //            print_r($this->parsedData['history']['new_values']);
+        //        }
     }
 
 
@@ -98,7 +105,7 @@ class FetchAuroraHistory extends FetchAurora
     }
 
 
-    protected function parseAuditableFromHistory(): Customer|Location|Product|null
+    protected function parseAuditableFromHistory(): Customer|Location|Product|WarehouseArea|null
     {
         $auditable = null;
 
@@ -117,6 +124,11 @@ class FetchAuroraHistory extends FetchAurora
             case 'Product':
                 $auditable = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'});
                 break;
+            case 'Warehouse Area':
+                $auditable = $this->parseWarehouseArea(
+                    $this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'}
+                );
+                break;
         }
 
 
@@ -133,13 +145,15 @@ class FetchAuroraHistory extends FetchAurora
             $skip = true;
             switch ($auditable) {
                 case $auditable instanceof Customer:
-
                     break;
                 case $auditable instanceof Location:
                     $skip = !in_array($this->auroraModelData->{'Indirect Object'}, ['Location Code', 'Location Max Weight', 'Location Max Volume']);
                     break;
                 case $auditable instanceof Product:
                     $skip = !in_array($this->auroraModelData->{'Indirect Object'}, ['Product Code', 'Product Price', 'Product Name', 'Product Status']);
+                    break;
+                case $auditable instanceof WarehouseArea:
+                    $skip = !in_array($this->auroraModelData->{'Indirect Object'}, ['Warehouse Area Code', 'Warehouse Area Name']);
                     break;
             }
         }
@@ -181,12 +195,12 @@ class FetchAuroraHistory extends FetchAurora
     private function getField()
     {
         return match ($this->auroraModelData->{'Indirect Object'}) {
-            'Location Code', 'Product Code' => 'code',
+            'Location Code', 'Product Code', 'Warehouse Area Code' => 'code',
             'Location Max Weight' => 'max_weight',
             'Location Max Volume' => 'max_volume',
             'Product Price' => 'price',
             'Product Status' => 'state',
-            'Product Name' => 'name',
+            'Product Name', 'Warehouse Area Name' => 'name',
             default => $this->auroraModelData->{'Indirect Object'}
         };
     }

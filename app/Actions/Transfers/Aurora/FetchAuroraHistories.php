@@ -88,7 +88,7 @@ class FetchAuroraHistories extends FetchAuroraAction
             return $this->model;
         }
 
-        return ['Customer', 'Location', 'Product'];
+        return ['Customer', 'Location', 'Product', 'WarehouseArea'];
     }
 
     public function getModelsQuery(): Builder

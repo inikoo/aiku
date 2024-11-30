@@ -101,6 +101,7 @@ class FetchAuroraAction extends FetchAction
                 'Customer' => ['Customer'],
                 'Location' => ['Location'],
                 'Product' => ['Product'],
+                'WarehouseArea' => ['Warehouse Area'],
                 default => null
             };
 
