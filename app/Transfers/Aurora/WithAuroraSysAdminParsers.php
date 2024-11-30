@@ -90,6 +90,10 @@ trait WithAuroraSysAdminParsers
                     ->first();
             }
 
+            if(!$user) {
+              $user= $this->parseUser($this->organisation->id.':'.$this->auroraModelData->{'User Key'});
+            }
+
 
             if (!$user) {
                 dd($this->auroraModelData);
