@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 30 Nov 2024 02:15:01 Central Indonesia Time, Kuala Lumpur, Malaysia
@@ -216,7 +217,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $bounced_emails_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Comms\EmailOngoingRun|null $emailOngoingRun
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailOngoingRunIntervals newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailOngoingRunIntervals newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|EmailOngoingRunIntervals query()
