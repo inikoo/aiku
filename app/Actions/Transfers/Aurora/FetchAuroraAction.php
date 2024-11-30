@@ -97,8 +97,9 @@ class FetchAuroraAction extends FetchAction
         }
 
         if ($command->getName() == 'fetch:histories' and $command->option('model')) {
-            $model = match($command->option('model')) {
+            $model = match ($command->option('model')) {
                 'Customer' => ['Customer'],
+                'Prospect' => ['Prospect'],
                 'Location' => ['Location'],
                 'Product' => ['Product'],
                 'WarehouseArea' => ['Warehouse Area'],
@@ -113,10 +114,8 @@ class FetchAuroraAction extends FetchAction
             }
 
 
-
             $this->model = $model;
         }
-
     }
 
     protected function doReset(Command $command): void

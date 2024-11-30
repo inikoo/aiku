@@ -10,6 +10,8 @@ namespace App\Transfers\Aurora;
 
 use App\Models\Catalogue\Product;
 use App\Models\CRM\Customer;
+use App\Models\CRM\Prospect;
+use App\Models\Helpers\Upload;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\WarehouseArea;
 use Illuminate\Support\Facades\DB;
@@ -55,6 +57,13 @@ class FetchAuroraHistory extends FetchAurora
         $oldValues = $this->parseHistoryOldValues($auditable, $event);
         $data      = $this->parseHistoryData($auditable, $event);
 
+
+        $upload = $this->parseHistoryUpload();
+        if ($upload) {
+            data_set($data, 'upload_id', $upload->id);
+        }
+
+
         if ($event == 'updated' and
             (
                 count($oldValues) == 0 or
@@ -89,6 +98,8 @@ class FetchAuroraHistory extends FetchAurora
             $this->parsedData['history']['user_id']   = $user->id;
         }
 
+        // print_r($this->parsedData['history']);
+
         //        if ($this->parsedData['history']['event'] == 'updated') {
         //            print "=======. ".$this->parsedData['history']['event']."=============\n";
         //            print_r($this->parsedData['history']['old_values']);
@@ -105,34 +116,23 @@ class FetchAuroraHistory extends FetchAurora
     }
 
 
-    protected function parseAuditableFromHistory(): Customer|Location|Product|WarehouseArea|null
+    protected function parseAuditableFromHistory(): Customer|Location|Product|WarehouseArea|Prospect|null
     {
-        $auditable = null;
-
         switch ($this->auroraModelData->{'Direct Object'}) {
             case 'Customer':
-                $auditable = $this->parseCustomer(
-                    $this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'}
-                );
-                break;
+                return $this->parseCustomer($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'});
             case 'Location':
-                $auditable = $this->parseLocation(
-                    $this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'},
-                    $this->organisationSource
-                );
-                break;
+                return $this->parseLocation($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'}, $this->organisationSource);
             case 'Product':
-                $auditable = $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'});
-                break;
+                return $this->parseProduct($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'});
             case 'Warehouse Area':
-                $auditable = $this->parseWarehouseArea(
-                    $this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'}
-                );
-                break;
+                return $this->parseWarehouseArea($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'});
+            case 'Prospect':
+                return $this->parseProspect($this->organisation->id.':'.$this->auroraModelData->{'Direct Object Key'});
         }
 
 
-        return $auditable;
+        return null;
     }
 
 
@@ -155,6 +155,25 @@ class FetchAuroraHistory extends FetchAurora
                 case $auditable instanceof WarehouseArea:
                     $skip = !in_array($this->auroraModelData->{'Indirect Object'}, ['Warehouse Area Code', 'Warehouse Area Name']);
                     break;
+                case $auditable instanceof Prospect:
+
+                    if ($this->auroraModelData->{'Indirect Object'} == '') {
+                        return true;
+                    }
+
+                    if ($this->auroraModelData->{'Indirect Object'} == 'Prospect Preferred Contact Number Formatted Number') {
+                        dd($this->auroraModelData);
+                        // if(preg_match('//'))
+                    }
+
+                    $skip = !in_array($this->auroraModelData->{'Indirect Object'}, ['Prospect Website', 'Prospect Main Plain Email', 'Prospect Main Contact Name', 'Prospect Company Name']);
+
+                    if ($skip) {
+                        dd($this->auroraModelData);
+                    }
+
+
+                    break;
             }
         }
 
@@ -170,6 +189,20 @@ class FetchAuroraHistory extends FetchAurora
 
         return $this->parseHistoryUpdatedOldValues($auditable);
     }
+
+
+    protected function parseHistoryUpload(): ?Upload
+    {
+        $upload   = null;
+        $abstract = $this->auroraModelData->{'History Abstract'};
+        if (preg_match('/change_view\(\'upload\/(\d+)/', $abstract, $matches)) {
+            $uploadSourceId = $matches[1];
+            $upload         = $this->parseUpload($this->organisation->id.':'.$uploadSourceId);
+        }
+
+        return $upload;
+    }
+
 
     protected function parseHistoryNewValues($auditable, string $event): array
     {
@@ -201,6 +234,10 @@ class FetchAuroraHistory extends FetchAurora
             'Product Price' => 'price',
             'Product Status' => 'state',
             'Product Name', 'Warehouse Area Name' => 'name',
+            'Prospect Website' => 'contact_website',
+            'Prospect Main Plain Email' => 'email',
+            'Prospect Main Contact Name' => 'contact_name',
+            'Prospect Company Name' => 'company_name',
             default => $this->auroraModelData->{'Indirect Object'}
         };
     }
