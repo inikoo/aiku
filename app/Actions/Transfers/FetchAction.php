@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 14 Apr 2024 15:24:40 Malaysia Time, Kuala Lumpur , Malaysia
@@ -52,6 +53,7 @@ class FetchAction
     protected bool $onlyNew = false;
     protected bool $fetchAll = false;
     protected string $dbSuffix = '';
+    protected ?array $model = null;
 
 
     public function __construct()
