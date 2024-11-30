@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Mon, 27 Feb 2023 19:41:05 Malaysia Time, Kuala Lumpur, Malaysia
@@ -19,7 +20,7 @@ use Throwable;
 
 class FetchAuroraPaymentAccounts extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:payment-accounts {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:payment_accounts {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?PaymentAccount

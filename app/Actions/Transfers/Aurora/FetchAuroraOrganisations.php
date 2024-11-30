@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 29 Apr 2023 14:31:57 Malaysia Time, Kuala Lumpur, Malaysia
@@ -24,7 +25,7 @@ class FetchAuroraOrganisations
     use WithOrganisationSource;
     use WithSaveMigrationHistory;
 
-    public string $commandSignature = 'fetch:aurora-organisations  {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:aurora_organisations  {--d|db_suffix=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, Organisation $organisation): Organisation

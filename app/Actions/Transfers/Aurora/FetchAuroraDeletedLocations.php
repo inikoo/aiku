@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Mon, 20 Feb 2023 09:53:03 Malaysia Time, Kuala Lumpur, Malaysia
@@ -19,7 +20,7 @@ use Throwable;
 
 class FetchAuroraDeletedLocations extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:deleted-locations {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
+    public string $commandSignature = 'fetch:deleted_locations {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Location
     {

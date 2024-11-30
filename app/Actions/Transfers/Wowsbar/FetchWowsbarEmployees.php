@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 14 Apr 2024 15:09:47 Malaysia Time, Kuala Lumpur , Malaysia
@@ -23,7 +24,7 @@ use Throwable;
 
 class FetchWowsbarEmployees extends FetchWowsbarAction
 {
-    public string $commandSignature = 'fetch:wow-employees {organisations?*} {--s|source_id=} ';
+    public string $commandSignature = 'fetch:wow_employees {organisations?*} {--s|source_id=} ';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Employee
     {
