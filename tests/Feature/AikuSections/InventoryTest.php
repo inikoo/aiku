@@ -2,8 +2,8 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 25 Apr 2023 16:05:15 Malaysia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Mon, 02 Dec 2024 15:01:28 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 namespace Tests\Feature;
@@ -58,11 +58,16 @@ beforeAll(function () {
     loadDB();
 });
 
-beforeEach(function () {
-    $this->organisation = createOrganisation();
-    $this->group        = group();
-    $this->guest        = createAdminGuest($this->group);
-});
+beforeEach(
+    /**
+     * @throws \Throwable
+     */
+    function () {
+        $this->organisation = createOrganisation();
+        $this->group        = group();
+        $this->guest        = createAdminGuest($this->group);
+    }
+);
 
 test('create warehouse', function () {
     $warehouse = StoreWarehouse::make()->action(
@@ -541,7 +546,7 @@ test('remove found stock', function ($lostAndFoundStock) {
     expect($lostAndFound->quantity)->toBe(2.0);
 })->depends('add found stock');
 
-test('delete stock familiy', function ($stockFamily) {
+test('delete stock family', function ($stockFamily) {
     $deletedStockFamily = DeleteStockFamily::make()->action($stockFamily);
 
     expect(StockFamily::find($deletedStockFamily->id))->toBeNull();

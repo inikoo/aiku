@@ -163,7 +163,7 @@ class EditLocation extends OrgAction
                 case 'grp.org.warehouses.show.infrastructure.locations.edit':
                     $query->where('locations.warehouse_id', $location->warehouse_id);
                     break;
-                case 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.edit':
+                case 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.edit':
                 case 'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.show':
                     $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
                     break;
@@ -182,7 +182,7 @@ class EditLocation extends OrgAction
                 case 'grp.org.warehouses.show.infrastructure.locations.edit':
                     $query->where('locations.warehouse_id', $location->warehouse_id);
                     break;
-                case 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.edit':
+                case 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.edit':
                 case 'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.show':
                     $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
                     break;
@@ -232,7 +232,7 @@ class EditLocation extends OrgAction
 
                 ]
             ],
-            'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.edit' => [
+            'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.edit' => [
                 'label' => $location->slug,
                 'route' => [
                     'name'      => $routeName,

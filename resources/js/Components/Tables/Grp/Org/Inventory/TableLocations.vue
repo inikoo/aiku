@@ -46,10 +46,10 @@ function locationRoute(location: Location) {
                 'grp.org.warehouse-areas.show.locations.show',
                 [route().params['organisation'], route().params['warehouseArea'], location.slug])
 
-        case 'grp.org.warehouses.show.infrastructure.warehouse-areas.show':
-        case 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index':
+        case 'grp.org.warehouses.show.infrastructure.warehouse_areas.show':
+        case 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.index':
             return route(
-                'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show',
+                'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.show',
                 [route().params['organisation'], route().params['warehouse'], route().params['warehouseArea'], location.slug])
         default:
             return route(

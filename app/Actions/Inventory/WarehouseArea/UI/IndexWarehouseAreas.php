@@ -159,7 +159,7 @@ class IndexWarehouseAreas extends OrgAction
                                 'tooltip' => __('new warehouse area'),
                                 'label'   => __('warehouse area'),
                                 'route'   => [
-                                    'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.create',
+                                    'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.create',
                                     'parameters' => [
                                         $parent->organisation->slug,
                                         $parent->slug
@@ -210,7 +210,7 @@ class IndexWarehouseAreas extends OrgAction
                         'title' => __('warehouse areas')
                     ],
                     'actions'   => [
-                        $this->canEdit && $request->route()->getName() == 'grp.org.warehouses.show.infrastructure.warehouse-areas.index' ? [
+                        $this->canEdit && $request->route()->getName() == 'grp.org.warehouses.show.infrastructure.warehouse_areas.index' ? [
                             'type'   => 'buttonGroup',
                             // 'key'    => 'upload-add',
                             'button' => [
@@ -232,7 +232,7 @@ class IndexWarehouseAreas extends OrgAction
                                     'style' => 'create',
                                     'label' => __('areas'),
                                     'route' => [
-                                        'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.create',
+                                        'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.create',
                                         'parameters' => $request->route()->originalParameters()
                                     ]
 
@@ -272,12 +272,12 @@ class IndexWarehouseAreas extends OrgAction
                     ]
                 )
             ),
-            'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
+            'grp.org.warehouses.show.infrastructure.warehouse_areas.index',
             =>
             array_merge(
                 ShowWarehouse::make()->getBreadcrumbs($routeParameters),
                 $headCrumb([
-                    'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
+                    'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.index',
                     'parameters' =>
                         [
                             $routeParameters['organisation'],
