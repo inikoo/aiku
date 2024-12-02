@@ -154,7 +154,7 @@ class ShowFulfilmentCustomer extends OrgAction
                             'type'    => 'button',
                             'style'   => 'edit',
                             'tooltip' => __('Edit Customer'),
-                            'label'   => __('Edit Customer'),
+                            // 'label'   => __('Edit Customer'),
                             'route'   => [
                                 'name'       => 'grp.org.fulfilments.show.crm.customers.show.edit',
                                 'parameters' => array_values($request->route()->originalParameters())
