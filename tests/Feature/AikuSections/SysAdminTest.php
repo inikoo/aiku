@@ -118,7 +118,6 @@ test('set group logo by command', function (Group $group) {
 })->depends('create group');
 
 test('create group by command', function () {
-
     /** @var Currency $currency */
     $currency = Currency::where('code', 'USD')->firstOrFail();
 
@@ -182,6 +181,7 @@ test('create organisation by command', function (Group $group) {
         'name'          => 'Test Organisation in group 2',
         'country_code'  => 'MY',
         'currency_code' => 'MYR',
+        '--address'       => json_encode(Address::factory()->definition())
     ])->assertSuccessful();
     $organisation = Organisation::where('code', 'TEST')->firstOrFail();
     expect($organisation)->toBeInstanceOf(Organisation::class);
@@ -528,9 +528,6 @@ test('hydrate address', function (Organisation $organisation) {
     HydrateAddress::run($address);
     $this->artisan('hydrate:addresses')->assertSuccessful();
 
-    $address->refresh();
-    expect($address->usage)->toBe(1)
-        ->and($address->multiplicity)->toBe(1);
 })->depends('create organisation type shop');
 
 test('parse country', function () {

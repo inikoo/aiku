@@ -293,6 +293,9 @@ class StoreOrganisation
 
                 return 1;
             }
+        }else{
+            $command->error('Address is required');
+            return 1;
         }
 
         $data = [
