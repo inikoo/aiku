@@ -77,7 +77,7 @@ class IndexOutboxes extends OrgAction
 
         return $queryBuilder
             ->defaultSort('outboxes.name')
-            ->select(['outboxes.name', 'outboxes.slug', 'outboxes.data', 'post_rooms.id as post_rooms_id'])
+            ->select(['outboxes.name', 'outboxes.slug', 'outboxes.type', 'outboxes.data', 'post_rooms.id as post_rooms_id'])
             ->leftJoin('outbox_stats', 'outbox_stats.outbox_id', 'outboxes.id')
             ->leftJoin('post_rooms', 'post_room_id', 'post_rooms.id')
             ->allowedSorts(['name', 'data'])
@@ -96,6 +96,7 @@ class IndexOutboxes extends OrgAction
             }
 
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'type', label: ['fal', 'fa-yin-yang'], type: 'icon');
         };
     }
     // public function authorize(ActionRequest $request): bool
@@ -116,7 +117,7 @@ class IndexOutboxes extends OrgAction
     public function htmlResponse(LengthAwarePaginator $outboxes, ActionRequest $request): Response
     {
         $subNavigation = null;
-        if ($this->parent instanceof Shop){
+        if ($this->parent instanceof Shop) {
             $subNavigation = $this->getCommsNavigation($this->organisation, $this->shop);
         }
         return Inertia::render(
