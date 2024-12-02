@@ -17,10 +17,10 @@ const props = defineProps<{
 function warehouseAreaRoute(warehouseArea: WarehouseArea) {
     console.log(route().current());
     switch (route().current()) {
-        case "grp.org.warehouses.show.infrastructure.warehouse-areas.index":
+        case "grp.org.warehouses.show.infrastructure.warehouse_areas.index":
         default:
             return route(
-                "grp.org.warehouses.show.infrastructure.warehouse-areas.show",
+                "grp.org.warehouses.show.infrastructure.warehouse_areas.show",
                 [
                     route().params["organisation"],
                     route().params["warehouse"],
@@ -35,10 +35,10 @@ function warehouseAreaRoute(warehouseArea: WarehouseArea) {
 function locationsRoute(warehouseArea: WarehouseArea) {
     switch (route().current()) {
 
-        case "grp.org.warehouses.show.infrastructure.warehouse-areas.index":
+        case "grp.org.warehouses.show.infrastructure.warehouse_areas.index":
         default:
             return route(
-                "grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index",
+                "grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.index",
                 [
                     route().params["organisation"],
                     route().params["warehouse"],
