@@ -23,18 +23,7 @@ trait HasWorkshopAction
                         'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                         'parameters' => array_values($request->route()->originalParameters())
                     ]
-                ] : [],
-                $this->canEdit ? [
-                    'type'  => 'button',
-                    'style' => 'secondary',
-                    'label' => __('workshop'),
-                    'icon'  => ["fal", "fa-drafting-compass"],
-                    'route' => [
-                        'name'       => preg_replace('/show$/', 'workshop', $request->route()->getName()),
-                        'parameters' => array_values($request->route()->originalParameters())
-                    ]
-                ] : [],
-
+                ] : []
             ];
     }
 }

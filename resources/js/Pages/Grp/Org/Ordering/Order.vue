@@ -512,7 +512,7 @@ console.log('jhahahaha', props);
             </div>
 
             <!-- Field: Billing Address -->
-            <div v-if="box_stats?.customer?.addresses?.billing?.formatted_address"
+            <div v-if="box_stats?.customer?.addresses?.billing?.formatted_address !== box_stats?.customer?.addresses?.delivery?.formatted_address"
                 class="pl-1 flex items w-full flex-none gap-x-2" v-tooltip="trans('Billing address')">
                 <dt class="flex-none">
                     <FontAwesomeIcon icon='fal fa-dollar-sign' class='text-gray-400' fixed-width aria-hidden='true' />
@@ -523,8 +523,18 @@ console.log('jhahahaha', props);
             </div>
 
             <!-- Field: Shipping Address -->
-            <div v-if="box_stats?.customer?.addresses?.delivery?.formatted_address"
+            <div v-if="box_stats?.customer?.addresses?.delivery?.formatted_address !== box_stats?.customer?.addresses?.billing?.formatted_address"
                 class="mt-2 pl-1 flex items w-full flex-none gap-x-2" v-tooltip="trans('Shipping address')">
+                <dt class="flex-none">
+                    <FontAwesomeIcon icon='fal fa-shipping-fast' class='text-gray-400' fixed-width aria-hidden='true' />
+                </dt>
+                <dd class="w-full text-gray-500 text-xs relative px-2.5 py-2 ring-1 ring-gray-300 rounded bg-gray-50"
+                    v-html="box_stats?.customer.addresses.delivery.formatted_address">
+                </dd>
+            </div>
+
+            <div v-if="box_stats?.customer?.addresses?.delivery?.formatted_address === box_stats?.customer?.addresses?.billing?.formatted_address"
+                class="mt-2 pl-1 flex items w-full flex-none gap-x-2" v-tooltip="trans('Shipping address and Billing address')">
                 <dt class="flex-none">
                     <FontAwesomeIcon icon='fal fa-shipping-fast' class='text-gray-400' fixed-width aria-hidden='true' />
                 </dt>

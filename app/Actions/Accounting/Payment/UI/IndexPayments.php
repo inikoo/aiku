@@ -112,8 +112,8 @@ class IndexPayments extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->defaultSort('-date')
+                ->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
         };
     }
