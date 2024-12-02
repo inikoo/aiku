@@ -24,7 +24,7 @@ const props = defineProps<{
 }>()
 
 const layout = inject('layout', layoutStructure)
-
+const isAskBotEnabled =  import.meta.env.VITE_ASK_BOT_UI;
 // const layoutStore = useLayoutStore()
 const showSearchDialog = ref(false)
 const showAskBot = ref(false)
@@ -65,11 +65,10 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
                 </div>
                 <SearchBar v-model="showSearchDialog" />
             </button>
-            <button @click="showAskBot = !showAskBot" id="search"
+            
+            <button v-if="isAskBotEnabled" @click="showAskBot = !showAskBot" id="ask-bot"
                 class="h-7 w-fit flex items-center justify-center gap-x-3 ring-1 ring-gray-300 rounded-md px-3 text-gray-500 hover:bg-gray-200 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
-                
-               <span>Ask Bot</span>
-                
+                <span>Ask Bot</span>
                 <AskBot v-model="showAskBot" />
             </button>
 
