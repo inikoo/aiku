@@ -16,9 +16,8 @@ enum OutboxTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE = 'showvase';
-
-
+    case SHOWCASE = 'showcase';
+    case MAILSHOTS = 'mailshots';
 
     public function blueprint(): array
     {
@@ -27,7 +26,10 @@ enum OutboxTabsEnum: string
                 'title' => __('outbox'),
                 'icon'  => 'fas fa-info-circle',
             ],
-
+            OutboxTabsEnum::MAILSHOTS => [
+                'title' => __('mailshots'),
+                'icon'  => 'fas fa-envelope',
+            ]
         };
     }
 }
