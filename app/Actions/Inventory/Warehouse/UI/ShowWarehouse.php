@@ -89,7 +89,7 @@ class ShowWarehouse extends OrgAction
                             'name'     => trans_choice('warehouse area|warehouse areas', $warehouse->stats->number_warehouse_areas),
                             'number'   => $warehouse->stats->number_warehouse_areas,
                             'route'     => [
-                                'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
+                                'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.index',
                                 'parameters' => array_merge($routeParameters, [$warehouse->slug])
                             ],
                             'leftIcon' => [

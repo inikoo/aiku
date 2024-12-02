@@ -1,12 +1,10 @@
 <?php
 
 /*
- * Author: Ganes <gustiganes@gmail.com>
- * Created on: 01-11-2024, Bali, Indonesia
- * Github: https://github.com/Ganes556
- * Copyright: 2024
- *
-*/
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 02 Dec 2024 15:57:14 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
+ */
 
 use App\Actions\Comms\Outbox\StoreOutbox;
 use App\Enums\Comms\Outbox\OutboxBlueprintEnum;

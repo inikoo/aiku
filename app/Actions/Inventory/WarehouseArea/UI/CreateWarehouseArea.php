@@ -49,7 +49,7 @@ class CreateWarehouseArea extends OrgAction
                                 'code' => [
                                     'type'        => 'input',
                                     'label'       => __('code'),
-                                    'placeholder' => __('maximum 4 character long'),
+                                    'placeholder' => __('maximum 16 character long'),
                                     'value'       => '',
                                     'required'    => true,
                                 ],
@@ -65,7 +65,7 @@ class CreateWarehouseArea extends OrgAction
 
                     ],
                     'route'     => [
-                        'name'       => 'grp.models.warehouse.warehouse-area.store',
+                        'name'       => 'grp.models.warehouse.warehouse_area.store',
                         'parameters' => $warehouse->id
                     ]
                 ],

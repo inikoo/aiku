@@ -46,8 +46,8 @@ enum LocationTabsEnum: string
                 'align' => 'right',
             ],
             LocationTabsEnum::SHOWCASE => [
-                'title' => __('location'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('overview'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
         };
     }
