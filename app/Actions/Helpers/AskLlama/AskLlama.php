@@ -24,7 +24,7 @@ class AskLlama extends OrgAction
     public function handle($q): array
     {
         $response = Ollama::prompt($q)
-            ->model('llama3.2:11b')
+            ->model('llama3.2:3b')
             ->options(['temperature' => 0.8])
             ->stream(false)
             ->ask();
