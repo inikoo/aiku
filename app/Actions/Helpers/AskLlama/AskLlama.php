@@ -27,6 +27,12 @@ class AskLlama extends OrgAction
             ->options(['temperature' => 0.8])
             ->stream(false)
             ->ask();
+        if (isset($response['error'])) {
+            data_set($response, 'error', 'model not found');
+        }
+        if (!$response) {
+            data_set($response, 'error', 'model not setup yet');
+        }
 
         return $response;
     }
