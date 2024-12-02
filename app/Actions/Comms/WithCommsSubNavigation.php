@@ -10,10 +10,11 @@ namespace App\Actions\Comms;
 
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
+use App\Models\SysAdmin\Organisation;
 
 trait WithCommsSubNavigation
 {
-    protected function getCommsNavigation(Shop|Fulfilment $parent): array
+    protected function getCommsNavigation(Organisation $organisation, Shop|Fulfilment $parent): array
     {
         if ($parent instanceof Shop) {
             $shop    = $parent;
@@ -34,6 +35,17 @@ trait WithCommsSubNavigation
                 "leftIcon" => [
                     "icon"    => ["fal", "fa-chart-network"],
                     "tooltip" => __("Tree view of the webpages"),
+                ],
+            ],
+            [
+                "label"    => __("Post Rooms"),
+                "route"     => [
+                    "name"       => "grp.org.shops.show.comms.post-rooms.index",
+                    "parameters" => [$organisation->slug, $shop->slug],
+                ],
+                "leftIcon" => [
+                    "icon"    => ["fal", "fa-inbox-out"],
+                    "tooltip" => __("Post Rooms"),
                 ],
             ],
             [

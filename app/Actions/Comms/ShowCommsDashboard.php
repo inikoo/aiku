@@ -60,7 +60,7 @@ class ShowCommsDashboard extends OrgAction
                         'title' => __('dashboard')
                     ],
                     'title'         => __('Comms dashboard'),
-                    'subNavigation' => $this->getCommsNavigation($parent),
+                    'subNavigation' => $this->getCommsNavigation($parent->organisation, $parent),
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

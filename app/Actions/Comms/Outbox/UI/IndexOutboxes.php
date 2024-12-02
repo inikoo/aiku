@@ -9,6 +9,7 @@
 namespace App\Actions\Comms\Outbox\UI;
 
 use App\Actions\Comms\ShowCommsDashboard;
+use App\Actions\Comms\WithCommsSubNavigation;
 use App\Actions\Fulfilment\Fulfilment\UI\EditFulfilment;
 use App\Actions\OrgAction;
 use App\Http\Resources\Mail\OutboxResource;
@@ -30,6 +31,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexOutboxes extends OrgAction
 {
+    use WithCommsSubNavigation;
     private Shop|Organisation|PostRoom|Website|Fulfilment $parent;
 
 
@@ -114,6 +116,10 @@ class IndexOutboxes extends OrgAction
 
     public function htmlResponse(LengthAwarePaginator $outboxes, ActionRequest $request): Response
     {
+        $subNavigation = null;
+        if ($this->parent instanceof Shop){
+            $subNavigation = $this->getCommsNavigation($this->organisation, $this->shop);
+        }
         return Inertia::render(
             'Mail/Outboxes',
             [
@@ -124,6 +130,7 @@ class IndexOutboxes extends OrgAction
                 'title'       => __('outboxes '),
                 'pageHead'    => [
                     'title' => __('outboxes'),
+                    'subNavigation' => $subNavigation,
                 ],
                 'data'        => OutboxResource::collection($outboxes),
 
