@@ -16,7 +16,7 @@ class AskLlamaResource extends JsonResource
 {
     public function toArray($request)
     {
-        if ($this["error"]) {
+        if (isset($this["error"])) {
             return [
                 'error' => $this["error"],
             ];
