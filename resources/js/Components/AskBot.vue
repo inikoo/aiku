@@ -8,25 +8,22 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 library.add(faLampDesk);
 
-// Search functionality refs
 const resultsSearch = ref();
 const isLoadingSearch = ref(false);
 const searchValue = ref("");
-const errorSearch = ref(""); // Ref for error message
-// Modal open state
+const errorSearch = ref(""); 
+
 const isOpen = defineModel<boolean>();
 
-// Debounced API fetch function
 const fetchApi = debounce(async (query: string) => {
     if (query.trim() !== "") {
         resultsSearch.value = null;
         isLoadingSearch.value = true;
-        errorSearch.value = ""; // Reset error on new query
+        errorSearch.value = "";
         try {
             const response = await fetch(`http://app.aiku.test/ask-bot?q=${query}`);
             
             if (!response.ok) {
-                // Attempt to parse and display error message from response body
                 const errorData = await response.json();
 				
                 throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
