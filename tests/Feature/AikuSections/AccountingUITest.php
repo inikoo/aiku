@@ -30,79 +30,84 @@ beforeAll(function () {
     loadDB();
 });
 
-beforeEach(function () {
+beforeEach(
+    /**
+     * @throws \Throwable
+     */
+    function () {
 
-    list(
-        $this->organisation,
-        $this->user,
-        $this->shop
-    ) = createShop();
-    $this->group        = $this->organisation->group;
-    $this->adminGuest   = createAdminGuest($this->organisation->group);
-
-
-
-    $paymentServiceProvider = PaymentServiceProvider::first();
-    if (!$paymentServiceProvider) {
-        data_set($storeData, 'type', PaymentServiceProviderEnum::ACCOUNTS);
-        data_set($storeData, 'name', 'test');
-        data_set($storeData, 'code', 'test-code');
-
-        $paymentServiceProvider = StorePaymentServiceProvider::make()->action(
-            $this->paymentServiceProvider,
-            $storeData
-        );
-    }
-    $this->paymentServiceProvider = $paymentServiceProvider;
-
-    $orgPaymentServiceProvider = OrgPaymentServiceProvider::first();
-    if (!$orgPaymentServiceProvider) {
-        data_set($storeData, 'code', 'test-code');
-
-        $orgPaymentServiceProvider = StoreOrgPaymentServiceProvider::make()->action(
-            $this->paymentServiceProvider,
+        list(
             $this->organisation,
-            $storeData
+            $this->user,
+            $this->shop
+        ) = createShop();
+        $this->group        = $this->organisation->group;
+        $this->adminGuest   = createAdminGuest($this->organisation->group);
+
+
+
+        $paymentServiceProvider = PaymentServiceProvider::first();
+        if (!$paymentServiceProvider) {
+            data_set($storeData, 'type', PaymentServiceProviderEnum::ACCOUNTS);
+            data_set($storeData, 'name', 'test');
+            data_set($storeData, 'code', 'test-code');
+
+            $paymentServiceProvider = StorePaymentServiceProvider::make()->action(
+                $this->paymentServiceProvider,
+                $storeData
+            );
+        }
+        $this->paymentServiceProvider = $paymentServiceProvider;
+
+        $orgPaymentServiceProvider = OrgPaymentServiceProvider::first();
+        if (!$orgPaymentServiceProvider) {
+            data_set($storeData, 'code', 'test-code');
+
+            $orgPaymentServiceProvider = StoreOrgPaymentServiceProvider::make()->action(
+                $this->paymentServiceProvider,
+                $this->organisation,
+                $storeData
+            );
+        }
+        $this->orgPaymentServiceProvider = $orgPaymentServiceProvider;
+
+        $paymentAccount = PaymentAccount::first();
+        if (!$paymentAccount) {
+            data_set($storeData, 'type', PaymentAccountTypeEnum::ACCOUNT);
+            data_set($storeData, 'name', 'test name');
+            data_set($storeData, 'code', 'test-code');
+
+
+            $paymentAccount = StorePaymentAccount::make()->action(
+                $this->orgPaymentServiceProvider,
+                $storeData
+            );
+        }
+        $this->paymentAccount = $paymentAccount;
+
+        $customer = Customer::first();
+
+        if (!$customer) {
+            $customer = createCustomer($this->shop);
+        }
+        $this->customer = $customer;
+
+        $invoice = Invoice::first();
+        if (!$invoice) {
+            $invoiceData = Invoice::factory()->definition();
+            //data_set($invoiceData, 'billing_address', new Address(Address::factory()->definition()));
+            $invoice = StoreInvoice::make()->action($this->customer, $invoiceData);
+        }
+        $this->invoice = $invoice;
+        $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
+
+        Config::set(
+            'inertia.testing.page_paths',
+            [resource_path('js/Pages/Grp')]
         );
+        actingAs($this->adminGuest->getUser());
     }
-    $this->orgPaymentServiceProvider = $orgPaymentServiceProvider;
-
-    $paymentAccount = PaymentAccount::first();
-    if (!$paymentAccount) {
-        data_set($storeData, 'type', PaymentAccountTypeEnum::ACCOUNT);
-        data_set($storeData, 'name', 'testname');
-        data_set($storeData, 'code', 'test-code');
-
-
-        $paymentAccount = StorePaymentAccount::make()->action(
-            $this->orgPaymentServiceProvider,
-            $storeData
-        );
-    }
-    $this->paymentAccount = $paymentAccount;
-
-    $customer = Customer::first();
-
-    if (!$customer) {
-        $customer = createCustomer($this->shop);
-    }
-    $this->customer = $customer;
-
-    $invoice = Invoice::first();
-    if (!$invoice) {
-        $invoiceData = Invoice::factory()->definition();
-        data_set($invoiceData, 'billing_address', new Address(Address::factory()->definition()));
-        $invoice = StoreInvoice::make()->action($this->customer, $invoiceData);
-    }
-    $this->invoice = $invoice;
-    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
-
-    Config::set(
-        'inertia.testing.page_paths',
-        [resource_path('js/Pages/Grp')]
-    );
-    actingAs($this->adminGuest->getUser());
-});
+);
 
 test('UI show accounting dashboard', function () {
     $response = get(route('grp.org.accounting.dashboard', $this->organisation->slug));

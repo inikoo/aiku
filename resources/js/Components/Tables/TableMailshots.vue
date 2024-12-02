@@ -8,6 +8,10 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Mailshot} from "@/types/mailshot";
+import icon from '@/Components/Icon.vue'
+import { faSpellCheck, faSeedling, faPaperPlane, faStop } from '@fal'
+import { library } from "@fortawesome/fontawesome-svg-core";
+library.add(faSpellCheck, faSeedling, faPaperPlane, faStop )
 
 const props = defineProps<{
     data: object,
@@ -23,8 +27,8 @@ function mailshotRoute(mailshot: Mailshot) {
                 [route().params.organisation, route().params.shop, mailshot.id]);
         default:
             return route(
-                'mailshots.show',
-                [mailshot.outbox_id]);
+                'grp.org.shops.show.marketing.newsletters.show',
+                [route().params.organisation, route().params.shop, mailshot.id]);
     }
 }
 
@@ -33,12 +37,16 @@ function mailshotRoute(mailshot: Mailshot) {
 </script>
 
 <template>
-
     <Table :resource="data" :name="tab" class="mt-5">
-        <template #cell(id)="{ item: mailshot }">
-            <Link :href="mailshotRoute(mailshot)">
-                {{ mailshot["id"] }}
+        <template #cell(subject)="{ item: mailshot }">
+            <Link :href="mailshotRoute(mailshot)" class="primaryLink">
+                {{ mailshot["subject"] }}
             </Link>
+        </template>
+        <template #cell(state)="{ item: mailshot }">
+            <div class="flex justify-center">
+                <icon :data="mailshot.state_icon"/>
+            </div>
         </template>
     </Table>
 </template>

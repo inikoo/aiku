@@ -44,10 +44,8 @@ class StoreInvoice extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(
-        Customer|Order|RecurringBill $parent,
-        array $modelData,
-    ): Invoice {
+    public function handle(Customer|Order|RecurringBill $parent, array $modelData): Invoice
+    {
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
         } elseif (class_basename($parent) == 'RecurringBill') {
@@ -55,19 +53,38 @@ class StoreInvoice extends OrgAction
         } else {
             $modelData['customer_id'] = $parent->customer_id;
         }
+
+        if (!Arr::has($modelData, 'billing_address')) {
+            if ($parent instanceof Order) {
+                $modelData['billing_address'] = $parent->billingAddress;
+            } elseif ($parent instanceof RecurringBill) {
+                $modelData['billing_address'] = $parent->fulfilmentCustomer->billingAddress;
+            } else {
+                $modelData['billing_address'] = $parent->address;
+            }
+
+        }
+
+
         if (!Arr::exists($modelData, 'tax_category_id')) {
             if ($parent instanceof Order || $parent instanceof RecurringBill) {
                 $modelData['tax_category_id'] = $parent->tax_category_id;
             } else {
+                /** @var Customer $customer */
                 $customer = Customer::find($modelData['customer_id']);
+
+                $billingAddress  = $customer->address;
+                $deliveryAddress = $customer->deliveryAddress;
+
+
                 data_set(
                     $modelData,
                     'tax_category_id',
                     GetTaxCategory::run(
                         country: $this->organisation->country,
                         taxNumber: $customer->taxNumber,
-                        billingAddress: $modelData['billing_address'],
-                        deliveryAddress: $modelData['billing_address']
+                        billingAddress: $billingAddress,
+                        deliveryAddress: $deliveryAddress
                     )->id
                 );
             }
@@ -75,6 +92,7 @@ class StoreInvoice extends OrgAction
 
 
         $billingAddressData = $modelData['billing_address'];
+
         data_forget($modelData, 'billing_address');
 
 
@@ -155,11 +173,7 @@ class StoreInvoice extends OrgAction
             'total_amount'     => ['required', 'numeric'],
             'date'             => ['sometimes', 'date'],
             'tax_liability_at' => ['sometimes', 'date'],
-            'created_at'       => ['sometimes', 'date'],
             'data'             => ['sometimes', 'array'],
-            'source_id'        => ['sometimes', 'string'],
-            'tax_category_id'  => ['sometimes', 'required', 'exists:tax_categories,id'],
-            'fetched_at'       => ['sometimes', 'date'],
             'sales_channel_id' => [
                 'sometimes',
                 'required',
@@ -170,6 +184,7 @@ class StoreInvoice extends OrgAction
         ];
 
         if (!$this->strict) {
+            $rules['tax_category_id'] = ['sometimes', 'required', 'exists:tax_categories,id'];
             $rules['billing_address'] = ['required', new ValidAddress()];
             $rules                    = $this->orderingAmountNoStrictFields($rules);
             $rules                    = $this->noStrictStoreRules($rules);

@@ -22,7 +22,5 @@ const props = defineProps<{
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead"></PageHeading>
     <TableMailshots :data="data"/>
-
-
 </template>
 

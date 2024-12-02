@@ -8,6 +8,7 @@
 import {Link} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
 import {Outbox} from "@/types/outbox";
+import Icon from '@/Components/Icon.vue';
 
 const props = defineProps<{
     data: object,
@@ -44,6 +45,9 @@ function outboxRoute(outbox: Outbox) {
             <Link :href="outboxRoute(outbox)" class="primaryLink">
                 {{ outbox["name"] }}
             </Link>
+        </template>
+        <template #cell(type)="{ item: outbox }">
+            <Icon :data="outbox.type" />
         </template>
     </Table>
 </template>
