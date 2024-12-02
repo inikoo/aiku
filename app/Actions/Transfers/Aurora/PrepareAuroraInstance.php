@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 30 Apr 2023 12:30:00 Malaysia Time, Kuala Lumpur, Malaysia
@@ -19,7 +20,7 @@ class PrepareAuroraInstance
     use AsAction;
 
 
-    public string $commandSignature = 'fetch:prepare-aurora {token} {organisation}';
+    public string $commandSignature = 'fetch:prepare_aurora {token} {organisation}';
 
     public function getCommandDescription(): string
     {

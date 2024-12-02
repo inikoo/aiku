@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Fri, 12 Jan 2024 03:34:10 Malaysia Time, Kuala Lumpur, Malaysia
@@ -19,7 +20,7 @@ use Throwable;
 
 class FetchAuroraDeletedCustomers extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:deleted-customers {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--r|reset}';
+    public string $commandSignature = 'fetch:deleted_customers {organisations?*} {--s|source_id=} {--d|db_suffix=} {--N|only_new : Fetch only new} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer

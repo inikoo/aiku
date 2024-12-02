@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 11 Jun 2024 20:25:31 Central European Summer Time, Kuala Lumpur, Malaysia
@@ -22,6 +23,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('group_id');
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table = $this->postRoomsStats($table);
+            $table = $this->orgPostRoomsStats($table);
             $table = $this->outboxesStats($table);
             $table = $this->mailshotsStats($table);
             $table = $this->dispatchedEmailStats($table);

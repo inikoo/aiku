@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Mon, 05 Sept 2022 00:35:52 Malaysia Time, Kuala Lumpur, Malaysia
@@ -31,7 +32,7 @@ class FetchAuroraAction extends FetchAction
 
         if (in_array($command->getName(), [
                 'fetch:customers',
-                'fetch:web-users',
+                'fetch:web_users',
                 'fetch:products',
                 'fetch:webpages',
                 'fetch:invoices',
@@ -52,13 +53,13 @@ class FetchAuroraAction extends FetchAction
             'fetch:orders',
             'fetch:invoices',
             'fetch:customers',
-            'fetch:customer-clients',
+            'fetch:customer_clients',
             'fetch:delivery_notes',
             'fetch:purchase-orders',
             'fetch:suppliers',
-            'fetch:web-users',
+            'fetch:web_users',
             'fetch:prospects',
-            'fetch:deleted-customers',
+            'fetch:deleted_customers',
             'fetch:webpages',
             'fetch:supplier-products',
             'fetch:payments',
@@ -67,8 +68,8 @@ class FetchAuroraAction extends FetchAction
             'fetch:departments',
             'fetch:portfolios',
             'fetch:stock_movements',
-            'fetch:deleted-locations',
-            'fetch:customer-notes',
+            'fetch:deleted_locations',
+            'fetch:customer_notes',
             'fetch:histories',
             'fetch:uploads',
             'fetch:favourites',
@@ -94,6 +95,27 @@ class FetchAuroraAction extends FetchAction
         ])) {
             $this->with = $command->option('with');
         }
+
+        if ($command->getName() == 'fetch:histories' and $command->option('model')) {
+            $model = match ($command->option('model')) {
+                'Customer' => ['Customer'],
+                'Prospect' => ['Prospect'],
+                'Location' => ['Location'],
+                'Product' => ['Product'],
+                'WarehouseArea' => ['Warehouse Area'],
+                default => null
+            };
+
+            if (!$model) {
+                $command->error('Invalid history model');
+                exit();
+            } else {
+                $command->info('Fetching histories for: '.implode(',', $model));
+            }
+
+
+            $this->model = $model;
+        }
     }
 
     protected function doReset(Command $command): void
@@ -105,12 +127,12 @@ class FetchAuroraAction extends FetchAction
                 'fetch:invoices',
                 'fetch:customers',
                 'fetch:customers-clients',
-                'fetch:web-users',
+                'fetch:web_users',
                 'fetch:delivery_notes',
                 'fetch:purchase-orders',
-                'fetch:web-users',
+                'fetch:web_users',
                 'fetch:prospects',
-                'fetch:deleted-customers',
+                'fetch:deleted_customers',
                 'fetch:webpages'
             ]) and $command->option('reset')) {
             $this->reset();

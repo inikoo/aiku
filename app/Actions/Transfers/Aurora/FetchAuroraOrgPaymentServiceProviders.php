@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Mon, 27 Feb 2023 14:24:58 Malaysia Time, Kuala Lumpur, Malaysia
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraOrgPaymentServiceProviders extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:payment-service-providers {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:payment_service_providers {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?OrgPaymentServiceProvider
     {

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 19 Nov 2024 11:10:52 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -13,20 +14,24 @@ enum PostRoomCodeEnum: string
 {
     use EnumHelperTrait;
 
-    case MARKETING             = 'marketing';
-    case LEADS                 = 'leads';
-    case CUSTOMER_NOTIFICATION = 'customer-notification';
-    case USER_NOTIFICATION     = 'user-notification';
-    case TESTS                 = 'tests';
+    case NEWSLETTER = 'newsletter';
+    case MARKETING = 'marketing';
+    case MARKETING_NOTIFICATION = 'marketing-notification'; // halfway between marketing and transactional
+    case CUSTOMER_NOTIFICATION = 'customer-notification'; // e.g. forgot email, welcome email, etc
+    case COLD_EMAIL = 'cold-emails'; // send to prospects
+    case USER_NOTIFICATION = 'user-notification'; // internal notifications
+    case TEST = 'test';
 
     public function label(): string
     {
         return match ($this) {
-            PostRoomCodeEnum::MARKETING             => 'Deals',
-            PostRoomCodeEnum::LEADS                 => 'Leads',
+            PostRoomCodeEnum::NEWSLETTER => 'Newsletters',
+            PostRoomCodeEnum::MARKETING => 'Marketing',
+            PostRoomCodeEnum::MARKETING_NOTIFICATION => 'Marketing notifications',
             PostRoomCodeEnum::CUSTOMER_NOTIFICATION => 'Customer notifications',
-            PostRoomCodeEnum::USER_NOTIFICATION     => 'User notifications',
-            PostRoomCodeEnum::TESTS                 => 'tests',
+            PostRoomCodeEnum::COLD_EMAIL => 'Cold emails',
+            PostRoomCodeEnum::USER_NOTIFICATION => 'User notifications',
+            PostRoomCodeEnum::TEST => 'Tests',
         };
     }
 }

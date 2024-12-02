@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 26 Nov 2024 13:30:40 Central Indonesia Time, Kuala Lumpur, Malaysia
@@ -40,6 +41,7 @@ class StoreEmailBulkRun extends OrgAction
             /** @var EmailBulkRun $emailRun */
             $emailRun = $outbox->emailBulkRuns()->create($modelData);
             $emailRun->stats()->create();
+            $emailRun->intervals()->create();
 
             return $emailRun;
         });

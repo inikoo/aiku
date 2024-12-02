@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Thu, 18 May 2023 14:27:33 Central European Summer, Malaga, Spain

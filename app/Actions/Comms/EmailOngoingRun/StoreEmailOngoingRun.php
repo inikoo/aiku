@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 26 Nov 2024 08:14:59 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -34,11 +35,12 @@ class StoreEmailOngoingRun extends OrgAction
 
 
         $emailOngoingRun = DB::transaction(function () use ($outbox, $modelData) {
-            /** @var EmailOngoingRun $emailRun */
-            $emailRun = $outbox->emailOngoingRuns()->create($modelData);
-            $emailRun->stats()->create();
+            /** @var EmailOngoingRun $emailOngoingRun */
+            $emailOngoingRun = $outbox->emailOngoingRuns()->create($modelData);
+            $emailOngoingRun->stats()->create();
+            $emailOngoingRun->intervals()->create();
 
-            return $emailRun;
+            return $emailOngoingRun;
         });
 
         OutboxHydrateEmailOngoingRuns::dispatch($outbox)->delay($this->hydratorsDelay);

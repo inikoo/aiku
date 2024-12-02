@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 24 Nov 2024 10:15:14 Central Indonesia Time, Kuta, Bali, Indonesia
@@ -43,6 +44,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
  * @property-read \App\Models\Comms\Email|null $email
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\Comms\EmailBulkRunIntervals|null $intervals
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Comms\Outbox|null $outbox
  * @property-read \App\Models\Catalogue\Shop|null $shop
@@ -100,6 +102,11 @@ class EmailBulkRun extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(EmailBulkRunStats::class);
+    }
+
+    public function intervals(): HasOne
+    {
+        return $this->hasOne(EmailBulkRunIntervals::class);
     }
 
     public function dispatchedEmails(): HasMany

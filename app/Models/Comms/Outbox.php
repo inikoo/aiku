@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 19 Nov 2024 11:11:46 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -34,6 +35,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property int $group_id
  * @property int $organisation_id
  * @property int|null $post_room_id
+ * @property int|null $org_post_room_id
  * @property int|null $shop_id
  * @property int|null $website_id
  * @property int|null $fulfilment_id
@@ -54,6 +56,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Collection<int, \App\Models\Comms\Email> $emails
  * @property-read Fulfilment|null $fulfilment
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\Comms\OutboxIntervals|null $intervals
  * @property-read Collection<int, \App\Models\Comms\Mailshot> $mailshots
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Comms\PostRoom|null $postRoom
@@ -111,6 +114,12 @@ class Outbox extends Model
                 }
                 if ($this->shop_id) {
                     $abbreviation .= ' '.$this->shop->slug;
+                }if ($this->fulfilment_id) {
+                    $abbreviation .= ' '.$this->fulfilment->slug;
+                }if ($this->website_id) {
+                    $abbreviation .= ' '.$this->website->slug;
+                } else {
+                    $abbreviation .= ' '.$this->organisation->slug;
                 }
 
                 return $abbreviation;
@@ -124,6 +133,11 @@ class Outbox extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(OutboxStats::class);
+    }
+
+    public function intervals(): HasOne
+    {
+        return $this->hasOne(OutboxIntervals::class);
     }
 
     public function emails(): HasMany

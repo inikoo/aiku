@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Tue, 30 Aug 2022 12:03:13 Malaysia Time, Kuala Lumpur, Malaysia
@@ -24,9 +25,9 @@ return new class () extends Migration {
             $table->string('name')->index();
             $table->decimal('unit_quantity')->default(0);
             $table->decimal('value')->default(0);
+            $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
             $table->datetimeTz('last_fetched_at')->nullable();
-            $table->timestampsTz();
             $table->softDeletesTz();
             $table->string('source_id')->nullable()->unique();
             $table->unique(['warehouse_id','code']);

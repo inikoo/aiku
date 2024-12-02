@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 24 Mar 2024 22:31:10 Malaysia Time, Mexico City, Mexico
@@ -48,7 +49,7 @@ return new class () extends Migration {
 
             $table->unsignedInteger('estimated_weight')->nullable()->comment('grams');
             $table->unsignedInteger('weight')->nullable()->comment('actual weight, grams');
-
+            $table->jsonb('payment_data');
 
             $table->unsignedInteger('billing_address_id')->index()->nullable();
             $table->foreign('billing_address_id')->references('id')->on('addresses');

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Thu, 28 Nov 2024 21:11:58 Central Indonesia Time, Kuala Lumpur, Malaysia
@@ -11,7 +12,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
-use App\Actions\Traits\WithStoringOrderingAddress;
+use App\Actions\Traits\WithStoreModelAddress;
 use App\Models\Dispatching\DeliveryNote;
 use App\Rules\ValidAddress;
 
@@ -20,13 +21,13 @@ class StoreDeliveryNoteAddress extends OrgAction
     use WithActionUpdate;
     use WithFixedAddressActions;
     use WithModelAddressActions;
-    use WithStoringOrderingAddress;
+    use WithStoreModelAddress;
 
     private DeliveryNote $deliveryNote;
 
     public function handle(DeliveryNote $deliveryNote, array $modelData): DeliveryNote
     {
-        $address = $this->storeOrderingAddress($modelData['address']->toArray());
+        $address = $this->storeModelAddress($modelData['address']->toArray());
         $deliveryNote->updateQuietly(
             [
                 'address_id'          => $address->id,

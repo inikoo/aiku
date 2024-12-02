@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 30 Apr 2024 13:06:26 British Summer Time, Sheffield, UK
@@ -19,7 +20,7 @@ use Throwable;
 
 class FetchAuroraClockingMachines extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:clocking-machines {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:clocking_machines {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?ClockingMachine
     {

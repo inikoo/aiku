@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Fri, 26 Jan 2024 11:32:27 Malaysia Time, Kuala Lumpur, Malaysia
@@ -47,7 +48,7 @@ trait WithShopRules
             'settings'                 => ['sometimes', 'array'],
             'warehouses'               => ['sometimes', 'array'],
             'warehouses.*'             => [Rule::Exists('warehouses', 'id')->where('organisation_id', $this->organisation->id)],
-            'address'                  => ['sometimes', 'required', new ValidAddress()],
+            'address'                  => ['sometimes','required', new ValidAddress()],
 
         ];
 

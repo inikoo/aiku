@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Thu, 20 Oct 2022 07:21:37 British Summer Time, Sheffield, UK
@@ -40,6 +41,7 @@ return new class () extends Migration {
             $table->dateTimeTz('date')->index()->nullable();
             $table->dateTimeTz('tax_liability_at')->nullable();
             $table->dateTimeTz('paid_at')->nullable();
+            $table->jsonb('payment_data');
 
             $table->jsonb('data');
             $table->timestampsTz();

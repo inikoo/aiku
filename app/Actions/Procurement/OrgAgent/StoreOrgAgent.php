@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Wed, 03 Apr 2024 20:54:46 Central Indonesia Time, Bali Office , Indonesia
@@ -53,7 +54,7 @@ class StoreOrgAgent extends OrgAction
 
     public function getCommandSignature(): string
     {
-        return 'org:attach-agent {organisation} {agent}';
+        return 'org:attach_agent {organisation} {agent}';
     }
 
     public function asCommand(Command $command): int

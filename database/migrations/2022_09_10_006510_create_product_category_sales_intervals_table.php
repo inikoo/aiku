@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Fri, 26 Apr 2024 16:17:51 British Summer Time, Sheffield, UK
@@ -19,7 +20,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('product_category_id')->index();
             $table->foreign('product_category_id')->references('id')->on('product_categories');
-            $table = $this->dateIntervals($table, [
+            $table = $this->salesDateIntervals($table, [
                 'sales',
                 'sales_org_currency',
                 'sales_grp_currency'

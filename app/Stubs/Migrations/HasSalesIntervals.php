@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Fri, 19 May 2023 23:29:22 Malaysia Time, Kuala Lumpur, Malaysia
@@ -15,6 +16,6 @@ trait HasSalesIntervals
 
     public function salesIntervalFields(Blueprint $table, $dateIntervals): Blueprint
     {
-        return $this->dateIntervals($table, $dateIntervals);
+        return $this->salesDateIntervals($table, $dateIntervals);
     }
 }

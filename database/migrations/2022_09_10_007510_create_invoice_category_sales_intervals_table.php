@@ -13,7 +13,7 @@ return new class () extends Migration {
             $table->id();
             $table->unsignedInteger('invoice_category_id')->index();
             $table->foreign('invoice_category_id')->references('id')->on('invoice_categories')->onUpdate('cascade')->onDelete('cascade');
-            $table = $this->dateIntervals($table, [
+            $table = $this->salesDateIntervals($table, [
                 'sales',
                 'sales_org_currency',
                 'sales_grp_currency'

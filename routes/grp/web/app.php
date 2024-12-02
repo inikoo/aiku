@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Mon, 06 Mar 2023 13:30:46 Malaysia Time, Kuala Lumpur, Malaysia
@@ -71,9 +72,11 @@ Route::middleware(["auth"])->group(function () {
     Route::prefix("search")
         ->name("search.")
         ->group(__DIR__."/search.php");
-    Route::prefix("ask-bot") // try llama
-        ->name("ask-bot.")
-        ->group(__DIR__."/ask_bot.php");
+    if (env('VITE_ASK_BOT_UI') == 'true') {
+        Route::prefix("ask-bot") // try llama
+            ->name("ask-bot.")
+            ->group(__DIR__."/ask_bot.php");
+    }
     Route::prefix("media")
         ->name("media.")
         ->group(__DIR__."/media.php");

@@ -1,8 +1,9 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Tue, 26 Nov 2024 08:14:59 Central Indonesia Time, Sanur, Bali, Indonesia
- * Copyright (c) 2024, Raul A Perusquia Flores
+ * Created: Fri, 10 Mar 2023 20:59:01 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
 use App\Stubs\Migrations\HasCommsStats;
@@ -14,10 +15,10 @@ return new class () extends Migration {
     use HasCommsStats;
     public function up(): void
     {
-        Schema::create('email_ongoing_run_stats', function (Blueprint $table) {
+        Schema::create('mailshot_stats', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('email_ongoing_run_id')->nullable();
-            $table->foreign('email_ongoing_run_id')->references('id')->on('email_ongoing_runs');
+            $table->unsignedInteger('mailshot_id')->nullable();
+            $table->foreign('mailshot_id')->references('id')->on('mailshots');
             $table = $this->dispatchedEmailStats($table);
 
             $table->timestampsTz();
@@ -27,6 +28,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('email_ongoing_run_stats');
+        Schema::dropIfExists('mailshot_stats');
     }
 };

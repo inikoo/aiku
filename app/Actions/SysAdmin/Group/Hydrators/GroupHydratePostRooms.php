@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 11 Jun 2024 20:45:59 Central European Summer Time, Kuala Lumpur, Malaysia
@@ -16,6 +17,7 @@ class GroupHydratePostRooms
 {
     use AsAction;
     use WithEnumStats;
+
     private Group $group;
 
     public function __construct(Group $group)
@@ -27,16 +29,14 @@ class GroupHydratePostRooms
     {
         return [(new WithoutOverlapping($this->group->id))->dontRelease()];
     }
+
     public function handle(Group $group): void
     {
-
-        $stats         = [
+        $stats = [
             'number_post_rooms' => $group->postRooms()->count(),
         ];
 
         $group->commsStats()->update($stats);
-
-
     }
 
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Wed, 12 Oct 2022 17:56:45 Central European Summer Time, Benalmádena, Malaga Spain
@@ -21,7 +22,7 @@ use Throwable;
 
 class FetchAuroraWebpages extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:webpages {organisations?*} {--S|shop= : Shop slug} {--A|all= : import non online webpages as well} {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: web-blocks}  {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:webpages {organisations?*} {--S|shop= : Shop slug} {--A|all= : import non online webpages as well} {--s|source_id=} {--d|db_suffix=} {--w|with=* : Accepted values: web_blocks}  {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Webpage
@@ -72,7 +73,7 @@ class FetchAuroraWebpages extends FetchAuroraAction
                         audit: false
                     );
 
-                    if (in_array('web-blocks', $this->with)) {
+                    if (in_array('web_blocks', $this->with)) {
                         FetchAuroraWebBlocks::run($webpage, reset: true, dbSuffix: $this->dbSuffix);
                         $currentPublishedAt = Arr::get($webpage->migration_data, 'webpage.last_published_at');
                         if ($currentPublishedAt) {
@@ -109,7 +110,7 @@ class FetchAuroraWebpages extends FetchAuroraAction
                     );
                     Webpage::enableAuditing();
 
-                    if (in_array('web-blocks', $this->with)) {
+                    if (in_array('web_blocks', $this->with)) {
                         PublishWebpage::make()->action(
                             $webpage,
                             [
