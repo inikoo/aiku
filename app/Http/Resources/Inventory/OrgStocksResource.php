@@ -21,6 +21,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $family_slug
  * @property string $family_code
  * @property string $name
+ * @property string $discontinued_in_organisation_at
  */
 class OrgStocksResource extends JsonResource
 {
@@ -30,15 +31,16 @@ class OrgStocksResource extends JsonResource
         $orgStock = $this;
 
         return [
-            'id'                 => $orgStock->id,
-            'slug'               => $orgStock->slug,
-            'code'               => $this->code,
-            'name'               => $this->name,
-            'unit_value'         => $this->unit_value,
-            'number_locations'   => $this->number_location,
-            'quantity_locations' => $this->quantity_in_locations,
-            'family_slug'        => $this->family_slug,
-            'family_code'        => $this->family_code,
+            'id'                              => $orgStock->id,
+            'slug'                            => $orgStock->slug,
+            'code'                            => $this->code,
+            'name'                            => $this->name,
+            'unit_value'                      => $this->unit_value,
+            'number_locations'                => $this->number_location,
+            'quantity_locations'              => $this->quantity_in_locations,
+            'family_slug'                     => $this->family_slug,
+            'family_code'                     => $this->family_code,
+            'discontinued_in_organisation_at' => $this->discontinued_in_organisation_at,
         ];
     }
 }
