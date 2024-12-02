@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
@@ -98,7 +99,7 @@ class StoreCustomer extends OrgAction
                 StoreFulfilmentCustomerFromCustomer::run($customer, $shop, ['source_id' => $customer->source_id]);
             }
 
-            $customer = $this->addAddressToModel(
+            $customer = $this->addAddressToModelFromArray(
                 model: $customer,
                 addressData: $contactAddressData,
                 scope: 'billing',
@@ -107,7 +108,7 @@ class StoreCustomer extends OrgAction
             $customer->refresh();
 
             if ($deliveryAddressData) {
-                $customer = $this->addAddressToModel(
+                $customer = $this->addAddressToModelFromArray(
                     model: $customer,
                     addressData: $deliveryAddressData,
                     scope: 'delivery',

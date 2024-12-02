@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Thu, 16 May 2024 11:17:42 British Summer Time, Sheffield, UK
@@ -7,7 +8,7 @@
 
 namespace App\Actions\Production\ManufactureTask\UI;
 
-use App\Actions\Production\Production\UI\ShowProductionCrafts;
+use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Actions\OrgAction;
 use App\Enums\UI\Production\ManufactureTasksTabsEnum;
 use App\Http\Resources\Production\ManufactureTasksResource;
@@ -223,7 +224,7 @@ class IndexManufactureTasks extends OrgAction
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
         return array_merge(
-            ShowProductionCrafts::make()->getBreadcrumbs($routeParameters),
+            ShowCraftsDashboard::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',

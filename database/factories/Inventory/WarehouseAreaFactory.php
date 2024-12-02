@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Tue, 25 Apr 2023 13:54:01 Central European Summer Time, Malaga, Spain
@@ -14,7 +15,7 @@ class WarehouseAreaFactory extends Factory
     public function definition(): array
     {
         return [
-            'code' => fake()->lexify('????'),
+            'code' => fake()->lexify(),
             'name' => fake()->company(),
         ];
     }

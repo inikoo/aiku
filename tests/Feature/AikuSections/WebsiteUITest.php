@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 28 Jan 2024 15:08:30 Malaysia Time, Kuala Lumpur, Malaysia
@@ -75,6 +76,8 @@ beforeEach(function () {
     $this->webpage = $webpage;
 
     $this->user->refresh();
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
+
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]

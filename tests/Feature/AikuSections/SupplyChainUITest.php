@@ -48,6 +48,7 @@ beforeEach(function () {
         );
     }
     $this->agent = $agent;
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
 
 
     Config::set(

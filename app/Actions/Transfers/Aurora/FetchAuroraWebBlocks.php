@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 08 Oct 2024 16:16:32 Malaysia Time, Kuala Lumpur, Malaysia
@@ -519,7 +520,7 @@ class FetchAuroraWebBlocks extends OrgAction
         }
     }
 
-    public string $commandSignature = "fetch:web-blocks {webpage?} {--reset} {--d|db_suffix=}";
+    public string $commandSignature = "fetch:web_blocks {webpage?} {--reset} {--d|db_suffix=}";
 
     /**
      * @throws \Exception

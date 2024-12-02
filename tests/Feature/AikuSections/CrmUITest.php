@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Arya Permana <aryapermana02@gmail.com>
  * Created: Thu, 13 Jun 2024 13:27:40 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -130,6 +131,7 @@ beforeEach(
         $this->order = $order;
 
         $this->adminGuest->refresh();
+        $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
 
         Config::set(
             'inertia.testing.page_paths',
@@ -496,5 +498,16 @@ test('UI get section route client dropshipping', function () {
 
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::DROPSHIPPING->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
+
+test('UI get section route marketing mailshots index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.marketing.mailshots.index', [
+        'organisation' => $this->organisation->slug,
+        'shop' => $this->shop->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_MARKETING->value)
         ->and($sectionScope->model_slug)->toBe($this->shop->slug);
 });

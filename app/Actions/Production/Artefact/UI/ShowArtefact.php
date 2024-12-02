@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Wed, 15 Mar 2023 08:39:50 Central European Standard Time, Malaga, Spain
@@ -8,7 +9,7 @@
 namespace App\Actions\Production\Artefact\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\Production\Production\UI\ShowProductionCrafts;
+use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\UI\Production\ArtefactTabsEnum;
@@ -108,7 +109,7 @@ class ShowArtefact extends OrgAction
                     //         'name'     => trans_choice('location|locations', $artefact->stats->number_locations),
                     //         'number'   => $artefact->stats->number_locations,
                     //         'route'     => [
-                    //             'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index',
+                    //             'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.index',
                     //             'parameters' => $request->route()->originalParameters()
                     //         ],
                     //         'leftIcon' => [
@@ -169,7 +170,7 @@ class ShowArtefact extends OrgAction
         $artefact = Artefact::where('slug', $routeParameters['artefact'])->first();
 
         return array_merge(
-            ShowProductionCrafts::make()->getBreadcrumbs($routeParameters),
+            ShowCraftsDashboard::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'           => 'modelWithIndex',

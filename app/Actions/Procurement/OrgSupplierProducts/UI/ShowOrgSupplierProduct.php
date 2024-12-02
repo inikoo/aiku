@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 28 May 2024 12:06:23 British Summer Time, Plane Manchester-Malaga
@@ -9,7 +10,6 @@ namespace App\Actions\Procurement\OrgSupplierProducts\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\Procurement\OrgAgent\UI\GetOrgAgentShowcase;
 use App\Actions\Procurement\OrgAgent\UI\ShowOrgAgent;
 use App\Actions\Procurement\OrgSupplier\UI\ShowOrgSupplier;
 use App\Actions\Procurement\PurchaseOrder\UI\IndexPurchaseOrders;
@@ -95,15 +95,15 @@ class ShowOrgSupplierProduct extends OrgAction
                     'navigation' => OrgSupplierProductTabsEnum::navigation()
                 ],
                 OrgSupplierProductTabsEnum::SHOWCASE->value          => $this->tab == OrgSupplierProductTabsEnum::SHOWCASE->value ?
-                    fn () => GetOrgAgentShowcase::run($orgSupplierProduct)
-                    : Inertia::lazy(fn () => GetOrgAgentShowcase::run($orgSupplierProduct)),
+                    fn () => GetOrgSupplierProductShowcase::run($orgSupplierProduct)
+                    : Inertia::lazy(fn () => GetOrgSupplierProductShowcase::run($orgSupplierProduct)),
                 // OrgSupplierProductTabsEnum::SUPPLIER_PRODUCTS->value => $this->tab == OrgSupplierProductTabsEnum::SUPPLIER_PRODUCTS->value ?
                 //     fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($orgSupplierProduct))
                 //     : Inertia::lazy(fn () => SupplierProductResource::collection(IndexOrgSupplierProducts::run($orgSupplierProduct))),
 
                 OrgSupplierProductTabsEnum::PURCHASE_ORDERS->value => $this->tab == OrgSupplierProductTabsEnum::PURCHASE_ORDERS->value ?
-                    fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($orgSupplierProduct))
-                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($orgSupplierProduct))),
+                    fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($orgSupplierProduct->orgSupplier))
+                    : Inertia::lazy(fn () => PurchaseOrderResource::collection(IndexPurchaseOrders::run($orgSupplierProduct->orgSupplier))),
 
                 OrgSupplierProductTabsEnum::HISTORY->value => $this->tab == OrgSupplierProductTabsEnum::HISTORY->value ?
                     fn () => HistoryResource::collection(IndexHistory::run($orgSupplierProduct))
@@ -117,7 +117,7 @@ class ShowOrgSupplierProduct extends OrgAction
         //         prefix: OrgSupplierProductTabsEnum::SUPPLIER_PRODUCTS->value
         //     )
         // )
-            ->table(IndexPurchaseOrders::make()->tableStructure())
+            ->table(IndexPurchaseOrders::make()->tableStructure(prefix: OrgSupplierProductTabsEnum::PURCHASE_ORDERS->value))
             ->table(IndexHistory::make()->tableStructure(prefix: OrgSupplierProductTabsEnum::HISTORY->value));
     }
 

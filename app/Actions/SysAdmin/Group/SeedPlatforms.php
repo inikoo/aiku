@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Wed, 19 Jun 2024 18:03:42 Malaysia Time, Kuala Lumpur, Malaysia
@@ -48,6 +49,7 @@ class SeedPlatforms extends GrpAction
     public function asCommand(Command $command): int
     {
         try {
+            /** @var Group $group */
             $group       = Group::where('slug', $command->argument('group'))->firstOrFail();
             $this->group = $group;
             app()->instance('group', $group);

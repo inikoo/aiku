@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Thu, 22 Sept 2022 02:32:43 Malaysia Time, Kuala Lumpur, Malaysia
@@ -25,7 +26,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
     use WithAuroraAttachments;
     use WithAuroraParsers;
 
-    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web-users portfolio favourites polls full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:customers {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--w|with=* : Accepted values: clients orders web_users portfolio favourites polls full} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer
@@ -154,7 +155,7 @@ class FetchAuroraCustomers extends FetchAuroraAction
             }
 
 
-            if (in_array('web-users', $with) || in_array('full', $with)) {
+            if (in_array('web_users', $with) || in_array('full', $with)) {
                 foreach (
                     DB::connection('aurora')
                         ->table('Website User Dimension')

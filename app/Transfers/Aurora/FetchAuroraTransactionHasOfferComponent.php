@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Wed, 20 Nov 2024 18:26:23 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -14,7 +15,6 @@ class FetchAuroraTransactionHasOfferComponent extends FetchAurora
 {
     protected function parseTransactionHasOfferComponent(Order $order): void
     {
-
         $transaction = $this->parseTransaction($this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'});
 
         if (!$transaction) {
@@ -32,20 +32,26 @@ class FetchAuroraTransactionHasOfferComponent extends FetchAurora
         if (!$offerComponent) {
             print 'No offer component found for '.$this->auroraModelData->{'Deal Component Key'}."\n";
             print_r($this->auroraModelData);
+
             return;
         }
 
 
-
-
-        $this->parsedData['transaction'] = $transaction;
+        $this->parsedData['transaction']     = $transaction;
         $this->parsedData['offer_component'] = $offerComponent;
+
+
+        $fractionDiscount = $this->auroraModelData->{'Fraction Discount'};
+        if ($fractionDiscount > 1) {
+            $fractionDiscount = 1;
+        }
+
 
         $this->parsedData['transaction_has_offer_component'] = [
             'source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Deal Key'},
             'offer_component_id'    => $offerComponent->id,
             'discounted_amount'     => $this->auroraModelData->{'Amount Discount'},
-            'discounted_percentage' => $this->auroraModelData->{'Fraction Discount'},
+            'discounted_percentage' => $fractionDiscount,
             'info'                  => $this->auroraModelData->{'Deal Info'},
             'is_pinned'             => $this->auroraModelData->{'Order Transaction Deal Pinned'} == 'Yes',
             'fetched_at'            => now(),

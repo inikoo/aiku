@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 10 Aug 2024 21:46:33 Central Indonesia Time, Kuala Lumpur, Malaysia
@@ -37,7 +38,7 @@ class WarehouseAreaRecordSearch
                 'keyword'           => $warehouseArea->code,
                 'result'            => [
                     'route'     => [
-                        'name'          => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show',
+                        'name'          => 'grp.org.warehouses.show.infrastructure.warehouse_areas.show',
                         'parameters'    => [
                             $warehouseArea->organisation->slug,
                             $warehouseArea->warehouse->slug,

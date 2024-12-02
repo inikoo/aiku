@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Fri, 14 Apr 2023 10:21:27 Malaysia Time, Sanur, Bali, Indonesia
@@ -18,6 +19,12 @@ trait HasCommsStats
     public function postRoomsStats(Blueprint $table): Blueprint
     {
         $table->unsignedSmallInteger('number_post_rooms')->default(0);
+        return $table;
+    }
+
+    public function orgPostRoomsStats(Blueprint $table): Blueprint
+    {
+        $table->unsignedSmallInteger('number_org_post_rooms')->default(0);
         return $table;
     }
 

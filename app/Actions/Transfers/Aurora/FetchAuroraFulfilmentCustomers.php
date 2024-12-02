@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Thu, 22 Sept 2022 02:32:43 Malaysia Time, Kuala Lumpur, Malaysia
@@ -25,7 +26,7 @@ class FetchAuroraFulfilmentCustomers extends FetchAuroraAction
     use WithAuroraAttachments;
     use WithAuroraParsers;
 
-    public string $commandSignature = 'fetch:fulfilment-customers {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:fulfilment_customers {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?Customer

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 28 Sept 2024 10:44:58 Malaysia Time, Kuala Lumpur, Malaysia
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraDeletedUsers extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:deleted-users {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:deleted_users {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     /**

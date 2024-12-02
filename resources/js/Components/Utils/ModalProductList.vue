@@ -15,9 +15,9 @@ import { routeType } from "@/types/route"
 import axios from "axios"
 import { debounce } from "lodash"
 import { useForm } from "@inertiajs/vue3"
-import { faCloud, faMinus, faPlus, faSearch, faSpinner, faUndo } from "@fal"
+import { faCloud, faExpandArrowsAlt, faMinus, faPlus, faSearch, faSpinner, faUndo } from "@fal"
 
-library.add(faSearch, faPlus, faMinus, faSpinner, faCloud, faUndo)
+library.add(faSearch, faPlus, faMinus, faSpinner, faCloud, faUndo, faExpandArrowsAlt)
 
 const props = defineProps<{
 	fetchRoute: routeType
@@ -26,6 +26,7 @@ const props = defineProps<{
 
 const emits = defineEmits<{
 	(e: "optionsList", value: any[]): void
+    (e: 'update:tab', value: string): void
 }>()
 
 const model = defineModel()
@@ -40,6 +41,13 @@ const addedProductIds = ref(new Set<number>())
 // Check if a product is already added
 const isProductAdded = (id: number): boolean => {
 	return addedProductIds.value.has(id)
+}
+
+// Method: click Tab
+const onClickProduct = async (tabSlug: string) => {
+   console.log('masuk',tabSlug);
+   
+    emits('update:tab', tabSlug)
 }
 
 const resetIcons = (id: number) => {
@@ -139,6 +147,7 @@ const formProducts = useForm({
 
 const onSubmitAddProducts = async (data: any, slotProps: any) => {
 	const productId = slotProps.data.purchase_order_id
+	console.log("Decrement:", slotProps.data.quantity_ordered)
 	try {
 		if (slotProps.data.quantity_ordered > 0) {
 			// Handle update or add
@@ -243,7 +252,7 @@ onUnmounted(() => {
 				<div>
 					<!-- Title -->
 					<div class="flex justify-center py-2 text-gray-600 font-medium mb-3">
-						<div>Product List</div>
+						<h2>Product List</h2>
 					</div>
 
 					<!-- Search and Table -->
@@ -256,9 +265,7 @@ onUnmounted(() => {
 									scrollHeight="400px"
 									:loading="isLoading === 'fetchProduct'">
 									<template #header>
-										<div
-											class="flex flex-wrap items-center justify-between gap-2">
-											<span class="text-xl font-bold">Products</span>
+										<div class="flex flex-wrap items-center justify-end gap-2">
 											<IconField>
 												<InputIcon>
 													<FontAwesomeIcon
@@ -272,6 +279,14 @@ onUnmounted(() => {
 													placeholder="Search"
 													@input="onSearchQuery(searchQuery)" />
 											</IconField>
+										<!-- 	<IconField>
+												<InputIcon />
+												<FontAwesomeIcon  @click="onClickProduct('product')"
+													icon="fal fa-expand-arrows-alt"
+													class="text-gray-500 w-12 h-12"
+													fixed-width
+													aria-hidden="true" />
+											</IconField> -->
 										</div>
 									</template>
 

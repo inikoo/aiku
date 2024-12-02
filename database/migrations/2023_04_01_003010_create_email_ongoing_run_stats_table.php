@@ -1,7 +1,8 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 24 Nov 2024 10:36:35 Central Indonesia Time, Kuta, Bali, Indonesia
+ * Created: Fri, 29 Nov 2024 17:15:17 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -14,10 +15,10 @@ return new class () extends Migration {
     use HasCommsStats;
     public function up(): void
     {
-        Schema::create('email_bulk_run_stats', function (Blueprint $table) {
+        Schema::create('email_ongoing_run_stats', function (Blueprint $table) {
             $table->increments('id');
-            $table->unsignedInteger('email_bulk_run_id')->nullable();
-            $table->foreign('email_bulk_run_id')->references('id')->on('email_bulk_runs');
+            $table->unsignedInteger('email_ongoing_run_id')->nullable();
+            $table->foreign('email_ongoing_run_id')->references('id')->on('email_ongoing_runs');
             $table = $this->dispatchedEmailStats($table);
 
             $table->timestampsTz();
@@ -27,6 +28,6 @@ return new class () extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('email_bulk_run_stats');
+        Schema::dropIfExists('email_ongoing_run_stats');
     }
 };

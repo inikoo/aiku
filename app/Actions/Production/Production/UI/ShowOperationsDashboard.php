@@ -1,7 +1,8 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 10 May 2024 20:55:47 British Summer Time, Sheffield, UK
+ * Created: Fri, 10 May 2024 20:55:56 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -23,7 +24,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowProductionCrafts extends OrgAction
+class ShowOperationsDashboard extends OrgAction
 {
     use WithActionButtons;
 
@@ -61,9 +62,9 @@ class ShowProductionCrafts extends OrgAction
     {
 
         return Inertia::render(
-            'Org/Production/Production',
+            'Org/Production/OperationsDashboard',
             [
-                'title'                            => __('Craft'),
+                'title'                            => __('Operations'),
                 'breadcrumbs'                      => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'navigation'                       => [
                     'previous' => $this->getPrevious($production, $request),
@@ -72,14 +73,14 @@ class ShowProductionCrafts extends OrgAction
                 'pageHead'                         => [
                     'icon'    =>
                         [
-                            'icon'  => ['fal', 'fa-flask-potion'],
-                            'title' => __('Craft')
+                            'icon'  => ['fal', 'fa-fill-drip'],
+                            'title' => __('Factory operations')
                         ],
                         'iconRight' => [
                             'icon'  => ['fal', 'fa-chart-network'],
-                            'title' => __('Craft')
+                            'title' => __('Factory operations')
                         ],
-                    'title'   => $production->name,
+                    'title'   => __('Operations'),
                     'actions' => [
                         $this->canEdit ?
                             [
@@ -183,7 +184,7 @@ class ShowProductionCrafts extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.productions.show.infrastructure.dashboard' => [
+            'grp.org.productions.show.operations.dashboard' => [
                 'label' => $production->name,
                 'route' => [
                     'name'       => $routeName,

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 24 Jun 2023 10:58:06 Malaysia Time, Pantai Lembeng, Bali, Id
@@ -86,7 +87,7 @@ class RemoveWarehouseArea extends InertiaAction
                     route:
                     match ($request->route()->getName()) {
                         'grp.oms.warehouse-areas.remove' => [
-                            'name'       => 'grp.models.warehouse-area.delete',
+                            'name'       => 'grp.models.warehouse_area.delete',
                             'parameters' => $request->route()->originalParameters()
                         ],
                         'grp.oms.warehouses.show.warehouse-areas.remove' => [

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Wed, 03 Apr 2024 20:48:26 Central Indonesia Time, Bali Office , Indonesia
@@ -60,7 +61,7 @@ class StoreSupplier extends GrpAction
             $supplier->stats()->create();
             SetCurrencyHistoricFields::run($supplier->currency, $supplier->created_at);
 
-            $supplier = $this->addAddressToModel($supplier, $addressData, 'contact');
+            $supplier = $this->addAddressToModelFromArray($supplier, $addressData, 'contact');
 
 
 

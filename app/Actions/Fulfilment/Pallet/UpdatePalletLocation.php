@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Artha <artha@aw-advantage.com>
  * Created: Wed, 24 Jan 2024 16:14:16 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -19,11 +20,7 @@ class UpdatePalletLocation extends OrgAction
 {
     use WithActionUpdate;
 
-
     private Pallet $pallet;
-    /**
-     * @var array|\ArrayAccess|mixed
-     */
     private mixed $scope;
 
     public function handle(Location $location, Pallet $pallet): Pallet
@@ -66,7 +63,7 @@ class UpdatePalletLocation extends OrgAction
         return $this->handle($location, $pallet);
     }
 
-    public function inWarehouse(Warehouse $warehouse, Pallet $pallet, ActionRequest $request): Pallet
+    public function inWarehouse(Pallet $pallet, ActionRequest $request): Pallet
     {
         $this->pallet = $pallet;
         $this->scope  = $warehouse;

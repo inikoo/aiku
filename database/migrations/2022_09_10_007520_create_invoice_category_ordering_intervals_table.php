@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 23 Nov 2024 10:21:22 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -19,7 +20,7 @@ return new class () extends Migration {
             $table->smallIncrements('id');
             $table->unsignedInteger('invoice_category_id')->index();
             $table->foreign('invoice_category_id')->references('id')->on('invoice_categories')->onUpdate('cascade')->onDelete('cascade');
-            $table = $this->dateIntervals($table, [
+            $table = $this->unsignedIntegerDateIntervals($table, [
                 'invoices',
                 'refunds',
                 'customers_invoiced'

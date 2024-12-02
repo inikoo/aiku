@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 01 Jun 2024 23:29:40 Central European Summer Time, Mijas Costa, Spain
@@ -49,9 +50,9 @@ trait HasAssetModel
         $table->foreign('shop_id')->references('id')->on('shops');
         $table->unsignedInteger('asset_id')->nullable();
         $table->foreign('asset_id')->references('id')->on('assets');
-        $table->unsignedSmallInteger('family_id')->nullable();
-        $table->unsignedSmallInteger('sub_department_id')->nullable();
-        $table->unsignedSmallInteger('department_id')->nullable();
+        $table->unsignedInteger('family_id')->nullable();
+        $table->unsignedInteger('sub_department_id')->nullable();
+        $table->unsignedInteger('department_id')->nullable();
 
         return $table;
     }

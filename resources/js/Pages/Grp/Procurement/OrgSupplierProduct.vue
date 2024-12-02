@@ -40,6 +40,12 @@ const props = defineProps<{
         history: object
 
     },
+    showcase?: object
+    org_suppliers?: object
+    org_supplier_products?: object,
+    purchase_orders?: object,
+    errors?: object,
+    history?: object
 }>()
 
 
@@ -59,7 +65,6 @@ library.add(
 
 let currentTab = ref(props.tabs.current);
 const handleTabUpdate = (tabSlug) => useTabChange(tabSlug, currentTab);
-
 const component = computed(() => {
 
     const components = {

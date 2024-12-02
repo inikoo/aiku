@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 21 Feb 2023 22:01:26 Malaysia Time, Kuala Lumpur, Malaysia
@@ -15,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class HydrateAsset extends HydrateModel
 {
-    public string $commandSignature = 'asset:hydrate {organisations?*} {--slug=} ';
+    public string $commandSignature = 'hydrate:assets {organisations?*} {--slugs=} ';
 
 
     public function handle(Asset $asset): void

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 24 Nov 2024 10:24:34 Central Indonesia Time, Kuta, Bali, Indonesia
@@ -23,9 +24,9 @@ return new class () extends Migration {
             $table->string('subject')->index();
             $table->unsignedSmallInteger('outbox_id')->nullable()->index();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
-            $table->unsignedSmallInteger('email_id')->nullable()->index();
+            $table->unsignedInteger('email_id')->nullable()->index();
             $table->foreign('email_id')->references('id')->on('emails');
-            $table->unsignedSmallInteger('snapshot_id')->nullable()->index();
+            $table->unsignedInteger('snapshot_id')->nullable()->index();
             $table->foreign('snapshot_id')->references('id')->on('snapshots');
 
 

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Wed, 16 Oct 2024 16:40:54 Central Indonesia Time, Office, Bali, Indonesia
@@ -18,7 +19,7 @@ use Throwable;
 
 class FetchAuroraBackInStockReminders extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:back-in-stock-reminder {organisations?*} {--S|shop= : Shop slug} {--s|source_id=}  {--N|only_new : Fetch only new} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:back_in_stock_reminder {organisations?*} {--S|shop= : Shop slug} {--s|source_id=}  {--N|only_new : Fetch only new} {--d|db_suffix=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?BackInStockReminder

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Thu, 06 Jun 2024 14:05:15 Central European Summer Time, Mijas Costa, Spain
@@ -53,6 +54,18 @@ trait WithCustomerSubNavigation
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-shopping-cart'],
                     'tooltip' => __('orders')
+                ]
+            ],
+            [
+                'label'    => __('Invoices'),
+                'number'   => $customer->stats->number_invoices,
+                'route'     => [
+                    'name'       => 'grp.org.shops.show.crm.customers.show.invoices.index',
+                    'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-file-invoice'],
+                    'tooltip' => __('invoices')
                 ]
             ],
         ];
@@ -121,6 +134,18 @@ trait WithCustomerSubNavigation
                 'leftIcon' => [
                     'icon'    => ['fal', 'fa-shopping-cart'],
                     'tooltip' => __('orders')
+                ]
+            ],
+            [
+                'label'    => __('Invoices'),
+                'number'   => $customer->stats->number_invoices,
+                'route'     => [
+                    'name'       => 'grp.org.shops.show.crm.customers.show.invoices.index',
+                    'parameters' => [$this->organisation->slug, $customer->shop->slug, $customer->slug]
+                ],
+                'leftIcon' => [
+                    'icon'    => ['fal', 'fa-file-invoice'],
+                    'tooltip' => __('invoices')
                 ]
             ],
         ];

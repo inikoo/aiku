@@ -51,6 +51,7 @@
         "@headlessui/vue": "^1.7.14",
         "@inertiajs/vue3": "^1.0.16",
         "@kyvg/vue3-notification": "^3.1.2",
+        "@mailupinc/bee-plugin": "^2.3.0",
         "@primevue/themes": "^4.0.4",
         "@sentry/vue": "^7.84.0",
         "@tiptap/extension-bubble-menu": "^2.2.4",
@@ -116,12 +117,12 @@
         "vue-cookies": "^1.8.1",
         "vue-countup-v3": "^1.4.0",
         "vue-currency-input": "^3.1.0",
+        "vue-email-editor": "^2.1.4",
         "vue-json-viewer": "^3.0.4",
         "vue-resizable": "^2.1.7",
         "vue-tel-input": "^8.1.1",
         "vue3-moveable": "^0.28.0",
         "vue3-popper": "^1.5.0",
-        "vuedraggable": "^4.1.0",
-        "@mailupinc/bee-plugin": "^2.3.0"
+        "vuedraggable": "^4.1.0"
     }
 }

@@ -2,21 +2,19 @@
 
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionDeliveryStatusEnum;
 use App\Enums\Procurement\PurchaseOrderTransaction\PurchaseOrderTransactionStateEnum;
-use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use App\Stubs\Migrations\HasProcurementStats;
 use App\Stubs\Migrations\IsProcurementOrder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     use IsProcurementOrder;
     use HasProcurementStats;
     public function up(): void
     {
         Schema::create('agent_supplier_purchase_orders', function (Blueprint $table) {
-            
+
             $table->increments('id');
             $table->unsignedSmallInteger('group_id')->index();
             $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
@@ -25,7 +23,7 @@ return new class extends Migration
 
             $table->unsignedSmallInteger('purchase_order_id')->nullable();
             $table->foreign('purchase_order_id')->references('id')->on('purchase_orders');
-            $table->unsignedSmallInteger('supplier_id')->nullable();
+            $table->unsignedInteger('supplier_id')->nullable();
             $table->foreign('supplier_id')->references('id')->on('suppliers');
 
             $table->string('state')->index()->default(PurchaseOrderTransactionStateEnum::IN_PROCESS->value);

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 20 Jun 2023 20:32:25 Malaysia Time, Pantai Lembeng, Bali, Indonesia
@@ -27,7 +28,7 @@ class AddDeliveryAddressToCustomer extends OrgAction
     {
 
 
-        $customer = $this->addAddressToModel(
+        $customer = $this->addAddressToModelFromArray(
             model: $customer,
             addressData: $modelData['delivery_address'],
             scope: 'delivery',

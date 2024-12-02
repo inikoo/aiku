@@ -13,6 +13,7 @@ import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { faCircle } from '@fas'
 import { library } from '@fortawesome/fontawesome-svg-core'
+import AskBot from '@/Components/AskBot.vue'
 library.add(faCircle)
 
 /* const Profile = defineAsyncComponent(() => import("@/Pages/Grp/Profile.vue")) */
@@ -23,10 +24,11 @@ const props = defineProps<{
 }>()
 
 const layout = inject('layout', layoutStructure)
-
+const isAskBotEnabled =  import.meta.env.VITE_ASK_BOT_UI;
 // const layoutStore = useLayoutStore()
 const showSearchDialog = ref(false)
-
+const showAskBot = ref(false)
+console.log(isAskBotEnabled);
 
 onMounted(() => {
     if (typeof window !== 'undefined') {
@@ -63,6 +65,12 @@ const isUserMac = navigator.platform.includes('Mac')  // To check the user's Ope
                     <span class="ring-1 ring-gray-400 bg-gray-100 px-1.5 py-0.5 text-xs rounded">K</span>
                 </div>
                 <SearchBar v-model="showSearchDialog" />
+            </button>
+            
+            <button v-if="isAskBotEnabled === 'true'" @click="showAskBot = !showAskBot" id="ask-bot"
+                class="h-7 w-fit flex items-center justify-center gap-x-3 ring-1 ring-gray-300 rounded-md px-3 text-gray-500 hover:bg-gray-200 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <span>Ask Bot</span>
+                <AskBot v-model="showAskBot" />
             </button>
 
             <div class="pl-2 sm:pl-4 flex items-center gap-x-2">

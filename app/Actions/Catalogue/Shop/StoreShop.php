@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Fri, 26 Aug 2022 01:35:48 Malaysia Time, Kuala Lumpur, Malaysia
@@ -25,6 +26,7 @@ use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\Helpers\SerialReference\SerialReferenceModelEnum;
 use App\Enums\SysAdmin\Authorisation\RolesEnum;
 use App\Models\Catalogue\Shop;
+use App\Models\Helpers\Address;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Currency;
 use App\Models\Helpers\Language;
@@ -61,8 +63,14 @@ class StoreShop extends OrgAction
     {
         $warehouses = Arr::get($modelData, 'warehouses', []);
         Arr::forget($modelData, 'warehouses');
-        $addressData = Arr::get($modelData, 'address');
-        Arr::forget($modelData, 'address');
+
+        if (Arr::has($modelData, 'address')) {
+            /** @var Address $addressData */
+            $addressData = Arr::pull($modelData, 'address');
+        } else {
+            $addressData = $organisation->address;
+        }
+
 
         data_set($modelData, 'group_id', $organisation->group_id);
 
@@ -72,15 +80,23 @@ class StoreShop extends OrgAction
             $shop = $organisation->shops()->create($modelData);
             $shop->refresh();
 
-            if (Arr::get($shop->settings, 'address_link')) {
-                $shop = $this->addLinkedAddress($shop);
-            } else {
-                $shop = $this->addAddressToModel($shop, $addressData);
-            }
 
-            if (Arr::get($shop->settings, 'collect_address_link')) {
-                $shop = $this->addLinkedAddress(model: $shop, scope: 'collection', updateLocation: false, updateAddressField: 'collection_address_id');
-            }
+            StoreShopAddress::make()->action(
+                $shop,
+                [
+                    'address' => $addressData,
+                    'type'    => 'legal'
+                ]
+            );
+
+            StoreShopAddress::make()->action(
+                $shop,
+                [
+                    'address' => $addressData,
+                    'type'    => 'collection'
+                ]
+            );
+
 
 
             $shop->stats()->create();

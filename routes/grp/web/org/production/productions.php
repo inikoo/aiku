@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Mon, 06 May 2024 19:13:51 British Summer Time, Sheffield, UK
@@ -17,8 +18,8 @@ use App\Actions\Production\Production\UI\CreateProduction;
 use App\Actions\Production\Production\UI\EditProduction;
 use App\Actions\Production\Production\UI\IndexProductions;
 use App\Actions\Production\Production\UI\ShowProduction;
-use App\Actions\Production\Production\UI\ShowProductionCrafts;
-use App\Actions\Production\Production\UI\ShowProductionOperations;
+use App\Actions\Production\Production\UI\ShowCraftsDashboard;
+use App\Actions\Production\Production\UI\ShowOperationsDashboard;
 use App\Actions\Production\RawMaterial\UI\CreateRawMaterial;
 use App\Actions\Production\RawMaterial\UI\EditRawMaterial;
 use App\Actions\Production\RawMaterial\UI\IndexRawMaterials;
@@ -39,7 +40,7 @@ Route::prefix('{production}')
             ->group(function () {
                 Route::name('.operations.')->prefix('operations')
                     ->group(function () {
-                        Route::get('', ShowProductionOperations::class)->name('dashboard');
+                        Route::get('', ShowOperationsDashboard::class)->name('dashboard');
                         Route::get('artisans', ShowDummy::class)->name('artisans.index');
 
                         Route::get('job-orders', IndexDummies::class)->name('job-orders.index');
@@ -48,7 +49,7 @@ Route::prefix('{production}')
 
                 Route::name('.crafts.')->prefix('crafts')
                     ->group(function () {
-                        Route::get('', ShowProductionCrafts::class)->name('dashboard');
+                        Route::get('', ShowCraftsDashboard::class)->name('dashboard');
 
                         Route::get('raw-materials', IndexRawMaterials::class)->name('raw_materials.index');
                         Route::get('raw-materials/create', CreateRawMaterial::class)->name('raw_materials.create');

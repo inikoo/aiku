@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Mon, 13 Mar 2023 15:34:29 Central European Standard Time, Malaga, Spain
@@ -48,7 +49,7 @@ class CreateWarehouseArea extends OrgAction
                                 'code' => [
                                     'type'        => 'input',
                                     'label'       => __('code'),
-                                    'placeholder' => __('maximum 4 character long'),
+                                    'placeholder' => __('maximum 16 character long'),
                                     'value'       => '',
                                     'required'    => true,
                                 ],
@@ -64,7 +65,7 @@ class CreateWarehouseArea extends OrgAction
 
                     ],
                     'route'     => [
-                        'name'       => 'grp.models.warehouse.warehouse-area.store',
+                        'name'       => 'grp.models.warehouse.warehouse_area.store',
                         'parameters' => $warehouse->id
                     ]
                 ],

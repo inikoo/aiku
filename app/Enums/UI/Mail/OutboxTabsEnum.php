@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 11 May 2024 20:45:45 British Summer Time, Sheffield, UK
@@ -15,9 +16,8 @@ enum OutboxTabsEnum: string
     use EnumHelperTrait;
     use HasTabs;
 
-    case SHOWCASE = 'showvase';
-
-
+    case SHOWCASE = 'showcase';
+    case MAILSHOTS = 'mailshots';
 
     public function blueprint(): array
     {
@@ -26,7 +26,10 @@ enum OutboxTabsEnum: string
                 'title' => __('outbox'),
                 'icon'  => 'fas fa-info-circle',
             ],
-
+            OutboxTabsEnum::MAILSHOTS => [
+                'title' => __('mailshots'),
+                'icon'  => 'fas fa-envelope',
+            ]
         };
     }
 }

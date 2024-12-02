@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Thu, 25 Jul 2024 17:02:43 Malaysia Time, Kuala Lumpur, Malaysia
@@ -20,7 +21,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->ulid()->nullable();
             $table = $this->groupOrgRelationship($table);
-            $table->unsignedSmallInteger('fulfilment_customer_id');
+            $table->unsignedInteger('fulfilment_customer_id');
             $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
             $table->unsignedSmallInteger('fulfilment_id');
             $table->foreign('fulfilment_id')->references('id')->on('fulfilments');

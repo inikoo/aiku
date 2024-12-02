@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Fri, 26 Aug 2022 02:04:48 Malaysia Time, Kuala Lumpur, Malaysia
@@ -74,7 +75,7 @@ class UpdateShop extends OrgAction
             if ($shop->collection_address_id) {
                 UpdateAddress::run($shop->collectionAddress, $collectionAddressData);
             } else {
-                return $this->addAddressToModel(model: $shop, addressData: $collectionAddressData, updateLocation: false, updateAddressField: 'collection_address_id');
+                return $this->addAddressToModelFromArray(model: $shop, addressData: $collectionAddressData, updateLocation: false, updateAddressField: 'collection_address_id');
             }
         }
 

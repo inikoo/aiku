@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Thu, 15 Feb 2024 06:57:34 CST, Mexico City, Mexico
@@ -18,7 +19,7 @@ trait HasFulfilmentDelivery
         $table = $this->groupOrgRelationship($table);
         $table->string('slug')->unique()->collation('und_ns');
         $table->ulid()->unique()->index();
-        $table->unsignedSmallInteger('fulfilment_customer_id');
+        $table->unsignedInteger('fulfilment_customer_id');
         $table->foreign('fulfilment_customer_id')->references('id')->on('fulfilment_customers');
         $table->unsignedSmallInteger('fulfilment_id');
         $table->foreign('fulfilment_id')->references('id')->on('fulfilments');

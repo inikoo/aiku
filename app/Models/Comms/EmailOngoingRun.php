@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 26 Nov 2024 08:14:59 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -38,6 +39,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
  * @property-read \App\Models\Comms\Email|null $email
  * @property-read \App\Models\SysAdmin\Group $group
+ * @property-read \App\Models\Comms\EmailOngoingRunIntervals|null $intervals
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Comms\Outbox|null $outbox
  * @property-read Shop|null $shop
@@ -96,6 +98,11 @@ class EmailOngoingRun extends Model
     public function stats(): HasOne
     {
         return $this->hasOne(EmailOngoingRunStats::class);
+    }
+
+    public function intervals(): HasOne
+    {
+        return $this->hasOne(EmailOngoingRunIntervals::class);
     }
 
     public function dispatchedEmails(): HasMany

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Wed, 15 Mar 2023 11:34:34 Central European Standard Time, Malaga, Spain
@@ -42,17 +43,23 @@ class ShowLocation extends OrgAction
     public function authorize(ActionRequest $request): bool
     {
         if ($this->maya) {
-            return true; //Idk for the auth, might come back here later
+            return true; //IDK for the auth, might come back here later
         }
 
         $this->canEdit   = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
-        $this->canDelete = $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
 
         return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
     }
 
+    public function asController(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
+    {
+        $this->parent = $warehouse;
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(LocationTabsEnum::values());
 
-    public function asController(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
+        return $this->handle($location);
+    }
+    /** @noinspection PhpUnusedParameterInspection */
+    public function inWarehouseArea(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
         $this->parent = $warehouseArea;
         $this->initialisationFromWarehouse($warehouse, $request);
@@ -68,14 +75,7 @@ class ShowLocation extends OrgAction
         return $this->handle($location);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
-    {
-        $this->parent = $warehouse;
-        $this->initialisationFromWarehouse($warehouse, $request)->withTab(LocationTabsEnum::values());
 
-        return $this->handle($location);
-    }
 
 
     public function htmlResponse(Location $location, ActionRequest $request): Response
@@ -107,7 +107,7 @@ class ShowLocation extends OrgAction
                             ];
         } elseif ($this->parent instanceof WarehouseArea) {
             $deleteRoute = [
-                            'name'       => 'grp.models.warehouse-area.location.delete',
+                            'name'       => 'grp.models.warehouse_area.location.delete',
                             'parameters' => [
                                 $this->parent->id,
                                 $location->id
@@ -129,21 +129,12 @@ class ShowLocation extends OrgAction
                     'next'     => $this->getNext($location, $request),
                 ],
                 'pageHead'    => [
-                    'model'     => __('location'),
                     'icon'      => [
                         'title' => __('locations'),
                         'icon'  => 'fal fa-inventory'
                     ],
                     'title'     => $location->slug,
                     'actions'   => [
-                        $this->canDelete ? [
-                            'type'    => 'button',
-                            'tooltip' => __('Delete'),
-                            'icon'    => 'fal fa-trash-alt',
-                            'style'   => 'negative',
-                            'route'   => $deleteRoute
-                        ]
-                        : null,
                         $this->canEdit ? $this->getEditActionIcon($request) : null,
                     ],
                 ],
@@ -221,7 +212,7 @@ class ShowLocation extends OrgAction
                     $suffix
                 )
             ),
-            'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show' => array_merge(
+            'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.show' => array_merge(
                 ShowWarehouseArea::make()->getBreadcrumbs(
                     Arr::only($routeParameters, ['organisation', 'warehouse', 'warehouseArea'])
                 ),
@@ -229,11 +220,11 @@ class ShowLocation extends OrgAction
                     $location,
                     [
                         'index' => [
-                            'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index',
+                            'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.index',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'warehouseArea'])
                         ],
                         'model' => [
-                            'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show',
+                            'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.show',
                             'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'warehouseArea', 'location'])
                         ]
                     ],

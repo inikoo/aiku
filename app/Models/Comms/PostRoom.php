@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 19 Nov 2024 11:11:46 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -31,6 +32,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read Group $group
+ * @property-read \App\Models\Comms\PostRoomIntervals|null $intervals
+ * @property-read Collection<int, \App\Models\Comms\OrgPostRoom> $orgPostRooms
  * @property-read Collection<int, \App\Models\Comms\Outbox> $outboxes
  * @property-read \App\Models\Comms\PostRoomStats|null $stats
  * @method static Builder<static>|PostRoom newModelQuery()
@@ -73,6 +76,11 @@ class PostRoom extends Model
         return $this->hasOne(PostRoomStats::class);
     }
 
+    public function intervals(): HasOne
+    {
+        return $this->hasOne(PostRoomIntervals::class);
+    }
+
     public function outboxes(): HasMany
     {
         return $this->hasMany(Outbox::class);
@@ -81,5 +89,10 @@ class PostRoom extends Model
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function orgPostRooms(): HasMany
+    {
+        return $this->hasMany(OrgPostRoom::class);
     }
 }

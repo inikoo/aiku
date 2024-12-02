@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 09 Jun 2024 12:55:09 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
@@ -22,7 +23,6 @@ class FetchAuroraOrder extends FetchAurora
 {
     protected function parseModel(): void
     {
-
         $deliveryData = [];
 
         if ($this->auroraModelData->{'Order For Collection'} == 'Yes') {
@@ -35,7 +35,6 @@ class FetchAuroraOrder extends FetchAurora
                 $deliveryData['phone'] = $this->auroraModelData->{'Order Telephone'};
             }
         }
-
 
 
         if ($this->auroraModelData->{'Order Customer Client Key'} != "") {
@@ -148,6 +147,26 @@ class FetchAuroraOrder extends FetchAurora
         }
 
 
+        $totalAmount = $this->auroraModelData->{'Order Total Amount'};
+
+        $paymentAmount = null;
+        if ($date->isBefore('2014-08-01')) {
+            $hasPayments = DB::connection('aurora')
+                ->table('Order Payment Bridge')
+                ->select('Payment Key')
+                ->where('Order Key', $this->auroraModelData->{'Order Key'})
+                ->exists();
+
+            if ($state == OrderStateEnum::DISPATCHED and !$hasPayments) {
+                $paymentAmount = $totalAmount;
+            }
+
+            data_set($data, 'warnings.payments', [
+                'msg' => 'No payments recorded for this order, assumed was paid',
+            ]);
+        }
+
+
         $this->parsedData["order"] = [
             'date'            => $date,
             'submitted_at'    => $this->parseDatetime($this->auroraModelData->{'Order Submitted by Customer Date'}),
@@ -181,13 +200,18 @@ class FetchAuroraOrder extends FetchAurora
 
             'net_amount'   => $this->auroraModelData->{'Order Total Net Amount'},
             'tax_amount'   => $this->auroraModelData->{'Order Total Tax Amount'},
-            'total_amount' => $this->auroraModelData->{'Order Total Amount'},
+            'total_amount' => $totalAmount,
 
 
-            'fetched_at'       => now(),
-            'last_fetched_at'  => now(),
+            'fetched_at'      => now(),
+            'last_fetched_at' => now(),
 
         ];
+
+
+        if ($paymentAmount) {
+            $this->parsedData["order"]['payment_amount'] = $paymentAmount;
+        }
 
         if ($salesChannel) {
             $this->parsedData['order']['sales_channel_id'] = $salesChannel->id;
@@ -202,21 +226,61 @@ class FetchAuroraOrder extends FetchAurora
             $billingAddressData['country_id'] = $parent->addresses->first()->country_id;
         }
 
+        $deliveryAddressData = $this->parseAddress(
+            prefix: "Order Delivery",
+            auAddressData: $this->auroraModelData,
+        );
+
+        if (!$deliveryAddressData['country_id']) {
+            $deliveryAddressData['country_id'] = $parent->addresses->first()->country_id;
+        }
+
+
+
+
+        if ($billingAddressData['address_line_1'] == '' and
+            $billingAddressData['address_line_2'] == '' and
+            $billingAddressData['sorting_code'] == '' and
+            $billingAddressData['postal_code'] == '' and
+            $billingAddressData['dependent_locality'] == '' and
+            $billingAddressData['locality'] == '' and
+            $billingAddressData['administrative_area'] == '' and
+            $billingAddressData['country_id'] == $deliveryAddressData['country_id']
+
+        ) {
+            // if billing address is empty , use delivery address, it may have some data
+            $billingAddressData = $deliveryAddressData;
+        }
+
+        if ($deliveryAddressData['address_line_1'] == '' and
+            $deliveryAddressData['address_line_2'] == '' and
+            $deliveryAddressData['sorting_code'] == '' and
+            $deliveryAddressData['postal_code'] == '' and
+            $deliveryAddressData['dependent_locality'] == '' and
+            $deliveryAddressData['locality'] == '' and
+            $deliveryAddressData['administrative_area'] == '' and
+            $deliveryAddressData['country_id'] == $billingAddressData['country_id']
+
+        ) {
+
+            $deliveryAddressData = $billingAddressData;
+        }
+
+
+
+
         $this->parsedData['order']["billing_address"] = new Address($billingAddressData);
 
         if ($handingType == OrderHandingTypeEnum::SHIPPING) {
-            $deliveryAddressData = $this->parseAddress(
-                prefix: "Order Delivery",
-                auAddressData: $this->auroraModelData,
-            );
 
-            if (!$deliveryAddressData['country_id']) {
-                $deliveryAddressData['country_id'] = $parent->addresses->first()->country_id;
-            }
 
             $this->parsedData['order']["delivery_address"] = new Address(
                 $deliveryAddressData,
             );
+        } else {
+            $collectionAddress = $shop->collectionAddress;
+
+            $this->parsedData['order']["delivery_address"] = $collectionAddress;
         }
     }
 

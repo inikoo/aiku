@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 26 Nov 2024 21:17:45 Central Indonesia Time, Kuala Lumpur, Malaysia
@@ -104,7 +105,7 @@ beforeEach(function () {
         $this->shop->refresh();
     }
     $this->charge = $charge;
-
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -468,7 +469,6 @@ test('UI edit Charges', function () {
 
 
 test('UI get section route catalogue dashboard', function () {
-    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
     $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.catalogue.dashboard', [
         'organisation' => $this->organisation->slug,
         'shop' => $this->shop->slug
@@ -477,5 +477,41 @@ test('UI get section route catalogue dashboard', function () {
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope)->not->toBeNull()
         ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_CATALOGUE->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
+
+test('UI get section route billables charges index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.billables.charges.index', [
+        'organisation' => $this->organisation->slug,
+        'shop' => $this->shop->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope)->not->toBeNull()
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_BILLABLES->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
+
+test('UI get section route shop edit', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.settings.edit', [
+        'organisation' => $this->organisation->slug,
+        'shop' => $this->shop->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope)->not->toBeNull()
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_SETTINGS->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
+
+test('UI get section route shop dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.dashboard', [
+        'organisation' => $this->organisation->slug,
+        'shop' => $this->shop->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope)->not->toBeNull()
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_DASHBOARD->value)
         ->and($sectionScope->model_slug)->toBe($this->shop->slug);
 });

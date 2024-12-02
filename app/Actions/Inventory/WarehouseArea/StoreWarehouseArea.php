@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Mon, 04 Oct 2021 12:34:45 Malaysia Time, Kuala Lumpur, Malaysia
@@ -113,7 +114,7 @@ class StoreWarehouseArea extends OrgAction
 
     public function htmlResponse(WarehouseArea $warehouseArea): RedirectResponse
     {
-        return Redirect::route('grp.org.warehouses.show.infrastructure.warehouse-areas.index', [$this->organisation, $warehouseArea->warehouse]);
+        return Redirect::route('grp.org.warehouses.show.infrastructure.warehouse_areas.index', [$this->organisation, $warehouseArea->warehouse]);
     }
 
 }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 19 Nov 2024 11:09:35 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -59,7 +60,7 @@ class ShowCommsDashboard extends OrgAction
                         'title' => __('dashboard')
                     ],
                     'title'         => __('Comms dashboard'),
-                    'subNavigation' => $this->getCommsNavigation($parent),
+                    'subNavigation' => $this->getCommsNavigation($parent->organisation, $parent),
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

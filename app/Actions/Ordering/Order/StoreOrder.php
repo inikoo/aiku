@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Indonesia
@@ -11,7 +12,7 @@ use App\Actions\Helpers\SerialReference\GetSerialReference;
 use App\Actions\Helpers\TaxCategory\GetTaxCategory;
 use App\Actions\Ordering\Order\Search\OrderRecordSearch;
 use App\Actions\OrgAction;
-use App\Actions\Traits\Rules\WithOrderingAmountNoStrictFields;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
@@ -25,14 +26,14 @@ use App\Models\Dropshipping\CustomerClient;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
-use Symfony\Component\HttpFoundation\Response;
 
 class StoreOrder extends OrgAction
 {
@@ -42,7 +43,7 @@ class StoreOrder extends OrgAction
     use WithModelAddressActions;
     use HasOrderHydrators;
     use WithOrderExchanges;
-    use WithOrderingAmountNoStrictFields;
+    use WithNoStrictRules;
 
     public int $hydratorsDelay = 0;
 
@@ -63,12 +64,10 @@ class StoreOrder extends OrgAction
                 )
             );
         }
-        data_set($modelData, 'date', now());
+        data_set($modelData, 'date', now(), overwrite: false);
 
-        $billingAddress  = Arr::pull($modelData, 'billing_address');
-        $deliveryAddress = Arr::pull($modelData, 'delivery_address');
 
-        if (!$billingAddress && !$deliveryAddress) {
+        if ($this->strict) {
             if ($parent instanceof Customer) {
                 $billingAddress  = $parent->address;
                 $deliveryAddress = $parent->deliveryAddress;
@@ -76,7 +75,11 @@ class StoreOrder extends OrgAction
                 $billingAddress  = $parent->customer->address;
                 $deliveryAddress = $parent->address;
             }
+        } else {
+            $billingAddress  = Arr::pull($modelData, 'billing_address');
+            $deliveryAddress = Arr::pull($modelData, 'delivery_address');
         }
+
 
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
@@ -125,7 +128,7 @@ class StoreOrder extends OrgAction
             $order->stats()->create();
 
             if ($order->billing_locked) {
-                $order = $this->createFixedAddress(
+                $this->createFixedAddress(
                     $order,
                     $billingAddress,
                     'Ordering',
@@ -133,25 +136,19 @@ class StoreOrder extends OrgAction
                     'billing_address_id'
                 );
             } else {
-                $order = $this->addAddressToModel(
-                    model: $order,
-                    addressData: Arr::except($billingAddress->toArray(), ['id']),
-                    scope: 'billing',
-                    updateLocation: false,
-                    updateAddressField: 'billing_address_id'
+                StoreOrderAddress::make()->action(
+                    $order,
+                    [
+                        'address' => $billingAddress,
+                        'type'    => 'billing'
+                    ]
                 );
             }
-
-            $order->updateQuietly(
-                [
-                    'billing_country_id' => $order->billingAddress->country_id
-                ]
-            );
 
 
             if ($order->handing_type == OrderHandingTypeEnum::SHIPPING) {
                 if ($order->delivery_locked) {
-                    $order = $this->createFixedAddress(
+                    $this->createFixedAddress(
                         $order,
                         $deliveryAddress,
                         'Ordering',
@@ -159,20 +156,14 @@ class StoreOrder extends OrgAction
                         'delivery_address_id'
                     );
                 } else {
-                    $order = $this->addAddressToModel(
-                        model: $order,
-                        addressData: Arr::except($deliveryAddress->toArray(), ['id']),
-                        scope: 'delivery',
-                        updateLocation: false,
-                        updateAddressField: 'delivery_address_id'
+                    StoreOrderAddress::make()->action(
+                        $order,
+                        [
+                            'address' => $deliveryAddress,
+                            'type'    => 'delivery'
+                        ]
                     );
                 }
-
-                $order->updateQuietly(
-                    [
-                        'delivery_country_id' => $order->deliveryAddress->country_id
-                    ]
-                );
             } else {
                 $order->updateQuietly(
                     [
@@ -195,7 +186,7 @@ class StoreOrder extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'          => [
+            'reference' => [
                 'sometimes',
                 'max:64',
                 'string',
@@ -206,22 +197,17 @@ class StoreOrder extends OrgAction
                     ]
                 ),
             ],
-            'date'               => ['sometimes', 'date'],
-            'submitted_at'       => ['sometimes', 'nullable', 'date'],
-            'in_warehouse_at'    => ['sometimes', 'nullable', 'date'],
-            'packed_at'          => ['sometimes', 'nullable', 'date'],
-            'finalised_at'       => ['sometimes', 'nullable', 'date'],
-            'dispatched_at'      => ['sometimes', 'nullable', 'date'],
-            'customer_reference' => ['sometimes', 'string', 'max:64'],
-            'state'              => ['sometimes', Rule::enum(OrderStateEnum::class)],
-            'status'             => ['sometimes', Rule::enum(OrderStatusEnum::class)],
-            'handing_type'       => ['sometimes', 'required', Rule::enum(OrderHandingTypeEnum::class)],
-            'billing_address'    => ['sometimes', new ValidAddress()],
-            'delivery_address'   => ['sometimes', new ValidAddress()],
-            'billing_locked'     => ['sometimes', 'boolean'],
-            'delivery_locked'    => ['sometimes', 'boolean'],
-            'tax_category_id'    => ['sometimes', 'required', 'exists:tax_categories,id'],
-            'sales_channel_id'   => [
+
+
+            'customer_reference' => ['sometimes', 'string', 'max:255'],
+
+            'state'        => ['sometimes', Rule::enum(OrderStateEnum::class)],
+            'status'       => ['sometimes', Rule::enum(OrderStatusEnum::class)],
+            'handing_type' => ['sometimes', 'required', Rule::enum(OrderHandingTypeEnum::class)],
+
+
+            'tax_category_id'  => ['sometimes', 'required', 'exists:tax_categories,id'],
+            'sales_channel_id' => [
                 'sometimes',
                 'required',
                 Rule::exists('sales_channels', 'id')->where(function ($query) {
@@ -232,12 +218,11 @@ class StoreOrder extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['reference']    = ['sometimes', 'string', 'max:64'];
-            $rules['source_id']    = ['sometimes', 'string', 'max:64'];
-            $rules['fetched_at']   = ['sometimes', 'required', 'date'];
-            $rules['created_at']   = ['sometimes', 'required', 'date'];
-            $rules['cancelled_at'] = ['sometimes', 'nullable', 'date'];
-            $rules                 = $this->mergeOrderingAmountNoStrictFields($rules);
+            $rules['billing_address']  = ['required', new ValidAddress()];
+            $rules['delivery_address'] = ['required', new ValidAddress()];
+
+            $rules = $this->orderNoStrictFields($rules);
+            $rules = $this->noStrictStoreRules($rules);
         }
 
         return $rules;
@@ -254,24 +239,24 @@ class StoreOrder extends OrgAction
         }
     }
 
-    public function htmlResponse(Order $order, ActionRequest $request): Response
+    public function htmlResponse(Order $order, ActionRequest $request): RedirectResponse
     {
         $routeName = $request->route()->getName();
 
         return match ($routeName) {
-            'grp.models.customer.order.store' => Inertia::location(route('grp.org.shops.show.crm.customers.show.orders.show', [
-                'organisation' => $order->organisation->slug,
-                'shop'         => $order->shop->slug,
-                'customer'     => $order->customer->slug,
-                'order'        => $order->slug
-            ])),
-            'grp.models.customer-client.order.store' => Inertia::location(route('grp.org.shops.show.crm.customers.show.customer-clients.orders.show', [
-                'organisation'   => $order->organisation->slug,
-                'shop'           => $order->shop->slug,
-                'customer'       => $order->customer->slug,
-                'customerClient' => $order->customerClient->ulid,
-                'order'          => $order->slug
-            ])),
+            'grp.models.customer.order.store' => Redirect::route('grp.org.shops.show.crm.customers.show.orders.show', [
+                $order->organisation->slug,
+                $order->shop->slug,
+                $order->customer->slug,
+                $order->slug
+            ]),
+            'grp.models.customer-client.order.store' => Redirect::route('grp.org.shops.show.crm.customers.show.customer-clients.orders.show', [
+                $order->organisation->slug,
+                $order->shop->slug,
+                $order->customer->slug,
+                $order->customerClient->ulid,
+                $order->slug
+            ]),
         };
     }
 

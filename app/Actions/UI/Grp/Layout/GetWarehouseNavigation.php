@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 18 Feb 2024 07:12:46 Central Standard Time, Mexico City, Mexico
@@ -123,13 +124,13 @@ class GetWarehouseNavigation
                             "label"   => null,
                         ],
                         [
-                            "root"    => "grp.org.warehouses.show.infrastructure.warehouse-areas.",
+                            "root"    => "grp.org.warehouses.show.infrastructure.warehouse_areas.",
                             "label"   => __("areas"),
                             "tooltip" => __("Warehouse Areas"),
                             "icon"    => ["fal", "fa-map-signs"],
                             "route"   => [
                                 "name"       =>
-                                    "grp.org.warehouses.show.infrastructure.warehouse-areas.index",
+                                    "grp.org.warehouses.show.infrastructure.warehouse_areas.index",
                                 "parameters" => [$warehouse->organisation->slug, $warehouse->slug],
                             ],
                         ],

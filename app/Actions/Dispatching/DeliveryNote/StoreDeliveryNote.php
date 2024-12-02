@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Thu, 23 Feb 2023 16:47:00 Malaysia Time, Kuala Lumpur, Malaysia
@@ -54,27 +55,24 @@ class StoreDeliveryNote extends OrgAction
             $deliveryNote->stats()->create();
 
             if ($deliveryNote->delivery_locked) {
-                $deliveryNote = $this->createFixedAddress(
+                $this->createFixedAddress(
                     $deliveryNote,
                     $deliveryAddress,
                     'Ordering',
                     'delivery',
                     'address_id'
                 );
-            } else {
-                $deliveryNote = $this->addAddressToModel(
-                    model: $deliveryNote,
-                    addressData: $deliveryAddress->toArray(),
-                    scope: 'delivery',
-                    updateLocation: false,
+                $deliveryNote->updateQuietly(
+                    [
+                        'delivery_country_id' => $deliveryNote->address->country_id
+                    ]
                 );
+            } else {
+                StoreDeliveryNoteAddress::make()->action($deliveryNote, [
+                    'address' => $deliveryAddress
+                ]);
             }
 
-            $deliveryNote->updateQuietly(
-                [
-                    'delivery_country_id' => $deliveryNote->address->country_id
-                ]
-            );
 
             return $deliveryNote;
         });

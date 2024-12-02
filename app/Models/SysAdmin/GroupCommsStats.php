@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 23 Apr 2023 11:32:22 Malaysia Time, Sanur, Bali, Indonesia
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $id
  * @property int $group_id
  * @property int $number_post_rooms
+ * @property int $number_org_post_rooms
  * @property int $number_outboxes
  * @property int $number_outboxes_type_basket_low_stock
  * @property int $number_outboxes_type_basket_reminder_1

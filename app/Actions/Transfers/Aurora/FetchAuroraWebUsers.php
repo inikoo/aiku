@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Fri, 04 Nov 2022 14:51:04 Malaysia Time, Kuala Lumpur, Malaysia
@@ -19,7 +20,7 @@ use Throwable;
 
 class FetchAuroraWebUsers extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:web-users {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
+    public string $commandSignature = 'fetch:web_users {organisations?*} {--s|source_id=} {--S|shop= : Shop slug} {--N|only_new : Fetch only new} {--d|db_suffix=} {--r|reset}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?WebUser

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 11 Feb 2023 14:38:21 Malaysia Time,  Ubud, Bali
@@ -21,7 +22,7 @@ class FetchAuroraDeletedStocks extends FetchAuroraAction
 {
     use WithFetchStock;
 
-    public string $commandSignature = 'fetch:deleted-stocks {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:deleted_stocks {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): array

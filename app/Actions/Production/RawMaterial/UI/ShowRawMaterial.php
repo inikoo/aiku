@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Tue, 14 Mar 2023 15:31:00 Central European Standard Time, Malaga, Spain
@@ -8,7 +9,7 @@
 namespace App\Actions\Production\RawMaterial\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\Production\Production\UI\ShowProductionCrafts;
+use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Enums\UI\Production\ProductionTabsEnum;
@@ -129,7 +130,7 @@ class ShowRawMaterial extends OrgAction
         $rawMaterial = RawMaterial::where('slug', $routeParameters['rawMaterial'])->first();
 
         return array_merge(
-            ShowProductionCrafts::make()->getBreadcrumbs($routeParameters),
+            ShowCraftsDashboard::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'           => 'modelWithIndex',

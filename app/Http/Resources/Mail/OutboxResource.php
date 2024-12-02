@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  Author: Jonathan lopez <raul@inikoo.com>
  *  Created: Sat, 22 Oct 2022 18:53:15 British Summer Time, Sheffield, UK
@@ -7,12 +8,14 @@
 
 namespace App\Http\Resources\Mail;
 
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property string $slug
  * @property string $data
  * @property string $name
+ * @property OutboxTypeEnum $type
  * @property mixed $created_at
  * @property mixed $updated_at
  *
@@ -25,6 +28,7 @@ class OutboxResource extends JsonResource
             'slug'                           => $this->slug,
             'data'                           => $this->data,
             'name'                           => $this->name,
+            'type'                           => $this->type->stateIcon()[$this->type->value],
             'created_at'                     => $this->created_at,
             'updated_at'                     => $this->updated_at,
         ];

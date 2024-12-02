@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Mon, 26 Feb 2024 21:27:03 Central Standard Time, Mexico City, Mexico
@@ -45,7 +46,7 @@ class UpdateFulfilmentCustomer extends OrgAction
             if ($fulfilmentCustomer->customer->address) {
                 UpdateAddress::run($fulfilmentCustomer->customer->address, $contactAddressData);
             } else {
-                $this->addAddressToModel(
+                $this->addAddressToModelFromArray(
                     model: $fulfilmentCustomer->customer,
                     addressData: $contactAddressData,
                     scope: 'billing',

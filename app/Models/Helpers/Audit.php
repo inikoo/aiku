@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Thu, 12 Oct 2023 23:29:42 Malaysia Time, Office, Bali, Indonesia
@@ -6,6 +7,8 @@
  */
 
 namespace App\Models\Helpers;
+
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 /**
  * App\Models\Helpers\Audit
@@ -65,6 +68,17 @@ class Audit extends \OwenIt\Auditing\Models\Audit
                 }
             }
         );
+    }
+
+    public function auditable(): MorphTo
+    {
+        $morph = $this->morphTo();
+
+        try {
+            return $morph->withTrashed();
+        } catch (\Exception $e) {
+            return $morph;
+        }
     }
 
 }

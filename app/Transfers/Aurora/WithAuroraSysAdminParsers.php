@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Fri, 04 Oct 2024 11:58:26 Malaysia Time, Kuala Lumpur, Malaysia
@@ -88,6 +89,10 @@ trait WithAuroraSysAdminParsers
                     ->where('group_id', $this->organisation->group_id)
                     ->whereJsonContains('sources->parents', $this->organisation->id.':'.$this->auroraModelData->{'Subject Key'})
                     ->first();
+            }
+
+            if (!$user) {
+                $user = $this->parseUser($this->organisation->id.':'.$this->auroraModelData->{'User Key'});
             }
 
 

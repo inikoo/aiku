@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Wed, 10 Jan 2024 13:14:43 Malaysia Time, Kuala Lumpur, Malaysia
@@ -18,7 +19,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->string('scope')->index();
             $table->string('publisher_type')->nullable();
-            $table->unsignedSmallInteger('publisher_id')->nullable();
+            $table->unsignedInteger('publisher_id')->nullable();
             $table->string('parent_type')->nullable();
             $table->unsignedInteger('parent_id')->nullable();
             $table->unsignedInteger('customer_id')->nullable();

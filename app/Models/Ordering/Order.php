@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 20 Jun 2023 20:26:20 Malaysia Time, Pantai Lembeng, Bali, Indonesia
@@ -67,6 +68,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property bool $delivery_locked
  * @property int|null $estimated_weight grams
  * @property int|null $weight actual weight, grams
+ * @property array $payment_data
  * @property int|null $billing_address_id
  * @property int|null $delivery_address_id
  * @property int|null $collection_address_id
@@ -158,6 +160,7 @@ class Order extends Model implements HasMedia, Auditable
 
     protected $casts = [
         'data'         => 'array',
+        'payment_data' => 'array',
         'date'         => 'datetime',
         'state'        => OrderStateEnum::class,
         'status'       => OrderStatusEnum::class,
@@ -165,7 +168,8 @@ class Order extends Model implements HasMedia, Auditable
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'         => '{}',
+        'payment_data' => '{}',
     ];
 
     protected $guarded = [];

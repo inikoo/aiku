@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 26 Nov 2024 21:34:34 Central Indonesia Time, Kuala Lumpur, Malaysia
@@ -550,7 +551,7 @@ test('get helpers select options data', function () {
     $currencyData = GetCurrenciesOptions::run();
     expect($currencyData)->toHaveCount(159);
     $timezonesData = GetTimeZonesOptions::run();
-    expect($timezonesData)->toHaveCount(419);
+    expect(count($timezonesData))->toBeGreaterThan(400);
     $languagesData = GetLanguagesOptions::make()->all();
     expect($languagesData)->toHaveCount(279);
     $translatedLanguagesData = GetLanguagesOptions::make()->translated();

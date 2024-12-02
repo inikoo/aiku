@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Mon, 24 Oct 2022 11:01:21 British Summer Time, Sheffield, UK
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 
 class FetchAuroraStockFamilies extends FetchAuroraAction
 {
-    public string $commandSignature = 'fetch:stock-families {organisations?*} {--s|source_id=} {--d|db_suffix=}';
+    public string $commandSignature = 'fetch:stock_families {organisations?*} {--s|source_id=} {--d|db_suffix=}';
 
     public function handle(SourceOrganisationService $organisationSource, int $organisationSourceId): ?StockFamily
     {

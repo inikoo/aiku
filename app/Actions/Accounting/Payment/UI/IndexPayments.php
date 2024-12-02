@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Thu, 16 Mar 2023 08:17:51 Central European Standard Time, Malaga, Spain
@@ -111,8 +112,8 @@ class IndexPayments extends OrgAction
                 ->withGlobalSearch()
                 ->withModelOperations($modelOperations)
                 ->defaultSort('-date')
+                ->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true, type: 'icon')
                 ->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true)
-                ->column(key: 'status', label: __('status'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
         };
     }

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 18 Apr 2023 17:00:29 Malaysia Time, Sanur, Bali, Indonesia
@@ -21,6 +22,10 @@ class GetCurrencyExchange
 
     public function handle(Currency $baseCurrency, Currency $targetCurrency): float|null
     {
+        if ($baseCurrency->code === $targetCurrency->code) {
+            return 1.0;
+        }
+
         $key  = 'current-currency-exchange:'.$baseCurrency->code.'-'.$targetCurrency->code;
 
         $currencyExchange = (float)Cache::get($key);

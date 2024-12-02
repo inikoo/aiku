@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Thu, 21 Sep 2023 11:34:12 Malaysia Time, Pantai Lembeng, Bali, Indonesia
@@ -43,7 +44,7 @@ class StoreWorkplace extends OrgAction
         if (Arr::get($workplace->settings, 'address_link')) {
             $workplace = $this->addLinkedAddress($workplace);
         } else {
-            $workplace = $this->addAddressToModel($workplace, $addressData);
+            $workplace = $this->addAddressToModelFromArray($workplace, $addressData);
         }
 
         OrganisationHydrateWorkplaces::run($organisation);

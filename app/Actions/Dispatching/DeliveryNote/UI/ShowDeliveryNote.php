@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 09 Jun 2024 13:48:15 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
@@ -292,6 +293,7 @@ class ShowDeliveryNote extends OrgAction
                 'notes'     => 'zzzzzzzzz',
                 'timelines' => $finalTimeline,
                 'box_stats' => [
+                    'state'  => $deliveryNote->state,
                     'customer'          => array_merge(
                         CustomerResource::make($deliveryNote->customer)->getArray(),
                         [
@@ -304,6 +306,8 @@ class ShowDeliveryNote extends OrgAction
                         'estimated_weight' => $estWeight,
                         'number_items'     => $deliveryNote->stats->number_items,
                     ],
+                    'picker' => $deliveryNote->picker,
+                    'packer' => $deliveryNote->packer,
                     // 'warehouse' => [
                     //     'picker' => $deliveryNote->picker->alias ?? null,
                     //     'packer' => $deliveryNote->packer->alias ?? null
@@ -311,8 +315,10 @@ class ShowDeliveryNote extends OrgAction
                 ],
                 'routes'    => [
                     'update'    => [
-                        'name'          => 'xxxxxxxxxxxxx',
-                        'parameters'    => 'xxxxxxx'
+                        'name'          => 'grp.models.delivery-note.update',
+                        'parameters'    => [
+                            'deliveryNote'  => $deliveryNote->id
+                        ]
                     ],
                     'products_list'    => [
                         'name'          => 'xxxxxxxxxxxxx',

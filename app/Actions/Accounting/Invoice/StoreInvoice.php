@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 25 Mar 2023 01:37:38 Malaysia Time, Kuala Lumpur, Malaysia
@@ -17,7 +18,7 @@ use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateInvoices;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateSales;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateInvoices;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateSales;
-use App\Actions\Traits\Rules\WithOrderingAmountNoStrictFields;
+use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithOrderExchanges;
 use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
@@ -35,7 +36,7 @@ class StoreInvoice extends OrgAction
 {
     use WithFixedAddressActions;
     use WithOrderExchanges;
-    use WithOrderingAmountNoStrictFields;
+    use WithNoStrictRules;
 
 
     private Order|Customer|RecurringBill $parent;
@@ -43,10 +44,8 @@ class StoreInvoice extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(
-        Customer|Order|RecurringBill $parent,
-        array $modelData,
-    ): Invoice {
+    public function handle(Customer|Order|RecurringBill $parent, array $modelData): Invoice
+    {
         if (class_basename($parent) == 'Customer') {
             $modelData['customer_id'] = $parent->id;
         } elseif (class_basename($parent) == 'RecurringBill') {
@@ -54,19 +53,38 @@ class StoreInvoice extends OrgAction
         } else {
             $modelData['customer_id'] = $parent->customer_id;
         }
+
+        if (!Arr::has($modelData, 'billing_address')) {
+            if ($parent instanceof Order) {
+                $modelData['billing_address'] = $parent->billingAddress;
+            } elseif ($parent instanceof RecurringBill) {
+                $modelData['billing_address'] = $parent->fulfilmentCustomer->billingAddress;
+            } else {
+                $modelData['billing_address'] = $parent->address;
+            }
+
+        }
+
+
         if (!Arr::exists($modelData, 'tax_category_id')) {
             if ($parent instanceof Order || $parent instanceof RecurringBill) {
                 $modelData['tax_category_id'] = $parent->tax_category_id;
             } else {
+                /** @var Customer $customer */
                 $customer = Customer::find($modelData['customer_id']);
+
+                $billingAddress  = $customer->address;
+                $deliveryAddress = $customer->deliveryAddress;
+
+
                 data_set(
                     $modelData,
                     'tax_category_id',
                     GetTaxCategory::run(
                         country: $this->organisation->country,
                         taxNumber: $customer->taxNumber,
-                        billingAddress: $modelData['billing_address'],
-                        deliveryAddress: $modelData['billing_address']
+                        billingAddress: $billingAddress,
+                        deliveryAddress: $deliveryAddress
                     )->id
                 );
             }
@@ -74,6 +92,7 @@ class StoreInvoice extends OrgAction
 
 
         $billingAddressData = $modelData['billing_address'];
+
         data_forget($modelData, 'billing_address');
 
 
@@ -95,7 +114,7 @@ class StoreInvoice extends OrgAction
             /** @var Invoice $invoice */
             $invoice = $parent->invoices()->create($modelData);
             $invoice->stats()->create();
-            $invoice = $this->createFixedAddress(
+            $this->createFixedAddress(
                 $invoice,
                 $billingAddressData,
                 'Ordering',
@@ -149,18 +168,13 @@ class StoreInvoice extends OrgAction
                 ),
             ],
             'currency_id'      => ['required', 'exists:currencies,id'],
-            'billing_address'  => ['required', new ValidAddress()],
             'type'             => ['required', Rule::enum(InvoiceTypeEnum::class)],
             'net_amount'       => ['required', 'numeric'],
             'total_amount'     => ['required', 'numeric'],
             'date'             => ['sometimes', 'date'],
             'tax_liability_at' => ['sometimes', 'date'],
-            'created_at'       => ['sometimes', 'date'],
             'data'             => ['sometimes', 'array'],
-            'source_id'        => ['sometimes', 'string'],
-            'tax_category_id'  => ['sometimes', 'required', 'exists:tax_categories,id'],
-            'fetched_at'       => ['sometimes', 'date'],
-            'sales_channel_id'   => [
+            'sales_channel_id' => [
                 'sometimes',
                 'required',
                 Rule::exists('sales_channels', 'id')->where(function ($query) {
@@ -170,8 +184,10 @@ class StoreInvoice extends OrgAction
         ];
 
         if (!$this->strict) {
-            $rules['reference'] = ['required', 'max:64', 'string'];
-            $rules              = $this->mergeOrderingAmountNoStrictFields($rules);
+            $rules['tax_category_id'] = ['sometimes', 'required', 'exists:tax_categories,id'];
+            $rules['billing_address'] = ['required', new ValidAddress()];
+            $rules                    = $this->orderingAmountNoStrictFields($rules);
+            $rules                    = $this->noStrictStoreRules($rules);
         }
 
 

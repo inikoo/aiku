@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { Head } from '@inertiajs/vue3'
 import PageHeading from '@/Components/Headings/PageHeading.vue'
 import { capitalize } from "@/Composables/capitalize"
-import Unlayer from "@/Components/CMS/Website/Outboxes/Unlayer/Unlayer.vue"
+import Unlayer from "@/Components/CMS/Website/Outboxes/Unlayer/UnlayerV2.vue"
 import Button from '@/Components/Elements/Buttons/Button.vue';
 import Modal from "@/Components/Utils/Modal.vue"
 import TemplateMailshot from '@/Components/CMS/Website/Outboxes/Templates/TemplateMailshot.vue'

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Wed, 15 Mar 2023 08:39:50 Central European Standard Time, Malaga, Spain
@@ -98,7 +99,7 @@ class ShowWarehouseArea extends OrgAction
                             'name'     => trans_choice('location|locations', $warehouseArea->stats->number_locations),
                             'number'   => $warehouseArea->stats->number_locations,
                             'route'     => [
-                                'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index',
+                                'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.index',
                                 'parameters' => $request->route()->originalParameters()
                             ],
                             'leftIcon' => [
@@ -180,11 +181,11 @@ class ShowWarehouseArea extends OrgAction
                 $warehouseArea,
                 [
                     'index' => [
-                        'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
+                        'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.index',
                         'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
                     ],
                     'model' => [
-                        'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show',
+                        'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.show',
                         'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'warehouseArea'])
                     ]
                 ],

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Tue, 25 Apr 2023 12:47:10 Central European Summer Time, Malaga, Spain

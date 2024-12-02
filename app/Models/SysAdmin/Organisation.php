@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Mon, 04 Dec 2023 17:25:34 Malaysia Time, Kuala Lumpur, Malaysia
@@ -29,6 +30,7 @@ use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Catalogue\Subscription;
 use App\Models\Comms\ModelSubscribedToOutbox;
+use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
@@ -176,6 +178,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, OrgAgent> $orgAgents
  * @property-read LaravelCollection<int, OrgPartner> $orgPartners
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
+ * @property-read LaravelCollection<int, OrgPostRoom> $orgPostRooms
  * @property-read LaravelCollection<int, OrgStockFamily> $orgStockFamilies
  * @property-read LaravelCollection<int, OrgStock> $orgStocks
  * @property-read LaravelCollection<int, OrgSupplierProduct> $orgSupplierProducts
@@ -744,6 +747,11 @@ class Organisation extends Model implements HasMedia, Auditable
     public function aikuScopedSections(): MorphToMany
     {
         return $this->morphToMany(AikuSection::class, 'model', 'aiku_scoped_sections');
+    }
+
+    public function orgPostRooms(): HasMany
+    {
+        return $this->hasMany(OrgPostRoom::class);
     }
 
 }

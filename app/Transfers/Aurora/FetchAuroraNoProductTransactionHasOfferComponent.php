@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Wed, 20 Nov 2024 18:51:19 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -29,6 +30,7 @@ class FetchAuroraNoProductTransactionHasOfferComponent extends FetchAurora
         if (!$offerComponent) {
             print 'No offer component found (in no-product)  for '.$this->auroraModelData->{'Deal Component Key'}."\n";
             print_r($this->auroraModelData);
+
             return;
         }
 
@@ -41,11 +43,16 @@ class FetchAuroraNoProductTransactionHasOfferComponent extends FetchAurora
         $this->parsedData['transaction']     = $transaction;
         $this->parsedData['offer_component'] = $offerComponent;
 
+        $fractionDiscount = $this->auroraModelData->{'Fraction Discount'};
+        if ($fractionDiscount > 1) {
+            $fractionDiscount = 1;
+        }
+
         $this->parsedData['transaction_has_offer_component'] = [
             'source_alt_id'         => $this->organisation->id.':'.$this->auroraModelData->{'Order No Product Transaction Deal Key'},
             'offer_component_id'    => $offerComponent->id,
             'discounted_amount'     => $this->auroraModelData->{'Amount Discount'},
-            'discounted_percentage' => $this->auroraModelData->{'Fraction Discount'},
+            'discounted_percentage' => $fractionDiscount,
             'info'                  => $this->auroraModelData->{'Deal Info'},
             'is_pinned'             => $this->auroraModelData->{'Order No Product Transaction Deal Pinned'} == 'Yes',
             'precursor'             => $this->auroraModelData->{'Order No Product Transaction Deal Source'},

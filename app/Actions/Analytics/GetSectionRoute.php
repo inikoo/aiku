@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Ganes <gustiganes@gmail.com>
  * Created on: 21-11-2024, Bali, Indonesia
@@ -92,7 +93,7 @@ class GetSectionRoute extends OrgAction
         $sectionCode = match (true) {
             str_starts_with($route, 'catalogue') => AikuSectionEnum::SHOP_CATALOGUE,
             str_starts_with($route, 'billables') => AikuSectionEnum::SHOP_BILLABLES,
-            str_starts_with($route, 'offer') => AikuSectionEnum::SHOP_OFFER,
+            str_starts_with($route, 'discounts') => AikuSectionEnum::SHOP_OFFER,
             str_starts_with($route, 'marketing') => AikuSectionEnum::SHOP_MARKETING,
             str_starts_with($route, 'web') => AikuSectionEnum::SHOP_WEBSITE,
             str_starts_with($route, 'crm.customers.show.customer-clients') => AikuSectionEnum::DROPSHIPPING,

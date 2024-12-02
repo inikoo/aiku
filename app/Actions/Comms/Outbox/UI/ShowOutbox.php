@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 19 Nov 2024 11:09:35 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -9,6 +10,7 @@ namespace App\Actions\Comms\Outbox\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Web\HasWorkshopAction;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Enums\UI\Mail\OutboxTabsEnum;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Catalogue\Shop;
@@ -81,6 +83,19 @@ class ShowOutbox extends OrgAction
         $this->canEdit = true;
         $actions       = $this->workshopActions($request);
 
+        if ($outbox->type === OutboxTypeEnum::USER_NOTIFICATION) {
+            $actions = array_merge($actions, $this->canEdit ? [
+                'type'  => 'button',
+                'style' => 'secondary',
+                'label' => __('workshop'),
+                'icon'  => ["fal", "fa-drafting-compass"],
+                'route' => [
+                    'name'       => preg_replace('/show$/', 'workshop', $request->route()->getName()),
+                    'parameters' => array_values($request->route()->originalParameters())
+                ]
+            ] : []);
+        }
+
         return Inertia::render(
             'Mail/Outbox',
             [
@@ -94,7 +109,7 @@ class ShowOutbox extends OrgAction
                     'next'     => $this->getNext($outbox, $request),
                 ],
                 'pageHead'    => [
-                    'title'   => $outbox->slug,
+                    'title'   => $outbox->name,
                     'icon'    =>
                         [
                             'icon'  => ['fal', 'fa-inbox-out'],
@@ -131,7 +146,7 @@ class ShowOutbox extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => $outbox->slug,
+                        'label' => $outbox->code,
                     ],
                     'suffix' => $suffix
                 ],

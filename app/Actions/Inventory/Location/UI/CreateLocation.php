@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 06 Feb 2024 12:39:37 Malaysia Time, Kuala Lumpur, Malaysia
@@ -90,7 +91,7 @@ class CreateLocation extends OrgAction
                                 'parameters' => $this->parent->id
                             ],
                             'WarehouseArea' => [
-                                'name'       => 'grp.models.warehouse-area.location.store',
+                                'name'       => 'grp.models.warehouse_area.location.store',
                                 'parameters' => $this->parent->id
                             ]
                         }

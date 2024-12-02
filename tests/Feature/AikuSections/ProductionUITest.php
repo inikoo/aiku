@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Mon, 25 Nov 2024 11:47:23 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -95,6 +96,7 @@ beforeEach(function () {
         );
     }
     $this->manufactureTask = $manufactureTask;
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -224,7 +226,12 @@ test('UI show artifact', function () {
 });
 
 test('UI show artifact (manufacture task tab)', function () {
-    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/factory/'.$this->production->slug.'/crafts/artefacts/'.$this->artefact->slug.'?tab=manufacture_tasks');
+    $response = get(route('grp.org.productions.show.crafts.artefacts.show', [
+        $this->organisation->slug,
+        $this->production->slug,
+        $this->artefact->slug,
+        'tab' => 'manufacture_tasks'
+    ]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Production/Artefact')
@@ -293,7 +300,12 @@ test('UI show production task', function () {
 });
 
 test('UI show production task (Artefacts tab)', function () {
-    $response = get('http://app.aiku.test/org/'.$this->organisation->slug.'/factory/'.$this->production->slug.'/crafts/manufacture-tasks/'.$this->manufactureTask->slug.'?tab=artefact');
+    $response = get(route('grp.org.productions.show.crafts.manufacture_tasks.show', [
+        $this->organisation->slug,
+        $this->production->slug,
+        $this->manufactureTask->slug,
+        'tab' => 'artefact'
+    ]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Production/ManufactureTask')
@@ -342,4 +354,14 @@ test('UI get section route operation dashboard', function () {
         ->and($sectionScope->organisation_id)->toBe($this->organisation->id)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::PRODUCTION_OPERATION->value)
         ->and($sectionScope->model_slug)->toBe($this->production->slug);
+});
+
+test('UI get section route org productions index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.productions.index', [
+        'organisation' => $this->organisation->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_PRODUCTION->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
 });

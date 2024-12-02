@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Fri, 24 May 2024 23:16:35 British Summer Time, Sheffield, UK
@@ -36,7 +37,7 @@ trait WithModelAddressActions
     }
 
 
-    protected function updateModelAddress($model, $addressData, $updateLocation = true, $updateAddressField = 'address_id')
+    protected function updateModelAddress($model, array $addressData, $updateLocation = true, $updateAddressField = 'address_id')
     {
         if (!$addressData) {
             return $model;
@@ -52,11 +53,11 @@ trait WithModelAddressActions
 
             return $model;
         } else {
-            return $this->addAddressToModel(model: $model, addressData: $addressData, updateLocation: $updateLocation, updateAddressField: $updateAddressField);
+            return $this->addAddressToModelFromArray(model: $model, addressData: $addressData, updateLocation: $updateLocation, updateAddressField: $updateAddressField);
         }
     }
 
-    protected function addAddressToModel($model, $addressData, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id', bool $canShip = null)
+    protected function addAddressToModelFromArray($model, array $addressData, $scope = 'default', $updateLocation = true, $updateAddressField = 'address_id', bool $canShip = null)
     {
         if (!$addressData) {
             return $model;
@@ -211,6 +212,8 @@ trait WithModelAddressActions
 
         return $model;
     }
+
+
 
 
 }

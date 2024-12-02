@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Fri, 27 Sept 2024 11:46:47 Malaysia Time, Kuala Lumpur, Malaysia
@@ -52,7 +53,7 @@ class StoreCustomerClient extends OrgAction
             $customerClient = $customer->clients()->create($modelData);
             $customerClient->stats()->create();
 
-            return $this->addAddressToModel(
+            return $this->addAddressToModelFromArray(
                 model: $customerClient,
                 addressData: $address,
                 scope: 'delivery',

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 09 Jun 2024 12:55:10 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
@@ -103,10 +104,7 @@ class FetchAuroraDeliveryNote extends FetchAurora
             prefix: "Delivery Note",
             auAddressData: $this->auroraModelData,
         );
-        $deliveryAddress     = new Address(
-            $deliveryAddressData,
-        );
-
+        $deliveryAddress     = new Address($deliveryAddressData);
 
         $deliveryLocked = false;
         if (in_array($this->auroraModelData->{'Delivery Note State'}, ['Cancelled', 'Approved', 'Dispatched', 'Cancelled to Restock'])) {

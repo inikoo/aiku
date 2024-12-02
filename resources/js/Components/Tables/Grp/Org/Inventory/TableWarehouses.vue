@@ -33,7 +33,7 @@ function warehouseAreasRoute(warehouse: Warehouse) {
     switch (route().current()) {
         case 'grp.org.warehouses.index':
             return route(
-                'grp.org.warehouses.show.infrastructure.warehouse-areas.index',
+                'grp.org.warehouses.show.infrastructure.warehouse_areas.index',
                 [route().params['organisation'], warehouse.slug])
     }
 }

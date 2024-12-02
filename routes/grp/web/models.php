@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Tue, 14 Mar 2023 10:25:11 Central European Standard Time, Malaga, Spain
@@ -131,12 +132,6 @@ use App\Actions\HumanResources\JobPosition\UpdateJobPosition;
 use App\Actions\HumanResources\Workplace\DeleteWorkplace;
 use App\Actions\HumanResources\Workplace\StoreWorkplace;
 use App\Actions\HumanResources\Workplace\UpdateWorkplace;
-use App\Actions\Inventory\Location\DeleteLocation;
-use App\Actions\Inventory\Location\ImportLocation;
-use App\Actions\Inventory\Location\StoreLocation;
-use App\Actions\Inventory\Location\UpdateLocation;
-use App\Actions\Inventory\Warehouse\UpdateWarehouse;
-use App\Actions\Inventory\WarehouseArea\ImportWarehouseArea;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Purge\StorePurge;
 use App\Actions\Ordering\Purge\UpdatePurge;
@@ -400,6 +395,8 @@ Route::name('pallet.')->prefix('pallet/{pallet:id}')->group(function () {
 
     Route::patch('damaged', SetPalletAsDamaged::class)->name('damaged');
     Route::patch('lost', SetPalletAsLost::class)->name('lost');
+    Route::patch('location', UpdatePalletLocation::class)->name('location.update');
+
 });
 
 Route::name('pallet-return-item.')->prefix('pallet-return-item/{palletReturnItem}')->group(function () {
@@ -495,26 +492,9 @@ Route::name('fulfilment.')->prefix('fulfilment/{fulfilment:id}')->group(function
 
 });
 
-Route::name('warehouse.')->prefix('warehouse/{warehouse:id}')->group(function () {
-    Route::patch('/', UpdateWarehouse::class)->name('update');
-    Route::post('areas/upload', [ImportWarehouseArea::class, 'inWarehouse'])->name('warehouse-areas.upload');
 
-    Route::patch('pallet/{pallet:id}/locations', [UpdatePalletLocation::class, 'inWarehouse'])->name('pallets.location.update')->withoutScopedBindings();
 
-    Route::post('location/upload', [ImportLocation::class, 'inWarehouse'])->name('location.upload');
-    Route::post('location', [StoreLocation::class, 'inWarehouse'])->name('location.store');
-    Route::delete('location/{location:id}/delete', [DeleteLocation::class, 'inWarehouse'])->name('location.delete');
-});
 
-Route::patch('location/{location:id}', UpdateLocation::class)->name('location.update');
-Route::patch('location/{location:id}/tags', [SyncTagsModel::class, 'inLocation'])->name('location.tag.attach');
-Route::post('location/{location:id}/tags', [StoreTag::class, 'inLocation'])->name('location.tag.store');
-
-Route::name('warehouse-area.')->prefix('warehouse-area/{warehouseArea:id}')->group(function () {
-    Route::post('location/upload', [ImportLocation::class, 'inWarehouseArea'])->name('location.upload');
-    Route::post('location', [StoreLocation::class, 'inWarehouseArea'])->name('location.store');
-    Route::delete('location/{location:id}/delete', [DeleteLocation::class, 'inWarehouseArea'])->name('location.delete');
-});
 
 Route::post('group/{group:id}/organisation', StoreOrganisation::class)->name('organisation.store');
 
@@ -651,8 +631,10 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::delete('transactions/{purchaseOrderTransaction:id}/delete', DeletePurchaseOrderTransaction::class)->name('transaction.delete')->withoutScopedBindings();
 });
 
+require __DIR__."/models/inventory/warehouse.php";
 require __DIR__."/models/inventory/location_org_stock.php";
-require __DIR__."/models/inventory/org_warehouse_area.php";
+require __DIR__."/models/inventory/warehouse_area.php";
+require __DIR__."/models/inventory/location.php";
 require __DIR__."/models/ordering/order.php";
 require __DIR__."/models/stock/stock.php";
 require __DIR__."/models/accounting/invoice.php";
@@ -702,25 +684,6 @@ Route::patch('/order/{order:id}', UpdateOrder::class)->name('order.update');
 
 
 
-
-Route::post('/warehouse/', StoreWarehouse::class)->name('warehouse.store');
-Route::patch('/warehouse/{warehouse:id}', UpdateWarehouse::class)->name('warehouse.update');
-Route::delete('/warehouse/{warehouse:id}', DeleteWarehouse::class)->name('warehouse.delete');
-
-Route::post('/warehouse/{warehouse:id}/area/', StoreWarehouseArea::class)->name('warehouse.warehouse-area.store');
-
-Route::patch('/area/{warehouseArea:id}', UpdateWarehouseArea::class)->name('warehouse-area.update');
-Route::delete('/area/{warehouseArea:id}', DeleteWarehouseArea::class)->name('warehouse-area.delete');
-Route::delete('/warehouse/{warehouse:id}/area/{warehouseArea:id}', [DeleteWarehouseArea::class,'inWarehouse'])->name('warehouse.warehouse-area.delete');
-
-Route::patch('/location/{location:id}', UpdateLocation::class)->name('location.update');
-Route::delete('/location/{location:id}', DeleteLocation::class)->name('location.delete');
-Route::delete('/warehouse/{warehouse:id}/location/{location:id}', [DeleteLocation::class, 'inWarehouse'])->name('warehouse.location.delete');
-Route::delete('/area/{warehouseArea:id}/location/{location:id}', [DeleteLocation::class, 'inWarehouseArea'])->name('warehouse-area.location.delete');
-Route::delete('/warehouse/{warehouse:id}/area/{warehouseArea:id}/location/{location:id}', [DeleteLocation::class, 'inWarehouseInWarehouseArea'])->name('warehouse.warehouse-area.location.delete');
-
-Route::post('/warehouse/{warehouse:id}/location', StoreLocation::class)->name('warehouse.location.store');
-Route::post('/area/{warehouseArea:id}/location', [StoreLocation::class, 'inWarehouseArea'])->name('warehouse-area.location.store');
 
 Route::patch('/stock/{stock:id}', UpdateStock::class)->name('stock.update');
 Route::post('/stock-family', StoreStockFamily::class)->name('stock-family.store');

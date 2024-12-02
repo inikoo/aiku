@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 02 Jun 2024 10:26:07 Central European Summer Time, Mijas Costa, Spain

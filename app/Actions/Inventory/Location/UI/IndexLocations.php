@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Wed, 15 Mar 2023 11:34:32 Central European Standard Time, Malaga, Spain
@@ -183,7 +184,7 @@ class IndexLocations extends OrgAction
                                 'tooltip' => __('new location'),
                                 'label'   => __('location'),
                                 'route'   => [
-                                    'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.create',
+                                    'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.create',
                                     'parameters' => [
                                         'organisation'  => $parent->organisation->slug,
                                         'warehouse'     => $parent->warehouse->slug,
@@ -249,7 +250,7 @@ class IndexLocations extends OrgAction
                         $this->canEdit
                         && (
                             $request->route()->getName() == 'grp.org.warehouses.show.infrastructure.locations.index' or
-                            $request->route()->getName() == 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index'
+                            $request->route()->getName() == 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.index'
                         )
                             ? [
                             'type'   => 'buttonGroup',
@@ -268,7 +269,7 @@ class IndexLocations extends OrgAction
                                             ]
                                         ],
                                         WarehouseArea::class => [
-                                            'name'       => 'grp.models.warehouse-area.location.upload',
+                                            'name'       => 'grp.models.warehouse_area.location.upload',
                                             'parameters' => [
                                                 $this->parent->id
                                             ]
@@ -286,7 +287,7 @@ class IndexLocations extends OrgAction
                                             'parameters' => array_values($request->route()->originalParameters())
                                         ],
                                         default => [
-                                            'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.create',
+                                            'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.create',
                                             'parameters' => array_values($request->route()->originalParameters())
                                         ]
                                     }
@@ -337,13 +338,13 @@ class IndexLocations extends OrgAction
                     'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse'])
                 ])
             ),
-            'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index' =>
+            'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.index' =>
             array_merge(
                 (new ShowWarehouseArea())->getBreadcrumbs(
                     Arr::only($routeParameters, ['organisation', 'warehouse', 'warehouseArea'])
                 ),
                 $headCrumb([
-                    'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index',
+                    'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.index',
                     'parameters' => Arr::only($routeParameters, ['organisation', 'warehouse', 'warehouseArea'])
                 ])
             ),

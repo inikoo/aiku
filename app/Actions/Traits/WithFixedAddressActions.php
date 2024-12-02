@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 25 May 2024 13:58:23 British Summer Time, Sheffield, UK
@@ -10,6 +11,7 @@ namespace App\Actions\Traits;
 use App\Actions\Helpers\Address\Hydrators\AddressHydrateFixedUsage;
 use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Group;
+use Illuminate\Support\Arr;
 
 trait WithFixedAddressActions
 {
@@ -22,22 +24,31 @@ trait WithFixedAddressActions
     }
 
 
-    protected function createFixedAddress($model, Address $addressTemplate, string $fixedScope, $scope, $addressField)
+    protected function createFixedAddress($model, Address $addressTemplate, string $fixedScope, $scope, $addressField): Address
     {
         $groupId = $model->group_id;
         if ($model instanceof Group) {
             $groupId = $model->id;
         }
         if (!$address = $this->findFixedAddress($addressTemplate, $fixedScope)) {
-
-
             $modelData = $addressTemplate->toArray();
             data_set($modelData, 'is_fixed', true);
             data_set($modelData, 'fixed_scope', $fixedScope);
-
-
             data_set($modelData, 'group_id', $groupId);
-
+            $modelData = Arr::only($modelData, [
+                'group_id',
+                'address_line_1',
+                'address_line_2',
+                'sorting_code',
+                'postal_code',
+                'dependent_locality',
+                'locality',
+                'administrative_area',
+                'country_code',
+                'country_id',
+                'is_fixed',
+                'fixed_scope'
+            ]);
 
             $address = Address::create($modelData);
         }
@@ -45,7 +56,7 @@ trait WithFixedAddressActions
         $model->fixedAddresses()->attach(
             $address->id,
             [
-                'scope'    => $scope,
+                'scope' => $scope,
                 'group_id' => $groupId
             ]
         );
@@ -53,10 +64,10 @@ trait WithFixedAddressActions
         AddressHydrateFixedUsage::dispatch($address);
         $model->updateQuietly([$addressField => $address->id]);
 
-        return $model;
+        return $address;
     }
 
-    protected function updateFixedAddress($model, Address $currentAddress, Address $addressData, string $fixedScope, $scope, $addressField)
+    protected function updateFixedAddress($model, Address $currentAddress, Address $addressData, string $fixedScope, $scope, $addressField): Address
     {
         if ($currentAddress->checksum != $addressData->getChecksum()) {
             $model->fixedAddresses()->detach($currentAddress->id);
@@ -65,7 +76,7 @@ trait WithFixedAddressActions
             return $this->createFixedAddress($model, $addressData, $fixedScope, $scope, $addressField);
         }
 
-        return $model;
+        return $currentAddress;
     }
 
 }

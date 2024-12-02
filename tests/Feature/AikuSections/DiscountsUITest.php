@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 30-10-2024-08h-38m
@@ -6,10 +7,13 @@
  * copyright 2024
 */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
 use App\Actions\Discounts\OfferCampaign\StoreOfferCampaign;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Catalogue\Shop;
 use App\Models\Discounts\OfferCampaign;
 use Inertia\Testing\AssertableInertia;
@@ -48,6 +52,7 @@ beforeEach(function () {
         );
     }
     $this->offerCampaign = $offerCampaign;
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -99,4 +104,15 @@ test('UI Index offers', function () {
             ->has('data')
             ->has('breadcrumbs', 3);
     });
+});
+
+test('UI get section route offer dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.discounts.offers.index', [
+        'organisation' => $this->organisation->slug,
+        'shop' => $this->shop->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_OFFER->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
 });

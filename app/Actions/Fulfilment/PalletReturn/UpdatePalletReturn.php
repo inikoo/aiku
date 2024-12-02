@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Artha <artha@aw-advantage.com>
  * Created: Wed, 24 Jan 2024 16:14:16 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -62,7 +63,7 @@ class UpdatePalletReturn extends OrgAction
                     $pivotData
                 );
             } else {
-                $this->addAddressToModel(
+                $this->addAddressToModelFromArray(
                     $palletReturn->fulfilmentCustomer->customer,
                     $addressData,
                     'delivery',

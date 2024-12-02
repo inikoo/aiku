@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 25 Mar 2023 01:59:32 Malaysia Time, Kuala Lumpur, Malaysia
@@ -35,7 +36,7 @@ class AssetHydrateSales
     {
         $stats = [];
 
-        $queryBase = InvoiceTransaction::where('asset_id', $asset->id)->selectRaw('sum(grp_net_amount) as  sum_group  , sum(grp_net_amount) as  sum_org , sum(net) as  sum_shop  ');
+        $queryBase = InvoiceTransaction::where('asset_id', $asset->id)->selectRaw('sum(grp_net_amount) as  sum_group  , sum(grp_net_amount) as  sum_org , sum(net_amount) as  sum_shop  ');
 
         $stats = array_merge($stats, $this->processIntervalShopAssetsStats($queryBase));
 

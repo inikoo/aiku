@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Wed, 08 May 2024 14:32:45 British Summer Time, Sheffield, UK
@@ -26,17 +27,17 @@ enum WarehouseAreaTabsEnum: string
         return match ($this) {
             WarehouseAreaTabsEnum::LOCATIONS             => [
                 'title' => __('locations'),
-                'icon'  => 'fal fa-chart-line',
+                'icon'  => 'fal fa-inventory',
             ],
             WarehouseAreaTabsEnum::HISTORY     => [
                 'align' => 'right',
                 'type'  => 'icon',
-                'title' => __('changelog'),
+                'title' => __('history'),
                 'icon'  => 'fal fa-clock',
             ],
             WarehouseAreaTabsEnum::SHOWCASE => [
-                'title' => __('warehouse area'),
-                'icon'  => 'fas fa-info-circle',
+                'title' => __('overview'),
+                'icon'  => 'fal fa-tachometer-alt-fast',
             ],
         };
     }

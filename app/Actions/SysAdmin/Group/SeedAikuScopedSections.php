@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 21-11-2024-11h-16m
@@ -18,6 +19,7 @@ use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Analytics\AikuSection;
 use App\Models\Catalogue\Shop;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Production\Production;
@@ -63,14 +65,22 @@ class SeedAikuScopedSections extends GrpAction
     }
 
 
-    public function seedAikuScopedSection(Group|Shop|Organisation|Fulfilment|Production|Warehouse|Agent $model): void
+    public function seedAikuScopedSection(Group|Shop|Organisation|Fulfilment|Production|Warehouse|Agent|CustomerClient $model): void
     {
         foreach (AikuSectionEnum::cases() as $case) {
             $scope = class_basename($model);
             if ($scope == 'Organisation' and $model->type == OrganisationTypeEnum::DIGITAL_AGENCY) {
                 $scope = 'DigitalAgency';
             }
-
+            if ($scope == 'CustomerClient') { // limit scope for dropshipping
+                $scope = 'Dropshipping';
+                data_set($model, 'slug', $model->shop->slug);
+            }
+            if ($scope == 'Shop') {
+                foreach ($model->clients()->get() as $client) {
+                    $this->seedAikuScopedSection($client);
+                }
+            }
             if (in_array($scope, $case->scopes())) {
                 $aikuSection = AikuSection::where('code', $case->value)->first();
                 $code        = $aikuSection->slug;

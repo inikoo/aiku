@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 23 Nov 2024 14:10:32 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -30,7 +31,7 @@ return new class () extends Migration {
             $table->string('subject')->index();
 
 
-            $table->unsignedSmallInteger('snapshot_id')->nullable()->index();
+            $table->unsignedInteger('snapshot_id')->nullable()->index();
             $table->foreign('snapshot_id')->references('id')->on('snapshots')->onUpdate('cascade')->onDelete('cascade');
 
 

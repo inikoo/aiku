@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 19 Nov 2024 11:09:35 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -45,6 +46,7 @@ class UpdateOutbox extends OrgAction
                     table: 'outboxes',
                     extraConditions: [
                         ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                        ['column' => 'shop_id', 'value' => $this->outbox->shop_id],
                         ['column' => 'id', 'value' => $this->outbox->id, 'operator' => '!=']
                     ]
                 ),

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Indonesia
@@ -51,7 +52,7 @@ class UpdateStateToFinalizedOrder extends OrgAction
             'tax_amount'       => $order->tax_amount
         ];
 
-        $invoice = StoreInvoice::make()->action($order, $invoiceData);
+        $invoice = StoreInvoice::make()->action(parent: $order, modelData: $invoiceData, strict: false);
 
         $transactions = $order->transactions;
 

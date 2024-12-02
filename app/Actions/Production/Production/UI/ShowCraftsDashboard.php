@@ -1,7 +1,8 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 10 May 2024 20:55:56 British Summer Time, Sheffield, UK
+ * Created: Fri, 10 May 2024 20:55:47 British Summer Time, Sheffield, UK
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
@@ -23,7 +24,7 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 
-class ShowProductionOperations extends OrgAction
+class ShowCraftsDashboard extends OrgAction
 {
     use WithActionButtons;
 
@@ -61,9 +62,9 @@ class ShowProductionOperations extends OrgAction
     {
 
         return Inertia::render(
-            'Org/Production/Production',
+            'Org/Production/CraftsDashboard',
             [
-                'title'                            => __('Factory operations'),
+                'title'                            => __('Crafts'),
                 'breadcrumbs'                      => $this->getBreadcrumbs($request->route()->originalParameters()),
                 'navigation'                       => [
                     'previous' => $this->getPrevious($production, $request),
@@ -72,28 +73,16 @@ class ShowProductionOperations extends OrgAction
                 'pageHead'                         => [
                     'icon'    =>
                         [
-                            'icon'  => ['fal', 'fa-fill-drip'],
-                            'title' => __('Factory operations')
+                            'icon'  => ['fal', 'fa-flask-potion'],
+                            'title' => __('Craft')
                         ],
                         'iconRight' => [
                             'icon'  => ['fal', 'fa-chart-network'],
-                            'title' => __('Factory operations')
+                            'title' => __('Craft')
                         ],
-                    'title'   => $production->name,
+                    'title'   => __('Crafts'),
                     'actions' => [
-                        $this->canEdit ?
-                            [
-                                'type'    => 'button',
-                                'style'   => 'create',
-                                'tooltip' => __('new job order'),
-                                'label'   => __('job order'),
-                                'route'   => [
-                                    'name'       => 'grp.org.productions.show.job-orders.create',
-                                    'parameters' => $request->route()->originalParameters()
-                                ]
-                            ]
-                            : null,
-                        $this->canEdit ? $this->getEditActionIcon($request) : null,
+
 
                     ],
 
@@ -183,7 +172,7 @@ class ShowProductionOperations extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.productions.show.infrastructure.dashboard' => [
+            'grp.org.productions.show.crafts.dashboard' => [
                 'label' => $production->name,
                 'route' => [
                     'name'       => $routeName,

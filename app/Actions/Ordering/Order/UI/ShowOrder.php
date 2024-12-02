@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 20 Jun 2023 20:33:12 Malaysia Time, Pantai Lembeng, Bali, Indonesia
@@ -211,8 +212,8 @@ class ShowOrder extends OrgAction
                     [
                         'type'    => 'button',
                         'style'   => 'save',
-                        'tooltip' => __('In Warehouse'),
-                        'label'   => __('in warehouse'),
+                        'tooltip' => __('Send to Warehouse'),
+                        'label'   => __('send to warehouse'),
                         'key'     => 'action',
                         'route'   => [
                             'method'     => 'patch',

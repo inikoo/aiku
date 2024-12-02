@@ -118,7 +118,7 @@ const component = computed(() => {
         />
     </div>
 
-    <BoxStatsDeliveryNote v-if="box_stats" :boxStats="box_stats"/>
+    <BoxStatsDeliveryNote v-if="box_stats" :boxStats="box_stats" :routes/>
 
     <Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 

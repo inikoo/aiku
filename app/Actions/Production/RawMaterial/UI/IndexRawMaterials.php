@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Wed, 15 Mar 2023 08:39:46 Central European Standard Time, Malaga, Spain
@@ -8,7 +9,7 @@
 namespace App\Actions\Production\RawMaterial\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
-use App\Actions\Production\Production\UI\ShowProductionCrafts;
+use App\Actions\Production\Production\UI\ShowCraftsDashboard;
 use App\Actions\OrgAction;
 use App\Enums\UI\Production\RawMaterialsTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -230,7 +231,7 @@ class IndexRawMaterials extends OrgAction
     public function getBreadcrumbs(string $routeName, array $routeParameters, $suffix = null): array
     {
         return array_merge(
-            ShowProductionCrafts::make()->getBreadcrumbs($routeParameters),
+            ShowCraftsDashboard::make()->getBreadcrumbs($routeParameters),
             [
                 [
                     'type'   => 'simple',

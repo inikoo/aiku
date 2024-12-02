@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 26 Nov 2024 20:58:56 Central Indonesia Time, Kuala Lumpur, Malaysia
@@ -217,6 +218,7 @@ beforeEach(function () {
     }
 
     $this->recurringBill = $recurringBill;
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -1041,4 +1043,69 @@ test('UI get section route fulfilment dashboard', function () {
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::FULFILMENT_DASHBOARD->value)
         ->and($sectionScope->model_slug)->toBe($this->fulfilment->slug);
+});
+
+test('UI get section route fulfilment billables index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.billables.index', [
+        'organisation' => $this->organisation->slug,
+        'fulfilment' => $this->fulfilment->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::FULFILMENT_BILLABLES->value)
+        ->and($sectionScope->model_slug)->toBe($this->fulfilment->slug);
+});
+
+test('UI get section route fulfilment operations dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.operations.dashboard', [
+        'organisation' => $this->organisation->slug,
+        'fulfilment' => $this->fulfilment->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::FULFILMENT_OPERATION->value)
+        ->and($sectionScope->model_slug)->toBe($this->fulfilment->slug);
+});
+
+test('UI get section route fulfilment web index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.web.websites.index', [
+        'organisation' => $this->organisation->slug,
+        'fulfilment' => $this->fulfilment->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::FULFILMENT_WEBSITE->value)
+        ->and($sectionScope->model_slug)->toBe($this->fulfilment->slug);
+});
+
+test('UI get section route fulfilment crm index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.crm.customers.index', [
+        'organisation' => $this->organisation->slug,
+        'fulfilment' => $this->fulfilment->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::FULFILMENT_CRM->value)
+        ->and($sectionScope->model_slug)->toBe($this->fulfilment->slug);
+});
+
+test('UI get section route fulfilment settings edit', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.show.settings.edit', [
+        'organisation' => $this->organisation->slug,
+        'fulfilment' => $this->fulfilment->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::FULFILMENT_SETTINGS->value)
+        ->and($sectionScope->model_slug)->toBe($this->fulfilment->slug);
+});
+
+test('UI get section route org fulfilments index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.fulfilments.index', [
+        'organisation' => $this->organisation->slug,
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_FULFILMENT->value)
+        ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
 });

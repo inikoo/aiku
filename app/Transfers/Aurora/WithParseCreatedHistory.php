@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 05 Oct 2024 17:14:39 Malaysia Time, Kuala Lumpur, Malaysia
@@ -15,6 +16,8 @@ trait WithParseCreatedHistory
             'Customer' => $this->parseCustomerHistoryCreatedNewValues(),
             'Location' => $this->parseLocationHistoryCreatedNewValues(),
             'Product' => $this->parseProductHistoryCreatedNewValues(),
+            'WarehouseArea' => $this->parseWarehouseAreaHistoryCreatedNewValues(),
+            'Prospect' => $this->parseProspectHistoryCreatedNewValues(),
             default => []
         };
     }
@@ -170,5 +173,45 @@ trait WithParseCreatedHistory
         return $data;
     }
 
+
+    protected function parseWarehouseAreaHistoryCreatedNewValues(): array
+    {
+        $newValues = [];
+        $abstract  = $this->auroraModelData->{'History Abstract'};
+
+        if (preg_match('/Warehouse area <span class="italic">([a-zA-Z0-9_\s]+)/', $abstract, $matches)) {
+            $newValues['code'] = trim($matches[1]);
+        }
+
+        if (count($newValues) == 0) {
+            dd($this->auroraModelData);
+        }
+
+        return $newValues;
+    }
+
+    protected function parseProspectHistoryCreatedNewValues(): array
+    {
+
+        $newValues = [];
+        $abstract  = $this->auroraModelData->{'History Abstract'};
+
+        if (preg_match('/^ prospect record created/', $abstract)) {
+            return $newValues;
+        }
+
+
+        if (preg_match('/(.+) prospect record created/', $abstract, $matches)) {
+            $newValues['name'] = trim($matches[1]);
+        } elseif (preg_match('/^Bol vytvorený záznam o perspektíve(.+)/', $abstract, $matches)) {
+            $newValues['name'] = trim($matches[1]);
+        }
+
+        if (count($newValues) == 0) {
+            dd($this->auroraModelData);
+        }
+
+        return $newValues;
+    }
 
 }

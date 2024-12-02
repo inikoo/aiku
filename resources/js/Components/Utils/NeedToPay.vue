@@ -19,7 +19,6 @@ const props = defineProps<{
 const locale = inject('locale', aikuLocaleStructure)
 
 </script>
-
 <template>
     <dd class="relative w-full flex flex-col border px-2.5 py-1 rounded-md border-gray-300 overflow-hidden">
         <!-- Block: Corner label (fully paid) -->
@@ -33,14 +32,14 @@ const locale = inject('locale', aikuLocaleStructure)
                     fixed-width aria-hidden='true' />
             </div>
         </Transition>
-
         <div v-tooltip="'Amount need to pay by customer'" class="text-sm w-fit">
             {{ locale.currencyFormat(currencyCode || 'usd', Number(totalAmount)) }}
+            <span v-if="Number(paidAmount) > 0" class='text-gray-400'>. Paid</span>
         </div>
-        <div v-if="paidAmount !== undefined" class="text-xs text-gray-500 font-light">
+        <div v-if="paidAmount !== undefined && payAmount !== 0" class="text-xs text-gray-500 font-light">
             {{ trans('Paid') }}: {{ locale.currencyFormat(currencyCode || 'usd', Number(paidAmount)) }}
         </div>
-        <div v-if="paidAmount !== undefined" class="text-xs text-gray-500 font-light">
+        <div v-if="paidAmount !== undefined && payAmount !== 0" class="text-xs text-gray-500 font-light">
             {{ trans('Need to pay') }}: {{ locale.currencyFormat(currencyCode || 'usd', Number(payAmount)) }}
         </div>
     </dd>

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 02 Jul 2024 13:58:53 Malaysia Time, Kuala Lumpur, Malaysia
@@ -10,6 +11,7 @@ namespace App\Actions\Catalogue\Shop;
 use App\Actions\Comms\Email\StoreEmail;
 use App\Actions\Comms\EmailOngoingRun\StoreEmailOngoingRun;
 use App\Actions\Comms\Outbox\StoreOutbox;
+use App\Actions\Comms\Outbox\UpdateOutbox;
 use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
@@ -31,55 +33,64 @@ class SeedShopOutboxes
     {
         foreach (OutboxCodeEnum::cases() as $case) {
             if ($case->scope() == 'Shop' and in_array($shop->type->value, $case->shopTypes())) {
-                $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
-                if (!Outbox::where('shop_id', $shop->id)->where('code', $case)->exists()) {
-                    $outbox = StoreOutbox::make()->action(
-                        $postRoom,
-                        $shop,
+                $postRoom    = PostRoom::where('code', $case->postRoomCode()->value)->first();
+                $orgPostRoom = $postRoom->orgPostRooms()->where('organisation_id', $shop->organisation->id)->first();
+
+                if ($outbox = Outbox::where('shop_id', $shop->id)->where('code', $case)->first()) {
+                    UpdateOutbox::make()->action(
+                        $outbox,
                         [
                             'name' => $case->label(),
-                            'code' => $case,
-                            'type' => $case->type(),
+                        ]
+                    );
+                } else {
+                    $outbox = StoreOutbox::make()->action(
+                        $orgPostRoom,
+                        $shop,
+                        [
+                            'name'  => $case->label(),
+                            'code'  => $case,
+                            'type'  => $case->type(),
                             'state' => $case->defaultState(),
 
                         ]
                     );
-                    if ($outbox->type == OutboxTypeEnum::APP_COMMS) {
-                        // try {
-                        $emailOngoingRun = StoreEmailOngoingRun::make()->action($outbox, [
-                            'subject' => $case->label(),
-                        ]);
+                    if ($outbox->type == OutboxTypeEnum::USER_NOTIFICATION or $outbox->type == OutboxTypeEnum::CUSTOMER_NOTIFICATION) {
+                        try {
+                            $emailOngoingRun = StoreEmailOngoingRun::make()->action($outbox, [
+                                'subject' => $case->label(),
+                            ]);
 
-                        $emailTemplate = EmailTemplate::where('state', EmailTemplateStateEnum::ACTIVE)
-                            ->whereJsonContains('data->outboxes', $outbox->code)->first();
+                            $emailTemplate = EmailTemplate::where('state', EmailTemplateStateEnum::ACTIVE)
+                                ->whereJsonContains('data->outboxes', $outbox->code)->first();
 
-                        if ($emailTemplate) {
-                            $email = StoreEmail::make()->action(
-                                $emailOngoingRun,
-                                $emailTemplate,
-                                modelData: [
-                                    'snapshot_state' => SnapshotStateEnum::LIVE,
-                                    'snapshot_published_at' => $shop->created_at,
-                                    'snapshot_recyclable' => false,
-                                    'snapshot_first_commit' => true
-                                ],
-                                strict: false
-                            );
-                            $emailOngoingRun->updateQuietly(
-                                [
-                                    'email_id' => $email->id
-                                ]
-                            );
+                            if ($emailTemplate) {
+                                $email = StoreEmail::make()->action(
+                                    $emailOngoingRun,
+                                    $emailTemplate,
+                                    modelData: [
+                                        'snapshot_state'        => SnapshotStateEnum::LIVE,
+                                        'snapshot_published_at' => $shop->created_at,
+                                        'snapshot_recyclable'   => false,
+                                        'snapshot_first_commit' => true
+                                    ],
+                                    strict: false
+                                );
+                                $emailOngoingRun->updateQuietly(
+                                    [
+                                        'email_id' => $email->id
+                                    ]
+                                );
+                            }
+                        } catch (Exception|Throwable) {
                         }
-                        //                        } catch (Exception|Throwable) {
-                        //                        }
                     }
                 }
             }
         }
     }
 
-    public string $commandSignature = 'shop:seed-outboxes {shop? : The shop slug}';
+    public string $commandSignature = 'shop:seed_outboxes {shop? : The shop slug}';
 
     public function asCommand(Command $command): int
     {

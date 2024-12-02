@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Mon, 13 Mar 2023 15:34:29 Central European Standard Time, Malaga, Spain
@@ -70,7 +71,7 @@ class CreateWarehouseAreas extends InertiaAction
                     ]
                 ],
                 'saveRoute' => [
-                    'name' => 'grp.models.warehouse-area.store-multi',
+                    'name' => 'grp.models.warehouse_area.store-multi',
                 ]
             ]
         );

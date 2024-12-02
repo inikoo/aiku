@@ -1,10 +1,12 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Thu, 29 Aug 2024 00:18:41 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNote;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToFinalised;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToInQueue;
 use App\Actions\Dispatching\DeliveryNote\UpdateDeliveryNoteStateToPacked;
@@ -65,6 +67,7 @@ Route::name('order.')->prefix('order/{order:id}')->group(function () {
 });
 
 Route::name('delivery-note.')->prefix('delivery-note/{deliveryNote:id}')->group(function () {
+    Route::patch('update', UpdateDeliveryNote::class)->name('update');
     Route::name('state.')->prefix('state')->group(function () {
         Route::patch('in-queue', UpdateDeliveryNoteStateToInQueue::class)->name('in-queue');
         Route::patch('picker-assigned', UpdateDeliveryNoteStateToPickerAssigned::class)->name('picker-assigned');

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 23 Nov 2024 10:25:46 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -19,7 +20,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table->unsignedInteger('asset_id')->index();
             $table->foreign('asset_id')->references('id')->on('assets');
-            $table = $this->dateIntervals($table, [
+            $table = $this->unsignedIntegerDateIntervals($table, [
                 'invoices',
                 'orders',
                 'delivery_notes',

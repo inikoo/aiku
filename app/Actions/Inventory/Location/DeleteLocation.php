@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 24 Jun 2023 13:12:05 Malaysia Time, Pantai Lembeng, Bali, Id
@@ -92,7 +93,7 @@ class DeleteLocation extends OrgAction
 
         } elseif ($this->parent instanceof WarehouseArea) {
             return Redirect::route(
-                route: 'grp.org.warehouses.show.infrastructure.warehouse-areas.show',
+                route: 'grp.org.warehouses.show.infrastructure.warehouse_areas.show',
                 parameters: [
                     'organisation'       => $this->parent->organisation->slug,
                     'warehouse'          => $this->parent->warehouse->slug,

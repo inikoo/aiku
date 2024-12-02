@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Jonathan Lopez Sanchez <jonathan@ancientwisdom.biz>
  * Created: Mon, 13 Mar 2023 15:09:31 Central European Standard Time, Malaga, Spain
@@ -8,7 +9,6 @@
 namespace App\Actions\Inventory\WarehouseArea\UI;
 
 use App\Actions\OrgAction;
-use App\Models\Inventory\Warehouse;
 use App\Models\Inventory\WarehouseArea;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
@@ -24,7 +24,6 @@ class EditWarehouseArea extends OrgAction
 
     public function authorize(ActionRequest $request): bool
     {
-        $this->canEdit = $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
         return $request->user()->hasPermissionTo("inventory.{$this->organisation->id}.edit");
     }
 
@@ -35,23 +34,10 @@ class EditWarehouseArea extends OrgAction
         return $this->handle($warehouseArea);
     }
 
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Warehouse $warehouse, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
-    {
-        $this->initialisationFromWarehouse($warehouse, $request);
-        return $this->handle($warehouseArea);
-    }
-
-    public function inOrganisation(Organisation $organisation, WarehouseArea $warehouseArea, ActionRequest $request): WarehouseArea
-    {
-        $this->initialisation($organisation, $request);
-
-        return $this->handle($warehouseArea);
-    }
 
     public function htmlResponse(WarehouseArea $warehouseArea, ActionRequest $request): Response
     {
-        // dd($warehouseArea);
+
         return Inertia::render(
             'EditModel',
             [
@@ -101,7 +87,7 @@ class EditWarehouseArea extends OrgAction
                     ],
                     'args'      => [
                         'updateRoute' => [
-                            'name'       => 'grp.models.warehouse.warehouse-area.update',
+                            'name'       => 'grp.models.warehouse_area.update',
                             'parameters' => $warehouseArea->id
 
                         ],
@@ -149,7 +135,7 @@ class EditWarehouseArea extends OrgAction
         }
 
         return match ($routeName) {
-            'grp.org.warehouses.show.infrastructure.warehouse-areas.edit' => [
+            'grp.org.warehouses.show.infrastructure.warehouse_areas.edit' => [
                 'label' => $warehouseArea->name,
                 'route' => [
                     'name'       => $routeName,

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Fri, 22 Nov 2024 13:14:28 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -25,18 +26,18 @@ trait HasCommsIntervals
             ];
 
             if (in_array($case, [
-                OutboxTypeEnum::TRANSACTIONAL,
-                OutboxTypeEnum::APP_COMMS
+                OutboxTypeEnum::CUSTOMER_NOTIFICATION,
+                OutboxTypeEnum::USER_NOTIFICATION
             ])) {
                 unset($fields[$case->value.'_unsubscribed_emails']);
             }
 
-            if ($case == OutboxTypeEnum::APP_COMMS) {
+            if ($case == OutboxTypeEnum::USER_NOTIFICATION) {
                 unset($fields[$case->value.'_opened_emails']);
                 unset($fields[$case->value.'_clicked_emails']);
             }
 
-            $table = $this->dateIntervals($table, $fields);
+            $table = $this->unsignedIntegerDateIntervals($table, $fields);
         }
 
         return $table;

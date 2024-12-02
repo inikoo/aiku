@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 26 Nov 2024 08:14:59 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -23,21 +24,9 @@ return new class () extends Migration {
             $table->string('subject')->index();
             $table->unsignedSmallInteger('outbox_id')->nullable()->index();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
-            $table->unsignedSmallInteger('email_id')->nullable()->index();
+            $table->unsignedInteger('email_id')->nullable()->index();
             $table->foreign('email_id')->references('id')->on('emails');
-            //$table->unsignedSmallInteger('snapshot_id')->nullable()->index();
-            //$table->foreign('snapshot_id')->references('id')->on('snapshots');
 
-
-            //  $table->string('state')->index();
-            //  $table->string('type')->index();
-
-
-            //$table->dateTimeTz('scheduled_at')->nullable();
-            //$table->dateTimeTz('start_sending_at')->nullable();
-            //$table->dateTimeTz('sent_at')->nullable();
-            //$table->dateTimeTz('cancelled_at')->nullable();
-            //$table->dateTimeTz('stopped_at')->nullable();
 
             $table->jsonb('data');
             $table->timestampsTz();

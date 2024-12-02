@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 09 Jun 2024 12:55:09 Central European Summer Time, Plane Abu Dhabi - Kuala Lumpur
@@ -55,6 +56,7 @@ use App\Actions\Transfers\Aurora\FetchAuroraSupplierProducts;
 use App\Actions\Transfers\Aurora\FetchAuroraSuppliers;
 use App\Actions\Transfers\Aurora\FetchAuroraTradeUnits;
 use App\Actions\Transfers\Aurora\FetchAuroraUploads;
+use App\Actions\Transfers\Aurora\FetchAuroraWarehouseAreas;
 use App\Actions\Transfers\Aurora\FetchAuroraWarehouses;
 use App\Actions\Transfers\Aurora\FetchAuroraWebpages;
 use App\Actions\Transfers\Aurora\FetchAuroraWebsites;
@@ -102,6 +104,7 @@ use App\Models\HumanResources\Employee;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
+use App\Models\Inventory\WarehouseArea;
 use App\Models\Production\Production;
 use App\Models\Ordering\Adjustment;
 use App\Models\Ordering\Order;
@@ -1053,6 +1056,21 @@ trait WithAuroraParsers
         }
 
         return $email;
+    }
+
+    public function parseWarehouseArea($sourceId): ?WarehouseArea
+    {
+        if (!$sourceId) {
+            return null;
+        }
+
+        $warehouseArea = WarehouseArea::where('source_id', $sourceId)->first();
+        if (!$warehouseArea) {
+            $sourceData = explode(':', $sourceId);
+            $warehouseArea   = FetchAuroraWarehouseAreas::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $warehouseArea;
     }
 
 

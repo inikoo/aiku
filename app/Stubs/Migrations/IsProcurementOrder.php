@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sun, 27 Oct 2024 16:04:31 Malaysia Time, Kuala Lumpur, Malaysia
@@ -31,7 +32,7 @@ trait IsProcurementOrder
 
         $table->unsignedSmallInteger('agent_id')->nullable();
         $table->foreign('agent_id')->references('id')->on('agents');
-        $table->unsignedSmallInteger('supplier_id')->nullable();
+        $table->unsignedInteger('supplier_id')->nullable();
         $table->foreign('supplier_id')->references('id')->on('suppliers');
         $table->unsignedSmallInteger('partner_id')->nullable();
         $table->foreign('partner_id')->references('id')->on('organisations');

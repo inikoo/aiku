@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 21-11-2024-13h-25m
@@ -12,6 +13,7 @@ use App\Actions\GrpAction;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Analytics\AikuSection;
 use App\Models\Catalogue\Shop;
+use App\Models\Dropshipping\CustomerClient;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Production\Production;
@@ -26,7 +28,7 @@ class StoreAikuScopedSection extends GrpAction
     use AsAction;
     use WithAttributes;
 
-    public function handle(Group|Organisation|Shop|Fulfilment|Warehouse|Production|Agent $scope, AikuSection $aikuSection, array $modelData): AikuScopedSection
+    public function handle(Group|Organisation|Shop|Fulfilment|Warehouse|Production|Agent|CustomerClient $scope, AikuSection $aikuSection, array $modelData): AikuScopedSection
     {
         if ($scope instanceof Group) {
             data_set($modelData, 'group_id', $scope->id);
@@ -53,7 +55,7 @@ class StoreAikuScopedSection extends GrpAction
         ];
     }
 
-    public function action(Group|Organisation|Shop|Fulfilment|Warehouse|Production|Agent $scope, AikuSection $aikuSection, array $modelData): AikuScopedSection
+    public function action(Group|Organisation|Shop|Fulfilment|Warehouse|Production|Agent|CustomerClient $scope, AikuSection $aikuSection, array $modelData): AikuScopedSection
     {
         if ($scope instanceof Group) {
             $group = $scope;

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 22 Oct 2024 00:46:50 Central Indonesia Time, Office, Bali, Indonesia
@@ -28,4 +29,43 @@ trait WithNoStrictRules
         return $rules;
 
     }
+
+    protected function orderNoStrictFields(array $rules): array
+    {
+        $rules['billing_locked']   = ['sometimes', 'boolean'];
+        $rules['delivery_locked']  = ['sometimes', 'boolean'];
+        $rules['submitted_at']    = ['sometimes', 'nullable', 'date'];
+        $rules['in_warehouse_at'] = ['sometimes', 'nullable', 'date'];
+        $rules['packed_at']       = ['sometimes', 'nullable', 'date'];
+        $rules['finalised_at']    = ['sometimes', 'nullable', 'date'];
+        $rules['dispatched_at']   = ['sometimes', 'nullable', 'date'];
+        $rules['payment_amount'] = ['sometimes', 'numeric'];
+        $rules['data']         = ['sometimes', 'array'];
+        $rules['reference']    = ['sometimes', 'string', 'max:64'];
+        $rules['date']         = ['sometimes', 'required', 'date'];
+        $rules['cancelled_at'] = ['sometimes', 'nullable', 'date'];
+
+        return $this->orderingAmountNoStrictFields($rules);
+    }
+
+
+    protected function orderingAmountNoStrictFields(array $rules): array
+    {
+        $rules['grp_exchange'] = ['sometimes', 'numeric'];
+        $rules['org_exchange'] = ['sometimes', 'numeric'];
+
+        $rules['gross_amount']    = ['sometimes', 'numeric'];
+        $rules['goods_amount']    = ['sometimes', 'numeric'];
+        $rules['services_amount'] = ['sometimes', 'numeric'];
+
+        $rules['shipping_amount']  = ['sometimes', 'numeric'];
+        $rules['charges_amount']   = ['sometimes', 'numeric'];
+        $rules['insurance_amount'] = ['sometimes', 'numeric'];
+
+        $rules['net_amount']   = ['sometimes', 'numeric'];
+        $rules['tax_amount']   = ['sometimes', 'numeric'];
+        $rules['total_amount'] = ['sometimes', 'numeric'];
+        return $rules;
+    }
+
 }

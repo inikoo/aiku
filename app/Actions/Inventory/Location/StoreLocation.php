@@ -1,4 +1,5 @@
 <?php
+
 /*
  *  Author: Raul Perusquia <raul@inikoo.com>
  *  Created: Tue, 30 Aug 2022 12:46:32 Malaysia Time, Kuala Lumpur, Malaysia
@@ -161,7 +162,7 @@ class StoreLocation extends OrgAction
                 $location->slug
             ]);
         } else {
-            return Redirect::route('grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show', [
+            return Redirect::route('grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.show', [
                 $location->organisation->slug,
                 $location->warehouse->slug,
                 $location->warehouseArea->slug,

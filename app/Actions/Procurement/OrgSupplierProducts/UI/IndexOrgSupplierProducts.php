@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 28 May 2024 11:48:50 British Summer Time,
@@ -40,7 +41,7 @@ class IndexOrgSupplierProducts extends OrgAction
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
                 $query->whereStartWith('supplier_products.code', $value)
-                    ->orWhereANyWordStartWith('supplier_products.name', $value);
+                    ->orWhereAnyWordStartWith('supplier_products.name', $value);
             });
         });
         if ($prefix) {

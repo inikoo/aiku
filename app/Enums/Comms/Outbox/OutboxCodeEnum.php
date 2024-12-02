@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Tue, 19 Nov 2024 11:10:52 Central Indonesia Time, Sanur, Bali, Indonesia
@@ -59,16 +60,16 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::RENTAL_AGREEMENT,
             OutboxCodeEnum::PALLET_DELIVERY_PROCESSED,
             OutboxCodeEnum::PALLET_RETURN_DISPATCHED
-            => OutboxTypeEnum::TRANSACTIONAL,
+            => OutboxTypeEnum::CUSTOMER_NOTIFICATION,
 
             OutboxCodeEnum::BASKET_LOW_STOCK,
             OutboxCodeEnum::BASKET_REMINDER_1,
             OutboxCodeEnum::BASKET_REMINDER_2,
             OutboxCodeEnum::BASKET_REMINDER_3,
             OutboxCodeEnum::ABANDONED_CART,
-            OutboxCodeEnum::REORDER_REMINDER => OutboxTypeEnum::NOTIFICATION,
+            OutboxCodeEnum::REORDER_REMINDER => OutboxTypeEnum::MARKETING_NOTIFICATION,
             OutboxCodeEnum::TEST => OutboxTypeEnum::TEST,
-            default => OutboxTypeEnum::APP_COMMS
+            default => OutboxTypeEnum::USER_NOTIFICATION
         };
     }
 
@@ -87,7 +88,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::ABANDONED_CART => 'Abandoned cart',
             OutboxCodeEnum::DELIVERY_CONFIRMATION => 'Delivery confirmation',
             OutboxCodeEnum::REORDER_REMINDER => 'Reorder reminder',
-            OutboxCodeEnum::MARKETING => 'Deals',
+            OutboxCodeEnum::MARKETING => 'Marketing',
             OutboxCodeEnum::NEWSLETTER => 'Newsletter',
             OutboxCodeEnum::OOS_NOTIFICATION => 'Out of stock notification',
             OutboxCodeEnum::ORDER_CONFIRMATION => 'Order confirmation',
@@ -234,7 +235,7 @@ enum OutboxCodeEnum: string
             => PostRoomCodeEnum::USER_NOTIFICATION,
 
             OutboxCodeEnum::INVITE
-            => PostRoomCodeEnum::LEADS,
+            => PostRoomCodeEnum::COLD_EMAIL,
 
             OutboxCodeEnum::MARKETING,
             OutboxCodeEnum::NEWSLETTER,
@@ -243,7 +244,7 @@ enum OutboxCodeEnum: string
             => PostRoomCodeEnum::MARKETING,
 
             OutboxCodeEnum::TEST,
-            => PostRoomCodeEnum::TESTS,
+            => PostRoomCodeEnum::TEST,
         };
     }
 

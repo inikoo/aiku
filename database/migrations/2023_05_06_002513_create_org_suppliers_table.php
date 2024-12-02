@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
  * Created: Sat, 11 Nov 2023 23:23:00 Malaysia Time, Kuala Lumpur, Malaysia
@@ -18,7 +19,7 @@ return new class () extends Migration {
             $table->increments('id');
             $table = $this->groupOrgRelationship($table);
             $table->string('slug')->unique()->collation('und_ns');
-            $table->unsignedSmallInteger('supplier_id');
+            $table->unsignedInteger('supplier_id');
             $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->unsignedSmallInteger('agent_id')->nullable();
             $table->foreign('agent_id')->references('id')->on('agents');

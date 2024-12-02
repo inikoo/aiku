@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Author: Ganes <gustiganes@gmail.com>
  * Created on: 29-10-2024, Bali, Indonesia
@@ -7,11 +8,14 @@
  *
 */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Ordering\Order\StoreOrder;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\Warehouse;
@@ -75,6 +79,7 @@ beforeEach(function () {
         $deliveryNote = StoreDeliveryNote::make()->action($this->order, $arrayData);
     }
     $this->deliveryNote = $deliveryNote;
+    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
 
     Config::set("inertia.testing.page_paths", [resource_path("js/Pages/Grp")]);
     actingAs($this->adminGuest->getUser());
@@ -131,4 +136,16 @@ test("UI Index dispatching show delivery-notes", function () {
             ->has("routes")
             ->has("tabs");
     });
+});
+
+test('UI get section route dispatching show', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.warehouses.show.dispatching.delivery-notes.show', [
+        'organisation' => $this->organisation->slug,
+        'warehouse' =>  $this->warehouse->slug,
+        'deliveryNote' => $this->deliveryNote->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::INVENTORY_DISPATCHING->value)
+        ->and($sectionScope->model_slug)->toBe($this->warehouse->slug);
 });
