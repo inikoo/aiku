@@ -18,10 +18,11 @@ enum OrgStockStateEnum: string
 {
     use EnumHelperTrait;
 
-    case ACTIVE            = 'active';
-    case DISCONTINUING     = 'discontinuing';
-    case DISCONTINUED      = 'discontinued';
-    case SUSPENDED         = 'suspended';
+    case ACTIVE = 'active';
+    case DISCONTINUING = 'discontinuing';
+    case DISCONTINUED = 'discontinued';
+    case SUSPENDED = 'suspended';
+    case ABNORMALITY = 'abnormality';
 
 
     public static function labels(): array
@@ -30,39 +31,44 @@ enum OrgStockStateEnum: string
             'active'        => __('Active'),
             'discontinuing' => __('Discontinuing'),
             'discontinued'  => __('Discontinued'),
-            'suspended'     => __('Suspended')
+            'suspended'     => __('Suspended'),
+            'abnormality'   => __('Abnormality')
         ];
     }
 
     public static function stateIcon(): array
     {
         return [
-            'active'    => [
+            'active'        => [
                 'tooltip' => __('active'),
                 'icon'    => 'fas fa-check-circle',
                 'class'   => 'text-green-500'
             ],
-            'discontinuing'         => [
+            'discontinuing' => [
                 'tooltip' => __('discontinuing'),
                 'icon'    => 'fas fa-times-circle',
                 'class'   => 'text-amber-500'
             ],
-            'discontinued'      => [
+            'discontinued'  => [
                 'tooltip' => __('discontinued'),
                 'icon'    => 'fas fa-times-circle',
                 'class'   => 'text-red-500'
             ],
-            'suspended'      => [
+            'suspended'     => [
                 'tooltip' => __('suspended'),
                 'icon'    => 'fas fa-pause-circle',
                 'class'   => 'text-slate-300'
             ],
+            'abnormality'   => [
+                'tooltip' => __('abnormality'),
+                'icon'    => 'fas fa-exclamation-circle',
+                'class'   => 'text-red-500'
+            ]
         ];
     }
 
     public static function count(Organisation|OrgStockFamily|OrgAgent|OrgPartner $parent): array
     {
-
         if ($parent instanceof OrgStockFamily) {
             $stats = $parent->stats;
         } elseif ($parent instanceof OrgPartner) {
@@ -74,10 +80,11 @@ enum OrgStockStateEnum: string
         }
 
         return [
-            'active'            => $stats->number_org_stocks_state_active,
-            'discontinuing'     => $stats->number_org_stocks_state_discontinuing,
-            'discontinued'      => $stats->number_org_stocks_state_discontinued,
-            'suspended'         => $stats->number_org_stocks_state_suspended
+            'active'        => $stats->number_org_stocks_state_active,
+            'discontinuing' => $stats->number_org_stocks_state_discontinuing,
+            'discontinued'  => $stats->number_org_stocks_state_discontinued,
+            'suspended'     => $stats->number_org_stocks_state_suspended,
+            'abnormality'   => $stats->number_org_stocks_state_abnormality
         ];
     }
 }

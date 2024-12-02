@@ -22,7 +22,6 @@ use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\Catalogue\Shop;
 use App\Models\Goods\TradeUnit;
-use App\Models\Inventory\OrgStock;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
@@ -123,22 +122,9 @@ class StoreProduct extends OrgAction
 
             $product->orgStocks()->sync($orgStocks);
 
-            //            foreach ($orgStocks as $orgStocksId => $orgStockData) {
-            //                $orgStock = OrgStock::find($orgStocksId);
-            //                $product->orgStocks()->attach(
-            //                    $orgStock,
-            //                    [
-            //                        'quantity'        => $orgStockData['quantity'],
-            //                        'notes'           => Arr::get($orgStockData, 'notes'),
-            //                        'source_id'       => Arr::get($orgStockData, 'source_id'),
-            //                        'fetched_at'      => Arr::get($orgStockData, 'fetched_at'),
-            //                        'last_fetched_at' => Arr::get($orgStockData, 'last_fetched_at'),
-            //                    ]
-            //                );
-            //            }
             $tradeUnits = [];
             foreach ($product->orgStocks as $orgStock) {
-                foreach ($orgStock->stock->tradeUnits as $tradeUnit) {
+                foreach ($orgStock->tradeUnits as $tradeUnit) {
                     $tradeUnits[$tradeUnit->id] = [
                         'quantity' => $orgStock->pivot->quantity * $tradeUnit->pivot->quantity,
                     ];

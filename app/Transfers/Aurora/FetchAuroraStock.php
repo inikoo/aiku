@@ -27,6 +27,18 @@ class FetchAuroraStock extends FetchAurora
             return;
         }
 
+        $abnormal = false;
+        if ($this->organisation->slug == 'aw' and $this->auroraModelData->{'Part Status'} == 'Not In Use') {
+            $auroraSupplierProduct = DB::connection('aurora')
+                ->table('Supplier Part Dimension')
+                ->where('Supplier Part Part SKU', $this->auroraModelData->{'Part SKU'})->first();
+
+            if (!$auroraSupplierProduct or $auroraSupplierProduct->{'Supplier Part Supplier Key'} == 1) {
+                $abnormal = true;
+            }
+        }
+
+
         $tradeUnitReference = $this->cleanTradeUnitReference($this->auroraModelData->{'Part Reference'});
         $tradeUnitSlug      = Str::lower($tradeUnitReference);
 
@@ -68,12 +80,13 @@ class FetchAuroraStock extends FetchAurora
             }
         }
 
-        $supplierProducts = [];
+        $supplierProducts    = [];
         $orgSupplierProducts = [];
 
-        foreach (DB::connection('aurora')
-            ->table('Supplier Part Dimension')
-            ->where('Supplier Part Part SKU', $this->auroraModelData->{'Part SKU'})->get() as $auroraSupplierProductData
+        foreach (
+            DB::connection('aurora')
+                ->table('Supplier Part Dimension')
+                ->where('Supplier Part Part SKU', $this->auroraModelData->{'Part SKU'})->get() as $auroraSupplierProductData
         ) {
             $supplierProduct = $this->parseSupplierProduct($this->organisation->id.':'.$auroraSupplierProductData->{'Supplier Part Key'});
 
@@ -87,22 +100,15 @@ class FetchAuroraStock extends FetchAurora
 
             $orgSupplierProduct = $this->parseOrgSupplierProduct($this->organisation->id.':'.$auroraSupplierProductData->{'Supplier Part Key'});
             if ($orgSupplierProduct) {
-
-
-
-
-
                 $orgSupplierProducts[$orgSupplierProduct->id] = [
                     'supplier_product_id' => $supplierProduct->id,
-                    'status' => $auroraSupplierProductData->{'Supplier Part Status'} == 'Available',
-                    'local_priority'  => $this->auroraModelData->{'Part Main Supplier Part Key'} == $auroraSupplierProductData->{'Supplier Part Key'} ? 10 : 0,
+                    'status'              => $auroraSupplierProductData->{'Supplier Part Status'} == 'Available',
+                    'local_priority'      => $this->auroraModelData->{'Part Main Supplier Part Key'} == $auroraSupplierProductData->{'Supplier Part Key'} ? 10 : 0,
                 ];
             }
-
-
         }
 
-        $this->parsedData['supplier_products'] = $supplierProducts;
+        $this->parsedData['supplier_products']     = $supplierProducts;
         $this->parsedData['org_supplier_products'] = $orgSupplierProducts;
 
 
@@ -111,7 +117,8 @@ class FetchAuroraStock extends FetchAurora
 
         $createdAt = $this->parseDateTime($this->auroraModelData->{'Part Valid From'});
 
-        $this->parsedData['stock'] = [
+        $this->parsedData['abnormal'] = $abnormal;
+        $this->parsedData['stock']    = [
             'name'            => $name,
             'code'            => $code,
             'activated_at'    => $this->parseDatetime($this->auroraModelData->{'Part Active From'}),
@@ -137,7 +144,7 @@ class FetchAuroraStock extends FetchAurora
 
         $this->parsedData['org_stock'] = [
 
-            'state' => match ($this->auroraModelData->{'Part Status'}) {
+            'state'                           => match ($this->auroraModelData->{'Part Status'}) {
                 'Discontinuing' => OrgStockStateEnum::DISCONTINUING,
                 'Not In Use' => OrgStockStateEnum::DISCONTINUED,
                 default => OrgStockStateEnum::ACTIVE,

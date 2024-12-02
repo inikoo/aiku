@@ -293,7 +293,7 @@ class StoreOrganisation
 
                 return 1;
             }
-        }else{
+        } else {
             $command->error('Address is required');
             return 1;
         }

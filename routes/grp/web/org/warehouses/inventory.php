@@ -77,6 +77,13 @@ Route::prefix('stocks')->as('org_stocks.')->group(function () {
             Route::get('', [ShowOrgStock::class, 'discontinued'])->name('show');
         });
     });
+
+    Route::prefix('abnormality')->as('abnormality_org_stocks.')->group(function () {
+        Route::get('/', [IndexOrgStocks::class, 'abnormality'])->name('index');
+        Route::prefix('{orgStock}')->group(function () {
+            Route::get('', [ShowOrgStock::class, 'abnormality'])->name('show');
+        });
+    });
 });
 
 Route::prefix('families')->as('org_stock_families.')->group(function () {

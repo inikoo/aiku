@@ -13,7 +13,6 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateWorkplaces;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\HumanResources\Workplace\WorkplaceTypeEnum;
-use App\Models\Helpers\Address;
 use App\Models\HumanResources\Workplace;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
@@ -134,7 +133,7 @@ class StoreWorkplace extends OrgAction
 
         if ($command->option('address')) {
             if (Str::isJson($command->option('address'))) {
-                $data['address'] =json_decode($command->option('address'), true);
+                $data['address'] = json_decode($command->option('address'), true);
             } else {
                 $command->error('Address data is not a valid json');
 

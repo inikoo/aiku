@@ -10,6 +10,7 @@ namespace App\Models\Inventory;
 
 use App\Enums\Inventory\OrgStock\OrgStockQuantityStatusEnum;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
+use App\Models\Goods\TradeUnit;
 use App\Models\Procurement\OrgSupplierProduct;
 use App\Models\SupplyChain\Stock;
 use App\Models\SysAdmin\Organisation;
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Sluggable\HasSlug;
@@ -69,6 +71,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read Organisation $organisation
  * @property-read \App\Models\Inventory\OrgStockStats|null $stats
  * @property-read Stock|null $stock
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, TradeUnit> $tradeUnits
  * @property-read \App\Models\Helpers\UniversalSearch|null $universalSearch
  * @method static \Database\Factories\Inventory\OrgStockFactory factory($count = null, $state = [])
  * @method static Builder<static>|OrgStock newModelQuery()
@@ -89,14 +92,14 @@ class OrgStock extends Model implements Auditable
     use HasHistory;
 
     protected $casts = [
-        'data'             => 'array',
-        'activated_in_organisation_at'  => 'datetime',
-        'discontinuing_in_organisation_at'  => 'datetime',
+        'data'                             => 'array',
+        'activated_in_organisation_at'     => 'datetime',
+        'discontinuing_in_organisation_at' => 'datetime',
         'discontinued_in_organisation_at'  => 'datetime',
-        'state'            => OrgStockStateEnum::class,
-        'quantity_status'  => OrgStockQuantityStatusEnum::class,
-        'fetched_at'       => 'datetime',
-        'last_fetched_at'  => 'datetime',
+        'state'                            => OrgStockStateEnum::class,
+        'quantity_status'                  => OrgStockQuantityStatusEnum::class,
+        'fetched_at'                       => 'datetime',
+        'last_fetched_at'                  => 'datetime',
     ];
 
     protected $attributes = [
@@ -163,12 +166,33 @@ class OrgStock extends Model implements Auditable
     public function orgSupplierProducts(): BelongsToMany
     {
         return $this->belongsToMany(OrgSupplierProduct::class, 'org_stock_has_org_supplier_products')
-            ->withPivot([ 'status', 'local_priority'])->withTimestamps();
+            ->withPivot(['status', 'local_priority'])->withTimestamps();
     }
 
     public function getMainOrgSupplierProduct(): OrgSupplierProduct
     {
         return $this->orgSupplierProducts()->where('status', true)->orderBy('local_priority', 'desc')->first();
+    }
+
+    public function tradeUnits(): MorphToMany
+    {
+        if ($this->stock_id) {
+            return $this->stock->tradeUnits();
+        }
+
+        // Used in private stocks (stock_id=null)
+        return $this->morphToMany(
+            TradeUnit::class,
+            'model',
+            'model_has_trade_units',
+            'model_id',
+            null,
+            null,
+            null,
+            'trade_units',
+        )
+            ->withPivot(['quantity', 'notes'])
+            ->withTimestamps();
     }
 
 }

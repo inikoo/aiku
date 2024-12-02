@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 02-12-2024-13h-49m
@@ -11,7 +12,6 @@ namespace App\Actions\Comms\Outbox\Hydrators;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\Outbox;
 use Illuminate\Queue\Middleware\WithoutOverlapping;
 use Lorisleiva\Actions\Concerns\AsAction;

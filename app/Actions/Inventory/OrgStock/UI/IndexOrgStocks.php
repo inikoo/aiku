@@ -17,7 +17,6 @@ use App\Actions\Procurement\OrgAgent\WithOrgAgentSubNavigation;
 use App\Actions\Procurement\OrgPartner\UI\ShowOrgPartner;
 use App\Actions\Procurement\OrgPartner\WithOrgPartnerSubNavigation;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
-use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Http\Resources\Inventory\OrgStocksResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Inventory\OrgStock;
@@ -111,6 +110,18 @@ class IndexOrgStocks extends OrgAction
         return $this->handle($this->parent);
     }
 
+    public function abnormality(Organisation $organisation, Warehouse $warehouse, ActionRequest $request): LengthAwarePaginator
+    {
+        $this->bucket = 'abnormality';
+        $this->parent = $organisation;
+
+        $this->initialisationFromWarehouse($warehouse, $request);
+
+        return $this->handle($this->parent);
+    }
+
+
+    /** @noinspection PhpUnusedParameterInspection */
     public function inStockFamily(Organisation $organisation, Warehouse $warehouse, OrgStockFamily $orgStockFamily, ActionRequest $request): LengthAwarePaginator
     {
         $this->bucket = 'all';
@@ -191,15 +202,15 @@ class IndexOrgStocks extends OrgAction
         }
 
         if ($this->bucket == 'current') {
-            $queryBuilder->whereIn('org_stocks.state', [StockStateEnum::ACTIVE, StockStateEnum::DISCONTINUING]);
+            $queryBuilder->whereIn('org_stocks.state', [OrgStockStateEnum::ACTIVE, OrgStockStateEnum::DISCONTINUING]);
         } elseif ($this->bucket == 'active') {
-            $queryBuilder->where('org_stocks.state', StockStateEnum::ACTIVE);
+            $queryBuilder->where('org_stocks.state', OrgStockStateEnum::ACTIVE);
         } elseif ($this->bucket == 'discontinuing') {
-            $queryBuilder->where('org_stocks.state', StockStateEnum::DISCONTINUING);
+            $queryBuilder->where('org_stocks.state', OrgStockStateEnum::DISCONTINUING);
         } elseif ($this->bucket == 'discontinued') {
-            $queryBuilder->where('org_stocks.state', StockStateEnum::DISCONTINUED);
-        } elseif ($this->bucket == 'in_process') {
-            $queryBuilder->where('org_stocks.state', StockStateEnum::IN_PROCESS);
+            $queryBuilder->where('org_stocks.state', OrgStockStateEnum::DISCONTINUED);
+        } elseif ($this->bucket == 'abnormality') {
+            $queryBuilder->where('org_stocks.state', OrgStockStateEnum::ABNORMALITY);
         } else {
             foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                 $queryBuilder->whereElementGroup(
@@ -259,7 +270,7 @@ class IndexOrgStocks extends OrgAction
                 ->withModelOperations($modelOperations)
                 ->column(key: 'code', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
 
-            if ($parent instanceof Organisation) {
+            if ($parent instanceof Organisation and $bucket != 'abnormality') {
                 $table->column(key: 'family_code', label: __('family'), canBeHidden: false, sortable: true, searchable: true);
             }
 
@@ -271,9 +282,10 @@ class IndexOrgStocks extends OrgAction
                     ->column(key: 'stock', label: __('stock'), canBeHidden: false, sortable: true, searchable: true);
             }
 
-            if ($bucket == 'discontinued') {
-                $table->column(key: 'discontinued_in_organisation_at', label: __('Discontinued'), canBeHidden: false, sortable: true, searchable: true);
+            if ($bucket == 'discontinued' or $bucket == 'abnormality') {
+                $table->column(key: 'discontinued_in_organisation_at', label:$bucket == 'discontinued' ? __('Discontinued') : __('Last seen'), canBeHidden: false, sortable: true, searchable: true);
             }
+
         };
     }
 
@@ -319,6 +331,19 @@ class IndexOrgStocks extends OrgAction
                 ],
                 'align'  => 'right',
                 'number' => $stats->number_org_stocks_state_discontinued
+            ],
+            [
+                'label'  => __('Abnormalities'),
+                'root'   => 'grp.org.warehouses.show.inventory.org_stocks.abnormality_org_stocks.',
+                'route'  => [
+                    'name'       => 'grp.org.warehouses.show.inventory.org_stocks.abnormality_org_stocks.index',
+                    'parameters' => [
+                        $this->organisation->slug,
+                        $this->warehouse->slug
+                    ]
+                ],
+                'align'  => 'right',
+                'number' => $stats->number_org_stocks_state_abnormality
             ],
             [
                 'label'  => __('All'),

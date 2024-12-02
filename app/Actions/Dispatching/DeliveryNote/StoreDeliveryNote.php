@@ -82,6 +82,7 @@ class StoreDeliveryNote extends OrgAction
 
             return $deliveryNote;
         });
+        $deliveryNote->refresh();
 
         DeliveryNoteRecordSearch::dispatch($deliveryNote)->delay($this->hydratorsDelay);
         GroupHydrateDeliveryNotes::dispatch($deliveryNote->group)->delay($this->hydratorsDelay);

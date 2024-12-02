@@ -77,6 +77,8 @@ trait HasInventoryStats
 
         $table->unsignedInteger('number_org_stocks')->default(0);
         $table->unsignedInteger('number_current_org_stocks')->default(0)->comment('active + discontinuing');
+        $table->unsignedInteger('number_dropped_org_stocks')->default(0)->comment('discontinued + abnormality');
+
 
         foreach (OrgStockStateEnum::cases() as $stockState) {
             $table->unsignedInteger('number_org_stocks_state_'.$stockState->snake())->default(0);
