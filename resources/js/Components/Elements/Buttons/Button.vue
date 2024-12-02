@@ -8,8 +8,8 @@
 import { trans } from 'laravel-vue-i18n'
 import { faSave as fadSave } from '@fad'
 import { library } from '@fortawesome/fontawesome-svg-core'
-import {faClipboard, faDownload, faFileExport, faPlus as falPlus, faHistory, faListAlt } from '@fal'
-import { faArrowLeft, faPencil, faTrashAlt, faPersonDolly, faTimes } from '@far'
+import {faClipboard, faPencil, faDownload, faFileExport, faPlus as falPlus, faHistory, faListAlt } from '@fal'
+import { faArrowLeft, faTrashAlt, faPersonDolly, faTimes } from '@far'
 import { faPlus, faSave, faUpload, faTrashUndoAlt, faThLarge, faRocket, faMinus } from '@fas'
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 // import { useLayoutStore } from '@/Stores/layout'
@@ -56,11 +56,12 @@ else if ( props.type == 'secondary' ||  props.style == 'secondary' ) {
     styleClass = 'buttonSecondary'
 }
 
-else if (props.type == 'tertiary' || props.style == 'tertiary' || props.type == 'exit' || props.style == 'exit' || props.style == 'exitEdit' || props.type == 'edit' || props.style == 'edit' ) styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70'
+else if (props.type == 'tertiary' || props.style == 'tertiary') styleClass = 'bg-transparent border border-gray-300 text-gray-700 hover:bg-gray-200/70 disabled:bg-gray-200/70'
+else if (props.type == 'exit' || props.style == 'exit' || props.style == 'exitEdit' || props.type == 'edit' || props.style == 'edit' ) styleClass = 'bg-transparent text-indigo-500 text-xl hover:text-indigo-700 disabled:bg-gray-200/70'
 else if (props.type == 'dashed' || props.style == 'dashed' ) styleClass = 'bg-transparent border border-dashed border-gray-400 text-gray-700 hover:bg-black/10'
 else if (props.type == 'rainbow' || props.style == 'rainbow' ) styleClass = 'bg-indigo-500 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
 
-else if (props.style == 'delete' || props.style == 'negative' || props.style == 'cancel' || props.type == 'delete' || props.type == 'negative' || props.type == 'cancel') styleClass = 'border border-red-400 text-red-500 hover:text-red-600 hover:bg-red-100 disabled:bg-red-200 disabled:text-red-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
+else if (props.style == 'delete' || props.style == 'negative' || props.style == 'cancel' || props.type == 'delete' || props.type == 'negative' || props.type == 'cancel') styleClass = 'border border-red-400 text-red-500 hover:text-red-600 hover:bg-red-100 disabled:border-red-200 disabled:bg-red-100 disabled:text-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2'
 else if (props.style == 'positive' || props.type == 'positive') styleClass = 'border border-lime-500 text-lime-600 hover:text-lime-800 hover:bg-lime-50 focus:outline-none focus:ring-2 focus:ring-lime-600 focus:ring-offset-2'
 
 else if (props.style == 'white' || props.type == 'white' ) styleClass = 'bg-white hover:bg-gray-300 text-gray-600'
@@ -103,7 +104,7 @@ const getActionLabel = (label: string | undefined) => {
     } else {
         switch (props.style || props.type ) {
             case "edit":
-                return trans("edit")
+                return null
             case "save":
                 return trans("save")
             case "create":
@@ -131,7 +132,7 @@ const getActionIcon = (icon: any) => {
     } else {
         switch (props.style || props.type) {
             case "edit":
-                return ["far", "fa-pencil"]
+                return ["fal", "fa-pencil"]
             case "save":
                 return ["fas", "fa-save"]
             case "cancel":
