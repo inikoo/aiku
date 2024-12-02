@@ -34,7 +34,6 @@ console.log(isAskBotEnabled);
 onMounted(() => {
     if (typeof window !== 'undefined') {
         document.addEventListener('keydown', (event) => {
-            console.log(event);
             
             if( ( isUserMac ? event.metaKey : event.ctrlKey ) && event.key === 'k') {
                 event.preventDefault()

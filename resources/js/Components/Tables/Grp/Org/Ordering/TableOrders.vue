@@ -11,6 +11,7 @@ import { Order } from "@/types/order"
 import type { Links, Meta } from "@/types/Table"
 import { useFormatTime } from '@/Composables/useFormatTime'
 import Icon from "@/Components/Icon.vue"
+import { useLocaleStore } from "@/Stores/locale";
 
 import { faSeedling, faPaperPlane, faWarehouse, faHandsHelping, faBox, faTasks, faShippingFast, faTimesCircle } from '@fal'
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -25,6 +26,7 @@ defineProps<{
     tab?: string
 }>()
 
+const locale = useLocaleStore();
 
 function orderRoute(order: Order) {
     console.log(route().current())
@@ -106,7 +108,7 @@ function customerRoute(order: Order) {
 
         <!-- Column: Date -->
         <template #cell(date)="{ item: order }">
-            {{ useFormatTime(order.date, {formatTime: 'ddmy'}) }}
+            {{ useFormatTime(order.date,  { localeCode: locale.language.code, formatTime: "aiku" }) }}
         </template>
     </Table>
 </template>
