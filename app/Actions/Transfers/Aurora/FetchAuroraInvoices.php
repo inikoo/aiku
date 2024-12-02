@@ -39,50 +39,50 @@ class FetchAuroraInvoices extends FetchAuroraAction
 
 
         if ($invoice = Invoice::withTrashed()->where('source_id', $invoiceData['invoice']['source_id'])->first()) {
-            try {
-                UpdateInvoice::make()->action(
-                    invoice: $invoice,
-                    modelData: $invoiceData['invoice'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
-            } catch (Exception $e) {
-                $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'update');
-
-                return null;
-            }
+            //  try {
+            UpdateInvoice::make()->action(
+                invoice: $invoice,
+                modelData: $invoiceData['invoice'],
+                hydratorsDelay: 60,
+                strict: false,
+                audit: false
+            );
+            //            } catch (Exception $e) {
+            //                $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'update');
+            //
+            //                return null;
+            //            }
         } else {
             if ($invoiceData['invoice']['data']['foot_note'] == '') {
                 unset($invoiceData['invoice']['data']['foot_note']);
             }
-            try {
-                $invoice = StoreInvoice::make()->action(
-                    parent: $invoiceData['parent'],
-                    modelData: $invoiceData['invoice'],
-                    hydratorsDelay: $this->hydratorsDelay,
-                    strict: false,
-                    audit: false
-                );
+            //try {
+            $invoice = StoreInvoice::make()->action(
+                parent: $invoiceData['parent'],
+                modelData: $invoiceData['invoice'],
+                hydratorsDelay: $this->hydratorsDelay,
+                strict: false,
+                audit: false
+            );
 
-                Invoice::enableAuditing();
-                $this->saveMigrationHistory(
-                    $invoice,
-                    Arr::except($invoiceData['invoice'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                );
+            Invoice::enableAuditing();
+            $this->saveMigrationHistory(
+                $invoice,
+                Arr::except($invoiceData['invoice'], ['fetched_at', 'last_fetched_at', 'source_id'])
+            );
 
 
-                $this->recordNew($organisationSource);
+            $this->recordNew($organisationSource);
 
-                $sourceData = explode(':', $invoice->source_id);
-                DB::connection('aurora')->table('Invoice Dimension')
-                    ->where('Invoice Key', $sourceData[1])
-                    ->update(['aiku_id' => $invoice->id]);
-            } catch (Exception|Throwable $e) {
-                $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'store');
-
-                return null;
-            }
+            $sourceData = explode(':', $invoice->source_id);
+            DB::connection('aurora')->table('Invoice Dimension')
+                ->where('Invoice Key', $sourceData[1])
+                ->update(['aiku_id' => $invoice->id]);
+            //            } catch (Exception|Throwable $e) {
+            //                $this->recordError($organisationSource, $e, $invoiceData['invoice'], 'Invoice', 'store');
+            //
+            //                return null;
+            //            }
         }
 
 
