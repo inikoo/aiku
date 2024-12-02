@@ -103,6 +103,18 @@ class IndexOrgPostRoom extends OrgAction
         return OrgPostRoomsResource::collection($orgPostRooms);
     }
 
+    public function authorize(ActionRequest $request): bool
+    {
+        return $request->user()->hasAnyPermission([
+            'shop-admin.'.$this->shop->id,
+            'marketing.'.$this->shop->id.'.view',
+            'web.'.$this->shop->id.'.view',
+            'orders.'.$this->shop->id.'.view',
+            'crm.'.$this->shop->id.'.view',
+        ]);
+    }
+
+
     public function htmlResponse(LengthAwarePaginator $orgPostRooms, ActionRequest $request): Response
     {
         $subNavigation = $this->getCommsNavigation($this->organisation, $this->shop);

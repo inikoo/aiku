@@ -7,6 +7,7 @@
  */
 
 use App\Actions\Comms\OrgPostRoom\UI\IndexOrgPostRoom;
+use App\Actions\Comms\OrgPostRoom\UI\ShowOrgPostRoom;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\Comms\Outbox\UI\ShowOutbox;
 use App\Actions\Comms\Outbox\UI\ShowOutboxWorkshop;
@@ -19,3 +20,4 @@ Route::get('outboxes/{outbox}', [ShowOutbox::class, 'inShop'])->name('outboxes.s
 Route::get('outboxes/{outbox}/workshop', ShowOutboxWorkshop::class)->name('outboxes.workshop');
 
 Route::get('post-rooms', [IndexOrgPostRoom::class, 'inShop'])->name('post-rooms.index');
+Route::get('post-rooms/{orgPostRoom}', [ShowOrgPostRoom::class, 'inShop'])->name('post-rooms.show');
