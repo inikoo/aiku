@@ -93,6 +93,7 @@ class IndexOutboxes extends OrgAction
             }
 
             $table->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'type', label: ['fal', 'fa-yin-yang'], type: 'icon');
         };
     }
     // public function authorize(ActionRequest $request): bool

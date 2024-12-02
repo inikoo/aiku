@@ -10,6 +10,7 @@ namespace App\Actions\Catalogue\Shop;
 use App\Actions\Comms\Email\StoreEmail;
 use App\Actions\Comms\EmailOngoingRun\StoreEmailOngoingRun;
 use App\Actions\Comms\Outbox\StoreOutbox;
+use App\Actions\Comms\Outbox\UpdateOutbox;
 use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
@@ -33,15 +34,18 @@ class SeedShopOutboxes
             if ($case->scope() == 'Shop' and in_array($shop->type->value, $case->shopTypes())) {
                 $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
                 if ($outbox = Outbox::where('shop_id', $shop->id)->where('code', $case)->exists()) {
-                    // run UpdateOutbox action
+                    $outbox = UpdateOutbox::run($outbox, [
+                        'name' => $case->label(),
+                        'code' => $case,
+                        'type' => $case->type(),
+                        'state' => $case->defaultState()
+                    ]);
 
-//                    if ($outbox->type == OutboxTypeEnum::APP_COMMS) {
-//                        // try {
-//                        $emailOngoingRun = StoreEmailOngoingRun::make()->action($outbox, [
-//                            'subject' => $case->label(),
-//                        ]);
-
-
+                    if ($outbox->type == OutboxTypeEnum::APP_COMMS) {
+                        StoreEmailOngoingRun::make()->action($outbox, [
+                            'subject' => $case->label(),
+                        ]);
+                    }
                 } else {
                     $outbox = StoreOutbox::make()->action(
                         $postRoom,
@@ -54,7 +58,7 @@ class SeedShopOutboxes
 
                         ]
                     );
-                    if ($outbox->type == OutboxTypeEnum::APP_COMMS or $outbox->type == OutboxTypeEnum::TRANSACTIONAL ) {
+                    if ($outbox->type == OutboxTypeEnum::APP_COMMS or $outbox->type == OutboxTypeEnum::TRANSACTIONAL) {
                         // try {
                         $emailOngoingRun = StoreEmailOngoingRun::make()->action($outbox, [
                             'subject' => $case->label(),
