@@ -25,6 +25,9 @@ trait WithFetchStock
         /** @var OrgStock $orgStock */
         if ($orgStock = $organisation->orgStocks()->where('source_id', $stockData['stock']['source_id'])->first()) {
             try {
+
+
+
                 return UpdateOrgStock::make()->action(
                     orgStock: $orgStock,
                     modelData: $stockData['org_stock'],

@@ -142,7 +142,11 @@ class FetchAuroraStock extends FetchAurora
                 'Not In Use' => OrgStockStateEnum::DISCONTINUED,
                 default => OrgStockStateEnum::ACTIVE,
             },
-
+            'discontinued_in_organisation_at' =>
+                ($this->auroraModelData->{'Part Valid To'} && $this->auroraModelData->{'Part Status'} == 'Not In Use')
+                    ? $this->parseDatetime($this->auroraModelData->{'Part Valid To'})
+                    :
+                    null,
 
             'quantity_status' => match ($this->auroraModelData->{'Part Stock Status'}) {
                 'Surplus' => 'excess',
