@@ -11,6 +11,7 @@ namespace App\Actions\Traits;
 use App\Actions\Helpers\Address\Hydrators\AddressHydrateFixedUsage;
 use App\Models\Helpers\Address;
 use App\Models\SysAdmin\Group;
+use Illuminate\Support\Arr;
 
 trait WithFixedAddressActions
 {
@@ -34,6 +35,20 @@ trait WithFixedAddressActions
             data_set($modelData, 'is_fixed', true);
             data_set($modelData, 'fixed_scope', $fixedScope);
             data_set($modelData, 'group_id', $groupId);
+            $modelData = Arr::only($modelData, [
+                'group_id',
+                'address_line_1',
+                'address_line_2',
+                'sorting_code',
+                'postal_code',
+                'dependent_locality',
+                'locality',
+                'administrative_area',
+                'country_code',
+                'country_id',
+                'is_fixed',
+                'fixed_scope'
+            ]);
 
             $address = Address::create($modelData);
         }
