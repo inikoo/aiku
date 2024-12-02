@@ -71,13 +71,12 @@ function shopRoute(customer: FulfilmentCustomer) {
             <AddressLocation :data="customer['location']" />
         </template>
         <template #cell(created_at)="{ item: customer }">
-            <div class="text-gray-500">{{ useFormatTime(customer["created_at"], { localeCode: locale.language.code, formatTime: "Ymd" }) }}</div>
+            <div class="text-gray-500 j">{{ useFormatTime(customer["created_at"], { localeCode: locale.language.code, formatTime: "aiku" }) }}</div>
         </template>
         <template #cell(last_invoiced_at)="{ item: customer }">
             <div class="text-gray-500">{{ useFormatTime(customer["last_invoiced_at"], { localeCode: locale.language.code, formatTime: "aiku" }) }}</div>
         </template>
         <template #cell(invoiced_net_amount)="{ item: customer }">
-        {{ customer.currency_code }}
             <div class="text-gray-500">{{ useLocaleStore().currencyFormat( customer.currency_code, customer.sales_all)  }}</div>
         </template>
     </Table>

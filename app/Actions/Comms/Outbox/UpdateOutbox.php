@@ -46,6 +46,7 @@ class UpdateOutbox extends OrgAction
                     table: 'outboxes',
                     extraConditions: [
                         ['column' => 'organisation_id', 'value' => $this->organisation->id],
+                        ['column' => 'shop_id', 'value' => $this->outbox->shop_id],
                         ['column' => 'id', 'value' => $this->outbox->id, 'operator' => '!=']
                     ]
                 ),
