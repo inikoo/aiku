@@ -51,8 +51,8 @@ class UpdateLocation extends OrgAction
         if ($this->asAction) {
             return true;
         }
+        return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.edit");
 
-        return $request->user()->hasPermissionTo("inventory.locations.edit");
     }
 
     public function rules(): array
@@ -107,7 +107,7 @@ class UpdateLocation extends OrgAction
     {
         $this->location = $location;
 
-        $this->initialisation($location->organisation, $request);
+        $this->initialisationFromWarehouse($location->warehouse, $request);
 
         return $this->handle($location, $this->validatedData);
     }

@@ -31,41 +31,20 @@ class EditLocation extends OrgAction
         return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
     }
 
-    public function inOrganisation(Organisation $organisation, Location $location, ActionRequest $request): Location
-    {
-        $this->initialisation($organisation, $request);
 
-        return $this->handle($location);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
+    public function asController(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
         $this->initialisationFromWarehouse($warehouse, $request);
-
         return $this->handle($location);
     }
-
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseArea(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
         $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($location);
     }
-    /*
-        public function inWarehouseArea(Organisation $organisation,Warehouse $warehouse,WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
-        {
-            $this->initialisationFromWarehouse($warehouse,$request);
 
-            return $this->handle($location);
-        }
-
-        public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
-        {
-            $this->initialisation($request)->withTab(LocationTabsEnum::values());
-            return $this->handle($location);
-        }
-    */
     public function htmlResponse(Location $location, ActionRequest $request): Response
     {
         $sections               = [];
