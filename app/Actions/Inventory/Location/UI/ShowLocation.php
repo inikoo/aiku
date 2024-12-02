@@ -62,7 +62,7 @@ class ShowLocation extends OrgAction
     public function inWarehouseArea(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
         $this->parent = $warehouseArea;
-        $this->initialisationFromWarehouse($warehouse, $request);
+        $this->initialisationFromWarehouse($warehouse, $request)->withTab(LocationTabsEnum::values());
 
         return $this->handle($location);
     }
