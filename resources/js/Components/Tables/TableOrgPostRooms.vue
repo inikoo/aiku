@@ -7,7 +7,6 @@
   <script setup lang="ts">
   import {Link} from '@inertiajs/vue3';
   import Table from '@/Components/Table/Table.vue';
-  import {Outbox} from "@/types/outbox";
   
   const props = defineProps<{
       data: object,
@@ -15,24 +14,16 @@
   }>()
   
   
-//   function outboxRoute(outbox: Outbox) {
-//       switch (route().current()) {
-//           case 'grp.org.shops.show.comms.outboxes.index':
-//           return route(
-//                   'grp.org.shops.show.comms.outboxes.show',
-//                   [route().params['organisation'], route().params['shop'], outbox.slug])
-//           case 'grp.org.shops.show.web.websites.outboxes':
-//           return route(
-//                   'grp.org.shops.show.web.websites.outboxes.show',
-//                   [route().params['organisation'], route().params['shop'], route().params['website'], outbox.slug])
-//           case 'grp.org.fulfilments.show.setting.outboxes.index':
-//           return route(
-//                   'grp.org.fulfilments.show.setting.outboxes.show',
-//                   [route().params['organisation'], route().params['fulfilment'], outbox.slug])
-//           default:
-//               return null
-//       }
-//   }
+  function orgPostRoomRoute(orgPostRoom: {}) {
+      switch (route().current()) {
+          case 'grp.org.shops.show.comms.post-rooms.index':
+          return route(
+                  'grp.org.shops.show.comms.post-rooms.show',
+                  [route().params['organisation'], route().params['shop'], orgPostRoom.slug])
+          default:
+              return null
+      }
+  }
   
   
   
@@ -40,6 +31,11 @@
   
   <template>
       <Table :resource="data" :name="tab">
+        <template #cell(name)="{ item: orgPostRoom }">
+            <Link :href="orgPostRoomRoute(orgPostRoom)" class="primaryLink">
+                {{ orgPostRoom["name"] }}
+            </Link>
+        </template>
       </Table>
   </template>
   
