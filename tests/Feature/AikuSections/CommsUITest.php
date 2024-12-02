@@ -77,7 +77,7 @@ test('UI show mail outboxes', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->outbox->slug)
+                        ->where('title', $this->outbox->name)
                         ->etc()
             )
             ->has('navigation')
