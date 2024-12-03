@@ -147,6 +147,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, ExternalLink> $externalLinks
  * @property-read \App\Models\SysAdmin\GroupFulfilmentStats|null $fulfilmentStats
  * @property-read LaravelCollection<int, Fulfilment> $fulfilments
+ * @property-read \App\Models\SysAdmin\GroupGoodsStats|null $goodsStats
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Guest> $guests
  * @property-read \App\Models\SysAdmin\GroupHumanResourcesStats|null $humanResourcesStats
  * @property-read \App\Models\Helpers\Media|null $image
@@ -372,6 +373,11 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function inventoryStats(): HasOne
     {
         return $this->hasOne(GroupInventoryStats::class);
+    }
+
+    public function goodsStats(): HasOne
+    {
+        return $this->hasOne(GroupGoodsStats::class);
     }
 
     public function supplyChainStats(): HasOne

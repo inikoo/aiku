@@ -62,7 +62,7 @@ class ShowGoodsDashboard extends GrpAction
                                 'parameters' => []
                             ],
                             'index' => [
-                                'number' => $this->group->inventoryStats->number_stock_families
+                                'number' => $this->group->goodsStats->number_stock_families
                             ]
 
                         ],
@@ -74,7 +74,7 @@ class ShowGoodsDashboard extends GrpAction
                                 'parameters' => []
                             ],
                             'index' => [
-                                'number' => $this->group->inventoryStats->number_stocks
+                                'number' => $this->group->goodsStats->number_stocks
                             ]
 
                         ],

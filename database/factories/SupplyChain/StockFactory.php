@@ -8,7 +8,7 @@
 
 namespace Database\Factories\SupplyChain;
 
-use App\Enums\SupplyChain\Stock\StockStateEnum;
+use App\Models\Goods\TradeUnit;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class StockFactory extends Factory
@@ -18,7 +18,8 @@ class StockFactory extends Factory
         return [
             'code'     => fake()->lexify(),
             'name'     => fake()->name(),
-            'state'    => StockStateEnum::ACTIVE->value
+            'units'    => 1,
+            'trade_unit' => TradeUnit::factory()->definition(),
         ];
     }
 }

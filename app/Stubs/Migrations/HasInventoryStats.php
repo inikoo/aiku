@@ -35,7 +35,7 @@ trait HasInventoryStats
     }
 
 
-    public function inventoryStatsFields(Blueprint $table): Blueprint
+    public function goodsStatsFields(Blueprint $table): Blueprint
     {
         $table->unsignedInteger('number_stock_families')->default(0);
         $table->unsignedInteger('number_current_stock_families')->default(0)->comment('active + discontinuing');

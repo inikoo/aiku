@@ -47,15 +47,14 @@ class StoreTradeUnit extends GrpAction
 
             ],
             'name'             => ['required', 'string', 'max:255'],
-            'description'      => ['sometimes', 'required', 'string', 'max:1024'],
+            'description'      => ['sometimes', 'nullable', 'string', 'max:1024'],
             'barcode'          => ['sometimes', 'required'],
             'gross_weight'     => ['sometimes', 'required', 'numeric'],
             'net_weight'       => ['sometimes', 'required', 'numeric'],
             'marketing_weight' => ['sometimes', 'required', 'numeric'],
             'dimensions'       => ['sometimes', 'required'],
-            'type'             => ['sometimes', 'required'],
-            'image_id'         => ['sometimes', 'required', 'exists:media,id'],
-            'data'             => ['sometimes', 'required'],
+            'type'             => ['sometimes', 'required','string'],
+            'data'             => ['sometimes', 'required','array'],
 
         ];
 

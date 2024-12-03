@@ -10,6 +10,7 @@ namespace App\Actions\Goods\Stock;
 
 use App\Actions\Goods\Stock\Hydrators\StockHydrateUniversalSearch;
 use App\Actions\Goods\StockFamily\Hydrators\StockFamilyHydrateStocks;
+use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\GrpAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateStocks;
 use App\Actions\Traits\Rules\WithNoStrictRules;
@@ -20,6 +21,7 @@ use App\Models\SupplyChain\StockFamily;
 use App\Models\SysAdmin\Group;
 use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
+use Arr;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
@@ -37,10 +39,27 @@ class StoreStock extends GrpAction
     {
         data_set($modelData, 'group_id', $this->group->id);
 
-        $stock = DB::transaction(function () use ($parent, $modelData) {
+        $tradeUnitData = Arr::pull($modelData, 'trade_unit');
+        data_set($tradeUnitData, 'code', $modelData['code']);
+        data_set($tradeUnitData, 'name', $modelData['name']);
+        $units = Arr::pull($modelData, 'units');
+
+        $stock = DB::transaction(function () use ($parent, $modelData, $tradeUnitData, $units) {
             /** @var Stock $stock */
             $stock = $parent->stocks()->create($modelData);
             $stock->stats()->create();
+
+
+            if ($this->strict) {
+                $tradeUnit = StoreTradeUnit::make()->action($this->group, $tradeUnitData);
+
+                SyncStockTradeUnits::run($stock, [
+                    $tradeUnit->id => [
+                        'quantity' => $units
+                    ]
+                ]);
+            }
+
 
             return $stock;
         });
@@ -70,13 +89,41 @@ class StoreStock extends GrpAction
                 ),
             ],
             'name'  => ['required', 'string', 'max:255'],
-            'state' => ['sometimes', 'nullable', Rule::enum(StockStateEnum::class)],
+            'state' => ['sometimes', Rule::enum(StockStateEnum::class)->only(StockStateEnum::ACTIVE)],
+
+            'units' => ['required', 'integer', 'min:1'],
+
+            'trade_unit'                  => ['required', 'array'],
+            'trade_unit.description'      => ['required', 'string', 'max:255'],
+            'trade_unit.barcode'          => ['sometimes', 'nullable'],
+            'trade_unit.gross_weight'     => ['sometimes', 'nullable', 'numeric'],
+            'trade_unit.net_weight'       => ['sometimes', 'nullable', 'numeric'],
+            'trade_unit.marketing_weight' => ['sometimes', 'nullable', 'numeric'],
+            'trade_unit.dimensions'       => ['sometimes', 'nullable'],
+            'trade_unit.type'             => ['sometimes', 'string'],
+            'trade_unit.data'             => ['sometimes', 'array'],
+
+
         ];
 
         if (!$this->strict) {
+            unset($rules['units']);
+            unset($rules['trade_unit']);
+            unset($rules['trade_unit.description']);
+            unset($rules['trade_unit.barcode']);
+            unset($rules['trade_unit.gross_weight']);
+            unset($rules['trade_unit.net_weight']);
+            unset($rules['trade_unit.marketing_weight']);
+            unset($rules['trade_unit.dimensions']);
+            unset($rules['trade_unit.type']);
+            unset($rules['trade_unit.data']);
+
+
+            $rules['state']       = ['sometimes', 'nullable', Rule::enum(StockStateEnum::class)];
             $rules['source_slug'] = ['sometimes', 'nullable', 'string'];
             $rules                = $this->noStrictStoreRules($rules);
         }
+
 
         return $rules;
     }
@@ -116,9 +163,11 @@ class StoreStock extends GrpAction
         return $this->handle($stockFamily, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(ActionRequest $request): Stock
     {
-
         $this->initialisation(group(), $request);
 
         return $this->handle(group(), $this->validatedData);

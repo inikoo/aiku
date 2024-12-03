@@ -39,6 +39,7 @@ class StoreGroup
         $group->sysadminStats()->create();
         $group->humanResourcesStats()->create();
         $group->inventoryStats()->create();
+        $group->goodsStats()->create();
         $group->crmStats()->create();
         $group->accountingStats()->create();
         $group->catalogueStats()->create();

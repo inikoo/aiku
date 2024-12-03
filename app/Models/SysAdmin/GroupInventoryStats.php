@@ -8,17 +8,14 @@
 
 namespace App\Models\SysAdmin;
 
-use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\SysAdmin\GroupInventoryStats
+ *
  *
  * @property int $id
  * @property int $group_id
- * @property int $number_trade_units
  * @property int $number_warehouses
  * @property int $number_warehouses_state_in_process
  * @property int $number_warehouses_state_open
@@ -35,38 +32,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_locations_allow_dropshipping
  * @property string $stock_value
  * @property string $stock_commercial_value
- * @property int $number_stock_families
- * @property int $number_current_stock_families active + discontinuing
- * @property int $number_stock_families_state_in_process
- * @property int $number_stock_families_state_active
- * @property int $number_stock_families_state_discontinuing
- * @property int $number_stock_families_state_discontinued
- * @property int $number_stocks
- * @property int $number_current_stocks active + discontinuing
- * @property int $number_stocks_state_in_process
- * @property int $number_stocks_state_active
- * @property int $number_stocks_state_discontinuing
- * @property int $number_stocks_state_discontinued
- * @property int $number_stocks_state_suspended
- * @property int $number_deliveries
- * @property int $number_deliveries_type_order
- * @property int $number_deliveries_type_replacement
- * @property int $number_deliveries_state_unassigned
- * @property int $number_deliveries_state_queued
- * @property int $number_deliveries_state_handling
- * @property int $number_deliveries_state_handling_blocked
- * @property int $number_deliveries_state_packed
- * @property int $number_deliveries_state_finalised
- * @property int $number_deliveries_state_dispatched
- * @property int $number_deliveries_state_cancelled
- * @property int $number_deliveries_cancelled_at_state_unassigned
- * @property int $number_deliveries_cancelled_at_state_queued
- * @property int $number_deliveries_cancelled_at_state_handling
- * @property int $number_deliveries_cancelled_at_state_handling_blocked
- * @property int $number_deliveries_cancelled_at_state_packed
- * @property int $number_deliveries_cancelled_at_state_finalised
- * @property int $number_deliveries_cancelled_at_state_dispatched
- * @property int $number_deliveries_cancelled_at_state_cancelled
  * @property int $number_org_stock_audits
  * @property int $number_org_stock_audits_state_in_process
  * @property int $number_org_stock_audits_state_completed
@@ -77,10 +42,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\SysAdmin\Group $group
- * @method static Builder<static>|GroupInventoryStats newModelQuery()
- * @method static Builder<static>|GroupInventoryStats newQuery()
- * @method static Builder<static>|GroupInventoryStats query()
- * @mixin Eloquent
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupInventoryStats newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupInventoryStats newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|GroupInventoryStats query()
+ * @mixin \Eloquent
  */
 class GroupInventoryStats extends Model
 {

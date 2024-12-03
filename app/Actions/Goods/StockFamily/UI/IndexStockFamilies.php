@@ -91,7 +91,7 @@ class IndexStockFamilies extends GrpAction
                     [
                         'title'       => __('no stock families'),
                         'description' => $this->canEdit ? __('Get started by creating a new stock family.') : null,
-                        'count'       => $parent->inventoryStats->number_stocks,
+                        'count'       => $parent->goodsStats->number_stocks,
                         'action'      => $this->canEdit ? [
                             'type'    => 'button',
                             'style'   => 'create',

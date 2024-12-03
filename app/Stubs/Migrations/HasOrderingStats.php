@@ -25,7 +25,6 @@ trait HasOrderingStats
         $table = $this->ordersStatsFields($table);
         $table = $this->invoicesStatsFields($table);
         $table = $this->invoicedCustomersStatsFields($table);
-
         $table = $this->deliveryNotesStatsFields($table);
 
         if (!in_array($table->getTable(), ['customer_stats', 'customer_client_id', 'platform_stats'])) {

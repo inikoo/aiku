@@ -61,7 +61,7 @@ class GroupHydrateStockFamilies
 
 
 
-        $group->inventoryStats()->update($stats);
+        $group->goodsStats()->update($stats);
 
     }
 

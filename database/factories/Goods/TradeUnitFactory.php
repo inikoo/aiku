@@ -26,7 +26,8 @@ class TradeUnitFactory extends Factory
             'code'         => fake()->lexify,
             'name'         => fake()->name,
             'gross_weight' => fake()->numberBetween(10, 100),
-            'net_weight'   => fake()->numberBetween(10, 100)
+            'net_weight'   => fake()->numberBetween(10, 100),
+            'description'  => fake()->sentence,
         ];
     }
 }

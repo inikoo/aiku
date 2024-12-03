@@ -206,10 +206,10 @@ class IndexStocks extends GrpAction
                     match (class_basename($parent)) {
                         'Group' => [
                             'title'       => __("No SKUs found"),
-                            'description' => $this->canEdit && $parent->inventoryStats->number_stock_families == 0 ? __('Get started by creating a shop. ✨')
+                            'description' => $this->canEdit && $parent->goodsStats->number_stock_families == 0 ? __('Get started by creating a shop. ✨')
                                 : __("In fact, is no even create a SKUs family yet 🤷🏽‍♂️"),
-                            'count'       => $parent->inventoryStats->number_stocks,
-                            'action'      => $this->canEdit && $parent->inventoryStats->number_stock_families == 0 ? [
+                            'count'       => $parent->goodsStats->number_stocks,
+                            'action'      => $this->canEdit && $parent->goodsStats->number_stock_families == 0 ? [
                                 'type'    => 'button',
                                 'style'   => 'create',
                                 'tooltip' => __('new SKUs family'),
@@ -265,7 +265,7 @@ class IndexStocks extends GrpAction
                     'name'       => 'grp.goods.stocks.active_stocks.index',
                     'parameters' => []
                 ],
-                'number' => $this->group->inventoryStats->number_stocks_state_active
+                'number' => $this->group->goodsStats->number_stocks_state_active
             ],
             [
                 'label'  => __('In process'),
@@ -274,25 +274,26 @@ class IndexStocks extends GrpAction
                     'name'       => 'grp.goods.stocks.in_process_stocks.index',
                     'parameters' => []
                 ],
-                'number' => $this->group->inventoryStats->number_stocks_state_in_process
+                'number' => $this->group->goodsStats->number_stocks_state_in_process
             ],
             [
-                'label'  => __('Discounting'),
+                'label'  => __('Discontinuing'),
                 'root'   => 'grp.goods.stocks.discontinuing_stocks.',
                 'route'   => [
                     'name'       => 'grp.goods.stocks.discontinuing_stocks.index',
                     'parameters' => []
                 ],
-                'number' => $this->group->inventoryStats->number_stocks_state_discontinuing
+                'number' => $this->group->goodsStats->number_stocks_state_discontinuing
             ],
             [
                 'label'  => __('Discontinued'),
                 'root'   => 'grp.goods.stocks.discontinued_stocks.',
+                'align'  => 'right',
                 'route'   => [
                     'name'       => 'grp.goods.stocks.discontinued_stocks.index',
                     'parameters' => []
                 ],
-                'number' => $this->group->inventoryStats->number_stocks_state_discontinued
+                'number' => $this->group->goodsStats->number_stocks_state_discontinued
             ],
             [
                 'label'  => __('All'),
@@ -303,7 +304,7 @@ class IndexStocks extends GrpAction
                     'name'       => 'grp.goods.stocks.index',
                     'parameters' => []
                 ],
-                'number' => $this->group->inventoryStats->number_stocks
+                'number' => $this->group->goodsStats->number_stocks
 
             ],
 
