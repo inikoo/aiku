@@ -93,7 +93,7 @@ class DeleteLocation extends OrgAction
 
         } elseif ($this->parent instanceof WarehouseArea) {
             return Redirect::route(
-                route: 'grp.org.warehouses.show.infrastructure.warehouse-areas.show',
+                route: 'grp.org.warehouses.show.infrastructure.warehouse_areas.show',
                 parameters: [
                     'organisation'       => $this->parent->organisation->slug,
                     'warehouse'          => $this->parent->warehouse->slug,

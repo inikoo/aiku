@@ -1,11 +1,9 @@
 <?php
 
 /*
- * Author: Ganes <gustiganes@gmail.com>
- * Created on: 07-10-2024, Bali, Indonesia
- * Github: https://github.com/ganes556
- * Copyright: 2024
- *
+ * Author: Raul Perusquia <raul@inikoo.com>
+ * Created: Mon, 02 Dec 2024 15:02:07 Central Indonesia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
 use App\Actions\Analytics\GetSectionRoute;
@@ -14,12 +12,14 @@ use App\Actions\Goods\StockFamily\StoreStockFamily;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Inventory\Location\StoreLocation;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
+use App\Actions\Inventory\WarehouseArea\StoreWarehouseArea;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\UI\Inventory\LocationTabsEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Goods\TradeUnit;
 use App\Models\Inventory\Location;
 use App\Models\Inventory\Warehouse;
+use App\Models\Inventory\WarehouseArea;
 use App\Models\SupplyChain\Stock;
 use App\Models\SupplyChain\StockFamily;
 use Inertia\Testing\AssertableInertia;
@@ -31,54 +31,68 @@ beforeAll(function () {
     loadDB();
 });
 
-beforeEach(function () {
-    $this->organisation = createOrganisation();
-    $this->adminGuest = createAdminGuest($this->organisation->group);
-    $this->group = group();
+beforeEach(
+    /**
+     * @throws \Throwable
+     */
+    function () {
+        $this->organisation = createOrganisation();
+        $this->adminGuest   = createAdminGuest($this->organisation->group);
+        $this->group        = group();
 
-    $warehouse = Warehouse::first();
-    if (!$warehouse) {
-        data_set($storeData, "code", "CODE");
-        data_set($storeData, "name", "NAME");
-
-        $warehouse = StoreWarehouse::make()->action($this->organisation, $storeData);
-    }
-    $this->warehouse = $warehouse;
-
-    $location = Location::first();
-    if (!$location) {
-        $location = StoreLocation::make()->action($warehouse, $storeData);
-    }
-    $this->location = $location;
-
-    $stockFamily = StockFamily::first();
-    if (!$stockFamily) {
-        $arrayData = [
-            'code' => 'ABC',
-            'name' => 'ABC Stock'
+        $warehouse = Warehouse::first();
+        $storeData = [
+            'code' => 'CODE',
+            'name' => 'NAME'
         ];
-        $stockFamily = StoreStockFamily::make()->action($this->group, $arrayData);
-    }
-    $this->stockFamily = $stockFamily;
 
-    $stock = Stock::first();
-    if (!$stock) {
-        $stockData = Stock::factory()->definition();
-        $stock = StoreStock::make()->action($this->group, $stockData);
-    }
-    $this->stock = $stock;
 
-    $tradeUnit = TradeUnit::first();
-    if (!$tradeUnit) {
-        $tradeUnitData = TradeUnit::factory()->definition();
-        $tradeUnit = StoreTradeUnit::make()->action($this->group, $tradeUnitData);
-    }
-    $this->tradeUnit = $tradeUnit;
-    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
+        if (!$warehouse) {
+            $warehouse = StoreWarehouse::make()->action($this->organisation, $storeData);
+        }
+        $this->warehouse = $warehouse;
 
-    Config::set("inertia.testing.page_paths", [resource_path("js/Pages/Grp")]);
-    actingAs($this->adminGuest->getUser());
-});
+        $warehouseArea = WarehouseArea::first();
+        if (!$warehouseArea) {
+            $warehouseArea = StoreWarehouseArea::make()->action($warehouse, WarehouseArea::factory()->definition());
+        }
+        $this->warehouseArea = $warehouseArea;
+
+        $location = Location::first();
+        if (!$location) {
+            $location = StoreLocation::make()->action($warehouse, $storeData);
+        }
+        $this->location = $location;
+
+        $stockFamily = StockFamily::first();
+        if (!$stockFamily) {
+            $arrayData   = [
+                'code' => 'ABC',
+                'name' => 'ABC Stock'
+            ];
+            $stockFamily = StoreStockFamily::make()->action($this->group, $arrayData);
+        }
+        $this->stockFamily = $stockFamily;
+
+        $stock = Stock::first();
+        if (!$stock) {
+            $stockData = Stock::factory()->definition();
+            $stock     = StoreStock::make()->action($this->group, $stockData);
+        }
+        $this->stock = $stock;
+
+        $tradeUnit = TradeUnit::first();
+        if (!$tradeUnit) {
+            $tradeUnitData = TradeUnit::factory()->definition();
+            $tradeUnit     = StoreTradeUnit::make()->action($this->group, $tradeUnitData);
+        }
+        $this->tradeUnit = $tradeUnit;
+        $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
+
+        Config::set("inertia.testing.page_paths", [resource_path("js/Pages/Grp")]);
+        actingAs($this->adminGuest->getUser());
+    }
+);
 
 test("UI Index locations", function () {
     $this->withoutExceptionHandling();
@@ -236,7 +250,7 @@ test("UI Show fulfilment location", function () {
     });
 })->todo();
 
-test("UI Index warehouse", function () {
+test("UI Index warehouses", function () {
     $this->withoutExceptionHandling();
     $response = get(
         route("grp.org.warehouses.show.infrastructure.dashboard", [
@@ -257,6 +271,51 @@ test("UI Index warehouse", function () {
             ->has("tagsList");
     });
 });
+
+test("UI Index warehouse areas", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.infrastructure.warehouse_areas.index", [
+            $this->organisation->slug,
+            $this->warehouse->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Warehouse/WarehouseAreas")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'warehouse areas')->etc()
+            );
+    });
+});
+
+test("UI Show warehouse area", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.infrastructure.warehouse_areas.show", [
+            $this->organisation->slug,
+            $this->warehouse->slug,
+            $this->warehouse->warehouseAreas->first()->slug
+
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Warehouse/WarehouseArea")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has('navigation')
+            ->has('tabs')
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", $this->warehouseArea->name)->etc()
+            );
+    });
+});
+
 
 test("UI Index Org Stocks", function () {
     $this->withoutExceptionHandling();
@@ -326,7 +385,7 @@ test("UI Edit stock family", function () {
             ->has("navigation")
             ->has("formData", fn ($page) => $page->where("args", [
                 'updateRoute' => [
-                    'name'      => 'grp.models.stock-family.update',
+                    'name'       => 'grp.models.stock-family.update',
                     'parameters' => $this->stockFamily->id
                 ],
             ])->etc())
@@ -427,7 +486,7 @@ test("UI Show TradeUnit", function () {
 test("UI Create Stock in Group", function () {
     $this->withoutExceptionHandling();
     $response = get(
-        route("grp.goods.stocks.create", [])
+        route("grp.goods.stocks.create")
     );
     $response->assertInertia(function (AssertableInertia $page) {
         $page
@@ -436,7 +495,7 @@ test("UI Create Stock in Group", function () {
             ->has("breadcrumbs", 4)
             ->has('icon')
             ->has('formData', fn (AssertableInertia $page) => $page->where("route", [
-                'name'      => 'grp.models.stock.store',
+                'name'       => 'grp.models.stock.store',
                 'parameters' => []
             ])->etc())
             ->has(
@@ -484,7 +543,7 @@ test("UI Create Stock in Stock Family Group", function () {
             ->has("breadcrumbs", 5)
             ->has('icon')
             ->has('formData', fn (AssertableInertia $page) => $page->where("route", [
-                'name'      => 'grp.models.stock-family.stock.store',
+                'name'       => 'grp.models.stock-family.stock.store',
                 'parameters' => [
                     'stockFamily' => $this->stockFamily->id
                 ]
@@ -499,7 +558,7 @@ test("UI Create Stock in Stock Family Group", function () {
 test('UI get section route inventory dashboard', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.warehouses.show.inventory.dashboard', [
         'organisation' => $this->organisation->slug,
-        'warehouse' => $this->warehouse->slug
+        'warehouse'    => $this->warehouse->slug
     ]);
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::INVENTORY->value)
@@ -509,7 +568,7 @@ test('UI get section route inventory dashboard', function () {
 test('UI get section route infrastructure index', function () {
     $sectionScope = GetSectionRoute::make()->handle("grp.org.warehouses.show.infrastructure.locations.index", [
         'organisation' => $this->organisation->slug,
-        'warehouse' => $this->warehouse->slug,
+        'warehouse'    => $this->warehouse->slug,
     ]);
 
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
@@ -520,7 +579,7 @@ test('UI get section route infrastructure index', function () {
 test('UI get section route incoming backlog', function () {
     $sectionScope = GetSectionRoute::make()->handle("grp.org.warehouses.show.incoming.backlog", [
         'organisation' => $this->organisation->slug,
-        'warehouse' => $this->warehouse->slug,
+        'warehouse'    => $this->warehouse->slug,
     ]);
 
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)

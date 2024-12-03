@@ -12,6 +12,7 @@ use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Goods\Stock\SyncStockTradeUnits;
 use App\Actions\Goods\Stock\UpdateStock;
 use App\Actions\Inventory\OrgStock\SyncOrgStockLocations;
+use App\Actions\Inventory\OrgStock\SyncOrgStockTradeUnits;
 use App\Actions\Inventory\OrgStockHasOrgSupplierProduct\StoreOrgStockHasOrgSupplierProduct;
 use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Models\Goods\TradeUnit;
@@ -44,6 +45,35 @@ class FetchAuroraStocks extends FetchAuroraAction
             return [
                 'stock'    => null,
                 'orgStock' => null
+            ];
+        }
+
+
+        if ($stockData['abnormal']) {
+            $tradeUnit = $stockData['trade_unit'];
+
+
+
+
+            $orgStock = $this->processAbnormalOrgStock($organisationSource, $stockData);
+            if (!$orgStock) {
+                return [
+                    'stock'    => null,
+                    'orgStock' => null
+                ];
+            }
+
+
+            SyncOrgStockTradeUnits::run($orgStock, [
+                $tradeUnit->id => [
+                    'quantity' => $stockData['stock']['units_per_pack']
+                ]
+            ]);
+
+
+            return [
+                'stock'    => null,
+                'orgStock' => $orgStock
             ];
         }
 

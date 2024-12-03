@@ -21,7 +21,6 @@ use App\Enums\Accounting\Invoice\InvoiceTypeEnum;
 use App\Enums\Fulfilment\Pallet\PalletStatusEnum;
 use App\Enums\Fulfilment\RecurringBill\RecurringBillStatusEnum;
 use App\Models\Fulfilment\RecurringBill;
-use Illuminate\Support\Arr;
 use Lorisleiva\Actions\ActionRequest;
 
 class ConsolidateRecurringBill extends OrgAction
@@ -29,18 +28,19 @@ class ConsolidateRecurringBill extends OrgAction
     use WithActionUpdate;
 
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(RecurringBill $recurringBill): RecurringBill
     {
-        $modelData['status'] = RecurringBillStatusEnum::FORMER;
-        $recurringBill       = $this->update($recurringBill, $modelData);
+        $recurringBill       = $this->update($recurringBill, [
+            'status' => RecurringBillStatusEnum::FORMER
+        ]);
 
-        $address     = $recurringBill->fulfilmentCustomer->customer->address;
+
         $invoiceData = [
             'reference'        => $recurringBill->reference,
             'currency_id'      => $recurringBill->currency_id,
-            'billing_address'  => Arr::except($address, 'id'),
-            // 'address_id'       => $recurringBill->fulfilmentCustomer->customer->address->id,
-            // 'billing_country_id' => $recurringBill->fulfilmentCustomer->customer->address->country_id,
             'type'             => InvoiceTypeEnum::INVOICE,
             'net_amount'       => $recurringBill->net_amount,
             'total_amount'     => $recurringBill->total_amount,
@@ -50,9 +50,9 @@ class ConsolidateRecurringBill extends OrgAction
             'services_amount'  => $recurringBill->services_amount,
             'tax_amount'       => $recurringBill->tax_amount
         ];
-        // dd('aa');
+
         $invoice = StoreInvoice::make()->action($recurringBill, $invoiceData);
-        // dd('xx');
+
         $transactions = $recurringBill->transactions;
 
         foreach ($transactions as $transaction) {
@@ -101,13 +101,19 @@ class ConsolidateRecurringBill extends OrgAction
         return $request->user()->hasPermissionTo("fulfilment-shop.{$this->fulfilment->id}.edit");
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(RecurringBill $recurringBill, ActionRequest $request): RecurringBill
     {
 
         $this->initialisationFromFulfilment($recurringBill->fulfilment, $request);
-        return $this->handle($recurringBill, $this->validatedData);
+        return $this->handle($recurringBill);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function action(RecurringBill $recurringBill): RecurringBill
     {
         $this->asAction = true;

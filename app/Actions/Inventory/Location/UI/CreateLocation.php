@@ -91,7 +91,7 @@ class CreateLocation extends OrgAction
                                 'parameters' => $this->parent->id
                             ],
                             'WarehouseArea' => [
-                                'name'       => 'grp.models.warehouse-area.location.store',
+                                'name'       => 'grp.models.warehouse_area.location.store',
                                 'parameters' => $this->parent->id
                             ]
                         }

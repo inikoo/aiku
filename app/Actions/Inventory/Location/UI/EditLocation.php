@@ -31,41 +31,20 @@ class EditLocation extends OrgAction
         return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
     }
 
-    public function inOrganisation(Organisation $organisation, Location $location, ActionRequest $request): Location
-    {
-        $this->initialisation($organisation, $request);
 
-        return $this->handle($location);
-    }
-
-    /** @noinspection PhpUnusedParameterInspection */
-    public function inWarehouse(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
+    public function asController(Organisation $organisation, Warehouse $warehouse, Location $location, ActionRequest $request): Location
     {
         $this->initialisationFromWarehouse($warehouse, $request);
-
         return $this->handle($location);
     }
-
+    /** @noinspection PhpUnusedParameterInspection */
     public function inWarehouseArea(Organisation $organisation, Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
     {
         $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle($location);
     }
-    /*
-        public function inWarehouseArea(Organisation $organisation,Warehouse $warehouse,WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
-        {
-            $this->initialisationFromWarehouse($warehouse,$request);
 
-            return $this->handle($location);
-        }
-
-        public function inWarehouseInWarehouseArea(Warehouse $warehouse, WarehouseArea $warehouseArea, Location $location, ActionRequest $request): Location
-        {
-            $this->initialisation($request)->withTab(LocationTabsEnum::values());
-            return $this->handle($location);
-        }
-    */
     public function htmlResponse(Location $location, ActionRequest $request): Response
     {
         $sections               = [];
@@ -163,7 +142,7 @@ class EditLocation extends OrgAction
                 case 'grp.org.warehouses.show.infrastructure.locations.edit':
                     $query->where('locations.warehouse_id', $location->warehouse_id);
                     break;
-                case 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.edit':
+                case 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.edit':
                 case 'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.show':
                     $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
                     break;
@@ -182,7 +161,7 @@ class EditLocation extends OrgAction
                 case 'grp.org.warehouses.show.infrastructure.locations.edit':
                     $query->where('locations.warehouse_id', $location->warehouse_id);
                     break;
-                case 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.edit':
+                case 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.edit':
                 case 'grp.org.warehouses.show.inventory.warehouse-areas.show.locations.show':
                     $query->where('locations.warehouse_area_id', $location->warehouse_area_id);
                     break;
@@ -232,7 +211,7 @@ class EditLocation extends OrgAction
 
                 ]
             ],
-            'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.edit' => [
+            'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.edit' => [
                 'label' => $location->slug,
                 'route' => [
                     'name'      => $routeName,

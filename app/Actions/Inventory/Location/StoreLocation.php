@@ -162,7 +162,7 @@ class StoreLocation extends OrgAction
                 $location->slug
             ]);
         } else {
-            return Redirect::route('grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.show', [
+            return Redirect::route('grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.show', [
                 $location->organisation->slug,
                 $location->warehouse->slug,
                 $location->warehouseArea->slug,

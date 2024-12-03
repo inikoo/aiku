@@ -92,6 +92,7 @@ class StoreOrgStock extends OrgAction
         ];
 
         if (!$this->strict) {
+            $rules['discontinued_in_organisation_at'] = ['sometimes', 'nullable', 'date'];
             $rules = $this->noStrictStoreRules($rules);
         }
 

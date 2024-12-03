@@ -28,7 +28,7 @@ return new class () extends Migration {
             $table->unsignedInteger('stock_family_id')->index()->nullable();
             $table->foreign('stock_family_id')->references('id')->on('stock_families');
 
-            $table->unsignedInteger('stock_id')->index();
+            $table->unsignedInteger('stock_id')->index()->nullable();
             $table->foreign('stock_id')->references('id')->on('stocks');
 
             $table->unsignedInteger('org_stock_family_id')->index()->nullable();

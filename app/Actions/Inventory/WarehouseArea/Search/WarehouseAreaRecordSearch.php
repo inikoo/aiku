@@ -38,7 +38,7 @@ class WarehouseAreaRecordSearch
                 'keyword'           => $warehouseArea->code,
                 'result'            => [
                     'route'     => [
-                        'name'          => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show',
+                        'name'          => 'grp.org.warehouses.show.infrastructure.warehouse_areas.show',
                         'parameters'    => [
                             $warehouseArea->organisation->slug,
                             $warehouseArea->warehouse->slug,

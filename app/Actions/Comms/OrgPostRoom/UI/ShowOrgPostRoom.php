@@ -1,4 +1,5 @@
 <?php
+
 /*
  * author Arya Permana - Kirin
  * created on 02-12-2024-10h-07m
@@ -8,18 +9,13 @@
 
 namespace App\Actions\Comms\OrgPostRoom\UI;
 
-use App\Actions\InertiaAction;
 use App\Actions\OrgAction;
-use App\Actions\UI\Marketing\MarketingHub;
 use App\Http\Resources\Mail\OrgPostRoomResource;
-use App\Http\Resources\Mail\PostRoomResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\OrgPostRoom;
-use App\Models\Comms\PostRoom;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
-use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 
 /**
@@ -96,7 +92,7 @@ class ShowOrgPostRoom extends OrgAction
                 ],
             ];
         };
-        
+
         $orgPostRoom = OrgPostRoom::where('slug', $routeParameters['orgPostRoom'])->first();
 
         return match ($routeName) {

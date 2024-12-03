@@ -109,7 +109,7 @@ class ShowArtefact extends OrgAction
                     //         'name'     => trans_choice('location|locations', $artefact->stats->number_locations),
                     //         'number'   => $artefact->stats->number_locations,
                     //         'route'     => [
-                    //             'name'       => 'grp.org.warehouses.show.infrastructure.warehouse-areas.show.locations.index',
+                    //             'name'       => 'grp.org.warehouses.show.infrastructure.warehouse_areas.show.locations.index',
                     //             'parameters' => $request->route()->originalParameters()
                     //         ],
                     //         'leftIcon' => [

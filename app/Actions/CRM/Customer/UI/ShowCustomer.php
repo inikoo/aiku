@@ -51,13 +51,11 @@ class ShowCustomer extends OrgAction
     {
         if ($this->parent instanceof Organisation) {
             $this->canEdit   = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
-            $this->canDelete = $request->user()->hasPermissionTo("shops.{$this->organisation->id}.edit");
 
             return $request->user()->hasPermissionTo("shops.{$this->organisation->id}.view");
         }
         if ($this->parent instanceof Shop) {
             $this->canEdit   = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
-            $this->canDelete = $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
 
             return $request->user()->hasPermissionTo("crm.{$this->shop->id}.view");
         }
@@ -138,7 +136,6 @@ class ShowCustomer extends OrgAction
                         $webUsersMeta
                     ]),
                     'actions'       => [
-                        $this->canDelete ? $this->getDeleteActionIcon($request) : null,
                         [
                             'type'    => 'button',
                             'style'   => 'edit',

@@ -6,6 +6,8 @@
  *  Copyright (c) 2022, Raul A Perusquia F
  */
 
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
@@ -31,8 +33,8 @@ return new class () extends Migration {
             $table->string('reference')->index();
             $table->string('type')->default(DeliveryNoteTypeEnum::ORDER->value)->index();
 
-            $table->string('state')->index();
-            $table->string('status')->index();
+            $table->string('state')->index()->default(DeliveryNoteStateEnum::SUBMITTED->value);
+            $table->string('status')->index()->default(DeliveryNoteStatusEnum::HANDLING->value);
 
             $table->boolean('can_dispatch')->nullable();
             $table->boolean('restocking')->nullable();

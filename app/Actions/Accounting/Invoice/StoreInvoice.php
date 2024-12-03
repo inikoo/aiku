@@ -58,13 +58,11 @@ class StoreInvoice extends OrgAction
             if ($parent instanceof Order) {
                 $modelData['billing_address'] = $parent->billingAddress;
             } elseif ($parent instanceof RecurringBill) {
-                $modelData['billing_address'] = $parent->fulfilmentCustomer->billingAddress;
+                $modelData['billing_address'] = $parent->fulfilmentCustomer->customer->address;
             } else {
                 $modelData['billing_address'] = $parent->address;
             }
-
         }
-
 
         if (!Arr::exists($modelData, 'tax_category_id')) {
             if ($parent instanceof Order || $parent instanceof RecurringBill) {
@@ -75,7 +73,6 @@ class StoreInvoice extends OrgAction
 
                 $billingAddress  = $customer->address;
                 $deliveryAddress = $customer->deliveryAddress;
-
 
                 data_set(
                     $modelData,
@@ -91,10 +88,7 @@ class StoreInvoice extends OrgAction
         }
 
 
-        $billingAddressData = $modelData['billing_address'];
-
-        data_forget($modelData, 'billing_address');
-
+        $billingAddressData = Arr::pull($modelData, 'billing_address');
 
         $modelData['shop_id']     = $this->shop->id;
         $modelData['currency_id'] = $this->shop->currency_id;
@@ -156,7 +150,7 @@ class StoreInvoice extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'        => [
+            'reference'       => [
                 'required',
                 'max:64',
                 'string',
@@ -167,10 +161,17 @@ class StoreInvoice extends OrgAction
                     ]
                 ),
             ],
-            'currency_id'      => ['required', 'exists:currencies,id'],
-            'type'             => ['required', Rule::enum(InvoiceTypeEnum::class)],
-            'net_amount'       => ['required', 'numeric'],
-            'total_amount'     => ['required', 'numeric'],
+            'currency_id'     => ['required', 'exists:currencies,id'],
+            'type'            => ['required', Rule::enum(InvoiceTypeEnum::class)],
+            'net_amount'      => ['required', 'numeric'],
+            'total_amount'    => ['required', 'numeric'],
+            'gross_amount'    => ['required', 'numeric'],
+            'rental_amount'   => ['sometimes', 'required', 'numeric'],
+            'goods_amount'    => ['sometimes', 'required', 'numeric'],
+            'services_amount' => ['sometimes', 'required', 'numeric'],
+            'tax_amount'      => ['required', 'numeric'],
+
+
             'date'             => ['sometimes', 'date'],
             'tax_liability_at' => ['sometimes', 'date'],
             'data'             => ['sometimes', 'array'],

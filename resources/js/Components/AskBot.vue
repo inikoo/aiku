@@ -1,34 +1,44 @@
 <script setup lang="ts">
-import Modal from "@/Components/Utils/Modal.vue"
-import { debounce } from "lodash"
-import { ref } from "vue"
-import { height } from '../../../private/fa/pro-light-svg-icons/faDice';
+import Modal from "@/Components/Utils/Modal.vue";
+import { debounce } from "lodash";
+import { ref } from "vue";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faLampDesk } from "@fal";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
-// Search functionality refs
-const resultsSearch = ref()
-const isLoadingSearch = ref(false)
-const searchValue = ref("")
+library.add(faLampDesk);
 
-// Modal open state
-const isOpen = defineModel<boolean>()
+const resultsSearch = ref();
+const isLoadingSearch = ref(false);
+const searchValue = ref("");
+const errorSearch = ref(""); 
 
-// Debounced API fetch function
+const isOpen = defineModel<boolean>();
+
 const fetchApi = debounce(async (query: string) => {
-	if (query.trim() !== "") {
-		resultsSearch.value = null
-		isLoadingSearch.value = true
-		try {
-			const response = await fetch(`http://app.aiku.test/ask-bot?q=${query}`)
-			const data = await response.json()
-			resultsSearch.value = data.data
-			console.log("query:", query, resultsSearch.value)
-		} catch (error) {
-			console.error("Error fetching search results:", error)
-		} finally {
-			isLoadingSearch.value = false
-		}
-	}
-}, 700)
+    if (query.trim() !== "") {
+        resultsSearch.value = null;
+        isLoadingSearch.value = true;
+        errorSearch.value = "";
+        try {
+            const response = await fetch(`http://app.aiku.test/ask-bot?q=${query}`);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+				
+                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            resultsSearch.value = data.data;
+        } catch (error) {
+            errorSearch.value = error.message || "An error occurred while fetching search results.";
+        } finally {
+            isLoadingSearch.value = false;
+        }
+    }
+}, 700);
+
 </script>
 
 <template>
@@ -39,11 +49,9 @@ const fetchApi = debounce(async (query: string) => {
 				@input="() => fetchApi(searchValue)"
 				type="text"
 				class="h-12 w-full border border-gray-300 bg-white rounded-lg pl-11 pr-4 text-gray-900 placeholder:text-gray-400 focus:ring focus:ring-blue-300 focus:outline-none sm:text-sm"
-				placeholder="Search..." />
+				placeholder="Ask Anything..." />
 			<div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-					<path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m-2.65 1.15a7.5 7.5 0 1110.35-10.35 7.5 7.5 0 01-10.35 10.35z" />
-				</svg>
+				<FontAwesomeIcon fixed-width icon="fal fa-lamp-desk" aria-hidden="true" />
 			</div>
 		</div>
 
@@ -60,8 +68,12 @@ const fetchApi = debounce(async (query: string) => {
 			</div>
 		</div>
 
-		<div v-else-if="!isLoadingSearch && searchValue.trim() && !resultsSearch?.response" class="mt-4">
-			<p class="text-center text-gray-500">No results found for "{{ searchValue }}"</p>
+		<div v-else-if="!isLoadingSearch && errorSearch" class="mt-4">
+			<p class="text-center text-red-500">{{ errorSearch }}</p>
+		</div>
+
+		<div v-else-if="!isLoadingSearch && searchValue.trim()" class="mt-4">
+			<p class="text-center text-gray-500">No results found.</p>
 		</div>
 	</Modal>
 </template>

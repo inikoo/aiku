@@ -14,12 +14,14 @@ import { inject } from "vue"
 import { layoutStructure } from "@/Composables/useLayoutStructure"
 import { useFormatTime } from '@/Composables/useFormatTime'
 import Icon from "@/Components/Icon.vue"
+import { useLocaleStore } from "@/Stores/locale";
 
 const props = defineProps<{
     data: TableTS,
     tab?: string
 }>()
 
+const locale = useLocaleStore();
 const layout = inject('layout', layoutStructure)
 
 function deliveryNoteRoute(deliveryNote: DeliveryNote) {

@@ -22,6 +22,7 @@ use App\Models\Dispatching\DeliveryNote;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
 use App\Rules\ValidAddress;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -41,8 +42,13 @@ class StoreDeliveryNote extends OrgAction
      */
     public function handle(Order $order, array $modelData): DeliveryNote
     {
-        $deliveryAddress = $modelData['delivery_address'];
-        data_forget($modelData, 'delivery_address');
+        if (!Arr::has($modelData, 'delivery_address')) {
+            $modelData['delivery_address'] = $order->deliveryAddress;
+        }
+
+
+        $deliveryAddress = Arr::pull($modelData, 'delivery_address');
+
 
         data_set($modelData, 'shop_id', $order->shop_id);
         data_set($modelData, 'customer_id', $order->customer_id);
@@ -76,6 +82,7 @@ class StoreDeliveryNote extends OrgAction
 
             return $deliveryNote;
         });
+        $deliveryNote->refresh();
 
         DeliveryNoteRecordSearch::dispatch($deliveryNote)->delay($this->hydratorsDelay);
         GroupHydrateDeliveryNotes::dispatch($deliveryNote->group)->delay($this->hydratorsDelay);
@@ -90,7 +97,7 @@ class StoreDeliveryNote extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'reference'        => [
+            'reference'       => [
                 'required',
                 'max:64',
                 'string',
@@ -101,35 +108,36 @@ class StoreDeliveryNote extends OrgAction
                     ]
                 ),
             ],
-            'state'            => [
-                'sometimes',
-                'required',
-                new Enum(DeliveryNoteStateEnum::class)
-            ],
-            'status'           => [
-                'sometimes',
-                'required',
-                new Enum(DeliveryNoteStatusEnum::class)
-            ],
-            'delivery_address' => ['required', new ValidAddress()],
-            'email'            => ['sometimes', 'nullable', 'email'],
-            'phone'            => ['sometimes', 'nullable', 'string'],
-            'date'             => ['required', 'date'],
-            'warehouse_id'     => [
+            'email'           => ['sometimes', 'nullable', 'email'],
+            'phone'           => ['sometimes', 'nullable', 'string'],
+            'date'            => ['required', 'date'],
+            'warehouse_id'    => [
                 'required',
                 Rule::exists('warehouses', 'id')
                     ->where('organisation_id', $this->organisation->id),
             ],
-            'delivery_locked'  => ['sometimes', 'boolean'],
+            'delivery_locked' => ['sometimes', 'boolean'],
         ];
 
         if (!$this->strict) {
-            $rules['reference']    = ['required', 'max:64', 'string'];
-            $rules['fetched_at']   = ['sometimes', 'date'];
-            $rules['created_at']   = ['sometimes', 'date'];
-            $rules['cancelled_at'] = ['sometimes', 'date'];
-            $rules['submitted_at'] = ['sometimes', 'date'];
-            $rules['source_id']    = ['sometimes', 'string', 'max:64',];
+            $rules['stats']  = [
+                'sometimes',
+                'required',
+                new Enum(DeliveryNoteStateEnum::class)
+            ];
+            $rules['status'] = [
+                'sometimes',
+                'required',
+                new Enum(DeliveryNoteStatusEnum::class)
+            ];
+
+            $rules['delivery_address'] = ['required', new ValidAddress()];
+            $rules['reference']        = ['required', 'max:64', 'string'];
+            $rules['fetched_at']       = ['sometimes', 'date'];
+            $rules['created_at']       = ['sometimes', 'date'];
+            $rules['cancelled_at']     = ['sometimes', 'date'];
+            $rules['submitted_at']     = ['sometimes', 'date'];
+            $rules['source_id']        = ['sometimes', 'string', 'max:64',];
         }
 
         return $rules;

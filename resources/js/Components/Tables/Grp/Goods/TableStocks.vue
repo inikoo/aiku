@@ -46,8 +46,6 @@ function stockFamilyRoute(stock: Stock) {
 }
 
 
-
-
 </script>
 
 <template>

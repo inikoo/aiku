@@ -35,9 +35,13 @@ class StoreDeliveryNoteItem extends OrgAction
         if ($this->strict) {
             /** @var OrgStock $orgStock */
             $orgStock = OrgStock::withTrashed()->find($modelData['org_stock_id']);
-            data_set($modelData, 'stock_id', $orgStock->stock_id);
-            data_set($modelData, 'stock_family_id', $orgStock->stock->stock_family_id);
             data_set($modelData, 'org_stock_family_id', $orgStock->org_stock_family_id);
+
+            if ($orgStock->stock_id) {
+                data_set($modelData, 'stock_id', $orgStock->stock_id);
+                data_set($modelData, 'stock_family_id', $orgStock->stock->stock_family_id);
+            }
+
         }
 
         /** @var DeliveryNoteItem $deliveryNoteItem */
@@ -80,8 +84,7 @@ class StoreDeliveryNoteItem extends OrgAction
             $rules['quantity_picked']     = ['sometimes', 'numeric'];
             $rules['quantity_packed']     = ['sometimes', 'numeric'];
             $rules['quantity_dispatched'] = ['sometimes', 'numeric'];
-
-            $rules['stock_id']            = ['required', 'integer'];
+            $rules['stock_id']            = ['sometimes', 'nullable', 'integer'];
             $rules['stock_family_id']     = ['sometimes', 'nullable','integer'];
             $rules['org_stock_family_id'] = ['sometimes', 'nullable','integer'];
         }

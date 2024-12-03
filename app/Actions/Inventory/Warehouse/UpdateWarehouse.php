@@ -31,12 +31,13 @@ class UpdateWarehouse extends OrgAction
 
     public function handle(Warehouse $warehouse, array $modelData): Warehouse
     {
-        $addressData = Arr::get($modelData, 'address');
-        Arr::forget($modelData, 'address');
+        if (Arr::has($modelData, 'address')) {
+            $addressData = Arr::pull($modelData, 'address');
+            $warehouse   = $this->updateModelAddress($warehouse, $addressData);
+        }
 
         $warehouse = $this->update($warehouse, $modelData, ['data', 'settings']);
 
-        $warehouse = $this->updateModelAddress($warehouse, $addressData);
 
         if ($warehouse->wasChanged('state')) {
             GroupHydrateWarehouses::run($warehouse->group)->delay($this->hydratorsDelay);

@@ -43,7 +43,7 @@ class UpdateLocationOrgStock extends OrgAction
             return true;
         }
 
-        return $request->user()->hasPermissionTo("inventory.locations.edit");
+        return $request->user()->hasPermissionTo("locations.{$this->warehouse->id}.view");
     }
 
     public function prepareForValidation(): void

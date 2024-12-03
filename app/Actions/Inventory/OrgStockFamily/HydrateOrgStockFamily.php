@@ -18,7 +18,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class HydrateOrgStockFamily
 {
     use AsAction;
-    public string $commandSignature = 'org-stock-family:hydrate {--s|slug=}';
+    public string $commandSignature = 'hydrate:org_stock_families {--s|slug=}';
 
     public function handle(OrgStockFamily $orgStockFamily): void
     {

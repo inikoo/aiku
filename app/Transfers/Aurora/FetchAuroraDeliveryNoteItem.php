@@ -31,11 +31,9 @@ class FetchAuroraDeliveryNoteItem extends FetchAurora
 
                 $this->parsedData['type'] = $this->auroraModelData->{'Inventory Transaction Type'};
 
-
                 $state = match ($deliveryNote->state) {
                     DeliveryNoteStateEnum::SUBMITTED, DeliveryNoteStateEnum::IN_QUEUE, DeliveryNoteStateEnum::PICKER_ASSIGNED => DeliveryNoteItemStateEnum::ON_HOLD,
                     DeliveryNoteStateEnum::PICKING, DeliveryNoteStateEnum::PICKED, DeliveryNoteStateEnum::PACKING => DeliveryNoteItemStateEnum::HANDLING,
-
                     DeliveryNoteStateEnum::PACKED => DeliveryNoteItemStateEnum::PACKED,
                     DeliveryNoteStateEnum::FINALISED => DeliveryNoteItemStateEnum::FINALISED,
                     DeliveryNoteStateEnum::SETTLED => DeliveryNoteItemStateEnum::SETTLED,
@@ -84,8 +82,8 @@ class FetchAuroraDeliveryNoteItem extends FetchAurora
                     'last_fetched_at'     => now(),
                     'org_stock_id'        => $orgStock->id,
                     'org_stock_family_id' => $orgStock->org_stock_family_id,
-                    'stock_id'            => $stock->id,
-                    'stock_family_id'     => $stock->stock_family_id
+                    'stock_id'            => $stock ? $stock->id : null,
+                    'stock_family_id'     => $stock ? $stock->stock_family_id : null
 
 
                 ];
