@@ -6,6 +6,7 @@
  *  Copyright (c) 2022, Raul A Perusquia Flores
  */
 
+use App\Enums\Dispatching\Picking\PickingEngineEnum;
 use App\Enums\Dispatching\Picking\PickingNotPickedReasonEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Enums\Dispatching\Picking\PickingStatusEnum;
@@ -38,7 +39,7 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('picker_id')->nullable()->index();
             $table->foreign('picker_id')->references('id')->on('users');
 
-            $table->string('engine')->nulalble()->index();
+            $table->string('engine')->index()->default(PickingEngineEnum::AIKU->value);
 
             $table->unsignedSmallInteger('location_id')->nullable()->index();
             $table->foreign('location_id')->references('id')->on('locations');

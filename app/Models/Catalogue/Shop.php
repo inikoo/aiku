@@ -24,8 +24,6 @@ use App\Models\Analytics\AikuSection;
 use App\Models\Billables\Charge;
 use App\Models\Billables\Rental;
 use App\Models\Billables\Service;
-use App\Models\Catalogue\Shop\ShopMailshotsIntervals;
-use App\Models\Catalogue\Shop\ShopOrdersIntervals;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\ModelSubscribedToOutbox;
 use App\Models\Comms\Outbox;
@@ -160,12 +158,12 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read LaravelCollection<int, Invoice> $invoices
  * @property-read LaravelCollection<int, Issue> $issues
  * @property-read LaravelCollection<int, Mailshot> $mailshots
- * @property-read ShopMailshotsIntervals|null $mailshotsIntervals
+ * @property-read \App\Models\Catalogue\ShopMailshotsIntervals|null $mailshotsIntervals
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, OfferComponent> $offerComponents
  * @property-read LaravelCollection<int, Offer> $offers
- * @property-read ShopOrdersIntervals|null $orderIntervals
+ * @property-read \App\Models\Catalogue\ShopOrderHandlingStats|null $orderHandlingStats
  * @property-read \App\Models\Catalogue\ShopOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
  * @property-read PaymentAccountShop|OrgPaymentServiceProviderShop|null $pivot
@@ -291,9 +289,9 @@ class Shop extends Model implements HasMedia, Auditable
         return $this->hasOne(ShopSalesIntervals::class);
     }
 
-    public function orderIntervals(): HasOne
+    public function orderHandlingStats(): HasOne
     {
-        return $this->hasOne(ShopOrdersIntervals::class);
+        return $this->hasOne(ShopOrderHandlingStats::class);
     }
 
     public function mailshotsIntervals(): HasOne

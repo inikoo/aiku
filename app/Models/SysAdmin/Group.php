@@ -166,9 +166,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, \App\Models\Helpers\Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, Offer> $offers
+ * @property-read \App\Models\SysAdmin\GroupOrderHandlingStats|null $orderHandlingStats
  * @property-read \App\Models\SysAdmin\GroupOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
- * @property-read \App\Models\SysAdmin\GroupOrdersIntervals|null $ordersIntervals
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
  * @property-read LaravelCollection<int, OrgPostRoom> $orgPostRooms
  * @property-read LaravelCollection<int, \App\Models\SysAdmin\Organisation> $organisations
@@ -354,9 +354,9 @@ class Group extends Authenticatable implements Auditable, HasMedia
         return $this->hasOne(GroupSalesIntervals::class);
     }
 
-    public function ordersIntervals(): HasOne
+    public function orderHandlingStats(): HasOne
     {
-        return $this->hasOne(GroupOrdersIntervals::class);
+        return $this->hasOne(GroupOrderHandlingStats::class);
     }
 
     public function mailshotsIntervals(): HasOne

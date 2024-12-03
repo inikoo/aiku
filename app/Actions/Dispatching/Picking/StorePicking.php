@@ -34,24 +34,24 @@ class StorePicking extends OrgAction
         data_set($modelData, 'delivery_note_id', $deliveryNoteItem->delivery_note_id);
         data_set($modelData, 'org_stock_id', $deliveryNoteItem->org_stock_id);
 
-        $picking = $deliveryNoteItem->pickings()->create($modelData);
-
-        return $picking;
+        return $deliveryNoteItem->pickings()->create($modelData);
     }
 
     public function rules(): array
     {
         return [
-            'state'                 => ['sometimes', Rule::enum(PickingStateEnum::class)],
-            'outcome'               => ['sometimes', Rule::enum(PickingNotPickedReasonEnum::class)],
-            'vessel_picking'        => ['sometimes', Rule::enum(PickingEngineEnum::class)],
-            'vessel_packing'        => ['sometimes', Rule::enum(PickingEngineEnum::class)],
-            'location_id'           => [
+            'state'           => ['sometimes', Rule::enum(PickingStateEnum::class)],
+            'outcome'         => ['sometimes', Rule::enum(PickingNotPickedReasonEnum::class)],
+            'engine'          => ['sometimes', Rule::enum(PickingEngineEnum::class)],
+            'location_id'     => [
                 'sometimes',
                 Rule::Exists('locations', 'id')->where('warehouse_id', $this->deliveryNoteItem->deliveryNote->warehouse_id)
             ],
-            'quantity_picked'     => ['sometimes', 'numeric'],
-            'picker_id'           => ['sometimes'],
+            'quantity_picked' => ['sometimes', 'numeric'],
+            'picker_id'       => [
+                'sometimes',
+                Rule::Exists('users', 'id')->where('group_id', $this->shop->group_id)
+            ],
         ];
     }
 
@@ -67,6 +67,7 @@ class StorePicking extends OrgAction
     {
         $this->deliveryNoteItem = $deliveryNoteItem;
         $this->initialisationFromShop($deliveryNoteItem->shop, $modelData);
+
         return $this->handle($deliveryNoteItem, $this->validatedData);
     }
 }

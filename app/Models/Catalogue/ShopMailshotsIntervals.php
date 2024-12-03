@@ -2,13 +2,12 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Fri, 03 May 2024 19:55:22 British Summer Time, Sheffield, UK
+ * Created: Tue, 03 Dec 2024 16:13:42 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Models\Catalogue\Shop;
+namespace App\Models\Catalogue;
 
-use App\Models\Catalogue\Shop;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -219,7 +218,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $total_emails_pq5
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read Shop $shop
+ * @property-read \App\Models\Catalogue\Shop $shop
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopMailshotsIntervals newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopMailshotsIntervals newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|ShopMailshotsIntervals query()

@@ -24,7 +24,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $delivery_note_id
  * @property int $delivery_note_item_id
  * @property int|null $picking_id
- * @property bool $status 0: pending, 1: done
+ * @property bool $status 0: todo, 1: done
  * @property bool $is_blocked
  * @property string|null $quantity_packed
  * @property int|null $packer_id

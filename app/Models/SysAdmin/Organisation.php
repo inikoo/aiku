@@ -172,9 +172,9 @@ use Spatie\Sluggable\SlugOptions;
  * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection<int, Media> $media
  * @property-read LaravelCollection<int, OfferCampaign> $offerCampaigns
  * @property-read LaravelCollection<int, Offer> $offers
+ * @property-read \App\Models\SysAdmin\OrganisationOrderHandlingStats|null $orderHandlingStats
  * @property-read \App\Models\SysAdmin\OrganisationOrderingStats|null $orderingStats
  * @property-read LaravelCollection<int, Order> $orders
- * @property-read \App\Models\SysAdmin\OrganisationOrdersIntervals|null $ordersIntervals
  * @property-read LaravelCollection<int, OrgAgent> $orgAgents
  * @property-read LaravelCollection<int, OrgPartner> $orgPartners
  * @property-read LaravelCollection<int, OrgPaymentServiceProvider> $orgPaymentServiceProviders
@@ -351,9 +351,9 @@ class Organisation extends Model implements HasMedia, Auditable
         return $this->hasOne(OrganisationSalesIntervals::class);
     }
 
-    public function ordersIntervals(): HasOne
+    public function orderHandlingStats(): HasOne
     {
-        return $this->hasOne(OrganisationOrdersIntervals::class);
+        return $this->hasOne(OrganisationOrderHandlingStats::class);
     }
 
     public function mailshotsIntervals(): HasOne

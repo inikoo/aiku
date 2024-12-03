@@ -84,6 +84,8 @@ beforeEach(function () {
 });
 
 test("UI Index dispatching delivery-notes", function () {
+    $this->withoutExceptionHandling();
+
     $response = get(
         route("grp.org.warehouses.show.dispatching.delivery-notes", [
             $this->organisation->slug,

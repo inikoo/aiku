@@ -36,7 +36,6 @@ class DeliveryNotesResource extends JsonResource
             'state'          => $this->state,
             'state_icon'     => $this->state->stateIcon()[$this->state->value],
             'type'           => $this->type,
-            'status'         => $this->status,
             'weight'         => $this->weight,
             'created_at'     => $this->created_at,
             'updated_at'     => $this->updated_at,

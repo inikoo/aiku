@@ -9,7 +9,6 @@
 namespace App\Enums\UI\Dispatch;
 
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatching\Picking\PickingStateEnum;
 use App\Enums\EnumHelperTrait;
 use App\Enums\HasTabsWithIndicator;
 use App\Models\Dispatching\DeliveryNote;

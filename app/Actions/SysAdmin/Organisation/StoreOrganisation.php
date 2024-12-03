@@ -118,7 +118,7 @@ class StoreOrganisation
                 $organisation->crmStats()->create();
                 $organisation->orderingStats()->create();
                 $organisation->salesIntervals()->create();
-                $organisation->ordersIntervals()->create();
+                $organisation->orderHandlingStats()->create();
                 $organisation->mailshotsIntervals()->create();
                 $organisation->fulfilmentStats()->create();
                 $organisation->catalogueStats()->create();

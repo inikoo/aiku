@@ -81,7 +81,6 @@ class IndexDeliveryNotes extends OrgAction
                 'delivery_notes.slug',
                 'delivery_notes.type',
                 'delivery_notes.state',
-                'delivery_notes.status',
                 'delivery_notes.weight',
                 'shops.slug as shop_slug',
                 'customers.slug as customer_slug',
@@ -90,7 +89,7 @@ class IndexDeliveryNotes extends OrgAction
             ])
             ->leftJoin('delivery_note_stats', 'delivery_notes.id', 'delivery_note_stats.delivery_note_id')
             ->leftJoin('shops', 'delivery_notes.shop_id', 'shops.id')
-            ->allowedSorts(['reference', 'date', 'number_items', 'customer_name', 'type', 'status', 'weight'])
+            ->allowedSorts(['reference', 'date', 'number_items', 'customer_name', 'type', 'weight'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -128,8 +127,6 @@ class IndexDeliveryNotes extends OrgAction
                 );
 
 
-            $table->column(key: 'status', label: __('status'), canBeHidden: false, searchable: true);
-            // $table->column(key: 'type', label: __('type'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
             if (!$parent instanceof Customer) {
