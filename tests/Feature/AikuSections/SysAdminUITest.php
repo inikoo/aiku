@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Analytics\GetSectionRoute;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Models\Analytics\AikuScopedSection;
@@ -17,7 +19,7 @@ use function Pest\Laravel\get;
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->adminGuest   = createAdminGuest($this->organisation->group);
-    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
+    $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
     Config::set(
         'inertia.testing.page_paths',
         [resource_path('js/Pages/Grp')]

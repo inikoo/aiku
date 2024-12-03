@@ -11,8 +11,6 @@ use App\Actions\Catalogue\ProductCategory\StoreProductCategory;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\CRM\WebUser\StoreWebUser;
 use App\Actions\Goods\Stock\StoreStock;
-use App\Actions\Goods\Stock\SyncStockTradeUnits;
-use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
 use App\Actions\Inventory\OrgStock\StoreOrgStock;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
@@ -25,13 +23,13 @@ use App\Actions\SysAdmin\Organisation\StoreOrganisation;
 use App\Actions\Web\Website\StoreWebsite;
 use App\Enums\Catalogue\ProductCategory\ProductCategoryTypeEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
+use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\ProductCategory;
 use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\Fulfilment;
-use App\Models\Goods\TradeUnit;
 use App\Models\Helpers\Address;
 use App\Models\Inventory\OrgStock;
 use App\Models\Inventory\Warehouse;
@@ -70,6 +68,7 @@ function createGroup(): Group
     if (!$group) {
         $group = StoreGroup::make()->action(Group::factory()->definition());
     }
+
     return $group;
 }
 
@@ -97,7 +96,6 @@ function createOrganisation(): Organisation
 }
 
 
-
 function createAdminGuest(Group $group): Guest
 {
     $guest = Guest::first();
@@ -113,7 +111,7 @@ function createAdminGuest(Group $group): Guest
                         [
                             'positions' => [
                                 [
-                                    'slug' => 'group-admin',
+                                    'slug'   => 'group-admin',
                                     'scopes' => []
                                 ]
                             ]
@@ -222,76 +220,35 @@ function createCustomer(Shop $shop): Customer
     return $customer;
 }
 
-function createTradeUnits(Group $group): array
-{
-    $numberTradeUnits = $group->tradeUnits()->count();
-    if ($numberTradeUnits < 3) {
-        $tradeUnit = StoreTradeUnit::make()->action(
-            $group,
-            TradeUnit::factory()->definition()
-        );
-        $tradeUnit2 = StoreTradeUnit::make()->action(
-            $group,
-            TradeUnit::factory()->definition()
-        );
-        $tradeUnit3 = StoreTradeUnit::make()->action(
-            $group,
-            TradeUnit::factory()->definition()
-        );
-    } else {
-        $tradeUnit = $group->tradeUnits()->first();
-        $tradeUnit2 = $group->tradeUnits()->skip(1)->first();
-        $tradeUnit3 = $group->tradeUnits()->skip(2)->first();
-    }
 
-    return [
-        $tradeUnit,
-        $tradeUnit2,
-        $tradeUnit3
-    ];
-
-}
 
 /**
  * @throws \Throwable
  */
 function createStocks(Group $group): array
 {
-    $tradeUnits  = createTradeUnits($group);
+
     $numberStocks = $group->stocks()->count();
     if ($numberStocks < 3) {
         $stock = StoreStock::make()->action(
             $group,
-            Stock::factory()->definition()
+            array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE])
         );
-        SyncStockTradeUnits::run($stock, [
-            $tradeUnits[0]->id => [
-                'quantity' => 1
-            ]
-        ]);
+
 
         $stock2 = StoreStock::make()->action(
             $group,
-            Stock::factory()->definition()
+            array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE])
         );
-        SyncStockTradeUnits::run($stock2, [
-            $tradeUnits[1]->id => [
-                'quantity' => 1
-            ]
-        ]);
+
 
         $stock3 = StoreStock::make()->action(
             $group,
-            Stock::factory()->definition()
+            array_merge(Stock::factory()->definition(), ['state' => StockStateEnum::ACTIVE])
         );
-        SyncStockTradeUnits::run($stock3, [
-            $tradeUnits[2]->id => [
-                'quantity' => 1
-            ]
-        ]);
 
     } else {
-        $stock = $group->stocks()->first();
+        $stock  = $group->stocks()->first();
         $stock2 = $group->stocks()->skip(1)->first();
         $stock3 = $group->stocks()->skip(2)->first();
     }
@@ -301,7 +258,6 @@ function createStocks(Group $group): array
         $stock2,
         $stock3
     ];
-
 }
 
 /**
@@ -309,7 +265,6 @@ function createStocks(Group $group): array
  */
 function createOrgStocks(Organisation $organisation, array $stocks): array
 {
-
     $orgStocks = [];
     foreach ($stocks as $stock) {
         $orgStock = $organisation->orgStocks()->where('stock_id', $stock->id)->first();
@@ -324,7 +279,6 @@ function createOrgStocks(Organisation $organisation, array $stocks): array
     }
 
     return $orgStocks;
-
 }
 
 /**
@@ -332,8 +286,7 @@ function createOrgStocks(Organisation $organisation, array $stocks): array
  */
 function createProduct(Shop $shop): array
 {
-
-    $stocks   = createStocks($shop->group);
+    $stocks    = createStocks($shop->group);
     $orgStocks = createOrgStocks($shop->organisation, $stocks);
 
     $department = $shop->productCategories()->where('type', ProductCategoryTypeEnum::DEPARTMENT)->first();
@@ -357,7 +310,6 @@ function createProduct(Shop $shop): array
     }
 
 
-
     $product = $shop->products()->first();
     if (!$product) {
         $productData = array_merge(
@@ -366,7 +318,7 @@ function createProduct(Shop $shop): array
                 'org_stocks' => [
                     $orgStocks[0]->id => ['quantity' => 1]
                 ],
-                'price'       => 100,
+                'price'      => 100,
             ]
         );
         $product     = StoreProduct::make()->action(
@@ -389,11 +341,11 @@ function createOrder(Customer $customer, Product $product): Order
     $order = $customer->organisation->orders()->first();
     if (!$order) {
         $arrayData = [
-            'reference'           => '123456',
-            'date'                => date('Y-m-d'),
-            'customer_id'         => $customer->id,
-            'delivery_address'    => new Address(Address::factory()->definition()),
-            'billing_address'     => new Address(Address::factory()->definition()),
+            'reference'        => '123456',
+            'date'             => date('Y-m-d'),
+            'customer_id'      => $customer->id,
+            'delivery_address' => new Address(Address::factory()->definition()),
+            'billing_address'  => new Address(Address::factory()->definition()),
         ];
 
         $order = StoreOrder::make()->action($customer, $arrayData);
@@ -408,7 +360,6 @@ function createOrder(Customer $customer, Product $product): Order
 
 function createWebsite(Shop $shop): Website
 {
-
     if ($website = $shop->website) {
         return $website;
     }
@@ -417,7 +368,6 @@ function createWebsite(Shop $shop): Website
         $shop,
         Website::factory()->definition()
     );
-
 }
 
 /**
@@ -425,7 +375,6 @@ function createWebsite(Shop $shop): Website
  */
 function createWebUser(Customer $customer): WebUser
 {
-
     $webUser = $customer->webUsers()->first();
     if (!$webUser) {
         data_set($storeData, 'username', 'test');
@@ -439,5 +388,4 @@ function createWebUser(Customer $customer): WebUser
     }
 
     return $webUser;
-
 }

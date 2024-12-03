@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Billables\Service\StoreService;
 use App\Actions\Catalogue\Product\StoreProduct;
 use App\Actions\Catalogue\Shop\StoreShop;

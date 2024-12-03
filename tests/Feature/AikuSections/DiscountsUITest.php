@@ -7,6 +7,8 @@
  * copyright 2024
 */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
@@ -34,7 +36,7 @@ beforeEach(function () {
     $shop = Shop::first();
     if (!$shop) {
         $storeData = Shop::factory()->definition();
-        $shop = StoreShop::make()->action(
+        $shop      = StoreShop::make()->action(
             $this->organisation,
             $storeData
         );
@@ -52,7 +54,7 @@ beforeEach(function () {
         );
     }
     $this->offerCampaign = $offerCampaign;
-    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
+    $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -84,8 +86,8 @@ test('UI show offer campaigns', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->offerCampaign->name)
-                        ->etc()
+                    ->where('title', $this->offerCampaign->name)
+                    ->etc()
             )
             ->has('tabs')
             ->has('navigation')
@@ -109,7 +111,7 @@ test('UI Index offers', function () {
 test('UI get section route offer dashboard', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.discounts.offers.index', [
         'organisation' => $this->organisation->slug,
-        'shop' => $this->shop->slug
+        'shop'         => $this->shop->slug
     ]);
 
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)

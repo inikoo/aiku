@@ -9,6 +9,7 @@
 namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
+use App\Actions\GrpAction;
 use App\Actions\Helpers\Currency\SetCurrencyHistoricFields;
 use App\Actions\Procurement\OrgPartner\StoreOrgPartner;
 use App\Actions\SysAdmin\Group\SeedAikuScopedSections;
@@ -27,6 +28,7 @@ use App\Models\Helpers\Timezone;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use App\Models\SysAdmin\Role;
+use App\Rules\IUnique;
 use App\Rules\Phone;
 use App\Rules\ValidAddress;
 use Exception;
@@ -38,14 +40,10 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
-use Lorisleiva\Actions\Concerns\AsAction;
-use Lorisleiva\Actions\Concerns\WithAttributes;
 use Throwable;
 
-class StoreOrganisation
+class StoreOrganisation extends GrpAction
 {
-    use AsAction;
-    use WithAttributes;
     use WithModelAddressActions;
 
     /**
@@ -167,10 +165,26 @@ class StoreOrganisation
     public function rules(): array
     {
         return [
-            'code'         => ['required', 'unique:organisations', 'max:12', 'alpha'],
+            'code'         => ['required',
+                               new IUnique(
+                                   table: 'organisations',
+                                   extraConditions: [
+                                       ['column' => 'group_id', 'value' => $this->group->id],
+
+                                   ]
+                               ),
+                               'max:16', 'alpha_dash:ascii'],
             'name'         => ['required', 'string', 'max:255'],
             'contact_name' => ['sometimes', 'string', 'max:255'],
-            'email'        => ['required', 'nullable', 'email', 'unique:organisations'],
+            'email'        => ['required', 'nullable', 'email',
+                               new IUnique(
+                                   table: 'organisations',
+                                   extraConditions: [
+                                       ['column' => 'group_id', 'value' => $this->group->id],
+
+                                   ]
+                               ),
+                ],
             'phone'        => ['sometimes', 'nullable', new Phone()],
             'currency_id'  => ['required', 'exists:currencies,id'],
             'country_id'   => ['required', 'exists:countries,id'],
@@ -186,28 +200,26 @@ class StoreOrganisation
     /**
      * @throws \Throwable
      */
-    public function asController(Group $group, ActionRequest $request): Organisation
+    public function action(Group $group, $modelData): Organisation
     {
-        $this->setRawAttributes($request->all());
-        $validatedData = $this->validateAttributes();
+        $this->initialisation($group, $modelData);
 
-        return $this->handle($group, $validatedData);
-    }
-
-    public function htmlResponse(Organisation $organisation): RedirectResponse
-    {
-        return Redirect::route('grp.org.dashboard.show', $organisation->slug);
+        return $this->handle($group, $this->validatedData);
     }
 
     /**
      * @throws \Throwable
      */
-    public function action(Group $group, $modelData): Organisation
+    public function asController(Group $group, ActionRequest $request): Organisation
     {
-        $this->setRawAttributes($modelData);
-        $validatedData = $this->validateAttributes();
+        $this->initialisation($group, $request);
 
-        return $this->handle($group, $validatedData);
+        return $this->handle($group, $this->validatedData);
+    }
+
+    public function htmlResponse(Organisation $organisation): RedirectResponse
+    {
+        return Redirect::route('grp.org.dashboard.show', $organisation->slug);
     }
 
     public function getCommandSignature(): string
@@ -284,7 +296,7 @@ class StoreOrganisation
             }
         }
 
-        $address = null;
+
         if ($command->option('address')) {
             if (Str::isJson($command->option('address'))) {
                 $address = json_decode($command->option('address'), true);
@@ -315,19 +327,10 @@ class StoreOrganisation
             $data['address'] = $address;
         }
 
-        $this->setRawAttributes($data);
 
-
-        try {
-            $validatedData = $this->validateAttributes();
-        } catch (Exception $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
 
         //  try {
-        $organisation = $this->handle($group, $validatedData);
+        $organisation = $this->action($group, $data);
         $command->info("Organisation $organisation->slug created successfully 🎉");
         //        } catch (Exception|Throwable $e) {
         //            $command->error($e->getMessage());

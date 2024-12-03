@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Goods\Stock\StoreStock;
 use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
@@ -47,7 +49,7 @@ beforeEach(function () {
     $otherOrg = Organisation::skip(1)->take(1)->first();
     if (!$otherOrg) {
         $orgData = Organisation::factory()->definition();
-        data_set($orgData, 'code', 'acmo');
+        data_set($orgData, 'code', 'acme2');
         data_set($orgData, 'type', OrganisationTypeEnum::SHOP);
         $otherOrg = StoreOrganisation::make()->action($this->organisation->group, $orgData);
     }
@@ -125,8 +127,7 @@ beforeEach(function () {
     if (!$orgSupplierProduct) {
         $orgSupplierProduct = StoreOrgSupplierProduct::make()->action(
             $this->orgSupplier,
-            $this->supplierProduct,
-            []
+            $this->supplierProduct
         );
     }
 
@@ -141,7 +142,7 @@ beforeEach(function () {
     }
 
     $this->orgPartner = $orgPartner;
-    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
+    $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
 
     Config::set(
         'inertia.testing.page_paths',

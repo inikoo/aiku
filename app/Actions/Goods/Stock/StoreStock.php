@@ -63,6 +63,7 @@ class StoreStock extends GrpAction
 
             return $stock;
         });
+        $stock->refresh();
         GroupHydrateStocks::dispatch($this->group)->delay($this->hydratorsDelay);
         if ($parent instanceof StockFamily) {
             StockFamilyHydrateStocks::dispatch($parent)->delay($this->hydratorsDelay);

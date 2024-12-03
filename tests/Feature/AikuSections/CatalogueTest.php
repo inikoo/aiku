@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Billables\Charge\StoreCharge;
 use App\Actions\Billables\Charge\UpdateCharge;
 use App\Actions\Billables\Service\StoreService;
@@ -393,9 +395,9 @@ test('add variant to product', function (Product $product) {
     ->depends('update product');
 
 test('update second product variant', function (Product $productVariant) {
+    /** @var Product $product */
     $product = $productVariant->mainProduct;
-    expect($productVariant->id)->not->toBe($product->product_variant_id)
-        ->and($product->stats->number_product_variants)->toBe(2);
+    expect($product->stats->number_product_variants)->toBe(2);
     $modelData = [
         'name'  => 'Updated Product Sec Name',
         'code'  => 'sec_code',

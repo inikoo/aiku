@@ -6,16 +6,16 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Actions\Ordering\Purge\StorePurge;
 use App\Actions\Ordering\ShippingZoneSchema\StoreShippingZoneSchema;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
-use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Purge\PurgeTypeEnum;
 use App\Models\Analytics\AikuScopedSection;
-use App\Models\Catalogue\HistoricAsset;
 use App\Models\Helpers\Address;
 use App\Models\Ordering\Order;
 use App\Models\Ordering\Purge;
@@ -52,10 +52,10 @@ beforeEach(function () {
     if (!$shippingZoneSchema) {
         $shippingZoneSchema = StoreShippingZoneSchema::make()->action($this->shop, ShippingZoneSchema::factory()->definition());
     }
-    $this -> shippingZoneSchema = $shippingZoneSchema;
+    $this->shippingZoneSchema = $shippingZoneSchema;
 
     $purge = Purge::where('shop_id', $this->shop->id)->first();
-    // dd($purge);
+
     if (!$purge) {
         $billingAddress  = new Address(Address::factory()->definition());
         $deliveryAddress = new Address(Address::factory()->definition());
@@ -64,21 +64,15 @@ beforeEach(function () {
         data_set($modelData, 'billing_address', $billingAddress);
         data_set($modelData, 'delivery_address', $deliveryAddress);
 
-        $order = StoreOrder::make()->action(parent:$this->customer, modelData:$modelData);
+        $order = StoreOrder::make()->action(parent: $this->customer, modelData: $modelData);
 
 
         $transactionData = Transaction::factory()->definition();
         $historicAsset   = $this->product->historicAsset;
-        // expect($historicAsset)->toBeInstanceOf(HistoricAsset::class);
-        $transaction = StoreTransaction::make()->action($order, $historicAsset, $transactionData);
+        StoreTransaction::make()->action($order, $historicAsset, $transactionData);
 
         $order->refresh();
 
-        // expect($order)->toBeInstanceOf(Order::class)
-        // ->and($order->state)->toBe(OrderStateEnum::CREATING)
-        //     ->and($order->stats->number_transactions)->toBe(1)
-        //     ->and($order->stats->number_transactions_at_creation)->toBe(1);
-        // expect($transaction)->toBeInstanceOf(Transaction::class);
 
         $this->customer->refresh();
         $shop = $order->shop;
@@ -88,13 +82,13 @@ beforeEach(function () {
         ]);
 
         $purge = StorePurge::make()->action($this->shop, [
-            'type' => PurgeTypeEnum::MANUAL,
-            'scheduled_at' => now(),
+            'type'          => PurgeTypeEnum::MANUAL,
+            'scheduled_at'  => now(),
             'inactive_days' => 30
-        ], );
+        ]);
     }
     $this->purge = $purge;
-    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
+    $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
 
     Config::set(
         'inertia.testing.page_paths',
@@ -115,8 +109,8 @@ test('UI index asset shipping', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'Shipping')
-                        ->etc()
+                    ->where('title', 'Shipping')
+                    ->etc()
             )
             ->has('data');
     });
@@ -133,8 +127,8 @@ test('UI create asset shipping', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'new schema')
-                        ->etc()
+                    ->where('title', 'new schema')
+                    ->etc()
             )
             ->has('formData');
     });
@@ -151,8 +145,8 @@ test('UI show asset shipping', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->shippingZoneSchema->name)
-                        ->etc()
+                    ->where('title', $this->shippingZoneSchema->name)
+                    ->etc()
             )
             ->has('navigation')
             ->has('tabs');
@@ -170,8 +164,8 @@ test('UI edit asset shipping', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->shippingZoneSchema->name)
-                        ->etc()
+                    ->where('title', $this->shippingZoneSchema->name)
+                    ->etc()
             )
             ->has('navigation')
             ->has('formData');
@@ -189,8 +183,8 @@ test('UI show ordering backlog', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'orders backlog')
-                        ->etc()
+                    ->where('title', 'orders backlog')
+                    ->etc()
             );
     });
 });
@@ -207,8 +201,8 @@ test('UI index ordering purges', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'Purges')
-                        ->etc()
+                    ->where('title', 'Purges')
+                    ->etc()
             );
     });
 });
@@ -225,15 +219,15 @@ test('UI create ordering purge', function () {
                 ->where('route', [
                     'name'       => 'grp.models.purge.store',
                     'parameters' => [
-                        'shop'         => $this->shop->id,
+                        'shop' => $this->shop->id,
                     ]
                 ])
                 ->etc())
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'new purge')
-                        ->etc()
+                    ->where('title', 'new purge')
+                    ->etc()
             );
     });
 });
@@ -258,8 +252,8 @@ test('UI edit ordering purge', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->purge->scheduled_at->toISOString())
-                        ->etc()
+                    ->where('title', $this->purge->scheduled_at->toISOString())
+                    ->etc()
             );
     });
 });
@@ -268,7 +262,7 @@ test('UI edit ordering purge', function () {
 test('UI get section route index', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.ordering.orders.index', [
         'organisation' => $this->organisation->slug,
-        'shop' => $this->shop->slug
+        'shop'         => $this->shop->slug
     ]);
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->organisation_id)->toBe($this->organisation->id)

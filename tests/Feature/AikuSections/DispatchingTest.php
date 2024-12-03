@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 namespace Tests\Feature;
 
 use App\Actions\Dispatching\DeliveryNote\DeleteDeliveryNote;

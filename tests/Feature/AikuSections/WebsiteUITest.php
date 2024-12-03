@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Web\Banner\StoreBanner;
 use App\Actions\Web\Webpage\StoreWebpage;
@@ -76,7 +78,7 @@ beforeEach(function () {
     $this->webpage = $webpage;
 
     $this->user->refresh();
-    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
+    $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
 
     Config::set(
         'inertia.testing.page_paths',

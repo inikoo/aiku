@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Comms\Outbox\StoreOutbox;
 use App\Enums\Comms\Outbox\OutboxBlueprintEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;

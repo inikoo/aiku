@@ -8,7 +8,6 @@
 
 namespace App\Actions\Utils;
 
-use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 class IsGoogleIp

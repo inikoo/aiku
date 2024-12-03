@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\HumanResources\ClockingMachine\StoreClockingMachine;
 use App\Actions\HumanResources\Employee\StoreEmployee;
@@ -72,7 +74,7 @@ beforeEach(function () {
 
     $jobPosition = JobPosition::first();
     if (!$jobPosition) {
-        data_set($storeData, 'code', 'wrkplcas');
+        data_set($storeData, 'code', 'wp');
         data_set($storeData, 'name', 'Kirin');
         $jobPosition = StoreJobPosition::make()->action(
             $this->organisation,
@@ -90,7 +92,7 @@ beforeEach(function () {
         );
     }
     $this->timesheet = $timesheet;
-    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
+    $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
 
     Config::set(
         'inertia.testing.page_paths',

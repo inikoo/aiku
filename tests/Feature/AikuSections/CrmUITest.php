@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Catalogue\Shop\UpdateShop;
@@ -40,7 +42,6 @@ beforeEach(
      * @throws \Throwable
      */
     function () {
-
         $this->organisation = createOrganisation();
         $this->adminGuest   = createAdminGuest($this->organisation->group);
         $this->warehouse    = createWarehouse();
@@ -101,10 +102,10 @@ beforeEach(
             $webUser = StoreWebUser::make()->action(
                 $this->customer,
                 [
-                    'email' => 'example@mail.com',
+                    'email'    => 'example@mail.com',
                     'username' => 'example',
                     'password' => 'password',
-                    'is_root' => true,
+                    'is_root'  => true,
                 ]
             );
         }
@@ -131,7 +132,7 @@ beforeEach(
         $this->order = $order;
 
         $this->adminGuest->refresh();
-        $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
+        $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
 
         Config::set(
             'inertia.testing.page_paths',
@@ -153,8 +154,8 @@ test('UI Index customers', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'customers')
-                        ->etc()
+                    ->where('title', 'customers')
+                    ->etc()
             )
             ->has('data');
     });
@@ -180,11 +181,10 @@ test('UI show customer', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->customer->name)
-                        ->etc()
+                    ->where('title', $this->customer->name)
+                    ->etc()
             )
             ->has('tabs');
-
     });
 });
 
@@ -200,8 +200,8 @@ test('UI edit customer', function () {
             ->has(
                 'formData.args.updateRoute',
                 fn (AssertableInertia $page) => $page
-                        ->where('name', 'grp.models.customer.update')
-                        ->where('parameters', [$this->customer->id])
+                    ->where('name', 'grp.models.customer.update')
+                    ->where('parameters', [$this->customer->id])
             )
             ->has('breadcrumbs', 3);
     });
@@ -237,9 +237,9 @@ test('UI Index customer clients', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->customer->name)
-                        ->has('subNavigation')
-                        ->etc()
+                    ->where('title', $this->customer->name)
+                    ->has('subNavigation')
+                    ->etc()
             )
             ->has('data');
     });
@@ -257,9 +257,9 @@ test('UI Show customer client', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->customerClient->name)
-                        ->has('subNavigation')
-                        ->etc()
+                    ->where('title', $this->customerClient->name)
+                    ->has('subNavigation')
+                    ->etc()
             );
     });
 });
@@ -301,9 +301,9 @@ test('UI edit customer client', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'edit client')
-                        ->has('actions')
-                        ->etc()
+                    ->where('title', 'edit client')
+                    ->has('actions')
+                    ->etc()
             )
             ->has('breadcrumbs', 5);
     });
@@ -321,9 +321,9 @@ test('UI Index customer portfolios', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->customer->name)
-                        ->has('subNavigation')
-                        ->etc()
+                    ->where('title', $this->customer->name)
+                    ->has('subNavigation')
+                    ->etc()
             )
             ->has('data');
     });
@@ -341,9 +341,9 @@ test('UI Index customer web users', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->customer->name)
-                        ->has('subNavigation')
-                        ->etc()
+                    ->where('title', $this->customer->name)
+                    ->has('subNavigation')
+                    ->etc()
             )
             ->has('data');
     });
@@ -361,8 +361,8 @@ test('UI Create customer web users', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'Create web user')
-                        ->etc()
+                    ->where('title', 'Create web user')
+                    ->etc()
             )
             ->has('formData');
     });
@@ -380,8 +380,8 @@ test('UI show customer web users', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->webUser->username)
-                        ->etc()
+                    ->where('title', $this->webUser->username)
+                    ->etc()
             )
             ->has('data');
     });
@@ -399,8 +399,8 @@ test('UI Edit customer web users', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', 'Edit web user')
-                        ->etc()
+                    ->where('title', 'Edit web user')
+                    ->etc()
             )
             ->has('formData');
     });
@@ -418,9 +418,9 @@ test('UI Index customer orders', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->customer->name)
-                        ->has('subNavigation')
-                        ->etc()
+                    ->where('title', $this->customer->name)
+                    ->has('subNavigation')
+                    ->etc()
             )
             ->has('data');
     });
@@ -438,17 +438,17 @@ test('UI show order', function () {
             ->has(
                 'pageHead',
                 fn (AssertableInertia $page) => $page
-                        ->where('title', $this->order->reference)
-                        ->etc()
+                    ->where('title', $this->order->reference)
+                    ->etc()
             )
             ->has('data');
     });
 });
 
 test('can show list of mailshots', function () {
-    $shop     = $this->shop;
+    $shop         = $this->shop;
     $organisation = $this->organisation;
-    $response = get(route('grp.org.shops.show.marketing.mailshots.index', [$organisation->slug, $shop->slug]));
+    $response     = get(route('grp.org.shops.show.marketing.mailshots.index', [$organisation->slug, $shop->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Mail/Mailshots')
@@ -457,9 +457,9 @@ test('can show list of mailshots', function () {
 });
 
 test('can show list of prospects', function () {
-    $shop     = $this->shop;
+    $shop         = $this->shop;
     $organisation = $this->organisation;
-    $response = get(route('grp.org.shops.show.crm.prospects.index', [$organisation->slug, $shop->slug]));
+    $response     = get(route('grp.org.shops.show.crm.prospects.index', [$organisation->slug, $shop->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Shop/CRM/Prospects')
@@ -468,9 +468,9 @@ test('can show list of prospects', function () {
 });
 
 test('can show list of tags', function () {
-    $shop     = $this->shop;
+    $shop         = $this->shop;
     $organisation = $this->organisation;
-    $response = get(route('grp.org.shops.show.crm.prospects.tags.index', [$organisation->slug, $shop->slug]));
+    $response     = get(route('grp.org.shops.show.crm.prospects.tags.index', [$organisation->slug, $shop->slug]));
     $response->assertInertia(function (AssertableInertia $page) {
         $page
             ->component('Org/Shop/CRM/Tags')
@@ -481,7 +481,7 @@ test('can show list of tags', function () {
 test('UI get section route crm dashboard', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.crm.customers.index', [
         'organisation' => $this->organisation->slug,
-        'shop' => $this->shop->slug
+        'shop'         => $this->shop->slug
     ]);
 
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
@@ -492,8 +492,8 @@ test('UI get section route crm dashboard', function () {
 test('UI get section route client dropshipping', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.crm.customers.show.customer-clients.index', [
         'organisation' => $this->organisation->slug,
-        'shop' => $this->shop->slug,
-        'customer' => $this->customer->slug
+        'shop'         => $this->shop->slug,
+        'customer'     => $this->customer->slug
     ]);
 
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
@@ -504,7 +504,7 @@ test('UI get section route client dropshipping', function () {
 test('UI get section route marketing mailshots index', function () {
     $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.marketing.mailshots.index', [
         'organisation' => $this->organisation->slug,
-        'shop' => $this->shop->slug
+        'shop'         => $this->shop->slug
     ]);
 
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)

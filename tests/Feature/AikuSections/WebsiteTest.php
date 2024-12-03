@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Web\Banner\StoreBanner;
 use App\Actions\Web\Banner\UpdateBanner;
 use App\Actions\Web\ExternalLink\StoreExternalLink;

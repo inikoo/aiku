@@ -6,6 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
@@ -294,30 +295,30 @@ test('create invoice from order', function (Order $order) {
     $invoiceData = Invoice::factory()->definition();
     data_set($invoiceData, 'billing_address', new Address(Address::factory()->definition()));
     data_set($invoiceData, 'reference', '00002');
-    $invoice  = StoreInvoice::make()->action($order, $invoiceData);
+    $invoice            = StoreInvoice::make()->action($order, $invoiceData);
     $invoiceTransaction = StoreInvoiceTransaction::make()->action($invoice, $transaction, [
-        'date' => now(),
+        'date'            => now(),
         'tax_category_id' => $transaction->tax_category_id,
-        'quantity' => 10,
-        'gross_amount' => 1000,
-        'net_amount' => 1000,
+        'quantity'        => 10,
+        'gross_amount'    => 1000,
+        'net_amount'      => 1000,
     ]);
-    $customer = $invoice->customer;
+    $customer           = $invoice->customer;
     $this->shop->refresh();
     expect($invoice)->toBeInstanceOf(Invoice::class)
         ->and($customer)->toBeInstanceOf(Customer::class)
         ->and($invoice->customer->id)->toBe($order->customer_id)
         ->and($invoice->reference)->toBe('00002')
         ->and($customer->stats->number_invoices)->toBe(2)
-        ->and($this->shop->orderingStats->number_invoices)->toBe(2);
-    expect($invoiceTransaction)->toBeInstanceOf(InvoiceTransaction::class);
+        ->and($this->shop->orderingStats->number_invoices)->toBe(2)
+        ->and($invoiceTransaction)->toBeInstanceOf(InvoiceTransaction::class);
 
 
     return $invoice;
 })->depends('create order', 'update invoice from customer');
 
 test('update invoice transaction', function (Invoice $invoice) {
-    $transaction = $invoice->invoiceTransactions->first();
+    $transaction        = $invoice->invoiceTransactions->first();
     $updatedTransaction = UpdateInvoiceTransaction::make()->action($transaction, [
         'quantity' => 100
     ]);
@@ -335,7 +336,7 @@ test('create old order', function () {
     data_set($modelData, 'billing_address', $billingAddress);
     data_set($modelData, 'delivery_address', $deliveryAddress);
 
-    $order = StoreOrder::make()->action(parent:$this->customer, modelData:$modelData);
+    $order = StoreOrder::make()->action(parent: $this->customer, modelData: $modelData);
 
 
     $transactionData = Transaction::factory()->definition();
@@ -346,10 +347,10 @@ test('create old order', function () {
     $order->refresh();
 
     expect($order)->toBeInstanceOf(Order::class)
-    ->and($order->state)->toBe(OrderStateEnum::CREATING)
+        ->and($order->state)->toBe(OrderStateEnum::CREATING)
         ->and($order->stats->number_transactions)->toBe(1)
-        ->and($order->stats->number_transactions_at_creation)->toBe(1);
-    expect($transaction)->toBeInstanceOf(Transaction::class);
+        ->and($order->stats->number_transactions_at_creation)->toBe(1)
+        ->and($transaction)->toBeInstanceOf(Transaction::class);
 
     $this->customer->refresh();
     $shop = $order->shop;
@@ -362,10 +363,10 @@ test('create old order', function () {
 });
 
 test('create purge', function (Order $order) {
-    $shop = $order->shop;
+    $shop  = $order->shop;
     $purge = StorePurge::make()->action($shop, [
-        'type' => PurgeTypeEnum::MANUAL,
-        'scheduled_at' => now(),
+        'type'          => PurgeTypeEnum::MANUAL,
+        'scheduled_at'  => now(),
         'inactive_days' => 30,
     ]);
 
@@ -378,7 +379,7 @@ test('create purge', function (Order $order) {
 
 test('update purge', function (Purge $purge) {
     $newSchedule = Date::now()->addDays(5);
-    $purge = UpdatePurge::make()->action($purge, [
+    $purge       = UpdatePurge::make()->action($purge, [
         'scheduled_at' => $newSchedule
     ]);
 
@@ -389,7 +390,7 @@ test('update purge', function (Purge $purge) {
 })->depends('create purge');
 
 test('update purge order', function (Purge $purge) {
-    $purgedOrder = $purge->purgedOrders->first();
+    $purgedOrder        = $purge->purgedOrders->first();
     $updatedPurgedOrder = UpdatePurgedOrder::make()->action($purgedOrder, [
         'error_message' => 'error test'
     ]);
@@ -403,9 +404,10 @@ test('update purge order', function (Purge $purge) {
 test('delete transaction', function (Order $order) {
     $transaction = $order->transactions->first();
 
-    $deletedTransaction = DeleteTransaction::make()->action($order, $transaction);
+    DeleteTransaction::make()->action($order, $transaction);
     $order->refresh();
 
     expect($order->transactions()->count())->toBe(0);
+
     return $order;
 })->depends('create old order');

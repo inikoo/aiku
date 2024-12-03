@@ -8,6 +8,8 @@
  *
 */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Dispatching\DeliveryNote\StoreDeliveryNote;
 use App\Actions\Inventory\Warehouse\StoreWarehouse;
@@ -77,7 +79,7 @@ beforeEach(function () {
         $deliveryNote = StoreDeliveryNote::make()->action($this->order, $arrayData);
     }
     $this->deliveryNote = $deliveryNote;
-    $this->artisan('group:seed_aiku_scoped_sections', [])->assertExitCode(0);
+    $this->artisan('group:seed_aiku_scoped_sections')->assertExitCode(0);
 
     Config::set("inertia.testing.page_paths", [resource_path("js/Pages/Grp")]);
     actingAs($this->adminGuest->getUser());

@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Helpers\Address\HydrateAddress;
 use App\Actions\Helpers\Address\ParseCountryID;
 use App\Actions\Helpers\Avatars\GetDiceBearAvatar;
@@ -45,7 +47,6 @@ use App\Models\SysAdmin\Admin;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Guest;
 use App\Models\SysAdmin\Organisation;
-use App\Models\SysAdmin\Role;
 use App\Models\SysAdmin\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
@@ -438,6 +439,7 @@ test('can not login with wrong credentials', function (Guest $guest) {
         'password' => 'wrong password',
     ]);
 
+    /** @noinspection HttpUrlsUsage */
     $response->assertRedirect('http://app.'.config('app.domain'));
     $response->assertSessionHasErrors('username');
 
@@ -532,10 +534,12 @@ test('hydrate address', function (Organisation $organisation) {
 
 test('parse country', function () {
     $countryId = ParseCountryID::run('malaysia');
+    /** @var Country $country */
     $country   = Country::find($countryId);
     expect($country->code)->toBe('MY');
 
     $countryId = ParseCountryID::run('DEU');
+    /** @var Country $country */
     $country   = Country::find($countryId);
     expect($country->code)->toBe('DE');
 });

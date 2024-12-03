@@ -6,6 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Catalogue\Shop\SeedOfferCampaigns;
 use App\Actions\Catalogue\Shop\StoreShop;

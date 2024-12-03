@@ -6,6 +6,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Procurement\OrgSupplier\StoreOrgSupplier;
 use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
@@ -14,7 +16,6 @@ use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderTransactionQuantity;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToConfirmedPurchaseOrder;
-use App\Actions\Procurement\PurchaseOrder\UpdateStateToCreatingPurchaseOrder;
 use App\Actions\Procurement\PurchaseOrderTransaction\StorePurchaseOrderTransaction;
 use App\Actions\Procurement\StockDelivery\StoreStockDelivery;
 use App\Actions\Procurement\StockDelivery\UpdateStateToCheckedStockDelivery;
@@ -217,8 +218,8 @@ test('delete purchase order', function () {
     $orgSupplier     = StoreOrgSupplier::make()->action($this->organisation, $supplier);
 
     $supplierProductData = [
-        'code'    => 'ABCDE',
-        'name'    => 'ABCDE Asset',
+        'code'    => 'ABC',
+        'name'    => 'ABC Asset',
         'cost'    => 200,
         'stock_id' => $this->stocks[0]->id,
         'units_per_pack' => 10,
@@ -235,7 +236,7 @@ test('delete purchase order', function () {
     $purchaseOrderDeleted = false;
     try {
         $purchaseOrderDeleted = DeletePurchaseOrder::make()->action($purchaseOrder);
-    } catch (ValidationException $e) {
+    } catch (ValidationException) {
         // do nothing
     }
     $supplier->refresh();
@@ -298,20 +299,6 @@ test('change purchase order state to confirmed ', function ($purchaseOrder) {
     return $purchaseOrder;
 })->depends('change state to submitted purchase order');
 
-// test('change state to submitted from confirmed purchase order', function ($purchaseOrder) {
-//     $purchaseOrder = UpdatePurchaseOrderStateToSubmitted::make()->action($purchaseOrder);
-//     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::SUBMITTED);
-
-//     return $purchaseOrder;
-// })->depends('change purchase order state to confirmed')->todo();
-
-// test('change state to creating from submitted purchase order', function ($purchaseOrder) {
-//     $purchaseOrder = UpdateStateToCreatingPurchaseOrder::make()->action($purchaseOrder);
-//     expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::IN_PROCESS);
-
-//     return $purchaseOrder;
-// })->depends('change state to submitted from confirmed purchase order')->todo();
-
 
 
 test('create supplier delivery', function (OrgSupplier $orgSupplier) {
@@ -343,8 +330,8 @@ test('create supplier delivery items', function (StockDelivery $stockDelivery) {
     );
     $orgSupplier     = StoreOrgSupplier::make()->action($this->organisation, $supplier);
     $supplierProductData = [
-        'code'    => 'ABCDE',
-        'name'    => 'ABCDE Asset',
+        'code'    => 'ABC',
+        'name'    => 'ABC Asset',
         'cost'    => 200,
         'stock_id' => $this->stocks[0]->id,
         'units_per_pack' => 10,

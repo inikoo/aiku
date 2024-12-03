@@ -87,7 +87,7 @@ class StoreOrgStock extends OrgAction
     public function rules(ActionRequest $request): array
     {
         $rules = [
-            'state'           => ['required', Rule::enum(OrgStockStateEnum::class)],
+            'state'           => ['sometimes', Rule::enum(OrgStockStateEnum::class)],
             'quantity_status' => ['sometimes', 'nullable', Rule::enum(OrgStockQuantityStatusEnum::class)],
         ];
 
@@ -102,14 +102,17 @@ class StoreOrgStock extends OrgAction
 
     public function prepareForValidation(): void
     {
+
+
+
         $state = match ($this->stock->state) {
             StockStateEnum::ACTIVE => OrgStockStateEnum::ACTIVE,
             StockStateEnum::DISCONTINUING => OrgStockStateEnum::DISCONTINUING,
             StockStateEnum::DISCONTINUED => OrgStockStateEnum::DISCONTINUED,
             StockStateEnum::SUSPENDED => OrgStockStateEnum::SUSPENDED,
+
             default => null
         };
-
 
         $this->set('state', $state);
     }

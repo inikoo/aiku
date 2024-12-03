@@ -6,6 +6,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
@@ -205,7 +206,7 @@ test('update org-agent', function ($orgAgent) {
     );
 
     expect($updatedOrgAgent)->toBeInstanceOf(OrgAgent::class)
-        ->and($updatedOrgAgent->status)->toBe(false);
+        ->and($updatedOrgAgent->status)->toBeFalse();
 
     return $updatedOrgAgent;
 })->depends('create org-agent');
@@ -231,12 +232,13 @@ test('update org-supplier', function ($orgSupplier) {
     );
 
     expect($updatedOrgSupplier)->toBeInstanceOf(OrgSupplier::class)
-        ->and($updatedOrgSupplier->status)->toBe(false);
+        ->and($updatedOrgSupplier->status)->toBeFalse();
 
     return $updatedOrgSupplier;
 })->depends('create org-supplier');
 
 test('delete agent', function () {
+    /** @var Agent $agent */
     $agent = Agent::first();
 
     $deletedAgent = DeleteAgent::make()->action($agent);
@@ -247,6 +249,7 @@ test('delete agent', function () {
 });
 
 test('delete supplier', function () {
+    /** @var Supplier $supplier */
     $supplier = Supplier::first();
 
     $deletedSupplier = DeleteSupplier::make()->action($supplier);

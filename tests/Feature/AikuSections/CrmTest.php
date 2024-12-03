@@ -5,6 +5,7 @@
  * Created: Wed, 27 Nov 2024 15:22:46 Central Indonesia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
+/** @noinspection PhpUnhandledExceptionInspection */
 
 use App\Actions\Comms\Mailshot\StoreMailshot;
 use App\Actions\CRM\BackInStockReminder\DeleteBackInStockReminder;
@@ -52,27 +53,29 @@ beforeAll(function () {
 });
 
 beforeEach(
-/**
- * @throws \Throwable
- */ function () {
-    list(
-        $this->organisation,
-        $this->user,
-        $this->shop
-    ) = createShop();
+    /**
+     * @throws \Throwable
+     */
+    function () {
+        list(
+            $this->organisation,
+            $this->user,
+            $this->shop
+        ) = createShop();
 
-    list(
-        $this->tradeUnit,
-        $this->product
-    ) = createProduct($this->shop);
+        list(
+            $this->tradeUnit,
+            $this->product
+        ) = createProduct($this->shop);
 
-    Config::set(
-        'inertia.testing.page_paths',
-        [resource_path('js/Pages/Grp')]
-    );
-    actingAs($this->user);
+        Config::set(
+            'inertia.testing.page_paths',
+            [resource_path('js/Pages/Grp')]
+        );
+        actingAs($this->user);
 
-});
+    }
+);
 
 
 test('create customer', function () {
@@ -445,9 +448,8 @@ test('store poll option', function (Poll $poll) {
 
     expect($pollOption)->toBeInstanceOf(PollOption::class)
         ->and($pollOption->value)->toBe('value1')
-        ->and($pollOption->label)->toBe('1');
-
-    expect($poll)->toBeInstanceOf(Poll::class)
+        ->and($pollOption->label)->toBe('1')
+        ->and($poll)->toBeInstanceOf(Poll::class)
         ->and($poll->pollOptions->count())->toBe(1);
 
     return $pollOption;

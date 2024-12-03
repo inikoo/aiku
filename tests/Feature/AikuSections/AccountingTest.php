@@ -6,6 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\Accounting\CreditTransaction\DeleteCreditTransaction;
 use App\Actions\Accounting\CreditTransaction\UpdateCreditTransaction;
 use App\Actions\Accounting\InvoiceCategory\StoreInvoiceCategory;

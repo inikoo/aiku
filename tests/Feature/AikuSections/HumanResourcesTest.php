@@ -6,6 +6,8 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+/** @noinspection PhpUnhandledExceptionInspection */
+
 use App\Actions\HumanResources\Clocking\StoreClocking;
 use App\Actions\HumanResources\ClockingMachine\GetClockingMachineAppQRCode;
 use App\Actions\HumanResources\ClockingMachine\HydrateClockingMachine;
