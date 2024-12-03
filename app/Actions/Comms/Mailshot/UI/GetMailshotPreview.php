@@ -18,7 +18,7 @@ class GetMailshotPreview
     public function handle(Mailshot $mailshot): array
     {
         return [
-            'layout' => $mailshot->email->snapshot->layout
+            'layout' => $mailshot->email?->snapshot?->layout
         ];
     }
 }
