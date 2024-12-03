@@ -53,7 +53,7 @@ function paymentsRoute(payment: Payment) {
 			<Icon :data="item.state_icon" class="" />
 		</template>
 		<template #cell(date)="{ item }">
-			<div class="text-gray-500">
+			<div class="text-gray-500 text-right">
 				{{
 					useFormatTime(item["date"], {
 						localeCode: locale.language.code,

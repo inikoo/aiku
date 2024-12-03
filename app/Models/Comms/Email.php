@@ -43,6 +43,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  * @property-read \App\Models\Comms\Outbox $outbox
  * @property-read Model|\Eloquent|null $parent
  * @property-read \App\Models\Catalogue\Shop|null $shop
+ * @property-read Snapshot|null $snapshot
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Snapshot> $snapshots
  * @property-read Snapshot|null $unpublishedSnapshot
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Email newModelQuery()
@@ -91,6 +92,11 @@ class Email extends Model implements Auditable
     public function snapshots(): MorphMany
     {
         return $this->morphMany(Snapshot::class, 'parent');
+    }
+
+    public function snapshot(): BelongsTo
+    {
+        return $this->belongsTo(Snapshot::class);
     }
 
     public function unpublishedSnapshot(): BelongsTo

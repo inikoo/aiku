@@ -8,6 +8,8 @@
 
 use App\Actions\Accounting\CreditTransaction\DeleteCreditTransaction;
 use App\Actions\Accounting\CreditTransaction\UpdateCreditTransaction;
+use App\Actions\Accounting\InvoiceCategory\StoreInvoiceCategory;
+use App\Actions\Accounting\InvoiceCategory\UpdateInvoiceCategory;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\Payment\UpdatePayment;
@@ -21,9 +23,11 @@ use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Helpers\CurrencyExchange\GetCurrencyExchange;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Enums\Accounting\Invoice\CreditTransactionTypeEnum;
+use App\Enums\Accounting\Invoice\InvoiceCategoryStateEnum;
 use App\Enums\Accounting\PaymentAccount\PaymentAccountTypeEnum;
 use App\Enums\Accounting\PaymentServiceProvider\PaymentServiceProviderTypeEnum;
 use App\Models\Accounting\CreditTransaction;
+use App\Models\Accounting\InvoiceCategory;
 use App\Models\Accounting\OrgPaymentServiceProvider;
 use App\Models\Accounting\Payment;
 use App\Models\Accounting\PaymentAccount;
@@ -442,3 +446,32 @@ test('delete credit transaction', function (CreditTransaction $creditTransaction
     return $deletedCreditTransaction;
 
 })->depends('update credit transaction');
+
+test('store invoice category', function () {
+    $invoiceCategory = StoreInvoiceCategory::make()->action($this->group, [
+        'name'    => 'Test Inv Cate',
+        'state'   => InvoiceCategoryStateEnum::ACTIVE
+    ]);
+
+    $invoiceCategory->refresh();
+
+    expect($invoiceCategory)->toBeInstanceOf(InvoiceCategory::class)
+        ->and($invoiceCategory->name)->toBe('Test Inv Cate');
+
+    return $invoiceCategory;
+});
+
+test('update invoice category', function (InvoiceCategory $invoiceCategory) {
+    $invoiceCategory = UpdateInvoiceCategory::make()->action($invoiceCategory, [
+        'name'    => 'Test Up Inv Cate',
+        'state'   => InvoiceCategoryStateEnum::CLOSED
+    ]);
+
+    $invoiceCategory->refresh();
+
+    expect($invoiceCategory)->toBeInstanceOf(InvoiceCategory::class)
+        ->and($invoiceCategory->name)->toBe('Test Up Inv Cate')
+        ->and($invoiceCategory->state)->toBe(InvoiceCategoryStateEnum::CLOSED);
+
+    return $invoiceCategory;
+})->depends('store invoice category');

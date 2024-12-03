@@ -15,18 +15,21 @@ import { routeType } from "@/types/route"
 import axios from "axios"
 import { debounce } from "lodash"
 import { useForm } from "@inertiajs/vue3"
-import { faCloud, faExpandArrowsAlt, faMinus, faPlus, faSearch, faSpinner, faUndo } from "@fal"
+import { faCloud, faCompressWide, faExpandArrowsAlt, faSearch, faSpinner } from "@fal"
+import { faMinus, faPlus, faSave, faUndo } from "@fas"
+import QuantityInput from "./ QuantityInput.vue"
 
-library.add(faSearch, faPlus, faMinus, faSpinner, faCloud, faUndo, faExpandArrowsAlt)
+library.add(faSearch, faPlus, faMinus, faSpinner, faCloud, faUndo, faExpandArrowsAlt, faSave, faCompressWide)
 
 const props = defineProps<{
 	fetchRoute: routeType
 	action: any
+	current: string | Number
 }>()
 
 const emits = defineEmits<{
 	(e: "optionsList", value: any[]): void
-    (e: 'update:tab', value: string): void
+	(e: "update:tab", value: string): void
 }>()
 
 const model = defineModel()
@@ -37,17 +40,27 @@ const isLoading = ref<string | boolean>(false)
 const searchQuery = ref("")
 const iconStates = ref<Record<number, { increment: string; decrement: string }>>({})
 const addedProductIds = ref(new Set<number>())
+const currentTab = ref(props.current)
+console.log(props, "haha")
 
-// Check if a product is already added
-const isProductAdded = (id: number): boolean => {
-	return addedProductIds.value.has(id)
+const handleAction = (event: { type: string; value?: number }, slotProps: any) => {
+	switch (event.type) {
+		case "increment":
+		case "decrement":
+		case "save":
+			onSubmitAddProducts(action, slotProps)
+			break
+		case "undo":
+			onUndoClick(slotProps.data.id)
+			break
+	}
 }
 
 // Method: click Tab
 const onClickProduct = async (tabSlug: string) => {
-   console.log('masuk',tabSlug);
-   
-    emits('update:tab', tabSlug)
+	if (tabSlug === currentTab.value) return
+	emits("update:tab", tabSlug)
+	closeModal()
 }
 
 const resetIcons = (id: number) => {
@@ -265,31 +278,33 @@ onUnmounted(() => {
 									scrollHeight="400px"
 									:loading="isLoading === 'fetchProduct'">
 									<template #header>
-										<div class="flex flex-wrap items-center justify-end gap-2">
-											<IconField>
-												<InputIcon>
-													<FontAwesomeIcon
-														icon="fal fa-search"
-														class="text-gray-500"
-														fixed-width
-														aria-hidden="true" />
-												</InputIcon>
-												<InputText
-													v-model="searchQuery"
-													placeholder="Search"
-													@input="onSearchQuery(searchQuery)" />
-											</IconField>
-										<!-- 	<IconField>
-												<InputIcon />
-												<FontAwesomeIcon  @click="onClickProduct('product')"
-													icon="fal fa-expand-arrows-alt"
-													class="text-gray-500 w-12 h-12"
-													fixed-width
-													aria-hidden="true" />
-											</IconField> -->
+										<div class="flex justify-between items-center">
+											<div class="flex items-center">
+												<FontAwesomeIcon
+													@click="onClickProduct('products')"
+													icon="fal fa-compress-wide"
+													v-tooltip="'maximize '"
+													class="text-gray-500 hover:text-gray-700 text-lg cursor-pointer" />
+											</div>
+
+											<div class="flex items-center gap-2">
+												<IconField>
+													<InputIcon>
+														<FontAwesomeIcon
+															icon="fal fa-search"
+															class="text-gray-500"
+															fixed-width
+															aria-hidden="true" />
+													</InputIcon>
+													<InputText
+														v-model="searchQuery"
+														placeholder="Search products"
+														@input="onSearchQuery(searchQuery)"
+														class="border border-gray-300 rounded-lg px-4 py-2 text-sm" />
+												</IconField>
+											</div>
 										</div>
 									</template>
-
 									<template #empty> No Product found. </template>
 
 									<!-- Loading Icon -->
@@ -302,7 +317,6 @@ onUnmounted(() => {
 										</div>
 									</template>
 
-									<Column field="code" header="Code"></Column>
 									<Column header="Image">
 										<template #body="slotProps">
 											<img
@@ -311,96 +325,16 @@ onUnmounted(() => {
 												class="w-24 rounded" />
 										</template>
 									</Column>
+									<Column field="code" header="Code"></Column>
 									<Column field="name" header="Description"></Column>
 									<Column header="Action">
 										<template #body="slotProps">
-											<div>
-												<div v-if="!slotProps.data.inputTriggered">
-													<InputNumber
-														v-model="slotProps.data.quantity_ordered"
-														inputClass="w-16"
-														showButtons
-														buttonLayout="horizontal"
-														@keydown.enter="onKeyDown(slotProps)"
-														@change="onValueChange(slotProps)"
-														@blur="onKeyDown(slotProps)"
-														:min="0">
-														<template #incrementicon>
-															<div
-																class="flex items-center justify-center cursor-pointer"
-																@click="
-																	onSubmitAddProducts(
-																		action,
-																		slotProps
-																	)
-																"
-																style="width: 100%; height: 100%">
-																<FontAwesomeIcon
-																	icon="fal fa-plus"
-																	class="text-gray-500"
-																	fixed-width
-																	aria-hidden="true" />
-															</div>
-														</template>
-														<template #decrementicon>
-															<div
-																class="flex items-center justify-center cursor-pointer"
-																@click="
-																	onSubmitAddProducts(
-																		action,
-																		slotProps
-																	)
-																"
-																style="width: 100%; height: 100%">
-																<FontAwesomeIcon
-																	icon="fal fa-minus"
-																	class="text-gray-500"
-																	fixed-width
-																	aria-hidden="true" />
-															</div>
-														</template>
-													</InputNumber>
-												</div>
-												<div v-else>
-													<InputGroup>
-														<InputGroupAddon
-															@click="onUndoClick(slotProps.data.id)">
-															<FontAwesomeIcon
-																icon="fal fa-undo"
-																class="text-gray-500"
-																fixed-width
-																aria-hidden="true" />
-														</InputGroupAddon>
-														<InputNumber
-															v-model="
-																slotProps.data.quantity_ordered
-															"
-															@update:modelValue="
-																(value) =>
-																	onManualInputChange(
-																		value,
-																		slotProps
-																	)
-															"
-															buttonLayout="horizontal"
-															:style="{ width: '64px' }"
-															:min="0" />
-														<InputGroupAddon
-															@click="
-																onSubmitAddProducts(
-																	action,
-																	slotProps
-																)
-															">
-															<FontAwesomeIcon
-																icon="fal fa-cloud"
-																class="text-gray-500"
-																fixed-width
-																aria-hidden="true" />
-														</InputGroupAddon>
-													</InputGroup>
-												</div>
-											</div>
+											<QuantityInput
+												:data="slotProps.data"
+												:action="action"
+												@update="onKeyDown(slotProps)"
+												@submit="onSubmitAddProducts(action, slotProps)"
+												@undo="onUndoClick" />
 										</template>
 									</Column>
 
@@ -430,6 +364,33 @@ onUnmounted(() => {
 	background: none !important;
 	border: none !important;
 	box-shadow: none !important;
+}
+
+.custom-input-number :deep(.p-inputnumber) {
+	--p-inputnumber-button-width: 35px;
+	height: 35px;
+}
+
+.custom-button {
+	width: var(--p-inputnumber-button-width, 35px);
+	height: var(--p-inputnumber-button-width, 35px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	background-color: #f5f5f5;
+	border-radius: 4px;
+}
+
+/* InputNumber customization */
+.custom-input-number :deep(.p-inputnumber) {
+	--p-inputnumber-button-width: 35px; /* Standardize width for all buttons */
+	height: 35px; /* Align button height */
+}
+
+/* Optional: Hover effect for buttons */
+.custom-button:hover {
+	background-color: #e0e0e0;
 }
 
 .animate-spin {

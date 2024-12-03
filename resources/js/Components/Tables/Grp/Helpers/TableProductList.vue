@@ -1,7 +1,438 @@
 <script setup lang="ts">
+import Modal from "@/Components/Utils/Modal.vue"
+import { onMounted, onUnmounted, ref } from "vue"
+import DataTable from "primevue/datatable"
+import Column from "primevue/column"
+import IconField from "primevue/iconfield"
+import InputIcon from "primevue/inputicon"
+import InputNumber from "primevue/inputnumber"
+import InputText from "primevue/inputtext"
+import InputGroup from "primevue/inputgroup"
+import InputGroupAddon from "primevue/inputgroupaddon"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
+import { routeType } from "@/types/route"
+import axios from "axios"
+import { debounce } from "lodash"
+import { useForm } from "@inertiajs/vue3"
+import { faCloud, faCompress, faExpandArrowsAlt, faSearch, faSpinner } from "@fal"
+import { faMinus, faPlus, faSave, faUndo } from "@fas"
 
+library.add(faSearch, faPlus, faMinus, faSpinner, faCloud, faUndo, faExpandArrowsAlt, faSave, faCompress)
+
+const props = defineProps<{
+	fetchRoute: routeType
+	action: any
+	current: string | Number
+}>()
+
+const emits = defineEmits<{
+	(e: "optionsList", value: any[]): void
+	(e: "update:tab", value: string): void
+}>()
+
+const model = defineModel()
+const products = ref<any[]>([])
+const optionsMeta = ref(null)
+const optionsLinks = ref(null)
+const isLoading = ref<string | boolean>(false)
+const searchQuery = ref("")
+const iconStates = ref<Record<number, { increment: string; decrement: string }>>({})
+const addedProductIds = ref(new Set<number>())
+const currentTab = ref(props.current)
+console.log(props, "haha")
+
+// Check if a product is already added
+const isProductAdded = (id: number): boolean => {
+	return addedProductIds.value.has(id)
+}
+
+// Method: click Tab
+const onClickProduct = async (tabSlug: string) => {
+	if (tabSlug === currentTab.value) return
+	emits("update:tab", tabSlug)
+	closeModal()
+}
+
+const resetIcons = (id: number) => {
+	const product = products.value.find((product) => product.id === id)
+
+	// Reset inputTriggered for the product
+	if (product) {
+		product.inputTriggered = false
+	}
+
+	iconStates.value[id] = {
+		increment: "fal fa-plus",
+		decrement: "fal fa-minus",
+	}
+}
+
+const onUndoClick = (id: number) => {
+	resetIcons(id)
+}
+
+const onManualInputChange = (value: number, slotProps: any) => {
+	slotProps.data.quantity_ordered = value
+
+	// Mark input as triggered and update icons
+	slotProps.data.inputTriggered = true
+	iconStates.value[slotProps.data.id] = {
+		increment: "fal fa-cloud",
+		decrement: "fal fa-undo",
+	}
+}
+
+const closeModal = () => {
+	model.value = false
+}
+
+const resetProducts = () => {
+	products.value = []
+	optionsMeta.value = null
+	optionsLinks.value = null
+}
+
+const getUrlFetch = (additionalParams: {}) => {
+	return route(props.fetchRoute.name, {
+		...props.fetchRoute.parameters,
+		...additionalParams,
+	})
+}
+
+const fetchProductList = async (url?: string) => {
+	isLoading.value = "fetchProduct"
+	const urlToFetch = url || route(props.fetchRoute.name, props.fetchRoute.parameters)
+
+	try {
+		const response = await axios.get(urlToFetch)
+		const data = response.data
+
+		if (url && optionsLinks.value?.next) {
+			products.value = [...products.value, ...data.data]
+		} else {
+			resetProducts()
+			products.value = data.data
+		}
+
+		optionsMeta.value = data.meta
+		optionsLinks.value = data.links
+
+		// Populate addedProductIds with product IDs from fetched data
+		if (!addedProductIds.value) {
+			addedProductIds.value = new Set() // Initialize the set if null
+		}
+		data.data.forEach((product: any) => {
+			if (product.purchase_order_id) {
+				console.log(product, "product is ni")
+				addedProductIds.value.add(product.purchase_order_id)
+			}
+		})
+
+		emits("optionsList", products.value)
+	} catch (error) {
+		console.error("Error fetching product list:", error)
+	} finally {
+		isLoading.value = false
+	}
+}
+
+const debouncedFetch = debounce((query: string) => {
+	fetchProductList(getUrlFetch({ "filter[global]": query }))
+}, 500)
+
+const onSearchQuery = (query: string) => {
+	debouncedFetch(query)
+}
+
+const formProducts = useForm({
+	quantity_ordered: 0,
+})
+
+const onSubmitAddProducts = async (data: any, slotProps: any) => {
+	const productId = slotProps.data.purchase_order_id
+	console.log("Decrement:", slotProps.data.quantity_ordered)
+	try {
+		if (slotProps.data.quantity_ordered > 0) {
+			// Handle update or add
+			if (addedProductIds.value && addedProductIds.value.has(productId)) {
+				// Update product
+				if (slotProps.data.purchase_order_id) {
+					await formProducts
+						.transform(() => ({
+							quantity_ordered: slotProps.data.quantity_ordered,
+						}))
+						.patch(
+							route(slotProps?.data?.updateRoute?.name || "#", {
+								...slotProps.data.updateRoute?.parameters,
+							})
+						)
+				}
+			} else {
+				// Add product
+				await formProducts
+					.transform(() => ({
+						quantity_ordered: slotProps.data.quantity_ordered,
+					}))
+					.post(
+						route(data.route?.name || "#", {
+							...data.route?.parameters,
+							historicSupplierProduct: slotProps.data.historic_id,
+							orgStock: slotProps.data.org_stock_id,
+						})
+					)
+
+				// Refresh list and update addedProductIds
+				await fetchProductList()
+				addedProductIds.value.add(productId)
+				iconStates.value[productId] = {
+					increment: "fal fa-cloud",
+					decrement: "fal fa-undo",
+				}
+			}
+		} else if (slotProps.data.quantity_ordered === 0) {
+			// Handle delete
+			if (addedProductIds.value && addedProductIds.value.has(productId)) {
+				await formProducts.delete(
+					route(slotProps?.data?.deleteRoute?.name || "#", {
+						...slotProps.data.deleteRoute?.parameters,
+					})
+				)
+
+				// Remove product ID from the addedProductIds set
+				addedProductIds.value.delete(productId)
+
+				// Refresh list to reflect changes
+				await fetchProductList()
+			}
+		}
+	} catch (error) {
+		console.error("Error adding/updating/deleting product:", error)
+	}
+}
+
+const onFetchNext = async () => {
+	if (optionsLinks.value?.next && !isLoading.value) {
+		await fetchProductList(optionsLinks.value.next)
+	}
+}
+
+const onKeyDown = (slotProps: any) => {
+	console.log(slotProps, "we ap ni")
+	if (!slotProps.data.inputTriggered) {
+		slotProps.data.inputTriggered = true
+		iconStates.value[slotProps.data.id] = {
+			increment: "fal fa-cloud",
+			decrement: "fal fa-undo",
+		}
+	}
+}
+
+const onValueChange = (slotProps: any) => {
+	slotProps.data.quantity_ordered = parseFloat(slotProps.data.quantity_ordered || 0)
+}
+
+onMounted(() => {
+	const tableBody = document.querySelector(".p-datatable-scrollable-body")
+	if (tableBody) {
+		tableBody.addEventListener("scroll", debounce(onFetchNext, 200))
+	}
+
+	fetchProductList()
+})
+
+onUnmounted(() => {
+	const tableBody = document.querySelector(".p-datatable-scrollable-body")
+	if (tableBody) {
+		tableBody.removeEventListener("scroll", onFetchNext)
+	}
+})
 </script>
 
 <template>
-   das
+	<div class="flex-grow">
+		<DataTable
+			:value="products"
+			scrollable
+			scroll-height="400px"
+			:loading="isLoading === 'fetchProduct'">
+			<template #header>
+				<div class="flex justify-between items-center">
+					<div class="flex items-center">
+						<FontAwesomeIcon
+							icon="fal fa-compress"
+							v-tooltip="'minimize'"
+							class="text-gray-500 hover:text-gray-700 text-lg cursor-pointer" />
+					</div>
+
+					<div class="flex items-center gap-2">
+						<IconField>
+							<InputIcon>
+								<FontAwesomeIcon
+									icon="fal fa-search"
+									class="text-gray-500"
+									fixed-width
+									aria-hidden="true" />
+							</InputIcon>
+							<InputText
+								v-model="searchQuery"
+								placeholder="Search products"
+								@input="onSearchQuery(searchQuery)"
+								class="border border-gray-300 rounded-lg px-4 py-2 text-sm" />
+						</IconField>
+					</div>
+				</div>
+			</template>
+
+			<template #empty> No Product found. </template>
+
+			<!-- Loading Icon -->
+			<template #loading>
+				<div>
+					<FontAwesomeIcon icon="fal fa-spinner" class="text-2xl animate-spin mb-2" />
+					<span>Loading Products...</span>
+				</div>
+			</template>
+
+			<Column header="Image">
+				<template #body="slotProps">
+					<img
+						:src="`https://primefaces.org/cdn/primevue/images/product/${slotProps.data.image}`"
+						:alt="slotProps.data.image"
+						class="w-24 rounded" />
+				</template>
+			</Column>
+			<Column field="code" header="Code"></Column>
+			<Column field="name" header="Description"></Column>
+			<Column header="Action">
+				<template #body="slotProps">
+					<div>
+						<div v-if="!slotProps.data.inputTriggered" class="custom-input-number">
+							<InputNumber
+								v-model="slotProps.data.quantity_ordered"
+								inputClass="w-14 text-center"
+								showButtons
+								buttonLayout="horizontal"
+								@keydown.enter="onKeyDown(slotProps)"
+								@change="onValueChange(slotProps)"
+								@blur="onKeyDown(slotProps)"
+								:min="0">
+								<template #incrementicon>
+									<div
+										class="flex items-center justify-center cursor-pointer"
+										@click="onSubmitAddProducts(action, slotProps)">
+										<FontAwesomeIcon
+											size="sm"
+											icon="fas fa-plus"
+											class="text-black"
+											fixed-width
+											aria-hidden="true" />
+									</div>
+								</template>
+								<template #decrementicon>
+									<div
+										class="flex items-center justify-center cursor-pointer"
+										@click="onSubmitAddProducts(action, slotProps)">
+										<FontAwesomeIcon
+											size="sm"
+											icon="fas fa-minus"
+											class="text-black"
+											fixed-width
+											aria-hidden="true" />
+									</div>
+								</template>
+							</InputNumber>
+						</div>
+						<div v-else class="custom-input-number">
+							<InputGroup>
+								<InputGroupAddon @click="onUndoClick(slotProps.data.id)">
+									<FontAwesomeIcon
+										size="sm"
+										icon="fas fa-undo"
+										class="text-black"
+										fixed-width
+										aria-hidden="true" />
+								</InputGroupAddon>
+								<InputNumber
+									v-model="slotProps.data.quantity_ordered"
+									@update:modelValue="
+										(value) => onManualInputChange(value, slotProps)
+									"
+									buttonLayout="horizontal"
+									:style="{ width: '49px' }"
+									:min="0" />
+								<InputGroupAddon @click="onSubmitAddProducts(action, slotProps)">
+									<FontAwesomeIcon
+										icon="fas fa-save"
+										size="sm"
+										class="text-black"
+										fixed-width
+										aria-hidden="true" />
+								</InputGroupAddon>
+							</InputGroup>
+						</div>
+					</div>
+				</template>
+			</Column>
+
+			<template #footer>
+				<div class="text-center">
+					In total there are
+					{{ products ? products.length : 0 }} products.
+				</div>
+			</template>
+		</DataTable>
+	</div>
 </template>
+
+<style scoped>
+.p-datatable .p-datatable-loading-overlay {
+	background: transparent !important;
+	box-shadow: none !important;
+}
+
+.p-datatable .p-datatable-loading-overlay .p-datatable-loading {
+	background: none !important;
+	border: none !important;
+	box-shadow: none !important;
+}
+
+.custom-input-number :deep(.p-inputnumber) {
+	--p-inputnumber-button-width: 35px;
+	height: 35px;
+}
+
+.custom-button {
+	width: var(--p-inputnumber-button-width, 35px);
+	height: var(--p-inputnumber-button-width, 35px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	background-color: #f5f5f5;
+	border-radius: 4px;
+}
+
+/* InputNumber customization */
+.custom-input-number :deep(.p-inputnumber) {
+	--p-inputnumber-button-width: 35px; /* Standardize width for all buttons */
+	height: 35px; /* Align button height */
+}
+
+/* Optional: Hover effect for buttons */
+.custom-button:hover {
+	background-color: #e0e0e0;
+}
+
+.animate-spin {
+	animation: spin 1s linear infinite;
+}
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+</style>

@@ -48,11 +48,11 @@
                         :options="perPageOptions" :on-change="onPerPageChange" />
                     <!-- Counts per page -->
                     <p v-if="pagination.total > 15" class="hidden md:block text-sm text-gray-700 flex-grow">
-                        <span class="font-medium">{{ pagination.from }}</span>
+                        <span class="font-medium">{{ locale.number(pagination.from)}}</span>
                         {{ translations.to }}
-                        <span class="font-medium">{{ pagination.to }}</span>
+                        <span class="font-medium">{{ locale.number(pagination.to) }}</span>
                         {{ translations.of }}
-                        <span class="font-medium">{{ pagination.total }}</span>
+                        <span class="font-medium">{{ locale.number( pagination.total) }}</span>
                         {{ translations.results }}
                     </p>
                 </div>
@@ -111,13 +111,15 @@
 
 <script setup lang="ts">
 import PerPageSelector from "./PerPageSelector.vue"
-import { computed } from "vue"
+import { computed, inject } from "vue"
 import TableDownload from '@/Components/Table/TableDownload.vue'
 import { getTranslations } from "./translations.js"
 import { routeType } from "@/types/route"
 import { trans } from 'laravel-vue-i18n'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
 
 const translations = getTranslations()
+const locale = inject('locale', aikuLocaleStructure)
 
 const props = withDefaults(defineProps<{
     onClick: Function
