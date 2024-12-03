@@ -51,7 +51,10 @@ beforeAll(function () {
     loadDB();
 });
 
-beforeEach(function () {
+beforeEach(
+/**
+ * @throws \Throwable
+ */ function () {
     list(
         $this->organisation,
         $this->user,
@@ -120,6 +123,7 @@ test('create prospect', function () {
     $modelData = Prospect::factory()->definition();
     data_set($modelData, 'tags', ['seo', 'tag 1', ' hello ', 'Seo']);
     $prospect = StoreProspect::make()->action($shop, $modelData);
+
     expect($prospect)->toBeInstanceOf(Prospect::class)
         ->and($shop->crmStats->number_prospects)->toBe(1)
         ->and($shop->crmStats->number_prospects_state_no_contacted)->toBe(1)
@@ -254,11 +258,10 @@ test('add favourite to customer', function (Customer $customer) {
 
     $customer->refresh();
 
-    expect($favourite)->toBeInstanceOf(Favourite::class);
-
-    expect($customer)->toBeInstanceOf(Customer::class)
-    ->and($customer->favourites)->not->toBeNull()
-    ->and($customer->favourites->count())->toBe(1);
+    expect($favourite)->toBeInstanceOf(Favourite::class)
+        ->and($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->favourites)->not->toBeNull()
+        ->and($customer->favourites->count())->toBe(1);
 
     return $favourite;
 })->depends('create customer');
@@ -291,11 +294,10 @@ test('add back in stock reminder to customer', function (Customer $customer) {
 
     $customer->refresh();
 
-    expect($reminder)->toBeInstanceOf(BackInStockReminder::class);
-
-    expect($customer)->toBeInstanceOf(Customer::class)
-    ->and($customer->backInStockReminder)->not->toBeNull()
-    ->and($customer->backInStockReminder->count())->toBe(1);
+    expect($reminder)->toBeInstanceOf(BackInStockReminder::class)
+        ->and($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->backInStockReminder)->not->toBeNull()
+        ->and($customer->backInStockReminder->count())->toBe(1);
 
     return $reminder;
 })->depends('create customer');
@@ -337,17 +339,16 @@ test('create customer note', function (Customer $customer) {
     $note = StoreCustomerNote::make()->action(
         $customer,
         [
-            'note' => 'note babadeebabadoo'
+            'note' => 'note A1234'
         ]
     );
 
     $customer->refresh();
 
-    expect($note)->toBeInstanceOf(CustomerNote::class);
-
-    expect($customer)->toBeInstanceOf(Customer::class)
-    ->and($customer->customerNotes)->not->toBeNull()
-    ->and($customer->customerNotes->count())->toBe(2);
+    expect($note)->toBeInstanceOf(CustomerNote::class)
+        ->and($customer)->toBeInstanceOf(Customer::class)
+        ->and($customer->customerNotes)->not->toBeNull()
+        ->and($customer->customerNotes->count())->toBe(2);
 
     return $note;
 })->depends('create customer');
@@ -357,7 +358,7 @@ test('update customer note', function (CustomerNote $note) {
     $updatedNote = UpdateCustomerNote::make()->action(
         $note,
         [
-            'note' => 'note babadeebabadoo update'
+            'note' => 'note A1234 update'
         ]
     );
 
@@ -378,8 +379,8 @@ test('store poll', function () {
     $poll = StorePoll::make()->action(
         $this->shop,
         [
-            'name' => 'namee',
-            'label' => 'name',
+            'name' => 'name',
+            'label' => 'poll label',
             'in_registration' => false,
             'in_registration_required' => true,
             'in_iris' => true,
@@ -391,12 +392,12 @@ test('store poll', function () {
     $poll->refresh();
 
     expect($poll)->toBeInstanceOf(Poll::class)
-        ->and($poll->name)->toBe('namee')
-        ->and($poll->label)->toBe('name')
-        ->and($poll->in_registration)->toBe(false)
-        ->and($poll->in_registration_required)->toBe(true)
-        ->and($poll->in_iris)->toBe(true)
-        ->and($poll->in_iris_required)->toBe(true)
+        ->and($poll->name)->toBe('name')
+        ->and($poll->label)->toBe('poll label')
+        ->and($poll->in_registration)->toBeFalse()
+        ->and($poll->in_registration_required)->toBeTrue()
+        ->and($poll->in_iris)->toBeTrue()
+        ->and($poll->in_iris_required)->toBeTrue()
         ->and($poll->type)->toBe(PollTypeEnum::OPTION);
 
     return $poll;
@@ -407,7 +408,7 @@ test('update poll', function (Poll $poll) {
     $poll = UpdatePoll::make()->action(
         $poll,
         [
-            'name' => 'optionss',
+            'name' => 'option poll B',
             'label' => 'some option',
             'in_registration' => true,
             'in_registration_required' => false,
@@ -419,12 +420,12 @@ test('update poll', function (Poll $poll) {
     $poll->refresh();
 
     expect($poll)->toBeInstanceOf(Poll::class)
-        ->and($poll->name)->toBe('optionss')
+        ->and($poll->name)->toBe('option poll B')
         ->and($poll->label)->toBe('some option')
-        ->and($poll->in_registration)->toBe(true)
-        ->and($poll->in_registration_required)->toBe(false)
-        ->and($poll->in_iris)->toBe(false)
-        ->and($poll->in_iris_required)->toBe(false);
+        ->and($poll->in_registration)->toBeTrue()
+        ->and($poll->in_registration_required)->toBeFalse()
+        ->and($poll->in_iris)->toBeFalse()
+        ->and($poll->in_iris_required)->toBeFalse();
 
     return $poll;
 })->depends('store poll');

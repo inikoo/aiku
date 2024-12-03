@@ -330,18 +330,6 @@ class IsGoogleIp
 
     }
 
-    public string $commandSignature = 'utils:is-google-ip {ip}';
 
-    public function asCommand(Command $command): int
-    {
-
-        if ($this->handle($command->argument('ip'))) {
-            $command->line('Yes, is Google ip');
-        } else {
-            $command->line("No, isn't Google ip");
-        }
-
-        return 0;
-    }
 
 }
