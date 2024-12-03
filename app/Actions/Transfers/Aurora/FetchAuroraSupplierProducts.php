@@ -109,29 +109,29 @@ class FetchAuroraSupplierProducts extends FetchAuroraAction
                 }
 
 
-                //try {
-                $supplierProduct = StoreSupplierProduct::make()->action(
-                    supplier: $supplierProductData['supplier'],
-                    modelData: $supplierProductData['supplierProduct'],
-                    skipHistoric: true,
-                    hydratorsDelay: $this->hydratorsDelay,
-                    strict: false,
-                    audit: false
-                );
-                $this->recordNew($organisationSource);
+                try {
+                    $supplierProduct = StoreSupplierProduct::make()->action(
+                        supplier: $supplierProductData['supplier'],
+                        modelData: $supplierProductData['supplierProduct'],
+                        skipHistoric: true,
+                        hydratorsDelay: $this->hydratorsDelay,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordNew($organisationSource);
 
-                SupplierProduct::enableAuditing();
-                $this->saveMigrationHistory(
-                    $supplierProduct,
-                    Arr::except($supplierProductData['supplierProduct'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                );
-                $isPrincipal = true;
+                    SupplierProduct::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $supplierProduct,
+                        Arr::except($supplierProductData['supplierProduct'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+                    $isPrincipal = true;
 
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct');
-                //
-                //                    return null;
-                //                }
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $supplierProductData['supplierProduct'], 'SupplierProduct');
+
+                    return null;
+                }
             }
 
             if ($supplierProduct && $isPrincipal) {

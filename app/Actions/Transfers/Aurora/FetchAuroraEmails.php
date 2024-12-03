@@ -32,48 +32,49 @@ class FetchAuroraEmails extends FetchAuroraAction
 
         if ($email = Email::where('source_id', $emailData['email']['source_id'])
             ->first()) {
-            //try {
-            $email = UpdateEmail::make()->action(
-                email: $email,
-                modelData: $emailData['email'],
-                hydratorsDelay: 60,
-                strict: false,
-                audit: false
-            );
-            $this->recordChange($organisationSource, $email->wasChanged());
-            //                } catch (Exception $e) {
-            //                    $this->recordError($organisationSource, $e, $emailData['email'], 'Email', 'update');
-            //                    return null;
-            //                }
+            try {
+                $email = UpdateEmail::make()->action(
+                    email: $email,
+                    modelData: $emailData['email'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
+                $this->recordChange($organisationSource, $email->wasChanged());
+            } catch (Exception $e) {
+                $this->recordError($organisationSource, $e, $emailData['email'], 'Email', 'update');
+                return null;
+            }
         } else {
 
 
-            //  try {
-            $email = StoreEmail::make()->action(
-                parent: $emailData['parent'],
-                emailTemplate: null,
-                modelData: $emailData['email'],
-                hydratorsDelay: 60,
-                strict: false,
-                audit: false
-            );
+            try {
+                $email = StoreEmail::make()->action(
+                    parent: $emailData['parent'],
+                    emailTemplate: null,
+                    modelData: $emailData['email'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
 
-            Email::enableAuditing();
-            $this->saveMigrationHistory(
-                $email,
-                Arr::except($emailData['email'], ['fetched_at', 'last_fetched_at', 'source_id'])
-            );
+                Email::enableAuditing();
+                $this->saveMigrationHistory(
+                    $email,
+                    Arr::except($emailData['email'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
 
-            $this->recordNew($organisationSource);
+                $this->recordNew($organisationSource);
 
-            $sourceData = explode(':', $email->source_id);
-            DB::connection('aurora')->table('Email Template Dimension')
-                ->where('Email Template Key', $sourceData[1])
-                ->update(['aiku_id' => $email->id]);
-            //                } catch (Exception|Throwable $e) {
-            //                    $this->recordError($organisationSource, $e, $emailData['email'], 'Email', 'store');
-            //                    return null;
-            //                }
+                $sourceData = explode(':', $email->source_id);
+                DB::connection('aurora')->table('Email Template Dimension')
+                    ->where('Email Template Key', $sourceData[1])
+                    ->update(['aiku_id' => $email->id]);
+            } catch (Exception|Throwable $e) {
+                $this->recordError($organisationSource, $e, $emailData['email'], 'Email', 'store');
+
+                return null;
+            }
         }
 
 

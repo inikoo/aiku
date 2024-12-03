@@ -49,32 +49,31 @@ class FetchAuroraMailshots extends FetchAuroraAction
                 return null;
             }
         } else {
-            // try {
-            $mailshot = StoreMailshot::make()->action(
-                outbox: $mailshotData['outbox'],
-                modelData: $mailshotData['mailshot'],
-                hydratorsDelay: 60,
-                strict: false,
-                audit: false
-            );
-            Mailshot::enableAuditing();
-            $this->saveMigrationHistory(
-                $mailshot,
-                Arr::except($mailshotData['mailshot'], ['fetched_at', 'last_fetched_at', 'source_id'])
-            );
+            try {
+                $mailshot = StoreMailshot::make()->action(
+                    outbox: $mailshotData['outbox'],
+                    modelData: $mailshotData['mailshot'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
+                Mailshot::enableAuditing();
+                $this->saveMigrationHistory(
+                    $mailshot,
+                    Arr::except($mailshotData['mailshot'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
 
-            $this->recordNew($organisationSource);
+                $this->recordNew($organisationSource);
 
-            $sourceData = explode(':', $mailshot->source_id);
-            DB::connection('aurora')->table('Email Campaign Dimension')
-                ->where('Email Campaign Key', $sourceData[1])
-                ->update(['aiku_id' => $mailshot->id]);
-            //                } catch (Exception|Throwable $e) {
-            //
-            //                    $this->recordError($organisationSource, $e, $mailshotData['mailshot'], 'Mailshot', 'store');
-            //
-            //                    return null;
-            //                }
+                $sourceData = explode(':', $mailshot->source_id);
+                DB::connection('aurora')->table('Email Campaign Dimension')
+                    ->where('Email Campaign Key', $sourceData[1])
+                    ->update(['aiku_id' => $mailshot->id]);
+            } catch (Exception|Throwable $e) {
+                $this->recordError($organisationSource, $e, $mailshotData['mailshot'], 'Mailshot', 'store');
+
+                return null;
+            }
         }
 
 

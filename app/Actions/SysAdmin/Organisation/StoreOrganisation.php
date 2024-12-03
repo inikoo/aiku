@@ -165,26 +165,32 @@ class StoreOrganisation extends GrpAction
     public function rules(): array
     {
         return [
-            'code'         => ['required',
-                               new IUnique(
-                                   table: 'organisations',
-                                   extraConditions: [
-                                       ['column' => 'group_id', 'value' => $this->group->id],
+            'code'         => [
+                'required',
+                new IUnique(
+                    table: 'organisations',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->group->id],
 
-                                   ]
-                               ),
-                               'max:16', 'alpha_dash:ascii'],
+                    ]
+                ),
+                'max:16',
+                'alpha_dash:ascii'
+            ],
             'name'         => ['required', 'string', 'max:255'],
             'contact_name' => ['sometimes', 'string', 'max:255'],
-            'email'        => ['required', 'nullable', 'email',
-                               new IUnique(
-                                   table: 'organisations',
-                                   extraConditions: [
-                                       ['column' => 'group_id', 'value' => $this->group->id],
+            'email'        => [
+                'required',
+                'nullable',
+                'email',
+                new IUnique(
+                    table: 'organisations',
+                    extraConditions: [
+                        ['column' => 'group_id', 'value' => $this->group->id],
 
-                                   ]
-                               ),
-                ],
+                    ]
+                ),
+            ],
             'phone'        => ['sometimes', 'nullable', new Phone()],
             'currency_id'  => ['required', 'exists:currencies,id'],
             'country_id'   => ['required', 'exists:countries,id'],
@@ -307,6 +313,7 @@ class StoreOrganisation extends GrpAction
             }
         } else {
             $command->error('Address is required');
+
             return 1;
         }
 
@@ -322,21 +329,18 @@ class StoreOrganisation extends GrpAction
             'source'      => $source,
         ];
 
-
         if ($address) {
             $data['address'] = $address;
         }
 
+        try {
+            $organisation = $this->action($group, $data);
+            $command->info("Organisation $organisation->slug created successfully 🎉");
+        } catch (Exception|Throwable $e) {
+            $command->error($e->getMessage());
 
-
-        //  try {
-        $organisation = $this->action($group, $data);
-        $command->info("Organisation $organisation->slug created successfully 🎉");
-        //        } catch (Exception|Throwable $e) {
-        //            $command->error($e->getMessage());
-        //
-        //            return 1;
-        //        }
+            return 1;
+        }
 
         return 0;
     }

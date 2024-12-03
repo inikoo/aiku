@@ -35,25 +35,25 @@ class FetchAuroraIngredients extends FetchAuroraAction
         $ingredient = Ingredient::whereRaw('LOWER(name)=? ', [trim(strtolower($ingredientData['ingredient']['name']))])->first();
 
 
-
         if (!$ingredient) {
             if ($ingredient = Ingredient::where('source_id', $ingredientData['ingredient']['source_id'])
                 ->first()) {
-                // try {
-                $ingredient  = UpdateIngredient::make()->action(
-                    ingredient: $ingredient,
-                    modelData: $ingredientData['ingredient'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
-                $isPrincipal = true;
+                try {
+                    $ingredient = UpdateIngredient::make()->action(
+                        ingredient: $ingredient,
+                        modelData: $ingredientData['ingredient'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
 
-                $this->recordChange($organisationSource, $ingredient->wasChanged());
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $ingredientData['ingredient'], 'Ingredient', 'update');
-                //                    return null;
-                //                }
+
+                    $this->recordChange($organisationSource, $ingredient->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $ingredientData['ingredient'], 'Ingredient', 'update');
+
+                    return null;
+                }
             }
         }
 
@@ -62,34 +62,33 @@ class FetchAuroraIngredients extends FetchAuroraAction
         }
 
 
-
         if (!$ingredient) {
-            // try {
+            try {
+                $ingredient = StoreIngredient::make()->action(
+                    group: group(),
+                    modelData: $ingredientData['ingredient'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
 
-            $ingredient = StoreIngredient::make()->action(
-                group: group(),
-                modelData: $ingredientData['ingredient'],
-                hydratorsDelay: 60,
-                strict: false,
-                audit: false
-            );
+                Ingredient::enableAuditing();
+                $this->saveMigrationHistory(
+                    $ingredient,
+                    Arr::except($ingredientData['ingredient'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
 
-            Ingredient::enableAuditing();
-            $this->saveMigrationHistory(
-                $ingredient,
-                Arr::except($ingredientData['ingredient'], ['fetched_at', 'last_fetched_at', 'source_id'])
-            );
+                $this->recordNew($organisationSource);
 
-            $this->recordNew($organisationSource);
+                $sourceData = explode(':', $ingredient->source_id);
+                DB::connection('aurora')->table('Material Dimension')
+                    ->where('Material Key', $sourceData[1])
+                    ->update(['aiku_id' => $ingredient->id]);
+            } catch (Exception|Throwable $e) {
+                $this->recordError($organisationSource, $e, $ingredientData['ingredient'], 'Ingredient', 'store');
 
-            $sourceData = explode(':', $ingredient->source_id);
-            DB::connection('aurora')->table('Material Dimension')
-                ->where('Material Key', $sourceData[1])
-                ->update(['aiku_id' => $ingredient->id]);
-            //                } catch (Exception|Throwable $e) {
-            //                    $this->recordError($organisationSource, $e, $ingredientData['ingredient'], 'Ingredient', 'store');
-            //                    return null;
-            //                }
+                return null;
+            }
         }
 
         if ($ingredient) {
@@ -101,8 +100,6 @@ class FetchAuroraIngredients extends FetchAuroraAction
 
 
             $this->updateExtraIngredients($ingredient, $ingredientData['ingredient']['source_id'], $ingredientData['extra_ingredients']);
-
-
         }
 
 

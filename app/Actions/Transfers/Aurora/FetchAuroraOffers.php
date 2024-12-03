@@ -46,34 +46,34 @@ class FetchAuroraOffers extends FetchAuroraAction
                 return null;
             }
         } else {
-            //  try {
-            $offer = StoreOffer::make()->action(
-                offerCampaign: $offerData['offer_campaign'],
-                trigger: $offerData['trigger'],
-                modelData: $offerData['offer'],
-                hydratorsDelay: 60,
-                strict: false,
-                audit: false
-            );
+            try {
+                $offer = StoreOffer::make()->action(
+                    offerCampaign: $offerData['offer_campaign'],
+                    trigger: $offerData['trigger'],
+                    modelData: $offerData['offer'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
 
-            $this->recordNew($organisationSource);
-            Offer::enableAuditing();
-            $this->saveMigrationHistory(
-                $offer,
-                Arr::except($offerData['offer'], ['fetched_at', 'last_fetched_at', 'source_id'])
-            );
+                $this->recordNew($organisationSource);
+                Offer::enableAuditing();
+                $this->saveMigrationHistory(
+                    $offer,
+                    Arr::except($offerData['offer'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
 
-            $this->recordNew($organisationSource);
+                $this->recordNew($organisationSource);
 
-            $sourceData = explode(':', $offer->source_id);
-            DB::connection('aurora')->table('Deal Dimension')
-                ->where('Deal Key', $sourceData[1])
-                ->update(['aiku_id' => $offer->id]);
-            //            } catch (Exception|Throwable $e) {
-            //                $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'store');
-            //
-            //                return null;
-            //            }
+                $sourceData = explode(':', $offer->source_id);
+                DB::connection('aurora')->table('Deal Dimension')
+                    ->where('Deal Key', $sourceData[1])
+                    ->update(['aiku_id' => $offer->id]);
+            } catch (Exception|Throwable $e) {
+                $this->recordError($organisationSource, $e, $offerData['offer'], 'Offer', 'store');
+
+                return null;
+            }
         }
 
 

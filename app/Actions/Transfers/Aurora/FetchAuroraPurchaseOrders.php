@@ -49,32 +49,32 @@ class FetchAuroraPurchaseOrders extends FetchAuroraAction
                     return null;
                 }
             } else {
-                // try {
-                $purchaseOrder = StorePurchaseOrder::make()->action(
-                    parent: $purchaseOrderData['org_parent'],
-                    modelData: $purchaseOrderData['purchase_order'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
+                try {
+                    $purchaseOrder = StorePurchaseOrder::make()->action(
+                        parent: $purchaseOrderData['org_parent'],
+                        modelData: $purchaseOrderData['purchase_order'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
 
-                PurchaseOrder::enableAuditing();
-                $this->saveMigrationHistory(
-                    $purchaseOrder,
-                    Arr::except($purchaseOrderData['purchase_order'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                );
-                $this->recordNew($organisationSource);
+                    PurchaseOrder::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $purchaseOrder,
+                        Arr::except($purchaseOrderData['purchase_order'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
+                    $this->recordNew($organisationSource);
 
-                $sourceData = explode(':', $purchaseOrder->source_id);
+                    $sourceData = explode(':', $purchaseOrder->source_id);
 
-                DB::connection('aurora')->table('Purchase Order Dimension')
-                    ->where('Purchase Order Key', $sourceData[1])
-                    ->update(['aiku_id' => $purchaseOrder->id]);
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $purchaseOrderData['purchase_order'], 'PurchaseOrder', 'store');
-                //
-                //                    return null;
-                //                }
+                    DB::connection('aurora')->table('Purchase Order Dimension')
+                        ->where('Purchase Order Key', $sourceData[1])
+                        ->update(['aiku_id' => $purchaseOrder->id]);
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $purchaseOrderData['purchase_order'], 'PurchaseOrder', 'store');
+
+                    return null;
+                }
             }
 
             if (in_array('transactions', $this->with)) {

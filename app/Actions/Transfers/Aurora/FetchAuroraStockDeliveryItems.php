@@ -31,38 +31,38 @@ class FetchAuroraStockDeliveryItems
 
         if ($transactionData) {
             if ($stockDeliveryItem = StockDeliveryItem::where('source_id', $transactionData['stock_delivery_item']['source_id'])->first()) {
-                //try {
-                $stockDeliveryItem = UpdateStockDeliveryItem::make()->action(
-                    stockDeliveryItem: $stockDeliveryItem,
-                    modelData: $transactionData['stock_delivery_item'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $transactionData['stock_delivery_item'], 'PurchaseOrderTransaction', 'update');
-                //
-                //                    return null;
-                //                }
-            } else {
-                //  try {
-                $stockDeliveryItem = StoreStockDeliveryItem::make()->action(
-                    stockDelivery: $stockDelivery,
-                    historicSupplierProduct: $transactionData['historic_supplier_product'],
-                    orgStock: $transactionData['org_stock'],
-                    modelData: $transactionData['stock_delivery_item'],
-                    hydratorsDelay: 60,
-                    strict: false
-                );
+                try {
+                    $stockDeliveryItem = UpdateStockDeliveryItem::make()->action(
+                        stockDeliveryItem: $stockDeliveryItem,
+                        modelData: $transactionData['stock_delivery_item'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $transactionData['stock_delivery_item'], 'PurchaseOrderTransaction', 'update');
 
-                $sourceData = explode(':', $stockDeliveryItem->source_id);
-                DB::connection('aurora')->table('Purchase Order Transaction Fact')
-                    ->where('Purchase Order Transaction Fact Key', $sourceData[1])
-                    ->update(['aiku_sd_id' => $stockDeliveryItem->id]);
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $transactionData['historic_supplier_product'], 'PurchaseOrderTransaction', 'store');
-                //
-                //                    return null;
-                //                }
+                    return null;
+                }
+            } else {
+                try {
+                    $stockDeliveryItem = StoreStockDeliveryItem::make()->action(
+                        stockDelivery: $stockDelivery,
+                        historicSupplierProduct: $transactionData['historic_supplier_product'],
+                        orgStock: $transactionData['org_stock'],
+                        modelData: $transactionData['stock_delivery_item'],
+                        hydratorsDelay: 60,
+                        strict: false
+                    );
+
+                    $sourceData = explode(':', $stockDeliveryItem->source_id);
+                    DB::connection('aurora')->table('Purchase Order Transaction Fact')
+                        ->where('Purchase Order Transaction Fact Key', $sourceData[1])
+                        ->update(['aiku_sd_id' => $stockDeliveryItem->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $transactionData['historic_supplier_product'], 'PurchaseOrderTransaction', 'store');
+
+                    return null;
+                }
             }
 
             return $stockDeliveryItem;

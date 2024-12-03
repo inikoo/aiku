@@ -12,6 +12,7 @@ use App\Actions\Comms\EmailCopy\StoreEmailCopy;
 use App\Actions\Comms\EmailCopy\UpdateEmailCopy;
 use App\Models\Comms\EmailCopy;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -29,37 +30,37 @@ class FetchAuroraEmailCopies extends FetchAuroraAction
             }
 
             if ($emailCopy = EmailCopy::where('source_id', $emailCopyData['emailCopy']['source_id'])->first()) {
-                // try {
-                $emailCopy = UpdateEmailCopy::make()->action(
-                    emailCopy: $emailCopy,
-                    modelData: $emailCopyData['emailCopy'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $emailCopyData['emailCopy'], 'EmailCopy', 'update');
-                //
-                //                    return null;
-                //                }
-            } else {
-                //  try {
-                $emailCopy = StoreEmailCopy::make()->action(
-                    dispatchedEmail: $emailCopyData['dispatchedEmail'],
-                    modelData: $emailCopyData['emailCopy'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
+                try {
+                    $emailCopy = UpdateEmailCopy::make()->action(
+                        emailCopy: $emailCopy,
+                        modelData: $emailCopyData['emailCopy'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $emailCopyData['emailCopy'], 'EmailCopy', 'update');
 
-                $this->recordNew($organisationSource);
-                $sourceData = explode(':', $emailCopy->source_id);
-                DB::connection('aurora')->table('Email Tracking Email Copy')
-                    ->where('Email Tracking Email Copy Key', $sourceData[1])
-                    ->update(['aiku_id' => $emailCopy->id]);
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $emailCopyData['emailCopy'], 'EmailCopy', 'store');
-                //
-                //                    return null;
-                //                }
+                    return null;
+                }
+            } else {
+                try {
+                    $emailCopy = StoreEmailCopy::make()->action(
+                        dispatchedEmail: $emailCopyData['dispatchedEmail'],
+                        modelData: $emailCopyData['emailCopy'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+
+                    $this->recordNew($organisationSource);
+                    $sourceData = explode(':', $emailCopy->source_id);
+                    DB::connection('aurora')->table('Email Tracking Email Copy')
+                        ->where('Email Tracking Email Copy Key', $sourceData[1])
+                        ->update(['aiku_id' => $emailCopy->id]);
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $emailCopyData['emailCopy'], 'EmailCopy', 'store');
+
+                    return null;
+                }
             }
 
 

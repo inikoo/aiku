@@ -111,87 +111,87 @@ class FetchAuroraOrders extends FetchAuroraAction
     {
         $order = null;
         if (!empty($orderData['order']['source_id']) and $order = Order::withTrashed()->where('source_id', $orderData['order']['source_id'])->first()) {
-            //try {
+            try {
 
-            /** @var Address $deliveryAddress */
-            $deliveryAddress = Arr::pull($orderData['order'], 'delivery_address');
+                /** @var Address $deliveryAddress */
+                $deliveryAddress = Arr::pull($orderData['order'], 'delivery_address');
 
-            if ($order->handing_type == OrderHandingTypeEnum::SHIPPING) {
-                if ($order->delivery_locked) {
+                if ($order->handing_type == OrderHandingTypeEnum::SHIPPING) {
+                    if ($order->delivery_locked) {
+                        UpdateOrderFixedAddress::make()->action(
+                            order: $order,
+                            modelData: [
+                                'address' => $deliveryAddress,
+                                'type'    => 'delivery'
+                            ],
+                            hydratorsDelay: 60,
+                            audit: false
+                        );
+                    } else {
+                        UpdateAddress::run($order->deliveryAddress, $deliveryAddress->toArray());
+                    }
+                } elseif ($order->deliveryAddress) {
+                    dd('todo make order to be collected');
+
+                }
+
+
+                /** @var Address $billingAddress */
+                $billingAddress = Arr::pull($orderData['order'], 'billing_address');
+                if ($order->billing_locked) {
                     UpdateOrderFixedAddress::make()->action(
                         order: $order,
                         modelData: [
-                            'address' => $deliveryAddress,
-                            'type'    => 'delivery'
+                            'address' => $billingAddress,
+                            'type'    => 'billing'
                         ],
                         hydratorsDelay: 60,
                         audit: false
                     );
                 } else {
-                    UpdateAddress::run($order->deliveryAddress, $deliveryAddress->toArray());
+                    UpdateAddress::run($order->billingAddress, $billingAddress->toArray());
                 }
-            } elseif ($order->deliveryAddress) {
-                dd('todo make order to be collected');
-
-            }
 
 
-            /** @var Address $billingAddress */
-            $billingAddress = Arr::pull($orderData['order'], 'billing_address');
-            if ($order->billing_locked) {
-                UpdateOrderFixedAddress::make()->action(
+                $order = UpdateOrder::make()->action(
                     order: $order,
-                    modelData: [
-                        'address' => $billingAddress,
-                        'type'    => 'billing'
-                    ],
+                    modelData: $orderData['order'],
                     hydratorsDelay: 60,
+                    strict: false,
                     audit: false
                 );
-            } else {
-                UpdateAddress::run($order->billingAddress, $billingAddress->toArray());
+            } catch (Exception $e) {
+                $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'update');
+                $this->errorReported = true;
             }
-
-
-            $order = UpdateOrder::make()->action(
-                order: $order,
-                modelData: $orderData['order'],
-                hydratorsDelay: 60,
-                strict: false,
-                audit: false
-            );
-            //            } catch (Exception $e) {
-            //                $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'update');
-            //                $this->errorReported = true;
-            //            }
         } elseif ($orderData['parent']) {
-            //   try {
-            $order = StoreOrder::make()->action(
-                parent: $orderData['parent'],
-                modelData: $orderData['order'],
-                strict: false,
-                hydratorsDelay: $this->hydratorsDelay,
-                audit: false
-            );
+            try {
+                $order = StoreOrder::make()->action(
+                    parent: $orderData['parent'],
+                    modelData: $orderData['order'],
+                    strict: false,
+                    hydratorsDelay: $this->hydratorsDelay,
+                    audit: false
+                );
 
-            Order::enableAuditing();
-            $this->saveMigrationHistory(
-                $order,
-                Arr::except($orderData['order'], ['fetched_at', 'last_fetched_at', 'source_id'])
-            );
+                Order::enableAuditing();
+                $this->saveMigrationHistory(
+                    $order,
+                    Arr::except($orderData['order'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
 
-            $this->recordNew($organisationSource);
+                $this->recordNew($organisationSource);
 
-            $sourceData = explode(':', $order->source_id);
-            DB::connection('aurora')->table('Order Dimension')
-                ->where('Order Key', $sourceData[1])
-                ->update(['aiku_id' => $order->id]);
-            //            } catch (Exception|Throwable $e) {
-            //                $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'store');
-            //                $this->errorReported = true;
-            //
-            //                return null;
-            //            }
+                $sourceData = explode(':', $order->source_id);
+                DB::connection('aurora')->table('Order Dimension')
+                    ->where('Order Key', $sourceData[1])
+                    ->update(['aiku_id' => $order->id]);
+            } catch (Exception|Throwable $e) {
+                $this->recordError($organisationSource, $e, $orderData['order'], 'Order', 'store');
+                $this->errorReported = true;
+
+                return null;
+            }
         }
 
         $this->processFetchAttachments($order, 'Order', $orderData['order']['source_id']);

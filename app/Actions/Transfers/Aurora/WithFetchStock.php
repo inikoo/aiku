@@ -83,42 +83,42 @@ trait WithFetchStock
         $organisation = $organisationSource->getOrganisation();
         /** @var OrgStock $orgStock */
         if ($orgStock = $organisation->orgStocks()->where('source_id', $stockData['stock']['source_id'])->first()) {
-            // try {
-            return UpdateOrgStock::make()->action(
-                orgStock: $orgStock,
-                modelData: $orgStockData,
-                hydratorsDelay: 60,
-                strict: false,
-                audit: false
-            );
-            //            } catch (Exception $e) {
-            //                $this->recordError($organisationSource, $e, $orgStockData, 'OrgStock', 'update');
-            //
-            //                return null;
-            //            }
+            try {
+                return UpdateOrgStock::make()->action(
+                    orgStock: $orgStock,
+                    modelData: $orgStockData,
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
+            } catch (Exception $e) {
+                $this->recordError($organisationSource, $e, $orgStockData, 'OrgStock', 'update');
+
+                return null;
+            }
         } else {
 
 
-            //try {
-            $orgStock = StoreAbnormalOrgStock::make()->action(
-                parent: $organisation,
-                modelData: $orgStockData,
-                hydratorsDelay: 60,
-                strict: false,
-                audit: false
-            );
-            OrgStock::enableAuditing();
-            $this->saveMigrationHistory(
-                $orgStock,
-                Arr::except($orgStockData, ['fetched_at', 'last_fetched_at', 'source_id'])
-            );
+            try {
+                $orgStock = StoreAbnormalOrgStock::make()->action(
+                    parent: $organisation,
+                    modelData: $orgStockData,
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
+                OrgStock::enableAuditing();
+                $this->saveMigrationHistory(
+                    $orgStock,
+                    Arr::except($orgStockData, ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
 
-            return $orgStock;
-            //            } catch (Exception|Throwable $e) {
-            //                $this->recordError($organisationSource, $e, $orgStockData, 'OrgStock', 'store');
-            //
-            //                return null;
-            //            }
+                return $orgStock;
+            } catch (Exception|Throwable $e) {
+                $this->recordError($organisationSource, $e, $orgStockData, 'OrgStock', 'store');
+
+                return null;
+            }
         }
     }
 

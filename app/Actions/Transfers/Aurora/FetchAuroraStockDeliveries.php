@@ -50,32 +50,32 @@ class FetchAuroraStockDeliveries extends FetchAuroraAction
                     return null;
                 }
             } else {
-                //try {
-                $stockDelivery = StoreStockDelivery::make()->action(
-                    $stockDeliveryData['org_parent'],
-                    $stockDeliveryData['stockDelivery'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
+                try {
+                    $stockDelivery = StoreStockDelivery::make()->action(
+                        $stockDeliveryData['org_parent'],
+                        $stockDeliveryData['stockDelivery'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
 
-                StockDelivery::enableAuditing();
-                $this->saveMigrationHistory(
-                    $stockDelivery,
-                    Arr::except($stockDeliveryData['stockDelivery'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                );
+                    StockDelivery::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $stockDelivery,
+                        Arr::except($stockDeliveryData['stockDelivery'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
 
-                $this->recordNew($organisationSource);
+                    $this->recordNew($organisationSource);
 
-                $sourceData = explode(':', $stockDelivery->source_id);
-                DB::connection('aurora')->table('Supplier Delivery Dimension')
-                    ->where('Supplier Delivery Key', $sourceData[1])
-                    ->update(['aiku_id' => $stockDelivery->id]);
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $stockDeliveryData['stockDelivery'], 'StockDelivery', 'store');
-                //
-                //                    return null;
-                //                }
+                    $sourceData = explode(':', $stockDelivery->source_id);
+                    DB::connection('aurora')->table('Supplier Delivery Dimension')
+                        ->where('Supplier Delivery Key', $sourceData[1])
+                        ->update(['aiku_id' => $stockDelivery->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $stockDeliveryData['stockDelivery'], 'StockDelivery', 'store');
+
+                    return null;
+                }
             }
 
 

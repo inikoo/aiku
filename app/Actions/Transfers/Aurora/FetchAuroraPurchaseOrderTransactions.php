@@ -44,25 +44,25 @@ class FetchAuroraPurchaseOrderTransactions
                     return null;
                 }
             } else {
-                //  try {
-                $purchaseOrderTransaction = StorePurchaseOrderTransaction::make()->action(
-                    purchaseOrder: $purchaseOrder,
-                    historicSupplierProduct: $transactionData['historic_supplier_product'],
-                    orgStock: $transactionData['org_stock'],
-                    modelData: $transactionData['purchase_order_transaction'],
-                    hydratorsDelay: 60,
-                    strict: false
-                );
+                try {
+                    $purchaseOrderTransaction = StorePurchaseOrderTransaction::make()->action(
+                        purchaseOrder: $purchaseOrder,
+                        historicSupplierProduct: $transactionData['historic_supplier_product'],
+                        orgStock: $transactionData['org_stock'],
+                        modelData: $transactionData['purchase_order_transaction'],
+                        hydratorsDelay: 60,
+                        strict: false
+                    );
 
-                $sourceData = explode(':', $purchaseOrderTransaction->source_id);
-                DB::connection('aurora')->table('Purchase Order Transaction Fact')
-                    ->where('Purchase Order Transaction Fact Key', $sourceData[1])
-                    ->update(['aiku_po_id' => $purchaseOrderTransaction->id]);
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $transactionData['historic_supplier_product'], 'PurchaseOrderTransaction', 'store');
-                //
-                //                    return null;
-                //                }
+                    $sourceData = explode(':', $purchaseOrderTransaction->source_id);
+                    DB::connection('aurora')->table('Purchase Order Transaction Fact')
+                        ->where('Purchase Order Transaction Fact Key', $sourceData[1])
+                        ->update(['aiku_po_id' => $purchaseOrderTransaction->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $transactionData['historic_supplier_product'], 'PurchaseOrderTransaction', 'store');
+
+                    return null;
+                }
             }
 
             return $purchaseOrderTransaction;

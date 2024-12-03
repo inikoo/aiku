@@ -32,38 +32,38 @@ class FetchAuroraQueries extends FetchAuroraAction
         if ($queryData) {
             if ($query = Query::where('source_id', $queryData['query']['source_id'])
                 ->first()) {
-                // try {
-                $query = UpdateQuery::make()->action(
-                    query: $query,
-                    modelData: $queryData['query'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
-                $this->recordChange($organisationSource, $query->wasChanged());
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $queryData['query'], 'Query', 'update');
-                //
-                //                    return null;
-                //                }
-            } else {
-                // try {
-                $query = StoreQuery::make()->action(
-                    parent: $queryData['shop'],
-                    modelData: $queryData['query'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                );
+                try {
+                    $query = UpdateQuery::make()->action(
+                        query: $query,
+                        modelData: $queryData['query'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+                    $this->recordChange($organisationSource, $query->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $queryData['query'], 'Query', 'update');
 
-                $this->recordNew($organisationSource);
-                $sourceData = explode(':', $query->source_id);
-                DB::connection('aurora')->table('List Dimension')
-                    ->where('List Key', $sourceData[1])
-                    ->update(['aiku_id' => $query->id]);
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $queryData['query'], 'Query', 'store');
-                //
-                //                    return null;
-                //                }
+                    return null;
+                }
+            } else {
+                try {
+                    $query = StoreQuery::make()->action(
+                        parent: $queryData['shop'],
+                        modelData: $queryData['query'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                    );
+
+                    $this->recordNew($organisationSource);
+                    $sourceData = explode(':', $query->source_id);
+                    DB::connection('aurora')->table('List Dimension')
+                        ->where('List Key', $sourceData[1])
+                        ->update(['aiku_id' => $query->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $queryData['query'], 'Query', 'store');
+
+                    return null;
+                }
             }
         }
 

@@ -16,9 +16,11 @@ use App\Models\Ordering\Purge;
 use App\Models\Ordering\PurgedOrder;
 use App\Transfers\Aurora\WithAuroraParsers;
 use App\Transfers\SourceOrganisationService;
+use Exception;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Throwable;
 
 class FetchAuroraPurges extends FetchAuroraAction
 {
@@ -31,50 +33,50 @@ class FetchAuroraPurges extends FetchAuroraAction
         $organisation = $organisationSource->getOrganisation();
         if ($purgeData = $organisationSource->fetchPurge($organisationSourceId)) {
             if ($purge = Purge::where('source_id', $purgeData['purge']['source_id'])->first()) {
-                //try {
-                $purge = UpdatePurge::make()->action(
-                    purge: $purge,
-                    modelData: $purgeData['purge'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
-                $this->recordChange($organisationSource, $purge->wasChanged());
-                //                } catch (Exception $e) {
-                //                    $this->recordError($organisationSource, $e, $purgeData['purge'], 'Purge', 'update');
-                //                    return null;
-                //                }
+                try {
+                    $purge = UpdatePurge::make()->action(
+                        purge: $purge,
+                        modelData: $purgeData['purge'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
+                    $this->recordChange($organisationSource, $purge->wasChanged());
+                } catch (Exception $e) {
+                    $this->recordError($organisationSource, $e, $purgeData['purge'], 'Purge', 'update');
+
+                    return null;
+                }
             } else {
-                // try {
+                try {
+                    $purge = StorePurge::make()->action(
+                        shop: $purgeData['shop'],
+                        modelData: $purgeData['purge'],
+                        hydratorsDelay: 60,
+                        strict: false,
+                        audit: false
+                    );
 
-                $purge = StorePurge::make()->action(
-                    shop: $purgeData['shop'],
-                    modelData: $purgeData['purge'],
-                    hydratorsDelay: 60,
-                    strict: false,
-                    audit: false
-                );
+                    Purge::enableAuditing();
+                    $this->saveMigrationHistory(
+                        $purge,
+                        Arr::except($purgeData['purge'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                    );
 
-                Purge::enableAuditing();
-                $this->saveMigrationHistory(
-                    $purge,
-                    Arr::except($purgeData['purge'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                );
+                    $this->recordNew($organisationSource);
 
-                $this->recordNew($organisationSource);
+                    $sourceData = explode(':', $purge->source_id);
+                    DB::connection('aurora')->table('Order Basket Purge Dimension')
+                        ->where('Order Basket Purge Key', $sourceData[1])
+                        ->update(['aiku_id' => $purge->id]);
+                } catch (Exception|Throwable $e) {
+                    $this->recordError($organisationSource, $e, $purgeData['purge'], 'Purge', 'store');
 
-                $sourceData = explode(':', $purge->source_id);
-                DB::connection('aurora')->table('Order Basket Purge Dimension')
-                    ->where('Order Basket Purge Key', $sourceData[1])
-                    ->update(['aiku_id' => $purge->id]);
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $purgeData['purge'], 'Purge', 'store');
-                //                    return null;
-                //                }
+                    return null;
+                }
             }
 
             $purge->stats->update($purgeData['purge_stats']);
-
 
 
             $sourceData = explode(':', $purgeData['purge']['source_id']);
@@ -91,7 +93,7 @@ class FetchAuroraPurges extends FetchAuroraAction
                 };
 
                 $purgedOrderData = [
-                    'status'           => $status,
+                    'status'          => $status,
                     'source_id'       => $organisation->id.':'.$purgedOrderAuroraData->{'Order Basket Purge Order Basket Purge Key'}.'_'.$purgedOrderAuroraData->{'Order Basket Purge Order Order Key'},
                     'fetched_at'      => now(),
                     'last_fetched_at' => now(),

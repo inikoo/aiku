@@ -114,37 +114,37 @@ class FetchAuroraStocks extends FetchAuroraAction
             } else {
                 $parent = $organisationSource->getOrganisation()->group;
             }
-            // try {
-            $stock       = StoreStock::make()->action(
-                parent: $parent,
-                modelData: $stockData['stock'],
-                hydratorsDelay: 60,
-                strict: false,
-                audit: false
-            );
-            $isPrincipal = true;
-            Stock::enableAuditing();
-            $this->saveMigrationHistory(
-                $stock,
-                Arr::except($stockData['stock'], ['fetched_at', 'last_fetched_at', 'source_id'])
-            );
+            try {
+                $stock       = StoreStock::make()->action(
+                    parent: $parent,
+                    modelData: $stockData['stock'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                    audit: false
+                );
+                $isPrincipal = true;
+                Stock::enableAuditing();
+                $this->saveMigrationHistory(
+                    $stock,
+                    Arr::except($stockData['stock'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
 
-            $this->updateStockSources($stock, $stockData['stock']['source_id']);
+                $this->updateStockSources($stock, $stockData['stock']['source_id']);
 
-            $this->recordNew($organisationSource);
+                $this->recordNew($organisationSource);
 
-            $sourceData = explode(':', $stock->source_id);
-            DB::connection('aurora')->table('Part Dimension')
-                ->where('Part SKU', $sourceData[1])
-                ->update(['aiku_id' => $stock->id]);
-            //            } catch (Exception|Throwable $e) {
-            //                $this->recordError($organisationSource, $e, $stockData['stock'], 'Stock', 'store');
-            //
-            //                return [
-            //                    'stock'    => null,
-            //                    'orgStock' => null
-            //                ];
-            //            }
+                $sourceData = explode(':', $stock->source_id);
+                DB::connection('aurora')->table('Part Dimension')
+                    ->where('Part SKU', $sourceData[1])
+                    ->update(['aiku_id' => $stock->id]);
+            } catch (Exception|Throwable $e) {
+                $this->recordError($organisationSource, $e, $stockData['stock'], 'Stock', 'store');
+
+                return [
+                    'stock'    => null,
+                    'orgStock' => null
+                ];
+            }
         }
 
 
