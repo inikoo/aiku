@@ -18,6 +18,7 @@ use App\Actions\CRM\CustomerNote\StoreCustomerNote;
 use App\Actions\CRM\CustomerNote\UpdateCustomerNote;
 use App\Actions\CRM\Favourite\StoreFavourite;
 use App\Actions\CRM\Favourite\UpdateFavourite;
+use App\Actions\CRM\Poll\StorePoll;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
@@ -25,11 +26,13 @@ use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\CRM\Customer\CustomerStatusEnum;
+use App\Enums\CRM\Poll\PollTypeEnum;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerNote;
 use App\Models\CRM\Favourite;
+use App\Models\CRM\Poll;
 use App\Models\CRM\Prospect;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Query;
@@ -365,3 +368,32 @@ test('hydrate customers', function (Customer $customer) {
     HydrateCustomers::run($customer);
     $this->artisan('hydrate:customers')->assertExitCode(0);
 })->depends('create customer');
+
+test('store poll', function () {
+
+    $poll = StorePoll::make()->action(
+        $this->shop,
+        [
+            'name' => 'namee',
+            'label' => 'name',
+            'in_registration' => false,
+            'in_registration_required' => true,
+            'in_iris' => true,
+            'in_iris_required' => true,
+            'type'  => PollTypeEnum::OPEN_QUESTION
+        ]
+    );
+
+    $poll->refresh();
+
+    expect($poll)->toBeInstanceOf(Poll::class)
+        ->and($poll->name)->toBe('namee')
+        ->and($poll->label)->toBe('name')
+        ->and($poll->in_registration)->toBe(false)
+        ->and($poll->in_registration_required)->toBe(true)
+        ->and($poll->in_iris)->toBe(true)
+        ->and($poll->in_iris_required)->toBe(true)
+        ->and($poll->type)->toBe(PollTypeEnum::OPEN_QUESTION);
+
+    return $poll;
+});
