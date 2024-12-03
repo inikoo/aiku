@@ -11,7 +11,6 @@ namespace App\Actions\SysAdmin\Organisation\Hydrators;
 use App\Actions\Traits\Hydrators\WithHydrateDeliveryNotes;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\SysAdmin\Organisation;
@@ -59,19 +58,6 @@ class OrganisationHydrateDeliveryNotes
                 model: 'delivery_notes',
                 field: 'state',
                 enum: DeliveryNoteStateEnum::class,
-                models: DeliveryNote::class,
-                where: function ($q) use ($organisation) {
-                    $q->where('organisation_id', $organisation->id);
-                }
-            )
-        );
-
-        $stats = array_merge(
-            $stats,
-            $this->getEnumStats(
-                model: 'delivery_notes',
-                field: 'status',
-                enum: DeliveryNoteStatusEnum::class,
                 models: DeliveryNote::class,
                 where: function ($q) use ($organisation) {
                     $q->where('organisation_id', $organisation->id);

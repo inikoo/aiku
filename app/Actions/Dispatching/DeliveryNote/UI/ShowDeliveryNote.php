@@ -128,7 +128,7 @@ class ShowDeliveryNote extends OrgAction
         $actions = [];
         if ($this->canEdit) {
             $actions = match ($deliveryNote->state) {
-                DeliveryNoteStateEnum::SUBMITTED => [
+                DeliveryNoteStateEnum::UNASSIGNED => [
                     [
                         'type'    => 'button',
                         'style'   => 'save',
@@ -144,12 +144,12 @@ class ShowDeliveryNote extends OrgAction
                         ]
                     ]
                 ],
-                DeliveryNoteStateEnum::IN_QUEUE => [
+                DeliveryNoteStateEnum::QUEUED => [
                     [
                         'type'    => 'button',
                         'style'   => 'save',
-                        'tooltip' => __('Picker Assigned'),
-                        'label'   => __('Picker Assigned'),
+                        'tooltip' => __('In Queue'),
+                        'label'   => __('In Queue'),
                         'key'     => 'action',
                         'route'   => [
                             'method'     => 'patch',
@@ -160,28 +160,13 @@ class ShowDeliveryNote extends OrgAction
                         ]
                     ]
                 ],
-                DeliveryNoteStateEnum::PICKER_ASSIGNED => [
+
+                DeliveryNoteStateEnum::HANDLING => [
                     [
                         'type'    => 'button',
                         'style'   => 'save',
-                        'tooltip' => __('Picking'),
-                        'label'   => __('Picking'),
-                        'key'     => 'action',
-                        'route'   => [
-                            'method'     => 'patch',
-                            'name'       => 'grp.models.delivery-note.state.picking',
-                            'parameters' => [
-                                'deliveryNote' => $deliveryNote->id
-                            ]
-                        ]
-                    ]
-                ],
-                DeliveryNoteStateEnum::PICKING => [
-                    [
-                        'type'    => 'button',
-                        'style'   => 'save',
-                        'tooltip' => __('Picked'),
-                        'label'   => __('Picked'),
+                        'tooltip' => __('Handling'),
+                        'label'   => __('Handling'),
                         'key'     => 'action-picked',
                         'route'   => [
                             'method'     => 'patch',
@@ -192,38 +177,8 @@ class ShowDeliveryNote extends OrgAction
                         ]
                     ]
                 ],
-                DeliveryNoteStateEnum::PICKED => [
-                    [
-                        'type'    => 'button',
-                        'style'   => 'save',
-                        'tooltip' => __('Packing'),
-                        'label'   => __('Packing'),
-                        'key'     => 'action',
-                        'route'   => [
-                            'method'     => 'patch',
-                            'name'       => 'grp.models.delivery-note.state.packing',
-                            'parameters' => [
-                                'deliveryNote' => $deliveryNote->id
-                            ]
-                        ]
-                    ]
-                ],
-                DeliveryNoteStateEnum::PACKING => [
-                    [
-                        'type'    => 'button',
-                        'style'   => 'save',
-                        'tooltip' => __('Packed'),
-                        'label'   => __('Packed'),
-                        'key'     => 'action',
-                        'route'   => [
-                            'method'     => 'patch',
-                            'name'       => 'grp.models.delivery-note.state.packed',
-                            'parameters' => [
-                                'deliveryNote' => $deliveryNote->id
-                            ]
-                        ]
-                    ]
-                ],
+
+
                 DeliveryNoteStateEnum::PACKED => [
                     [
                         'type'    => 'button',
@@ -345,7 +300,7 @@ class ShowDeliveryNote extends OrgAction
                     ],
                 ],
 
-                DeliveryNoteTabsEnum::SKOS_ORDERED->value => $this->tab == DeliveryNoteTabsEnum::SKOS_ORDERED->value ?
+                DeliveryNoteTabsEnum::ITEMS->value => $this->tab == DeliveryNoteTabsEnum::ITEMS->value ?
                 fn () => DeliveryNoteItemsResource::collection(IndexDeliveryNoteItems::run($deliveryNote))
                 : Inertia::lazy(fn () => DeliveryNoteItemsResource::collection(IndexDeliveryNoteItems::run($deliveryNote))),
 
@@ -354,7 +309,7 @@ class ShowDeliveryNote extends OrgAction
                 : Inertia::lazy(fn () => PickingsResource::collection(IndexPickings::run($deliveryNote))),
             ]
         )
-        ->table(IndexDeliveryNoteItems::make()->tableStructure(parent: $deliveryNote, prefix: DeliveryNoteTabsEnum::SKOS_ORDERED->value))
+        ->table(IndexDeliveryNoteItems::make()->tableStructure(parent: $deliveryNote, prefix: DeliveryNoteTabsEnum::ITEMS->value))
         ->table(IndexPickings::make()->tableStructure(parent: $deliveryNote, prefix: DeliveryNoteTabsEnum::PICKINGS->value));
     }
 

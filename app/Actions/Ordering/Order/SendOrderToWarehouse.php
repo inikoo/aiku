@@ -14,7 +14,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasOrderingAuthorisation;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Transaction\TransactionStateEnum;
 use App\Models\Catalogue\Product;
@@ -68,8 +67,7 @@ class SendOrderToWarehouse extends OrgAction
             'delivery_address' => $order->deliveryAddress,
             'date'             => $date,
             'reference'        => $order->reference,
-            'state'            => DeliveryNoteStateEnum::SUBMITTED,
-            'status'           => DeliveryNoteStatusEnum::HANDLING,
+            'state'            => DeliveryNoteStateEnum::UNASSIGNED,
             'submitted_at'     => now(),
             'warehouse_id'     => $warehouseId
         ];

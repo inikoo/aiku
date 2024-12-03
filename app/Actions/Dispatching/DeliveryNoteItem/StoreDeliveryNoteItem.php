@@ -12,7 +12,6 @@ use App\Actions\Dispatching\Picking\StorePicking;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
-use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Inventory\OrgStock;
@@ -79,7 +78,6 @@ class StoreDeliveryNoteItem extends OrgAction
                 Rule::Exists('transactions', 'id')->where('shop_id', $this->shop->id)
             ];
             $rules['state']               = ['sometimes', 'nullable', Rule::enum(DeliveryNoteItemStateEnum::class)];
-            $rules['status']              = ['sometimes', 'nullable', Rule::enum(DeliveryNoteItemStatusEnum::class)];
             $rules['quantity_required']   = ['sometimes', 'numeric'];
             $rules['quantity_picked']     = ['sometimes', 'numeric'];
             $rules['quantity_packed']     = ['sometimes', 'numeric'];

@@ -7,7 +7,6 @@
  */
 
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
@@ -33,8 +32,7 @@ return new class () extends Migration {
             $table->string('reference')->index();
             $table->string('type')->default(DeliveryNoteTypeEnum::ORDER->value)->index();
 
-            $table->string('state')->index()->default(DeliveryNoteStateEnum::SUBMITTED->value);
-            $table->string('status')->index()->default(DeliveryNoteStatusEnum::HANDLING->value);
+            $table->string('state')->index()->default(DeliveryNoteStateEnum::UNASSIGNED->value);
 
             $table->boolean('can_dispatch')->nullable();
             $table->boolean('restocking')->nullable();
@@ -53,6 +51,12 @@ return new class () extends Migration {
             $table->unsignedSmallInteger('number_stocks')->default(0);
             $table->unsignedSmallInteger('number_picks')->default(0);
 
+            $table->boolean('has_out_of_stocks')->default(false);
+
+
+            $table->decimal('picking_percentage', 5, 2)->default(0);
+            $table->decimal('packing_percentage', 5, 2)->default(0);
+
 
             $table->unsignedSmallInteger('picker_id')->nullable()->index()->comment('Main picker');
             $table->foreign('picker_id')->references('id')->on('employees');
@@ -61,18 +65,22 @@ return new class () extends Migration {
 
             $table->dateTimeTz('date')->index();
 
-            $table->dateTimeTz('submitted_at')->nullable();
-            $table->dateTimeTz('in_queue_at')->nullable();
-            $table->dateTimeTz('picker_assigned_at')->nullable();
-            $table->dateTimeTz('picking_at')->nullable();
-            $table->dateTimeTz('picked_at')->nullable();
-
-            $table->dateTimeTz('packing_at')->nullable();
+            $table->dateTimeTz('queued_at')->nullable();
+            $table->dateTimeTz('handling_at')->nullable();
+            $table->dateTimeTz('handling_blocked_at')->nullable();
             $table->dateTimeTz('packed_at')->nullable();
             $table->dateTimeTz('finalised_at')->nullable();
-            $table->dateTimeTz('settled_at')->nullable();
             $table->dateTimeTz('dispatched_at')->nullable();
             $table->dateTimeTz('cancelled_at')->nullable();
+
+            $table->dateTimeTz('start_picking')->nullable();
+            $table->dateTimeTz('end_picking')->nullable();
+            $table->dateTimeTz('start_packing')->nullable();
+            $table->dateTimeTz('end_packing')->nullable();
+
+            $table->dateTimeTz('picking_on_hold_time')->nullable()->comment('Time when picking was put on hold (seconds)');
+            $table->dateTimeTz('packing_on_hold_time')->nullable()->comment('Time when packing was put on hold (seconds)');
+
 
 
             $table->jsonb('data');

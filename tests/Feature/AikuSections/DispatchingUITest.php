@@ -14,7 +14,6 @@ use App\Actions\Inventory\Warehouse\StoreWarehouse;
 use App\Actions\Ordering\Order\StoreOrder;
 use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Models\Analytics\AikuScopedSection;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Helpers\Address;
@@ -68,8 +67,7 @@ beforeEach(function () {
     if (!$deliveryNote) {
         $arrayData = [
             'reference'           => 'A123456',
-            'state'               => DeliveryNoteStateEnum::SUBMITTED,
-            'status'              => DeliveryNoteStatusEnum::HANDLING,
+            'state'               => DeliveryNoteStateEnum::UNASSIGNED,
             'email'               => 'test@email.com',
             'phone'               => '+62081353890000',
             'date'                => date('Y-m-d'),

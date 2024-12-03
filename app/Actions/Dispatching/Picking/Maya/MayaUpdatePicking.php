@@ -10,9 +10,9 @@ namespace App\Actions\Dispatching\Picking\Maya;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Dispatching\Picking\PickingOutcomeEnum;
+use App\Enums\Dispatching\Picking\PickingNotPickedReasonEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
-use App\Enums\Dispatching\Picking\PickingVesselEnum;
+use App\Enums\Dispatching\Picking\PickingEngineEnum;
 use App\Models\Dispatching\DeliveryNoteItem;
 use App\Models\Dispatching\Picking;
 use Illuminate\Validation\Rule;
@@ -41,9 +41,9 @@ class MayaUpdatePicking extends OrgAction
     {
         return [
             'state'                 => ['sometimes', Rule::enum(PickingStateEnum::class)],
-            'outcome'               => ['sometimes', Rule::enum(PickingOutcomeEnum::class)],
-            'vessel_picking'        => ['sometimes', Rule::enum(PickingVesselEnum::class)],
-            'vessel_packing'        => ['sometimes', Rule::enum(PickingVesselEnum::class)]
+            'outcome'               => ['sometimes', Rule::enum(PickingNotPickedReasonEnum::class)],
+            'vessel_picking'        => ['sometimes', Rule::enum(PickingEngineEnum::class)],
+            'vessel_packing'        => ['sometimes', Rule::enum(PickingEngineEnum::class)]
         ];
     }
 

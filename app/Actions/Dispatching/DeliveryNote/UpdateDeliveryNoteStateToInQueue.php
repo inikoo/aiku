@@ -20,8 +20,8 @@ class UpdateDeliveryNoteStateToInQueue extends OrgAction
 
     public function handle(DeliveryNote $deliveryNote): DeliveryNote
     {
-        data_set($modelData, 'in_queue_at', now());
-        data_set($modelData, 'state', DeliveryNoteStateEnum::IN_QUEUE->value);
+        data_set($modelData, 'queued_at', now());
+        data_set($modelData, 'state', DeliveryNoteStateEnum::QUEUED->value);
 
         return $this->update($deliveryNote, $modelData);
     }

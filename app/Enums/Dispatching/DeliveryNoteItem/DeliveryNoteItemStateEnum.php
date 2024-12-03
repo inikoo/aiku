@@ -15,77 +15,115 @@ enum DeliveryNoteItemStateEnum: string
     use EnumHelperTrait;
 
 
-    case ON_HOLD   = 'on-hold';
-    case HANDLING  = 'handling';
-    case PACKED    = 'packed';
+    case UNASSIGNED = 'unassigned';
+    case QUEUED = 'queued'; // picker assigned
+    case HANDLING = 'handling'; // picking and packing
+    case HANDLING_BLOCKED = 'handling-blocked';
+    case PACKED = 'packed';
     case FINALISED = 'finalised';
-    case SETTLED   = 'settled';
+    case DISPATCHED = 'dispatched';
+    case CANCELLED = 'cancelled';
 
     public static function labels(): array
     {
         return [
-            'on-hold'               => __('On Hold'),
-            'handling'              => __('Handling'),
-            'packed'                => __('Packed'),
-            'finalised'             => __('Finalised'),
-            'settled'               => __('Settled'),
+            'unassigned' => __('Unassigned'),
+            'queued'     => __('In Queue'),
+            'handling'   => __('Handling'),
+            'handling-blocked' => __('Handling Blocked'),
+            'packed'     => __('Packed'),
+            'finalised'  => __('Finalised'),
+            'dispatched' => __('Dispatched'),
+            'cancelled'  => __('Cancelled')
         ];
     }
-
 
     public static function stateIcon(): array
     {
         return [
-            'on-hold'   => [
-                'tooltip' => __('On Hold'),
-                'icon'    => 'fal fa-pause-circle',
-                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
-                'color'   => 'gray',  // Color for box (Retina)
+            'unassigned' => [
+                'tooltip' => __('Unassigned'),
+                'icon'    => 'fal fa-chair',
+                'class'   => 'text-grey-500',  // Color for normal icon (Aiku)
+                'color'   => 'grey',  // Color for box (Retina)
                 'app'     => [
-                    'name' => 'seedling',
+                    'name' => 'chair',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'queued'     => [
+                'tooltip' => __('In Queue'),
+                'icon'    => 'fal fa-chair',
+                'class'   => 'text-lime-500',
+                'color'   => 'lime',
+                'app'     => [
+                    'name' => 'chair',
                     'type' => 'font-awesome-5'
                 ]
             ],
             'handling'   => [
                 'tooltip' => __('Handling'),
-                'icon'    => 'fal fa-hands-helping',
-                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
-                'color'   => 'gray',  // Color for box (Retina)
+                'icon'    => 'fal fa-hand-paper',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
-                    'name' => 'seedling',
+                    'name' => 'check',
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'packed'   => [
+            'handling-blocked' => [
+                'tooltip' => __('Handling Blocked'),
+                'icon'    => 'fal fa-hand-paper',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'packed'     => [
                 'tooltip' => __('Packed'),
-                'icon'    => 'fal fa-box',
-                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
-                'color'   => 'gray',  // Color for box (Retina)
+                'icon'    => 'fal fa-box-check',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
-                    'name' => 'seedling',
+                    'name' => 'times',
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'finalised'   => [
+            'finalised'  => [
                 'tooltip' => __('Finalised'),
-                'icon'    => 'fal fa-tasks',
-                'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
-                'color'   => 'gray',  // Color for box (Retina)
+                'icon'    => 'fal fa-box-check',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
-                    'name' => 'seedling',
+                    'name' => 'times',
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'settled'   => [
-                'tooltip' => __('Settled'),
+
+            'dispatched' => [
+                'tooltip' => __('Dispatched'),
                 'icon'    => 'fal fa-check-double',
-                'class'   => 'text-indigo-500',  // Color for normal icon (Aiku)
-                'color'   => 'indigo',  // Color for box (Retina)
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
-                    'name' => 'seedling',
+                    'name' => 'check-double',
                     'type' => 'font-awesome-5'
                 ]
             ],
+            'cancelled'  => [
+                'tooltip' => __('Cancelled'),
+                'icon'    => 'fal fa-times',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'times',
+                    'type' => 'font-awesome-5'
+                ]
+            ]
+
         ];
     }
+
 }

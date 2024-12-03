@@ -38,29 +38,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_delivery_notes
  * @property int $number_delivery_notes_type_order
  * @property int $number_delivery_notes_type_replacement
- * @property int $number_delivery_notes_state_submitted
- * @property int $number_delivery_notes_state_in_queue
- * @property int $number_delivery_notes_state_picker_assigned
- * @property int $number_delivery_notes_state_picking
- * @property int $number_delivery_notes_state_picked
- * @property int $number_delivery_notes_state_packing
+ * @property int $number_delivery_notes_state_unassigned
+ * @property int $number_delivery_notes_state_queued
+ * @property int $number_delivery_notes_state_handling
+ * @property int $number_delivery_notes_state_handling_blocked
  * @property int $number_delivery_notes_state_packed
  * @property int $number_delivery_notes_state_finalised
- * @property int $number_delivery_notes_state_settled
- * @property int $number_delivery_notes_status_handling
- * @property int $number_delivery_notes_status_settled_dispatched
- * @property int $number_delivery_notes_status_settled_with_missing
- * @property int $number_delivery_notes_status_settled_fail
- * @property int $number_delivery_notes_status_settled_cancelled
- * @property int $number_delivery_notes_cancelled_at_state_submitted
- * @property int $number_delivery_notes_cancelled_at_state_in_queue
- * @property int $number_delivery_notes_cancelled_at_state_picker_assigned
- * @property int $number_delivery_notes_cancelled_at_state_picking
- * @property int $number_delivery_notes_cancelled_at_state_picked
- * @property int $number_delivery_notes_cancelled_at_state_packing
+ * @property int $number_delivery_notes_state_dispatched
+ * @property int $number_delivery_notes_state_cancelled
+ * @property int $number_delivery_notes_cancelled_at_state_unassigned
+ * @property int $number_delivery_notes_cancelled_at_state_queued
+ * @property int $number_delivery_notes_cancelled_at_state_handling
+ * @property int $number_delivery_notes_cancelled_at_state_handling_blocked
  * @property int $number_delivery_notes_cancelled_at_state_packed
  * @property int $number_delivery_notes_cancelled_at_state_finalised
- * @property int $number_delivery_notes_cancelled_at_state_settled
+ * @property int $number_delivery_notes_cancelled_at_state_dispatched
+ * @property int $number_delivery_notes_state_with_out_of_stock
  * @property int $number_org_stock_audits
  * @property int $number_org_stock_audits_state_in_process
  * @property int $number_org_stock_audits_state_completed

@@ -8,18 +8,16 @@
 
 namespace App\Models\Dispatching;
 
-use App\Enums\Dispatching\Picking\PickingOutcomeEnum;
+use App\Enums\Dispatching\Picking\PickingNotPickedReasonEnum;
 use App\Enums\Dispatching\Picking\PickingStateEnum;
-use App\Enums\Dispatching\Picking\PickingVesselEnum;
-use App\Models\HumanResources\Employee;
+use App\Enums\Dispatching\Picking\PickingEngineEnum;
+use App\Models\SysAdmin\User;
 use App\Models\Traits\InShop;
-use Eloquent;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * App\Models\Dispatching\Picking
+ *
  *
  * @property int $id
  * @property int $group_id
@@ -27,39 +25,33 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $shop_id
  * @property int $delivery_note_id
  * @property int $delivery_note_item_id
- * @property bool $status
  * @property PickingStateEnum $state
- * @property PickingOutcomeEnum $outcome
+ * @property string $status
+ * @property PickingNotPickedReasonEnum $not_picked_reason
+ * @property string|null $not_picked_note
  * @property string $quantity_required
  * @property string|null $quantity_picked
- * @property string|null $quantity_packed
- * @property string|null $quantity_dispatched
  * @property int|null $org_stock_movement_id
  * @property int $org_stock_id
  * @property int|null $picker_id
- * @property int|null $packer_id
- * @property PickingVesselEnum|null $vessel_picking
- * @property PickingVesselEnum|null $vessel_packing
+ * @property PickingEngineEnum $engine
  * @property int|null $location_id
  * @property array $data
- * @property string|null $picker_assigned_at
+ * @property string|null $queued_at
  * @property string|null $picking_at
- * @property string|null $picked_at
- * @property string|null $packer_assigned_at
- * @property string|null $packing_at
- * @property string|null $packed_at
+ * @property string|null $picking_blocked_at
+ * @property string|null $done_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Dispatching\DeliveryNoteItem $deliveryNoteItem
  * @property-read \App\Models\SysAdmin\Group $group
  * @property-read \App\Models\SysAdmin\Organisation $organisation
- * @property-read Employee|null $packer
- * @property-read Employee|null $picker
+ * @property-read User|null $picker
  * @property-read \App\Models\Catalogue\Shop $shop
- * @method static Builder<static>|Picking newModelQuery()
- * @method static Builder<static>|Picking newQuery()
- * @method static Builder<static>|Picking query()
- * @mixin Eloquent
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Picking newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Picking newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Picking query()
+ * @mixin \Eloquent
  */
 class Picking extends Model
 {
@@ -68,9 +60,8 @@ class Picking extends Model
     protected $casts = [
         'data'              => 'array',
         'state'             => PickingStateEnum::class,
-        'outcome'           => PickingOutcomeEnum::class,
-        'vessel_picking'    => PickingVesselEnum::class,
-        'vessel_packing'    => PickingVesselEnum::class
+        'not_picked_reason' => PickingNotPickedReasonEnum::class,
+        'engine'            => PickingEngineEnum::class,
     ];
 
     protected $guarded = [];
@@ -86,11 +77,8 @@ class Picking extends Model
 
     public function picker(): BelongsTo
     {
-        return $this->belongsTo(Employee::class, 'picker_id');
+        return $this->belongsTo(User::class, 'picker_id');
     }
 
-    public function packer(): BelongsTo
-    {
-        return $this->belongsTo(Employee::class, 'packer_id');
-    }
+
 }

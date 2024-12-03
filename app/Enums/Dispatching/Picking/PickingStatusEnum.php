@@ -10,30 +10,33 @@ namespace App\Enums\Dispatching\Picking;
 
 use App\Enums\EnumHelperTrait;
 
-enum PickingStateEnum: string
+enum PickingStatusEnum: string
 {
     use EnumHelperTrait;
 
-    case QUEUED = 'queued';
-    case PICKING = 'picking';
-    case PICKING_BLOCKED = 'picking-blocked';
-    case DONE = 'done';
+    case PROCESSING = 'processing';
+    case PICKED = 'picked';
+    case PARTIALLY_PICKED = 'partially-picked';
+    case NOT_PICKED = 'not-picked';
+    case CANCELLED = 'cancelled';
 
     public static function labels($forElements = false): array
     {
         return [
-            'queued'          => __('Queued'),
-            'picking'         => __('Picking'),
-            'picking-blocked' => __('Picking Blocked'),
-            'done'            => __('Done'),
+            'processing'          => __('Processing'),
+            'picked'              => __('Picked'),
+            'picked-blocked'      => __('Picked Partially'),
+            'not-picked'          => __('Not Picked'),
+            'cancelled'           => __('Cancelled'),
+
         ];
     }
 
     public static function stateIcon(): array
     {
         return [
-            'queued'           => [
-                'tooltip' => __('Queued'),
+            'processing'           => [
+                'tooltip' => __('Processing'),
                 'icon'    => 'fal fa-pause-circle',
                 'class'   => 'text-gray-500',  // Color for normal icon (Aiku)
                 'color'   => 'gray',  // Color for box (Retina)
@@ -41,9 +44,10 @@ enum PickingStateEnum: string
                     'name' => 'seedling',
                     'type' => 'font-awesome-5'
                 ]
+
             ],
-            'picking'         => [
-                'tooltip' => __('Picking'),
+            'picked'              => [
+                'tooltip' => __('Picked'),
                 'icon'    => 'fal fa-hand-paper',
                 'class'   => 'text-gray-500',
                 'color'   => 'gray',
@@ -52,8 +56,28 @@ enum PickingStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'picking-blocked' => [
-                'tooltip' => __('Picking Blocked'),
+            'picked-blocked'      => [
+                'tooltip' => __('Picked Partially'),
+                'icon'    => 'fal fa-hand-paper',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'not-picked'          => [
+                'tooltip' => __('Not Picked'),
+                'icon'    => 'fal fa-hand-paper',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'cancelled'           => [
+                'tooltip' => __('Cancelled'),
                 'icon'    => 'fal fa-hand-paper',
                 'class'   => 'text-gray-500',
                 'color'   => 'gray',
@@ -63,16 +87,6 @@ enum PickingStateEnum: string
                 ]
             ],
 
-            'done' => [
-                'tooltip' => __('Done'),
-                'icon'    => 'fal fa-box-check',
-                'class'   => 'text-gray-500',
-                'color'   => 'gray',
-                'app'     => [
-                    'name' => 'times',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
         ];
     }
 

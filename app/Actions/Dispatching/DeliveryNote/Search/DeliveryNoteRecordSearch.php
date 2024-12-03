@@ -59,10 +59,6 @@ class DeliveryNoteRecordSearch
                     ],
                     'meta'      => [
                         [
-                            'label' => $deliveryNote->status->value,
-                            'tooltip' => __('Status')
-                        ],
-                        [
                             'type'      => 'date',
                             'label'     => $deliveryNote->created_at,
                             'tooltip'   => __('Date')

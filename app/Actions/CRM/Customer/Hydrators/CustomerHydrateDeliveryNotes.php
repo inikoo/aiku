@@ -11,7 +11,6 @@ namespace App\Actions\CRM\Customer\Hydrators;
 use App\Actions\Traits\Hydrators\WithHydrateDeliveryNotes;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Models\CRM\Customer;
 use App\Models\Dispatching\DeliveryNote;
@@ -67,18 +66,6 @@ class CustomerHydrateDeliveryNotes
             )
         );
 
-        $stats = array_merge(
-            $stats,
-            $this->getEnumStats(
-                model: 'delivery_notes',
-                field: 'status',
-                enum: DeliveryNoteStatusEnum::class,
-                models: DeliveryNote::class,
-                where: function ($q) use ($customer) {
-                    $q->where('customer_id', $customer->id);
-                }
-            )
-        );
 
         $customer->stats()->update($stats);
     }

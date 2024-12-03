@@ -9,7 +9,6 @@
 namespace App\Stubs\Migrations;
 
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Enums\Ordering\Order\OrderHandingTypeEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
@@ -101,15 +100,14 @@ trait HasOrderingStats
             $table->unsignedInteger('number_delivery_notes_state_'.$case->snake())->default(0);
         }
 
-        foreach (DeliveryNoteStatusEnum::cases() as $case) {
-            $table->unsignedInteger('number_delivery_notes_status_'.$case->snake())->default(0);
-        }
-
         foreach (DeliveryNoteStateEnum::cases() as $case) {
             if ($case->value != 'cancelled') {
                 $table->unsignedInteger('number_delivery_notes_cancelled_at_state_'.$case->snake())->default(0);
             }
         }
+
+        $table->unsignedInteger('number_delivery_notes_state_with_out_of_stock')->default(0);
+
 
         return $table;
     }

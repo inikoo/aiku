@@ -9,7 +9,6 @@
 namespace App\Models\Dispatching;
 
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -55,7 +54,6 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $reference
  * @property DeliveryNoteTypeEnum $type
  * @property DeliveryNoteStateEnum $state
- * @property DeliveryNoteStatusEnum $status
  * @property bool|null $can_dispatch
  * @property bool|null $restocking
  * @property string|null $email
@@ -66,20 +64,25 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $weight
  * @property int $number_stocks
  * @property int $number_picks
+ * @property bool $has_out_of_stocks
+ * @property string $picking_percentage
+ * @property string $packing_percentage
  * @property int|null $picker_id Main picker
  * @property int|null $packer_id Main packer
  * @property \Illuminate\Support\Carbon $date
- * @property string|null $submitted_at
- * @property string|null $in_queue_at
- * @property string|null $picker_assigned_at
- * @property \Illuminate\Support\Carbon|null $picking_at
- * @property \Illuminate\Support\Carbon|null $picked_at
- * @property \Illuminate\Support\Carbon|null $packing_at
+ * @property string|null $queued_at
+ * @property string|null $handling_at
+ * @property string|null $handling_blocked_at
  * @property \Illuminate\Support\Carbon|null $packed_at
  * @property string|null $finalised_at
- * @property string|null $settled_at
  * @property \Illuminate\Support\Carbon|null $dispatched_at
  * @property \Illuminate\Support\Carbon|null $cancelled_at
+ * @property string|null $start_picking
+ * @property string|null $end_picking
+ * @property string|null $start_packing
+ * @property string|null $end_packing
+ * @property string|null $picking_on_hold_time Time when picking was put on hold (seconds)
+ * @property string|null $packing_on_hold_time Time when packing was put on hold (seconds)
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -127,7 +130,6 @@ class DeliveryNote extends Model implements Auditable
         'data'   => 'array',
         'state'  => DeliveryNoteStateEnum::class,
         'type'   => DeliveryNoteTypeEnum::class,
-        'status' => DeliveryNoteStatusEnum::class,
 
         'date'               => 'datetime',
         'order_submitted_at' => 'datetime',

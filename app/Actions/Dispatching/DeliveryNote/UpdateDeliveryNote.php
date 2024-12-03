@@ -19,7 +19,6 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDeliveryNotes
 use App\Actions\Traits\WithActionUpdate;
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Http\Resources\Dispatching\DeliveryNoteResource;
 use App\Models\Dispatching\DeliveryNote;
 use App\Rules\IUnique;
@@ -96,7 +95,6 @@ class UpdateDeliveryNote extends OrgAction
                 ),
             ],
             'state'            => ['sometimes', 'required', new Enum(DeliveryNoteStateEnum::class)],
-            'status'           => ['sometimes', 'required', new Enum(DeliveryNoteStatusEnum::class)],
             'email'            => ['sometimes', 'nullable', 'string', 'email'],
             'phone'            => ['sometimes', 'nullable', 'string'],
             'date'             => ['sometimes', 'date'],

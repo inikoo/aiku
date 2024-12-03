@@ -10,14 +10,14 @@ namespace App\Enums\Dispatching\Picking;
 
 use App\Enums\EnumHelperTrait;
 
-enum PickingVesselEnum: string
+enum PickingEngineEnum: string
 {
     use EnumHelperTrait;
 
     case AIKU               = 'aiku';
     case MAYA               = 'maya';
 
-    public static function labels($forElements = false): array
+    public static function labels(): array
     {
         return [
             'aiku'              => __('Aiku'),

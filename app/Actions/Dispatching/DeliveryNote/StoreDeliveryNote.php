@@ -17,7 +17,6 @@ use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateDeliveryNotes
 use App\Actions\Traits\WithFixedAddressActions;
 use App\Actions\Traits\WithModelAddressActions;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Ordering\Order;
 use App\Rules\IUnique;
@@ -125,11 +124,7 @@ class StoreDeliveryNote extends OrgAction
                 'required',
                 new Enum(DeliveryNoteStateEnum::class)
             ];
-            $rules['status'] = [
-                'sometimes',
-                'required',
-                new Enum(DeliveryNoteStatusEnum::class)
-            ];
+
 
             $rules['delivery_address'] = ['required', new ValidAddress()];
             $rules['reference']        = ['required', 'max:64', 'string'];

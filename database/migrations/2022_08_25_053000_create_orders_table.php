@@ -76,7 +76,7 @@ return new class () extends Migration {
             $table->dateTimeTz('settled_at')->nullable()->comment('dispatched_at|cancelled_at');
 
             $table->boolean('is_invoiced')->default('false');
-            $table->boolean('is_picking_on_hold')->nullable();
+            $table->boolean('is_handling_on_hold')->nullable();
             $table->boolean('can_dispatch')->nullable();
             $table->text('customer_notes')->nullable();
             $table->text('public_notes')->nullable();

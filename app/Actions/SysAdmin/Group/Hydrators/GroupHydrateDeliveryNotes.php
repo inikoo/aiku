@@ -11,7 +11,6 @@ namespace App\Actions\SysAdmin\Group\Hydrators;
 use App\Actions\Traits\Hydrators\WithHydrateDeliveryNotes;
 use App\Actions\Traits\WithEnumStats;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
-use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStatusEnum;
 use App\Enums\Dispatching\DeliveryNote\DeliveryNoteTypeEnum;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\SysAdmin\Group;
@@ -65,20 +64,6 @@ class GroupHydrateDeliveryNotes
                 }
             )
         );
-
-        $stats = array_merge(
-            $stats,
-            $this->getEnumStats(
-                model: 'delivery_notes',
-                field: 'status',
-                enum: DeliveryNoteStatusEnum::class,
-                models: DeliveryNote::class,
-                where: function ($q) use ($group) {
-                    $q->where('group_id', $group->id);
-                }
-            )
-        );
-
 
 
         $group->orderingStats()->update($stats);

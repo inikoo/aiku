@@ -14,66 +14,56 @@ enum DeliveryNoteStateEnum: string
 {
     use EnumHelperTrait;
 
-    case SUBMITTED       = 'submitted';
-    case IN_QUEUE        = 'in_queue';
-    case PICKER_ASSIGNED = 'picker_assigned';
-    case PICKING         = 'picking';
-    case PICKED          = 'picked';
-    case PACKING         = 'packing';
-    case PACKED          = 'packed';
-    case FINALISED       = 'finalised';
-    case SETTLED         = 'settled';
 
-    public static function labels($forElements = false): array
+    case UNASSIGNED = 'unassigned';
+    case QUEUED = 'queued'; // picker assigned
+    case HANDLING = 'handling'; // picking and packing
+    case HANDLING_BLOCKED = 'handling-blocked';
+    case PACKED = 'packed';
+    case FINALISED = 'finalised';
+    case DISPATCHED = 'dispatched';
+    case CANCELLED = 'cancelled';
+
+
+    public static function labels(): array
     {
         return [
-            'submitted'            => __('Submitted'),
-            'in_queue'             => __('In Queue'),
-            'picker_assigned'      => __('Picker Assigned'),
-            'picking'              => __('Picking'),
-            'picked'               => __('Picked'),
-            'packing'              => __('Packing'),
-            'packed'               => __('Packed'),
-            'finalised'            => __('Finalised'),
-            'settled'              => __('Settled'),
+            'unassigned' => __('Unassigned'),
+            'queued'     => __('In Queue'),
+            'handling'   => __('Handling'),
+            'handling-blocked' => __('Handling Blocked'),
+            'packed'     => __('Packed'),
+            'finalised'  => __('Finalised'),
+            'dispatched' => __('Dispatched'),
+            'cancelled'  => __('Cancelled')
         ];
     }
 
     public static function stateIcon(): array
     {
         return [
-            'submitted'   => [
-                'tooltip' => __('Submitted'),
-                'icon'    => 'fal fa-paper-plane',
-                'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
-                'color'   => 'lime',  // Color for box (Retina)
+            'unassigned' => [
+                'tooltip' => __('Unassigned'),
+                'icon'    => 'fal fa-chair',
+                'class'   => 'text-grey-500',  // Color for normal icon (Aiku)
+                'color'   => 'grey',  // Color for box (Retina)
                 'app'     => [
-                    'name' => 'seedling',
+                    'name' => 'chair',
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'in_queue'    => [
+            'queued'     => [
                 'tooltip' => __('In Queue'),
-                'icon'    => 'fal fa-hourglass-half',
-                'class'   => 'text-gray-500',
-                'color'   => 'gray',
+                'icon'    => 'fal fa-chair',
+                'class'   => 'text-lime-500',
+                'color'   => 'lime',
                 'app'     => [
-                    'name' => 'share',
+                    'name' => 'chair',
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'picker_assigned'    => [
-                'tooltip' => __('Picker Assigned'),
-                'icon'    => 'fal fa-user-check',
-                'class'   => 'text-gray-500',
-                'color'   => 'gray',
-                'app'     => [
-                    'name' => 'spell-check',
-                    'type' => 'font-awesome-5'
-                ]
-            ],
-            'picking'     => [
-                'tooltip' => __('Picking'),
+            'handling'   => [
+                'tooltip' => __('Handling'),
                 'icon'    => 'fal fa-hand-paper',
                 'class'   => 'text-gray-500',
                 'color'   => 'gray',
@@ -82,8 +72,18 @@ enum DeliveryNoteStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'picked' => [
-                'tooltip' => __('Picked'),
+            'handling-blocked' => [
+                'tooltip' => __('Handling Blocked'),
+                'icon'    => 'fal fa-hand-paper',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
+                'app'     => [
+                    'name' => 'check',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'packed'     => [
+                'tooltip' => __('Packed'),
                 'icon'    => 'fal fa-box-check',
                 'class'   => 'text-gray-500',
                 'color'   => 'gray',
@@ -92,18 +92,19 @@ enum DeliveryNoteStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'packing'   => [
-                'tooltip' => __('Packing'),
-                'icon'    => 'fal fa-box-open',
+            'finalised'  => [
+                'tooltip' => __('Finalised'),
+                'icon'    => 'fal fa-box-check',
                 'class'   => 'text-gray-500',
                 'color'   => 'gray',
                 'app'     => [
-                    'name' => 'check',
+                    'name' => 'times',
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'settled'    => [
-                'tooltip' => __('Settled'),
+
+            'dispatched' => [
+                'tooltip' => __('Dispatched'),
                 'icon'    => 'fal fa-check-double',
                 'class'   => 'text-gray-500',
                 'color'   => 'gray',
@@ -112,16 +113,17 @@ enum DeliveryNoteStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'finalised'    => [
-                'tooltip' => __('Finalised'),
-                'icon'    => 'fal fa-tasks',
-                'class'   => 'text-purple-500',
-                'color'   => 'purple',
+            'cancelled'  => [
+                'tooltip' => __('Cancelled'),
+                'icon'    => 'fal fa-times',
+                'class'   => 'text-gray-500',
+                'color'   => 'gray',
                 'app'     => [
-                    'name' => 'check-double',
+                    'name' => 'times',
                     'type' => 'font-awesome-5'
                 ]
-            ],
+            ]
+
         ];
     }
 }

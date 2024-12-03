@@ -9,7 +9,6 @@
 namespace App\Models\Dispatching;
 
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
-use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
 use App\Models\Inventory\OrgStock;
 use App\Models\Traits\InShop;
 use Eloquent;
@@ -33,7 +32,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property int|null $transaction_id
  * @property string|null $notes
  * @property DeliveryNoteItemStateEnum $state
- * @property DeliveryNoteItemStatusEnum $status
  * @property string|null $weight
  * @property string $quantity_required
  * @property string|null $quantity_picked
@@ -65,8 +63,6 @@ class DeliveryNoteItem extends Model
     protected $casts = [
         'data'   => 'array',
         'state'  => DeliveryNoteItemStateEnum::class,
-        'status' => DeliveryNoteItemStatusEnum::class,
-
     ];
 
     protected $attributes = [

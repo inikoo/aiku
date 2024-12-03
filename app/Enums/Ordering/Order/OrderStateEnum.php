@@ -21,10 +21,10 @@ enum OrderStateEnum: string
 
     case CREATING     = 'creating';
     case SUBMITTED    = 'submitted';
-    case IN_WAREHOUSE = 'in_warehouse';
-    case HANDLING     = 'handling';
-    case PACKED       = 'packed';
-    case FINALISED    = 'finalised';
+    case IN_WAREHOUSE = 'in_warehouse'; // Waiting to be picked
+    case HANDLING     = 'handling';  // Being picked
+    case PACKED       = 'packed';  // Packed and ready to be dispatched
+    case FINALISED    = 'finalised';  // Invoiced and ready to be dispatched
     case DISPATCHED   = 'dispatched';
     case CANCELLED    = 'cancelled';
 

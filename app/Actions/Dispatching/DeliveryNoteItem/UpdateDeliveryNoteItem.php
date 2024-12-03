@@ -11,7 +11,6 @@ namespace App\Actions\Dispatching\DeliveryNoteItem;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
-use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
 use App\Models\Dispatching\DeliveryNoteItem;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
@@ -52,7 +51,6 @@ class UpdateDeliveryNoteItem extends OrgAction
                 Rule::Exists('transactions', 'id')->where('shop_id', $this->shop->id)
             ];
             $rules['state']               = ['sometimes', 'nullable', Rule::enum(DeliveryNoteItemStateEnum::class)];
-            $rules['status']              = ['sometimes', 'nullable', Rule::enum(DeliveryNoteItemStatusEnum::class)];
             $rules['quantity_required']   = ['sometimes', 'numeric'];
             $rules['quantity_picked']     = ['sometimes', 'numeric'];
             $rules['quantity_packed']     = ['sometimes', 'numeric'];

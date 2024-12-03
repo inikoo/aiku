@@ -7,7 +7,6 @@
  */
 
 use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStateEnum;
-use App\Enums\Dispatching\DeliveryNoteItem\DeliveryNoteItemStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -43,8 +42,7 @@ return new class () extends Migration {
 
             $table->string('notes')->nullable();
 
-            $table->string('state')->default(DeliveryNoteItemStateEnum::ON_HOLD->value)->index();
-            $table->string('status')->default(DeliveryNoteItemStatusEnum::HANDLING->value)->index();
+            $table->string('state')->default(DeliveryNoteItemStateEnum::QUEUED->value)->index();
 
             $table->decimal('weight', 16, 3)->nullable();
 
