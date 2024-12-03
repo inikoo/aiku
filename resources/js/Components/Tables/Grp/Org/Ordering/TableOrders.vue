@@ -108,7 +108,9 @@ function customerRoute(order: Order) {
 
         <!-- Column: Date -->
         <template #cell(date)="{ item: order }">
-            {{ useFormatTime(order.date,  { localeCode: locale.language.code, formatTime: "aiku" }) }}
+            <div class="text-right">
+                {{ useFormatTime(order.date,  { localeCode: locale.language.code, formatTime: "aiku" }) }}
+            </div>
         </template>
     </Table>
 </template>

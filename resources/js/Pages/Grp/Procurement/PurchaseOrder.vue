@@ -309,7 +309,7 @@ const fallbackColor = "#374151"
 
 	<!-- Section: Timeline -->
 	<div
-		v-if="data?.data?.state != 'in-process'"
+		v-if="data?.data?.state != 'in-process' && currentTab != 'products'"
 		class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
 		<Timeline
 			v-if="timelines"
@@ -318,7 +318,7 @@ const fallbackColor = "#374151"
 			:slidesPerView="6" />
 	</div>
 
-	<div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
+	<div v-if="currentTab != 'products'" class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
 		<BoxStatPallet class="py-2 px-3" icon="fal fa-user">
 			<!-- Field: Reference Number -->
 			<div
@@ -500,7 +500,7 @@ const fallbackColor = "#374151"
 		</BoxStatPallet>
 	</div>
 
-	<Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
+	<Tabs  v-if="currentTab != 'products'" :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
 	<div class="pb-12">
 		<component
@@ -509,10 +509,11 @@ const fallbackColor = "#374151"
 			:tab="currentTab"
 			:updateRoute="routes.updateOrderRoute"
 			:state="data?.data?.state"
-			:detachRoute="attachmentRoutes?.detachRoute" />
+			:detachRoute="attachmentRoutes?.detachRoute" 
+			:fetchRoute="routes.products_list"/>
 	</div>
 
-	<ModalProductList v-model="isModalUploadOpen" :fetchRoute="routes.products_list" :action="currentAction"  @update:tab="handleTabUpdate" />
+	<ModalProductList v-model="isModalUploadOpen" :fetchRoute="routes.products_list" :action="currentAction" :current="currentTab"  @update:tab="handleTabUpdate" />
 
 	<Modal :isOpen="isModalOpen" @onClose="closeModal">
 		<div class="min-h-72 max-h-96 px-2 overflow-auto">

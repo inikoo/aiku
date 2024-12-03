@@ -190,7 +190,7 @@ class IndexOrders extends OrgAction
 
             $table->column(key: 'state', label: '', type: 'icon', canBeHidden: false, searchable: true);
             $table->column(key: 'reference', label: __('reference'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'date', label: __('date'), canBeHidden: false, sortable: true, searchable: true, type:'number');
             if ($parent instanceof Shop) {
                 $table->column(key: 'customer_name', label: __('customer'), canBeHidden: false, searchable: true);
             }
