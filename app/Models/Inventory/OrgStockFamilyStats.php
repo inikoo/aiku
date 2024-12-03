@@ -20,12 +20,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $org_stock_family_id
  * @property int $number_org_stocks
  * @property int $number_current_org_stocks active + discontinuing
- * @property int $number_dropped_org_stocks discontinued + abnormality
  * @property int $number_org_stocks_state_active
  * @property int $number_org_stocks_state_discontinuing
  * @property int $number_org_stocks_state_discontinued
  * @property int $number_org_stocks_state_suspended
- * @property int $number_org_stocks_state_abnormality
  * @property int $number_org_stocks_quantity_status_excess
  * @property int $number_org_stocks_quantity_status_ideal
  * @property int $number_org_stocks_quantity_status_low
