@@ -31,8 +31,6 @@ class UpdatePickingStateToDone extends OrgAction
     {
         data_set($modelData, 'packed_at', now());
         data_set($modelData, 'state', PickingStateEnum::DONE->value);
-        data_set($modelData, 'outcome', PickingNotPickedReasonEnum::PACKED->value);
-        data_set($modelData, 'vessel_packing', PickingEngineEnum::AIKU->value);
 
         return $this->update($picking, $modelData);
     }

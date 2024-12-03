@@ -117,7 +117,6 @@ class FetchAuroraDeliveryNote extends FetchAurora
             "reference"        => $reference,
             'date'             => $this->auroraModelData->{'Delivery Note Date Created'},
             "state"            => $state,
-            "status"           => $status,
             "source_id"        => $this->organisation->id.':'.$this->auroraModelData->{'Delivery Note Key'},
             "created_at"       => $this->auroraModelData->{'Delivery Note Date Created'},
             'picking_at'       => $this->auroraModelData->{'Delivery Note Date Start Picking'},

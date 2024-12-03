@@ -29,8 +29,7 @@ class UpdatePickingStateToPicked extends OrgAction
     public function handle(Picking $picking): Picking
     {
         data_set($modelData, 'picked_at', now());
-        data_set($modelData, 'state', PickingStateEnum::PICKED->value);
-        data_set($modelData, 'vessel_picking', PickingEngineEnum::AIKU->value);
+        data_set($modelData, 'state', PickingStateEnum::DONE->value);
 
         return $this->update($picking, $modelData);
     }

@@ -12,9 +12,7 @@ use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\CRM\Customer\UI\ShowCustomer;
 use App\Actions\CRM\Customer\UI\ShowCustomerClient;
 use App\Actions\OrgAction;
-use App\Enums\UI\Ordering\OrdersTabsEnum;
 use App\Http\Resources\Dispatching\PickingsResource;
-use App\Http\Resources\Ordering\OrdersResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Dispatching\DeliveryNote;
 use App\Models\Dispatching\Picking;
@@ -31,8 +29,6 @@ use Spatie\QueryBuilder\AllowedFilter;
 
 class IndexPickings extends OrgAction
 {
-    private DeliveryNote $parent;
-
     public function handle(DeliveryNote $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
@@ -67,12 +63,11 @@ class IndexPickings extends OrgAction
                 'packer_employees.contact_name as packer_name',
                 'pickings.picker_id',
                 'pickings.packer_id',
-                'pickings.vessel_picking',
-                'pickings.vessel_packing',
+                'pickings.engine',
                 'pickings.location_id',
                 'pickings.state',
             ])
-            ->allowedSorts(['id', 'org_stock_code', 'org_stock_name', 'picker_name', 'packer_name', 'vessel_picking', 'vessel_packing' ])
+            ->allowedSorts(['id', 'org_stock_code', 'org_stock_name', 'picker_name', 'packer_name', 'engine' ])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();
@@ -101,8 +96,7 @@ class IndexPickings extends OrgAction
             $table->column(key: 'quantity_required', label: __('Quantity Required'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'picker_name', label: __('Picker'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'packer_name', label: __('Packer'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'vessel_picking', label: __('Picking Vessel'), canBeHidden: false, sortable: true, searchable: true);
-            $table->column(key: 'vessel_packing', label: __('Packing Vessel'), canBeHidden: false, sortable: true, searchable: true);
+            $table->column(key: 'engine', label: __('engine'), canBeHidden: false, sortable: true, searchable: true);
             $table->column(key: 'actions', label: __('Actions'), canBeHidden: false);
         };
     }
@@ -142,24 +136,15 @@ class IndexPickings extends OrgAction
                 ],
                 'data'        => PickingsResource::collection($pickings),
 
-                // 'tabs'        => [
-                //     'current'    => $this->tab,
-                //     'navigation' => OrdersTabsEnum::navigation(),
-                // ],
-
-                // OrdersTabsEnum::ORDERS->value => $this->tab == OrdersTabsEnum::ORDERS->value ?
-                //     fn () => OrdersResource::collection($orders)
-                //     : Inertia::lazy(fn () => OrdersResource::collection($orders)),
 
 
             ]
         );
-        // ->table($this->tableStructure($this->parent, OrdersTabsEnum::ORDERS->value));
+
     }
 
     public function asController(Organisation $organisation, Warehouse $warehouse, DeliveryNote $deliveryNote, ActionRequest $request): LengthAwarePaginator
     {
-        $this->parent = $deliveryNote;
         $this->initialisationFromWarehouse($warehouse, $request);
 
         return $this->handle(parent: $deliveryNote);

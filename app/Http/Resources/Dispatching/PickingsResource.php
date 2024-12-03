@@ -41,8 +41,7 @@ class PickingsResource extends JsonResource
                     ]
             ],
             // 'packer_name'         => $this->packer_name    ?? null,
-            'vessel_picking'      => $this->vessel_picking            ?? null,
-            'vessel_packing'      => $this->vessel_packing            ?? null,
+            'engine'      => $this->engine            ?? null,
             'picking_at'          => $this->picking_at                ?? null,
             'picked_at'           => $this->picked_at                 ?? null,
             'packing_at'          => $this->packing_at                ?? null,

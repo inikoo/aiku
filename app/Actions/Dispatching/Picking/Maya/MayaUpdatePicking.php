@@ -32,7 +32,7 @@ class MayaUpdatePicking extends OrgAction
     {
         data_set($modelData, 'picker_id', request()->user()->id);
         data_set($modelData, 'picked_at', now());
-        data_set($modelData, 'state', PickingStateEnum::PICKED->value);
+        data_set($modelData, 'state', PickingStateEnum::DONE->value);
 
         return $this->update($picking, $modelData);
     }
@@ -40,10 +40,8 @@ class MayaUpdatePicking extends OrgAction
     public function rules(): array
     {
         return [
-            'state'                 => ['sometimes', Rule::enum(PickingStateEnum::class)],
-            'outcome'               => ['sometimes', Rule::enum(PickingNotPickedReasonEnum::class)],
-            'vessel_picking'        => ['sometimes', Rule::enum(PickingEngineEnum::class)],
-            'vessel_packing'        => ['sometimes', Rule::enum(PickingEngineEnum::class)]
+            'state'  => ['sometimes', Rule::enum(PickingStateEnum::class)],
+            'engine' => ['sometimes', Rule::enum(PickingEngineEnum::class)],
         ];
     }
 

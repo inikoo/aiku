@@ -140,6 +140,7 @@ test('update delivery note', function ($lastDeliveryNote) {
 })->depends('create delivery note');
 
 test('create delivery note item', function (DeliveryNote $deliveryNote) {
+    /** @var HistoricAsset $historicAsset */
     $historicAsset = HistoricAsset::find(1);
     try {
         $stock       = StoreStock::make()->action($this->group, Stock::factory()->definition());
@@ -195,6 +196,7 @@ test('create second delivery note', function () {
 });
 
 test('create second delivery note item', function (DeliveryNote $deliveryNote) {
+    /** @var HistoricAsset $historicAsset */
     $historicAsset = HistoricAsset::find(1);
     try {
         $stock       = StoreStock::make()->action($this->group, Stock::factory()->definition());
