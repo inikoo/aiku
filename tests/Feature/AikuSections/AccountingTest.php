@@ -9,6 +9,7 @@
 use App\Actions\Accounting\CreditTransaction\DeleteCreditTransaction;
 use App\Actions\Accounting\CreditTransaction\UpdateCreditTransaction;
 use App\Actions\Accounting\InvoiceCategory\StoreInvoiceCategory;
+use App\Actions\Accounting\InvoiceCategory\UpdateInvoiceCategory;
 use App\Actions\Accounting\OrgPaymentServiceProvider\StoreOrgPaymentServiceProvider;
 use App\Actions\Accounting\Payment\StorePayment;
 use App\Actions\Accounting\Payment\UpdatePayment;
@@ -459,3 +460,18 @@ test('store invoice category', function () {
 
     return $invoiceCategory;
 });
+
+test('update invoice category', function (InvoiceCategory $invoiceCategory) {
+    $invoiceCategory = UpdateInvoiceCategory::make()->action($invoiceCategory, [
+        'name'    => 'Test Up Inv Cate',
+        'state'   => InvoiceCategoryStateEnum::CLOSED
+    ]);
+
+    $invoiceCategory->refresh();
+
+    expect($invoiceCategory)->toBeInstanceOf(InvoiceCategory::class)
+        ->and($invoiceCategory->name)->toBe('Test Up Inv Cate')
+        ->and($invoiceCategory->state)->toBe(InvoiceCategoryStateEnum::CLOSED);
+
+    return $invoiceCategory;
+})->depends('store invoice category');
