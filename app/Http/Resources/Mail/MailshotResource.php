@@ -69,7 +69,7 @@ class MailshotResource extends JsonResource
                 'current'   => isset($mailshot->sent_at),
             ],
         ];
-        
+
 
         $newStats = [
             [
@@ -143,7 +143,7 @@ class MailshotResource extends JsonResource
                 'value' => $value = MailshotStatResource::make($mailshot->stats)->toArray(request())['number_unsubscribed_emails'],
             ],
         ];
-        
+
 
         return [
             'id'                  => $mailshot->id,

@@ -25,7 +25,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_organisations_state_discontinuing
  * @property int $number_organisations_state_discontinued
  * @property int $number_organisations_state_suspended
- * @property int $number_organisations_state_abnormality
  * @property int $number_organisations_quantity_status_excess
  * @property int $number_organisations_quantity_status_ideal
  * @property int $number_organisations_quantity_status_low

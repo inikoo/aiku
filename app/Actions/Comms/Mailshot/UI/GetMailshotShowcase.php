@@ -6,7 +6,7 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
- namespace App\Actions\Comms\Mailshot\UI;
+namespace App\Actions\Comms\Mailshot\UI;
 
 use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Comms\Mailshot;

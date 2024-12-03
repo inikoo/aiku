@@ -8,7 +8,6 @@
 
 namespace App\Actions\Comms\Mailshot\UI;
 
-use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Comms\Mailshot;
 use Lorisleiva\Actions\Concerns\AsObject;
 
@@ -19,7 +18,7 @@ class GetMailshotPreview
     public function handle(Mailshot $mailshot): array
     {
         return [
-            'mailshot' => $mailshot,
+            'layout' => $mailshot->email->snapshot->layout
         ];
     }
 }
