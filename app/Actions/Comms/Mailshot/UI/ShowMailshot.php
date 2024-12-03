@@ -10,7 +10,6 @@ namespace App\Actions\Comms\Mailshot\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Enums\UI\Inventory\LocationTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Mailshot;
@@ -21,6 +20,9 @@ use Inertia\Inertia;
 use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
+use App\Enums\UI\Mail\MailshotTabsEnum;
+use App\Actions\Comms\Mailshot\UI\GetMailshotPreview;
+use App\Actions\Comms\Mailshot\UI\GetMailshotShowcase;
 
 /**
  * @property Mailshot $mailshot
@@ -38,7 +40,7 @@ class ShowMailshot extends OrgAction
     public function inOrganisation(Mailshot $mailshot, ActionRequest $request): Mailshot
     {
 
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(MailshotTabsEnum::values());
         return $this->handle($mailshot);
     }
 
@@ -46,14 +48,14 @@ class ShowMailshot extends OrgAction
     public function inOutbox(Outbox $outbox, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
 
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(MailshotTabsEnum::values());
         return $this->handle($mailshot);
     }
 
     /** @noinspection PhpUnusedParameterInspection */
     public function inShop(Organisation $organisation, Shop $shop, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(MailshotTabsEnum::values());
 
         return $this->handle($mailshot);
     }
@@ -62,7 +64,7 @@ class ShowMailshot extends OrgAction
     public function inPostRoom(PostRoom $postRoom, Mailshot $mailshot, ActionRequest $request): Mailshot
     {
 
-        $this->initialisation($request);
+        $this->initialisation($request)->withTab(MailshotTabsEnum::values());
         return $this->handle($mailshot);
     }
 
@@ -82,14 +84,18 @@ class ShowMailshot extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
-
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,
-                    'navigation' => LocationTabsEnum::navigation()
-
+                    'navigation' => MailshotTabsEnum::navigation()
                 ],
-                'mailshot' => $mailshot
+                MailshotTabsEnum::SHOWCASE->value => $this->tab == MailshotTabsEnum::SHOWCASE->value ?
+                    fn () => GetMailshotShowcase::run($mailshot)
+                    : Inertia::lazy(fn () => GetMailshotShowcase::run($mailshot)),
+
+                MailshotTabsEnum::EMAIL_PREVIEW->value => $this->tab == MailshotTabsEnum::EMAIL_PREVIEW->value ?
+                    fn () => GetMailshotPreview::run($mailshot)
+                    : Inertia::lazy(fn () => GetMailshotPreview::run($mailshot)),
             ]
         );
     }
