@@ -19,6 +19,7 @@ use App\Actions\CRM\CustomerNote\UpdateCustomerNote;
 use App\Actions\CRM\Favourite\StoreFavourite;
 use App\Actions\CRM\Favourite\UpdateFavourite;
 use App\Actions\CRM\Poll\StorePoll;
+use App\Actions\CRM\Poll\UpdatePoll;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
@@ -397,3 +398,30 @@ test('store poll', function () {
 
     return $poll;
 });
+
+test('update poll', function (Poll $poll) {
+
+    $poll = UpdatePoll::make()->action(
+        $poll,
+        [
+            'name' => 'namee update',
+            'label' => 'name update',
+            'in_registration' => true,
+            'in_registration_required' => false,
+            'in_iris' => false,
+            'in_iris_required' => false,
+        ]
+    );
+
+    $poll->refresh();
+
+    expect($poll)->toBeInstanceOf(Poll::class)
+        ->and($poll->name)->toBe('namee update')
+        ->and($poll->label)->toBe('name update')
+        ->and($poll->in_registration)->toBe(true)
+        ->and($poll->in_registration_required)->toBe(false)
+        ->and($poll->in_iris)->toBe(false)
+        ->and($poll->in_iris_required)->toBe(false);
+
+    return $poll;
+})->depends('store poll');
