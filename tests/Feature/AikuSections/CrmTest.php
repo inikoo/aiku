@@ -20,6 +20,7 @@ use App\Actions\CRM\Favourite\StoreFavourite;
 use App\Actions\CRM\Favourite\UpdateFavourite;
 use App\Actions\CRM\Poll\StorePoll;
 use App\Actions\CRM\Poll\UpdatePoll;
+use App\Actions\CRM\PollOption\StorePollOption;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
@@ -34,6 +35,7 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\CustomerNote;
 use App\Models\CRM\Favourite;
 use App\Models\CRM\Poll;
+use App\Models\CRM\PollOption;
 use App\Models\CRM\Prospect;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Query;
@@ -381,7 +383,7 @@ test('store poll', function () {
             'in_registration_required' => true,
             'in_iris' => true,
             'in_iris_required' => true,
-            'type'  => PollTypeEnum::OPEN_QUESTION
+            'type'  => PollTypeEnum::OPTION
         ]
     );
 
@@ -394,7 +396,7 @@ test('store poll', function () {
         ->and($poll->in_registration_required)->toBe(true)
         ->and($poll->in_iris)->toBe(true)
         ->and($poll->in_iris_required)->toBe(true)
-        ->and($poll->type)->toBe(PollTypeEnum::OPEN_QUESTION);
+        ->and($poll->type)->toBe(PollTypeEnum::OPTION);
 
     return $poll;
 });
@@ -404,8 +406,8 @@ test('update poll', function (Poll $poll) {
     $poll = UpdatePoll::make()->action(
         $poll,
         [
-            'name' => 'namee update',
-            'label' => 'name update',
+            'name' => 'optionss',
+            'label' => 'some option',
             'in_registration' => true,
             'in_registration_required' => false,
             'in_iris' => false,
@@ -416,8 +418,8 @@ test('update poll', function (Poll $poll) {
     $poll->refresh();
 
     expect($poll)->toBeInstanceOf(Poll::class)
-        ->and($poll->name)->toBe('namee update')
-        ->and($poll->label)->toBe('name update')
+        ->and($poll->name)->toBe('optionss')
+        ->and($poll->label)->toBe('some option')
         ->and($poll->in_registration)->toBe(true)
         ->and($poll->in_registration_required)->toBe(false)
         ->and($poll->in_iris)->toBe(false)
@@ -425,3 +427,26 @@ test('update poll', function (Poll $poll) {
 
     return $poll;
 })->depends('store poll');
+
+test('store poll option', function (Poll $poll) {
+
+    $pollOption = StorePollOption::make()->action(
+        $poll,
+        [
+            'value' => 'value1',
+            'label' => '1',
+        ]
+    );
+
+    $pollOption->refresh();
+    $poll->refresh();
+
+    expect($pollOption)->toBeInstanceOf(PollOption::class)
+        ->and($pollOption->value)->toBe('value1')
+        ->and($pollOption->label)->toBe('1');
+
+    expect($poll)->toBeInstanceOf(Poll::class)
+        ->and($poll->pollOptions->count())->toBe(1);
+
+    return $pollOption;
+})->depends('update poll');
