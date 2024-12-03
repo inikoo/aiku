@@ -21,8 +21,6 @@ use Inertia\Response;
 use JetBrains\PhpStorm\Pure;
 use Lorisleiva\Actions\ActionRequest;
 use App\Enums\UI\Mail\MailshotTabsEnum;
-use App\Actions\Comms\Mailshot\UI\GetMailshotPreview;
-use App\Actions\Comms\Mailshot\UI\GetMailshotShowcase;
 
 /**
  * @property Mailshot $mailshot
