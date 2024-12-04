@@ -528,6 +528,30 @@ test('store open question poll reply', function (Customer $customer, Poll $poll)
     return $pollReply;
 })->depends('create customer', 'store open question poll');
 
+test('store option poll reply', function (Customer $customer, PollOption $pollOption) {
+
+    $poll = $pollOption->poll;
+
+    $pollReply = StorePollReply::make()->action(
+        $poll,
+        [
+            'customer_id' => $customer->id,
+            'poll_option_id' => $pollOption->id
+        ]
+    );
+
+    $pollReply->refresh();
+    $poll->refresh();
+
+    expect($poll)->toBeInstanceOf(Poll::class)
+        ->and($poll->pollReplies->count())->toBe(1);
+
+    expect($pollReply)->toBeInstanceOf(PollReply::class)
+        ->and($pollReply->poll_option_id)->toBe($pollOption->id);
+
+    return $pollReply;
+})->depends('create customer', 'update poll option');
+
 test('update open question poll reply', function (PollReply $pollReply) {
 
     $pollReply = UpdatePollReply::make()->action(
