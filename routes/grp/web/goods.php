@@ -6,7 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-
+use App\Actions\Goods\Ingredient\UI\IndexIngredients;
+use App\Actions\Goods\Ingredient\UI\ShowIngredient;
 use App\Actions\Goods\Stock\ExportStocks;
 use App\Actions\Goods\Stock\UI\CreateStock;
 use App\Actions\Goods\Stock\UI\EditStock;
@@ -132,3 +133,11 @@ Route::prefix('catalogue')->as('catalogue.')->group(function () {
         // Route::get('edit', EditTradeUnit::class)->name('edit');
     });
 });
+
+Route::prefix('ingredients')->as('ingredients.')->group(function () {
+    Route::get('/', IndexIngredients::class)->name('index');
+    Route::prefix('{ingredient:slug}')->group(function () {
+        Route::get('', ShowIngredient::class)->name('show');
+    });
+});
+

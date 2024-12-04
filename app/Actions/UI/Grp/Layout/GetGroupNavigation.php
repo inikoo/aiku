@@ -71,6 +71,16 @@ class GetGroupNavigation
 
                             ]
                         ],
+                        [
+                            'label' => 'Ingredients',
+                            'icon'  => ['fal', 'fa-atom'],
+                            'root'  => 'grp.goods.ingredients.',
+                            'route' => [
+                                'name'       => 'grp.goods.ingredients.index',
+                                'parameters' => []
+
+                            ]
+                        ],
 
                     ]
                 ]
