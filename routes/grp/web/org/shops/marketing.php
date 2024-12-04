@@ -11,6 +11,7 @@ use App\Actions\Comms\Mailshot\UI\EditMailshot;
 use App\Actions\Comms\Mailshot\UI\IndexMarketingMailshots;
 use App\Actions\Comms\Mailshot\UI\IndexNewsletterMailshots;
 use App\Actions\Comms\Mailshot\UI\ShowMailshot;
+use App\Actions\Comms\Mailshot\UI\ShowMailshotWorkshop;
 use App\Actions\UI\Dropshipping\Marketing\ShowMarketingDashboard;
 use App\Stubs\UIDummies\CreateDummy;
 use App\Stubs\UIDummies\EditDummy;
@@ -31,6 +32,7 @@ Route::name("mailshots.")->prefix('mailshots')
         Route::get('', [IndexMarketingMailshots::class, 'inShop'])->name('index');
         Route::get('create', CreateMailshot::class)->name('create');
         Route::get('{mailshot}', [ShowMailshot::class, 'inShop'])->name('show');
+        Route::get('{mailshot}/workshop', ShowMailshotWorkshop::class)->name('workshop');
         Route::get('{mailshot}/edit', EditMailshot::class)->name('edit');
     });
 Route::name("notifications.")->prefix('notifications')
