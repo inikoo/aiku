@@ -143,7 +143,7 @@ const isModalOpen = ref(false)
 const noteModalValue = ref(props.box_stats.mid_block.notes || "")
 const currentAction = ref(null);
 const isLoadingButton = ref<string | boolean>(false)
-const isModalUploadOpen = ref(false)
+const isModalUploadOpen = ref(true)
 const isSubmitNoteLoading = ref(false)
 
 //submit notes
@@ -194,8 +194,8 @@ const fallbackColor = "#374151"
 
 <template>
 	<Head :title="capitalize(title)" />
-	<PageHeading :data="pageHead">
-		<template #button-add-products="{ action }">
+	<PageHeading :data="pageHead" v-if="currentTab != 'products'">
+		<template #button-add-products="{ action }" >
 			<div class="relative">
 				<Popover>
 					<template #button="{ open }">
@@ -510,7 +510,10 @@ const fallbackColor = "#374151"
 			:updateRoute="routes.updateOrderRoute"
 			:state="data?.data?.state"
 			:detachRoute="attachmentRoutes?.detachRoute" 
-			:fetchRoute="routes.products_list"/>
+			:fetchRoute="routes.products_list"
+			:modalOpen="isModalUploadOpen"
+			:action="currentAction"
+			@update:tab="handleTabUpdate"/>
 	</div>
 
 	<ModalProductList v-model="isModalUploadOpen" :fetchRoute="routes.products_list" :action="currentAction" :current="currentTab"  @update:tab="handleTabUpdate" />

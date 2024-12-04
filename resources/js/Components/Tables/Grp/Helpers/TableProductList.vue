@@ -17,13 +17,26 @@ import { debounce } from "lodash"
 import { useForm } from "@inertiajs/vue3"
 import { faCloud, faCompress, faExpandArrowsAlt, faSearch, faSpinner } from "@fal"
 import { faMinus, faPlus, faSave, faUndo } from "@fas"
+import QuantityInput from "@/Components/Utils/ QuantityInput.vue"
 
-library.add(faSearch, faPlus, faMinus, faSpinner, faCloud, faUndo, faExpandArrowsAlt, faSave, faCompress)
+library.add(
+	faSearch,
+	faPlus,
+	faMinus,
+	faSpinner,
+	faCloud,
+	faUndo,
+	faExpandArrowsAlt,
+	faSave,
+	faCompress
+)
 
 const props = defineProps<{
 	fetchRoute: routeType
+	data: any
 	action: any
-	current: string | Number
+	modalOpen: boolean
+	tab: string | Number
 }>()
 
 const emits = defineEmits<{
@@ -31,7 +44,6 @@ const emits = defineEmits<{
 	(e: "update:tab", value: string): void
 }>()
 
-const model = defineModel()
 const products = ref<any[]>([])
 const optionsMeta = ref(null)
 const optionsLinks = ref(null)
@@ -39,8 +51,8 @@ const isLoading = ref<string | boolean>(false)
 const searchQuery = ref("")
 const iconStates = ref<Record<number, { increment: string; decrement: string }>>({})
 const addedProductIds = ref(new Set<number>())
-const currentTab = ref(props.current)
-console.log(props, "haha")
+const currentTab = ref(props.tab)
+const isModalUploadOpen = ref(props.modalOpen)
 
 // Check if a product is already added
 const isProductAdded = (id: number): boolean => {
@@ -51,7 +63,8 @@ const isProductAdded = (id: number): boolean => {
 const onClickProduct = async (tabSlug: string) => {
 	if (tabSlug === currentTab.value) return
 	emits("update:tab", tabSlug)
-	closeModal()
+	isModalUploadOpen.value = true
+	console.log(isModalUploadOpen.value)
 }
 
 const resetIcons = (id: number) => {
@@ -81,10 +94,6 @@ const onManualInputChange = (value: number, slotProps: any) => {
 		increment: "fal fa-cloud",
 		decrement: "fal fa-undo",
 	}
-}
-
-const closeModal = () => {
-	model.value = false
 }
 
 const resetProducts = () => {
@@ -251,16 +260,13 @@ onUnmounted(() => {
 
 <template>
 	<div class="flex-grow">
-		<DataTable
-			:value="products"
-			scrollable
-			scroll-height="400px"
-			:loading="isLoading === 'fetchProduct'">
+		<DataTable :value="products" scrollable :loading="isLoading === 'fetchProduct'">
 			<template #header>
 				<div class="flex justify-between items-center">
 					<div class="flex items-center">
 						<FontAwesomeIcon
 							icon="fal fa-compress"
+							@click="onClickProduct('transactions')"
 							v-tooltip="'minimize'"
 							class="text-gray-500 hover:text-gray-700 text-lg cursor-pointer" />
 					</div>
@@ -304,74 +310,14 @@ onUnmounted(() => {
 			</Column>
 			<Column field="code" header="Code"></Column>
 			<Column field="name" header="Description"></Column>
-			<Column header="Action">
+			<Column header="Action" style="width: 8%">
 				<template #body="slotProps">
-					<div>
-						<div v-if="!slotProps.data.inputTriggered" class="custom-input-number">
-							<InputNumber
-								v-model="slotProps.data.quantity_ordered"
-								inputClass="w-14 text-center"
-								showButtons
-								buttonLayout="horizontal"
-								@keydown.enter="onKeyDown(slotProps)"
-								@change="onValueChange(slotProps)"
-								@blur="onKeyDown(slotProps)"
-								:min="0">
-								<template #incrementicon>
-									<div
-										class="flex items-center justify-center cursor-pointer"
-										@click="onSubmitAddProducts(action, slotProps)">
-										<FontAwesomeIcon
-											size="sm"
-											icon="fas fa-plus"
-											class="text-black"
-											fixed-width
-											aria-hidden="true" />
-									</div>
-								</template>
-								<template #decrementicon>
-									<div
-										class="flex items-center justify-center cursor-pointer"
-										@click="onSubmitAddProducts(action, slotProps)">
-										<FontAwesomeIcon
-											size="sm"
-											icon="fas fa-minus"
-											class="text-black"
-											fixed-width
-											aria-hidden="true" />
-									</div>
-								</template>
-							</InputNumber>
-						</div>
-						<div v-else class="custom-input-number">
-							<InputGroup>
-								<InputGroupAddon @click="onUndoClick(slotProps.data.id)">
-									<FontAwesomeIcon
-										size="sm"
-										icon="fas fa-undo"
-										class="text-black"
-										fixed-width
-										aria-hidden="true" />
-								</InputGroupAddon>
-								<InputNumber
-									v-model="slotProps.data.quantity_ordered"
-									@update:modelValue="
-										(value) => onManualInputChange(value, slotProps)
-									"
-									buttonLayout="horizontal"
-									:style="{ width: '49px' }"
-									:min="0" />
-								<InputGroupAddon @click="onSubmitAddProducts(action, slotProps)">
-									<FontAwesomeIcon
-										icon="fas fa-save"
-										size="sm"
-										class="text-black"
-										fixed-width
-										aria-hidden="true" />
-								</InputGroupAddon>
-							</InputGroup>
-						</div>
-					</div>
+					<QuantityInput
+						:data="slotProps.data"
+						:action="action"
+						@update="onKeyDown(slotProps)"
+						@submit="onSubmitAddProducts(action, slotProps)"
+						@undo="onUndoClick" />
 				</template>
 			</Column>
 
