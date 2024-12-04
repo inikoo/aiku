@@ -120,6 +120,10 @@ class Mailshot extends Model implements Auditable
         'schedule_at',
     ];
 
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
 
     public function getSlugOptions(): SlugOptions
     {
