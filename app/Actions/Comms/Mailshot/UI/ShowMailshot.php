@@ -98,7 +98,7 @@ class ShowMailshot extends OrgAction
                                 'label' => __('settings'),
                                 'icon'  => ["fal", "fa-sliders-h"],
                                 'route' => [
-                                    'name'       => "grp.org.shops.show.comms.outboxes.workshop",
+                                    'name'       => "grp.org.shops.show.marketing.mailshots.workshop",
                                     'parameters' => [
                                         $this->organisation->slug, 
                                         $this->shop->slug, 
