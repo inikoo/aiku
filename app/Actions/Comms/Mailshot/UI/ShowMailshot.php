@@ -82,6 +82,31 @@ class ShowMailshot extends OrgAction
                             'parameters' => array_values($request->route()->originalParameters())
                         ]
                     ] : false,
+                    'actions'   => [
+                        [
+                            'type'  => 'button',
+                            'style' => 'exit',
+                            'label' => __('Exit workshop'),
+                            'route' => [
+                                'name'       => preg_replace('/workshop$/', 'show', $request->route()->getName()),
+                                'parameters' => array_values($request->route()->originalParameters()),
+                            ]
+                        ],
+                            $this->canEdit ? [
+                                'type'  => 'button',
+                                'style' => 'edit',
+                                'label' => __('settings'),
+                                'icon'  => ["fal", "fa-sliders-h"],
+                                'route' => [
+                                    'name'       => "grp.org.shops.show.comms.outboxes.workshop",
+                                    'parameters' => [
+                                        $this->organisation->slug, 
+                                        $this->shop->slug, 
+                                        $mailshot->slug
+                                    ]
+                                ]
+                            ] : []
+                    ]
                 ],
                 'tabs'        => [
                     'current'    => $this->tab,

@@ -78,7 +78,7 @@ const events = [
                     </div>
                     <div>
                         <div class="text-2xl font-bold">{{ item.value }}</div>
-                        <div class="text-sm text-white/80">Updated 5 minutes ago</div>
+                     <!--    <div class="text-sm text-white/80">Updated 5 minutes ago</div> -->
                     </div>
                 </div>
             </div>

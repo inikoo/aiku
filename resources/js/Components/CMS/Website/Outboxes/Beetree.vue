@@ -30,7 +30,6 @@ onMounted(() => {
         .then((response) => {
             const token = response.data;
             console.log("token: ", token);
-
             const config = {
                 uid: token.userName,
                 container: "bee-plugin-container",
