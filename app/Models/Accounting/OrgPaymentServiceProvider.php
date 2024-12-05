@@ -85,6 +85,11 @@ class OrgPaymentServiceProvider extends Model implements Auditable
         return $this->belongsTo(PaymentServiceProvider::class);
     }
 
+    public function paymentAccounts(): HasMany
+    {
+        return $this->hasMany(PaymentAccount::class);
+    }
+
     public function payments(): HasManyThrough
     {
         return $this->hasManyThrough(Payment::class, PaymentAccount::class);
