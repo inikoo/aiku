@@ -18,6 +18,8 @@ import { useForm } from "@inertiajs/vue3"
 import { faCloud, faCompressWide, faExpandArrowsAlt, faSearch, faSpinner } from "@fal"
 import { faMinus, faPlus, faSave, faUndo } from "@fas"
 import QuantityInput from "./ QuantityInput.vue"
+import { notify } from "@kyvg/vue3-notification"
+import { trans } from "laravel-vue-i18n"
 
 library.add(faSearch, faPlus, faMinus, faSpinner, faCloud, faUndo, faExpandArrowsAlt, faSave, faCompressWide)
 
@@ -41,7 +43,6 @@ const searchQuery = ref("")
 const iconStates = ref<Record<number, { increment: string; decrement: string }>>({})
 const addedProductIds = ref(new Set<number>())
 const currentTab = ref(props.current)
-console.log(props, "haha")
 
 const handleAction = (event: { type: string; value?: number }, slotProps: any) => {
 	switch (event.type) {
@@ -159,66 +160,89 @@ const formProducts = useForm({
 })
 
 const onSubmitAddProducts = async (data: any, slotProps: any) => {
-	const productId = slotProps.data.purchase_order_id
-	console.log("Decrement:", slotProps.data.quantity_ordered)
-	try {
-		if (slotProps.data.quantity_ordered > 0) {
-			// Handle update or add
-			if (addedProductIds.value && addedProductIds.value.has(productId)) {
-				// Update product
-				if (slotProps.data.purchase_order_id) {
-					await formProducts
-						.transform(() => ({
-							quantity_ordered: slotProps.data.quantity_ordered,
-						}))
-						.patch(
-							route(slotProps?.data?.updateRoute?.name || "#", {
-								...slotProps.data.updateRoute?.parameters,
-							})
-						)
-				}
-			} else {
-				// Add product
-				await formProducts
-					.transform(() => ({
-						quantity_ordered: slotProps.data.quantity_ordered,
-					}))
-					.post(
-						route(data.route?.name || "#", {
-							...data.route?.parameters,
-							historicSupplierProduct: slotProps.data.historic_id,
-							orgStock: slotProps.data.org_stock_id,
-						})
-					)
+    const productId = slotProps.data.purchase_order_id;
+    console.log("Decrement:", slotProps.data.quantity_ordered);
 
-				// Refresh list and update addedProductIds
-				await fetchProductList()
-				addedProductIds.value.add(productId)
-				iconStates.value[productId] = {
-					increment: "fal fa-cloud",
-					decrement: "fal fa-undo",
-				}
-			}
-		} else if (slotProps.data.quantity_ordered === 0) {
-			// Handle delete
-			if (addedProductIds.value && addedProductIds.value.has(productId)) {
-				await formProducts.delete(
-					route(slotProps?.data?.deleteRoute?.name || "#", {
-						...slotProps.data.deleteRoute?.parameters,
-					})
-				)
+    try {
+        if (slotProps.data.quantity_ordered > 0) {
+            // Handle update or add
+            if (addedProductIds.value && addedProductIds.value.has(productId)) {
+                // Update product
+                if (slotProps.data.purchase_order_id) {
+                    await formProducts
+                        .transform(() => ({
+                            quantity_ordered: slotProps.data.quantity_ordered,
+                        }))
+                        .patch(
+                            route(slotProps?.data?.updateRoute?.name || "#", {
+                                ...slotProps.data.updateRoute?.parameters,
+                            })
+                        );
+                }
+            } else {
+                // Add product
+                await formProducts
+                    .transform(() => ({
+                        quantity_ordered: slotProps.data.quantity_ordered,
+                    }))
+                    .post(
+                        route(data.route?.name || "#", {
+                            ...data.route?.parameters,
+                            historicSupplierProduct: slotProps.data.historic_id,
+                            orgStock: slotProps.data.org_stock_id,
+                        })
+                    );
 
-				// Remove product ID from the addedProductIds set
-				addedProductIds.value.delete(productId)
+                // Refresh list and update addedProductIds
+                await fetchProductList();
+                addedProductIds.value.add(productId);
+                iconStates.value[productId] = {
+                    increment: "fal fa-cloud",
+                    decrement: "fal fa-undo",
+                };
+            }
 
-				// Refresh list to reflect changes
-				await fetchProductList()
-			}
-		}
-	} catch (error) {
-		console.error("Error adding/updating/deleting product:", error)
-	}
-}
+            // Notify success
+            notify({
+                title: trans('Success!'),
+                text: trans('Product successfully added or updated.'),
+                type: 'success',
+            });
+        } else if (slotProps.data.quantity_ordered === 0) {
+            // Handle delete
+            if (addedProductIds.value && addedProductIds.value.has(productId)) {
+                await formProducts.delete(
+                    route(slotProps?.data?.deleteRoute?.name || "#", {
+                        ...slotProps.data.deleteRoute?.parameters,
+                    })
+                );
+
+                // Remove product ID from the addedProductIds set
+                addedProductIds.value.delete(productId);
+
+                // Refresh list to reflect changes
+                await fetchProductList();
+
+                // Notify success
+                notify({
+                    title: trans('Success!'),
+                    text: trans('Product successfully deleted.'),
+                    type: 'success',
+                });
+            }
+        }
+    } catch (error) {
+        console.error("Error adding/updating/deleting product:", error);
+
+        // Notify error
+        notify({
+            title: trans('Something went wrong'),
+            text: trans('An error occurred while processing the product.'),
+            type: 'error',
+        });
+    }
+};
+
 
 const onFetchNext = async () => {
 	if (optionsLinks.value?.next && !isLoading.value) {
