@@ -10,11 +10,14 @@ import Table from '@/Components/Table/Table.vue'
 import { PurchaseOrder } from "@/types/purchase-order"
 import { useFormatTime } from '@/Composables/useFormatTime'
 import Icon from '@/Components/Icon.vue'
+import { useLocaleStore } from '@/Stores/locale'
 
 defineProps<{
     data: {}
     tab?: string
 }>()
+
+const locale = useLocaleStore();
 
 function PurchaseOrderRoute(purchaseOrder: PurchaseOrder) {
     switch (route().current()) {
@@ -99,7 +102,9 @@ function AgentRoute(purchaseOrder: PurchaseOrder) {
         </template>
 
         <template #cell(date)="{ item: purchaseOrder }">
-            {{ useFormatTime(purchaseOrder['date']) }}
+        <div class="text-right">
+            {{ useFormatTime(purchaseOrder['date'],  { localeCode: locale.language.code, formatTime: "aiku" }) }}
+        </div>
         </template>
 
         <template #cell(parent)="{ item: purchaseOrder }">

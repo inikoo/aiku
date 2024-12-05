@@ -23,6 +23,8 @@ use App\Actions\CRM\Poll\StorePoll;
 use App\Actions\CRM\Poll\UpdatePoll;
 use App\Actions\CRM\PollOption\StorePollOption;
 use App\Actions\CRM\PollOption\UpdatePollOption;
+use App\Actions\CRM\PollReply\StorePollReply;
+use App\Actions\CRM\PollReply\UpdatePollReply;
 use App\Actions\CRM\Prospect\StoreProspect;
 use App\Actions\CRM\Prospect\Tags\SyncTagsProspect;
 use App\Actions\CRM\Prospect\UpdateProspect;
@@ -38,6 +40,7 @@ use App\Models\CRM\CustomerNote;
 use App\Models\CRM\Favourite;
 use App\Models\CRM\Poll;
 use App\Models\CRM\PollOption;
+use App\Models\CRM\PollReply;
 use App\Models\CRM\Prospect;
 use App\Models\Helpers\Country;
 use App\Models\Helpers\Query;
@@ -473,3 +476,95 @@ test('update poll option', function (PollOption $pollOption) {
 
     return $pollOption;
 })->depends('store poll option');
+
+test('store open question poll', function () {
+
+    $poll = StorePoll::make()->action(
+        $this->shop,
+        [
+            'name' => 'open question',
+            'label' => 'open label',
+            'in_registration' => false,
+            'in_registration_required' => true,
+            'in_iris' => true,
+            'in_iris_required' => true,
+            'type'  => PollTypeEnum::OPEN_QUESTION
+        ]
+    );
+
+    $poll->refresh();
+
+    expect($poll)->toBeInstanceOf(Poll::class)
+        ->and($poll->name)->toBe('open question')
+        ->and($poll->label)->toBe('open label')
+        ->and($poll->in_registration)->toBeFalse()
+        ->and($poll->in_registration_required)->toBeTrue()
+        ->and($poll->in_iris)->toBeTrue()
+        ->and($poll->in_iris_required)->toBeTrue()
+        ->and($poll->type)->toBe(PollTypeEnum::OPEN_QUESTION);
+
+    return $poll;
+});
+
+test('store open question poll reply', function (Customer $customer, Poll $poll) {
+
+    $pollReply = StorePollReply::make()->action(
+        $poll,
+        [
+            'customer_id' => $customer->id,
+            'value' => 'Something'
+        ]
+    );
+
+    $pollReply->refresh();
+    $poll->refresh();
+
+    expect($poll)->toBeInstanceOf(Poll::class)
+        ->and($poll->pollReplies->count())->toBe(1);
+
+    expect($pollReply)->toBeInstanceOf(PollReply::class)
+        ->and($pollReply->value)->toBe('Something');
+
+    return $pollReply;
+})->depends('create customer', 'store open question poll');
+
+test('store option poll reply', function (Customer $customer, PollOption $pollOption) {
+
+    $poll = $pollOption->poll;
+
+    $pollReply = StorePollReply::make()->action(
+        $poll,
+        [
+            'customer_id' => $customer->id,
+            'poll_option_id' => $pollOption->id
+        ]
+    );
+
+    $pollReply->refresh();
+    $poll->refresh();
+
+    expect($poll)->toBeInstanceOf(Poll::class)
+        ->and($poll->pollReplies->count())->toBe(1);
+
+    expect($pollReply)->toBeInstanceOf(PollReply::class)
+        ->and($pollReply->poll_option_id)->toBe($pollOption->id);
+
+    return $pollReply;
+})->depends('create customer', 'update poll option');
+
+test('update open question poll reply', function (PollReply $pollReply) {
+
+    $pollReply = UpdatePollReply::make()->action(
+        $pollReply,
+        [
+            'value' => 'Something 1'
+        ]
+    );
+
+    $pollReply->refresh();
+
+    expect($pollReply)->toBeInstanceOf(PollReply::class)
+        ->and($pollReply->value)->toBe('Something 1');
+
+    return $pollReply;
+})->depends('store open question poll reply');

@@ -327,7 +327,7 @@ onUnmounted(() => {
 									</Column>
 									<Column field="code" header="Code"></Column>
 									<Column field="name" header="Description"></Column>
-									<Column header="Action">
+									<Column header="Action" style="width: 8%">
 										<template #body="slotProps">
 											<QuantityInput
 												:data="slotProps.data"

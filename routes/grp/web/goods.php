@@ -6,7 +6,8 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-
+use App\Actions\Goods\Ingredient\UI\IndexIngredients;
+use App\Actions\Goods\Ingredient\UI\ShowIngredient;
 use App\Actions\Goods\Stock\ExportStocks;
 use App\Actions\Goods\Stock\UI\CreateStock;
 use App\Actions\Goods\Stock\UI\EditStock;
@@ -82,6 +83,10 @@ Route::prefix('stocks')->as('stocks.')->group(function () {
 
 Route::prefix('families')->as('stock-families.')->group(function () {
     Route::get('', IndexStockFamilies::class)->name('index');
+    Route::get('/active', [IndexStockFamilies::class, 'active'])->name('active.index');
+    Route::get('/in-process', [IndexStockFamilies::class, 'inProcess'])->name('in-process.index');
+    Route::get('/discontinuing', [IndexStockFamilies::class, 'discontinuing'])->name('discontinuing.index');
+    Route::get('/discontinued', [IndexStockFamilies::class, 'discontinued'])->name('discontinued.index');
     Route::get('/export', ExportStockFamilies::class)->name('export');
     Route::get('/create', CreateStockFamily::class)->name('create');
 
@@ -132,3 +137,11 @@ Route::prefix('catalogue')->as('catalogue.')->group(function () {
         // Route::get('edit', EditTradeUnit::class)->name('edit');
     });
 });
+
+Route::prefix('ingredients')->as('ingredients.')->group(function () {
+    Route::get('/', IndexIngredients::class)->name('index');
+    Route::prefix('{ingredient:slug}')->group(function () {
+        Route::get('', ShowIngredient::class)->name('show');
+    });
+});
+
