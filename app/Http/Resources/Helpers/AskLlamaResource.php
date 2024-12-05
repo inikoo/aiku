@@ -23,18 +23,7 @@ class AskLlamaResource extends JsonResource
         }
 
         return [
-            'model' => $this["model"],
-            'created_at' => $this["created_at"],
             'response' => $this["response"],
-            'done' => $this["done"],
-            'done_reason' => $this["done_reason"],
-            'context' => $this["context"],
-            'total_duration' => $this["total_duration"],
-            'load_duration' => $this["load_duration"],
-            'prompt_eval_count' => $this["prompt_eval_count"],
-            'prompt_eval_duration' => $this["prompt_eval_duration"],
-            'eval_count' => $this["eval_count"],
-            'eval_duration' => $this["eval_duration"],
         ];
     }
 
