@@ -27,7 +27,11 @@ use App\Models\Comms\Outbox;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Web\Website;
 use Carbon\Carbon;
+use Config;
 use Illuminate\Support\Facades\Date;
+use Inertia\Testing\AssertableInertia;
+
+use function Pest\Laravel\actingAs;
 
 beforeAll(function () {
     loadDB();
@@ -46,6 +50,12 @@ beforeEach(
         ) = createShop();
         $this->customer = createCustomer($this->shop);
         $this->group    = $this->organisation->group;
+
+        Config::set(
+            'inertia.testing.page_paths',
+            [resource_path('js/Pages/Grp')]
+        );
+        actingAs($this->user);
     }
 );
 
@@ -239,3 +249,41 @@ test('test detach model to outbox', function (Outbox $outbox) {
         ->and($outbox->stats->number_subscribers)->toBe(0)
         ->and($outbox->stats->number_unsubscribed)->toBe(0);
 })->depends('test update model to outbox');
+
+test('UI index mail outboxes', function () {
+    $response = $this->get(route('grp.org.shops.show.comms.outboxes.index', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Mail/Outboxes')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'outboxes')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI show mail outboxes', function () {
+    $outbox = $this->shop->outboxes()->first();
+    $response = $this->get(route('grp.org.shops.show.comms.outboxes.show', [$this->organisation->slug, $this->shop->slug, $outbox]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($outbox) {
+        $page
+            ->component('Mail/Outbox')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $outbox->name)
+                    ->etc()
+            )
+            ->has('navigation')
+            ->has('tabs')
+            ->has('breadcrumbs', 5);
+    });
+});
