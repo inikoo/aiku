@@ -22,6 +22,5 @@ task('install:env', function () {
         $dotenv = Dotenv::createImmutable(__DIR__, '../.env.aiku.staging.deploy');
     }
     $dotenv->load();
-    set('remote_user', env('DEPLOY_REMOTE_USER'));
     set('release_semver', env('RELEASE'));
 });

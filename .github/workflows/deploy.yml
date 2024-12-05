@@ -43,7 +43,6 @@ jobs:
         run: |
           touch .env.aiku.production.deploy
           echo RELEASE=${{ steps.semver.outputs.next }} >> .env.aiku.production.deploy
-          echo DEPLOY_REMOTE_USER=${{ secrets.PRODUCTION_DEPLOY_REMOTE_USER }} >> .env.aiku.production.deploy
       - name: Launch 🚀
         uses: deployphp/action@v1
         with:

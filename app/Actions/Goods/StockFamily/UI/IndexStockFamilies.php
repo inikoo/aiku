@@ -271,11 +271,11 @@ class IndexStockFamilies extends GrpAction
         $subNavigation = $this->getStockFamiliesSubNavigation();
 
         $title = match ($this->bucket) {
-            'active'        => __('Active SKUs'),
-            'in_process'    => __('In process SKUs'),
-            'discontinuing' => __('Discontinuing SKUs'),
-            'discontinued'  => __('Discontinued SKUs'),
-            default         => __('SKUs')
+            'active'        => __('Active SKU Families'),
+            'in_process'    => __('In process SKU Families'),
+            'discontinuing' => __('Discontinuing SKU Families'),
+            'discontinued'  => __('Discontinued SKU Families'),
+            default         => __('SKU Families')
         };
 
         return Inertia::render(

@@ -37,8 +37,8 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('name')->collation('und_ns_ci');
             $table->string('state')->default(BannerStateEnum::UNPUBLISHED->value);
-            $table->unsignedSmallInteger('unpublished_snapshot_id')->nullable()->index();
-            $table->unsignedSmallInteger('live_snapshot_id')->nullable()->index();
+            $table->unsignedInteger('unpublished_snapshot_id')->nullable()->index();
+            $table->unsignedInteger('live_snapshot_id')->nullable()->index();
             $table->dateTimeTz('date')->index();
             $table->dateTimeTz('live_at')->nullable();
             $table->dateTimeTz('switch_off_at')->nullable();
