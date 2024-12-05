@@ -8,6 +8,7 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Catalogue\Shop\SeedOfferCampaigns;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\Discounts\Offer\StoreOffer;
@@ -15,9 +16,15 @@ use App\Actions\Discounts\Offer\UpdateOffer;
 use App\Actions\Discounts\OfferCampaign\UpdateOfferCampaign;
 use App\Actions\Discounts\OfferComponent\StoreOfferComponent;
 use App\Actions\Discounts\OfferComponent\UpdateOfferComponent;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Catalogue\Shop;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferComponent;
+use Inertia\Testing\AssertableInertia;
+
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB();
@@ -27,18 +34,27 @@ beforeAll(function () {
 beforeEach(function () {
     $this->organisation = createOrganisation();
     $this->group        = $this->organisation->group;
+    $this->adminGuest   = createAdminGuest($this->organisation->group);
+
+    $shop = Shop::first();
+    if (!$shop) {
+        $storeData = Shop::factory()->definition();
+        $shop      = StoreShop::make()->action(
+            $this->organisation,
+            $storeData
+        );
+    }
+    $this->shop = $shop;
+    Config::set(
+        'inertia.testing.page_paths',
+        [resource_path('js/Pages/Grp')]
+    );
+    actingAs($this->adminGuest->getUser());
 });
 
-test('create shop', function () {
-    $shop = StoreShop::make()->action($this->organisation, Shop::factory()->definition());
 
-    expect($shop)->toBeInstanceOf(Shop::class);
-
-    return $shop;
-});
-
-
-test('seed offer campaigns', function ($shop) {
+test('seed offer campaigns', function () {
+    $shop = $this->shop;
     SeedOfferCampaigns::run($shop);
     $this->artisan('shop:seed-offer-campaigns', [
         'shop' => $shop->slug,
@@ -56,17 +72,19 @@ test('seed offer campaigns', function ($shop) {
         ->and($shop->discountsStats->number_offer_campaigns)->toBe(8)
         ->and($shop->discountsStats->number_current_offer_campaigns)->toBe(0)
         ->and($shop->discountsStats->number_offer_campaigns_state_in_process)->toBe(8);
-})->depends('create shop');
+});
 
-test('update offer campaign', function (Shop $shop) {
+test('update offer campaign', function () {
+    $shop          = $this->shop;
     $offerCampaign = $shop->offerCampaigns()->first();
     $offerCampaign = UpdateOfferCampaign::make()->action($offerCampaign, [
         'name' => 'New Name',
     ]);
     expect($offerCampaign->name)->toBe('New Name');
-})->depends('create shop');
+});
 
-test('create offer', function (Shop $shop) {
+test('create offer', function () {
+    $shop          = $this->shop;
     $offerCampaign = $shop->offerCampaigns()->first();
     $offer         = StoreOffer::make()->action($offerCampaign, $shop, Offer::factory()->definition());
     $offerCampaign->refresh();
@@ -80,7 +98,7 @@ test('create offer', function (Shop $shop) {
         ->and($offerCampaign->shop->discountsStats->number_offers)->toBe(2);
 
     return $offer;
-})->depends('create shop');
+});
 
 test('update offer', function ($offer) {
     $offer = UpdateOffer::make()->action($offer, ['name' => 'New Name A']);
@@ -98,3 +116,60 @@ test('update offer component', function ($offerComponent) {
     $offerComponent = UpdateOfferComponent::make()->action($offerComponent, OfferComponent::factory()->definition());
     $this->assertModelExists($offerComponent);
 })->depends('create offer component');
+
+test('UI Index offer campaigns', function () {
+    $response = get(route('grp.org.shops.show.discounts.campaigns.index', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/B2b/Campaigns/Campaigns')
+            ->has('title')
+            ->has('pageHead')
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI show offer campaigns', function () {
+    $offerCampaign = $this->shop->offerCampaigns()->first();
+    $response      = get(route('grp.org.shops.show.discounts.campaigns.show', [$this->organisation->slug, $this->shop->slug, $offerCampaign->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($offerCampaign) {
+        $page
+            ->component('Org/Shop/B2b/Campaigns/Campaign')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $offerCampaign->name)
+                    ->etc()
+            )
+            ->has('tabs')
+            ->has('navigation')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index offers', function () {
+    $response = get(route('grp.org.shops.show.discounts.offers.index', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Shop/B2b/Offers/Offers')
+            ->has('title')
+            ->has('pageHead')
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI get section route offer dashboard', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.discounts.offers.index', [
+        'organisation' => $this->organisation->slug,
+        'shop'         => $this->shop->slug
+    ]);
+
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_OFFER->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
