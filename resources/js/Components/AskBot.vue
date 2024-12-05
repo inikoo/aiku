@@ -37,7 +37,7 @@ const fetchApi = debounce(async (query: string) => {
 			isLoadingSearch.value = false
 		}
 	}
-}, 700)
+}, 1000)
 </script>
 
 <template>
