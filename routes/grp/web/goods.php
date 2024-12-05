@@ -83,6 +83,10 @@ Route::prefix('stocks')->as('stocks.')->group(function () {
 
 Route::prefix('families')->as('stock-families.')->group(function () {
     Route::get('', IndexStockFamilies::class)->name('index');
+    Route::get('/active', [IndexStockFamilies::class, 'active'])->name('active.index');
+    Route::get('/in-process', [IndexStockFamilies::class, 'inProcess'])->name('in-process.index');
+    Route::get('/discontinuing', [IndexStockFamilies::class, 'discontinuing'])->name('discontinuing.index');
+    Route::get('/discontinued', [IndexStockFamilies::class, 'discontinued'])->name('discontinued.index');
     Route::get('/export', ExportStockFamilies::class)->name('export');
     Route::get('/create', CreateStockFamily::class)->name('create');
 
