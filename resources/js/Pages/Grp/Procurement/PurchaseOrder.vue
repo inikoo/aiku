@@ -143,7 +143,7 @@ const isModalOpen = ref(false)
 const noteModalValue = ref(props.box_stats.mid_block.notes || "")
 const currentAction = ref(null);
 const isLoadingButton = ref<string | boolean>(false)
-const isModalUploadOpen = ref(true)
+const isModalUploadOpen = ref(false)
 const isSubmitNoteLoading = ref(false)
 
 //submit notes
