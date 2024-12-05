@@ -20,6 +20,7 @@ use App\Http\Resources\Mail\SenderEmailResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Mailshot;
+use App\Models\SysAdmin\Organisation;
 use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -194,7 +195,7 @@ class IndexProspectMailshots extends InertiaAction
 
 
 
-    public function inShop(Shop $shop, ActionRequest $request): LengthAwarePaginator
+    public function inShop(Organisation $organisation, Shop $shop, ActionRequest $request): LengthAwarePaginator
     {
         $this->initialisation($request)->withTab(ProspectsMailshotsTabsEnum::values());
 
