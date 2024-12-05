@@ -100,8 +100,8 @@ class ShowMailshot extends OrgAction
                                 'route' => [
                                     'name'       => "grp.org.shops.show.marketing.mailshots.workshop",
                                     'parameters' => [
-                                        $this->organisation->slug, 
-                                        $this->shop->slug, 
+                                        $this->organisation->slug,
+                                        $this->shop->slug,
                                         $mailshot->slug
                                     ]
                                 ]

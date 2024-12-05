@@ -23,7 +23,7 @@ trait HasWorkshopAction
                         'name'       => preg_replace('/show$/', 'edit', $request->route()->getName()),
                         'parameters' => array_values($request->route()->originalParameters())
                     ]
-                ]  : [],
+                ] : [],
                 $this->canEdit ? [
                     'type'  => 'button',
                     'style' => 'secondary',

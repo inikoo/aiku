@@ -1,44 +1,43 @@
 <script setup lang="ts">
-import Modal from "@/Components/Utils/Modal.vue";
-import { debounce } from "lodash";
-import { ref } from "vue";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faLampDesk } from "@fal";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import Modal from "@/Components/Utils/Modal.vue"
+import { debounce } from "lodash"
+import { ref } from "vue"
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { faLampDesk } from "@fal"
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
-library.add(faLampDesk);
+library.add(faLampDesk)
 
-const resultsSearch = ref();
-const isLoadingSearch = ref(false);
-const searchValue = ref("");
-const errorSearch = ref(""); 
+const resultsSearch = ref()
+const isLoadingSearch = ref(false)
+const searchValue = ref("")
+const errorSearch = ref("")
 
-const isOpen = defineModel<boolean>();
+const isOpen = defineModel<boolean>()
 
 const fetchApi = debounce(async (query: string) => {
-    if (query.trim() !== "") {
-        resultsSearch.value = null;
-        isLoadingSearch.value = true;
-        errorSearch.value = "";
-        try {
-            const response = await fetch(`http://app.aiku.test/ask-bot?q=${query}`);
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-				
-                throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-            }
+	if (query.trim() !== "") {
+		resultsSearch.value = null
+		isLoadingSearch.value = true
+		errorSearch.value = ""
+		try {
+			const response = await fetch(`http://app.aiku.test/ask-bot?q=${query}`)
 
-            const data = await response.json();
-            resultsSearch.value = data.data;
-        } catch (error) {
-            errorSearch.value = error.message || "An error occurred while fetching search results.";
-        } finally {
-            isLoadingSearch.value = false;
-        }
-    }
-}, 700);
+			if (!response.ok) {
+				const errorData = await response.json()
 
+				throw new Error(errorData.error || `HTTP error! status: ${response.status}`)
+			}
+
+			const data = await response.json()
+			resultsSearch.value = data.data
+		} catch (error) {
+			errorSearch.value = error.message || "An error occurred while fetching search results."
+		} finally {
+			isLoadingSearch.value = false
+		}
+	}
+}, 700)
 </script>
 
 <template>
@@ -56,14 +55,17 @@ const fetchApi = debounce(async (query: string) => {
 		</div>
 
 		<div v-if="isLoadingSearch" class="mt-4 flex flex-col gap-4">
-			<div v-for="n in 1" :key="n" class="h-10 skeleton w-full rounded-lg bg-gray-200 animate-pulse"></div>
+			<div
+				v-for="n in 1"
+				:key="n"
+				class="h-10 skeleton w-full rounded-lg bg-gray-200 animate-pulse"></div>
 		</div>
 
 		<div v-else-if="resultsSearch?.response" class="mt-4">
 			<div class="bg-white shadow-md rounded-lg p-4">
 				<p class="text-gray-800 font-semibold">Results:</p>
-				<div class="mt-2">
-					<pre class="text-sm overflow-auto text-gray-600">{{ resultsSearch.response }}</pre>
+				<div class="mt-2 max-h-96 overflow-auto">
+					<pre class="text-sm text-gray-600 whitespace-pre-wrap">{{ resultsSearch.response }}</pre>
 				</div>
 			</div>
 		</div>
@@ -77,4 +79,3 @@ const fetchApi = debounce(async (query: string) => {
 		</div>
 	</Modal>
 </template>
-
