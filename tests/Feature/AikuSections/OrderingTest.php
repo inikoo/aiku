@@ -57,7 +57,6 @@ use App\Models\Ordering\Transaction;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Date;
-
 use Inertia\Testing\AssertableInertia;
 
 use function Pest\Laravel\actingAs;
@@ -579,4 +578,3 @@ test('UI get section route index', function () {
         ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_ORDERING->value)
         ->and($sectionScope->model_slug)->toBe($this->shop->slug);
 });
-

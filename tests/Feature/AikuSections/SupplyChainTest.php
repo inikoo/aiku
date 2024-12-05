@@ -295,7 +295,7 @@ test('UI show supplier', function () {
             ->has('breadcrumbs', 3)
             ->has(
                 'pageHead',
-                fn(AssertableInertia $page) => $page
+                fn (AssertableInertia $page) => $page
                     ->where('title', $supplier->name)
                     ->etc()
             )
@@ -328,7 +328,7 @@ test('UI show agent', function () {
             ->has('breadcrumbs', 3)
             ->has(
                 'pageHead',
-                fn(AssertableInertia $page) => $page
+                fn (AssertableInertia $page) => $page
                     ->where('title', $agent->organisation->name)
                     ->etc()
             )
@@ -346,7 +346,7 @@ test('UI create agent', function () {
             ->has('breadcrumbs', 4)
             ->has(
                 'pageHead',
-                fn(AssertableInertia $page) => $page
+                fn (AssertableInertia $page) => $page
                     ->where('title', 'new agent')
                     ->etc()
             )
@@ -359,4 +359,3 @@ test('UI get section route group supply chain index', function () {
     expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
         ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_SUPPLY_CHAIN->value);
 });
-
