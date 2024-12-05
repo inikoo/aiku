@@ -32,6 +32,7 @@ use Spatie\QueryBuilder\AllowedFilter;
 class IndexOutboxes extends OrgAction
 {
     use WithCommsSubNavigation;
+
     private Shop|Organisation|PostRoom|Website|Fulfilment $parent;
 
 
@@ -45,7 +46,6 @@ class IndexOutboxes extends OrgAction
             'crm.'.$this->shop->id.'.view',
         ]);
     }
-
 
     public function handle(Shop|Organisation|PostRoom|Website|Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
@@ -99,14 +99,7 @@ class IndexOutboxes extends OrgAction
             $table->column(key: 'type', label: ['fal', 'fa-yin-yang'], type: 'icon');
         };
     }
-    // public function authorize(ActionRequest $request): bool
-    // {
-    //     return
-    //         (
-    //             $request->user()->tokenCan('root') or
-    //             $request->user()->hasPermissionTo('mail.view')
-    //         );
-    // }
+
 
     public function jsonResponse(LengthAwarePaginator $outboxes): AnonymousResourceCollection
     {
@@ -120,6 +113,7 @@ class IndexOutboxes extends OrgAction
         if ($this->parent instanceof Shop) {
             $subNavigation = $this->getCommsNavigation($this->organisation, $this->shop);
         }
+
         return Inertia::render(
             'Mail/Outboxes',
             [
@@ -129,7 +123,7 @@ class IndexOutboxes extends OrgAction
                 ),
                 'title'       => __('outboxes '),
                 'pageHead'    => [
-                    'title' => __('outboxes'),
+                    'title'         => __('outboxes'),
                     'subNavigation' => $subNavigation,
                 ],
                 'data'        => OutboxResource::collection($outboxes),
