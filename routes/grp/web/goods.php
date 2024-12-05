@@ -144,4 +144,3 @@ Route::prefix('ingredients')->as('ingredients.')->group(function () {
         Route::get('', ShowIngredient::class)->name('show');
     });
 });
-

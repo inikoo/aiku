@@ -11,7 +11,6 @@ namespace App\Actions\Goods\StockFamily\UI;
 use App\Actions\Goods\HasGoodsAuthorisation;
 use App\Actions\GrpAction;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
-use App\Enums\SupplyChain\Stock\StockStateEnum;
 use App\Enums\SupplyChain\StockFamily\StockFamilyStateEnum;
 use App\Http\Resources\Goods\StockFamiliesResource;
 use App\InertiaTable\InertiaTable;
@@ -109,7 +108,7 @@ class IndexStockFamilies extends GrpAction
         $queryBuilder = QueryBuilder::for(StockFamily::class);
         $queryBuilder->where('stock_families.group_id', $group->id);
 
-        
+
         if ($this->bucket == 'active') {
             $queryBuilder->where('stock_families.state', StockFamilyStateEnum::ACTIVE);
         } elseif ($this->bucket == 'discontinuing') {
@@ -165,7 +164,7 @@ class IndexStockFamilies extends GrpAction
                     ->pageName($prefix.'Page');
             }
 
-            
+
             if ($bucket == 'all') {
                 foreach ($this->getElementGroups($parent) as $key => $elementGroup) {
                     $table->elementGroup(

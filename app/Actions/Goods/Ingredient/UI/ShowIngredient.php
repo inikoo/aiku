@@ -9,20 +9,12 @@
 namespace App\Actions\Goods\Ingredient\UI;
 
 use App\Actions\Goods\HasGoodsAuthorisation;
-use App\Actions\Goods\StockFamily\UI\ShowStockFamily;
 use App\Actions\GrpAction;
-use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\UI\Goods\ShowGoodsDashboard;
 use App\Enums\UI\SupplyChain\IngredientTabsEnum;
-use App\Enums\UI\SupplyChain\StockTabsEnum;
 use App\Http\Resources\Goods\IngredientResource;
-use App\Http\Resources\History\HistoryResource;
-use App\Http\Resources\Inventory\OrgStockResource;
 use App\Models\Goods\Ingredient;
 use App\Models\SupplyChain\Stock;
-use App\Models\SupplyChain\StockFamily;
-use App\Models\SysAdmin\Group;
-use Illuminate\Support\Arr;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
