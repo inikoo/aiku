@@ -52,6 +52,7 @@ set('shared_files', [
     'aurora_start_migration.sh',
     'reset_db.sh',
     'seed_currency_exchanges_staging.sh',
+    'seed_currency_exchanges.sh',
     'database/seeders/datasets/currency-exchange/currency_exchanges.dump'
 ]);
 desc('Deploys your project');
