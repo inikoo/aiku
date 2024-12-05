@@ -5,13 +5,13 @@ on:
     branches: [ "main" ]
 
 env:
-  HOME: /home/aiku
+  HOME: /home/aiku_test
   XDEBUG_MODE: coverage
 
 jobs:
   laravel-tests:
     name: Run backend tests 🧪
-    runs-on: [ cloud ]
+    runs-on: [ self-hosted ]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
