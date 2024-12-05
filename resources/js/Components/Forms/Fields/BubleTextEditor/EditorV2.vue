@@ -38,7 +38,8 @@ import customLink from '@/Components/Forms/Fields/BubleTextEditor/CustomLink/Cus
 import { Color } from '@tiptap/extension-color'
 import FontSize from 'tiptap-extension-font-size'
 import FontFamily from '@tiptap/extension-font-family'
-/* import ColorPicker from '@/Components/CMS/Fields/ColorPicker.vue' */
+import Highlight from '@tiptap/extension-highlight'
+import PureColorPicker from '@/Components/CMS/Fields/ColorPicker.vue'
 import ColorPicker from 'primevue/colorpicker';
 import suggestion from './Variables/suggestion'
 import Dialog from 'primevue/dialog';
@@ -69,8 +70,9 @@ import {
     faTextSize,
     faDraftingCompass,
     faExternalLink,
-    faTimesCircle
+    faTimesCircle,
 } from "@far"
+import { faTint } from "@fas"
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome"
 
 import TiptapLinkCustomDialog from "@/Components/Forms/Fields/BubleTextEditor/TiptapCustomLinkDialog.vue"
@@ -197,6 +199,9 @@ const editorInstance = useEditor({
         Blockquote,
         CharacterCount,
         Youtube,
+        Highlight.configure({
+            multicolor: true
+        }),
         Dropcursor.configure({
             width: 2,
             color: "#2563eb",
@@ -458,21 +463,43 @@ console.log(editorInstance)
                             <FontAwesomeIcon :icon="faStrikethrough" class="h-5 w-5" />
                         </TiptapToolbarButton>
 
-                        <TiptapToolbarButton v-if="toogle.includes('color')" label="Text Color">
+                       <!--  <TiptapToolbarButton v-if="toogle.includes('color')" label="Text Color">
                             <ColorPicker
                                 v-model="editorInstance.getAttributes('textStyle').color"
                                 :baseZIndex="9999"
                                 @update:model-value="color => editorInstance?.chain().focus().setColor(`#${color}`).run()"
                             />
+                        </TiptapToolbarButton> -->
+
+                        <TiptapToolbarButton v-if="toogle.includes('color')" label="Text Color">
+                            <div class="relative w-7 h-7">
+                                <!-- Color Input -->
+                                <input type="color" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    @input="editorInstance?.chain().focus().setColor($event.target.value).run()"
+                                    :value="editorInstance.getAttributes('highlight').color" />
+                                <!-- Icon -->
+                                <div class="flex items-center justify-center w-full h-full rounded"
+                                :style="{ color: editorInstance.getAttributes('textStyle').color || 'gray'}"
+                                > 
+                                    <FontAwesomeIcon :icon="faTint" />
+                                </div>
+                            </div>
                         </TiptapToolbarButton>
 
-                        <!-- <ColorPicker v-if="toogle.includes('highlight')" :color="editorInstance?.getAttributes('highlight').color"
-                            @changeColor="(color) => editorInstance?.chain().setHighlight({ color: color.hex }).run()"
-                            class="flex items-center justify-center w-6 aspect-square rounded cursor-pointer p-1 border border-gray-400"
-                            :style="{ backgroundColor: editorInstance?.getAttributes('highlight').color }">
-                            <FontAwesomeIcon :icon="faPaintBrushAlt" class='text-gray-500 h-5 w-5' fixed-width
-                                aria-hidden='true' />
-                        </ColorPicker> -->
+                        <TiptapToolbarButton v-if="toogle.includes('highlight')" label="Text highlight">
+                            <div class="relative w-7 h-7">
+                                <!-- Color Input -->
+                                <input type="color" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    @input="editorInstance.chain().focus().setHighlight({ color: $event.target.value }).run()"
+                                    :value="editorInstance.getAttributes('highlight').color" />
+                                <!-- Icon -->
+                                <div class="flex items-center justify-center w-full h-full  rounded"
+                                :style="{ backgroundColor: editorInstance?.getAttributes('highlight').color}"
+                                > 
+                                    <FontAwesomeIcon :icon="faPaintBrushAlt" />
+                                </div>
+                            </div>
+                        </TiptapToolbarButton>
                     </TiptapToolbarGroup>
                     
                     <TiptapToolbarGroup>

@@ -35,19 +35,17 @@ console.log(props)
 <template>
     <Head :title="capitalize(title)" />
     <PageHeading :data="pageHead">
-        <template #other>
+     <!--    <template #other>
             <Button @click="openTemplates = true" icon="fas fa-th-large" label="Templates" :style="'tertiary'"  />
-        </template>
+        </template> -->
     </PageHeading>
 
-    befree
      <!-- beefree -->
     <Beetree :updateRoute="updateRoute" :loadRoute="loadRoute" :imagesUploadRoute="imagesUploadRoute" :mailshot="{}" />
 
 
-    Unlayer
      <!-- unlayer -->
-    <Unlayer :updateRoute="updateRoute" :loadRoute="loadRoute" :imagesUploadRoute="imagesUploadRoute" :mailshot="{}" />
+    <!-- <Unlayer :updateRoute="updateRoute" :loadRoute="loadRoute" :imagesUploadRoute="imagesUploadRoute" :mailshot="{}" /> -->
 
     <Modal :isOpen="openTemplates" @onClose="openTemplates = false" width="w-[600px]">
         <div class="overflow-y-auto">
