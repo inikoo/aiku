@@ -104,6 +104,7 @@ class IndexDepartments extends OrgAction
         */
 
         $queryBuilder->leftJoin('shops', 'product_categories.shop_id', 'shops.id');
+        $queryBuilder->leftJoin('product_category_sales_intervals', 'product_category_sales_intervals.product_category_id', 'product_categories.id');
 
         if (class_basename($parent) == 'Shop') {
             $queryBuilder->where('product_categories.shop_id', $parent->id);
@@ -133,6 +134,11 @@ class IndexDepartments extends OrgAction
                 'shops.slug as shop_slug',
                 'shops.code as shop_code',
                 'shops.name as shop_name',
+                'product_category_sales_intervals.sales_pq1 as sales_pq1',
+                'product_category_sales_intervals.sales_pq2 as sales_pq2',
+                'product_category_sales_intervals.sales_pq3 as sales_pq3',
+                'product_category_sales_intervals.sales_pq4 as sales_pq4',
+                'product_category_sales_intervals.sales_pq5 as sales_pq5',
             ])
             ->leftJoin('product_category_stats', 'product_categories.id', 'product_category_stats.product_category_id')
             ->where('product_categories.type', ProductCategoryTypeEnum::DEPARTMENT)

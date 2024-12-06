@@ -17,7 +17,7 @@ use App\Actions\SysAdmin\Organisation\UI\ShowOrganisationDashboard;
 use App\Actions\Traits\Authorisations\HasWebAuthorisation;
 use App\Actions\Web\ExternalLink\UI\IndexExternalLinks;
 use App\Actions\Web\HasWorkshopAction;
-use App\Actions\Web\Website\GetWebsiteCloudflareZoneID;
+use App\Actions\Web\Website\GetWebsiteCloudflareAnalytics;
 use App\Enums\UI\Web\WebsiteTabsEnum;
 use App\Enums\Web\Website\WebsiteStateEnum;
 use App\Http\Resources\CRM\WebUsersResource;
@@ -134,8 +134,8 @@ class ShowWebsite extends OrgAction
                     : Inertia::lazy(fn () => ExternalLinksResource::collection(IndexExternalLinks::run($website))),
 
                 WebsiteTabsEnum::ANALYTICS->value => $this->tab == WebsiteTabsEnum::ANALYTICS->value ?
-                    fn () => GetWebsiteCloudflareZoneID::make()->action($website, $request->only(['since', 'until']))
-                    : Inertia::lazy(fn () => GetWebsiteCloudflareZoneID::make()->action($website, $request->only(['since', 'until'])))
+                    fn () => GetWebsiteCloudflareAnalytics::make()->action($website, $request->only(['since', 'until']))
+                    : Inertia::lazy(fn () => GetWebsiteCloudflareAnalytics::make()->action($website, $request->only(['since', 'until'])))
             ]
         )->table(
             IndexWebUsers::make()->tableStructure(

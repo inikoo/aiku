@@ -338,6 +338,27 @@ test("UI Index Org Stocks", function () {
     });
 });
 
+test("UI Index Org Stock Families", function () {
+    $this->withoutExceptionHandling();
+    $response = get(
+        route("grp.org.warehouses.show.inventory.org_stock_families.index", [
+            $this->organisation->slug,
+            $this->warehouse->slug
+        ])
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component("Org/Inventory/OrgStockFamilies")
+            ->has("title")
+            ->has("breadcrumbs", 3)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", 'SKU Families')->etc()
+            )
+            ->has("data");
+    });
+});
+
 test("UI Index Stock Families", function () {
     $this->withoutExceptionHandling();
     $response = get(
@@ -350,7 +371,7 @@ test("UI Index Stock Families", function () {
             ->has("breadcrumbs", 3)
             ->has(
                 "pageHead",
-                fn (AssertableInertia $page) => $page->where("title", 'SKUs families')->etc()
+                fn (AssertableInertia $page) => $page->where("title", 'SKU Families')->etc()
             )
             ->has("data");
     });

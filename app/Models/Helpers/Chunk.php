@@ -15,6 +15,29 @@ use Illuminate\Database\Eloquent\Model;
 use Pgvector\Laravel\HasNeighbors;
 use Pgvector\Laravel\Vector;
 
+/**
+ *
+ *
+ * @property int $id
+ * @property string $guid
+ * @property string $sort_order
+ * @property string|null $content
+ * @property array|null $metadata
+ * @property \Pgvector\Laravel\Vector|null $embedding_768
+ * @property \Pgvector\Laravel\Vector|null $embedding_1536
+ * @property \Pgvector\Laravel\Vector|null $embedding_2048
+ * @property \Pgvector\Laravel\Vector|null $embedding_3072
+ * @property \Pgvector\Laravel\Vector|null $embedding_1024
+ * @property \Pgvector\Laravel\Vector|null $embedding_4096
+ * @property int|null $section_number
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Chunk nearestNeighbors(string $column, ?mixed $value, \Pgvector\Laravel\Distance $distance)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Chunk newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Chunk newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Chunk query()
+ * @mixin \Eloquent
+ */
 class Chunk extends Model
 {
     use HasFactory;

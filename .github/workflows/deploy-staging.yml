@@ -1,4 +1,4 @@
-name: Deploy staging
+name: Deploy aiku staging
 
 on:
   push:
@@ -14,6 +14,7 @@ jobs:
   deployment:
     name: Deploy aiku staging 🎭
     runs-on: ubuntu-latest
+    environment: staging
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -42,14 +43,13 @@ jobs:
         run: |
           touch .env.aiku.staging.deploy
           echo RELEASE=${{ steps.date.outputs.date }} >> .env.aiku.staging.deploy
-          echo DEPLOY_REMOTE_USER=${{ secrets.STAGING_DEPLOY_REMOTE_USER }} >> .env.aiku.staging.deploy
       - name: Launch 🚀
         uses: deployphp/action@v1
         with:
           dep: deploy staging
           ssh-config: ${{ secrets.DEPLOY_SSH_CONFIG }}
-          private-key: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-          known-hosts: ${{ secrets.DEPLOYER_KNOWN_HOSTS }}
+          private-key: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+          known-hosts: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
       - name: Create Sentry release
         uses: getsentry/action-release@v1
         env:

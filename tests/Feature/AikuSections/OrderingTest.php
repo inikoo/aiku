@@ -12,6 +12,7 @@ use App\Actions\Accounting\Invoice\StoreInvoice;
 use App\Actions\Accounting\Invoice\UpdateInvoice;
 use App\Actions\Accounting\InvoiceTransaction\StoreInvoiceTransaction;
 use App\Actions\Accounting\InvoiceTransaction\UpdateInvoiceTransaction;
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Catalogue\Shop\StoreShop;
 use App\Actions\CRM\Customer\StoreCustomer;
 use App\Actions\Dropshipping\CustomerClient\StoreCustomerClient;
@@ -35,10 +36,12 @@ use App\Actions\Ordering\ShippingZoneSchema\UpdateShippingZoneSchema;
 use App\Actions\Ordering\Transaction\DeleteTransaction;
 use App\Actions\Ordering\Transaction\StoreTransaction;
 use App\Actions\Ordering\Transaction\UpdateTransaction;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
 use App\Enums\Ordering\Order\OrderStateEnum;
 use App\Enums\Ordering\Purge\PurgeTypeEnum;
 use App\Models\Accounting\Invoice;
 use App\Models\Accounting\InvoiceTransaction;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Catalogue\HistoricAsset;
 use App\Models\Catalogue\Shop;
 use App\Models\CRM\Customer;
@@ -54,6 +57,10 @@ use App\Models\Ordering\Transaction;
 use Carbon\Carbon;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Date;
+use Inertia\Testing\AssertableInertia;
+
+use function Pest\Laravel\actingAs;
+use function Pest\Laravel\get;
 
 beforeAll(function () {
     loadDB();
@@ -76,6 +83,13 @@ beforeEach(function () {
     $this->customer = createCustomer($this->shop);
 
     createWarehouse();
+
+    Config::set(
+        'inertia.testing.page_paths',
+        [resource_path('js/Pages/Grp')]
+    );
+    actingAs($this->user);
+
 });
 
 
@@ -411,3 +425,159 @@ test('delete transaction', function (Order $order) {
 
     return $order;
 })->depends('create old order');
+
+test('UI create asset shipping', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.billables.shipping.create', [$this->organisation->slug, $this->shop]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->where('title', 'new schema')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'new schema')
+                    ->etc()
+            )
+            ->has('formData');
+    });
+});
+
+test('UI show asset shipping', function () {
+    $shippingZoneSchema = ShippingZoneSchema::first();
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.billables.shipping.show', [$this->organisation->slug, $this->shop, $shippingZoneSchema]));
+    $response->assertInertia(function (AssertableInertia $page) use ($shippingZoneSchema) {
+        $page
+            ->component('Org/Catalogue/ShippingZoneSchema')
+            ->where('title', 'Shipping Zone Schema')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $shippingZoneSchema->name)
+                    ->etc()
+            )
+            ->has('navigation')
+            ->has('tabs');
+    });
+});
+
+test('UI edit asset shipping', function () {
+    $shippingZoneSchema = ShippingZoneSchema::first();
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.billables.shipping.edit', [$this->organisation->slug, $this->shop, $shippingZoneSchema]));
+    $response->assertInertia(function (AssertableInertia $page) use ($shippingZoneSchema) {
+        $page
+            ->component('EditModel')
+            ->where('title', 'Shipping Zone Schema')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $shippingZoneSchema->name)
+                    ->etc()
+            )
+            ->has('navigation')
+            ->has('formData');
+    });
+});
+
+test('UI show ordering backlog', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.ordering.backlog', [$this->organisation->slug, $this->shop]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Ordering/OrdersBacklog')
+            ->where('title', 'orders backlog')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'orders backlog')
+                    ->etc()
+            );
+    });
+});
+
+test('UI index ordering purges', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.ordering.purges.index', [$this->organisation->slug, $this->shop]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Ordering/Purges')
+            ->where('title', 'purges')
+            ->has('breadcrumbs', 3)
+            ->has('data')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Purges')
+                    ->etc()
+            );
+    });
+});
+
+test('UI create ordering purge', function () {
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.ordering.purges.create', [$this->organisation->slug, $this->shop]));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->where('title', 'new purge')
+            ->has('breadcrumbs', 4)
+            ->has('formData', fn ($page) => $page
+                ->where('route', [
+                    'name'       => 'grp.models.purge.store',
+                    'parameters' => [
+                        'shop' => $this->shop->id,
+                    ]
+                ])
+                ->etc())
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'new purge')
+                    ->etc()
+            );
+    });
+});
+
+test('UI edit ordering purge', function () {
+    $purge = Purge::first();
+    $this->withoutExceptionHandling();
+    $response = get(route('grp.org.shops.show.ordering.purges.edit', [$this->organisation->slug, $this->shop, $purge]));
+    $response->assertInertia(function (AssertableInertia $page) use ($purge) {
+        $page
+            ->component('EditModel')
+            ->where('title', 'Purge')
+            ->has('breadcrumbs', 3)
+            ->has('formData', fn ($page) => $page
+                ->where('args', [
+                    'updateRoute' => [
+                        'name'       => 'grp.models.purge.update',
+                        'parameters' => $purge->id
+
+                    ],
+                ])
+                ->etc())
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $purge->scheduled_at->toISOString())
+                    ->etc()
+            );
+    });
+});
+
+test('UI get section route index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.org.shops.show.ordering.orders.index', [
+        'organisation' => $this->organisation->slug,
+        'shop'         => $this->shop->slug
+    ]);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->organisation_id)->toBe($this->organisation->id)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::SHOP_ORDERING->value)
+        ->and($sectionScope->model_slug)->toBe($this->shop->slug);
+});
