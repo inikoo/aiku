@@ -36,6 +36,7 @@ const CustomerRoles = defineAsyncComponent(() => import('@/Components/Forms/Fiel
 const JobPosition = defineAsyncComponent(() => import('@/Components/Forms/Fields/JobPosition.vue'))
 const Interest = defineAsyncComponent(() => import('@/Components/Forms/Fields/Interest.vue'))
 const EmployeePosition = defineAsyncComponent(() => import('@/Components/Forms/Fields/EmployeePosition.vue'))
+const MailshotRecipient = defineAsyncComponent(() => import('@/Components/Forms/Fields/MailshotRecipients.vue'))
 
 const AppLogin = defineAsyncComponent(() => import('@/Components/Forms/Fields/AppLogin.vue'))
 
@@ -61,6 +62,7 @@ export const componentsList: {[key: string]: Component} = {
     'interest': Interest,
     'rental': Agreement,
     'webRegistrations': WebRegistrations,
+    'mailshotRecipient' : MailshotRecipient,
 
     'action': Action,
     'theme': Theme,

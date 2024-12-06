@@ -631,6 +631,11 @@ Route::name('purchase-order.')->prefix('purchase-order/{purchaseOrder:id}')->gro
     Route::delete('transactions/{purchaseOrderTransaction:id}/delete', DeletePurchaseOrderTransaction::class)->name('transaction.delete')->withoutScopedBindings();
 });
 
+Route::name('prospect.')->prefix('prospect/{prospect:id}')->group(function () {
+    Route::post('/tags', [StoreTag::class, 'inProspect'])->name('tag.store');
+    Route::patch('/tags/attach', [SyncTagsModel::class, 'inProspect'])->name('tag.attach');
+});
+
 require __DIR__."/models/inventory/warehouse.php";
 require __DIR__."/models/inventory/location_org_stock.php";
 require __DIR__."/models/inventory/warehouse_area.php";

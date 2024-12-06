@@ -16,6 +16,7 @@ use App\Models\Catalogue\Product;
 use App\Models\Helpers\Tag;
 use App\Models\Inventory\Location;
 use App\Models\Catalogue\Shop;
+use App\Models\CRM\Prospect;
 use Illuminate\Http\RedirectResponse;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -109,6 +110,15 @@ class StoreTag extends OrgAction
         $this->parent = $shop;
         $this->fillFromRequest($request);
         $this->fill(['type' => 'crm']);
+
+        return $this->handle($this->validateAttributes());
+    }
+
+    public function inProspect(Prospect $prospect, ActionRequest $request): Tag
+    {
+        $this->fillFromRequest($request);
+        $this->fill(['type' => 'crm']);
+        $this->initialisationFromShop($prospect->shop, $request);
 
         return $this->handle($this->validateAttributes());
     }

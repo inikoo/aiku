@@ -476,7 +476,7 @@ console.log(editorInstance)
                                 <!-- Color Input -->
                                 <input type="color" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                     @input="editorInstance?.chain().focus().setColor($event.target.value).run()"
-                                    :value="editorInstance.getAttributes('highlight').color" />
+                                    :value="editorInstance.getAttributes('textStyle').color" />
                                 <!-- Icon -->
                                 <div class="flex items-center justify-center w-full h-full rounded"
                                 :style="{ color: editorInstance.getAttributes('textStyle').color || 'gray'}"

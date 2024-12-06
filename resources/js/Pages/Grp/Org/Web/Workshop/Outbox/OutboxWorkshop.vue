@@ -18,11 +18,7 @@ library.add(faArrowAltToTop, faArrowAltToBottom, faTh, faBrowser, faCube, faPale
 const props = defineProps<{
     title: string,
     pageHead: {}
-    imagesUploadRoute: routeType
-    updateRoute: routeType
-    emailTemplate: routeType
-    publishRoute: routeType
-    loadRoute: routeType
+    snapshot: any
 }>()
 
 const openTemplates = ref(false)
@@ -41,15 +37,19 @@ console.log(props)
     </PageHeading>
 
      <!-- beefree -->
-    <Beetree :updateRoute="updateRoute" :loadRoute="loadRoute" :imagesUploadRoute="imagesUploadRoute" :mailshot="{}" />
+    <Beetree 
+        :updateRoute="{}" 
+        :imagesUploadRoute="{}" 
+        :snapshot="snapshot" 
+    />
 
 
-     <!-- unlayer -->
+    <!-- unlayer -->
     <!-- <Unlayer :updateRoute="updateRoute" :loadRoute="loadRoute" :imagesUploadRoute="imagesUploadRoute" :mailshot="{}" /> -->
 
-    <Modal :isOpen="openTemplates" @onClose="openTemplates = false" width="w-[600px]">
+   <!--  <Modal :isOpen="openTemplates" @onClose="openTemplates = false" width="w-[600px]">
         <div class="overflow-y-auto">
             <TemplateMailshot @changeTemplate="changeTemplate" :mailshot="mailshot"/>
         </div>
-    </Modal>
+    </Modal> -->
 </template>
