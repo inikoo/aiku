@@ -43,6 +43,7 @@ const props = defineProps<{
     }
 }>()
 
+console.log(props)
 let fields: any = {}
 Object.entries(props.formData.blueprint).forEach(([, val]) => {
     Object.entries(val.fields).forEach(([fieldName, fieldData]: any) => {

@@ -76,7 +76,7 @@ class IndexProspectQueries extends InertiaAction
         }
 
         $query = QueryBuilder::for(Query::class)
-            ->where('model_type', 'Prospect');
+            ->where('model', 'Prospect');
 
 
         /** @noinspection PhpUndefinedMethodInspection */

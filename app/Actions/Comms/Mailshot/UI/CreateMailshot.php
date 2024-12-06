@@ -35,6 +35,26 @@ class CreateMailshot extends OrgAction
                     'required'    => true,
                     'value'       => '',
                 ],
+                'recipient_type' => [
+                    'type'        => 'radio',
+                    'label'       => __('Recipient Type'),
+                    'required'    => true,
+                    'value'       => '',
+                    'options'     => [
+                        [
+                            "label" => "custom",
+                            "value" => "custom"
+                        ],
+                        [
+                            "label" => "Query",
+                            "value" => "query"
+                        ],
+                        [
+                            "label" => "Prospect",
+                            "value" => "prospect"
+                        ],
+                    ]
+                ],
             ]
         ];
 
@@ -44,7 +64,7 @@ class CreateMailshot extends OrgAction
             'title'  => '',
             'fields' => [
                 'recipients_recipe' => [
-                    'type'        => 'prospectRecipients',
+                    'type'        => 'mailshotRecipient',
                     'label'       => __('recipients'),
                     'required'    => true,
                     'options'     => [
@@ -87,7 +107,7 @@ class CreateMailshot extends OrgAction
                         [
                             [
                                 'title'  => __('name'),
-                                'fields' => $fields
+                                'fields' => array_merge(...array_map(fn($item) => $item['fields'], $fields))
                             ]
                         ],
                     'route' => [
