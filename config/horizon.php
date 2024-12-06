@@ -99,12 +99,12 @@ return [
     */
 
     'trim' => [
-        'recent'        => env('HORIZON_RECENT_TRIM', 1),
-        'pending'       => env('HORIZON_RECENT_TRIM', 1),
-        'completed'     => env('HORIZON_RECENT_TRIM', 1),
-        'recent_failed' => env('HORIZON_FAILED_TRIM', 480),
-        'failed'        => env('HORIZON_FAILED_TRIM', 480),
-        'monitored'     => env('HORIZON_FAILED_TRIM', 480),
+        'recent'        => (int) env('HORIZON_RECENT_TRIM', 1),
+        'pending'       => (int) env('HORIZON_RECENT_TRIM', 1),
+        'completed'     => (int) env('HORIZON_RECENT_TRIM', 1),
+        'recent_failed' => (int) env('HORIZON_FAILED_TRIM', 480),
+        'failed'        => (int) env('HORIZON_FAILED_TRIM', 480),
+        'monitored'     => (int) env('HORIZON_FAILED_TRIM', 480),
     ],
 
     /*
