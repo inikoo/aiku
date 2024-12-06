@@ -8,6 +8,7 @@
 
 use App\Actions\Accounting\PaymentAccount\Json\GetShopPaymentAccounts;
 use App\Actions\Catalogue\Collection\Json\GetCollections;
+use App\Actions\Catalogue\Product\Json\GetOrderProducts;
 use App\Actions\Catalogue\Product\Json\GetProducts;
 use App\Actions\Catalogue\ProductCategory\Json\GetDepartments;
 use App\Actions\Catalogue\ProductCategory\Json\GetFamilies;
@@ -47,7 +48,7 @@ Route::get('shop/{shop}/payment-accounts', GetShopPaymentAccounts::class)->name(
 
 
 Route::get('shop/{shop}/catalogue/collection/{scope}/products', GetProducts::class)->name('shop.catalogue.collection.products');
-Route::get('shop/{shop}/catalogue/order/{scope}/products', [GetProducts::class, 'inOrder'])->name('shop.catalogue.order.products');
+Route::get('shop/{shop}/catalogue/order/{order}/products', GetOrderProducts::class)->name('shop.catalogue.order.products');
 Route::get('shop/{shop}/catalogue/{scope}/departments', GetDepartments::class)->name('shop.catalogue.departments');
 Route::get('shop/{shop}/catalogue/{scope}/families', GetFamilies::class)->name('shop.catalogue.families');
 Route::get('shop/{shop}/catalogue/{scope}/collections', GetCollections::class)->name('shop.catalogue.collections');
