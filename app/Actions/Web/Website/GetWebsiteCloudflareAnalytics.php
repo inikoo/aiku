@@ -52,17 +52,30 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
         $queryRumSparklineBydatetimeGroupByAll = $this->getQueryRumSparklineBydatetimeGroupByAll($modelData);
         $queryZone = $this->getQueryZone($zoneTag, $modelData);
 
+        $cacheKey = "cloudflare_analytics_{$website->id}_" . md5(json_encode($modelData));
+        $cacheTTL = now()->addMinutes(30); // Cache for 30 minutes
+
+        $cachedData = cache()->get($cacheKey);
+
+        if ($cachedData) {
+            return $cachedData;
+        }
+
         $topPromise = $queryAnalyticTopNs ? async(fn () => $this->getCloudflareAnalytics($modelData, $queryAnalyticTopNs)) : [];
         $rumGroupAllPromise = $queryRumSparklineBydatetimeGroupByAll ? async(fn () => $this->getCloudflareAnalytics($modelData, $queryRumSparklineBydatetimeGroupByAll)) : [];
         $zonePromise = async(fn () => $this->getCloudflareAnalytics($modelData, $queryZone));
 
         [$top, $zone, $rumGroupAll] = await([$topPromise, $zonePromise, $rumGroupAllPromise]);
 
-        return [
+        $data = [
             'top' => $top,
             'zone' => $zone,
             'rumGroupAll' => $rumGroupAll,
         ];
+
+        cache()->put($cacheKey, $data, $cacheTTL);
+
+        return $data;
     }
 
     private function getCloudflareAnalytics(array $modelData, string $query, $try = 3): array
