@@ -99,12 +99,12 @@ return [
     */
 
     'trim' => [
-        'recent'        => 60,
-        'pending'       => 60,
-        'completed'     => 60,
-        'recent_failed' => 10080,
-        'failed'        => 10080,
-        'monitored'     => 10080,
+        'recent'        => env('HORIZON_RECENT_TRIM', 1),
+        'pending'       => env('HORIZON_RECENT_TRIM', 1),
+        'completed'     => env('HORIZON_RECENT_TRIM', 1),
+        'recent_failed' => env('HORIZON_FAILED_TRIM', 480),
+        'failed'        => env('HORIZON_FAILED_TRIM', 480),
+        'monitored'     => env('HORIZON_FAILED_TRIM', 480),
     ],
 
     /*
