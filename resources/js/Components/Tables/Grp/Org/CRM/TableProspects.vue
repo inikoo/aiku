@@ -33,9 +33,9 @@ function prospectRoute(prospect: Prospect) {
 <template>
     <Table :resource="data" :name="tab" class="mt-5">
         <template #cell(name)="{ item: prospect }">
-            <Link :href="prospectRoute(prospect)">
+            <!-- <Link :href="prospectRoute(prospect)"> -->
                 {{ prospect['name'] }}
-            </Link>
+            <!-- </Link> -->
         </template>
     </Table>
 </template>
