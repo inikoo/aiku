@@ -36,7 +36,7 @@ class ProspectsResource extends JsonResource
             'email'      => $this->email,
             'phone'      => $prospect->phone,
             'website'    => $prospect->contact_website,
-            'tags'       => $prospect->tags()->pluck('name'),
+            'tags'       => $prospect->tags()->pluck('slug')->toArray(),
             'state'      => $prospect->state,
             'state_icon' => $prospect->state->stateIcon()[$prospect->state->value],
 

@@ -239,13 +239,21 @@ class IndexProspects extends OrgAction
                         'parameters' => []
                     ],
                 ],
-
+                'tagRoute'   => [
+                    'store' => [
+                        'name'       => 'grp.models.prospect.tag.store',
+                        'parameters' => []
+                    ],
+                    'update' => [
+                        'name'       => 'grp.models.prospect.tag.attach',
+                        'parameters' => []
+                    ],
+                ],
+                'tagsList'    => TagResource::collection(Tag::where('type', 'crm')->get()),
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => ProspectsTabsEnum::navigation(),
                 ],
-
-                'tags' => TagResource::collection(Tag::all()),
 
                 ProspectsTabsEnum::DASHBOARD->value => $this->tab == ProspectsTabsEnum::DASHBOARD->value ?
                     fn () => GetProspectsDashboard::run($this->parent, $request)
