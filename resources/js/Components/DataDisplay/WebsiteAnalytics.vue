@@ -67,9 +67,6 @@ const options = ref(["24 Hours", "7 Days", "30 Days"])
 const metrics = [
 	{ label: "Unique Visitors", dataKey: "uniques", color: "--p-cyan-500" },
 	{ label: "Total Requests", dataKey: "requests", color: "--p-blue-500" },
-	{ label: "Percent Cached", dataKey: "cachedRequests", color: "--p-green-500", unit: "%" },
-	{ label: "Total Data Served (GB)", dataKey: "bytes", color: "--p-purple-500", unit: "GB" },
-	{ label: "Data Cached (GB)", dataKey: "cachedBytes", color: "--p-orange-500", unit: "GB" },
 ]
 const chartsData = ref([])
 const chartsOptions = ref([])
@@ -188,31 +185,9 @@ const setChartDataAndOptions = () => {
 			icon: "fal fa-chart-line",
 			change: "",
 			changeType: "",
-		},
-		{
-			id: 3,
-			label: "Percent Cached",
-			value: `${((cachedRequests / totalRequests) * 100).toFixed(2)}%`,
-			icon: "fal fa-database",
-			change: "",
-			changeType: "",
-		},
-		{
-			id: 4,
-			label: "Total Data Served",
-			value: `${(totalBytes / 1024 ** 3).toFixed(2)} GB`,
-			icon: "fal fa-hdd",
-			change: "",
-			changeType: "",
-		},
-		{
-			id: 5,
-			label: "Data Cached",
-			value: `${((cachedRequests * (totalBytes / totalRequests)) / 1024 ** 3).toFixed(2)} GB`,
-			icon: "fal fa-cloud-download",
-			change: "",
-			changeType: "",
-		},
+		}
+		
+		
 	]
 }
 
