@@ -260,6 +260,6 @@ return [
     'dice_bear' => [
         'mock'  => env('DICE_BEAR_MOCK', false),
         'url'   => env('DICE_BEAR_API_URL', 'https://api.dicebear.com/9.x'),
-    ]
-
+    ],
+    'log_user_requests'=>env('LOG_USER_REQUESTS',false),
 ];

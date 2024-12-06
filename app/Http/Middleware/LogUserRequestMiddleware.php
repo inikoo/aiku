@@ -18,6 +18,10 @@ class LogUserRequestMiddleware
     public function handle(Request $request, Closure $next)
     {
 
+        if(!config('app.log_user_requests')) {
+            return $next($request);
+        }
+
         if (!str_starts_with($request->route()->getName(), 'grp.')) {
             return $next($request);
         }
@@ -34,10 +38,10 @@ class LogUserRequestMiddleware
                 $user,
                 now(),
                 [
-                'name'      => $request->route()->getName(),
-                'arguments' => $request->route()->originalParameters(),
-                'url'       => $request->path(),
-            ],
+                    'name'      => $request->route()->getName(),
+                    'arguments' => $request->route()->originalParameters(),
+                    'url'       => $request->path(),
+                ],
                 $request->ip(),
                 $request->header('User-Agent')
             );
