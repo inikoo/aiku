@@ -48,7 +48,12 @@ class DepartmentsResource extends JsonResource
             'created_at'               => $this->created_at,
             'updated_at'               => $this->updated_at,
             'number_current_families'  => $this->number_current_families,
-            'number_current_products'  => $this->number_current_products
+            'number_current_products'  => $this->number_current_products,
+            'sales_pq1'                => $this->sales_pq1,
+            'sales_pq2'                => $this->sales_pq2,
+            'sales_pq3'                => $this->sales_pq3,
+            'sales_pq4'                => $this->sales_pq4,
+            'sales_pq5'                => $this->sales_pq5,
         ];
     }
 }
