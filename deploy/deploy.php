@@ -31,6 +31,7 @@ set('shared_dirs', ['storage', 'private']);
 set('shared_files', [
     '.env',
     '.env.testing',
+    '.user.ini',
     'aurora_accounting_migration.sh',
     'aurora_catalogue_migration.sh',
     'aurora_comms_migration.sh',
