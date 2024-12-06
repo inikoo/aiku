@@ -52,7 +52,6 @@ use App\Models\Helpers\Address;
 use App\Models\HumanResources\Employee;
 use App\Models\Ordering\Transaction;
 use App\Models\SupplyChain\Stock;
-use Throwable;
 
 beforeAll(function () {
     loadDB();
@@ -63,7 +62,7 @@ beforeEach(function () {
         $this->organisation,
         $this->user,
         $this->shop
-        ) = createShop();
+    ) = createShop();
 
     $this->group = $this->organisation->group;
 
@@ -72,7 +71,7 @@ beforeEach(function () {
     list(
         $this->tradeUnit,
         $this->product
-        ) = createProduct($this->shop);
+    ) = createProduct($this->shop);
 
     $this->customer = createCustomer($this->shop);
     $this->order    = createOrder($this->customer, $this->product);

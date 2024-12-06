@@ -107,7 +107,7 @@ class CreateMailshot extends OrgAction
                         [
                             [
                                 'title'  => __('name'),
-                                'fields' => array_merge(...array_map(fn($item) => $item['fields'], $fields))
+                                'fields' => array_merge(...array_map(fn ($item) => $item['fields'], $fields))
                             ]
                         ],
                     'route' => [
