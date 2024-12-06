@@ -64,7 +64,6 @@ beforeAll(function () {
 });
 
 beforeEach(
-
     function () {
         $this->organisation = createOrganisation();
         $this->group        = group();
@@ -74,7 +73,6 @@ beforeEach(
         actingAs($this->guest->getUser());
 
     }
-
 );
 
 test('create warehouse', function () {
@@ -836,4 +834,3 @@ test('UI get section route org warehouses index', function () {
         ->and($sectionScope->code)->toBe(AikuSectionEnum::ORG_WAREHOUSE->value)
         ->and($sectionScope->model_slug)->toBe($this->organisation->slug);
 });
-

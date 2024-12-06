@@ -246,7 +246,6 @@ return [
     ],
 
 
-
     'currency_exchange' => [
         'pivot'     => env('EXCHANGE_PIVOT_CURRENCY', 'GBP'),
         'providers' => [
@@ -254,12 +253,12 @@ return [
         ]
     ],
 
-    'with_user_legacy_passwords'    => env('WITH_USER_LEGACY_PASSWORDS', false),
+    'with_user_legacy_passwords'     => env('WITH_USER_LEGACY_PASSWORDS', false),
     'with_web_user_legacy_passwords' => env('WITH_WEB_USER_LEGACY_PASSWORDS', false),
 
-    'dice_bear' => [
-        'mock'  => env('DICE_BEAR_MOCK', false),
-        'url'   => env('DICE_BEAR_API_URL', 'https://api.dicebear.com/9.x'),
+    'dice_bear'         => [
+        'mock' => env('DICE_BEAR_MOCK', false),
+        'url'  => env('DICE_BEAR_API_URL', 'https://api.dicebear.com/9.x'),
     ],
-    'log_user_requests'=>env('LOG_USER_REQUESTS',false),
+    'log_user_requests' => env('LOG_USER_REQUESTS', false),
 ];

@@ -18,7 +18,7 @@ class LogUserRequestMiddleware
     public function handle(Request $request, Closure $next)
     {
 
-        if(!config('app.log_user_requests')) {
+        if (!config('app.log_user_requests')) {
             return $next($request);
         }
 

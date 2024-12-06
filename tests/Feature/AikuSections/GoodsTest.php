@@ -125,7 +125,7 @@ test('delete stock family', function ($stockFamily) {
 })->depends('create stock family');
 
 test("UI Edit stock family", function () {
-    
+
     $stockFamily = StoreStockFamily::make()->action(
         $this->group,
         StockFamily::factory()->definition()
@@ -155,7 +155,7 @@ test("UI Edit stock family", function () {
 
 test("UI Show Stock Family", function () {
     $stockFamily = StockFamily::first();
-    
+
     $response = get(
         route("grp.goods.stock-families.show", [$stockFamily->slug])
     );
@@ -174,7 +174,7 @@ test("UI Show Stock Family", function () {
 });
 
 test("UI Index Stocks", function () {
-    
+
     $response = get(
         route("grp.goods.stocks.index")
     );
@@ -189,7 +189,7 @@ test("UI Index Stocks", function () {
 });
 
 test("UI Show Stocks", function () {
-    
+
     $stock = Stock::first();
     $response = get(
         route("grp.goods.stocks.show", [$stock->slug])
@@ -208,7 +208,7 @@ test("UI Show Stocks", function () {
 });
 
 test("UI Index Trade Units", function () {
-    
+
     $response = get(
         route("grp.goods.trade-units.index")
     );
@@ -223,7 +223,7 @@ test("UI Index Trade Units", function () {
 });
 
 test("UI Show TradeUnit", function () {
-    
+
     $tradeUnit = TradeUnit::first();
     $response = get(
         route("grp.goods.trade-units.show", [$tradeUnit->slug])
@@ -242,7 +242,7 @@ test("UI Show TradeUnit", function () {
 });
 
 test("UI Create Stock in Group", function () {
-    
+
     $response = get(
         route("grp.goods.stocks.create")
     );
@@ -264,12 +264,12 @@ test("UI Create Stock in Group", function () {
 });
 
 test("UI Edit Stock in Group", function () {
-    
+
     $stock = Stock::first();
     $response = get(
         route("grp.goods.stocks.edit", [$stock->slug])
     );
-    $response->assertInertia(function (AssertableInertia $page) use ($stock){
+    $response->assertInertia(function (AssertableInertia $page) use ($stock) {
         $page
             ->component("EditModel")
             ->where("title", "sku")
@@ -289,7 +289,7 @@ test("UI Edit Stock in Group", function () {
 });
 
 test("UI Create Stock in Stock Family Group", function () {
-    
+
     $stockFamily = StockFamily::first();
     $response = get(
         route("grp.goods.stock-families.show.stocks.create", [$stockFamily->slug])
