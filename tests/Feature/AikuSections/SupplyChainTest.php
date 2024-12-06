@@ -8,6 +8,7 @@
 
 /** @noinspection PhpUnhandledExceptionInspection */
 
+use App\Actions\Analytics\GetSectionRoute;
 use App\Actions\Goods\TradeUnit\StoreTradeUnit;
 use App\Actions\Procurement\OrgAgent\StoreOrgAgent;
 use App\Actions\Procurement\OrgAgent\UpdateOrgAgent;
@@ -20,6 +21,8 @@ use App\Actions\SupplyChain\Supplier\DeleteSupplier;
 use App\Actions\SupplyChain\Supplier\StoreSupplier;
 use App\Actions\SupplyChain\Supplier\UpdateSupplier;
 use App\Actions\SupplyChain\SupplierProduct\StoreSupplierProduct;
+use App\Enums\Analytics\AikuSection\AikuSectionEnum;
+use App\Models\Analytics\AikuScopedSection;
 use App\Models\Goods\TradeUnit;
 use App\Models\Procurement\OrgAgent;
 use App\Models\Procurement\OrgAgentStats;
@@ -28,6 +31,9 @@ use App\Models\Procurement\OrgSupplierStats;
 use App\Models\SupplyChain\Agent;
 use App\Models\SupplyChain\Supplier;
 use App\Models\SupplyChain\SupplierProduct;
+use Inertia\Testing\AssertableInertia;
+
+use function Pest\Laravel\actingAs;
 
 beforeAll(function () {
     loadDB();
@@ -35,10 +41,17 @@ beforeAll(function () {
 
 
 beforeEach(function () {
-    $this->organisation    = createOrganisation();
-    $this->group           = group();
-    $this->stocks          = createStocks($this->group);
+    $this->organisation = createOrganisation();
+    $this->group        = group();
+    $this->stocks       = createStocks($this->group);
 
+    $this->adminGuest = createAdminGuest($this->organisation->group);
+
+    Config::set(
+        'inertia.testing.page_paths',
+        [resource_path('js/Pages/Grp')]
+    );
+    actingAs($this->adminGuest->getUser());
 });
 
 test('create agent', function () {
@@ -53,15 +66,14 @@ test('create agent', function () {
         ->and($this->group->supplyChainStats->number_archived_agents)->toBe(0);
 
 
-
     return $agent;
 });
 
 test('update agent', function (Agent $agent) {
-    $modelData = [
+    $modelData    = [
         'name' => 'UpdatedName'
     ];
-    $updatedAgent     = UpdateAgent::make()->action(
+    $updatedAgent = UpdateAgent::make()->action(
         agent: $agent,
         modelData: $modelData
     );
@@ -102,10 +114,10 @@ test('create independent supplier', function () {
 });
 
 test('update supplier', function (Supplier $supplier) {
-    $modelData = [
+    $modelData       = [
         'contact_name' => 'UpdatedName'
     ];
-    $updatedSupplier     = UpdateSupplier::make()->action(
+    $updatedSupplier = UpdateSupplier::make()->action(
         supplier: $supplier,
         modelData: $modelData
     );
@@ -148,7 +160,6 @@ test('create supplier in agent', function ($agent) {
 })->depends('create agent');
 
 test('create supplier product independent supplier', function ($supplier) {
-
     $supplierProductData = SupplierProduct::factory()->definition();
     data_set($supplierProductData, 'stock_id', $this->stocks[0]->id);
     $supplierProduct = StoreSupplierProduct::make()->action($supplier, $supplierProductData);
@@ -257,4 +268,94 @@ test('delete supplier', function () {
     expect(Supplier::find($supplier->id))->toBeNull();
 
     return $deletedSupplier;
+});
+
+test('UI Index suppliers', function () {
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.supply-chain.suppliers.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SupplyChain/Suppliers')
+            ->has('title')
+            ->has('pageHead')
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI show supplier', function () {
+    $supplier = Supplier::first();
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.supply-chain.suppliers.show', [$supplier->slug]));
+    $response->assertInertia(function (AssertableInertia $page) use ($supplier) {
+        $page
+            ->component('SupplyChain/Supplier')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $supplier->name)
+                    ->etc()
+            )
+            ->has('tabs');
+    });
+});
+
+test('UI Index agents', function () {
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.supply-chain.agents.index'));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('SupplyChain/Agents')
+            ->has('title')
+            ->has('pageHead')
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI show agent', function () {
+    $agent = Agent::first();
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.supply-chain.agents.show', [$agent->slug]));
+    $response->assertInertia(function (AssertableInertia $page) use ($agent) {
+        $page
+            ->component('SupplyChain/Agent')
+            ->has('title')
+            ->has('breadcrumbs', 3)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $agent->organisation->name)
+                    ->etc()
+            )
+            ->has('tabs');
+    });
+});
+
+test('UI create agent', function () {
+    $this->withoutExceptionHandling();
+    $response = $this->get(route('grp.supply-chain.agents.create'));
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('CreateModel')
+            ->has('title')
+            ->has('breadcrumbs', 4)
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'new agent')
+                    ->etc()
+            )
+            ->has('formData');
+    });
+});
+
+test('UI get section route group supply chain index', function () {
+    $sectionScope = GetSectionRoute::make()->handle('grp.supply-chain.suppliers.index', []);
+    expect($sectionScope)->toBeInstanceOf(AikuScopedSection::class)
+        ->and($sectionScope->code)->toBe(AikuSectionEnum::GROUP_SUPPLY_CHAIN->value);
 });

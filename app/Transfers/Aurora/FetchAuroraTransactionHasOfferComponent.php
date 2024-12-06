@@ -45,18 +45,28 @@ class FetchAuroraTransactionHasOfferComponent extends FetchAurora
         if ($fractionDiscount > 1) {
             $fractionDiscount = 1;
         }
+        if ($fractionDiscount <= 0) {
+            unset($fractionDiscount);
+        }
+
+        if ($this->auroraModelData->{'Amount Discount'} < 0) {
+            return;
+        }
 
 
         $this->parsedData['transaction_has_offer_component'] = [
-            'source_id'             => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Deal Key'},
-            'offer_component_id'    => $offerComponent->id,
-            'discounted_amount'     => $this->auroraModelData->{'Amount Discount'},
-            'discounted_percentage' => $fractionDiscount,
-            'info'                  => $this->auroraModelData->{'Deal Info'},
-            'is_pinned'             => $this->auroraModelData->{'Order Transaction Deal Pinned'} == 'Yes',
-            'fetched_at'            => now(),
-            'last_fetched_at'       => now(),
+            'source_id'          => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Deal Key'},
+            'offer_component_id' => $offerComponent->id,
+            'discounted_amount'  => $this->auroraModelData->{'Amount Discount'},
+            'info'               => $this->auroraModelData->{'Deal Info'},
+            'is_pinned'          => $this->auroraModelData->{'Order Transaction Deal Pinned'} == 'Yes',
+            'fetched_at'         => now(),
+            'last_fetched_at'    => now(),
         ];
+
+        if (isset($fractionDiscount)) {
+            $this->parsedData['transaction_has_offer_component']['discounted_amount'] = $fractionDiscount;
+        }
 
         if (!($this->auroraModelData->{'Order Transaction Deal Metadata'} == '' or $this->auroraModelData->{'Order Transaction Deal Metadata'} == '{}')) {
             $this->parsedData['transaction_has_offer_component']['data'] = json_decode($this->auroraModelData->{'Order Transaction Deal Metadata'}, true);
