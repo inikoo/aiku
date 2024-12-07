@@ -29,10 +29,8 @@ trait WithLogRequest
     {
         if (explode(' ', $browser)[0] == 'chrome') {
             return 'fab fa-chrome';
-        } else {
-            if ($browser == 'microsoft') {
-                return 'fab fa-edge';
-            }
+        } elseif ($browser == 'microsoft') {
+            return 'fab fa-edge';
         }
 
         return 'fab fa-firefox-browser';
@@ -42,10 +40,8 @@ trait WithLogRequest
     {
         if ($platform == 'android') {
             return 'fab fa-android';
-        } else {
-            if ($platform == 'apple') {
-                return 'fab fa-apple';
-            }
+        } elseif ($platform == 'apple') {
+            return 'fab fa-apple';
         }
 
         return 'fab fa-windows';

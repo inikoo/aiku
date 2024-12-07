@@ -97,13 +97,6 @@ class StoreUser extends GrpAction
                 new IUnique(
                     table: 'users',
                     column: 'username',
-                    extraConditions: [
-
-                        [
-                            'column' => 'group_id',
-                            'value'  => $this->group->id
-                        ],
-                    ]
                 ),
                 Rule::notIn(['export', 'create'])
             ],
@@ -114,15 +107,8 @@ class StoreUser extends GrpAction
                 'nullable',
                 'email',
                 new IUnique(
-                    table: 'users',
-                    extraConditions: [
-                        [
-                            'column' => 'group_id',
-                            'value'  => $this->group->id
-                        ],
-                    ]
+                    table: 'users'
                 ),
-
             ],
             'contact_name'      => ['sometimes', 'string', 'max:255'],
             'auth_type'         => ['sometimes', Rule::enum(UserAuthTypeEnum::class)],

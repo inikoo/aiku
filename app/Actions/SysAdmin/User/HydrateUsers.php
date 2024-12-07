@@ -12,11 +12,12 @@ use App\Actions\HydrateModel;
 use App\Actions\SysAdmin\User\Hydrators\UserHydrateAuthorisedModels;
 use App\Actions\SysAdmin\User\Hydrators\UserHydrateModels;
 use App\Models\SysAdmin\User;
+use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 
 class HydrateUsers extends HydrateModel
 {
-    public string $commandSignature = 'hydrate:users {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'hydrate:users';
 
 
     public function handle(User $user): void
@@ -25,13 +26,21 @@ class HydrateUsers extends HydrateModel
         UserHydrateModels::run($user);
     }
 
-    protected function getModel(string $slug): User
+    public function asCommand(Command $command): int
     {
-        return User::where('slug', $slug)->first();
-    }
+        $count = User::count();
+        $bar   = $command->getOutput()->createProgressBar($count);
+        $bar->setFormat('debug');
+        $bar->start();
+        User::chunk(1000, function (Collection $models) use ($bar) {
+            foreach ($models as $model) {
+                $this->handle($model);
+                $bar->advance();
+            }
+        });
+        $bar->finish();
 
-    protected function getAllModels(): Collection
-    {
-        return User::withTrashed()->get();
+
+        return 0;
     }
 }

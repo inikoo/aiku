@@ -36,6 +36,7 @@ class SetIconAsUserImage
     public function asCommand(Command $command): int
     {
         try {
+            /** @var User $user */
             $user = User::where('slug', $command->argument('slug'))->firstOrFail();
         } catch (Exception) {
             $command->error('User not found');

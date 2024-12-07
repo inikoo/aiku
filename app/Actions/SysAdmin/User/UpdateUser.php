@@ -30,7 +30,6 @@ class UpdateUser extends GrpAction
 
     public function handle(User $user, array $modelData): User
     {
-
         if (Arr::exists($modelData, 'password')) {
             $this->set('auth_type', UserAuthTypeEnum::DEFAULT);
         }
@@ -50,68 +49,63 @@ class UpdateUser extends GrpAction
         if ($this->asAction) {
             return true;
         }
-        return  $request->user()->hasPermissionTo('sysadmin.edit');
 
+        return $request->user()->hasPermissionTo('sysadmin.edit');
     }
 
     public function rules(): array
     {
         $rules = [
-            'username'        => ['sometimes','required', 'lowercase',
+            'username'       => [
+                'sometimes',
+                'required',
+                'lowercase',
 
-                                  $this->strict ? new AlphaDashDot() : 'string',
+                $this->strict ? new AlphaDashDot() : 'string',
 
-                                   Rule::notIn(['export', 'create']),
-                                  new IUnique(
-                                      table: 'users',
-                                      extraConditions: [
-                                          [
-                                              'column'   => 'group_id',
-                                              'value'    => $this->group->id
-                                          ],
-                                          [
-                                              'column'   => 'id',
-                                              'operator' => '!=',
-                                              'value'    => $this->user->id
-                                          ],
-                                      ]
-                                  ),
-
-
-
-
+                Rule::notIn(['export', 'create']),
+                new IUnique(
+                    table: 'users',
+                    extraConditions: [
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->user->id
+                        ],
+                    ]
+                ),
             ],
-            'password'        => ['sometimes','required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
-            'email'           => ['sometimes', 'nullable', 'email',
-                                  new IUnique(
-                                      table: 'employees',
-                                      extraConditions: [
-                                          [
-                                              'column' => 'group_id',
-                                              'value'  => $this->group->id
-                                          ],
-                                          [
-                                              'column'   => 'id',
-                                              'operator' => '!=',
-                                              'value'    => $this->user->id
-                                          ],
-                                      ]
-                                  ),
-                ],
-            'contact_name'    => ['sometimes', 'string', 'max:255'],
-            'reset_password'  => ['sometimes', 'boolean'],
-            'auth_type'       => ['sometimes', Rule::enum(UserAuthTypeEnum::class)],
-            'status'          => ['sometimes', 'boolean'],
-            'language_id'     => ['sometimes', 'required', 'exists:languages,id'],
+            'password'       => ['sometimes', 'required', app()->isLocal() || app()->environment('testing') || !$this->strict ? null : Password::min(8)->uncompromised()],
+            'email'          => [
+                'sometimes',
+                'nullable',
+                'email',
+                new IUnique(
+                    table: 'employees',
+                    extraConditions: [
+                        [
+                            'column'   => 'id',
+                            'operator' => '!=',
+                            'value'    => $this->user->id
+                        ],
+                    ]
+                ),
+            ],
+            'contact_name'   => ['sometimes', 'string', 'max:255'],
+            'reset_password' => ['sometimes', 'boolean'],
+            'auth_type'      => ['sometimes', Rule::enum(UserAuthTypeEnum::class)],
+            'status'         => ['sometimes', 'boolean'],
+            'language_id'    => ['sometimes', 'required', 'exists:languages,id'],
         ];
 
         if (!$this->strict) {
-            $rules['deleted_at'] = [ 'sometimes', 'date'];
-            $rules['created_at'] = [ 'sometimes', 'date'];
-            $rules['last_fetched_at'] = [ 'sometimes', 'date'];
-            $rules['source_id'] = ['sometimes', 'string', 'max:255'];
+            $rules['deleted_at']      = ['sometimes', 'date'];
+            $rules['created_at']      = ['sometimes', 'date'];
+            $rules['last_fetched_at'] = ['sometimes', 'date'];
+            $rules['source_id']       = ['sometimes', 'string', 'max:255'];
             $rules['legacy_password'] = ['sometimes', 'string'];
         }
+
         return $rules;
     }
 
@@ -119,6 +113,7 @@ class UpdateUser extends GrpAction
     {
         $this->user = $user;
         $this->initialisation($user->group, $request);
+
         return $this->handle($user, $this->validatedData);
     }
 
@@ -129,13 +124,12 @@ class UpdateUser extends GrpAction
             User::disableAuditing();
         }
 
-        $this->user     = $user;
-        $this->asAction = true;
+        $this->user           = $user;
+        $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
         $this->initialisation($user->group, $modelData);
 
         return $this->handle($user, $this->validatedData);
-
     }
 
     public function jsonResponse(User $user): UsersResource
