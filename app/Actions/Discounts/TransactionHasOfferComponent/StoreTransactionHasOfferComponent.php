@@ -53,8 +53,8 @@ class StoreTransactionHasOfferComponent extends OrgAction
             'is_pinned'             => ['sometimes', 'boolean'],
             'info'                  => ['sometimes', 'nullable', 'string', 'max:10000'],
             'data'                  => ['sometimes', 'nullable', 'array'],
-            'discounted_amount'     => ['required', 'nullable', 'numeric'],
-            'discounted_percentage' => ['required', 'nullable', 'numeric', 'min:0', 'max:1'],
+            'discounted_amount'     => ['sometimes', 'nullable', 'numeric'],
+            'discounted_percentage' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:1'],
             'precursor'             => ['sometimes', 'nullable', 'string'],
         ];
 
