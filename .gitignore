@@ -90,3 +90,4 @@ create_wowsbar_*
 /pull_production_db.sh
 /storage/media/
 /storage/media_test/
+/sync_aiku.sh
