@@ -28,18 +28,17 @@ class FetchAuroraNoProductTransactionHasOfferComponents
     {
         $this->organisationSource = $organisationSource;
 
-        $transactionHasOfferComponentData = $organisationSource->fetchNoProductTransactionHasOfferComponent(id: $source_id, order: $order);
-        if (!$transactionHasOfferComponentData) {
+        $noProductTransactionHasOfferComponentData = $organisationSource->fetchNoProductTransactionHasOfferComponent(id: $source_id, order: $order);
+        if (!$noProductTransactionHasOfferComponentData) {
             return null;
         }
 
-
-        $transactionHasOfferComponent      = TransactionHasOfferComponent::where('source_alt_id', $transactionHasOfferComponentData['transaction_has_offer_component']['source_alt_id'])->first();
+        $transactionHasOfferComponent = TransactionHasOfferComponent::where('source_alt_id', $noProductTransactionHasOfferComponentData['transaction_has_offer_component']['source_alt_id'])->first();
 
         if ($transactionHasOfferComponent) {
             $transactionHasOfferComponent = UpdateTransactionHasOfferComponent::make()->action(
                 transactionHasOfferComponent: $transactionHasOfferComponent,
-                modelData: $transactionHasOfferComponentData,
+                modelData: $noProductTransactionHasOfferComponentData,
                 hydratorsDelay: 60,
                 strict: false
             );
@@ -47,9 +46,9 @@ class FetchAuroraNoProductTransactionHasOfferComponents
 
         if (!$transactionHasOfferComponent) {
             $transactionHasOfferComponent = StoreTransactionHasOfferComponent::make()->action(
-                transaction: $transactionHasOfferComponentData['transaction'],
-                offerComponent: $transactionHasOfferComponentData['offer_component'],
-                modelData: $transactionHasOfferComponentData['transaction_has_offer_component'],
+                transaction: $noProductTransactionHasOfferComponentData['transaction'],
+                offerComponent: $noProductTransactionHasOfferComponentData['offer_component'],
+                modelData: $noProductTransactionHasOfferComponentData['transaction_has_offer_component'],
                 hydratorsDelay: 60,
                 strict: false
             );
@@ -57,7 +56,6 @@ class FetchAuroraNoProductTransactionHasOfferComponents
 
         return $transactionHasOfferComponent;
     }
-
 
 
 }

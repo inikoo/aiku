@@ -52,6 +52,7 @@ class FetchAuroraNoProductTransactionHasOfferComponent extends FetchAurora
         }
 
         if ($this->auroraModelData->{'Amount Discount'} < 0) {
+            $this->parsedData = null;
             return;
         }
 
