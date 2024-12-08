@@ -121,9 +121,9 @@ test(
     'outbox seeded when fulfilment created',
     function () {
         $fulfilment = createFulfilment($this->organisation);
-        expect($fulfilment->group->commsStats->number_outboxes)->toBe(37)
-            ->and($fulfilment->organisation->commsStats->number_outboxes)->toBe(37)
-            ->and($fulfilment->shop->commsStats->number_outboxes)->toBe(4);
+        expect($fulfilment->group->commsStats->number_outboxes)->toBe(41)
+            ->and($fulfilment->organisation->commsStats->number_outboxes)->toBe(41)
+            ->and($fulfilment->shop->commsStats->number_outboxes)->toBe(8);
 
         return $fulfilment;
     }
@@ -132,7 +132,7 @@ test(
 test('seed fulfilments outboxes by command', function (Fulfilment $fulfilment) {
     $this->artisan('fulfilment:seed_outboxes '.$fulfilment->slug)->assertExitCode(0);
     $this->artisan('fulfilment:seed_outboxes')->assertExitCode(0);
-    expect($fulfilment->group->commsStats->number_outboxes)->toBe(37);
+    expect($fulfilment->group->commsStats->number_outboxes)->toBe(41);
 })->depends('outbox seeded when fulfilment created');
 
 
