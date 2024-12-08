@@ -657,7 +657,7 @@ test('hydrate families', function (ProductCategory $family) {
 
 test('hydrate products', function (Product $product) {
     HydrateProducts::run($product);
-    $this->artisan('products:hydrate')->assertExitCode(0);
+    $this->artisan('hydrate:products')->assertExitCode(0);
 })->depends('create product');
 
 

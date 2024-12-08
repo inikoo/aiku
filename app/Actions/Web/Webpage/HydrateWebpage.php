@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class HydrateWebpage extends HydrateModel
 {
-    public string $commandSignature = 'webpage:hydrate {organisations?*} {--s|slugs=} ';
+    public string $commandSignature = 'hydrate:webpages {organisations?*} {--s|slugs=} ';
 
 
     public function handle(Webpage $webpage): void

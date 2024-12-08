@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 
 class HydrateTimesheet extends HydrateModel
 {
-    public string $commandSignature = 'timesheet:hydrate {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'hydrate:timesheets {organisations?*} {--s|slugs=}';
 
 
     public function handle(Timesheet $timesheet): void

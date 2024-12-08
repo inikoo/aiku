@@ -8,7 +8,6 @@
 
 namespace App\Actions\SysAdmin\User;
 
-use App\Actions\SysAdmin\User\Hydrators\UserHydrateAuthorisedModels;
 use App\Actions\SysAdmin\User\Traits\WithRolesCommand;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\SysAdmin\Role;
@@ -29,7 +28,7 @@ class UserSyncRoles
     {
 
         $user->syncRoles($roles);
-        UserHydrateAuthorisedModels::run($user);
+        SetUserAuthorisedModels::run($user);
 
         return $user;
     }

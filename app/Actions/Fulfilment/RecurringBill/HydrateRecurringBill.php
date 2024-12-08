@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 
 class HydrateRecurringBill extends HydrateModel
 {
-    public string $commandSignature = 'recurring_bill:hydrate {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'hydrate:recurring_bills {organisations?*} {--s|slugs=}';
 
     public function handle(RecurringBill $recurringBill): void
     {

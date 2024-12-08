@@ -8,7 +8,6 @@
 
 namespace App\Actions\SysAdmin\User;
 
-use App\Actions\SysAdmin\User\Hydrators\UserHydrateAuthorisedModels;
 use App\Actions\SysAdmin\User\Traits\WithRolesCommand;
 use App\Actions\Traits\WithActionUpdate;
 use App\Models\SysAdmin\Role;
@@ -30,7 +29,7 @@ class UserRemoveRoles
         foreach ($roles as $role) {
             $user->removeRole($role);
         }
-        UserHydrateAuthorisedModels::run($user);
+        SetUserAuthorisedModels::run($user);
         return $user;
     }
 

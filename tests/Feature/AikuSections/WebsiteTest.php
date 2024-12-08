@@ -265,7 +265,7 @@ test('launch fulfilment website from command', function (Website $website) {
 // Hydrator commands
 
 test('hydrate website from command', function (Website $website) {
-    $this->artisan('website:hydrate', [
+    $this->artisan('hydrate:websites', [
         'organisations' => $this->organisation->slug,
         '--slugs'       => $website->slug
     ])

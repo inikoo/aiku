@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class HydrateProduction extends HydrateModel
 {
-    public string $commandSignature = 'production:hydrate {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'hydrate:productions {organisations?*} {--s|slugs=}';
 
     public function handle(Production $production): void
     {

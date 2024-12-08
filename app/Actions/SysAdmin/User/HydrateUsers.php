@@ -9,7 +9,6 @@
 namespace App\Actions\SysAdmin\User;
 
 use App\Actions\HydrateModel;
-use App\Actions\SysAdmin\User\Hydrators\UserHydrateAuthorisedModels;
 use App\Actions\SysAdmin\User\Hydrators\UserHydrateModels;
 use App\Models\SysAdmin\User;
 use Illuminate\Console\Command;
@@ -22,7 +21,7 @@ class HydrateUsers extends HydrateModel
 
     public function handle(User $user): void
     {
-        UserHydrateAuthorisedModels::run($user);
+        SetUserAuthorisedModels::run($user);
         UserHydrateModels::run($user);
     }
 

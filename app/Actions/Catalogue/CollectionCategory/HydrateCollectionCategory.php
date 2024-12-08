@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class HydrateCollectionCategory extends HydrateModel
 {
-    public string $commandSignature = 'collection-category:hydrate {organisations?*} {--s|slugs=} ';
+    public string $commandSignature = 'hydrate:collection_categories {organisations?*} {--s|slugs=} ';
 
 
     public function handle(CollectionCategory $collectionCategory): void

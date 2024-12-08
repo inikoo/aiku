@@ -19,7 +19,7 @@ class HydrateGuest
 {
     use asAction;
 
-    public string $commandSignature = 'guest:hydrate';
+    public string $commandSignature = 'hydrate:guests';
 
 
     public function handle(Guest $guest): void

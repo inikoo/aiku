@@ -158,6 +158,8 @@ class HydrateGroup extends HydrateModel
             }
         }
 
+        $command->info('Groups Hydrated');
+
         return 0;
     }
 }

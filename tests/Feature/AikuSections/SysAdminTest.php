@@ -281,8 +281,8 @@ test('create guest', function (Group $group, Organisation $organisation) {
     return $guest;
 })->depends('create group', 'create organisation type shop');
 
-test('UserHydrateAuthorisedModels command', function (Guest $guest) {
-    $this->artisan('user:hydrate-authorised-models', [
+test('SetUserAuthorisedModels command', function (Guest $guest) {
+    $this->artisan('user:set_authorised_models', [
         'user' => $guest->getUser()->slug,
     ])->assertSuccessful();
 })->depends('create guest');

@@ -2,22 +2,22 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Wed, 06 Dec 2023 21:50:27 Malaysia Time, Kuala Lumpur, Malaysia
- * Copyright (c) 2023, Raul A Perusquia Flores
+ * Created: Sun, 08 Dec 2024 21:40:16 Malaysia Time, Kuala Lumpur, Malaysia
+ * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\SysAdmin\User\Hydrators;
+namespace App\Actions\SysAdmin\User;
 
+use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\Inventory\Warehouse;
 use App\Models\Production\Production;
-use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\User;
 use Exception;
 use Illuminate\Console\Command;
 use Lorisleiva\Actions\Concerns\AsAction;
 
-class UserHydrateAuthorisedModels
+class SetUserAuthorisedModels
 {
     use AsAction;
 
@@ -32,23 +32,26 @@ class UserHydrateAuthorisedModels
         $authorisedProductions   = [];
 
 
-
         foreach ($user->getAllPermissions() as $permission) {
             if ($permission->scope_type === 'Organisation') {
                 $authorisedOrganisations[$permission->scope_id] = ['org_id' => $permission->scope_id];
             } elseif ($permission->scope_type === 'Shop') {
+                /** @var Shop $shop */
                 $shop                                            = Shop::find($permission->scope_id);
                 $authorisedShops[$permission->scope_id]          = ['org_id' => $shop->organisation_id];
                 $authorisedOrganisations[$shop->organisation_id] = ['org_id' => $shop->organisation_id];
             } elseif ($permission->scope_type === 'Fulfilment') {
+                /** @var Fulfilment $fulfilment */
                 $fulfilment                                            = Fulfilment::find($permission->scope_id);
                 $authorisedFulfilments[$permission->scope_id]          = ['org_id' => $fulfilment->organisation_id];
                 $authorisedOrganisations[$fulfilment->organisation_id] = ['org_id' => $fulfilment->organisation_id];
             } elseif ($permission->scope_type === 'Warehouse') {
+                /** @var Warehouse $warehouse */
                 $warehouse                                            = Warehouse::find($permission->scope_id);
                 $authorisedWarehouses[$permission->scope_id]          = ['org_id' => $warehouse->organisation_id];
                 $authorisedOrganisations[$warehouse->organisation_id] = ['org_id' => $warehouse->organisation_id];
             } elseif ($permission->scope_type === 'Production') {
+                /** @var Production $production */
                 $production                                            = Production::find($permission->scope_id);
                 $authorisedProductions[$permission->scope_id]          = ['org_id' => $production->organisation_id];
                 $authorisedOrganisations[$production->organisation_id] = ['org_id' => $production->organisation_id];
@@ -60,8 +63,6 @@ class UserHydrateAuthorisedModels
         $user->authorisedFulfilments()->sync($authorisedFulfilments);
         $user->authorisedWarehouses()->sync($authorisedWarehouses);
         $user->authorisedProductions()->sync($authorisedProductions);
-
-
 
 
         $stats = [
@@ -89,7 +90,7 @@ class UserHydrateAuthorisedModels
     }
 
 
-    public string $commandSignature = 'user:hydrate-authorised-models {user : User slug}';
+    public string $commandSignature = 'user:set_authorised_models {user : User slug}';
 
 
     public function asCommand(Command $command): int
@@ -105,7 +106,7 @@ class UserHydrateAuthorisedModels
 
         $this->handle($user);
 
-        $command->info("User $user->contact_name authorised models hydrated 💦");
+        $command->info("User $user->contact_name authorised models set 🫡");
 
         return 0;
     }

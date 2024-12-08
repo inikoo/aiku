@@ -16,7 +16,7 @@ use Illuminate\Support\Collection;
 
 class HydrateJobPosition extends HydrateModel
 {
-    public string $commandSignature = 'job-position:hydrate {organisations?*} {--s|slugs=}';
+    public string $commandSignature = 'hydrate:job_positions {organisations?*} {--s|slugs=}';
 
 
     public function handle(JobPosition $jobPosition): void
