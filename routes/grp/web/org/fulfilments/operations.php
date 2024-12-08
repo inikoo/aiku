@@ -37,7 +37,7 @@ Route::prefix('pallets')->as('pallets.')->group(function () {
     });
 
     Route::prefix('returned')->as('returned.')->group(function () {
-        Route::get('', [IndexReturnedPallets::class,'inFulfillment'])->name('index');
+        Route::get('', [IndexReturnedPallets::class,'inFulfilment'])->name('index');
         Route::get('{pallet}', [ShowPallet::class, 'inFulfilment'])->name('show');
     });
 

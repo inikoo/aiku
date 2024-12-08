@@ -24,19 +24,20 @@ class SeedFulfilmentOutboxes
     public function handle(Fulfilment $fulfilment): void
     {
         foreach (OutboxCodeEnum::cases() as $case) {
-            if ($case->scope() == 'Fulfilment') {
-                $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
+            if (in_array('Fulfilment', $case->scope())) {
+                $postRoom    = PostRoom::where('code', $case->postRoomCode()->value)->first();
                 $orgPostRoom = $postRoom->orgPostRooms()->where('organisation_id', $fulfilment->organisation->id)->first();
+
 
                 if (!Outbox::where('fulfilment_id', $fulfilment->id)->where('code', $case)->exists()) {
                     StoreOutbox::make()->action(
                         $orgPostRoom,
                         $fulfilment,
                         [
-                            'name'      => $case->label(),
-                            'code'      => $case,
-                            'type'      => $case->type(),
-                            'state'     => $case->defaultState(),
+                            'name'  => $case->label(),
+                            'code'  => $case,
+                            'type'  => $case->type(),
+                            'state' => $case->defaultState(),
                         ]
                     );
                 }

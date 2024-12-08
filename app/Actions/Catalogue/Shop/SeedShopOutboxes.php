@@ -32,7 +32,7 @@ class SeedShopOutboxes
     public function handle(Shop $shop): void
     {
         foreach (OutboxCodeEnum::cases() as $case) {
-            if ($case->scope() == 'Shop' and in_array($shop->type->value, $case->shopTypes())) {
+            if (in_array('Shop', $case->scope()) and in_array($shop->type->value, $case->shopTypes())) {
                 $postRoom    = PostRoom::where('code', $case->postRoomCode()->value)->first();
                 $orgPostRoom = $postRoom->orgPostRooms()->where('organisation_id', $shop->organisation->id)->first();
 

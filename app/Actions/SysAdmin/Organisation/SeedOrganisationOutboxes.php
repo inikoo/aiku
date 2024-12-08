@@ -21,7 +21,7 @@ class SeedOrganisationOutboxes
     public function handle(Organisation $organisation): void
     {
         foreach (OutboxCodeEnum::cases() as $case) {
-            if ($case->scope() == 'Organisation') {
+            if (in_array('Organisation', $case->scope())) {
                 $postRoom = $organisation->group->postRooms()->where('code', $case->postRoomCode())->first();
 
                 $orgPostRoom = $postRoom->orgPostRooms()->where('organisation_id', $organisation->id)->first();

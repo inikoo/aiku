@@ -24,8 +24,8 @@ class SeedWebsiteOutboxes
     public function handle(Website $website): void
     {
         foreach (OutboxCodeEnum::cases() as $case) {
-            if ($case->scope() == 'Website' and  in_array($website->shop->type->value, $case->shopTypes())) {
-                $postRoom = PostRoom::where('code', $case->postRoomCode()->value)->first();
+            if (in_array('Website', $case->scope()) and in_array($website->shop->type->value, $case->shopTypes())) {
+                $postRoom    = PostRoom::where('code', $case->postRoomCode()->value)->first();
                 $orgPostRoom = $postRoom->orgPostRooms()->where('organisation_id', $website->organisation->id)->first();
 
                 if (!Outbox::where('website_id', $website->id)->where('code', $case)->exists()) {
@@ -33,10 +33,10 @@ class SeedWebsiteOutboxes
                         $orgPostRoom,
                         $website,
                         [
-                            'name'      => $case->label(),
-                            'code'      => $case,
-                            'type'      => $case->type(),
-                            'state'     => $case->defaultState(),
+                            'name'  => $case->label(),
+                            'code'  => $case,
+                            'type'  => $case->type(),
+                            'state' => $case->defaultState(),
 
                         ]
                     );
@@ -49,12 +49,12 @@ class SeedWebsiteOutboxes
 
     public function asCommand(Command $command): int
     {
-
         if ($command->argument('website') == null) {
             $websites = Website::all();
             foreach ($websites as $website) {
                 $this->handle($website);
             }
+
             return 0;
         }
 

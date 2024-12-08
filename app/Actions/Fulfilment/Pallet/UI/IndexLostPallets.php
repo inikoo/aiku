@@ -57,7 +57,7 @@ class IndexLostPallets extends OrgAction
         $query = QueryBuilder::for(Pallet::class);
 
         switch (class_basename($parent)) {
-            case "Fulfillment":
+            case "Fulfilment":
                 $query->where('fulfilment_id', $parent->id);
                 break;
             case "Location":

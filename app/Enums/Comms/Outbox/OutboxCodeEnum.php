@@ -136,10 +136,10 @@ enum OutboxCodeEnum: string
         };
     }
 
-    public function scope(): string
+    public function scope(): array
     {
         return match ($this) {
-            OutboxCodeEnum::TEST => 'Organisation',
+            OutboxCodeEnum::TEST => ['Organisation'],
             OutboxCodeEnum::PASSWORD_REMINDER,
             OutboxCodeEnum::BASKET_LOW_STOCK,
             OutboxCodeEnum::BASKET_REMINDER_1,
@@ -150,11 +150,18 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::REGISTRATION,
             OutboxCodeEnum::REGISTRATION_APPROVED,
             OutboxCodeEnum::REGISTRATION_REJECTED,
-            => 'Website',
+            => ['Website'],
+            OutboxCodeEnum::NEW_CUSTOMER,
+            OutboxCodeEnum::INVOICE_DELETED,
+            OutboxCodeEnum::NEWSLETTER,
+            OutboxCodeEnum::MARKETING,
+            OutboxCodeEnum::INVITE
+            => ['Fulfilment','Shop'],
+
             OutboxCodeEnum::RENTAL_AGREEMENT,
             OutboxCodeEnum::PALLET_DELIVERY_PROCESSED,
-            OutboxCodeEnum::PALLET_RETURN_DISPATCHED => 'Fulfillment',
-            default => 'Shop'
+            OutboxCodeEnum::PALLET_RETURN_DISPATCHED => ['Fulfilment'],
+            default => ['Shop']
         };
     }
 

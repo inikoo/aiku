@@ -178,7 +178,7 @@ class IndexReturnedPallets extends OrgAction
     }
 
     /** @noinspection PhpUnusedParameterInspection */
-    public function inFulfillment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
+    public function inFulfilment(Organisation $organisation, Fulfilment $fulfilment, ActionRequest $request): LengthAwarePaginator
     {
         $this->parent = $fulfilment;
         $this->initialisationFromFulfilment($fulfilment, $request);

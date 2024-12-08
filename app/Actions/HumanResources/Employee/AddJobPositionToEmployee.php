@@ -85,7 +85,7 @@ class AddJobPositionToEmployee
                 if ($fulfilment) {
                     $scopes['Fulfilment'][] = $fulfilment->id;
                 } else {
-                    $command->error("Fulfillment $fulfilmentSlug not found");
+                    $command->error("Fulfilment $fulfilmentSlug not found");
                     return 1;
                 }
             }
