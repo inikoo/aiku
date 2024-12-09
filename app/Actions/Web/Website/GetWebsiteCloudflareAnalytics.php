@@ -16,7 +16,6 @@ use App\Models\Web\Website;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Http;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 use function Amp\async;
@@ -57,19 +56,35 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
         data_set($modelData, "siteTag", $siteTag);
         data_set($modelData, "apiToken", $apiToken);
 
-        $partialShowTopNs = Arr::get($modelData, 'partialShowTopNs');
-        switch ($partialShowTopNs) {
-            case 'performance':
-                return $this->getRumPerfAnalyticsTopNs($modelData);
-                // case 'webVitals':
-                //     break;
-            case 'pageViews':
-            case 'visits':
-                return $this->getRumAnalyticsTopNs($modelData);
+
+        $partialShowTopNsData = Arr::get($modelData, 'partialShowTopNs');
+        $partialFilterTimeseriesData = Arr::get($modelData, 'partialFilterTimeseries');
+        $partialFilterPerfAnalyticsData = Arr::get($modelData, 'partialFilterPerfAnalytics');
+        $partialTimeseriesData = Arr::get($modelData, 'partialTimeseriesData');
+
+
+        if ($partialShowTopNsData) {
+            data_set($modelData, "showTopNs", $partialShowTopNsData);
+            data_forget($modelData, 'partialShowTopNsData');
+
+            switch ($partialShowTopNsData) {
+                case 'performance':
+                    data_set($modelData, 'filter', $partialFilterPerfAnalyticsData);
+                    return $this->getRumPerfAnalyticsTopNs($modelData);
+                case 'pageViews':
+                case 'visits':
+                    data_set($modelData, 'filterData', $partialTimeseriesData);
+                    data_set($modelData, 'filter', $partialFilterTimeseriesData);
+                    return $this->getRumAnalyticsTimeseries($modelData);
+                default:
+                    return $this->partialShowTopNs($modelData);
+            }
         }
+
 
         $showTopNs = Arr::get($modelData, 'showTopNs') ?? 'visits';
         $rumAnalyticsTopNsPromise = async(fn () => ['data' => [], 'errors' => null]);
+        $rumAnalyticsTimeseriesPromise = async(fn () => ['data' => [], 'errors' => null]);
         if ($showTopNs) {
             switch ($showTopNs) {
                 case 'performance':
@@ -81,20 +96,20 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
                 case 'pageViews':
                 case 'visits':
                     $rumAnalyticsTopNsPromise = async(fn () => $this->getRumAnalyticsTopNs($modelData));
+                    $rumAnalyticsTimeseriesPromise = async(fn () => $this->getRumAnalyticsTimeseries($modelData));
                     break;
             }
         }
 
         $rumSparklinePromise = async(fn () => $this->getRumSparkline($modelData));
-        $rumAnalyticsPromise = async(fn () => $this->getRumAnalytics($modelData));
         $zonePromise = async(fn () => $this->getZone($modelData));
 
-        [$rumAnalyticsTopNs, $rumSparkline, $zone, $rumAnalytics] = await([$rumAnalyticsTopNsPromise,$rumSparklinePromise, $zonePromise, $rumAnalyticsPromise]);
+        [$rumAnalyticsTopNs, $rumSparkline, $rumAnalyticsTimeseriesPromise, $zone] = await([$rumAnalyticsTopNsPromise,$rumSparklinePromise, $rumAnalyticsTimeseriesPromise, $zonePromise]);
 
         $data = [
             'rumAnalyticsTopNs' => $rumAnalyticsTopNs,
             'rumSparkline' => $rumSparkline,
-            'rumAnalytics' => $rumAnalytics,
+            'rumAnalyticsTimeseries' => $rumAnalyticsTimeseriesPromise, // if performance, return empty array. count field -> for pageViews and sum.visits field -> for visits
             'zone' => $zone,
         ];
 
@@ -104,32 +119,48 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
         return $data;
     }
 
-    private function getCloudflareAnalytics(array $modelData, string $query, $try = 3): array
+    private function partialShowTopNs($modelData): array
     {
-        $apiToken = Arr::get($modelData, "apiToken");
-
-        $urlCLoudflareGraphql = "https://api.cloudflare.com/client/v4/graphql";
-        if ($try == 0) {
-            return [];
+        switch (Arr::get($modelData, 'partialShowTopNs')) {
+            case 'performance':
+                return $this->getRumPerfAnalyticsTopNs($modelData);
+                // case 'webVitals':
+                //     break;
+            case 'pageViews':
+            case 'visits':
+                return $this->getRumAnalyticsTopNs($modelData);
+            default:
+                return [];
         }
-
-        try {
-            $response = Http::timeout(10)->withHeaders([
-                'Authorization' => "Bearer $apiToken",
-                'Content-Type' => 'application/json',
-            ])->post($urlCLoudflareGraphql, [
-                'query' => $query,
-            ]);
-        } catch (Exception $e) {
-            if (str_contains($e->getMessage(), 'Resolving timed out')) {
-                return $this->getCloudflareAnalytics($modelData, $query, --$try);
-            }
-            throw $e;
-        }
-
-
-        return $response->json();
     }
+
+    // private function partialFilterTimeseries($modelData): array {
+    //     switch (Arr::get($modelData, 'partialFilterTimeseries')) {
+    //         case 'all':
+    //         case 'referer':
+    //         case 'host':
+    //         case 'country':
+    //         case 'path':
+    //         case 'browser':
+    //         case 'os':
+    //         case 'deviceType':
+    //         default:
+    //             return [];
+    //     }
+    // }
+
+    // private function partialFilterPerfAnalytics($modelData): array {
+    //     switch (Arr::get($modelData, 'partialFilterPerfAnalytics')) {
+    //         case 'p50':
+    //         case 'p75':
+    //         case 'p90':
+    //         case 'p99':
+    //         case 'avg':
+    //             // return $this->getRumPerfAnalyticsTopNs($modelData);
+    //         default:
+    //             return [];
+    //     }
+    // }
 
     private function isIso8601($dateString)
     {
@@ -156,8 +187,11 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
         return [
             'since' => ['sometimes'],
             'until' => ['sometimes'],
-            'partialShowTopNs' => ['sometimes', 'string', 'in:visits,pageViews,performance,webVitals'],
             'showTopNs' => ['sometimes', 'string', 'in:visits,pageViews,performance,webVitals'],
+            'partialShowTopNs' => ['sometimes', 'string', 'in:visits,pageViews,performance,webVitals'],
+            'partialFilterTimeseries' => ['sometimes', 'string', 'in:all,referer,host,country,path,browser,os,deviceType'],
+            'partialTimeseriesData' => ['sometimes', 'string'],
+            'partialFilterPerfAnalytics' => ['sometimes', 'string', 'in:p50,p75,p90,p99,avg'],
         ];
     }
 

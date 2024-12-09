@@ -553,8 +553,40 @@ trait WithCloudflareQueryGraphql
 
     }
 
-    public function getRumAnalytics($modelData): array
+    public function getRumAnalyticsTimeseries($modelData): array
     {
+
+        $getMetric = [
+            'all' => '',
+            'referer' => 'refererHost',
+            'host' => 'requestHost',
+            'country' => 'countryName',
+            'path' => 'requestPath',
+            'browser' => 'userAgentBrowser',
+            'os' => 'userAgentOS',
+            'deviceType' => 'deviceType',
+        ];
+
+        $show = Arr::get($modelData, 'showTopNs') ?? 'visits';
+        $metricFilter = Arr::get($modelData, 'filter') ?? 'all';
+        $metric = $getMetric[$metricFilter] != '' ? "metric: {$getMetric[$metricFilter]}" : "";
+
+        // $filterData = '';
+        $filterData = Arr::get($modelData, 'filterData') ?? '';
+        if ($filterData) {
+            $data = explode(',', trim($filterData));
+            $filterData = '{ OR: [';
+            foreach ($data as $d) {
+                $filterData .= "{ {$getMetric[$metricFilter]}: \"$d\" },";
+            }
+            // remove , from last array
+            $filterData = rtrim($filterData, ',');
+            $filterData .= '] }';
+        }
+        // dd($filterData);
+        // $filterData = Arr::get($modelData, 'filterData') ?? '';
+        // dd($filterData);
+
         $siteTag = Arr::get($modelData, 'siteTag');
         $accountTag = Arr::get($modelData, 'accountTag');
         $since = Arr::get($modelData, 'since') ?? Date::now()->subDay()->toIso8601String();
@@ -576,6 +608,7 @@ trait WithCloudflareQueryGraphql
                 { datetime_geq: "$since", datetime_leq: "$until" },
                 { OR: [{ siteTag: "$siteTag" }] },
                 { bot: 0 }
+                $filterData
             ]
         }
         FILTER;
@@ -584,18 +617,19 @@ trait WithCloudflareQueryGraphql
         query Viewer {
             viewer {
                 accounts(filter: { accountTag: "$accountTag" }) {
-                series: rumPageloadEventsAdaptiveGroups(limit: 5000, filter: $filter) {
-                    count
-                    avg {
-                        sampleInterval
+                    series: rumPageloadEventsAdaptiveGroups(limit: 5000, filter: $filter) {
+                        count
+                        avg {
+                            sampleInterval
+                        }
+                        sum {
+                            visits
+                        }
+                        dimensions {
+                            ts: $dimension
+                            $metric
+                        }
                     }
-                    sum {
-                    visits
-                    }
-                    dimensions {
-                        ts: $dimension
-                    }
-                }
                 }
             }
         }
