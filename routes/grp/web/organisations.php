@@ -15,6 +15,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', IndexOrganisations::class)->name('index');
 Route::get('/create', CreateOrganisation::class)->name('create');
-Route::get('/{grporganisation}', ShowOrganisation::class)->name('show');
-Route::get('edit/{grporganisation}', EditOrganisation::class)->name('edit');
+Route::get('/{organisation}', ShowOrganisation::class)->name('show');
+Route::get('edit/{organisation}', EditOrganisation::class)->name('edit');
 // Route::get('group/org/{organisation}', ShowOrganisation::class)->name('show');
