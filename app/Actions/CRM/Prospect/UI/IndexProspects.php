@@ -259,17 +259,6 @@ class IndexProspects extends OrgAction
                         'parameters' => []
                     ],
                 ],
-                'tagRoute'   => [
-                    'store' => [
-                        'name'       => 'grp.models.prospect.tag.store',
-                        'parameters' => []
-                    ],
-                    'update' => [
-                        'name'       => 'grp.models.prospect.tag.attach',
-                        'parameters' => []
-                    ],
-                ],
-                'tagsList'    => TagResource::collection(Tag::where('type', 'crm')->get()),
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => ProspectsTabsEnum::navigation(),

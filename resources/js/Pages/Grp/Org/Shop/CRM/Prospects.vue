@@ -14,6 +14,7 @@ import { ref, computed } from 'vue'
 import TableMailshots from "@/Components/Tables/TableMailshots.vue";
 import { useTabChange } from "@/Composables/tab-change"
 import TableHistories from '@/Components/Tables/Grp/Helpers/TableHistories.vue'
+import ProspectsDashboard from '@/Pages/Grp/Org/Shop/CRM/ProspectsDashboard.vue'
 
 import { PageHeading as PageHeadingTypes } from "@/types/PageHeading";
 
@@ -39,7 +40,7 @@ const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
 
 const component = computed(() => {
       const components: {[key: string]: Component} = {
-       /*  dashboard: ProspectsDashboard, */
+        dashboard: ProspectsDashboard,
         prospects: TableProspects,
         mailshots: TableMailshots,
         history: TableHistories,
@@ -56,6 +57,5 @@ const component = computed(() => {
     <PageHeading :data="pageHead"></PageHeading>
     <Tabs :current="currentTab" :navigation="tabs['navigation']" @update:tab="handleTabUpdate" />
     <component :is="component" :data="props[currentTab]" :tab="currentTab"></component>
-    <!-- <TableProspects :data="data" /> -->
 </template>
 

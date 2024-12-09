@@ -35,7 +35,7 @@ const props = defineProps<{
             store : routeType
         }
         tagsList : {
-            data : Array<any>
+            data : Array<tag>
         }
     },
     tab : String
@@ -129,7 +129,7 @@ function prospectRoute(prospect: Prospect) {
                     :searchable="true"
                     :create-option="true"
                     :caret="false"
-                    :options="tagsListTemp"
+                    :options="data.tagsList.data"
                     noResultsText="No one left. Type to add new one."
                     appendNewTag
                 >
