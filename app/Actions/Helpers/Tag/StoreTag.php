@@ -68,13 +68,13 @@ class StoreTag extends OrgAction
         ];
     }
 
-    public function htmlResponse(): RedirectResponse
-    {
-        return redirect()->route(
-            'grp.org.shops.show.crm.prospects.tags.index',
-            $this->parent->slug
-        );
-    }
+    // public function htmlResponse(): RedirectResponse
+    // {
+    //     return redirect()->route(
+    //         'grp.org.shops.show.crm.prospects.tags.index',
+    //         $this->parent->slug
+    //     );
+    // }
 
     public function jsonResponse(Tag $tag): TagResource
     {
@@ -114,13 +114,13 @@ class StoreTag extends OrgAction
         return $this->handle($this->validateAttributes());
     }
 
-    public function inProspect(Prospect $prospect, ActionRequest $request): Tag
+    public function inProspect(Prospect $prospect, ActionRequest $request)
     {
         $this->fillFromRequest($request);
         $this->fill(['type' => 'crm']);
         $this->initialisationFromShop($prospect->shop, $request);
 
-        return $this->handle($this->validateAttributes());
+        $this->handle($this->validateAttributes());
     }
 
 }
