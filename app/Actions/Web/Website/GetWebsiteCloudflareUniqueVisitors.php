@@ -31,39 +31,28 @@ class GetWebsiteCloudflareUniqueVisitors extends OrgAction
      */
     public function handle(Website $website): array
     {
-        $groupSettings = $website->group->settings;
-        $apiToken = Arr::get($groupSettings, 'cloudflare.apiToken');
-        if (!$apiToken) {
-            $apiToken = env('CLOUDFLARE_ANALYTICS_API_TOKEN'); // from env cause group not stored api token yet
-            if (!$apiToken) {
-                dd('api token not found');
-            }
-            data_set($groupSettings, 'cloudflare.apiToken', $apiToken);
-            $website->group->update(['settings' => $groupSettings]);
+        $cacheKey = "cloudflare_analytics_unique_visitors_{$website->id}";
+        $cacheTTL = now()->addMinutes(30); // Cache for 30 minutes
+
+        $cachedData = cache()->get($cacheKey);
+
+        if ($cachedData) {
+            return $cachedData;
         }
+
+        $groupSettings = $website->group->settings;
+        $dataWebsite = $website->data;
+        $apiToken = Arr::get($groupSettings, 'cloudflare.apiToken');
+        $zoneTag = Arr::get($dataWebsite, "cloudflare.zoneTag");
 
         data_set($modelData, "apiToken", $apiToken);
-
-        $dataWebsite = $website->data;
-        $zoneTag = Arr::get($dataWebsite, "cloudflare.zoneTag");
-        if (!$zoneTag) {
-            $zoneTag = $this->getZoneTag($website, $modelData);
-            if ($zoneTag == "error") {
-                return [];
-            }
-            if (!Arr::get($dataWebsite, "cloudflare.zoneTag")) {
-                data_set($dataWebsite, 'cloudflare.zoneTag', $zoneTag);
-                $website->update(['data' => $dataWebsite]);
-            }
-        }
-
-        if ($this->saveSecret) {
-            return [];
-        }
-
         data_set($modelData, "zoneTag", $zoneTag);
 
-        return $this->getUniqueVisitor($modelData);
+        $data = $this->getUniqueVisitor($modelData);
+
+        cache()->put($cacheKey, $data, $cacheTTL);
+
+        return $data;
     }
 
     public function asController(Website $website, ActionRequest $request): array
