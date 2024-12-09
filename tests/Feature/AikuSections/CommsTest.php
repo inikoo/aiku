@@ -18,7 +18,6 @@ use App\Actions\Comms\Outbox\DetachModelToOutbox;
 use App\Actions\Comms\Outbox\StoreOutbox;
 use App\Actions\Comms\Outbox\UpdateModelToOutbox;
 use App\Actions\Web\Website\StoreWebsite;
-use App\Enums\Comms\Outbox\OutboxBlueprintEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Mailshot;
@@ -166,7 +165,6 @@ test('test post room hydrator', function ($shop) {
         [
             'type'      => OutboxCodeEnum::NEWSLETTER,
             'name'      => 'Test',
-            'blueprint' => OutboxBlueprintEnum::EMAIL_TEMPLATE,
         ]
     );
 

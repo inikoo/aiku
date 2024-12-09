@@ -14,7 +14,7 @@ use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailTypeEnum;
-use App\Enums\Comms\Outbox\OutboxBlueprintEnum;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
@@ -48,10 +48,13 @@ class StoreDispatchEmail extends OrgAction
             $modelData,
             'type',
             match ($outbox->blueprint) {
-                OutboxBlueprintEnum::MAILSHOT => DispatchedEmailTypeEnum::MARKETING,
-                OutboxBlueprintEnum::EMAIL_TEMPLATE => DispatchedEmailTypeEnum::TRANSACTIONAL,
-                OutboxBlueprintEnum::TEST => DispatchedEmailTypeEnum::TEST,
-                OutboxBlueprintEnum::INVITE => DispatchedEmailTypeEnum::INVITE,
+                OutboxTypeEnum::NEWSLETTER => DispatchedEmailTypeEnum::NEWSLETTER,
+                OutboxTypeEnum::MARKETING => DispatchedEmailTypeEnum::MARKETING,
+                OutboxTypeEnum::MARKETING_NOTIFICATION => DispatchedEmailTypeEnum::TEST,
+                OutboxTypeEnum::CUSTOMER_NOTIFICATION => DispatchedEmailTypeEnum::CUSTOMER_NOTIFICATION,
+                OutboxTypeEnum::COLD_EMAIL => DispatchedEmailTypeEnum::COLD_EMAIL,
+                OutboxTypeEnum::USER_NOTIFICATION => DispatchedEmailTypeEnum::USER_NOTIFICATION,
+                OutboxTypeEnum::TEST => DispatchedEmailTypeEnum::TEST,
             }
         );
 
