@@ -41,12 +41,12 @@ class StoreTag extends OrgAction
         );
         $tag->generateTagSlug();
         $tag->saveQuietly();
-        if ($tag->type == 'crm') {
-            if (!$tag->crmStats) {
-                $tag->crmStats()->create();
-                OrganisationHydrateCrmTags::dispatch($this->organisation);
-            }
-        }
+        // if ($tag->type == 'crm') {
+        //     if (!$tag->crmStats) {
+        //         $tag->crmStats()->create();
+        //         OrganisationHydrateCrmTags::dispatch($this->organisation);
+        //     }
+        // }
         TagHydrateUniversalSearch::dispatch($tag);
 
         return $tag;
