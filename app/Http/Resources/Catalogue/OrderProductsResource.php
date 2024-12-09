@@ -37,7 +37,7 @@ class OrderProductsResource extends JsonResource
             'id'                        => $this->id,
             'slug'                      => $this->slug,
             'asset_id'                  => $this->asset_id,
-            'current_historic_asset_id' => $this->current_historic_asset_id,
+            'historic_id'               => $this->current_historic_asset_id,
             'code'                      => $this->code,
             'name'                      => $this->name,
             'state'                     => $this->state,

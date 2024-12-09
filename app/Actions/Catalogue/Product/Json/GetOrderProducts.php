@@ -11,6 +11,7 @@ namespace App\Actions\Catalogue\Product\Json;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
+use App\Http\Resources\Catalogue\OrderProductsResource;
 use App\Http\Resources\Catalogue\ProductsResource;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
@@ -71,7 +72,7 @@ class GetOrderProducts extends OrgAction
 
     public function jsonResponse(LengthAwarePaginator $products): AnonymousResourceCollection
     {
-        return ProductsResource::collection($products);
+        return OrderProductsResource::collection($products);
     }
 
     public function asController(Shop $shop, Order $order, ActionRequest $request): LengthAwarePaginator
