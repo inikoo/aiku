@@ -53,11 +53,12 @@ class WebsiteHydrateCloudflareData
         }
         $newWebsiteData = $website->data;
 
-        if ($this->zoneAccountTag->isEmpty()) {
-            $this->zoneAccountTag = $this->getZoneAccountTag($website);
-            if ($this->zoneAccountTag->isEmpty()) {
-                return;
-            }
+        $this->zoneAccountTag = $this->getZoneAccountTag($website);
+        if (!$this->zoneAccountTag->isEmpty()) {
+            data_set($newWebsiteData, 'cloudflare.zoneTag', $this->zoneAccountTag->get('id'), true);
+            data_set($newWebsiteData, 'cloudflare.accountTag', $this->zoneAccountTag->get('account')['id'], true);
+        } else {
+            return;
         }
 
         if ($this->siteList->isEmpty()) {
@@ -69,13 +70,12 @@ class WebsiteHydrateCloudflareData
 
         $this->siteList->each(function ($site) use ($website, $newWebsiteData) {
             if ($site['ruleset'] && $site['ruleset']['zone_name'] == $website->domain) {
-                data_set($newWebsiteData, 'cloudflare.siteTag', $site['site_tag'], false);
-                data_set($newWebsiteData, 'cloudflare.accountTag', $this->zoneAccountTag->get('account')['id'], false);
-                data_set($newWebsiteData, 'cloudflare.zoneTag', $site['ruleset']['zone_tag'], false);
-                $website->update(['data' => $newWebsiteData]);
+                data_set($newWebsiteData, 'cloudflare.siteTag', $site['site_tag'], true);
                 return;
             }
         });
+
+        $website->update(['data' => $newWebsiteData]);
 
         return;
     }
@@ -105,7 +105,7 @@ class WebsiteHydrateCloudflareData
     {
         $urlCLoudflareRest = "https://api.cloudflare.com/client/v4";
         if ($try == 0) {
-            return "error";
+            return collect();
         }
         try {
             $resultZone = Http::timeout(10)->withHeaders([
@@ -127,7 +127,9 @@ class WebsiteHydrateCloudflareData
         if (!Arr::get($resultZone, 'result')) {
             return collect();
         }
-
+        if (empty($resultZone['result'])) {
+            return collect();
+        }
         return collect($resultZone['result'][0]);
     }
 
