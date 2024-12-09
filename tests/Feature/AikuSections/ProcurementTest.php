@@ -13,6 +13,8 @@ use App\Actions\Procurement\OrgSupplierProducts\StoreOrgSupplierProduct;
 use App\Actions\Procurement\PurchaseOrder\DeletePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\StorePurchaseOrder;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrder;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToNotReceived;
+use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSettled;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderTransactionQuantity;
 use App\Actions\Procurement\PurchaseOrder\UpdatePurchaseOrderStateToSubmitted;
 use App\Actions\Procurement\PurchaseOrder\UpdateStateToConfirmedPurchaseOrder;
@@ -289,7 +291,7 @@ test('change state to submitted purchase order', function ($purchaseOrder) {
     return $purchaseOrder;
 })->depends('add item to purchase order');
 
-test('change purchase order state to confirmed ', function ($purchaseOrder) {
+test('change purchase order state to confirmed', function ($purchaseOrder) {
     try {
         $purchaseOrder = UpdateStateToConfirmedPurchaseOrder::make()->action($purchaseOrder);
     } catch (ValidationException) {
@@ -298,6 +300,26 @@ test('change purchase order state to confirmed ', function ($purchaseOrder) {
 
     return $purchaseOrder;
 })->depends('change state to submitted purchase order');
+
+test('change purchase order state to settled', function ($purchaseOrder) {
+    try {
+        $purchaseOrder = UpdatePurchaseOrderStateToSettled::make()->action($purchaseOrder);
+    } catch (ValidationException) {
+    }
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::SETTLED);
+
+    return $purchaseOrder;
+})->depends('change purchase order state to confirmed');
+
+test('change purchase order state to not received ', function ($purchaseOrder) {
+    try {
+        $purchaseOrder = UpdatePurchaseOrderStateToNotReceived::make()->action($purchaseOrder);
+    } catch (ValidationException) {
+    }
+    expect($purchaseOrder->state)->toEqual(PurchaseOrderStateEnum::NOT_RECEIVED);
+
+    return $purchaseOrder;
+})->depends('change purchase order state to settled');
 
 
 
