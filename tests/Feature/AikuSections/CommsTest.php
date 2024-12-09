@@ -325,3 +325,21 @@ test('UI Show Org Post Rooms', function () {
             ->has('breadcrumbs', 5);
     });
 });
+
+test('UI Index MArketing Mailshots', function () {
+    $response = $this->get(route('grp.org.shops.show.marketing.mailshots.index', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Mail/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'mailshots')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
