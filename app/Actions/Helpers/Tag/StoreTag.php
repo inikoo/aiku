@@ -44,7 +44,7 @@ class StoreTag extends OrgAction
         if ($tag->type == 'crm') {
             if (!$tag->crmStats) {
                 $tag->crmStats()->create();
-                OrganisationHydrateCrmTags::dispatch();
+                OrganisationHydrateCrmTags::dispatch($this->organisation);
             }
         }
         TagHydrateUniversalSearch::dispatch($tag);
