@@ -8,18 +8,19 @@
 
 namespace App\Actions\UI\Notification;
 
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\SysAdmin\NotificationResource;
 use App\InertiaTable\InertiaTable;
-// use App\Models\CRM\WebUser;
 use App\Models\SysAdmin\User;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Services\QueryBuilder;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Spatie\QueryBuilder\AllowedFilter;
+
+// use App\Models\CRM\WebUser;
 
 class IndexNotification
 {
@@ -82,7 +83,7 @@ class IndexNotification
         return match ($routeName) {
             'grp.notifications' =>
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => 'grp.notifications',

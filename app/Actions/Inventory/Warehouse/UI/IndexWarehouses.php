@@ -10,7 +10,7 @@ namespace App\Actions\Inventory\Warehouse\UI;
 
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\OrgAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Inventory\Warehouse\WarehouseStateEnum;
 use App\Enums\UI\Inventory\WarehousesTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -213,7 +213,7 @@ class IndexWarehouses extends OrgAction
     public function getBreadcrumbs(array $routeParameters, $suffix = null): array
     {
         return array_merge(
-            ShowDashboard::make()->getBreadcrumbs(),
+            ShowGroupDashboard::make()->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

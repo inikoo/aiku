@@ -31,7 +31,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $invoices_lm
  * @property int $invoices_lw
  * @property int $invoices_ld
- * @property int $invoices_all_ly
  * @property int $invoices_1y_ly
  * @property int $invoices_1q_ly
  * @property int $invoices_1m_ly
@@ -71,7 +70,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $orders_lm
  * @property int $orders_lw
  * @property int $orders_ld
- * @property int $orders_all_ly
  * @property int $orders_1y_ly
  * @property int $orders_1q_ly
  * @property int $orders_1m_ly
@@ -111,7 +109,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $delivery_notes_lm
  * @property int $delivery_notes_lw
  * @property int $delivery_notes_ld
- * @property int $delivery_notes_all_ly
  * @property int $delivery_notes_1y_ly
  * @property int $delivery_notes_1q_ly
  * @property int $delivery_notes_1m_ly
@@ -151,7 +148,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $customers_invoiced_lm
  * @property int $customers_invoiced_lw
  * @property int $customers_invoiced_ld
- * @property int $customers_invoiced_all_ly
  * @property int $customers_invoiced_1y_ly
  * @property int $customers_invoiced_1q_ly
  * @property int $customers_invoiced_1m_ly

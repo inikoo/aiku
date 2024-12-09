@@ -47,7 +47,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $password
  * @property UserAuthTypeEnum $auth_type
  * @property string|null $contact_name no-normalised depends on parent
- * @property string|null $email mirror group_users.email
+ * @property string|null $email
  * @property string|null $about
  * @property int $number_models
  * @property int $number_active_models

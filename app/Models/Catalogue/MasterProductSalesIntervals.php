@@ -32,7 +32,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $sales_grp_currency_lm
  * @property string $sales_grp_currency_lw
  * @property string $sales_grp_currency_ld
- * @property string $sales_grp_currency_all_ly
  * @property string $sales_grp_currency_1y_ly
  * @property string $sales_grp_currency_1q_ly
  * @property string $sales_grp_currency_1m_ly
@@ -72,7 +71,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $invoices_lm
  * @property string $invoices_lw
  * @property string $invoices_ld
- * @property string $invoices_all_ly
  * @property string $invoices_1y_ly
  * @property string $invoices_1q_ly
  * @property string $invoices_1m_ly
@@ -112,7 +110,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $orders_lm
  * @property string $orders_lw
  * @property string $orders_ld
- * @property string $orders_all_ly
  * @property string $orders_1y_ly
  * @property string $orders_1q_ly
  * @property string $orders_1m_ly
@@ -152,7 +149,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $delivery_notes_lm
  * @property string $delivery_notes_lw
  * @property string $delivery_notes_ld
- * @property string $delivery_notes_all_ly
  * @property string $delivery_notes_1y_ly
  * @property string $delivery_notes_1q_ly
  * @property string $delivery_notes_1m_ly
@@ -192,7 +188,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $customers_lm
  * @property string $customers_lw
  * @property string $customers_ld
- * @property string $customers_all_ly
  * @property string $customers_1y_ly
  * @property string $customers_1q_ly
  * @property string $customers_1m_ly

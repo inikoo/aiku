@@ -9,7 +9,7 @@
 namespace App\Actions\UI\Dispatch;
 
 use App\Actions\OrgAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -69,7 +69,7 @@ class ShowDispatchHub extends OrgAction
     public function getBreadcrumbs(array $routeParameters): array
     {
         return array_merge(
-            ShowDashboard::make()->getBreadcrumbs(),
+            ShowGroupDashboard::make()->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',

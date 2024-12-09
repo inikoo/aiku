@@ -9,12 +9,13 @@
 namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\GrpAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\SysAdmin\Organisation\OrganisationTypeEnum;
 use App\Http\Resources\SysAdmin\Organisation\OrganisationsResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
+use App\Services\QueryBuilder;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -22,7 +23,6 @@ use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
 use Spatie\QueryBuilder\AllowedFilter;
-use App\Services\QueryBuilder;
 
 class IndexOrganisations extends GrpAction
 {
@@ -170,7 +170,7 @@ class IndexOrganisations extends GrpAction
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

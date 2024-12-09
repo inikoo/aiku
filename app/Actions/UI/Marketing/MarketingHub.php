@@ -9,7 +9,7 @@
 namespace App\Actions\UI\Marketing;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
 use Inertia\Inertia;
@@ -162,7 +162,7 @@ class MarketingHub extends InertiaAction
     {
         return match ($routeName) {
             'grp.marketing.hub' => array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',
@@ -178,7 +178,7 @@ class MarketingHub extends InertiaAction
             ),
             'grp.marketing.shops.show.hub', 'grp.org.shops.show.marketing.mailshots.index', 'grp.org.shops.show.marketing.newsletters.index' =>
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

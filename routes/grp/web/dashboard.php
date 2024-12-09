@@ -7,7 +7,7 @@
  */
 
 
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', ShowDashboard::class)->name('show');
+Route::get('/', ShowGroupDashboard::class)->name('show');

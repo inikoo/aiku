@@ -9,7 +9,7 @@
 namespace App\Actions\UI\Profile;
 
 use App\Actions\Helpers\Language\UI\GetLanguagesOptions;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
 use App\Http\Resources\UI\LoggedUserResource;
 use App\Models\SysAdmin\User;
@@ -188,7 +188,7 @@ class EditProfile
 
     public function getBreadcrumbs(): array
     {
-        return array_merge(ShowDashboard::make()->getBreadcrumbs(), [
+        return array_merge(ShowGroupDashboard::make()->getBreadcrumbs(), [
             [
                 "type"   => "simple",
                 "simple" => [

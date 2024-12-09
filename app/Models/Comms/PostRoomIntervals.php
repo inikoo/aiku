@@ -33,7 +33,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $dispatched_emails_lm
  * @property int $dispatched_emails_lw
  * @property int $dispatched_emails_ld
- * @property int $dispatched_emails_all_ly
  * @property int $dispatched_emails_1y_ly
  * @property int $dispatched_emails_1q_ly
  * @property int $dispatched_emails_1m_ly
@@ -73,7 +72,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $opened_emails_lm
  * @property int $opened_emails_lw
  * @property int $opened_emails_ld
- * @property int $opened_emails_all_ly
  * @property int $opened_emails_1y_ly
  * @property int $opened_emails_1q_ly
  * @property int $opened_emails_1m_ly
@@ -113,7 +111,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $clicked_emails_lm
  * @property int $clicked_emails_lw
  * @property int $clicked_emails_ld
- * @property int $clicked_emails_all_ly
  * @property int $clicked_emails_1y_ly
  * @property int $clicked_emails_1q_ly
  * @property int $clicked_emails_1m_ly
@@ -153,7 +150,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $unsubscribed_emails_lm
  * @property int $unsubscribed_emails_lw
  * @property int $unsubscribed_emails_ld
- * @property int $unsubscribed_emails_all_ly
  * @property int $unsubscribed_emails_1y_ly
  * @property int $unsubscribed_emails_1q_ly
  * @property int $unsubscribed_emails_1m_ly
@@ -193,7 +189,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $bounced_emails_lm
  * @property int $bounced_emails_lw
  * @property int $bounced_emails_ld
- * @property int $bounced_emails_all_ly
  * @property int $bounced_emails_1y_ly
  * @property int $bounced_emails_1q_ly
  * @property int $bounced_emails_1m_ly

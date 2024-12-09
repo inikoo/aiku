@@ -9,7 +9,7 @@
 namespace App\Actions\UI\Goods;
 
 use App\Actions\GrpAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -98,7 +98,7 @@ class ShowGoodsDashboard extends GrpAction
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

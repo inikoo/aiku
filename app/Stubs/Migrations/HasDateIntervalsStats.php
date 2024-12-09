@@ -23,6 +23,7 @@ trait HasDateIntervalsStats
             foreach (DateIntervalEnum::values() as $col) {
                 $table->decimal($subject.$col, 16)->default(0);
             }
+
             foreach (DateIntervalEnum::lastYearValues() as $col) {
                 $table->decimal($subject.$col.'_ly', 16)->default(0);
             }

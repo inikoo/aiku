@@ -10,7 +10,7 @@ namespace App\Actions\SysAdmin\Organisation\UI;
 
 use App\Actions\Helpers\GoogleDrive\Traits\WithTokenPath;
 use App\Actions\OrgAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -130,7 +130,7 @@ class EditOrganisationSettings extends OrgAction
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

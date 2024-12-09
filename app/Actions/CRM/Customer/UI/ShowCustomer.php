@@ -17,7 +17,7 @@ use App\Actions\Ordering\Order\UI\IndexOrders;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\Traits\WithWebUserMeta;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\CRM\CustomerDropshippingTabsEnum;
 use App\Enums\UI\CRM\CustomerTabsEnum;
@@ -245,7 +245,7 @@ class ShowCustomer extends OrgAction
         return match ($routeName) {
             'grp.org.customers.show',
             => array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $customer,
                     [

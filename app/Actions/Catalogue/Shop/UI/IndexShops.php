@@ -13,7 +13,7 @@ use App\Actions\Catalogue\ProductCategory\UI\IndexDepartments;
 use App\Actions\Catalogue\ProductCategory\UI\IndexFamilies;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Catalogue\Shop\ShopStateEnum;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\Catalogue\ShopsTabsEnum;
@@ -237,7 +237,7 @@ class IndexShops extends OrgAction
         if ($routeName == 'grp.org.shops.index') {
             return
                 array_merge(
-                    ShowDashboard::make()->getBreadcrumbs(),
+                    ShowGroupDashboard::make()->getBreadcrumbs(),
                     [
                         [
                             'type'   => 'simple',

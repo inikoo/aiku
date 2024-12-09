@@ -35,7 +35,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $shop_amount_lm
  * @property string $shop_amount_lw
  * @property string $shop_amount_ld
- * @property string $shop_amount_all_ly
  * @property string $shop_amount_1y_ly
  * @property string $shop_amount_1q_ly
  * @property string $shop_amount_1m_ly
@@ -75,7 +74,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $org_amount_lm
  * @property string $org_amount_lw
  * @property string $org_amount_ld
- * @property string $org_amount_all_ly
  * @property string $org_amount_1y_ly
  * @property string $org_amount_1q_ly
  * @property string $org_amount_1m_ly
@@ -115,7 +113,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $group_amount_lm
  * @property string $group_amount_lw
  * @property string $group_amount_ld
- * @property string $group_amount_all_ly
  * @property string $group_amount_1y_ly
  * @property string $group_amount_1q_ly
  * @property string $group_amount_1m_ly

@@ -12,7 +12,7 @@ use App\Actions\Comms\DispatchedEmail\UI\IndexDispatchedEmails;
 use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\OrgAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Comms\PostRoom\PostRoomsTabsEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Http\Resources\Mail\MailshotResource;
@@ -169,7 +169,7 @@ class IndexPostRooms extends OrgAction
     public function getBreadcrumbs($suffix = null): array
     {
         return array_merge(
-            (new ShowDashboard())->getBreadcrumbs(),
+            (new ShowGroupDashboard())->getBreadcrumbs(),
             [
                 [
                     'type'   => 'simple',
