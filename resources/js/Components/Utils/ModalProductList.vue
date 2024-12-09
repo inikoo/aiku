@@ -27,6 +27,7 @@ const props = defineProps<{
 	fetchRoute: routeType
 	action: any
 	current: string | Number
+	typeModel: string
 }>()
 
 const emits = defineEmits<{
@@ -42,6 +43,7 @@ const isLoading = ref<string | boolean>(false)
 const searchQuery = ref("")
 const iconStates = ref<Record<number, { increment: string; decrement: string }>>({})
 const addedProductIds = ref(new Set<number>())
+const addedOrderIds = ref(new Set<number>())
 const currentTab = ref(props.current)
 
 const handleAction = (event: { type: string; value?: number }, slotProps: any) => {
@@ -59,7 +61,8 @@ const handleAction = (event: { type: string; value?: number }, slotProps: any) =
 
 // Method: click Tab
 const onClickProduct = async (tabSlug: string) => {
-	if (tabSlug === currentTab.value) return
+	
+	
 	emits("update:tab", tabSlug)
 	closeModal()
 }
@@ -113,7 +116,7 @@ const getUrlFetch = (additionalParams: {}) => {
 const fetchProductList = async (url?: string) => {
 	isLoading.value = "fetchProduct"
 	const urlToFetch = url || route(props.fetchRoute.name, props.fetchRoute.parameters)
-
+	
 	try {
 		const response = await axios.get(urlToFetch)
 		const data = response.data
@@ -124,18 +127,21 @@ const fetchProductList = async (url?: string) => {
 			resetProducts()
 			products.value = data.data
 		}
-
+		
 		optionsMeta.value = data.meta
 		optionsLinks.value = data.links
 
-		// Populate addedProductIds with product IDs from fetched data
 		if (!addedProductIds.value) {
 			addedProductIds.value = new Set() // Initialize the set if null
 		}
+		if (!addedOrderIds.value) {
+			addedOrderIds.value = new Set() // Initialize the set if null
+		}
 		data.data.forEach((product: any) => {
 			if (product.purchase_order_id) {
-				console.log(product, "product is ni")
 				addedProductIds.value.add(product.purchase_order_id)
+			}else if (product.order_id){
+				addedOrderIds.value.add(product.order_id)
 			}
 		})
 
@@ -161,14 +167,14 @@ const formProducts = useForm({
 
 const onSubmitAddProducts = async (data: any, slotProps: any) => {
     const productId = slotProps.data.purchase_order_id;
-    console.log("Decrement:", slotProps.data.quantity_ordered);
+    const orderId = slotProps.data.order_id;
 
     try {
         if (slotProps.data.quantity_ordered > 0) {
             // Handle update or add
-            if (addedProductIds.value && addedProductIds.value.has(productId)) {
+            if (addedProductIds.value && addedProductIds.value.has(productId) || addedOrderIds.value && addedOrderIds.value.has(orderId)  ) {
                 // Update product
-                if (slotProps.data.purchase_order_id) {
+                if (slotProps.data.purchase_order_id || slotProps.data.order_id) {
                     await formProducts
                         .transform(() => ({
                             quantity_ordered: slotProps.data.quantity_ordered,
@@ -179,8 +185,8 @@ const onSubmitAddProducts = async (data: any, slotProps: any) => {
                             })
                         );
                 }
-            } else {
-                // Add product
+            } else if (props.typeModel === 'purchase_order' ){
+                // Add product ,
                 await formProducts
                     .transform(() => ({
                         quantity_ordered: slotProps.data.quantity_ordered,
@@ -200,9 +206,26 @@ const onSubmitAddProducts = async (data: any, slotProps: any) => {
                     increment: "fal fa-cloud",
                     decrement: "fal fa-undo",
                 };
-            }
+            }else if (props.typeModel === 'order'){
+				await formProducts
+                    .transform(() => ({
+                        quantity_ordered: slotProps.data.quantity_ordered,
+                    }))
+                    .post(
+                        route(data.route?.name || "#", {
+                            ...data.route?.parameters,
+                            historicAsset : slotProps.data.historic_id,
+                        })
+                    );
 
-            // Notify success
+                // Refresh list and update addedProductIds
+                await fetchProductList();
+                addedProductIds.value.add(productId);
+                iconStates.value[productId] = {
+                    increment: "fal fa-cloud",
+                    decrement: "fal fa-undo",
+                };
+			}
             notify({
                 title: trans('Success!'),
                 text: trans('Product successfully added or updated.'),
@@ -243,6 +266,7 @@ const onSubmitAddProducts = async (data: any, slotProps: any) => {
     }
 };
 
+console.log(products,'sdas');
 
 const onFetchNext = async () => {
 	if (optionsLinks.value?.next && !isLoading.value) {

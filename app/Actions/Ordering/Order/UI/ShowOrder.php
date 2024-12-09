@@ -354,7 +354,7 @@ class ShowOrder extends OrgAction
                         'name'       => 'grp.json.shop.catalogue.order.products',
                         'parameters' => [
                             'shop'  => $order->shop->slug,
-                            'scope' => $order->slug
+                            'order' => $order->slug
                         ]
                     ],
                     'delivery_note' => $deliveryNoteRoute

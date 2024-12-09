@@ -516,7 +516,7 @@ const fallbackColor = "#374151"
 			@update:tab="handleTabUpdate"/>
 	</div>
 
-	<ModalProductList v-model="isModalUploadOpen" :fetchRoute="routes.products_list" :action="currentAction" :current="currentTab"  @update:tab="handleTabUpdate" />
+	<ModalProductList v-model="isModalUploadOpen" :fetchRoute="routes.products_list" :action="currentAction" :current="currentTab"  @update:tab="handleTabUpdate" :typeModel="'purchase_order'" />
 
 	<Modal :isOpen="isModalOpen" @onClose="closeModal">
 		<div class="min-h-72 max-h-96 px-2 overflow-auto">

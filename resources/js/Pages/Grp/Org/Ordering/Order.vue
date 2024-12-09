@@ -67,6 +67,8 @@ import { faExclamationTriangle, faExclamation } from '@fas'
 import { faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote, faTruck, faFilePdf, faPaperclip, } from '@fal'
 import { Currency } from '@/types/LayoutRules'
 import TableInvoices from '@/Components/Tables/Grp/Org/Accounting/TableInvoices.vue'
+import ModalProductList from '@/Components/Utils/ModalProductList.vue'
+import TableProductList from '@/Components/Tables/Grp/Helpers/TableProductList.vue'
 library.add(fadExclamationTriangle, faExclamationTriangle, faDollarSign, faIdCardAlt, faShippingFast, faIdCard, faEnvelope, faPhone, faWeight, faStickyNote, faExclamation, faTruck, faFilePdf, faPaperclip)
 
 
@@ -159,16 +161,19 @@ const props = defineProps<{
 
 
 const isModalUploadOpen = ref(false)
+const isModaProductListOpen = ref(false)
 const locale = inject('locale', aikuLocaleStructure)
 
 const currentTab = ref(props.tabs?.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
+
 const component = computed(() => {
     const components: Component = {
         transactions: OrderProductTable,
         delivery_notes: TableDeliveryNotes,
         attachments: TableAttachments,
-        invoices: TableInvoices
+        invoices: TableInvoices,
+		products: TableProductList
     }
 
     return components[currentTab.value]
@@ -236,6 +241,7 @@ const paymentData = ref({
     payment_amount: 0 as number | null,
     payment_reference: ''
 })
+const currentAction = ref(null);
 const isOpenModalPayment = ref(false)
 const isLoadingPayment = ref(false)
 const errorPaymentMethod = ref<null | unknown>(null)
@@ -264,7 +270,7 @@ const onSubmitPayment = () => {
                         })
                 },
                 onSuccess: (response) => {
-                    paymentData.value.payment_method = null,
+                    paymentData.value.payment_method = null, 
                         paymentData.value.payment_amount = 0,
                         paymentData.value.payment_reference = ''
                 }
@@ -308,7 +314,11 @@ const onSubmitNote = async (closePopup: Function) => {
         })
     }
 }
-console.log('jhahahaha', props);
+
+const openModal = (action :any) => {
+	currentAction.value = action;
+    isModaProductListOpen.value = true;
+};
 
 </script>
 
@@ -323,13 +333,18 @@ console.log('jhahahaha', props);
             <div class="relative">
                 <Popover>
                     <template #button="{ open }">
-                        <Button :style="action.style" :label="action.label" :icon="action.icon"
-                            :key="`ActionButton${action.label}${action.style}`" :tooltip="action.tooltip" />
-                    </template>
+						<Button
+							:style="action.style"
+							:label="action.label"
+							:icon="action.icon"
+							@click="() => openModal(action)"
+							:key="`ActionButton${action.label}${action.style}`"
+							:tooltip="action.tooltip" />
+					</template>
 
-                    <template #content="{ close: closed }">
-                        <div class="w-[350px]">
-                            <div class="text-xs px-1 my-2">{{ trans('Products') }}: </div>
+                 <!--    <template #content="{ close: closed }">
+                        <div class="w-[350px]"> -->
+                           <!--  <div class="text-xs px-1 my-2">{{ trans('Products') }}: </div>
                             <div class="">
                                 <PureMultiselectInfiniteScroll v-model="formProducts.historicAssetId"
                                     :fetchRoute="routes.products_list" :placeholder="trans('Select Products')"
@@ -377,14 +392,14 @@ console.log('jhahahaha', props);
                                     :loading="isLoadingButton == 'addProducts'"
                                     :disabled="!formProducts.historicAssetId || (formProducts.quantity_ordered < 1)"
                                     label="Save" full />
-                            </div>
+                            </div> -->
 
                             <!-- Loading: fetching service list -->
                             <!-- <div v-if="isLoadingData === 'addProducts'" class="bg-white/50 absolute inset-0 flex place-content-center items-center">
                                 <FontAwesomeIcon icon='fad fa-spinner-third' class='animate-spin text-5xl' fixed-width aria-hidden='true' />
                             </div> -->
-                        </div>
-                    </template>
+                 <!--        </div>
+                    </template> -->
                 </Popover>
             </div>
         </template>
@@ -614,8 +629,14 @@ console.log('jhahahaha', props);
     <div class="pb-12">
         <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab"
             :updateRoute="routes.updateOrderRoute" :state="data?.data?.state"
-            :detachRoute="attachmentRoutes.detachRoute" />
+            :detachRoute="attachmentRoutes.detachRoute" 
+            :fetchRoute="routes.products_list"
+			:modalOpen="isModalUploadOpen"
+			:action="currentAction"
+			@update:tab="handleTabUpdate"/>
     </div>
+
+	<ModalProductList v-model="isModaProductListOpen" :fetchRoute="routes.products_list" :action="currentAction" :current="currentTab"  @update:tab="handleTabUpdate"  :typeModel="'order'" />
 
     <!-- <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
         <ModalAddress
