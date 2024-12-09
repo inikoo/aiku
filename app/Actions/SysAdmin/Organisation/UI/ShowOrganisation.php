@@ -106,7 +106,7 @@ class ShowOrganisation extends GrpAction
             ];
         };
 
-        $organisation = Organisation::where('slug', $routeParameters['organisation'])->first();
+        $organisation = Organisation::where('slug', $routeParameters['grporganisation'])->first();
 
         return match ($routeName) {
             'grp.organisations.show' =>
