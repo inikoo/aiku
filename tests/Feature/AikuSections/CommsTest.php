@@ -343,3 +343,21 @@ test('UI Index MArketing Mailshots', function () {
             ->has('breadcrumbs', 3);
     });
 });
+
+test('UI Index Newsletter Mailshots', function () {
+    $response = $this->get(route('grp.org.shops.show.marketing.newsletters.index', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Mail/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'newsletter')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
