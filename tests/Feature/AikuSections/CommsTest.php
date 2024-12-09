@@ -305,3 +305,23 @@ test('UI Index Org Post Rooms', function () {
             ->has('breadcrumbs', 4);
     });
 });
+
+test('UI Show Org Post Rooms', function () {
+    $orgPostRoom = $this->organisation->orgPostRooms()->first();
+    $response = $this->get(route('grp.org.shops.show.comms.post-rooms.show', [$this->organisation->slug, $this->shop->slug, $orgPostRoom->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($orgPostRoom) {
+        $page
+            ->component('Mail/PostRoom')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $orgPostRoom->name)
+                    ->etc()
+            )
+            ->has('navigation')
+            ->has('data')
+            ->has('breadcrumbs', 5);
+    });
+});
