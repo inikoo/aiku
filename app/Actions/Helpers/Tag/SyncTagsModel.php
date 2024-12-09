@@ -77,13 +77,13 @@ class SyncTagsModel extends OrgAction
         return $this->handle($product, $this->trimTags($this->validateAttributes()));
     }
 
-    public function inProspect(Prospect $prospect, ActionRequest $request): Product
+    public function inProspect(Prospect $prospect, ActionRequest $request)
     {
         $this->fillFromRequest($request);
         $this->fill(['type' => 'crm']);
         $this->initialisationFromShop($prospect->shop, $request);
 
-        return $this->handle($prospect, $this->trimTags($this->validateAttributes()));
+        $this->handle($prospect, $this->trimTags($this->validateAttributes()));
     }
 
     public function inLocation(Location $location, ActionRequest $request): Location
