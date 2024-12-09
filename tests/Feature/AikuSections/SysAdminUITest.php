@@ -77,6 +77,7 @@ test('UI index organisation', function () {
 });
 
 test('UI edit organisation', function () {
+    $this->withoutExceptionHandling();
     $response = get(
         route(
             'grp.organisations.edit',

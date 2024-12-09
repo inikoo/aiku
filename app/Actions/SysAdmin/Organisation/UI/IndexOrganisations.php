@@ -105,7 +105,7 @@ class IndexOrganisations extends GrpAction
                         ] : null
                     ]
                 )
-                ->column(key: 'type', label: '', canBeHidden: false, sortable: true, searchable: true)
+                ->column(key: 'type', label: '', canBeHidden: false, sortable: false, searchable: false, type: 'icon')
                 ->column(key: 'code', label: __('code'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'name', label: __('name'), canBeHidden: false, sortable: true, searchable: true)
                 ->column(key: 'number_employees_state_working', label: __('employees'), canBeHidden: false, sortable: true, searchable: true)

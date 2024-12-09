@@ -287,3 +287,77 @@ test('UI show mail outboxes', function () {
             ->has('breadcrumbs', 5);
     });
 });
+
+test('UI Index Org Post Rooms', function () {
+    $response = $this->get(route('grp.org.shops.show.comms.post-rooms.index', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Mail/OrgPostRooms')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Post Room')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 4);
+    });
+});
+
+test('UI Show Org Post Rooms', function () {
+    $orgPostRoom = $this->organisation->orgPostRooms()->first();
+    $response = $this->get(route('grp.org.shops.show.comms.post-rooms.show', [$this->organisation->slug, $this->shop->slug, $orgPostRoom->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) use ($orgPostRoom) {
+        $page
+            ->component('Mail/PostRoom')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', $orgPostRoom->name)
+                    ->etc()
+            )
+            ->has('navigation')
+            ->has('data')
+            ->has('breadcrumbs', 5);
+    });
+});
+
+test('UI Index MArketing Mailshots', function () {
+    $response = $this->get(route('grp.org.shops.show.marketing.mailshots.index', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Mail/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'mailshots')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});
+
+test('UI Index Newsletter Mailshots', function () {
+    $response = $this->get(route('grp.org.shops.show.marketing.newsletters.index', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Mail/Mailshots')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'newsletter')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 3);
+    });
+});

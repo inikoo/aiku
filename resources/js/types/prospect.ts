@@ -4,6 +4,13 @@
  * Copyright (c) 2023, Raul A Perusquia Flores
  */
 
+interface tag {
+    id: number
+    slug: string
+    name: string
+    type: boolean
+}
+
 export interface Prospect {
     slug:string,
     reference: string,
@@ -15,4 +22,6 @@ export interface Prospect {
     created_at: string
     updated_at: string
     website: string
+    id:Number,
+    tags:Array<tag>
 }

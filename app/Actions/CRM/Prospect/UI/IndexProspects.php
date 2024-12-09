@@ -175,6 +175,26 @@ class IndexProspects extends OrgAction
     {
         $subNavigation = $this->getSubNavigation($request);
 
+        $dataProspect = [
+            'data' => $this->tab == ProspectsTabsEnum::PROSPECTS->value
+                ? ProspectsResource::collection($prospects)
+                : Inertia::lazy(fn () => ProspectsResource::collection($prospects)),
+        
+            'tagRoute' => [
+                'store' => [
+                    'name'       => 'grp.models.prospect.tag.store',
+                    'parameters' => [],
+                ],
+                'update' => [
+                    'name'       => 'grp.models.prospect.tag.attach',
+                    'parameters' => [],
+                ],
+            ],
+        
+            'tagsList' => TagResource::collection(Tag::where('type', 'crm')->get()),
+        ];
+        
+
         return Inertia::render(
             'Org/Shop/CRM/Prospects',
             [
@@ -239,17 +259,6 @@ class IndexProspects extends OrgAction
                         'parameters' => []
                     ],
                 ],
-                'tagRoute'   => [
-                    'store' => [
-                        'name'       => 'grp.models.prospect.tag.store',
-                        'parameters' => []
-                    ],
-                    'update' => [
-                        'name'       => 'grp.models.prospect.tag.attach',
-                        'parameters' => []
-                    ],
-                ],
-                'tagsList'    => TagResource::collection(Tag::where('type', 'crm')->get()),
                 'tabs' => [
                     'current'    => $this->tab,
                     'navigation' => ProspectsTabsEnum::navigation(),
@@ -259,8 +268,8 @@ class IndexProspects extends OrgAction
                     fn () => GetProspectsDashboard::run($this->parent, $request)
                     : Inertia::lazy(fn () => GetProspectsDashboard::run($this->parent, $request)),
                 ProspectsTabsEnum::PROSPECTS->value => $this->tab == ProspectsTabsEnum::PROSPECTS->value ?
-                    fn () => ProspectsResource::collection($prospects)
-                    : Inertia::lazy(fn () => ProspectsResource::collection($prospects)),
+                    fn () => $dataProspect
+                    : Inertia::lazy(fn () => $dataProspect),
 
                 ProspectsTabsEnum::LISTS->value => $this->tab == ProspectsTabsEnum::LISTS->value ?
                     fn () => ProspectQueriesResource::collection(IndexProspectQueries::run(prefix: ProspectsTabsEnum::LISTS->value))

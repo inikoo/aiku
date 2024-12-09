@@ -41,22 +41,21 @@ class ProspectsResource extends JsonResource
             'tags'       => $prospect->tags()->pluck('slug')->toArray(),
             'state'      => $prospect->state,
             'state_icon' => $prospect->state->stateIcon()[$prospect->state->value],
-
-            'tagRoute'   => [
-                'store' => [
-                    'name'       => 'grp.models.prospect.tag.store',
-                    'parameters' => [
-                        'prospect' => $prospect->id
-                    ]
-                ],
-                'update' => [
-                    'name'       => 'grp.models.prospect.tag.attach',
-                    'parameters' => [
-                        'prospect' => $prospect->id
-                    ]
-                ],
-            ],
-            'tagsList'    => TagResource::collection(Tag::where('type', 'crm')->get()),
+            // 'tagRoute'   => [
+            //     'store' => [
+            //         'name'       => 'grp.models.prospect.tag.store',
+            //         'parameters' => [
+            //             'prospect' => $prospect->id
+            //         ]
+            //     ],
+            //     'update' => [
+            //         'name'       => 'grp.models.prospect.tag.attach',
+            //         'parameters' => [
+            //             'prospect' => $prospect->id
+            //         ]
+            //     ],
+            // ],
+            // 'tagsList'    => TagResource::collection(Tag::where('type', 'crm')->get()),
         ];
     }
 }

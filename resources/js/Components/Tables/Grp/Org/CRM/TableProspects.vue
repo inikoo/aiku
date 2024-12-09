@@ -5,15 +5,88 @@
   -->
 
 <script setup lang="ts">
-import {Link} from '@inertiajs/vue3';
+import {Link, router} from '@inertiajs/vue3';
 import Table from '@/Components/Table/Table.vue';
-import {Prospect} from "@/types/prospect";
+import { Prospect } from "@/types/prospect";
+import Multiselect from '@vueform/multiselect'
+import Tag from '@/Components/Tag.vue';
+import { ref } from 'vue'
+import Icon from '@/Components/Icon.vue';
+
+import { faThumbsDown, faChair, faLaugh } from '@fal';
+import { library } from "@fortawesome/fontawesome-svg-core"
+import { routeType } from '@/types/route';
+import { notify } from '@kyvg/vue3-notification';
+
+library.add(faThumbsDown, faChair, faLaugh)
+
+interface tag {
+    id: number
+    slug: string
+    name: string
+    type: boolean
+}
 
 const props = defineProps<{
-    data: object,
-    tab?: string
+    data: {
+        data : object,
+        tagRoute : {
+            update : routeType
+            store : routeType
+        }
+        tagsList : {
+            data : Array<tag>
+        }
+    },
+    tab : String
 }>()
 
+console.log(props)
+
+const onCreateTag = (option: tag, event : any, prospect : Prospect) =>{
+    router.post(
+        route(props.data.tagRoute.store.name,{ prospect : prospect.id }),
+        option,
+        {
+            onStart : ()=> console.log('iniii'),
+            onSuccess : ()=> {
+                return option
+            }, 
+            onError : ()=>{
+                notify({
+                    title: "Failed to add new Tag",
+                    text: "failed to update the Prospect",
+                    type: "error"
+                })
+                return false 
+            }
+        }
+    )
+}
+
+
+const onUpdateTag = (idTag : Number, prospect : Prospect) =>{
+    router.patch(
+        route(props.data.tagRoute.update.name,{ prospect : prospect.id }),
+        { tags: idTag },
+        {
+            onStart : ()=> console.log('iniii'),
+            onSuccess : ()=> {}, 
+            onError : ()=>{
+                notify({
+                    title: "Failed to add new Tag",
+                    text: "failed to update the Prospect",
+                    type: "error"
+                })
+                return false 
+            }
+        }
+    )
+}
+
+
+const tagsListTemp: Ref<tag[]> = ref([])
+const maxId = ref(Math.max(...tagsListTemp.value.map(item => item.id)))
 
 function prospectRoute(prospect: Prospect) {
     switch (route().current()) {
@@ -31,11 +104,49 @@ function prospectRoute(prospect: Prospect) {
 </script>
 
 <template>
-    <Table :resource="data" :name="tab" class="mt-5">
+    <Table :resource="data.data" :name="tab" class="mt-5">
+        <template #cell(state)="{ item: prospect }">
+            <Icon :data="prospect.state_icon"></Icon>
+        </template>
         <template #cell(name)="{ item: prospect }">
             <!-- <Link :href="prospectRoute(prospect)"> -->
                 {{ prospect['name'] }}
             <!-- </Link> -->
+        </template>
+        <template #cell(tags)="{ item: prospect }">
+            <div class="min-w-[200px]">
+                <Multiselect 
+                    v-model="prospect.tags"
+                    :onCreate="(value : tag, event : any)=>onCreateTag(value,event,prospect)"
+                    :key="prospect.id"
+                    mode="tags"
+                    placeholder="Select the tag"
+                    valueProp="name"
+                    trackBy="name"
+                    label="name"
+                    @change="(idTag : Number) => onUpdateTag(idTag, prospect)"
+                    :close-on-select="false"
+                    :searchable="true"
+                    :create-option="true"
+                    :caret="false"
+                    :options="data.tagsList.data"
+                    noResultsText="No one left. Type to add new one."
+                    appendNewTag
+                >
+                    <template #tag="{ option, handleTagRemove, disabled }: {option: tag, handleTagRemove: Function, disabled: boolean}">
+                        <div class="px-0.5 py-[3px]">
+                            <Tag
+                                :theme="option.id ?? maxId"
+                                :label="option.name"
+                                :closeButton="true"
+                                :stringToColor="true"
+                                size="sm"
+                                @onClose="(event) => handleTagRemove(option, event)"
+                            />
+                        </div>
+                    </template>
+                </Multiselect>
+            </div>
         </template>
     </Table>
 </template>
