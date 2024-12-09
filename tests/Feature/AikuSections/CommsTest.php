@@ -287,3 +287,21 @@ test('UI show mail outboxes', function () {
             ->has('breadcrumbs', 5);
     });
 });
+
+test('UI Index Org Post Rooms', function () {
+    $response = $this->get(route('grp.org.shops.show.comms.post-rooms.index', [$this->organisation->slug, $this->shop->slug]));
+
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Mail/OrgPostRooms')
+            ->has('title')
+            ->has(
+                'pageHead',
+                fn (AssertableInertia $page) => $page
+                    ->where('title', 'Post Room')
+                    ->etc()
+            )
+            ->has('data')
+            ->has('breadcrumbs', 4);
+    });
+});
