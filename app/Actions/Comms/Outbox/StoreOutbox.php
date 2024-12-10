@@ -14,6 +14,7 @@ use App\Actions\OrgAction;
 use App\Actions\SysAdmin\Group\Hydrators\GroupHydrateOutboxes;
 use App\Actions\SysAdmin\Organisation\Hydrators\OrganisationHydrateOutboxes;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Enums\Comms\Outbox\OutboxBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
@@ -67,10 +68,11 @@ class StoreOutbox extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'code'  => ['required', Rule::enum(OutboxCodeEnum::class)],
-            'type'  => ['required', Rule::enum(OutboxTypeEnum::class)],
-            'state' => ['required', Rule::enum(OutboxStateEnum::class)],
-            'name'  => ['required', 'max:250', 'string'],
+            'code'    => ['required', Rule::enum(OutboxCodeEnum::class)],
+            'type'    => ['required', Rule::enum(OutboxTypeEnum::class)],
+            'state'   => ['required', Rule::enum(OutboxStateEnum::class)],
+            'builder' => ['nullable', Rule::enum(OutboxBuilderEnum::class)],
+            'name'    => ['required', 'max:250', 'string'],
         ];
         if (!$this->strict) {
             $rules = $this->noStrictStoreRules($rules);

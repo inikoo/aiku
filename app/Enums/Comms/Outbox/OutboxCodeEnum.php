@@ -69,7 +69,12 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::ABANDONED_CART,
             OutboxCodeEnum::REORDER_REMINDER => OutboxTypeEnum::MARKETING_NOTIFICATION,
             OutboxCodeEnum::TEST => OutboxTypeEnum::TEST,
-            default => OutboxTypeEnum::USER_NOTIFICATION
+            OutboxCodeEnum::NEW_CUSTOMER,
+            OutboxCodeEnum::DELIVERY_NOTE_DISPATCHED,
+            OutboxCodeEnum::DELIVERY_NOTE_UNDISPATCHED,
+            OutboxCodeEnum::INVOICE_DELETED,
+            OutboxCodeEnum::NEW_ORDER
+            => OutboxTypeEnum::USER_NOTIFICATION,
         };
     }
 
@@ -156,7 +161,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::NEWSLETTER,
             OutboxCodeEnum::MARKETING,
             OutboxCodeEnum::INVITE
-            => ['Fulfilment','Shop'],
+            => ['Fulfilment', 'Shop'],
 
             OutboxCodeEnum::RENTAL_AGREEMENT,
             OutboxCodeEnum::PALLET_DELIVERY_PROCESSED,
@@ -211,6 +216,19 @@ enum OutboxCodeEnum: string
 
             => OutboxStateEnum::ACTIVE,
             default => OutboxStateEnum::IN_PROCESS
+        };
+    }
+
+    public function defaultBuilder(): ?string
+    {
+        return match ($this) {
+            OutboxCodeEnum::NEW_CUSTOMER,
+            OutboxCodeEnum::DELIVERY_NOTE_DISPATCHED,
+            OutboxCodeEnum::DELIVERY_NOTE_UNDISPATCHED,
+            OutboxCodeEnum::INVOICE_DELETED,
+            OutboxCodeEnum::NEW_ORDER
+            => OutboxBuilderEnum::BLADE->value,
+            default => null
         };
     }
 

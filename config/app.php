@@ -261,4 +261,7 @@ return [
         'url'  => env('DICE_BEAR_API_URL', 'https://api.dicebear.com/9.x'),
     ],
     'log_user_requests' => env('LOG_USER_REQUESTS', false),
+
+    'default_outbox_builder' => env('DEFAULT_OUTBOX_BUILDER', 'beefree'),
+
 ];

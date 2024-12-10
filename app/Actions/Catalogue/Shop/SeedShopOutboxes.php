@@ -12,6 +12,7 @@ use App\Actions\Comms\Email\StoreEmail;
 use App\Actions\Comms\EmailOngoingRun\StoreEmailOngoingRun;
 use App\Actions\Comms\Outbox\StoreOutbox;
 use App\Actions\Comms\Outbox\UpdateOutbox;
+use App\Actions\Traits\WithOutboxBuilder;
 use App\Enums\Comms\EmailTemplate\EmailTemplateStateEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
@@ -28,6 +29,7 @@ use Throwable;
 class SeedShopOutboxes
 {
     use AsAction;
+    use WithOutboxBuilder;
 
     public function handle(Shop $shop): void
     {
@@ -35,6 +37,7 @@ class SeedShopOutboxes
             if (in_array('Shop', $case->scope()) and in_array($shop->type->value, $case->shopTypes())) {
                 $postRoom    = PostRoom::where('code', $case->postRoomCode()->value)->first();
                 $orgPostRoom = $postRoom->orgPostRooms()->where('organisation_id', $shop->organisation->id)->first();
+
 
                 if ($outbox = Outbox::where('shop_id', $shop->id)->where('code', $case)->first()) {
                     UpdateOutbox::make()->action(
@@ -48,10 +51,11 @@ class SeedShopOutboxes
                         $orgPostRoom,
                         $shop,
                         [
-                            'name'  => $case->label(),
-                            'code'  => $case,
-                            'type'  => $case->type(),
-                            'state' => $case->defaultState(),
+                            'name'    => $case->label(),
+                            'code'    => $case,
+                            'type'    => $case->type(),
+                            'state'   => $case->defaultState(),
+                            'builder' => $this->getDefaultBuilder($case, $shop)
 
                         ]
                     );

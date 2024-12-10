@@ -12,7 +12,6 @@ namespace App\Actions\Catalogue\Product\Json;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Http\Resources\Catalogue\OrderProductsResource;
-use App\Http\Resources\Catalogue\ProductsResource;
 use App\Models\Catalogue\Product;
 use App\Models\Catalogue\Shop;
 use App\Models\Ordering\Order;

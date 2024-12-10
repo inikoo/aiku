@@ -30,6 +30,7 @@ use Illuminate\Support\Facades\Auth;
  * @property int|null $shop_id
  * @property int|null $outbox_id
  * @property string $parent_type MailShot|EmailBulkRun|EmailOngoingRun
+ * @property int $parent_id
  * @property int|null $email_address_id
  * @property DispatchedEmailTypeEnum $type
  * @property DispatchedEmailProviderEnum $provider

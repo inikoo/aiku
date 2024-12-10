@@ -9,6 +9,7 @@
 namespace App\Actions\Fulfilment\Fulfilment;
 
 use App\Actions\Comms\Outbox\StoreOutbox;
+use App\Actions\Traits\WithOutboxBuilder;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
@@ -20,6 +21,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class SeedFulfilmentOutboxes
 {
     use AsAction;
+    use WithOutboxBuilder;
 
     public function handle(Fulfilment $fulfilment): void
     {
@@ -38,6 +40,7 @@ class SeedFulfilmentOutboxes
                             'code'  => $case,
                             'type'  => $case->type(),
                             'state' => $case->defaultState(),
+                            'builder' => $this->getDefaultBuilder($case, $fulfilment)
                         ]
                     );
                 }

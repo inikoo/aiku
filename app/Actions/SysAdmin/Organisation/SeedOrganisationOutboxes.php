@@ -9,6 +9,7 @@
 namespace App\Actions\SysAdmin\Organisation;
 
 use App\Actions\Comms\Outbox\StoreOutbox;
+use App\Actions\Traits\WithOutboxBuilder;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\SysAdmin\Organisation;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -17,27 +18,27 @@ class SeedOrganisationOutboxes
 {
     use AsAction;
     use WithOrganisationCommand;
+    use WithOutboxBuilder;
 
     public function handle(Organisation $organisation): void
     {
         foreach (OutboxCodeEnum::cases() as $case) {
             if (in_array('Organisation', $case->scope())) {
+
                 $postRoom = $organisation->group->postRooms()->where('code', $case->postRoomCode())->first();
 
                 $orgPostRoom = $postRoom->orgPostRooms()->where('organisation_id', $organisation->id)->first();
 
                 if (!$organisation->outboxes()->where('code', $case)->exists()) {
-
-
-
                     StoreOutbox::make()->action(
                         $orgPostRoom,
                         $organisation,
                         [
-                            'name' => $case->label(),
-                            'code' => $case,
-                            'type' => $case->type(),
-                            'state' => $case->defaultState(),
+                            'name'    => $case->label(),
+                            'code'    => $case,
+                            'type'    => $case->type(),
+                            'state'   => $case->defaultState(),
+                            'builder' => $this->getDefaultBuilder($case, $organisation)
 
                         ]
                     );
@@ -47,8 +48,6 @@ class SeedOrganisationOutboxes
     }
 
     public string $commandSignature = 'org:seed_outboxes {organisation? : The organisation slug}';
-
-
 
 
 }

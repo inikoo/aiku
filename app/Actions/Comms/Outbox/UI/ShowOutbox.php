@@ -82,9 +82,9 @@ class ShowOutbox extends OrgAction
     public function htmlResponse(Outbox $outbox, ActionRequest $request): Response
     {
 
-        if($outbox->state==OutboxStateEnum::IN_PROCESS){
+        if ($outbox->state == OutboxStateEnum::IN_PROCESS) {
 
-            if($outbox->type==OutboxTypeEnum::USER_NOTIFICATION){
+            if ($outbox->type == OutboxTypeEnum::USER_NOTIFICATION) {
                 dd('Error this should be set up already in the seeder');
             }
 

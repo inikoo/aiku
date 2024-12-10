@@ -179,7 +179,7 @@ class IndexProspects extends OrgAction
             'data' => $this->tab == ProspectsTabsEnum::PROSPECTS->value
                 ? ProspectsResource::collection($prospects)
                 : Inertia::lazy(fn () => ProspectsResource::collection($prospects)),
-        
+
             'tagRoute' => [
                 'store' => [
                     'name'       => 'grp.models.prospect.tag.store',
@@ -190,10 +190,10 @@ class IndexProspects extends OrgAction
                     'parameters' => [],
                 ],
             ],
-        
+
             'tagsList' => TagResource::collection(Tag::where('type', 'crm')->get()),
         ];
-        
+
 
         return Inertia::render(
             'Org/Shop/CRM/Prospects',

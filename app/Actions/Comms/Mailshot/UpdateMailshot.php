@@ -34,7 +34,8 @@ class UpdateMailshot extends OrgAction
             return true;
         }
         //todo
-        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");;
+        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
+        ;
     }
 
     public function rules(): array
