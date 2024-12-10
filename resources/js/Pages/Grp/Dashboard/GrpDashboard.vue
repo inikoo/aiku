@@ -96,6 +96,7 @@ const props = defineProps<{
 
 console.log('groupStats total: ', props.groupStats.total)
 console.log('groupStats Organisations: ', props.groupStats)
+console.log('interval_options: ', props.interval_options)
 const layout = inject('layout', layoutStructure)
 const locale = inject('locale', aikuLocaleStructure)
 
@@ -146,7 +147,7 @@ const abcdef = computed(() => {
 </script>
 
 <template>
-
+    
     <Head :title="trans('Dashboard')" />
     <div class="px-4 sm:px-6 lg:px-8">
         <!-- <pre>{{ props.groupStats.organisations }}</pre> -->

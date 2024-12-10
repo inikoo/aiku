@@ -11,32 +11,202 @@ import {
 } from "@fal"
 import { library } from "@fortawesome/fontawesome-svg-core"
 import Chart from "primevue/chart"
-import { onMounted, Ref, ref } from "vue"
+import { onMounted, Ref, ref, watch } from "vue"
 import { useFormatTime } from "../../Composables/useFormatTime"
 import { router } from "@inertiajs/vue3"
 import SelectButton from "primevue/selectbutton"
-import OverviewCard from "./OverviewCard.vue"
+import MetricCard from "./MetricCard.vue"
 
 library.add(faArrowUp, faArrowDown, faHandSparkles, faEnvelope, faUser, faHdd, faCloudDownload)
 
 const props = defineProps<{
 	data: {
-		data: {
-			viewer: {
-				zones: Array<{
-					zones: Array<{
-						dimensions: { timeslot: string }
-						sum: {
-							requests: number
-							cachedRequests?: number
-							bytes: number
-							cachedBytes?: number
-							encryptedRequests?: number
-							encryptedBytes?: number
-						}
-						uniq: { uniques: number }
+		rumAnalyticsTimeseries: {
+			data: {
+				viewer: {
+					accounts: Array<{
+						series: Array<{
+							avg: {
+								sampleInterval: number
+							}
+							count: number
+							dimensions: {
+								ts: string
+							}
+							sum: {
+								visits: number
+							}
+						}>
 					}>
-				}>
+				}
+			}
+		}
+		rumAnalyticsTopNs: {
+			data: {
+				viewer: {
+					accounts: Array<{
+						countries: Array<{
+							avg: {
+								sampleInterval: number
+							}
+							count: number
+							dimensions: {
+								metric: string // e.g., "GB" (country code)
+							}
+						}>
+						topBrowsers: Array<{
+							avg: {
+								sampleInterval: number
+							}
+							count: number
+							dimensions: {
+								metric: string // e.g., "Chrome" (browser name)
+							}
+						}>
+						topDeviceTypes: Array<{
+							avg: {
+								sampleInterval: number
+							}
+							count: number
+							dimensions: {
+								metric: string // e.g., "desktop", "mobile"
+							}
+						}>
+						topOS: Array<{
+							avg: {
+								sampleInterval: number
+							}
+							count: number
+							dimensions: {
+								metric: string // e.g., "Windows", "MacOS"
+							}
+						}>
+						topHosts: Array<{
+							avg: {
+								sampleInterval: number
+							}
+							count: number
+							dimensions: {
+								metric: string // Host information
+							}
+						}>
+						topPaths: Array<{
+							avg: {
+								sampleInterval: number
+							}
+							count: number
+							dimensions: {
+								metric: string // Path details
+							}
+						}>
+						topReferrers: Array<{
+							avg: {
+								sampleInterval: number
+							}
+							count: number
+							dimensions: {
+								metric: string // Referrer details
+							}
+						}>
+						total: {
+							count: number // Total count of visits
+							sum: {
+								visits: number // Total sum of visits
+							}
+						}
+					}>
+				}
+			}
+		}
+		rumSparkline: {
+			data: {
+				viewer: {
+					accounts: Array<{
+						cls: Array<{
+							avg: {
+								sampleInterval: number
+							}
+							count: number
+						}>
+						fid: Array<{
+							avg: {
+								sampleInterval: number
+							}
+							count: number
+						}>
+						inp: Array<{
+							avg: {
+								sampleInterval: number
+							}
+							count: number
+						}>
+						lcp: Array<{
+							avg: {
+								sampleInterval: number
+							}
+							count: number
+						}>
+						pageviews: Array<{
+							sampleInterval: number
+							count: number
+							dimensions: {
+								ts: string // ISO timestamp
+							}
+						}>
+						pageviewsDelta: {
+							count: number
+						}
+						performance: {
+							aggregation: {
+								pageLoadTime: number // Total page load time
+							}
+							avg: {
+								sampleInterval: number
+							}
+							count: number
+						}
+						performanceDelta: {
+							aggregation: {
+								pageLoadTime: number
+							}
+						}
+						totalPerformance: {
+							aggregation: {
+								pageLoadTime: number
+							}
+						}
+						visits: Array<{
+							sum: {
+								visits: number
+							}
+						}>
+						visitsDelta: {
+							sum: {
+								visits: number
+							}
+						}
+					}>
+				}
+			}
+		}
+		zone: {
+			data: {
+				viewer: {
+					zones: Array<{
+						zones: Array<{
+							dimensions: { timeslot: string }
+							sum: {
+								requests: number
+								cachedRequests?: number
+								bytes: number
+								cachedBytes?: number
+								encryptedRequests?: number
+								encryptedBytes?: number
+							}
+							uniq: { uniques: number }
+						}>
+					}>
+				}
 			}
 		}
 	}
@@ -50,6 +220,7 @@ interface SummaryMetric {
 	change: string
 	changeType: "increase" | "decrease"
 }
+console.log(props.data.rumAnalyticsTimeseries)
 
 const reloadData = (until: string, since: string) => {
 	router.reload({
@@ -62,181 +233,246 @@ const reloadData = (until: string, since: string) => {
 }
 
 const summaryMetrics: Ref<SummaryMetric[]> = ref([])
-const value = ref("24 Hours")
+const value = ref("24 Hours") // Force to 24 hours by default
 const options = ref(["24 Hours", "7 Days", "30 Days"])
 const metrics = [
 	{ label: "Unique Visitors", dataKey: "uniques", color: "--p-cyan-500" },
 	{ label: "Total Requests", dataKey: "requests", color: "--p-blue-500" },
 ]
-const chartsData = ref([])
-const chartsOptions = ref([])
+const chartsData = ref({})
+const chartsOptions = ref({})
+
+const selectedMetric = ref("Unique Visitors")
+
+// Function to format times in HH:mm format
+const formatTime = (timestamp: string): string => {
+	const date = new Date(timestamp)
+	const hours = date.getHours().toString().padStart(2, "0")
+	const minutes = date.getMinutes().toString().padStart(2, "0")
+	return `${hours}:${minutes}`
+}
 
 const handleSelectChange = () => {
 	const today = new Date()
-	let until: string | undefined
-	let since: string | undefined
+	const since = new Date(today)
+	since.setHours(today.getHours() - 24) // Get the time 24 hours ago
+	const until = today.toISOString().split("T")[0] // Use today's date as "until"
 
-	if (value.value === "7 Days") {
-		const sevenDaysAgo = new Date(today)
-		sevenDaysAgo.setDate(today.getDate() - 7)
-		since = sevenDaysAgo.toISOString().split("T")[0]
-		until = today.toISOString().split("T")[0]
-	} else if (value.value === "30 Days") {
-		const thirtyDaysAgo = new Date(today)
-		thirtyDaysAgo.setDate(today.getDate() - 30)
-		since = thirtyDaysAgo.toISOString().split("T")[0]
-		until = today.toISOString().split("T")[0]
-	}
+	console.log("Since:", since)
+	console.log("Until:", until)
 
-	if (since && until) {
-		reloadData(until, since)
-	} else {
-		reloadData(undefined, undefined)
-	}
+	reloadData(until, since.toISOString().split("T")[0])
 }
 
 const setChartDataAndOptions = () => {
-	if (!props.data.data.viewer.zones || props.data.data.viewer.zones.length === 0) {
-		// Set empty data if zones are empty
-		summaryMetrics.value = []
-		chartsData.value = []
-		return
-	}
+	const timeseriesData =
+		props.data?.rumAnalyticsTimeseries?.data?.viewer?.accounts[0]?.series || []
 
-	const optionsTime = { formatTime: "hm" }
-	const mainZone = props.data.data.viewer.zones[0]
-	const dates = mainZone.zones.map((item) => useFormatTime(item.dimensions.timeslot, optionsTime))
-
-	chartsData.value = metrics.map((metric) => {
-		const data = mainZone.zones.map((item) => {
-			let value = metric.dataKey === "uniques" ? item.uniq.uniques : item.sum[metric.dataKey]
-			if (metric.dataKey === "bytes" || metric.dataKey === "cachedBytes") {
-				value = value ? value / 1024 ** 3 : 0
-			}
-			if (metric.dataKey === "cachedRequests") {
-				value = ((item.sum.cachedRequests || 0) / (item.sum.requests || 1)) * 100
-			}
-			return value
-		})
-
-		return {
-			labels: dates,
-			datasets: [
-				{
-					label: metric.label,
-					data: data,
-					fill: true,
-					borderColor:
-						getComputedStyle(document.documentElement).getPropertyValue(metric.color) ||
-						"#00bcd4",
-					backgroundColor: `${getComputedStyle(document.documentElement).getPropertyValue(
-						metric.color
-					)}33`,
-					tension: 0.4,
-				},
-			],
-		}
+	// Prepare labels (timestamps) and data (visits) for the chart
+	const labels = timeseriesData.map((item) => {
+		const date = new Date(item.dimensions.ts)
+		return `${date.getHours().toString().padStart(2, "0")}:${date
+			.getMinutes()
+			.toString()
+			.padStart(2, "0")}`
 	})
 
-	const textColor =
-		getComputedStyle(document.documentElement).getPropertyValue("--p-text-color") || "#333"
-	const surfaceBorder =
-		getComputedStyle(document.documentElement).getPropertyValue("--p-content-border-color") ||
-		"#ddd"
+	const data = timeseriesData.map((item) => item.sum.visits)
 
-	chartsOptions.value = metrics.map(() => ({
-		maintainAspectRatio: false,
-		plugins: {
-			legend: { display: false },
+	// Update chart data
+	chartsData.value = {
+		"Analytics Timeseries": {
+			labels: labels,
+			datasets: [
+				{
+					label: "Total visits",
+					data: data,
+					borderColor: "#007bff",
+					backgroundColor: "transparent", 
+					fill: false,
+					tension: 0, 
+					borderWidth: 2,
+					pointRadius: 0,
+				},
+			],
 		},
-		scales: {
-			x: {
-				ticks: { color: textColor },
-				grid: { color: surfaceBorder },
+	}
+
+	// Update chart options
+	chartsOptions.value = {
+		"Analytics Timeseries": {
+			maintainAspectRatio: false,
+			responsive: true,
+			plugins: {
+				legend: { display: true },
+				tooltip: {
+					backgroundColor: "#333",
+					titleColor: "#fff",
+					bodyColor: "#fff",
+					borderColor: "#fff",
+					borderWidth: 1,
+				},
 			},
-			y: {
-				ticks: { color: textColor },
-				grid: { color: surfaceBorder },
+			scales: {
+				x: {
+					ticks: { color: "#333", font: { size: 12 } },
+					grid: { color: "#ddd", borderDash: [4, 2] },
+				},
+				y: {
+					ticks: { color: "#333", font: { size: 12 } },
+					grid: { color: "#ddd", borderDash: [4, 2] },
+				},
 			},
 		},
-	}))
+	}
 
-	const totalRequests = mainZone.zones.reduce((sum, day) => sum + day.sum.requests, 0)
-	const cachedRequests = mainZone.zones.reduce(
-		(sum, day) => sum + (day.sum.cachedRequests || 0),
-		0
-	)
-	const totalBytes = mainZone.zones.reduce((sum, day) => sum + day.sum.bytes, 0)
-	const uniqueVisitors = mainZone.zones.reduce((sum, item) => sum + (item.uniq?.uniques || 0), 0)
-
+	// Add summary metric for total visits
+	const totalVisits = data.reduce((sum, visits) => sum + visits, 0)
 	summaryMetrics.value = [
 		{
 			id: 1,
-			label: "Unique Visitors",
-			value: uniqueVisitors.toLocaleString(),
+			label: "Total Visits",
+			value: totalVisits.toLocaleString(),
 			icon: "fal fa-eye",
 			change: "",
 			changeType: "",
 		},
-		{
-			id: 2,
-			label: "Total Requests",
-			value: totalRequests.toLocaleString(),
-			icon: "fal fa-chart-line",
-			change: "",
-			changeType: "",
-		}
-		
-		
 	]
+}
+
+const handleCardClick = (metricLabel: string) => {
+	selectedMetric.value = metricLabel
 }
 
 onMounted(() => {
 	setChartDataAndOptions()
 })
+watch(value, handleSelectChange)
 </script>
 
 <template>
-	<div class="px-5 py-4">
-		<!-- Display header and SelectButton only if data is available -->
-		<div v-if="props.data.data.viewer.zones && props.data.data.viewer.zones.length > 0">
-			<h3 class="text-base font-semibold leading-6 text-gray-900">Overview (Last 24 Hours)</h3>
-			<div class="p-3">
-				<SelectButton
-					v-model="value"
-					:options="options"
-					size="small"
-					@change="handleSelectChange" />
+	<div class="min-h-screen bg-gray-100 p-6">
+		<!-- Layout -->
+		<div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+			<!-- Sidebar -->
+			<div class="space-y-6">
+				<!-- Visits Card -->
+				<div class="bg-white rounded-lg shadow-md p-4 flex flex-col items-start">
+					<div class="text-lg font-semibold text-gray-700">Visits</div>
+					<div class="text-3xl font-bold text-gray-900">230</div>
+					<div class="w-full mt-2">
+						<OverviewCard
+							v-for="metric in summaryMetrics"
+							:key="metric.id"
+							:label="metric.label"
+							:value="metric.value"
+							:icon="metric.icon" />
+					</div>
+				</div>
+
+				<!-- Page Views Card -->
+				<div class="bg-white rounded-lg shadow-md p-4 flex flex-col items-start">
+					<div class="text-lg font-semibold text-gray-700">Page Views</div>
+					<div class="text-3xl font-bold text-gray-900">310</div>
+					<div class="w-full mt-2">
+						<OverviewCard
+							v-for="metric in summaryMetrics"
+							:key="metric.id"
+							:label="metric.label"
+							:value="metric.value"
+							:icon="metric.icon" />
+					</div>
+				</div>
+
+				<!-- Page Load Time Card -->
+				<div class="bg-white rounded-lg shadow-md p-4 flex flex-col items-start">
+					<div class="text-lg font-semibold text-gray-700">Page Load Time</div>
+					<div class="text-3xl font-bold text-gray-900">1,781ms</div>
+					<div class="w-full mt-2">
+						<OverviewCard
+							v-for="metric in summaryMetrics"
+							:key="metric.id"
+							:label="metric.label"
+							:value="metric.value"
+							:icon="metric.icon" />
+					</div>
+				</div>
+
+				<!-- Core Web Vitals -->
+				<div class="bg-white rounded-lg shadow-md p-4">
+					<div class="text-lg font-semibold text-gray-700 mb-2">Core Web Vitals</div>
+					<div class="space-y-2">
+						<div class="flex items-center">
+							<span class="w-12 font-medium text-gray-600">LCP</span>
+							<div class="flex-1 h-4 bg-gray-200 rounded-lg overflow-hidden">
+								<div class="h-full bg-green-500" style="width: 85%"></div>
+							</div>
+						</div>
+						<div class="flex items-center">
+							<span class="w-12 font-medium text-gray-600">INP</span>
+							<div class="flex-1 h-4 bg-gray-200 rounded-lg overflow-hidden">
+								<div class="h-full bg-green-500" style="width: 70%"></div>
+							</div>
+						</div>
+						<div class="flex items-center">
+							<span class="w-12 font-medium text-gray-600">FID</span>
+							<div class="flex-1 h-4 bg-gray-200 rounded-lg overflow-hidden">
+								<div class="h-full bg-green-500" style="width: 90%"></div>
+							</div>
+						</div>
+						<div class="flex items-center">
+							<span class="w-12 font-medium text-gray-600">CLS</span>
+							<div class="flex-1 h-4 bg-gray-200 rounded-lg overflow-hidden">
+								<div class="h-full bg-yellow-400" style="width: 50%"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Main Content -->
+			<div class="lg:col-span-3">
+				<div class="bg-white rounded-lg shadow-md p-6">
+					<!-- Title and Filters -->
+					<div class="flex justify-between items-center mb-6">
+						<div>
+							<h2 class="text-lg font-semibold text-gray-700">
+								Web Analytics for example.com
+							</h2>
+							<p class="text-sm text-gray-500">
+								Overview of site performance and visitor statistics
+							</p>
+						</div>
+						<div class="flex space-x-4 items-center">
+							<button
+								class="bg-blue-500 text-white text-sm font-medium py-2 px-4 rounded-md shadow hover:bg-blue-600">
+								Add Filter
+							</button>
+							<select
+								class="border border-gray-300 rounded-md py-2 px-4 text-sm text-gray-700">
+								<option>Last 24 Hours</option>
+								<option>Last 7 Days</option>
+								<option>Last 14 Days</option>
+							</select>
+						</div>
+					</div>
+
+					<!-- Graph -->
+					<div class="relative">
+						<Chart
+							type="line"
+							:data="chartsData['Analytics Timeseries']"
+							:options="chartsOptions['Analytics Timeseries']"
+							class="h-96" />
+					</div>
+				</div>
 			</div>
 		</div>
-
-		<!-- Conditional content based on data availability -->
-		<div v-if="props.data.data.viewer.zones && props.data.data.viewer.zones.length > 0">
-			<!-- Summary metrics -->
-			<div class="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-				<OverviewCard
-					v-for="metric in summaryMetrics"
-					:key="metric.id"
-					:label="metric.label"
-					:value="metric.value"
-					:icon="metric.icon" />
-			</div>
-
-			<!-- Charts -->
-			<div v-for="(chartData, index) in chartsData" :key="index" class="mt-8">
-				<h4 class="text-gray-700 mb-2">{{ metrics[index].label }}</h4>
-				<Chart type="line" :data="chartData" :options="chartsOptions[index]" class="h-36" />
-			</div>
-		</div>
-		
-		<!-- No data available message -->
-		<div v-else class="mt-5 text-gray-500">No data available for the selected period.</div>
 	</div>
 </template>
 
 <style scoped>
-h4 {
-	font-size: 1rem;
-	font-weight: 500;
+.min-h-screen {
+	font-family: Arial, sans-serif;
 }
 </style>

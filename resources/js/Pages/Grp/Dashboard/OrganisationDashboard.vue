@@ -5,107 +5,149 @@
   -->
 
 <script setup lang="ts">
-import { useLayoutStore } from '@/Stores/layout'
-import { Line } from 'vue-chartjs'
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, ScriptableContext  } from 'chart.js'
-import { ref } from 'vue'
+import { inject, ref } from 'vue'
+import PureMultiselect from '@/Components/Pure/PureMultiselect.vue'
+import { Switch } from '@headlessui/vue'
+import { useLocaleStore } from '@/Stores/locale'
+import { RadioGroup, RadioGroupOption } from '@headlessui/vue'
+import { Pie } from 'vue-chartjs'
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, Colors } from 'chart.js'
+import { aikuLocaleStructure } from '@/Composables/useLocaleStructure'
+
+
+
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import Row from 'primevue/row'
+import ColumnGroup from 'primevue/columngroup'
+import { computed } from 'vue'
+import { useTruncate } from '@/Composables/useTruncate'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faChevronDown } from '@far'
+import { faTriangle } from '@fas'
+import { library } from '@fortawesome/fontawesome-svg-core'
 import { Head } from '@inertiajs/vue3'
 import { trans } from 'laravel-vue-i18n'
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
+import { get } from 'lodash'
+import { layoutStructure } from '@/Composables/useLayoutStructure'
+import { useGetCurrencySymbol } from '@/Composables/useCurrency'
+import Tag from '@/Components/Tag.vue'
 
-const layout = useLayoutStore()
+library.add(faTriangle, faChevronDown)
 
-const tabs = [
-    { name: 'My Account', href: '#', current: true },
-    { name: 'Company', href: '#', current: false },
-    { name: 'Team Members', href: '#', current: false },
-    { name: 'Billing', href: '#', current: false },
-]
+const props = defineProps<{
+    dashboard: any
+    interval_options: {
+        label: string
+        labelShort: string
+        value: string
+    }[]
+}>()
 
-const dataStats = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-    datasets: [
-        {
-            label: 'Dataset 1',
-            data: [34, 55, 47, 33, 42, 55, 37, 45, 43, 54, 49, 53],
-            borderColor: layout.app.theme[0],
-            backgroundColor: (context: ScriptableContext<"line">) => { const ctx = context.chart.ctx; const gradient = ctx.createLinearGradient(0, 0, 0, 200); gradient.addColorStop(0, layout.app.theme[0] + 'AA'); gradient.addColorStop(1, layout.app.theme[0] + '11'); return gradient; },
-            tension: 0.5,
-            fill: true
-        },
-        // {
-        //     label: 'Dataset 1',
-        //     data: [37, 49, 35, 43, 40, 52, 44, 49, 40, 52, 55, 47],
-        //     borderColor: layout.app.theme[3],
-        //     backgroundColor: layout.app.theme[2],
-        //     tension: 0.5,
-        // },
-    ],
-}
+console.log(props.dashboard,'hehe');
+const selectedDateOption = ref<string>('all')
+const locale = inject('locale', aikuLocaleStructure)
 
-const config = {
-    type: 'line',
-    data: dataStats,
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                position: 'top',
-            },
-            title: {
-                display: true,
-                text: 'Chart.js Line Chart'
-            }
+const datas = computed(() => {
+    return props.dashboard.shops.map((org) => {
+        return {
+            name: org.name,
+            code: org.code,
+            interval_percentages: org.interval_percentages, 
+            // refunds: org.refunds.number_refunds || 0,
+            // refunds_diff: 0,
+            // invoices: org.invoices.number_invoices || 0,
+            // invoices_diff: get(org, ['sales', `invoices_${selectedDateOption.value}`], 0),
+            sales: org.sales || 0,
+            // sales_diff: get(org, ['sales', `org_amount_${selectedDateOption.value}`], 0),
         }
-    },
-}
-
-const stats = [
-    { id: 1, name: 'Total revenue', value: '$8,280' },
-    { id: 2, name: 'Increased revenue', value: '13.7%' },
-    { id: 3, name: 'Sales', value: '1,843' },
-    { id: 4, name: 'Stocks', value: '319' },
-]
-
+    })
+})
 const selectedTabGraph = ref(0)
-// console.log('liesaldnsa', Line)
+console.log(datas);
+
 </script>
 
 <template>
     <Head :title="trans('Dashboard')" />
-    <div class="px-4 py-6 grid grid-cols-3 gap-x-6">
-        <div v-if="false" class="border border-gray-200 rounded-md shadow">
+    <div class="px-4 sm:px-6 lg:px-8">
+        <!-- <pre>{{ props.groupStats.organisations }}</pre> -->
+
+
+
+            <!-- Section: Date options -->
+           <div class="mt-4 block">
+                <nav class="isolate flex rounded border-b border-gray-300" aria-label="Tabs">
+                    <div v-for="(interval, idxInterval) in interval_options" :key="idxInterval"
+                        @click="() => selectedDateOption = interval.value" :class="[
+                            interval.value === selectedDateOption ? '' : 'text-gray-500 hover:text-gray-700',
+                        ]"
+                        class='relative min-w-0 flex-1 overflow-hidden bg-white hover:bg-gray-100 py-0 text-center text-sm cursor-pointer select-none focus:z-10'>
+                        <span>{{ interval.value }}</span>
+                        <span aria-hidden="true"
+                            :class="[interval.value === selectedDateOption ? 'bg-indigo-500' : 'bg-transparent', 'absolute inset-x-0 bottom-0 h-0.5']" />
+                    </div>
+                </nav>
+        </div> 
+
+        <div class="mt-6">
+            <DataTable :value="datas" stripedRows showGridlines removableSort tableStyle="min-width: 50rem">
+                <Column field="name" sortable class="overflow-hidden transition-all" header="Name">
+                    <template #body="{ data }">
+                        <div class="relative">
+                            <Transition name="spin-to-down" mode="out-in">
+                                <div :key="data.name">
+                                    {{ data.name }}
+                                </div>
+                            </Transition>
+                        </div>
+                    </template>
+                </Column>
+
+                <!-- Sales -->
+                <Column field="sales" sortable class="overflow-hidden transition-all" header="Sales" headerStyle="text-align: green; width: 250px">
+                    <template #body="{ data }">
+                        <div class="flex justify-end relative">
+                            <Transition name="spin-to-down" mode="out-in">
+                                <div :key="data.sales?.[`sales_${selectedDateOption}`]">
+                                    {{ useLocaleStore().currencyFormat(dashboard.currency.code, data.sales?.[`sales_${selectedDateOption}`] || 0) }}
+                                </div>
+                            </Transition>
+                        </div>
+                    </template>
+                </Column>
+
+                <!-- Sales: Diff 1y -->
+                <Column field="sales_diff" sortable class="overflow-hidden transition-all" header="&Delta; 1y" headerStyle="text-align: green; width: 270px">
+                    <template #body="{ data }">
+                        <div class="flex justify-end relative">
+                        <!-- {{ `${data.interval_percentages?.sales?.[selectedDateOption]?.difference}_${data.interval_percentages?.sales?.[selectedDateOption]?.percentage}` }} -->
+                            <Transition name="spin-to-down" mode="out-in">
+                                <div :key="`${data.interval_percentages?.sales[selectedDateOption].difference}_${data.interval_percentages?.sales[selectedDateOption].percentage}`">
+                                    {{ useLocaleStore().currencyFormat( dashboard.currency.code, data.interval_percentages?.sales[selectedDateOption].difference || 0) }}
+                                    ({{ data.interval_percentages?.sales[selectedDateOption].percentage || 0 }}%)
+                                    <!-- {{ data.interval_percentages?.sales[selectedDateOption] }} -->
+                                </div>
+                            </Transition>
+                        </div>
+                    </template>
+                </Column>
+
+            <!-- Total -->
+            <ColumnGroup type="footer">
+                    <Row>
+                        <Column footer="Total"> Total </Column>
+
+                        <Column :footer="useLocaleStore().currencyFormat(dashboard.currency.code, Number(dashboard.total[selectedDateOption].total_sales))" footerStyle="text-align:right" />
+                        <Column footer="" footerStyle="text-align:right" />
+                    </Row>
+                </ColumnGroup>
+
+            </DataTable>
         </div>
 
-        <div v-if="false" class="bg-slate-50 col-span-2 border border-gray-200 rounded-md shadow flex flex-col gap-y-8">
-            <!-- <dl
-                class="grid grid-cols-1 gap-x-8 gap-y-10 text-slate-600 sm:grid-cols-2 sm:gap-y-16 lg:mx-0 lg:max-w-none lg:grid-cols-4">
-                <div v-for="stat in stats" :key="stat.id"
-                    class="flex flex-col gap-y-3 border-l border-indigo-700/20 pl-6">
-                    <dt class="text-sm leading-6">{{ stat.name }}</dt>
-                    <dd class="order-first text-3xl font-semibold tracking-tight" :style="{ color: layout.app.theme[3] }">
-                        {{ stat.value }}</dd>
-                </div>
-            </dl> -->
-            <nav class="isolate flex divide-x divide-gray-200 rounded-br-lg shadow w-fit" aria-label="Tabs">
-                <div v-for="(tab, tabIdx) in tabs" :key="tab.name"
-                    @click="selectedTabGraph = tabIdx"
-                    :class="[
-                        selectedTabGraph == tabIdx? '' : 'text-gray-500 hover:text-gray-600',
-                    ]"
-                    class="last:rounded-br-lg group relative flex-1 py-2 px-4 text-center text-sm font-medium hover:bg-indigo-50 focus:z-10 cursor-pointer"
-                >
-                    <span class="whitespace-nowrap select-none">{{ tab.name }}</span>
-                    <span aria-hidden="true"
-                        :class="[selectedTabGraph == tabIdx ? 'bottomNavigationActive' : 'bottomNavigation', 'h-0.5']" />
-                </div>
-            </nav>
 
-            <div class="px-4 py-3 ">
-                <Line :data="dataStats" :options="config" />
-            </div>
-        </div>
-
-        <!-- TODO: PKA-1550 -->
+        <!-- <pre>{{ groupStats }}</pre> -->
     </div>
 </template>
