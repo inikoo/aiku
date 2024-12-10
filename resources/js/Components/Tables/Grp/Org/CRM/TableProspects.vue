@@ -48,7 +48,7 @@ const onCreateTag = (option: tag, event : any, prospect : Prospect) =>{
         route(props.data.tagRoute.store.name,{ prospect : prospect.id }),
         option,
         {
-            onStart : ()=> console.log('iniii'),
+            preserveScroll: true,
             onSuccess : ()=> {
                 return option
             }, 
@@ -70,11 +70,11 @@ const onUpdateTag = (idTag : Number, prospect : Prospect) =>{
         route(props.data.tagRoute.update.name,{ prospect : prospect.id }),
         { tags: idTag },
         {
-            onStart : ()=> console.log('iniii'),
+            preserveScroll: true,
             onSuccess : ()=> {}, 
             onError : ()=>{
                 notify({
-                    title: "Failed to add new Tag",
+                    title: "Failed",
                     text: "failed to update the Prospect",
                     type: "error"
                 })
