@@ -9,14 +9,18 @@
 namespace App\Actions\Comms\Mailshot\UI;
 
 use App\Actions\CRM\Prospect\Queries\UI\IndexProspectQueries;
+use App\Actions\CRM\Prospect\UI\IndexProspects;
+use App\Actions\CRM\Prospect\Tags\UI\IndexProspectTags;
 use App\Actions\OrgAction;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
 use App\Models\SysAdmin\Organisation;
+use App\Http\Resources\Tag\TagResource;
 use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\Tags\Tag;
 
 class CreateMailshot extends OrgAction
 {
@@ -39,15 +43,15 @@ class CreateMailshot extends OrgAction
                     'type'        => 'radio',
                     'label'       => __('Recipient Type'),
                     'required'    => true,
-                    'value'       => '',
+                    'value'       => 'query',
                     'options'     => [
-                        [
-                            "label" => "custom",
-                            "value" => "custom"
-                        ],
                         [
                             "label" => "Query",
                             "value" => "query"
+                        ],
+                        [
+                            "label" => "custom",
+                            "value" => "custom"
                         ],
                         [
                             "label" => "Prospect",
@@ -68,22 +72,25 @@ class CreateMailshot extends OrgAction
                     'label'       => __('recipients'),
                     'required'    => true,
                     'options'     => [
-                        'query'                  => IndexProspectQueries::run(),
+                        'query'                  => IndexProspects::run($parent),
                         'custom_prospects_query' => '',
+                        'tags'                   => TagResource::collection(Tag::where('type', 'crm')->get()),
                     ],
                     'full'      => true,
                     'value'     => [
-                        'recipient_builder_type' => 'query',
-                        'recipient_builder_data' => [
                             'query'                     => null,
-                            'custom_prospects_query'    => $tags[0] != '' ? [
-                                'tags'   => [
-                                    'logic'    => 'all',
-                                    'tag_ids'  => $tags
+                            'custom_prospects_query'    => [
+                                "tags" => [
+                                    "tag_ids" => null,
+                                    "logic" => 'all',
+                                    "negative_tag_ids" => null
                                 ],
-                            ] : null,
+                                "last_contact" => [
+                                    "use_contact" => false,
+                                    "interval" => null
+                                ]
+                            ],
                             'prospects' => null,
-                        ]
                     ]
                 ],
             ]

@@ -23,8 +23,8 @@ class ProspectQueriesResource extends JsonResource
             'number_items'  => $query->number_items,
             'constrains'    => $query->constrains,
             'has_arguments' => $query->has_arguments,
-            'is_seeded'     => $query->is_seeded
-
+            'is_seeded'     => $query->is_seeded,
+            'state'         => $query->state
         ];
     }
 }
