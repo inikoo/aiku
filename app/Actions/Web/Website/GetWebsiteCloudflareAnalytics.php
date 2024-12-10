@@ -109,8 +109,7 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
         switch ($partialShowTopNs) {
             case 'performance':
                 data_set($modelData, 'filter', $partialFilterPerfAnalytics);
-                dd($this->getRumPerfAnalyticsTopNs($modelData));
-                // no break
+                return $this->getRumPerfAnalyticsTopNs($modelData);
             case 'pageViews':
             case 'visits':
                 $rumAnalyticsTopNsPromise = async(fn () => $this->getRumAnalyticsTopNs($modelData));
