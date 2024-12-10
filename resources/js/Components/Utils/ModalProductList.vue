@@ -28,11 +28,12 @@ const props = defineProps<{
 	action: any
 	current: string | Number
 	typeModel: string
+	currentTab: String
 }>()
 
 const emits = defineEmits<{
 	(e: "optionsList", value: any[]): void
-	(e: "update:tab", value: string): void
+	(e: "update:currentTab", value: string): void
 }>()
 
 const model = defineModel()
@@ -63,7 +64,7 @@ const handleAction = (event: { type: string; value?: number }, slotProps: any) =
 const onClickProduct = async (tabSlug: string) => {
 	
 	
-	emits("update:tab", tabSlug)
+	emits("update:currentTab", tabSlug)
 	closeModal()
 }
 

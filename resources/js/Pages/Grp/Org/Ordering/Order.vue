@@ -474,11 +474,11 @@ const openModal = (action :any) => {
     </div>
 
     <!-- Section: Timeline -->
-    <div v-if="props.data?.data?.state != 'in-process'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
+    <div v-if="props.data?.data?.state != 'in-process' && currentTab != 'products'" class="mt-4 sm:mt-0 border-b border-gray-200 pb-2">
         <Timeline v-if="timelines" :options="timelines" :state="props.data?.data?.state" :slidesPerView="6" />
     </div>
 
-    <div class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
+    <div v-if="currentTab != 'products'" class="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-300 border-b border-gray-200">
         <BoxStatPallet class=" py-2 px-3" icon="fal fa-user">
             <!-- Field: Reference Number -->
             <Link as="a" v-if="box_stats?.customer.reference" v-tooltip="trans('Reference')"
@@ -624,7 +624,7 @@ const openModal = (action :any) => {
         </BoxStatPallet>
     </div>
 
-    <Tabs :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
+    <Tabs  v-if="currentTab != 'products'" :current="currentTab" :navigation="tabs?.navigation" @update:tab="handleTabUpdate" />
 
     <div class="pb-12">
         <component :is="component" :data="props[currentTab as keyof typeof props]" :tab="currentTab"
@@ -636,7 +636,7 @@ const openModal = (action :any) => {
 			@update:tab="handleTabUpdate"/>
     </div>
 
-	<ModalProductList v-model="isModaProductListOpen" :fetchRoute="routes.products_list" :action="currentAction" :current="currentTab"  @update:tab="handleTabUpdate"  :typeModel="'order'" />
+	<ModalProductList v-model="isModaProductListOpen" :fetchRoute="routes.products_list" :action="currentAction" :current="currentTab"  v-model:currentTab="currentTab" :typeModel="'order'" />
 
     <!-- <Modal :isOpen="isModalAddress" @onClose="() => (isModalAddress = false)">
         <ModalAddress
