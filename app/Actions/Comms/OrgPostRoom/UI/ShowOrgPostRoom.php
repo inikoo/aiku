@@ -9,8 +9,14 @@
 
 namespace App\Actions\Comms\OrgPostRoom\UI;
 
+use App\Actions\Comms\Mailshot\UI\IndexMailshots;
+use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\OrgAction;
+use App\Enums\Comms\PostRoom\PostRoomsTabsEnum;
+use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OrgPostRoomResource;
+use App\Http\Resources\Mail\OutboxResource;
+use App\Http\Resources\Mail\PostRoomResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\OrgPostRoom;
 use App\Models\SysAdmin\Organisation;
@@ -66,11 +72,29 @@ class ShowOrgPostRoom extends OrgAction
                     'title' => $orgPostRoom->name,
 
                 ],
+                'tabs' => [
+                    'current'    => $this->tab,
+                    'navigation' => PostRoomsTabsEnum::navigation(),
+                ],
+                // TODO: Overview <-- is. a dashbpard
+                // PostRoomsTabsEnum::OVERVIEW->value => $this->tab == PostRoomsTabsEnum::OVERVIEW->value ?
+                //     fn () => PostRoomResource::collection($postRoom)
+                //     : Inertia::lazy(fn () => PostRoomResource::collection($postRoom)),
+
+                PostRoomsTabsEnum::OUTBOXES->value => $this->tab == PostRoomsTabsEnum::OUTBOXES->value ?
+                    fn () => OutboxResource::collection(IndexOutboxes::run($this->parent, PostRoomsTabsEnum::OUTBOXES->value))
+                    : Inertia::lazy(fn () => OutboxResource::collection(IndexOutboxes::run($this->parent, PostRoomsTabsEnum::OUTBOXES->value))),
+
+                PostRoomsTabsEnum::MAILSHOTS->value => $this->tab == PostRoomsTabsEnum::MAILSHOTS->value ?
+                    fn () => MailshotResource::collection(IndexMailshots::run($this->parent))
+                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($this->parent))),
+
                 'data'   => OrgPostRoomResource::make($orgPostRoom)
             ]
-        );
+        )
+        ->table(IndexOutboxes::make()->tableStructure(parent:$this->parent, prefix: 'outboxes'))
+        ->table(IndexMailshots::make()->tableStructure(parent:$this->parent, prefix: 'mailshots'));
     }
-
 
     public function jsonResponse(OrgPostRoom $orgPostRoom): OrgPostRoomResource
     {
