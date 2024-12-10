@@ -113,7 +113,6 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
             'zone' => $zone,
         ];
 
-        dd($data);
         // cache()->put($cacheKey, $data, $cacheTTL);
 
         return $data;
@@ -189,9 +188,23 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
             'until' => ['sometimes'],
             'showTopNs' => ['sometimes', 'string', 'in:visits,pageViews,performance,webVitals'],
             'partialShowTopNs' => ['sometimes', 'string', 'in:visits,pageViews,performance,webVitals'],
-            'partialFilterTimeseries' => ['sometimes', 'string', 'in:all,referer,host,country,path,browser,os,deviceType'],
-            'partialTimeseriesData' => ['sometimes', 'string'],
-            'partialFilterPerfAnalytics' => ['sometimes', 'string', 'in:p50,p75,p90,p99,avg'],
+            'partialFilterTimeseries' => [
+                'sometimes',
+                'string',
+                'required_with:partialShowTopNs',
+                'in:all,referer,host,country,path,browser,os,deviceType'
+            ],
+            'partialTimeseriesData' => [
+                'sometimes',
+                'string',
+                'required_with:partialFilterTimeseries'
+            ],
+            'partialFilterPerfAnalytics' => [
+                'sometimes',
+                'string',
+                'required_with:partialShowTopNs',
+                'in:p50,p75,p90,p99,avg'
+            ],
         ];
     }
 
@@ -212,8 +225,10 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
 
     public function action(Website $website, array $modelData, bool $strict = true): array
     {
+
         $this->strict   = $strict;
         $this->asAction = true;
+        $this->website  = $website;
         $this->setRawAttributes($modelData);
         $validatedData = $this->validateAttributes();
 
