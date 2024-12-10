@@ -29,6 +29,10 @@ class OutboxResource extends JsonResource
             'data'                           => $this->data,
             'name'                           => $this->name,
             'type'                           => $this->type->stateIcon()[$this->type->value],
+            'total_mailshots'                => $this->total_mailshots,
+            'dispatched_emails_lw'           => $this->dispatched_emails_lw,
+            'opened_emails_lw'               => $this->opened_emails_lw,
+            'unsubscribed_emails_lw'         => $this->unsubscribed_emails_lw,
             'created_at'                     => $this->created_at,
             'updated_at'                     => $this->updated_at,
         ];

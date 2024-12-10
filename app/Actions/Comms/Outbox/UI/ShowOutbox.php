@@ -10,6 +10,7 @@ namespace App\Actions\Comms\Outbox\UI;
 
 use App\Actions\OrgAction;
 use App\Actions\Web\HasWorkshopAction;
+use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Enums\UI\Mail\OutboxTabsEnum;
 use App\Http\Resources\Mail\OutboxResource;
@@ -80,6 +81,51 @@ class ShowOutbox extends OrgAction
 
     public function htmlResponse(Outbox $outbox, ActionRequest $request): Response
     {
+
+        if($outbox->state==OutboxStateEnum::IN_PROCESS){
+
+            if($outbox->type==OutboxTypeEnum::USER_NOTIFICATION){
+                dd('Error this should be set up already in the seeder');
+            }
+
+
+            return Inertia::render(
+                'Mail/OutboxWorkshop',
+                [
+                    'title'       => __('Set up your outbox'),
+                    'breadcrumbs' => $this->getBreadcrumbs(
+                        $request->route()->getName(),
+                        $request->route()->originalParameters()
+                    ),
+                    'pageHead'    => [
+                        'title'   => $outbox->name,
+                        'icon'    =>
+                            [
+                                'icon'  => ['fal', 'fa-inbox-out'],
+                                'title' => __('outbox')
+                            ],
+
+                    ],
+                    'tabs'        => [
+                        'current'    => $this->tab,
+                        'navigation' => OutboxTabsEnum::navigation()
+                    ],
+
+
+                    OutboxTabsEnum::SHOWCASE->value => $this->tab == OutboxTabsEnum::SHOWCASE->value ?
+                        fn () => GetOutboxShowcase::run($outbox)
+                        : Inertia::lazy(fn () => GetOutboxShowcase::run($outbox)),
+
+
+                ]
+            );
+
+
+        }
+
+
+
+
         $this->canEdit = true;
         $actions       = $this->workshopActions($request);
 
