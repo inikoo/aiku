@@ -34,6 +34,8 @@ const props = defineProps<{
 const emits = defineEmits<{
 	(e: "optionsList", value: any[]): void
 	(e: "update:currentTab", value: string): void
+	(e: "update:tab", value: string): void
+
 }>()
 
 const model = defineModel()
