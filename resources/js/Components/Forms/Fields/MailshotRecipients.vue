@@ -36,6 +36,7 @@ const props = defineProps<{
     form: any
     fieldName: string
     options?: any
+    refForms?:any
     fieldData?: {
         type: string
         placeholder: string
@@ -45,7 +46,6 @@ const props = defineProps<{
     }
 }>()
 
-console.log('ssd', props)
 
 const emits = defineEmits<{
     (e: 'update:modelValue', value: string | number): void
@@ -58,58 +58,6 @@ const queryData = ref({
 const contact = [
     { label: trans("Never"), value: false },
     { label: trans("Last Contact"), value: true },
-]
-const tags = [
-    {
-        id: 1,
-        slug: "aw",
-        name: "aw"
-    },
-    {
-        id: 3,
-        slug: "advantage",
-        name: "Advantage"
-    },
-    {
-        id: 4,
-        slug: "staff",
-        name: "Staff"
-    },
-    {
-        id: 5,
-        slug: "dev",
-        name: "Dev"
-    },
-    {
-        id: 6,
-        slug: "mailchimp",
-        name: "mailchimp"
-    },
-    {
-        id: 7,
-        slug: "slovak",
-        name: "slovak"
-    },
-    {
-        id: 8,
-        slug: "awukds",
-        name: "AWUKDS"
-    },
-    {
-        id: 9,
-        slug: "spamtest",
-        name: "SPAMTEST"
-    },
-    {
-        id: 10,
-        slug: "tomas",
-        name: "tomas"
-    },
-    {
-        id: 11,
-        slug: "awad",
-        name: "AWAD"
-    }
 ]
 const logic = [
     { label: trans("All"), value: "all" },
@@ -175,7 +123,8 @@ onMounted(() => {
 </script>
 <template>
     <!-- query -->
-    <div v-if="form.recipient_type == 'query'" class="grid grid-cols-1 md:grid-cols-8 gap-2">
+
+    <div v-if="form.recipient_type == 'query' || (refForms?.[2] && refForms[2].form?.recipient_type == 'query')" class="grid grid-cols-1 md:grid-cols-8 gap-2">
         <div class="md:col-span-8 grid sm:grid-cols-1 md:grid-cols-4 gap-2 h-auto mb-3">
             <div :class="form[fieldName].query ? 'from-blue-500 to-sky-300' : 'from-gray-500  to-gray-300'"
                 @click="() => onChangeQuery(queryData)"
@@ -224,7 +173,7 @@ onMounted(() => {
     </div>
 
     <!-- custom -->
-    <div v-if="form.recipient_type == 'custom'" class="card">
+    <div v-if="form.recipient_type == 'custom' || (refForms?.[2] && refForms[2].form?.recipient_type == 'custom')" class="card">
         <div class="p-2 bg-gray-100 rounded-lg">
             <Accordion value="0">
                 <AccordionPanel value="0">
@@ -332,7 +281,7 @@ onMounted(() => {
     </div>
 
     <!-- prospect -->
-    <div v-if="form.recipient_type == 'prospect'" class="card">
+    <div v-if="form.recipient_type == 'prospect' || (refForms?.[2] && refForms[2].form?.recipient_type == 'prospect')" class="card">
         <PickList v-model="prospect" dataKey="id">
             <template #sourceheader>
                 <div class="border-b p-3">

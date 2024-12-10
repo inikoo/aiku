@@ -81,6 +81,7 @@ const _buttonRefs = ref([])  // For click linked to Navigation
 const isMobile = ref(false)
 const tabActive: any = ref({})
 const fieldGroupAnimateSection = ref()
+const _fieldForm = ref()
 
 const updateViewportWidth = () => {
     isMobile.value = window.innerWidth <= 768
@@ -214,7 +215,7 @@ function connectToPlatform(routeName, parameters) {
                                     <!-- Field: is not hidden = true -->
                                     <div v-if="!fieldData?.hidden" class="py-2 mt-1 flex text-sm text-gray-700 sm:mt-0">
                                         <Action v-if="fieldData.type==='action'" :action="fieldData.action" :dataToSubmit="fieldData.action?.data" />
-                                        <FieldForm v-else :key="fieldName+index" :field="fieldName" :fieldData="fieldData" :args="formData.args" />
+                                        <FieldForm  v-else :key="fieldName+index" ref="_fieldForm" :field="fieldName" :fieldData="fieldData" :args="formData.args" :refForms="_fieldForm"/>
                                     </div>
                                 </template>
                             </div>

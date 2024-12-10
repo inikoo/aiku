@@ -8,7 +8,7 @@
 
 import { useForm } from '@inertiajs/vue3'
 import { routeType } from '@/types/route'
-import { ref, computed } from 'vue'
+import { ref, computed, defineExpose } from 'vue'
 import axios from 'axios'
 import { getComponent } from '@/Composables/Listing/FieldFormList'  // Fieldform list
 
@@ -21,6 +21,7 @@ library.add(fadSave, faQuestion, falSave, faInfoCircle, faAsterisk)
 
 const props = defineProps<{
     field: string
+    refForms : any
     fieldData: {
         type: string
         label: string
@@ -92,6 +93,10 @@ const checkVerification = async () => {
 
     stampDirtyValue.value = form[props.field]
 }
+
+defineExpose({
+    form
+})
 </script>
 
 <template>
@@ -113,6 +118,7 @@ const checkVerification = async () => {
                         :options="fieldData.options"
                         :fieldData="fieldData"
                         :updateRoute
+                        :refForms="refForms"
                     >
                     </component>
 
