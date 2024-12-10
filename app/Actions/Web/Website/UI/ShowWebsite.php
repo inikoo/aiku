@@ -64,6 +64,8 @@ class ShowWebsite extends OrgAction
     public function htmlResponse(Website $website, ActionRequest $request): Response
     {
 
+        $analyticReq = $request->only(['since', 'until', 'showTopNs', 'partialShowTopNs','partialFilterTimeseries','partialTimeseriesData', 'partialFilterPerfAnalytics']);
+
         return Inertia::render(
             'Org/Web/Website',
             [
@@ -134,8 +136,8 @@ class ShowWebsite extends OrgAction
                     : Inertia::lazy(fn () => ExternalLinksResource::collection(IndexExternalLinks::run($website))),
 
                 WebsiteTabsEnum::ANALYTICS->value => $this->tab == WebsiteTabsEnum::ANALYTICS->value ?
-                    fn () => GetWebsiteCloudflareAnalytics::make()->action($website, $request->only(['since', 'until', 'showTopNs', 'partialShowTopNs','partialFilterTimeseries','partialTimeseriesData']))
-                    : Inertia::lazy(fn () => GetWebsiteCloudflareAnalytics::make()->action($website, $request->only(['since', 'until', 'showTopNs', 'partialShowTopNs','partialFilterTimeseries','partialTimeseriesData'])))
+                    fn () => GetWebsiteCloudflareAnalytics::make()->action($website, $analyticReq)
+                    : Inertia::lazy(fn () => GetWebsiteCloudflareAnalytics::make()->action($website, $analyticReq))
             ]
         )->table(
             IndexWebUsers::make()->tableStructure(
