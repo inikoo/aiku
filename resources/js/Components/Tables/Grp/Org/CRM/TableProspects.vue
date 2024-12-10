@@ -41,28 +41,30 @@ const props = defineProps<{
     tab : String
 }>()
 
-console.log(props)
 
-const onCreateTag = (option: tag, event : any, prospect : Prospect) =>{
-    router.post(
-        route(props.data.tagRoute.store.name,{ prospect : prospect.id }),
-        option,
-        {
-            preserveScroll: true,
-            onSuccess : ()=> {
-                return option
-            }, 
-            onError : ()=>{
-                notify({
-                    title: "Failed to add new Tag",
-                    text: "failed to update the Prospect",
-                    type: "error"
-                })
-                return false 
+const onCreateTag = (option: tag, event: any, prospect: Prospect): Promise<tag | boolean> => {
+    return new Promise((resolve, reject) => {
+        router.post(
+            route(props.data.tagRoute.store.name, { prospect: prospect.id }),
+            option,
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    resolve(option); // Resolve the Promise with the option
+                },
+                onError: () => {
+                    notify({
+                        title: "Failed to add new Tag",
+                        text: "Failed to update the Prospect",
+                        type: "error",
+                    });
+                    reject(false); // Reject the Promise with false
+                },
             }
-        }
-    )
-}
+        );
+    });
+};
+
 
 
 const onUpdateTag = (idTag : Number, prospect : Prospect) =>{
