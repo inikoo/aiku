@@ -105,6 +105,20 @@ class ShowMailshot extends OrgAction
                                         $mailshot->slug
                                     ]
                                 ]
+                            ] : [],
+                            $this->canEdit ? [
+                                'type'  => 'button',
+                                'style' => 'edit',
+                                'label' => __('edit'),
+                                'icon'  => ["fal", "fa-sliders-h"],
+                                'route' => [
+                                    'name'       => "grp.org.shops.show.marketing.mailshots.edit",
+                                    'parameters' => [
+                                        $this->organisation->slug,
+                                        $this->shop->slug,
+                                        $mailshot->slug
+                                    ]
+                                ]
                             ] : []
                     ]
                 ],

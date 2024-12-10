@@ -34,14 +34,14 @@ class UpdateMailshot extends OrgAction
             return true;
         }
         //todo
-        return false;
+        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");;
     }
 
     public function rules(): array
     {
         $rules = [
-            'subject'           => ['sometimes','required', 'string', 'max:255'],
-            'state'             => ['required', Rule::enum(MailshotStateEnum::class)],
+            'subject'           => ['sometimes', 'string', 'max:255'],
+            'state'             => ['sometimes', Rule::enum(MailshotStateEnum::class)],
             'recipients_recipe' => ['present', 'array']
         ];
 
