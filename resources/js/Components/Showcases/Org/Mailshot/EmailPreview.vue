@@ -26,7 +26,7 @@ console.log('dfdf',props)
             <div class="md:col-span-8">
                 <div
                     class="p-6 border rounded-lg bg-white shadow-lg hover:shadow-2xl transition-transform duration-300">
-                    <div v-html="beePluginJsonExample" />
+                    <div v-html="data.layout" />
                 </div>
             </div>
     </div>
