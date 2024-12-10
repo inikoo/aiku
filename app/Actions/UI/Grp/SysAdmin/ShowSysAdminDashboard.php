@@ -8,7 +8,7 @@
 
 namespace App\Actions\UI\Grp\SysAdmin;
 
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -71,7 +71,7 @@ class ShowSysAdminDashboard
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

@@ -30,7 +30,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $invoices_lm
  * @property int $invoices_lw
  * @property int $invoices_ld
- * @property int $invoices_all_ly
  * @property int $invoices_1y_ly
  * @property int $invoices_1q_ly
  * @property int $invoices_1m_ly
@@ -70,7 +69,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $refunds_lm
  * @property int $refunds_lw
  * @property int $refunds_ld
- * @property int $refunds_all_ly
  * @property int $refunds_1y_ly
  * @property int $refunds_1q_ly
  * @property int $refunds_1m_ly
@@ -110,7 +108,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $customers_invoiced_lm
  * @property int $customers_invoiced_lw
  * @property int $customers_invoiced_ld
- * @property int $customers_invoiced_all_ly
  * @property int $customers_invoiced_1y_ly
  * @property int $customers_invoiced_1q_ly
  * @property int $customers_invoiced_1m_ly

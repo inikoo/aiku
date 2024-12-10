@@ -10,7 +10,7 @@ namespace App\Actions\Inventory\UI;
 
 use App\Actions\Inventory\HasInventoryAuthorisation;
 use App\Actions\OrgAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\Inventory\OrgStock\OrgStockStateEnum;
 use App\Models\SysAdmin\Organisation;
 use App\Stubs\Migrations\HasInventoryStats;
@@ -120,7 +120,7 @@ class ShowInventoryDashboard extends OrgAction
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

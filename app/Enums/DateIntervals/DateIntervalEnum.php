@@ -9,13 +9,12 @@
 namespace App\Enums\DateIntervals;
 
 use App\Enums\EnumHelperTrait;
-use Illuminate\Support\Arr;
 
 enum DateIntervalEnum: string
 {
     use EnumHelperTrait;
 
-    case ALL = 'all';
+    case ALL = 'all'; // All must be the first value
     case ONE_YEAR = '1y';
     case ONE_QUARTER = '1q';
     case ONE_MONTH = '1m';
@@ -34,7 +33,10 @@ enum DateIntervalEnum: string
 
     public static function lastYearValues(): array
     {
-        return Arr::except(array_column(self::cases(), 'value'), ['all']);
+        $intervals = self::values();
+        unset($intervals[0]); // This only work if all is the first value
+        return $intervals;
+
     }
 
 

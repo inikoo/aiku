@@ -9,7 +9,7 @@
 namespace App\Actions\UI\Websites;
 
 use App\Actions\OrgAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Models\SysAdmin\Organisation;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -74,7 +74,7 @@ class WebsitesDashboard extends OrgAction
     {
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

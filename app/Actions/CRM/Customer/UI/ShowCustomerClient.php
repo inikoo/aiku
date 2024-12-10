@@ -11,7 +11,7 @@ namespace App\Actions\CRM\Customer\UI;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Actions\WithActionButtons;
 use App\Actions\Traits\WithWebUserMeta;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Enums\UI\CRM\CustomerClientTabsEnum;
 use App\Enums\UI\CRM\CustomerTabsEnum;
 use App\Http\Resources\CRM\CustomerClientResource;
@@ -226,7 +226,7 @@ class ShowCustomerClient extends OrgAction
         return match ($routeName) {
             'grp.org.customers.show',
             => array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     $customerClient,
                     [

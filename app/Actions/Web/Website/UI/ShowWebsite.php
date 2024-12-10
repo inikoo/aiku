@@ -134,8 +134,8 @@ class ShowWebsite extends OrgAction
                     : Inertia::lazy(fn () => ExternalLinksResource::collection(IndexExternalLinks::run($website))),
 
                 WebsiteTabsEnum::ANALYTICS->value => $this->tab == WebsiteTabsEnum::ANALYTICS->value ?
-                    fn () => GetWebsiteCloudflareAnalytics::make()->action($website, $request->only(['since', 'until']))
-                    : Inertia::lazy(fn () => GetWebsiteCloudflareAnalytics::make()->action($website, $request->only(['since', 'until'])))
+                    fn () => GetWebsiteCloudflareAnalytics::make()->action($website, $request->only(['since', 'until', 'showTopNs', 'partialShowTopNs','partialFilterTimeseries','partialTimeseriesData']))
+                    : Inertia::lazy(fn () => GetWebsiteCloudflareAnalytics::make()->action($website, $request->only(['since', 'until', 'showTopNs', 'partialShowTopNs','partialFilterTimeseries','partialTimeseriesData'])))
             ]
         )->table(
             IndexWebUsers::make()->tableStructure(

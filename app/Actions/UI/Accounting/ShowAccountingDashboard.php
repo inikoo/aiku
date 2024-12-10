@@ -10,7 +10,7 @@ namespace App\Actions\UI\Accounting;
 
 use App\Actions\Catalogue\Shop\UI\ShowShop;
 use App\Actions\OrgAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
 use App\Models\Catalogue\Shop;
 use App\Models\SysAdmin\Organisation;
@@ -222,7 +222,7 @@ class ShowAccountingDashboard extends OrgAction
             ),
             default =>
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'   => 'simple',

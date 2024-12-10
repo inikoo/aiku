@@ -46,6 +46,8 @@ class OrganisationHydrateSales
         $stats = array_merge($stats, $this->getLastYearIntervalStats($queryBase, 'sales_org_currency_', 'date', 'sum_org'));
 
 
+        dd($stats);
+
         $organisation->salesIntervals()->update($stats);
     }
 

@@ -33,7 +33,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $sales_org_currency_lm
  * @property string $sales_org_currency_lw
  * @property string $sales_org_currency_ld
- * @property string $sales_org_currency_all_ly
  * @property string $sales_org_currency_1y_ly
  * @property string $sales_org_currency_1q_ly
  * @property string $sales_org_currency_1m_ly
@@ -73,7 +72,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $sales_grp_currency_lm
  * @property string $sales_grp_currency_lw
  * @property string $sales_grp_currency_ld
- * @property string $sales_grp_currency_all_ly
  * @property string $sales_grp_currency_1y_ly
  * @property string $sales_grp_currency_1q_ly
  * @property string $sales_grp_currency_1m_ly

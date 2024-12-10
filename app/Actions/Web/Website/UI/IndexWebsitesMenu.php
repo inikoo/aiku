@@ -9,7 +9,7 @@
 namespace App\Actions\Web\Website\UI;
 
 use App\Actions\InertiaAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Http\Resources\Web\WebsiteResource;
 use App\Models\Web\Website;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -92,7 +92,7 @@ class IndexWebsitesMenu extends InertiaAction
         return match ($routeName) {
             'websites.menu.index' =>
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 $headCrumb(
                     [
                         'name' => 'websites.menu.index',

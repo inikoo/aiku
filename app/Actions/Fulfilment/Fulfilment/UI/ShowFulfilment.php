@@ -9,13 +9,13 @@
 namespace App\Actions\Fulfilment\Fulfilment\UI;
 
 use App\Actions\OrgAction;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
 use App\Enums\Catalogue\Shop\ShopTypeEnum;
 use App\Enums\UI\Fulfilment\FulfilmentTabsEnum;
 use App\Http\Resources\Fulfilment\FulfilmentResource;
-use App\Models\Fulfilment\Fulfilment;
 use App\Models\Catalogue\Shop;
+use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Support\Arr;
 use Inertia\Inertia;
@@ -253,7 +253,7 @@ class ShowFulfilment extends OrgAction
 
         return
             array_merge(
-                ShowDashboard::make()->getBreadcrumbs(),
+                ShowGroupDashboard::make()->getBreadcrumbs(),
                 [
                     [
                         'type'           => 'modelWithIndex',

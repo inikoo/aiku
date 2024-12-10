@@ -13,11 +13,9 @@ namespace App\Actions\Web\Website;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Models\Web\Website;
-use Arr;
 use Carbon\Carbon;
 use Exception;
-use Http;
-use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Arr;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 use function Amp\async;
@@ -27,6 +25,7 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
 {
     use AsAction;
     use WithNoStrictRules;
+    use WithCloudflareQueryGraphql;
 
     private Website $website;
     /**
@@ -34,6 +33,15 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
      */
     public function handle(Website $website, array $modelData): array
     {
+
+        // $cacheKey = "cloudflare_analytics_{$website->id}_" . md5(json_encode($modelData));
+        // $cacheTTL = now()->addMinutes(30); // Cache for 30 minutes
+
+        // $cachedData = cache()->get($cacheKey);
+
+        // if ($cachedData) {
+        //     return $cachedData;
+        // }
 
         $groupSettings = $website->group->settings;
         $dataWebsite = $website->data;
@@ -48,62 +56,111 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
         data_set($modelData, "siteTag", $siteTag);
         data_set($modelData, "apiToken", $apiToken);
 
-        $queryAnalyticTopNs = $this->getQueryAnalyticTopNs($modelData);
-        $queryRumSparklineBydatetimeGroupByAll = $this->getQueryRumSparklineBydatetimeGroupByAll($modelData);
-        $queryZone = $this->getQueryZone($zoneTag, $modelData);
 
-        $cacheKey = "cloudflare_analytics_{$website->id}_" . md5(json_encode($modelData));
-        $cacheTTL = now()->addMinutes(30); // Cache for 30 minutes
+        $partialShowTopNsData = Arr::get($modelData, 'partialShowTopNs');
+        $partialFilterTimeseriesData = Arr::get($modelData, 'partialFilterTimeseries');
+        $partialFilterPerfAnalyticsData = Arr::get($modelData, 'partialFilterPerfAnalytics');
+        $partialTimeseriesData = Arr::get($modelData, 'partialTimeseriesData');
 
-        $cachedData = cache()->get($cacheKey);
 
-        if ($cachedData) {
-            return $cachedData;
+        if ($partialShowTopNsData) {
+            data_set($modelData, "showTopNs", $partialShowTopNsData);
+            data_forget($modelData, 'partialShowTopNsData');
+
+            switch ($partialShowTopNsData) {
+                case 'performance':
+                    data_set($modelData, 'filter', $partialFilterPerfAnalyticsData);
+                    return $this->getRumPerfAnalyticsTopNs($modelData);
+                case 'pageViews':
+                case 'visits':
+                    data_set($modelData, 'filterData', $partialTimeseriesData);
+                    data_set($modelData, 'filter', $partialFilterTimeseriesData);
+                    return $this->getRumAnalyticsTimeseries($modelData);
+                default:
+                    return $this->partialShowTopNs($modelData);
+            }
         }
 
-        $topPromise = $queryAnalyticTopNs ? async(fn () => $this->getCloudflareAnalytics($modelData, $queryAnalyticTopNs)) : [];
-        $rumGroupAllPromise = $queryRumSparklineBydatetimeGroupByAll ? async(fn () => $this->getCloudflareAnalytics($modelData, $queryRumSparklineBydatetimeGroupByAll)) : [];
-        $zonePromise = async(fn () => $this->getCloudflareAnalytics($modelData, $queryZone));
 
-        [$top, $zone, $rumGroupAll] = await([$topPromise, $zonePromise, $rumGroupAllPromise]);
+        $showTopNs = Arr::get($modelData, 'showTopNs') ?? 'visits';
+        $rumAnalyticsTopNsPromise = async(fn () => ['data' => [], 'errors' => null]);
+        $rumAnalyticsTimeseriesPromise = async(fn () => ['data' => [], 'errors' => null]);
+        if ($showTopNs) {
+            switch ($showTopNs) {
+                case 'performance':
+                    $rumAnalyticsTopNsPromise = async(fn () => $this->getRumPerfAnalyticsTopNs($modelData));
+                    break;
+                    // case 'webVitals':
+                    //     $rumAnalyticsTopNsPromise = async(fn () => $this->getRumWebVitalsTopNs($modelData));
+                    //     break;
+                case 'pageViews':
+                case 'visits':
+                    $rumAnalyticsTopNsPromise = async(fn () => $this->getRumAnalyticsTopNs($modelData));
+                    $rumAnalyticsTimeseriesPromise = async(fn () => $this->getRumAnalyticsTimeseries($modelData));
+                    break;
+            }
+        }
+
+        $rumSparklinePromise = async(fn () => $this->getRumSparkline($modelData));
+        $zonePromise = async(fn () => $this->getZone($modelData));
+
+        [$rumAnalyticsTopNs, $rumSparkline, $rumAnalyticsTimeseriesPromise, $zone] = await([$rumAnalyticsTopNsPromise,$rumSparklinePromise, $rumAnalyticsTimeseriesPromise, $zonePromise]);
 
         $data = [
-            'top' => $top,
+            'rumAnalyticsTopNs' => $rumAnalyticsTopNs,
+            'rumSparkline' => $rumSparkline,
+            'rumAnalyticsTimeseries' => $rumAnalyticsTimeseriesPromise, // if performance, return empty array. count field -> for pageViews and sum.visits field -> for visits
             'zone' => $zone,
-            'rumGroupAll' => $rumGroupAll,
         ];
 
-        cache()->put($cacheKey, $data, $cacheTTL);
+        dd($data);
+        // cache()->put($cacheKey, $data, $cacheTTL);
 
         return $data;
     }
 
-    private function getCloudflareAnalytics(array $modelData, string $query, $try = 3): array
+    private function partialShowTopNs($modelData): array
     {
-        $apiToken = Arr::get($modelData, "apiToken");
-
-        $urlCLoudflareGraphql = "https://api.cloudflare.com/client/v4/graphql";
-        if ($try == 0) {
-            return [];
+        switch (Arr::get($modelData, 'partialShowTopNs')) {
+            case 'performance':
+                return $this->getRumPerfAnalyticsTopNs($modelData);
+                // case 'webVitals':
+                //     break;
+            case 'pageViews':
+            case 'visits':
+                return $this->getRumAnalyticsTopNs($modelData);
+            default:
+                return [];
         }
-
-        try {
-            $response = Http::timeout(10)->withHeaders([
-                'Authorization' => "Bearer $apiToken",
-                'Content-Type' => 'application/json',
-            ])->post($urlCLoudflareGraphql, [
-                'query' => $query,
-            ]);
-        } catch (Exception $e) {
-            if (str_contains($e->getMessage(), 'Resolving timed out')) {
-                return $this->getCloudflareAnalytics($modelData, $query, --$try);
-            }
-            throw $e;
-        }
-
-
-        return $response->json();
     }
+
+    // private function partialFilterTimeseries($modelData): array {
+    //     switch (Arr::get($modelData, 'partialFilterTimeseries')) {
+    //         case 'all':
+    //         case 'referer':
+    //         case 'host':
+    //         case 'country':
+    //         case 'path':
+    //         case 'browser':
+    //         case 'os':
+    //         case 'deviceType':
+    //         default:
+    //             return [];
+    //     }
+    // }
+
+    // private function partialFilterPerfAnalytics($modelData): array {
+    //     switch (Arr::get($modelData, 'partialFilterPerfAnalytics')) {
+    //         case 'p50':
+    //         case 'p75':
+    //         case 'p90':
+    //         case 'p99':
+    //         case 'avg':
+    //             // return $this->getRumPerfAnalyticsTopNs($modelData);
+    //         default:
+    //             return [];
+    //     }
+    // }
 
     private function isIso8601($dateString)
     {
@@ -125,236 +182,16 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
         }
     }
 
-    private function getQueryZone($zoneTag, $modelData): string
-    {
-        $since = Arr::get($modelData, 'since') ?? Date::now()->subDay()->toIso8601String();
-        $until = Arr::get($modelData, 'until') ?? Date::now()->toIso8601String();
-
-        $timeField = 'datetime';
-        $groupsFunction = 'httpRequests1hGroups';
-        $orderBy = 'datetime_ASC';
-
-        if ($this->isDate($since) && $this->isDate($until)) {
-            $timeField = 'date';
-            $groupsFunction = 'httpRequests1dGroups';
-            $orderBy = 'date_ASC';
-        }
-        return <<<GQL
-        query Viewer {
-            viewer {
-                zones(filter: { zoneTag: "$zoneTag" }) {
-                    totals: $groupsFunction(
-                        limit: 10000
-                        filter: { {$timeField}_geq: "$since", {$timeField}_lt: "$until" }
-                    ) {
-                        uniq {
-                            uniques
-                        }
-                    }
-                    zones: $groupsFunction(
-                        orderBy: [$orderBy]
-                        limit: 10000
-                        filter: { {$timeField}_geq: "$since", {$timeField}_lt: "$until" }
-                    ) {
-                        dimensions {
-                            timeslot: $timeField
-                        }
-                        uniq {
-                            uniques
-                        }
-                        sum {
-                            browserMap {
-                                pageViews
-                                key: uaBrowserFamily
-                            }
-                            pageViews
-                            requests
-                        }
-                    }
-                }
-            }
-        }
-    GQL;
-    }
-
-    private function getQueryAnalyticTopNs($modelData): ?string
-    {
-        $siteTag = Arr::get($modelData, 'siteTag');
-        $accountTag = Arr::get($modelData, 'accountTag');
-        $since = Arr::get($modelData, 'since') ?? Date::now()->subDay()->toIso8601String();
-        $until = Arr::get($modelData, 'until') ?? Date::now()->toIso8601String();
-
-        if (!$siteTag || !$accountTag) {
-            return null;
-        }
-
-        $filter = <<<FILTER
-        {
-            AND: [
-                { datetime_geq: "$since", datetime_leq: "$until" },
-                { OR: [{ siteTag: "$siteTag" }] },
-                { bot: 0 }
-            ]
-        }
-        FILTER;
-
-        return <<<GQL
-        query Viewer {
-            viewer {
-                accounts(filter: {accountTag: "$accountTag"}) {
-                    visits: rumPageloadEventsAdaptiveGroups(limit: 5000, filter: $filter) {
-                        sum {
-                            visits
-                        }
-                        avg {
-                            sampleInterval
-                        }
-                        dimensions {
-                            ts: datetimeFifteenMinutes
-                        }
-                    }
-                    pageviews: rumPageloadEventsAdaptiveGroups(limit: 5000, filter: $filter) {
-                        count
-                        avg {
-                            sampleInterval
-                        }
-                        dimensions {
-                            ts: datetimeFifteenMinutes
-                        }
-                    }
-                    performance: rumPerformanceEventsAdaptiveGroups(limit: 5000, filter: $filter) {
-                        count
-                        aggregation: quantiles {
-                            pageLoadTime: pageLoadTimeP50
-                        }
-                        avg {
-                            sampleInterval
-                        }
-                        dimensions {
-                            ts: datetimeFifteenMinutes
-                        }
-                    }
-                    totalPerformance: rumPerformanceEventsAdaptiveGroups(limit: 1, filter: $filter) {
-                        aggregation: quantiles {
-                            pageLoadTime: pageLoadTimeP50
-                        }
-                    }
-                    lcp: rumWebVitalsEventsAdaptiveGroups(filter: $filter, limit: 1) {
-                        count
-                        sum {
-                            lcpTotal
-                            lcpGood
-                            lcpNeedsImprovement
-                            lcpPoor
-                        }
-                        avg {
-                            sampleInterval
-                        }
-                    }
-                    inp: rumWebVitalsEventsAdaptiveGroups(filter: $filter, limit: 1) {
-                        count
-                        sum {
-                            inpTotal
-                            inpGood
-                            inpNeedsImprovement
-                            inpPoor
-                        }
-                        avg {
-                            sampleInterval
-                        }
-                    }
-                    fid: rumWebVitalsEventsAdaptiveGroups(filter: $filter, limit: 1) {
-                        count
-                        sum {
-                            fidTotal
-                            fidGood
-                            fidNeedsImprovement
-                            fidPoor
-                        }
-                        avg {
-                            sampleInterval
-                        }
-                    }
-                    cls: rumWebVitalsEventsAdaptiveGroups(filter: $filter, limit: 1) {
-                        count
-                        sum {
-                            clsTotal
-                            clsGood
-                            clsNeedsImprovement
-                            clsPoor
-                        }
-                        avg {
-                            sampleInterval
-                        }
-                    }
-                    visitsDelta: rumPageloadEventsAdaptiveGroups(limit: 1, filter: $filter) {
-                        sum {
-                            visits
-                        }
-                    }
-                    pageviewsDelta: rumPageloadEventsAdaptiveGroups(limit: 1, filter: $filter) {
-                        count
-                    }
-                    performanceDelta: rumPerformanceEventsAdaptiveGroups(limit: 1, filter: $filter) {
-                        count
-                        aggregation: quantiles {
-                            pageLoadTime: pageLoadTimeP50
-                        }
-                    }
-                }
-            }
-        }
-        GQL;
-    }
-
-    private function getQueryRumSparklineBydatetimeGroupByAll($modelData): ?string
-    {
-        $siteTag = Arr::get($modelData, 'siteTag');
-        $accountTag = Arr::get($modelData, 'accountTag');
-        $since = Arr::get($modelData, 'since') ?? Date::now()->subDay()->toIso8601String();
-        $until = Arr::get($modelData, 'until') ?? Date::now()->toIso8601String();
-
-        if (!$siteTag || !$accountTag) {
-            return null;
-        }
-
-        $filter = <<<FILTER
-        {
-            AND: [
-                { datetime_geq: "$since", datetime_leq: "$until" },
-                { OR: [{ siteTag: "$siteTag" }] },
-                { bot: 0 }
-            ]
-        }
-        FILTER;
-
-        return <<<GQL
-        query Viewer {
-            viewer {
-                accounts(filter: { accountTag: "$accountTag" }) {
-                series: rumPageloadEventsAdaptiveGroups(limit: 10000, filter: $filter) {
-                    count
-                    avg {
-                        sampleInterval
-                    }
-                    sum {
-                    visits
-                    }
-                    dimensions {
-                        ts: datetimeFifteenMinutes
-                    }
-                }
-                }
-            }
-        }
-        GQL;
-    }
-
     public function rules(): array
     {
         return [
-            'since' => ['sometimes', 'required'],
-            'until' => ['sometimes', 'required']
+            'since' => ['sometimes'],
+            'until' => ['sometimes'],
+            'showTopNs' => ['sometimes', 'string', 'in:visits,pageViews,performance,webVitals'],
+            'partialShowTopNs' => ['sometimes', 'string', 'in:visits,pageViews,performance,webVitals'],
+            'partialFilterTimeseries' => ['sometimes', 'string', 'in:all,referer,host,country,path,browser,os,deviceType'],
+            'partialTimeseriesData' => ['sometimes', 'string'],
+            'partialFilterPerfAnalytics' => ['sometimes', 'string', 'in:p50,p75,p90,p99,avg'],
         ];
     }
 

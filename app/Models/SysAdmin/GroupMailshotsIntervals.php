@@ -31,7 +31,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $newsletters_lm
  * @property int $newsletters_lw
  * @property int $newsletters_ld
- * @property int $newsletters_all_ly
  * @property int $newsletters_1y_ly
  * @property int $newsletters_1q_ly
  * @property int $newsletters_1m_ly
@@ -71,7 +70,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $marketing_emails_lm
  * @property int $marketing_emails_lw
  * @property int $marketing_emails_ld
- * @property int $marketing_emails_all_ly
  * @property int $marketing_emails_1y_ly
  * @property int $marketing_emails_1q_ly
  * @property int $marketing_emails_1m_ly
@@ -111,7 +109,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $abandoned_carts_lm
  * @property int $abandoned_carts_lw
  * @property int $abandoned_carts_ld
- * @property int $abandoned_carts_all_ly
  * @property int $abandoned_carts_1y_ly
  * @property int $abandoned_carts_1q_ly
  * @property int $abandoned_carts_1m_ly
@@ -151,7 +148,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $total_mailshots_lm
  * @property int $total_mailshots_lw
  * @property int $total_mailshots_ld
- * @property int $total_mailshots_all_ly
  * @property int $total_mailshots_1y_ly
  * @property int $total_mailshots_1q_ly
  * @property int $total_mailshots_1m_ly
@@ -191,7 +187,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $total_emails_lm
  * @property int $total_emails_lw
  * @property int $total_emails_ld
- * @property int $total_emails_all_ly
  * @property int $total_emails_1y_ly
  * @property int $total_emails_1q_ly
  * @property int $total_emails_1m_ly

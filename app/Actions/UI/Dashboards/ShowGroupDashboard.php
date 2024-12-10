@@ -2,29 +2,25 @@
 
 /*
  * Author: Raul Perusquia <raul@inikoo.com>
- * Created: Sun, 18 Feb 2024 07:11:09 Central Standard Time, Mexico City, Mexico
+ * Created: Mon, 09 Dec 2024 00:41:31 Malaysia Time, Kuala Lumpur, Malaysia
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
-namespace App\Actions\UI\Grp\Dashboard;
+namespace App\Actions\UI\Dashboards;
 
+use App\Actions\OrgAction;
 use App\Models\SysAdmin\Group;
 use App\Models\SysAdmin\Organisation;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Inertia\Inertia;
 use Inertia\Response;
-use Lorisleiva\Actions\Concerns\AsAction;
 
-class ShowDashboard
+class ShowGroupDashboard extends OrgAction
 {
-    use AsAction;
-
-    public function handle(): Response
+    public function handle(Group $group): Response
     {
 
-        /** @var Group $group */
-        $group   = Group::first();
-        $testOrg = $group->organisations->skip(1)->first();
+
         $sales   = [
             'sales'         => JsonResource::make($group->orderingStats),
             'currency'      => $group->currency,
@@ -469,6 +465,23 @@ class ShowDashboard
         );
     }
 
+    public function asController(): Response
+    {
+        $group = group();
+        $this->initialisationFromGroup($group, []);
+        return $this->handle($group);
+    }
+
+
+    public function calculatePercentageIncrease($thisYear, $lastYear): ?float
+    {
+        if ($lastYear == 0) {
+            return $thisYear > 0 ? null : 0;
+        }
+
+        return (($thisYear - $lastYear) / $lastYear) * 100;
+    }
+
     public function getBreadcrumbs($label = null): array
     {
         return [
@@ -486,16 +499,5 @@ class ShowDashboard
             ],
 
         ];
-    }
-
-    public function calculatePercentageIncrease($thisYear, $lastYear)
-    {
-        if ($lastYear == 0) {
-            return $thisYear > 0 ? null : 0;
-        }
-
-        $percentageIncrease = (($thisYear - $lastYear) / $lastYear) * 100;
-
-        return $percentageIncrease;
     }
 }

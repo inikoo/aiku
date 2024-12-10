@@ -68,7 +68,9 @@ const onUpdateQuantity = (routeUpdate: routeType, idTransaction: number, value: 
         <template #cell(quantity_ordered)="{ item }">
             <div class="flex justify-end">
                 <div class="w-32">
-                    <PureInput
+                     {{ item['quantity_ordered'] }}
+
+                    <!-- <PureInput
                         :modelValue="item.quantity_ordered"
                         @onEnter="(e: number) => onUpdateQuantity(item.updateRoute, item.id, e)"
                         @blur="(e: string) => e == item.quantity_ordered ? false : onUpdateQuantity(item.updateRoute, item.id, e)"
@@ -76,7 +78,7 @@ const onUpdateQuantity = (routeUpdate: routeType, idTransaction: number, value: 
                         type="number"
                         align="right"
                         :disabled="state === 'dispatched'"
-                    />
+                    /> -->
                 </div>
             </div>
 
@@ -84,8 +86,8 @@ const onUpdateQuantity = (routeUpdate: routeType, idTransaction: number, value: 
         </template>
 
         <!-- Column: Action -->
-        <template #cell(actions)="{ item }">
-            <Link
+   <!--      <template #cell(actions)="{ item }"> -->
+          <!--   <Link
                 v-if="state !== 'dispatched'"
                 :href="route(item.deleteRoute.name, item.deleteRoute.parameters)"
                 as="button"
@@ -95,8 +97,8 @@ const onUpdateQuantity = (routeUpdate: routeType, idTransaction: number, value: 
                 v-tooltip="trans('Unselect this product')"
             >
                 <Button icon="fal fa-times" type="negative" size="xs" :loading="isLoading === 'unselect' + item.id" />
-            </Link>
+            </Link> -->
             <!-- {{ locale.currencyFormat(item.currency_code, item.net_amount) }} -->
-        </template>
+       <!--  </template> -->
     </Table>
 </template>

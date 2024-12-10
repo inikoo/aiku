@@ -14,7 +14,7 @@ use App\Actions\GrpAction;
 use App\Actions\Helpers\History\UI\IndexHistory;
 use App\Actions\HumanResources\Timesheet\UI\IndexTimesheets;
 use App\Actions\Traits\Actions\WithActionButtons;
-use App\Actions\UI\Grp\Dashboard\ShowDashboard;
+use App\Actions\UI\Dashboards\ShowGroupDashboard;
 use App\Actions\UI\WithInertia;
 use App\Enums\UI\SysAdmin\ProfileTabsEnum;
 use App\Http\Resources\History\HistoryResource;
@@ -112,7 +112,7 @@ class ShowProfile extends GrpAction
 
     public function getBreadcrumbs(): array
     {
-        return array_merge(ShowDashboard::make()->getBreadcrumbs(), [
+        return array_merge(ShowGroupDashboard::make()->getBreadcrumbs(), [
             [
                 "type"   => "simple",
                 "simple" => [
