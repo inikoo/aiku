@@ -78,7 +78,7 @@ class IndexMarketingMailshots extends OrgAction
                 'mailshot_stats.number_dispatched_emails_state_spam as spam',
             ])
 
-            ->allowedSorts(['mailshots.state', 'mailshots.data'])
+            ->allowedSorts(['state', 'date'])
             ->allowedFilters([$globalSearch])
             ->withPaginator($prefix)
             ->withQueryString();

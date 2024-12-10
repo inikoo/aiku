@@ -15,6 +15,7 @@ use App\Actions\Traits\Authorisations\HasCatalogueAuthorisation;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
+use App\Models\Catalogue\Shop;
 use App\Models\Comms\Mailshot;
 use App\Models\Comms\Outbox;
 use Illuminate\Support\Facades\DB;
@@ -35,24 +36,31 @@ class StoreMailshot extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function handle(Outbox $outbox, array $modelData): Mailshot
+    public function handle(Outbox|Shop $parent, array $modelData): Mailshot
     {
         data_set($modelData, 'date', now(), overwrite: false);
-        data_set($modelData, 'group_id', $outbox->group_id);
-        data_set($modelData, 'organisation_id', $outbox->organisation_id);
-        data_set($modelData, 'shop_id', $outbox->shop_id);
+        data_set($modelData, 'group_id', $parent->group_id);
+        data_set($modelData, 'organisation_id', $parent->organisation_id);
+        if($parent instanceof Outbox)
+        {
+            data_set($modelData, 'shop_id', $parent->shop_id);
+        } else {
+            data_set($modelData, 'shop_id', $parent->id);
+        }
 
 
-        $mailshot = DB::transaction(function () use ($outbox, $modelData) {
+        $mailshot = DB::transaction(function () use ($parent, $modelData) {
             /** @var Mailshot $mailshot */
-            $mailshot = $outbox->mailshots()->create($modelData);
+            $mailshot = $parent->mailshots()->create($modelData);
             $mailshot->stats()->create();
 
             return $mailshot;
         });
 
-
-        OutboxHydrateMailshots::dispatch($outbox)->delay($this->hydratorsDelay);
+        if($parent instanceof Outbox)
+        {
+            OutboxHydrateMailshots::dispatch($parent)->delay($this->hydratorsDelay);
+        }
 
         return $mailshot;
     }
@@ -64,16 +72,20 @@ class StoreMailshot extends OrgAction
         }
 
         //todo
-        return false;
+        return $request->user()->hasPermissionTo("crm.{$this->shop->id}.edit");
     }
 
+    // public function afterValidator($validator)
+    // {
+    //     dd($validator);
+    // }
 
     public function rules(): array
     {
         $rules = [
             'subject'           => ['required', 'string', 'max:255'],
             'type'              => ['sometimes', 'required', Rule::enum(MailshotTypeEnum::class)],
-            'state'             => ['required', Rule::enum(MailshotStateEnum::class)],
+            'state'             => ['sometimes', Rule::enum(MailshotStateEnum::class)],
             'recipients_recipe' => ['present', 'array']
 
         ];
@@ -97,26 +109,38 @@ class StoreMailshot extends OrgAction
     /**
      * @throws \Throwable
      */
-    public function action(Outbox $outbox, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Mailshot
+    public function action(Outbox|Shop $parent, array $modelData, int $hydratorsDelay = 0, bool $strict = true, $audit = true): Mailshot
     {
         if (!$audit) {
             Mailshot::disableAuditing();
         }
-
+        if($parent instanceof Outbox)
+        {
+            $shop = $parent->shop;
+        } else {
+            $shop = $parent;
+        }
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
 
 
-        $this->initialisationFromShop($outbox->shop, $modelData);
+        $this->initialisationFromShop($shop, $modelData);
 
-        return $this->handle($outbox, $this->validatedData);
+        return $this->handle($parent, $this->validatedData);
     }
 
     /**
      * @throws \Throwable
      */
-    public function asController(Outbox $outbox, ActionRequest $request): Mailshot
+    public function asController(Shop $shop, ActionRequest $request): Mailshot
+    {
+        $this->initialisationFromShop($shop, $request);
+
+        return $this->handle($shop, $this->validatedData);
+    }
+
+    public function inOutbox(Outbox $outbox, ActionRequest $request): Mailshot
     {
         $this->initialisationFromShop($outbox->shop, $request);
 

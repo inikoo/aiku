@@ -12,6 +12,7 @@ use App\Actions\CRM\Prospect\Queries\UI\IndexProspectQueries;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
 use App\Actions\CRM\Prospect\Tags\UI\IndexProspectTags;
 use App\Actions\OrgAction;
+use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Outbox;
 use App\Models\SysAdmin\Organisation;
@@ -20,6 +21,7 @@ use Exception;
 use Inertia\Inertia;
 use Inertia\Response;
 use Lorisleiva\Actions\ActionRequest;
+use Spatie\LaravelOptions\Options;
 use Spatie\Tags\Tag;
 
 class CreateMailshot extends OrgAction
@@ -38,6 +40,12 @@ class CreateMailshot extends OrgAction
                     'placeholder' => __('Email subject'),
                     'required'    => true,
                     'value'       => '',
+                ],
+                'type' => [
+                    'type'     => 'select',
+                    'label'    => __('type'),
+                    'required' => true,
+                    'options'  => Options::forEnum(MailshotTypeEnum::class),
                 ],
                 'recipient_type' => [
                     'type'        => 'radio',
