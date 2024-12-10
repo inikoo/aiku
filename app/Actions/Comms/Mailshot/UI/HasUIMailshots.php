@@ -17,16 +17,17 @@ use App\Models\SysAdmin\Organisation;
 
 trait HasUIMailshots
 {
-    public function getBreadcrumbs(string $routeName, array $routeParameters, Outbox|PostRoom|Organisation|Shop $parent): array
+    public function getBreadcrumbs(string $routeName, array $routeParameters, Outbox|PostRoom|Organisation|Shop $parent, $suffix = null): array
     {
-        $headCrumb = function (array $routeParameters = []) use ($routeName) {
+        $headCrumb = function (array $routeParameters = []) use ($routeName, $suffix) {
             return [
                 $routeName => [
                     'route'           => $routeName,
                     'routeParameters' => $routeParameters,
                     'modelLabel'      => [
                         'label' => __('mailshot')
-                    ]
+                    ],
+                    'suffix'         => $suffix,
                 ],
             ];
         };
