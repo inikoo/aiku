@@ -91,6 +91,8 @@ class FetchAuroraService extends FetchAurora
         ];
 
 
+
+
         if ($type == AssetTypeEnum::RENTAL) {
             $autoAssignAsset = match ($code) {
                 'Rent-01', 'Rent-02', 'Rent-04' => 'Pallet',
@@ -128,6 +130,9 @@ class FetchAuroraService extends FetchAurora
 
             $this->parsedData['service']['unit']    = 'service';
         }
+
+
+
     }
 
     protected function getAutomationData(): array

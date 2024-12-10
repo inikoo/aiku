@@ -190,6 +190,7 @@ class StoreProduct extends OrgAction
                 'required',
                 'max:32',
                 new AlphaDashDot(),
+                Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
                     table: 'assets',
                     extraConditions: [

@@ -15,6 +15,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Billables\Service\ServiceStateEnum;
 use App\Models\Billables\Service;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -77,7 +78,8 @@ class UpdateService extends OrgAction
                 'sometimes',
                 'required',
                 'max:32',
-                'alpha_dash',
+                new AlphaDashDot(),
+                Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
                     table: 'services',
                     extraConditions: [

@@ -83,6 +83,7 @@ class UpdateProduct extends OrgAction
                 'required',
                 'max:32',
                 new AlphaDashDot(),
+                Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
                     table: 'products',
                     extraConditions: [

@@ -410,7 +410,7 @@ trait WithAuroraParsers
         return $product;
     }
 
-    public function parseService(string $sourceId): Service|Rental
+    public function parseService(string $sourceId): Service|Rental|null
     {
         $service = Service::withTrashed()->where('source_id', $sourceId)->first();
         if (!$service) {

@@ -22,6 +22,7 @@ use App\Models\Billables\Rental;
 use App\Models\Catalogue\Shop;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
@@ -101,7 +102,8 @@ class StoreRental extends OrgAction
             'code'               => [
                 'required',
                 'max:32',
-                'alpha_dash',
+                new AlphaDashDot(),
+                Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
                     table: 'rentals',
                     extraConditions: [

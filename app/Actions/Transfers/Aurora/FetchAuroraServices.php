@@ -39,6 +39,7 @@ class FetchAuroraServices extends FetchAuroraAction
                         hydratorsDelay: 60
                     );
                 } else {
+
                     try {
 
                         $service = StoreService::make()->action(
@@ -48,6 +49,7 @@ class FetchAuroraServices extends FetchAuroraAction
                         );
                     } catch (Exception $e) {
                         $this->recordError($organisationSource, $e, $serviceData['service'], 'Asset', 'store');
+
                         return null;
                     }
                 }

@@ -20,6 +20,7 @@ use App\Enums\Catalogue\Asset\AssetStateEnum;
 use App\Enums\Catalogue\Asset\AssetTypeEnum;
 use App\Models\Billables\Service;
 use App\Models\Catalogue\Shop;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -95,7 +96,8 @@ class StoreService extends OrgAction
             'code'               => [
                 'required',
                 'max:32',
-                'alpha_dash',
+                new AlphaDashDot(),
+                Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
                     table: 'services',
                     extraConditions: [

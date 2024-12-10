@@ -44,6 +44,14 @@ trait WithAuroraCleaners
         $reference = str_replace(":", '_', $reference);
         $reference = str_replace("ň", 'n', $reference);
         $reference = str_replace("%", 'pct', $reference);
+        $reference = str_replace("€", 'eur', $reference);
+        $reference = str_replace("$", 'usd', $reference);
+        $reference = str_replace("£", 'gbp', $reference);
+
+
+        $reference = preg_replace('/_+/', '_', $reference);
+        $reference = preg_replace('/-+/', '-', $reference);
+
 
 
         /** @noinspection PhpDuplicateArrayKeysInspection */

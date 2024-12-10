@@ -18,6 +18,7 @@ use App\Enums\Billables\Rental\RentalStateEnum;
 use App\Models\Billables\Rental;
 use App\Models\Fulfilment\Fulfilment;
 use App\Models\SysAdmin\Organisation;
+use App\Rules\AlphaDashDot;
 use App\Rules\IUnique;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
@@ -78,7 +79,8 @@ class UpdateRental extends OrgAction
                 'sometimes',
                 'required',
                 'max:32',
-                'alpha_dash',
+                new AlphaDashDot(),
+                Rule::notIn(['export', 'create', 'upload']),
                 new IUnique(
                     table: 'rentals',
                     extraConditions: [
