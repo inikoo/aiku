@@ -237,6 +237,10 @@ trait WithCloudflareQueryGraphql
 
     public function getRumPerfAnalyticsTopNs($modelData): array
     {
+        $pageLoadFilterVal = ucfirst(Arr::get($modelData, 'filter') ?? 'P50');
+        $pageLoadAggregation = $pageLoadFilterVal === 'Avg' ? 'avg' : 'quantiles';
+        $pageLoadFilterVal = $pageLoadAggregation === 'avg' ? '' : $pageLoadFilterVal;
+
         $siteTag = Arr::get($modelData, 'siteTag');
         $accountTag = Arr::get($modelData, 'accountTag');
         $since = Arr::get($modelData, 'since') ?? Date::now()->subDay()->toIso8601String();
@@ -264,16 +268,16 @@ trait WithCloudflareQueryGraphql
                 accounts(filter: { accountTag: "$accountTag" }) {
                 total: rumPerformanceEventsAdaptiveGroups(filter: $filter, limit: 1) {
                     count
-                    aggregation: quantiles {
-                    pageLoadTime: pageLoadTimeP50
-                    dnsTime: dnsTimeP50
-                    connectionTime: connectionTimeP50
-                    requestTime: requestTimeP50
-                    responseTime: responseTimeP50
-                    pageRenderTime: pageRenderTimeP50
-                    loadEventTime: loadEventTimeP50
-                    firstPaint: firstPaintP50
-                    firstContentfulPaint: firstContentfulPaintP50
+                    aggregation: $pageLoadAggregation {
+                    pageLoadTime: pageLoadTime$pageLoadFilterVal
+                    dnsTime: dnsTime$pageLoadFilterVal
+                    connectionTime: connectionTime$pageLoadFilterVal
+                    requestTime: requestTime$pageLoadFilterVal
+                    responseTime: responseTime$pageLoadFilterVal
+                    pageRenderTime: pageRenderTime$pageLoadFilterVal
+                    loadEventTime: loadEventTime$pageLoadFilterVal
+                    firstPaint: firstPaint$pageLoadFilterVal
+                    firstContentfulPaint: firstContentfulPaint$pageLoadFilterVal
                     }
                 }
                 series: rumPerformanceEventsAdaptiveGroups(limit: 5000, filter: $filter) {
@@ -281,16 +285,16 @@ trait WithCloudflareQueryGraphql
                     datetimeFifteenMinutes
                     }
                     count
-                    aggregation: quantiles {
-                    pageLoadTime: pageLoadTimeP50
-                    dnsTime: dnsTimeP50
-                    connectionTime: connectionTimeP50
-                    requestTime: requestTimeP50
-                    responseTime: responseTimeP50
-                    pageRenderTime: pageRenderTimeP50
-                    loadEventTime: loadEventTimeP50
-                    firstPaint: firstPaintP50
-                    firstContentfulPaint: firstContentfulPaintP50
+                    aggregation: $pageLoadAggregation {
+                    pageLoadTime: pageLoadTime$pageLoadFilterVal
+                    dnsTime: dnsTime$pageLoadFilterVal
+                    connectionTime: connectionTime$pageLoadFilterVal
+                    requestTime: requestTime$pageLoadFilterVal
+                    responseTime: responseTime$pageLoadFilterVal
+                    pageRenderTime: pageRenderTime$pageLoadFilterVal
+                    loadEventTime: loadEventTime$pageLoadFilterVal
+                    firstPaint: firstPaint$pageLoadFilterVal
+                    firstContentfulPaint: firstContentfulPaint$pageLoadFilterVal
                     }
                 }
                 countries: rumPerformanceEventsAdaptiveGroups(
@@ -302,8 +306,8 @@ trait WithCloudflareQueryGraphql
                     avg {
                         sampleInterval
                     }
-                    aggregation: quantiles {
-                        pageLoadTime: pageLoadTimeP50
+                    aggregation: $pageLoadAggregation {
+                        pageLoadTime: pageLoadTime$pageLoadFilterVal
                     }
                     dimensions {
                         metric: countryName
@@ -318,8 +322,8 @@ trait WithCloudflareQueryGraphql
                     avg {
                         sampleInterval
                     }
-                    aggregation: quantiles {
-                        pageLoadTime: pageLoadTimeP50
+                    aggregation: $pageLoadAggregation {
+                        pageLoadTime: pageLoadTime$pageLoadFilterVal
                     }
                     dimensions {
                         metric: refererHost
@@ -334,8 +338,8 @@ trait WithCloudflareQueryGraphql
                     avg {
                         sampleInterval
                     }
-                    aggregation: quantiles {
-                        pageLoadTime: pageLoadTimeP50
+                    aggregation: $pageLoadAggregation {
+                        pageLoadTime: pageLoadTime$pageLoadFilterVal
                     }
                     dimensions {
                         metric: requestPath
@@ -350,8 +354,8 @@ trait WithCloudflareQueryGraphql
                     avg {
                         sampleInterval
                     }
-                    aggregation: quantiles {
-                        pageLoadTime: pageLoadTimeP50
+                    aggregation: $pageLoadAggregation {
+                        pageLoadTime: pageLoadTime$pageLoadFilterVal
                     }
                     dimensions {
                         metric: requestHost
@@ -366,8 +370,8 @@ trait WithCloudflareQueryGraphql
                     avg {
                         sampleInterval
                     }
-                    aggregation: quantiles {
-                        pageLoadTime: pageLoadTimeP50
+                    aggregation: $pageLoadAggregation {
+                        pageLoadTime: pageLoadTime$pageLoadFilterVal
                     }
                     dimensions {
                         metric: userAgentBrowser
@@ -382,8 +386,8 @@ trait WithCloudflareQueryGraphql
                     avg {
                         sampleInterval
                     }
-                    aggregation: quantiles {
-                        pageLoadTime: pageLoadTimeP50
+                    aggregation: $pageLoadAggregation {
+                        pageLoadTime: pageLoadTime$pageLoadFilterVal
                     }
                     dimensions {
                         metric: userAgentOS
@@ -398,8 +402,8 @@ trait WithCloudflareQueryGraphql
                     avg {
                     sampleInterval
                     }
-                    aggregation: quantiles {
-                        pageLoadTime: pageLoadTimeP50
+                    aggregation: $pageLoadAggregation {
+                        pageLoadTime: pageLoadTime$pageLoadFilterVal
                     }
                     dimensions {
                         metric: deviceType
@@ -566,8 +570,6 @@ trait WithCloudflareQueryGraphql
             'os' => 'userAgentOS',
             'deviceType' => 'deviceType',
         ];
-
-        $show = Arr::get($modelData, 'showTopNs') ?? 'visits';
         $metricFilter = Arr::get($modelData, 'filter') ?? 'all';
         $metric = $getMetric[$metricFilter] != '' ? "metric: {$getMetric[$metricFilter]}" : "";
 

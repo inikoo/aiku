@@ -57,28 +57,9 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
         data_set($modelData, "apiToken", $apiToken);
 
 
-        $partialShowTopNsData = Arr::get($modelData, 'partialShowTopNs');
-        $partialFilterTimeseriesData = Arr::get($modelData, 'partialFilterTimeseries');
-        $partialFilterPerfAnalyticsData = Arr::get($modelData, 'partialFilterPerfAnalytics');
-        $partialTimeseriesData = Arr::get($modelData, 'partialTimeseriesData');
-
-
-        if ($partialShowTopNsData) {
-            data_set($modelData, "showTopNs", $partialShowTopNsData);
-            data_forget($modelData, 'partialShowTopNsData');
-
-            switch ($partialShowTopNsData) {
-                case 'performance':
-                    data_set($modelData, 'filter', $partialFilterPerfAnalyticsData);
-                    return $this->getRumPerfAnalyticsTopNs($modelData);
-                case 'pageViews':
-                case 'visits':
-                    data_set($modelData, 'filterData', $partialTimeseriesData);
-                    data_set($modelData, 'filter', $partialFilterTimeseriesData);
-                    return $this->getRumAnalyticsTimeseries($modelData);
-                default:
-                    return $this->partialShowTopNs($modelData);
-            }
+        $partialShowTopNs = Arr::get($modelData, 'partialShowTopNs');
+        if ($partialShowTopNs) {
+            return $this->partialHandle($partialShowTopNs, $modelData);
         }
 
 
@@ -118,48 +99,32 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
         return $data;
     }
 
-    private function partialShowTopNs($modelData): array
+    private function partialHandle($partialShowTopNs, $modelData): array
     {
-        switch (Arr::get($modelData, 'partialShowTopNs')) {
+        $partialFilterTimeseries = Arr::get($modelData, 'partialFilterTimeseries');
+        $partialFilterPerfAnalytics = Arr::get($modelData, 'partialFilterPerfAnalytics');
+        $partialTimeseriesData = Arr::get($modelData, 'partialTimeseriesData');
+        data_set($modelData, "showTopNs", $partialShowTopNs);
+        data_forget($modelData, 'partialShowTopNs');
+        switch ($partialShowTopNs) {
             case 'performance':
+                data_set($modelData, 'filter', $partialFilterPerfAnalytics);
                 return $this->getRumPerfAnalyticsTopNs($modelData);
-                // case 'webVitals':
-                //     break;
             case 'pageViews':
             case 'visits':
-                return $this->getRumAnalyticsTopNs($modelData);
+                $rumAnalyticsTopNsPromise = async(fn () => $this->getRumAnalyticsTopNs($modelData));
+                data_set($modelData, 'filterData', $partialTimeseriesData);
+                data_set($modelData, 'filter', $partialFilterTimeseries);
+                $rumAnalyticsTimeseriesPromise = async(fn () => $this->getRumAnalyticsTimeseries($modelData));
+                [$rumAnalyticsTopNs, $rumAnalyticsTimeseries] = await([$rumAnalyticsTopNsPromise, $rumAnalyticsTimeseriesPromise]);
+                return [
+                    'rumAnalyticsTopNs' => $rumAnalyticsTopNs,
+                    'rumAnalyticsTimeseries' => $rumAnalyticsTimeseries,
+                ];
             default:
                 return [];
         }
     }
-
-    // private function partialFilterTimeseries($modelData): array {
-    //     switch (Arr::get($modelData, 'partialFilterTimeseries')) {
-    //         case 'all':
-    //         case 'referer':
-    //         case 'host':
-    //         case 'country':
-    //         case 'path':
-    //         case 'browser':
-    //         case 'os':
-    //         case 'deviceType':
-    //         default:
-    //             return [];
-    //     }
-    // }
-
-    // private function partialFilterPerfAnalytics($modelData): array {
-    //     switch (Arr::get($modelData, 'partialFilterPerfAnalytics')) {
-    //         case 'p50':
-    //         case 'p75':
-    //         case 'p90':
-    //         case 'p99':
-    //         case 'avg':
-    //             // return $this->getRumPerfAnalyticsTopNs($modelData);
-    //         default:
-    //             return [];
-    //     }
-    // }
 
     private function isIso8601($dateString)
     {
