@@ -17,8 +17,6 @@ use App\Models\CRM\Customer;
 use App\Models\CRM\WebUser;
 use App\Models\Fulfilment\FulfilmentCustomer;
 use App\Rules\IUnique;
-use Exception;
-use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -27,7 +25,6 @@ use Illuminate\Validation\Rules\Password;
 use Inertia\Inertia;
 use Lorisleiva\Actions\ActionRequest;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class StoreWebUser extends OrgAction
 {
@@ -46,9 +43,7 @@ class StoreWebUser extends OrgAction
         data_set($modelData, 'organisation_id', $customer->organisation_id);
         data_set($modelData, 'shop_id', $customer->shop_id);
 
-        if (!$customer->shop->website) {
-            abort(422, 'Website not set up');
-        }
+
         if (Arr::exists($modelData, 'password')) {
             $modelData['password'] = Hash::make($modelData['password']);
         }
@@ -141,7 +136,7 @@ class StoreWebUser extends OrgAction
     {
 
         if (!$this->shop->website) {
-            dd('xx');
+            abort(422, 'Website not set up');
         }
 
         if ($this->get('type') === null) {
@@ -186,7 +181,7 @@ class StoreWebUser extends OrgAction
     {
 
         if (!$audit) {
-            abort(422, 'Shop dont have a website');
+            WebUser::disableAuditing();
         }
         $this->asAction       = true;
         $this->customer       = $customer;
@@ -197,55 +192,6 @@ class StoreWebUser extends OrgAction
         return $this->handle($customer, $this->validatedData);
     }
 
-    public string $commandSignature = 'web-user:create {customer : customer slug} {username} {--e|email=} {--P|password=}';
-
-    public function asCommand(Command $command): int
-    {
-        $this->asAction = true;
-
-        try {
-            /** @var Customer $customer */
-            $customer = Customer::where('slug', $command->argument('customer'))->firstOrFail();
-        } catch (Exception) {
-            $command->error('Customer not found');
-
-            return 1;
-        }
-
-        $this->customer = $customer;
-
-        if ($command->option('password')) {
-            $password = $command->option('password');
-        } elseif (app()->isLocal() || app()->environment('testing')) {
-            $password = 'hello';
-        } else {
-            $password = $command->secret('Enter the password');
-        }
-
-
-        $data = [
-            'username' => $command->argument('username'),
-            'password' => $password,
-            'email'    => $command->option('email'),
-            'type'     => WebUserTypeEnum::WEB,
-            'is_root'  => !$this->customer->hasUsers()
-        ];
-
-
-        $this->initialisationFromShop($customer->shop, $data);
-        try {
-            $webUser = $this->handle($customer, $this->validatedData);
-        } catch (Exception|Throwable $e) {
-            $command->error($e->getMessage());
-
-            return 1;
-        }
-
-        $command->line("Web user $webUser->username created successfully 🫡");
-
-
-        return 0;
-    }
 
     public function htmlResponse(WebUser $webUser): Response
     {

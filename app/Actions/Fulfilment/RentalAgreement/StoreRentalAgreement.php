@@ -34,6 +34,9 @@ class StoreRentalAgreement extends OrgAction
     private FulfilmentCustomer $fulfilmentCustomer;
     private bool $sendEmail = true;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(FulfilmentCustomer $fulfilmentCustomer, array $modelData): RentalAgreement
     {
         data_set($modelData, 'organisation_id', $fulfilmentCustomer->organisation_id);
@@ -176,6 +179,9 @@ class StoreRentalAgreement extends OrgAction
         $this->set('clauses', $clauses);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function action(FulfilmentCustomer $fulfilmentCustomer, array $modelData, bool $sendEmail = false): RentalAgreement
     {
         $this->asAction           = true;
@@ -186,6 +192,9 @@ class StoreRentalAgreement extends OrgAction
         return $this->handle($fulfilmentCustomer, $this->validatedData);
     }
 
+    /**
+     * @throws \Throwable
+     */
     public function asController(FulfilmentCustomer $fulfilmentCustomer, ActionRequest $request): RentalAgreement
     {
         $this->fulfilmentCustomer = $fulfilmentCustomer;
