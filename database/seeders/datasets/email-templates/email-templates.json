@@ -178,7 +178,7 @@
   },
   {
     "outboxes": [
-      "Delivery note dispatched"
+      "delivery_note_dispatched"
     ],
     "name": "Delivery note dispatched",
     "content": "delivery_note_dispatched.blade.php",
@@ -189,7 +189,7 @@
   },
   {
     "outboxes": [
-      "Delivery note undispatched"
+      "delivery_note_undispatched"
     ],
     "name": "Delivery note undispatched",
     "content": "delivery_note_undispatched.blade.php",

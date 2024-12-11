@@ -9,6 +9,7 @@
 namespace App\Models\Comms;
 
 use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunStatusEnum;
+use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunCodeEnum;
 use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Traits\InShop;
@@ -27,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @property int|null $shop_id
  * @property int|null $outbox_id
  * @property int|null $email_id
+ * @property EmailOngoingRunCodeEnum $code
  * @property EmailOngoingRunTypeEnum $type
  * @property EmailOngoingRunStatusEnum $status
  * @property array $data
@@ -54,6 +56,7 @@ class EmailOngoingRun extends Model
 
     protected $casts = [
         'data'            => 'array',
+        'code'            => EmailOngoingRunCodeEnum::class,
         'type'            => EmailOngoingRunTypeEnum::class,
         'status'          => EmailOngoingRunStatusEnum::class,
         'date'            => 'datetime',

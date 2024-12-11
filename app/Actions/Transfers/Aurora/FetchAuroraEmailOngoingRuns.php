@@ -38,13 +38,16 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
 
         if (!$emailOngoingRun) {
             $emailOngoingRun = EmailOngoingRun::where('shop_id', $emailOngoingRunData['shop']->id)
-                ->where('type', $emailOngoingRunData['email_ongoing_run']['type'])
+                ->where('code', $emailOngoingRunData['email_ongoing_run']['code'])
                 ->first();
         }
+
+
 
         if (!$emailOngoingRun) {
             return null;
         }
+
 
 
         if ($emailOngoingRun->fetched_at) {
@@ -113,18 +116,18 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
     {
         //enum('Newsletter','Marketing','GR Reminder','AbandonedCart','Invite EmailOngoingRun','OOS Notification','Invite Full EmailOngoingRun')
         $query = DB::connection('aurora')
-            ->table('Email Campaign Type Dimension')
-            ->whereIn(
-                'Email Campaign Type Code',
-                [
-                    'Registration',
-                    'Registration Rejected',
-                    'Registration Approved',
-                    'Password Reminder',
-                    'Order Confirmation',
-                    'Delivery Confirmation'
-                ]
-            );
+            ->table('Email Campaign Type Dimension');
+        //            ->whereIn(
+        //                'Email Campaign Type Code',
+        //                [
+        //                    'Registration',
+        //                    'Registration Rejected',
+        //                    'Registration Approved',
+        //                    'Password Reminder',
+        //                    'Order Confirmation',
+        //                    'Delivery Confirmation'
+        //                ]
+        //            );
 
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
@@ -137,18 +140,18 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
     public function count(): ?int
     {
         $query = DB::connection('aurora')
-            ->table('Email Campaign Type Dimension')
-            ->whereIn(
-                'Email Campaign Type Code',
-                [
-                    'Registration',
-                    'Registration Rejected',
-                    'Registration Approved',
-                    'Password Reminder',
-                    'Order Confirmation',
-                    'Delivery Confirmation'
-                ]
-            );
+            ->table('Email Campaign Type Dimension');
+        //            ->whereIn(
+        //                'Email Campaign Type Code',
+        //                [
+        //                    'Registration',
+        //                    'Registration Rejected',
+        //                    'Registration Approved',
+        //                    'Password Reminder',
+        //                    'Order Confirmation',
+        //                    'Delivery Confirmation'
+        //                ]
+        //            );
         if ($this->onlyNew) {
             $query->whereNull('aiku_id');
         }

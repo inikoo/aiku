@@ -35,19 +35,19 @@ class FetchAuroraShops extends FetchAuroraAction
 
 
             if ($shop = Shop::where('source_id', $shopData['shop']['source_id'])->first()) {
-                try {
-                    $shop = UpdateShop::make()->action(
-                        shop: $shop,
-                        modelData: $shopData['shop'],
-                        hydratorsDelay: $this->hydratorsDelay,
-                        strict: false,
-                        audit: false
-                    );
-                } catch (Exception|Throwable $e) {
-                    $this->recordError($organisationSource, $e, $shopData['shop'], 'Shop', 'update');
-
-                    return null;
-                }
+                // try {
+                $shop = UpdateShop::make()->action(
+                    shop: $shop,
+                    modelData: $shopData['shop'],
+                    hydratorsDelay: $this->hydratorsDelay,
+                    strict: false,
+                    audit: false
+                );
+                //                } catch (Exception|Throwable $e) {
+                //                    $this->recordError($organisationSource, $e, $shopData['shop'], 'Shop', 'update');
+                //
+                //                    return null;
+                //                }
 
                 if ($shopData['tax_number']) {
                     if (!$shop->taxNumber) {
@@ -62,33 +62,33 @@ class FetchAuroraShops extends FetchAuroraAction
                     DeleteTaxNumber::run($shop->taxNumber);
                 }
             } else {
-                try {
-                    $shop = StoreShop::make()->action(
-                        organisation: $organisationSource->getOrganisation(),
-                        modelData: $shopData['shop'],
-                        hydratorsDelay: $this->hydratorsDelay,
-                        strict: false,
-                        audit: false
-                    );
+                // try {
+                $shop = StoreShop::make()->action(
+                    organisation: $organisationSource->getOrganisation(),
+                    modelData: $shopData['shop'],
+                    hydratorsDelay: $this->hydratorsDelay,
+                    strict: false,
+                    audit: false
+                );
 
-                    Shop::enableAuditing();
+                Shop::enableAuditing();
 
-                    $this->saveMigrationHistory(
-                        $shop,
-                        Arr::except($shopData['shop'], ['fetched_at', 'last_fetched_at', 'source_id'])
-                    );
+                $this->saveMigrationHistory(
+                    $shop,
+                    Arr::except($shopData['shop'], ['fetched_at', 'last_fetched_at', 'source_id'])
+                );
 
-                    $this->recordNew($organisationSource);
+                $this->recordNew($organisationSource);
 
-                    $sourceData = explode(':', $shop->source_id);
-                    DB::connection('aurora')->table('Store Dimension')
-                        ->where('Store Key', $sourceData[1])
-                        ->update(['aiku_id' => $shop->id]);
-                } catch (Exception|Throwable $e) {
-                    $this->recordError($organisationSource, $e, $shopData['shop'], 'Shop', 'store');
-
-                    return null;
-                }
+                $sourceData = explode(':', $shop->source_id);
+                DB::connection('aurora')->table('Store Dimension')
+                    ->where('Store Key', $sourceData[1])
+                    ->update(['aiku_id' => $shop->id]);
+                //                } catch (Exception|Throwable $e) {
+                //                    $this->recordError($organisationSource, $e, $shopData['shop'], 'Shop', 'store');
+                //
+                //                    return null;
+                //                }
 
                 if ($shopData['tax_number']) {
                     StoreTaxNumber::run(

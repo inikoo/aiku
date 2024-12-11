@@ -21,6 +21,9 @@ class SeedOrganisationOutboxes
     use WithOrganisationCommand;
     use WithOutboxBuilder;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Organisation $organisation): void
     {
         foreach (OutboxCodeEnum::cases() as $case) {

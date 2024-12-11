@@ -10,7 +10,7 @@ namespace App\Transfers\Aurora;
 
 use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunStatusEnum;
-use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunTypeEnum;
+use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunCodeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use Illuminate\Support\Facades\DB;
 
@@ -18,6 +18,8 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
 {
     protected function parseModel(): void
     {
+        //enum(','New Customer','Delivery Note Dispatched','Delivery Note Undispatched','Invoice Deleted','New Order','AbandonedCart','Delivery Confirmation','GR Reminder','Invite','Invite Mailshot','Invite Full Mailshot','Marketing','Newsletter','OOS Notification','Order Confirmation','Password Reminder','Registration','Registration Approved','Registration Rejected')
+
         if (!in_array(
             $this->auroraModelData->{'Email Campaign Type Code'},
             [
@@ -26,7 +28,14 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
                 'Registration Approved',
                 'Password Reminder',
                 'Order Confirmation',
-                'Delivery Confirmation'
+                'Delivery Confirmation',
+                'OOS Notification',
+                'Basket Low Stock',
+                'Basket Reminder 1',
+                'Basket Reminder 2',
+                'Basket Reminder 3',
+                'AbandonedCart',
+                'GR Reminder',
             ]
         )) {
             return;
@@ -47,14 +56,25 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
         };
 
 
-        $type                     = match ($this->auroraModelData->{'Email Campaign Type Code'}) {
-            'Registration' => EmailOngoingRunTypeEnum::REGISTRATION,
-            'Registration Rejected' => EmailOngoingRunTypeEnum::REGISTRATION_REJECTED,
-            'Registration Approved' => EmailOngoingRunTypeEnum::REGISTRATION_APPROVED,
-            'Password Reminder' => EmailOngoingRunTypeEnum::PASSWORD_REMINDER,
-            'Order Confirmation' => EmailOngoingRunTypeEnum::ORDER_CONFIRMATION,
-            'Delivery Confirmation' => EmailOngoingRunTypeEnum::DELIVERY_CONFIRMATION,
+        $code = match ($this->auroraModelData->{'Email Campaign Type Code'}) {
+            'Registration' => EmailOngoingRunCodeEnum::REGISTRATION,
+            'Registration Rejected' => EmailOngoingRunCodeEnum::REGISTRATION_REJECTED,
+            'Registration Approved' => EmailOngoingRunCodeEnum::REGISTRATION_APPROVED,
+            'Password Reminder' => EmailOngoingRunCodeEnum::PASSWORD_REMINDER,
+            'Order Confirmation' => EmailOngoingRunCodeEnum::ORDER_CONFIRMATION,
+            'Delivery Confirmation' => EmailOngoingRunCodeEnum::DELIVERY_CONFIRMATION,
+
+            'Basket Low Stock' => EmailOngoingRunCodeEnum::BASKET_LOW_STOCK,
+            'Basket Reminder 1' => EmailOngoingRunCodeEnum::BASKET_REMINDER_1,
+            'Basket Reminder 2' => EmailOngoingRunCodeEnum::BASKET_REMINDER_2,
+            'Basket Reminder 3' => EmailOngoingRunCodeEnum::BASKET_REMINDER_3,
+            'AbandonedCart' => EmailOngoingRunCodeEnum::ABANDONED_CART,
+            'GR Reminder' => EmailOngoingRunCodeEnum::REORDER_REMINDER,
+            'OOS Notification' => EmailOngoingRunCodeEnum::OOS_NOTIFICATION,
+
         };
+
+
         $this->parsedData['shop'] = $shop;
 
 
@@ -77,7 +97,7 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
         }
 
         $this->parsedData['email_ongoing_run'] = [
-            'type'            => $type,
+            'code'            => $code,
             'status'          => $status,
             'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Email Campaign Type Key'},
             'created_at'      => $createdAt,

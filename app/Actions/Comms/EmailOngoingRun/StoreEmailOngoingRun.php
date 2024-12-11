@@ -11,9 +11,11 @@ namespace App\Actions\Comms\EmailOngoingRun;
 use App\Actions\Comms\Outbox\Hydrators\OutboxHydrateEmailOngoingRuns;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
+use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunTypeEnum;
 use App\Models\Comms\EmailOngoingRun;
 use App\Models\Comms\Outbox;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Lorisleiva\Actions\Concerns\WithAttributes;
@@ -33,7 +35,7 @@ class StoreEmailOngoingRun extends OrgAction
         data_set($modelData, 'organisation_id', $outbox->organisation_id);
         data_set($modelData, 'shop_id', $outbox->shop_id);
 
-        data_set($modelData, 'type', $outbox->code->value);
+        data_set($modelData, 'code', $outbox->code->value);
 
 
         $emailOngoingRun = DB::transaction(function () use ($outbox, $modelData) {
@@ -48,7 +50,6 @@ class StoreEmailOngoingRun extends OrgAction
         OutboxHydrateEmailOngoingRuns::dispatch($outbox)->delay($this->hydratorsDelay);
 
         return $emailOngoingRun;
-
     }
 
     public function authorize(ActionRequest $request): bool
@@ -56,13 +57,16 @@ class StoreEmailOngoingRun extends OrgAction
         if ($this->asAction) {
             return true;
         }
+
         return false;
     }
 
 
     public function rules(): array
     {
-        $rules = [];
+        $rules = [
+            'type' => ['required', Rule::enum(EmailOngoingRunTypeEnum::class)],
+        ];
 
         if (!$this->strict) {
             $rules = $this->noStrictStoreRules($rules);
@@ -77,8 +81,6 @@ class StoreEmailOngoingRun extends OrgAction
      */
     public function action(Outbox $outbox, array $modelData, int $hydratorsDelay = 0, bool $strict = true): EmailOngoingRun
     {
-
-
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
