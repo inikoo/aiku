@@ -13,8 +13,6 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
-use App\Enums\Comms\DispatchedEmail\DispatchedEmailTypeEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Models\Comms\DispatchedEmail;
 use App\Models\Comms\EmailBulkRun;
 use App\Models\Comms\EmailOngoingRun;
@@ -38,21 +36,6 @@ class StoreDispatchedEmail extends OrgAction
         data_set($modelData, 'shop_id', $parent->shop_id);
 
         data_set($modelData, 'outbox_id', $parent->outbox_id);
-
-
-        //        data_set(
-        //            $modelData,
-        //            'type',
-        //            match ($parent->outbox->type) {
-        //                OutboxTypeEnum::NEWSLETTER => DispatchedEmailTypeEnum::NEWSLETTER,
-        //                OutboxTypeEnum::MARKETING => DispatchedEmailTypeEnum::MARKETING,
-        //                OutboxTypeEnum::MARKETING_NOTIFICATION => DispatchedEmailTypeEnum::MARKETING_NOTIFICATION,
-        //                OutboxTypeEnum::CUSTOMER_NOTIFICATION => DispatchedEmailTypeEnum::CUSTOMER_NOTIFICATION,
-        //                OutboxTypeEnum::COLD_EMAIL => DispatchedEmailTypeEnum::COLD_EMAIL,
-        //                OutboxTypeEnum::USER_NOTIFICATION => DispatchedEmailTypeEnum::USER_NOTIFICATION,
-        //                OutboxTypeEnum::TEST => DispatchedEmailTypeEnum::TEST,
-        //            }
-        //        );
 
 
         data_set($modelData, 'recipient_type', class_basename($recipient));
