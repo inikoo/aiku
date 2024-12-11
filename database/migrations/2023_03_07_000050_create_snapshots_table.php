@@ -17,6 +17,8 @@ return new class () extends Migration {
     {
         Schema::create('snapshots', function (Blueprint $table) {
             $table->increments('id');
+            $table->unsignedSmallInteger('group_id')->index();
+            $table->foreign('group_id')->references('id')->on('groups')->onUpdate('cascade')->onDelete('cascade');
             $table->string('scope')->index();
             $table->string('publisher_type')->nullable();
             $table->unsignedInteger('publisher_id')->nullable();
@@ -36,6 +38,10 @@ return new class () extends Migration {
             $table->boolean('recyclable')->nullable();
             $table->string('recyclable_tag')->nullable();
             $table->timestampsTz();
+            $table->datetimeTz('fetched_at')->nullable();
+            $table->datetimeTz('last_fetched_at')->nullable();
+            $table->string('source_id')->nullable()->unique();
+
             $table->index(['parent_type', 'parent_id']);
             $table->index(['parent_type', 'parent_id', 'scope']);
             $table->index(['publisher_id', 'publisher_type']);
