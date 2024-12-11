@@ -13,8 +13,8 @@ use App\Enums\Comms\EmailBulkRun\EmailBulkRunStateEnum;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
@@ -109,9 +109,9 @@ class EmailBulkRun extends Model
         return $this->hasOne(EmailBulkRunIntervals::class);
     }
 
-    public function dispatchedEmails(): HasMany
+    public function dispatchedEmails(): MorphMany
     {
-        return $this->hasMany(DispatchedEmail::class);
+        return $this->morphMany(DispatchedEmail::class, 'parent');
     }
 
 

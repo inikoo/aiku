@@ -35,8 +35,8 @@ class FetchAuroraWebUsers extends FetchAuroraAction
                         $webUser = UpdateWebUser::make()->action(
                             $webUser,
                             $webUserData['webUser'],
-                            60,
-                            false,
+                            hydratorsDelay: 60,
+                            strict: false,
                             audit: false
                         );
                         $this->recordChange($organisationSource, $webUser->wasChanged());
@@ -50,8 +50,8 @@ class FetchAuroraWebUsers extends FetchAuroraAction
                         $webUser = StoreWebUser::make()->action(
                             $customer,
                             $webUserData['webUser'],
-                            60,
-                            false,
+                            hydratorsDelay: 60,
+                            strict: false,
                             audit: false
                         );
 

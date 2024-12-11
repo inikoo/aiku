@@ -8,7 +8,7 @@
 
 namespace App\Actions\Transfers\Aurora;
 
-use App\Actions\Comms\DispatchedEmail\StoreDispatchEmail;
+use App\Actions\Comms\DispatchedEmail\StoreDispatchedEmail;
 use App\Actions\Comms\DispatchedEmail\UpdateDispatchedEmail;
 use App\Models\Comms\DispatchedEmail;
 use App\Transfers\SourceOrganisationService;
@@ -30,39 +30,39 @@ class FetchAuroraDispatchedEmails extends FetchAuroraAction
         if ($dispatchedEmailData) {
             if ($dispatchedEmail = DispatchedEmail::where('source_id', $dispatchedEmailData['dispatchedEmail']['source_id'])
                 ->first()) {
-                try {
-                    $dispatchedEmail = UpdateDispatchedEmail::make()->action(
-                        dispatchedEmail: $dispatchedEmail,
-                        modelData: $dispatchedEmailData['dispatchedEmail'],
-                        hydratorsDelay: 60,
-                        strict: false,
-                    );
-                    $this->recordChange($organisationSource, $dispatchedEmail->wasChanged());
-                } catch (Exception $e) {
-                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'update');
-
-                    return null;
-                }
+                // try {
+                $dispatchedEmail = UpdateDispatchedEmail::make()->action(
+                    dispatchedEmail: $dispatchedEmail,
+                    modelData: $dispatchedEmailData['dispatchedEmail'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                );
+                $this->recordChange($organisationSource, $dispatchedEmail->wasChanged());
+                //                } catch (Exception $e) {
+                //                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'update');
+                //
+                //                    return null;
+                //                }
             } else {
-                try {
-                    $dispatchedEmail = StoreDispatchEmail::make()->action(
-                        parent: $dispatchedEmailData['parent'],
-                        recipient: $dispatchedEmailData['recipient'],
-                        modelData: $dispatchedEmailData['dispatchedEmail'],
-                        hydratorsDelay: 60,
-                        strict: false,
-                    );
+                //      try {
+                $dispatchedEmail = StoreDispatchedEmail::make()->action(
+                    parent: $dispatchedEmailData['parent'],
+                    recipient: $dispatchedEmailData['recipient'],
+                    modelData: $dispatchedEmailData['dispatchedEmail'],
+                    hydratorsDelay: 60,
+                    strict: false,
+                );
 
-                    $this->recordNew($organisationSource);
-                    $sourceData = explode(':', $dispatchedEmail->source_id);
-                    DB::connection('aurora')->table('Email Tracking Dimension')
-                        ->where('Email Tracking Key', $sourceData[1])
-                        ->update(['aiku_id' => $dispatchedEmail->id]);
-                } catch (Exception|Throwable $e) {
-                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'store');
-
-                    return null;
-                }
+                $this->recordNew($organisationSource);
+                $sourceData = explode(':', $dispatchedEmail->source_id);
+                DB::connection('aurora')->table('Email Tracking Dimension')
+                    ->where('Email Tracking Key', $sourceData[1])
+                    ->update(['aiku_id' => $dispatchedEmail->id]);
+                //                } catch (Exception|Throwable $e) {
+                //                    $this->recordError($organisationSource, $e, $dispatchedEmailData['dispatchedEmail'], 'DispatchedEmail', 'store');
+                //
+                //                    return null;
+                //                }
             }
         }
 

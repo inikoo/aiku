@@ -8,11 +8,11 @@
 
 namespace App\Actions\Comms\EmailAddress;
 
-use App\Actions\Comms\DispatchedEmail\StoreDispatchEmail;
 use App\Actions\Comms\Ses\SendSesEmail;
 use App\Models\Comms\Outbox;
 use Lorisleiva\Actions\Concerns\AsAction;
 
+// DELETE THIS!!! or fix it
 class SendEmailAddress
 {
     use AsAction;
@@ -31,7 +31,6 @@ class SendEmailAddress
 
         $outbox = Outbox::find(1); // TODO U need implement the real one, this just for test
 
-        StoreDispatchEmail::run($outbox, $emailAddress->email, $modelData);
     }
 
     public function attachments(array|string|null $attachments)

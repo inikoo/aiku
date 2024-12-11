@@ -10,6 +10,7 @@ namespace App\Transfers\Aurora;
 
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailProviderEnum;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Models\Comms\Outbox;
 use Illuminate\Support\Facades\DB;
 use Str;
@@ -41,14 +42,26 @@ class FetchAuroraDispatchedEmail extends FetchAurora
 
             $parent = $this->parseMailshot($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Mailshot Key'});
 
+            if (!$parent) {
+                $parent = $this->parseEmailBulkRun($this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Mailshot Key'});
+            }
+
         }
 
 
         if (!$parent) {
 
-            $parent = Outbox::withTrashed()
+            $outbox = Outbox::withTrashed()
                 ->whereJsonContains('sources->outboxes', $this->organisation->id.':'.$this->auroraModelData->{'Email Tracking Email Template Type Key'})
                 ->first();
+
+
+            dd($outbox->emailOngoingRun);
+            if ($outbox->type == OutboxTypeEnum::USER_NOTIFICATION) {
+                $parent = $outbox->emailOngoingRun;
+
+            }
+
         }
 
 

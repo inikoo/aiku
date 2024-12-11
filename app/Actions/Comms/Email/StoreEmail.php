@@ -36,7 +36,6 @@ class StoreEmail extends OrgAction
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'shop_id', $parent->shop_id);
         data_set($modelData, 'outbox_id', $parent->outbox_id);
-        data_set($modelData, 'subject', $parent->subject);
 
 
         $snapshotData = null;
@@ -103,7 +102,7 @@ class StoreEmail extends OrgAction
     public function rules(): array
     {
         $rules = [
-
+            'subject' => ['required', 'string', 'max:255'],
         ];
 
         if (!$this->strict) {

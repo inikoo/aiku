@@ -16,8 +16,9 @@ use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailTypeEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Models\Comms\DispatchedEmail;
+use App\Models\Comms\EmailBulkRun;
+use App\Models\Comms\EmailOngoingRun;
 use App\Models\Comms\Mailshot;
-use App\Models\Comms\Outbox;
 use App\Models\CRM\Customer;
 use App\Models\CRM\Prospect;
 use App\Models\SysAdmin\User;
@@ -25,12 +26,12 @@ use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
-class StoreDispatchEmail extends OrgAction
+class StoreDispatchedEmail extends OrgAction
 {
     use WithNoStrictRules;
 
 
-    public function handle(Outbox|Mailshot $parent, Customer|Prospect|User $recipient, array $modelData): DispatchedEmail
+    public function handle(EmailOngoingRun|EmailBulkRun|Mailshot $parent, Customer|Prospect|User $recipient, array $modelData): DispatchedEmail
     {
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
@@ -44,13 +45,14 @@ class StoreDispatchEmail extends OrgAction
         }
 
 
+
         data_set(
             $modelData,
             'type',
-            match ($outbox->blueprint) {
+            match ($outbox->type) {
                 OutboxTypeEnum::NEWSLETTER => DispatchedEmailTypeEnum::NEWSLETTER,
                 OutboxTypeEnum::MARKETING => DispatchedEmailTypeEnum::MARKETING,
-                OutboxTypeEnum::MARKETING_NOTIFICATION => DispatchedEmailTypeEnum::TEST,
+                OutboxTypeEnum::MARKETING_NOTIFICATION => DispatchedEmailTypeEnum::MARKETING_NOTIFICATION,
                 OutboxTypeEnum::CUSTOMER_NOTIFICATION => DispatchedEmailTypeEnum::CUSTOMER_NOTIFICATION,
                 OutboxTypeEnum::COLD_EMAIL => DispatchedEmailTypeEnum::COLD_EMAIL,
                 OutboxTypeEnum::USER_NOTIFICATION => DispatchedEmailTypeEnum::USER_NOTIFICATION,
@@ -101,7 +103,7 @@ class StoreDispatchEmail extends OrgAction
         return $rules;
     }
 
-    public function action(Outbox|Mailshot $parent, Customer|Prospect|User $recipient, array $modelData, int $hydratorsDelay = 0, bool $strict = true): DispatchedEmail
+    public function action(EmailOngoingRun|EmailBulkRun|Mailshot $parent, Customer|Prospect|User $recipient, array $modelData, int $hydratorsDelay = 0, bool $strict = true): DispatchedEmail
     {
         $this->asAction       = true;
         $this->strict         = $strict;

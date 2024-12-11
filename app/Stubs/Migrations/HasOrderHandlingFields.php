@@ -14,7 +14,7 @@ trait HasOrderHandlingFields
 {
     public function orderHandlingFields(Blueprint $table): Blueprint
     {
-        $orderStates = ['created', 'submitted', 'submitted_paid', 'submitted_not_paid', 'in_warehouse', 'handling_blocked', 'handling', 'packed', 'finalised'];
+        $orderStates          = ['creating', 'submitted', 'submitted_paid', 'submitted_not_paid', 'in_warehouse', 'handling', 'handling_blocked', 'packed', 'finalised'];
         $orderCompletedFields = ['packed_today', 'finalised_today', 'dispatched_today'];
 
 
@@ -46,8 +46,8 @@ trait HasOrderHandlingFields
             $table->decimal('orders_'.$state.'_amount_grp_currency', 16)->default(0);
         }
 
-        $deliveryNoteStates = ['queued', 'handling','handling_blocked', 'picking','picking_and_packing','packing', 'picking_blocked','picking_and_packing_blocked','packing_blocked',  'packed', 'finalised'];
-        $deliveryNoteCompletedFields = ['picked_today','packed_today', 'dispatched_today'];
+        $deliveryNoteStates          = ['queued', 'handling', 'handling_blocked', 'packed', 'finalised'];
+        $deliveryNoteCompletedFields = ['dispatched_today'];
 
 
         foreach ($deliveryNoteStates as $state) {
@@ -68,23 +68,32 @@ trait HasOrderHandlingFields
             $table->unsignedInteger('number_items_delivery_notes_'.$state)->default(0);
         }
 
-        $pickingNoteStates = ['queued', 'picking','picking_blocked'];
+        $pickingStates = ['queued', 'picking', 'picking_blocked'];
+        $pickingCompletedFields = ['done_today'];
 
-        foreach ($pickingNoteStates as $state) {
+        foreach ($pickingStates as $state) {
             $table->unsignedInteger('number_pickings_state_'.$state)->default(0);
         }
 
-        $pickingNoteStates = [ 'done_today'];
-
-        foreach ($pickingNoteStates as $state) {
+        foreach ($pickingCompletedFields as $state) {
             $table->unsignedInteger('number_pickings_'.$state)->default(0);
         }
 
-        $packingNoteStates = ['todo', 'done_today'];
 
-        foreach ($packingNoteStates as $state) {
+        $packingStates = ['queued', 'packing', 'packing_blocked'];
+        $packingCompletedFields = ['done_today'];
+
+        foreach ($packingStates as $state) {
+            $table->unsignedInteger('number_packings_state_'.$state)->default(0);
+        }
+
+        foreach ($packingCompletedFields as $state) {
             $table->unsignedInteger('number_packings_'.$state)->default(0);
         }
+
+
+
+
 
 
 

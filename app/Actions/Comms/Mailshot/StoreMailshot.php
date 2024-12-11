@@ -41,8 +41,7 @@ class StoreMailshot extends OrgAction
         data_set($modelData, 'date', now(), overwrite: false);
         data_set($modelData, 'group_id', $parent->group_id);
         data_set($modelData, 'organisation_id', $parent->organisation_id);
-        if($parent instanceof Outbox)
-        {
+        if ($parent instanceof Outbox) {
             data_set($modelData, 'shop_id', $parent->shop_id);
         } else {
             data_set($modelData, 'shop_id', $parent->id);
@@ -57,8 +56,7 @@ class StoreMailshot extends OrgAction
             return $mailshot;
         });
 
-        if($parent instanceof Outbox)
-        {
+        if ($parent instanceof Outbox) {
             OutboxHydrateMailshots::dispatch($parent)->delay($this->hydratorsDelay);
         }
 
@@ -114,8 +112,7 @@ class StoreMailshot extends OrgAction
         if (!$audit) {
             Mailshot::disableAuditing();
         }
-        if($parent instanceof Outbox)
-        {
+        if ($parent instanceof Outbox) {
             $shop = $parent->shop;
         } else {
             $shop = $parent;

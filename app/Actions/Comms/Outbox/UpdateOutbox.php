@@ -10,10 +10,12 @@ namespace App\Actions\Comms\Outbox;
 
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
+use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Http\Resources\Mail\OutboxResource;
 use App\Models\Comms\Outbox;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
+use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
 class UpdateOutbox extends OrgAction
@@ -39,7 +41,9 @@ class UpdateOutbox extends OrgAction
     public function rules(): array
     {
         return [
-            'name' => [
+            'state'    => ['sometimes', 'required', Rule::Enum(OutboxStateEnum::class)],
+            'model_id' => ['sometimes', 'required', 'integer'],
+            'name'     => [
                 'sometimes',
                 'required',
                 new IUnique(

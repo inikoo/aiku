@@ -19,33 +19,35 @@ enum OrderStateEnum: string
 {
     use EnumHelperTrait;
 
-    case CREATING     = 'creating';
-    case SUBMITTED    = 'submitted';
+    case CREATING = 'creating';
+    case SUBMITTED = 'submitted';
     case IN_WAREHOUSE = 'in_warehouse'; // Waiting to be picked
-    case HANDLING     = 'handling';  // Being picked
-    case PACKED       = 'packed';  // Packed and ready to be dispatched
-    case FINALISED    = 'finalised';  // Invoiced and ready to be dispatched
-    case DISPATCHED   = 'dispatched';
-    case CANCELLED    = 'cancelled';
+    case HANDLING = 'handling';  // Being picked
+    case HANDLING_BLOCKED = 'handling_blocked';  // Being picked
+    case PACKED = 'packed';  // Packed and ready to be dispatched
+    case FINALISED = 'finalised';  // Invoiced and ready to be dispatched
+    case DISPATCHED = 'dispatched';
+    case CANCELLED = 'cancelled';
 
     public static function labels(): array
     {
         return [
-            'creating'          => __('Creating'),
-            'submitted'         => __('Submitted'),
-            'in_warehouse'      => __('In Warehouse'),
-            'handling'          => __('Handling'),
-            'packed'            => __('Packed'),
-            'finalised'         => __('Finalized'),
-            'dispatched'        => __('Dispatched'),
-            'cancelled'         => __('Cancelled'),
+            'creating'     => __('Creating'),
+            'submitted'    => __('Submitted'),
+            'in_warehouse' => __('In Warehouse'),
+            'handling'     => __('Handling'),
+            'handling_blocked' => __('Handling Blocked'),
+            'packed'       => __('Packed'),
+            'finalised'    => __('Finalized'),
+            'dispatched'   => __('Dispatched'),
+            'cancelled'    => __('Cancelled'),
         ];
     }
 
     public static function stateIcon(): array
     {
         return [
-            'creating'   => [
+            'creating'     => [
                 'tooltip' => __('Creating'),
                 'icon'    => 'fal fa-seedling',
                 'class'   => 'text-lime-500',  // Color for normal icon (Aiku)
@@ -65,7 +67,7 @@ enum OrderStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'in_warehouse'    => [
+            'in_warehouse' => [
                 'tooltip' => __('In Warehouse'),
                 'icon'    => 'fal fa-warehouse',
                 'class'   => 'text-gray-500',
@@ -85,7 +87,17 @@ enum OrderStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'packed' => [
+            'handling_blocked' => [
+                'tooltip' => __('Handling Blocked'),
+                'icon'    => 'fal fa-hands-helping',
+                'class'   => 'text-gray-500',
+                'color'   => 'slate',
+                'app'     => [
+                    'name' => 'times',
+                    'type' => 'font-awesome-5'
+                ]
+            ],
+            'packed'       => [
                 'tooltip' => __('Packed'),
                 'icon'    => 'fal fa-box',
                 'class'   => 'text-gray-500',
@@ -95,7 +107,7 @@ enum OrderStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'finalised'   => [
+            'finalised'    => [
                 'tooltip' => __('Finalized'),
                 'icon'    => 'fal fa-tasks',
                 'class'   => 'text-gray-500',
@@ -105,7 +117,7 @@ enum OrderStateEnum: string
                     'type' => 'font-awesome-5'
                 ]
             ],
-            'dispatched'    => [
+            'dispatched'   => [
                 'tooltip' => __('Dispatched'),
                 'icon'    => 'fal fa-shipping-fast',
                 'class'   => 'text-gray-500',
@@ -139,14 +151,15 @@ enum OrderStateEnum: string
         }
 
         return [
-            'creating'        => $stats->number_orders_state_creating,
-            'submitted'       => $stats->number_orders_state_submitted,
-            'in_warehouse'    => $stats->number_orders_state_in_warehouse,
-            'handling'        => $stats->number_orders_state_handling,
-            'packed'          => $stats->number_orders_state_packed,
-            'finalised'       => $stats->number_orders_state_finalised,
-            'dispatched'      => $stats->number_orders_state_dispatched,
-            'cancelled'       => $stats->number_orders_state_cancelled,
+            'creating'     => $stats->number_orders_state_creating,
+            'submitted'    => $stats->number_orders_state_submitted,
+            'in_warehouse' => $stats->number_orders_state_in_warehouse,
+            'handling'     => $stats->number_orders_state_handling,
+            'handling_blocked' => $stats->number_orders_state_handling_blocked,
+            'packed'       => $stats->number_orders_state_packed,
+            'finalised'    => $stats->number_orders_state_finalised,
+            'dispatched'   => $stats->number_orders_state_dispatched,
+            'cancelled'    => $stats->number_orders_state_cancelled,
         ];
     }
 }

@@ -129,7 +129,7 @@ class EditMailshot extends OrgAction
                                 'parameters' => [
                                     'mailshot' => $mailshot->id
                                     ]
-    
+
                             ],
                         ]
                 ],

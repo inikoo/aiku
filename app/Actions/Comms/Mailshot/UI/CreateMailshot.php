@@ -8,9 +8,7 @@
 
 namespace App\Actions\Comms\Mailshot\UI;
 
-use App\Actions\CRM\Prospect\Queries\UI\IndexProspectQueries;
 use App\Actions\CRM\Prospect\UI\IndexProspects;
-use App\Actions\CRM\Prospect\Tags\UI\IndexProspectTags;
 use App\Actions\OrgAction;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Models\Catalogue\Shop;

@@ -12,6 +12,7 @@ use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
+use App\Enums\Comms\DispatchedEmail\DispatchedEmailTypeEnum;
 use App\Http\Resources\Mail\DispatchedEmailResource;
 use App\Models\Comms\DispatchedEmail;
 use Illuminate\Validation\Rule;
@@ -44,7 +45,8 @@ class UpdateDispatchedEmail extends OrgAction
             'state'  => ['sometimes', 'required', Rule::enum(DispatchedEmailStateEnum::class)]
         ];
         if (!$this->strict) {
-            $rules = $this->noStrictUpdateRules($rules);
+            $rules['type'] = ['sometimes', 'required', Rule::enum(DispatchedEmailTypeEnum::class)];
+            $rules         = $this->noStrictUpdateRules($rules);
         }
 
         return $rules;

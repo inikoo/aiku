@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
     use HasGroupOrganisationRelationship;
+
     public function up(): void
     {
         Schema::create('outboxes', function (Blueprint $table) {
@@ -31,13 +32,16 @@ return new class () extends Migration {
             $table->string('slug')->unique()->collation('und_ns');
             $table->string('code')->index();
             $table->string('type')->index();
+            $table->string('model_type')->nullable()->index();
+            $table->unsignedInteger('model_id')->nullable();
             $table->string('name');
-            //$table->string('blueprint')->index();
+            $table->string('builder')->nullable()->index()->comment('current default builder for future emails');
             $table->string('state')->index()->default(OutboxStateEnum::IN_PROCESS->value);
             $table->jsonb('data');
             $table->timestampsTz();
             $table->softDeletesTz();
             $table->jsonb('sources');
+            $table->unique(['model_type', 'model_id']);
         });
     }
 

@@ -9,6 +9,8 @@
 namespace App\Actions\Fulfilment\Fulfilment;
 
 use App\Actions\Comms\Outbox\StoreOutbox;
+use App\Actions\Comms\Outbox\UpdateOutbox;
+use App\Actions\Traits\WithOutboxBuilder;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
@@ -20,6 +22,7 @@ use Lorisleiva\Actions\Concerns\AsAction;
 class SeedFulfilmentOutboxes
 {
     use AsAction;
+    use WithOutboxBuilder;
 
     public function handle(Fulfilment $fulfilment): void
     {
@@ -29,18 +32,28 @@ class SeedFulfilmentOutboxes
                 $orgPostRoom = $postRoom->orgPostRooms()->where('organisation_id', $fulfilment->organisation->id)->first();
 
 
-                if (!Outbox::where('fulfilment_id', $fulfilment->id)->where('code', $case)->exists()) {
-                    StoreOutbox::make()->action(
+                if ($outbox = Outbox::where('fulfilment_id', $fulfilment->id)->where('code', $case)->first()) {
+                    UpdateOutbox::make()->action(
+                        $outbox,
+                        [
+                            'name' => $case->label(),
+                        ]
+                    );
+                } else {
+                    $outbox = StoreOutbox::make()->action(
                         $orgPostRoom,
                         $fulfilment,
                         [
-                            'name'  => $case->label(),
-                            'code'  => $case,
-                            'type'  => $case->type(),
-                            'state' => $case->defaultState(),
+                            'name'       => $case->label(),
+                            'code'       => $case,
+                            'type'       => $case->type(),
+                            'state'      => $case->defaultState(),
+                            'model_type' => $case->modelType(),
+                            'builder'    => $this->getDefaultBuilder($case, $fulfilment)
                         ]
                     );
                 }
+                $this->setEmailOngoingRuns($outbox, $case, $fulfilment);
             }
         }
     }

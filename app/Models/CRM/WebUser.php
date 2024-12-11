@@ -140,14 +140,11 @@ class WebUser extends Authenticatable implements HasMedia, Auditable
         return SlugOptions::create()
             ->generateSlugsFrom(function () {
                 $slug = $this->username;
-                if (filter_var($this->username, FILTER_VALIDATE_EMAIL)) {
-                    $slug = strstr($this->username, '@', true);
-                }
 
-                return $slug;
+                return preg_replace('/@/', '_at_', $slug);
             })
             ->doNotGenerateSlugsOnUpdate()
-            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(12);
+            ->saveSlugsTo('slug')->slugsShouldBeNoLongerThan(64);
     }
 
     public function sendPasswordResetNotification($token): void

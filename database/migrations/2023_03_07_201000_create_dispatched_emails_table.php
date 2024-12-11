@@ -25,6 +25,7 @@ return new class () extends Migration {
             $table->foreign('outbox_id')->references('id')->on('outboxes');
 
             $table->string('parent_type')->index()->comment('MailShot|EmailBulkRun|EmailOngoingRun');
+            $table->unsignedInteger('parent_id');
 
             $table->unsignedInteger('email_address_id')->nullable();
             $table->foreign('email_address_id')->references('id')->on('email_addresses');
@@ -51,6 +52,7 @@ return new class () extends Migration {
             $table->datetimeTz('last_fetched_at')->nullable();
             $table->string('source_id')->nullable()->unique();
             $table->index(['provider','provider_dispatch_id']);
+            $table->index(['parent_type','parent_id']);
         });
     }
 

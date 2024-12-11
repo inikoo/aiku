@@ -9,6 +9,7 @@
 namespace App\Models\Comms;
 
 use App\Actions\Utils\Abbreviate;
+use App\Enums\Comms\Outbox\OutboxBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
@@ -42,7 +43,10 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property OutboxCodeEnum $code
  * @property OutboxTypeEnum $type
+ * @property string|null $model_type
+ * @property int|null $model_id
  * @property string $name
+ * @property OutboxBuilderEnum|null $builder current default builder for future emails
  * @property OutboxStateEnum $state
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -51,7 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $sources
  * @property-read Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
  * @property-read Collection<int, \App\Models\Comms\EmailBulkRun> $emailBulkRuns
- * @property-read Collection<int, \App\Models\Comms\EmailOngoingRun> $emailOngoingRuns
+ * @property-read \App\Models\Comms\EmailOngoingRun|null $emailOngoingRun
  * @property-read \App\Models\Comms\EmailTemplate|null $emailTemplate
  * @property-read Collection<int, \App\Models\Comms\Email> $emails
  * @property-read Fulfilment|null $fulfilment
@@ -89,15 +93,16 @@ class Outbox extends Model
     }
 
     protected $casts = [
-        'data'  => 'array',
+        'data'    => 'array',
         'sources' => 'array',
-        'code'  => OutboxCodeEnum::class,
-        'type'  => OutboxTypeEnum::class,
-        'state' => OutboxStateEnum::class,
+        'code'    => OutboxCodeEnum::class,
+        'type'    => OutboxTypeEnum::class,
+        'state'   => OutboxStateEnum::class,
+        'builder' => OutboxBuilderEnum::class
     ];
 
     protected $attributes = [
-        'data' => '{}',
+        'data'    => '{}',
         'sources' => '{}'
     ];
 
@@ -110,13 +115,15 @@ class Outbox extends Model
                 if ($this->type == 'reorder-reminder') {
                     $abbreviation = 'ror';
                 } else {
-                    $abbreviation = Abbreviate::run(string:$this->code->value, maximumLength:16);
+                    $abbreviation = Abbreviate::run(string: $this->code->value, maximumLength: 16);
                 }
                 if ($this->shop_id) {
                     $abbreviation .= ' '.$this->shop->slug;
-                }if ($this->fulfilment_id) {
+                }
+                if ($this->fulfilment_id) {
                     $abbreviation .= ' '.$this->fulfilment->slug;
-                }if ($this->website_id) {
+                }
+                if ($this->website_id) {
                     $abbreviation .= ' '.$this->website->slug;
                 } else {
                     $abbreviation .= ' '.$this->organisation->slug;
@@ -150,9 +157,9 @@ class Outbox extends Model
         return $this->hasMany(EmailBulkRun::class);
     }
 
-    public function emailOngoingRuns(): HasMany
+    public function emailOngoingRun(): HasOne
     {
-        return $this->hasMany(EmailOngoingRun::class);
+        return $this->hasOne(EmailOngoingRun::class);
     }
 
     public function mailshots(): HasMany
@@ -188,12 +195,12 @@ class Outbox extends Model
     public function subscribers(): HasMany
     {
         return $this->hasMany(ModelSubscribedToOutbox::class)
-                    ->whereNull('unsubscribed_at');
+            ->whereNull('unsubscribed_at');
     }
 
     public function unsubscribed(): HasMany
     {
         return $this->hasMany(ModelSubscribedToOutbox::class)
-                    ->whereNotNull('unsubscribed_at');
+            ->whereNotNull('unsubscribed_at');
     }
 }

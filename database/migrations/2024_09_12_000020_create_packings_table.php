@@ -7,6 +7,7 @@
  */
 
 use App\Enums\Dispatching\Packing\PackingEngineEnum;
+use App\Enums\Dispatching\Packing\PackingStateEnum;
 use App\Stubs\Migrations\HasPicking;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -23,9 +24,7 @@ return new class () extends Migration {
             $table->unsignedBigInteger('picking_id')->index()->nullable();
             $table->foreign('picking_id')->references('id')->on('pickings');
 
-            $table->boolean('status')->default(false)->index()->comment('0: todo, 1: done');
-            $table->boolean('is_blocked')->default(false);
-
+            $table->string('state')->default(PackingStateEnum::QUEUED->value)->index();
             $table->decimal('quantity_packed', 16, 3)->nullable();
 
             $table->unsignedSmallInteger('packer_id')->nullable()->index();
@@ -36,9 +35,9 @@ return new class () extends Migration {
 
             $table->jsonb('data');
 
-
-            $table->dateTimeTz('packed_at')->nullable();
-            $table->dateTimeTz('picking_blocked_at')->nullable();
+            $table->dateTimeTz('queued_at')->nullable();
+            $table->dateTimeTz('packing_at')->nullable();
+            $table->dateTimeTz('packing_blocked_at')->nullable();
             $table->dateTimeTz('done_at')->nullable();
 
             $table->timestampsTz();

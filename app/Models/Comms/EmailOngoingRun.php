@@ -8,14 +8,14 @@
 
 namespace App\Models\Comms;
 
-use App\Enums\Comms\EmailBulkRun\EmailBulkRunTypeEnum;
-use App\Enums\Comms\EmailBulkRun\EmailBulkRunStateEnum;
+use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunStatusEnum;
+use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunTypeEnum;
 use App\Models\Catalogue\Shop;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 /**
@@ -25,17 +25,16 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * @property int $group_id
  * @property int $organisation_id
  * @property int|null $shop_id
- * @property string $subject
  * @property int|null $outbox_id
  * @property int|null $email_id
+ * @property EmailOngoingRunTypeEnum $type
+ * @property EmailOngoingRunStatusEnum $status
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property string|null $fetched_at
- * @property string|null $last_fetched_at
+ * @property \Illuminate\Support\Carbon|null $fetched_at
+ * @property \Illuminate\Support\Carbon|null $last_fetched_at
  * @property string|null $source_id
- * @property EmailBulkRunTypeEnum $type
- * @property EmailBulkRunStateEnum $state
  * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
  * @property-read \App\Models\Comms\Email|null $email
  * @property-read \App\Models\SysAdmin\Group $group
@@ -54,19 +53,16 @@ class EmailOngoingRun extends Model
     use InShop;
 
     protected $casts = [
-        'data'              => 'array',
-        'type'              => EmailBulkRunTypeEnum::class,
-        'state'             => EmailBulkRunStateEnum::class,
-        'date'              => 'datetime',
-        'scheduled_at'      => 'datetime',
-        'start_sending_at'  => 'datetime',
-        'sent_at'           => 'datetime',
-        'cancelled_at'      => 'datetime',
-        'stopped_at'        => 'datetime',
+        'data'            => 'array',
+        'type'            => EmailOngoingRunTypeEnum::class,
+        'status'          => EmailOngoingRunStatusEnum::class,
+        'date'            => 'datetime',
+        'fetched_at'      => 'datetime',
+        'last_fetched_at' => 'datetime',
     ];
 
     protected $attributes = [
-        'data'              => '{}',
+        'data' => '{}',
     ];
 
     protected $guarded = [];
@@ -105,9 +101,9 @@ class EmailOngoingRun extends Model
         return $this->hasOne(EmailOngoingRunIntervals::class);
     }
 
-    public function dispatchedEmails(): HasMany
+    public function dispatchedEmails(): MorphMany
     {
-        return $this->hasMany(DispatchedEmail::class);
+        return $this->morphMany(DispatchedEmail::class, 'parent');
     }
 
 

@@ -6,6 +6,7 @@
  * Copyright (c) 2024, Raul A Perusquia Flores
  */
 
+use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunStatusEnum;
 use App\Stubs\Migrations\HasGroupOrganisationRelationship;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -21,13 +22,12 @@ return new class () extends Migration {
             $table = $this->groupOrgRelationship($table);
             $table->unsignedSmallInteger('shop_id')->nullable()->index();
             $table->foreign('shop_id')->references('id')->on('shops');
-            $table->string('subject')->index();
             $table->unsignedSmallInteger('outbox_id')->nullable()->index();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
             $table->unsignedInteger('email_id')->nullable()->index();
             $table->foreign('email_id')->references('id')->on('emails');
-
-
+            $table->string('type')->index();
+            $table->string('status')->default(EmailOngoingRunStatusEnum::IN_PROCESS)->index();
             $table->jsonb('data');
             $table->timestampsTz();
             $table->datetimeTz('fetched_at')->nullable();
