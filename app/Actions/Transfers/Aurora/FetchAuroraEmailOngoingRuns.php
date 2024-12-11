@@ -12,10 +12,12 @@ use App\Actions\Comms\Email\StoreEmail;
 use App\Actions\Comms\EmailOngoingRun\UpdateEmailOngoingRun;
 use App\Actions\Comms\Outbox\UpdateOutbox;
 use App\Actions\Helpers\Snapshot\UpdateSnapshot;
+use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunStatusEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Models\Comms\EmailOngoingRun;
 use App\Transfers\SourceOrganisationService;
+use Arr;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -34,6 +36,7 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
             return null;
         }
 
+
         $emailOngoingRun = EmailOngoingRun::where('source_id', $emailOngoingRunData['email_ongoing_run']['source_id'])->first();
 
         if (!$emailOngoingRun) {
@@ -43,11 +46,9 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
         }
 
 
-
         if (!$emailOngoingRun) {
             return null;
         }
-
 
 
         if ($emailOngoingRun->fetched_at) {
@@ -73,6 +74,13 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
         if (!$email) {
             data_forget($emailOngoingRunData, 'snapshot.last_fetched_at');
 
+            if ($emailOngoingRunData['snapshot']['builder'] == EmailBuilderEnum::BLADE) {
+                print_r($emailOngoingRunData);
+                dd('This can not happen');
+            }
+
+           // dd($emailOngoingRun);
+
             $email = StoreEmail::make()->action(
                 $emailOngoingRun,
                 null,
@@ -81,7 +89,12 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
                 strict: false
             );
         } else {
-            data_forget($emailOngoingRunData, 'snapshot.fetched_at');
+
+            if($email->snapshot->fetched_at) {
+                data_forget($emailOngoingRunData, 'snapshot.fetched_at');
+            } else {
+                data_forget($emailOngoingRunData, 'snapshot.last_fetched_at');
+            }
 
             UpdateSnapshot::make()->action(
                 $email->snapshot,

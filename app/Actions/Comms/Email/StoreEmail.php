@@ -81,6 +81,7 @@ class StoreEmail extends OrgAction
             /** @var Email $email */
             $email = $parent->email()->create($modelData);
 
+
             if ($snapshotData) {
                 $snapshot = StoreEmailSnapshot::make()->action(
                     $email,

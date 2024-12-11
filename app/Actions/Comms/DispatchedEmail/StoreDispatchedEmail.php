@@ -97,6 +97,15 @@ class StoreDispatchedEmail extends OrgAction
             $rules['email_address']        = ['required', 'string'];
             $rules['provider_dispatch_id'] = ['sometimes', ' nullable', 'string'];
 
+            $rules['sent_at']          = ['sometimes', 'nullable', 'date'];
+            $rules['first_read_at']    = ['sometimes', 'nullable', 'date'];
+            $rules['last_read_at']     = ['sometimes', 'nullable', 'date'];
+            $rules['first_clicked_at'] = ['sometimes', 'nullable', 'date'];
+            $rules['last_clicked_at']  = ['sometimes', 'nullable', 'date'];
+            $rules['number_reads']     = ['sometimes', 'integer'];
+            $rules['number_clicks']    = ['sometimes', 'integer'];
+
+
             $rules = $this->noStrictStoreRules($rules);
         }
 

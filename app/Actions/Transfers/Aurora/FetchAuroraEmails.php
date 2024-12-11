@@ -30,9 +30,10 @@ class FetchAuroraEmails extends FetchAuroraAction
         }
 
 
+
         if ($email = Email::where('source_id', $emailData['email']['source_id'])
             ->first()) {
-            try {
+          //  try {
                 $email = UpdateEmail::make()->action(
                     email: $email,
                     modelData: $emailData['email'],
@@ -41,14 +42,14 @@ class FetchAuroraEmails extends FetchAuroraAction
                     audit: false
                 );
                 $this->recordChange($organisationSource, $email->wasChanged());
-            } catch (Exception $e) {
-                $this->recordError($organisationSource, $e, $emailData['email'], 'Email', 'update');
-                return null;
-            }
+//            } catch (Exception $e) {
+//                $this->recordError($organisationSource, $e, $emailData['email'], 'Email', 'update');
+//                return null;
+//            }
         } else {
 
 
-            try {
+           // try {
                 $email = StoreEmail::make()->action(
                     parent: $emailData['parent'],
                     emailTemplate: null,
@@ -70,11 +71,11 @@ class FetchAuroraEmails extends FetchAuroraAction
                 DB::connection('aurora')->table('Email Template Dimension')
                     ->where('Email Template Key', $sourceData[1])
                     ->update(['aiku_id' => $email->id]);
-            } catch (Exception|Throwable $e) {
-                $this->recordError($organisationSource, $e, $emailData['email'], 'Email', 'store');
-
-                return null;
-            }
+//            } catch (Exception|Throwable $e) {
+//                $this->recordError($organisationSource, $e, $emailData['email'], 'Email', 'store');
+//
+//                return null;
+//            }
         }
 
 

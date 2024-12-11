@@ -17,7 +17,12 @@ class FetchAuroraEmailBulkRun extends FetchAurora
 {
     protected function parseModel(): void
     {
-        if (in_array($this->auroraModelData->{'Email Campaign Type'}, [])) {
+
+        if (!in_array($this->auroraModelData->{'Email Campaign Type'}, [
+            'GR Reminder',
+            'OOS Notification'
+
+        ])) {
             return;
         }
 
@@ -43,7 +48,6 @@ class FetchAuroraEmailBulkRun extends FetchAurora
         if (!$emailOngoingRun) {
             return;
         }
-
 
 
         $scheduledAt = $this->parseDatetime($this->auroraModelData->{'Email Campaign Scheduled Date'});
@@ -95,13 +99,10 @@ class FetchAuroraEmailBulkRun extends FetchAurora
                 'recyclable'      => false,
                 'first_commit'    => false,
                 'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Email Template Key'},
-                'fetched_at'       => now(),
-                'last_fetched_at'  => now(),
+                'fetched_at'      => now(),
+                'last_fetched_at' => now(),
             ];
         }
-
-
-
     }
 
 

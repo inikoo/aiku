@@ -81,6 +81,7 @@ class FetchAuroraMailshots extends FetchAuroraAction
             $organisation = $organisationSource->getOrganisation();
 
             if ($mailshotData['source_template_id']) {
+
                 $email = $this->parseEmail($organisation->id.':'.$mailshotData['source_template_id']);
 
                 if ($email) {

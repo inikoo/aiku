@@ -47,7 +47,11 @@ enum OutboxCodeEnum: string
     {
         return match ($this) {
             OutboxCodeEnum::NEWSLETTER => OutboxTypeEnum::NEWSLETTER,
-            OutboxCodeEnum::MARKETING => OutboxTypeEnum::MARKETING,
+            OutboxCodeEnum::MARKETING ,
+            OutboxCodeEnum::ABANDONED_CART
+
+
+            => OutboxTypeEnum::MARKETING,
             OutboxCodeEnum::INVITE => OutboxTypeEnum::COLD_EMAIL,
 
 
@@ -67,7 +71,6 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::BASKET_REMINDER_1,
             OutboxCodeEnum::BASKET_REMINDER_2,
             OutboxCodeEnum::BASKET_REMINDER_3,
-            OutboxCodeEnum::ABANDONED_CART,
             OutboxCodeEnum::REORDER_REMINDER => OutboxTypeEnum::MARKETING_NOTIFICATION,
             OutboxCodeEnum::TEST => OutboxTypeEnum::TEST,
 
@@ -248,7 +251,6 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::BASKET_REMINDER_1,
             OutboxCodeEnum::BASKET_REMINDER_2,
             OutboxCodeEnum::BASKET_REMINDER_3,
-            OutboxCodeEnum::ABANDONED_CART,
             OutboxCodeEnum::REORDER_REMINDER,
             OutboxCodeEnum::OOS_NOTIFICATION,
 
@@ -256,6 +258,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::MARKETING,
             OutboxCodeEnum::NEWSLETTER,
             OutboxCodeEnum::INVITE,
+            OutboxCodeEnum::ABANDONED_CART,
             => 'Mailshot',
 
             default => null
@@ -284,7 +287,6 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::BASKET_REMINDER_1,
             OutboxCodeEnum::BASKET_REMINDER_2,
             OutboxCodeEnum::BASKET_REMINDER_3,
-            OutboxCodeEnum::ABANDONED_CART,
             OutboxCodeEnum::REORDER_REMINDER,
             OutboxCodeEnum::OOS_NOTIFICATION,
             => EmailOngoingRunTypeEnum::BULK,
