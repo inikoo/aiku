@@ -42,6 +42,8 @@ use App\Models\CRM\WebUser;
 use App\Models\Discounts\Offer;
 use App\Models\Discounts\OfferCampaign;
 use App\Models\Dispatching\DeliveryNote;
+use App\Models\Dispatching\Packing;
+use App\Models\Dispatching\Picking;
 use App\Models\Dropshipping\CustomerClient;
 use App\Models\Dropshipping\Platform;
 use App\Models\Dropshipping\Portfolio;
@@ -786,5 +788,15 @@ class Group extends Authenticatable implements Auditable, HasMedia
     public function aikuScopedSections(): MorphToMany
     {
         return $this->morphToMany(AikuSection::class, 'model', 'aiku_scoped_sections');
+    }
+
+    public function pickings(): HasMany
+    {
+        return $this->hasMany(Picking::class);
+    }
+
+    public function packings(): HasMany
+    {
+        return $this->hasMany(Packing::class);
     }
 }
