@@ -242,6 +242,9 @@ class ShowGroupDashboard extends OrgAction
                                             'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->sales_org_currency_1w, $organisation->salesIntervals->sales_org_currency_1w_ly),
                                             'difference' => $organisation->salesIntervals->sales_org_currency_1w - $organisation->salesIntervals->sales_org_currency_1w_ly
                                         ],
+                                        'all' => [
+                                            'amount'     => $organisation->salesIntervals->sales_org_currency_all,
+                                        ],
                                     ],
                         'invoices' => [
                                         'ytd' => [
