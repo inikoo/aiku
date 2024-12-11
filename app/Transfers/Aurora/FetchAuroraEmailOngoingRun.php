@@ -48,7 +48,6 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
 
         $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Email Campaign Type Store Key'});
 
-        //enum('Active','Suspended','InProcess')
         $status = match ($this->auroraModelData->{'Email Campaign Type Status'}) {
             'Active' => EmailOngoingRunStatusEnum::ACTIVE,
             'Suspended' => EmailOngoingRunStatusEnum::SUSPENDED,

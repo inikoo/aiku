@@ -35,7 +35,7 @@ class FetchAuroraShops extends FetchAuroraAction
 
 
             if ($shop = Shop::where('source_id', $shopData['shop']['source_id'])->first()) {
-                // try {
+                 try {
                 $shop = UpdateShop::make()->action(
                     shop: $shop,
                     modelData: $shopData['shop'],
@@ -43,11 +43,11 @@ class FetchAuroraShops extends FetchAuroraAction
                     strict: false,
                     audit: false
                 );
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $shopData['shop'], 'Shop', 'update');
-                //
-                //                    return null;
-                //                }
+                                } catch (Exception|Throwable $e) {
+                                    $this->recordError($organisationSource, $e, $shopData['shop'], 'Shop', 'update');
+
+                                    return null;
+                                }
 
                 if ($shopData['tax_number']) {
                     if (!$shop->taxNumber) {
@@ -62,7 +62,7 @@ class FetchAuroraShops extends FetchAuroraAction
                     DeleteTaxNumber::run($shop->taxNumber);
                 }
             } else {
-                // try {
+                 try {
                 $shop = StoreShop::make()->action(
                     organisation: $organisationSource->getOrganisation(),
                     modelData: $shopData['shop'],
@@ -84,11 +84,11 @@ class FetchAuroraShops extends FetchAuroraAction
                 DB::connection('aurora')->table('Store Dimension')
                     ->where('Store Key', $sourceData[1])
                     ->update(['aiku_id' => $shop->id]);
-                //                } catch (Exception|Throwable $e) {
-                //                    $this->recordError($organisationSource, $e, $shopData['shop'], 'Shop', 'store');
-                //
-                //                    return null;
-                //                }
+                 } catch (Exception|Throwable $e) {
+                     $this->recordError($organisationSource, $e, $shopData['shop'], 'Shop', 'store');
+
+                     return null;
+                 }
 
                 if ($shopData['tax_number']) {
                     StoreTaxNumber::run(

@@ -24,6 +24,11 @@ return new class () extends Migration {
             $table->string('subject')->index();
             $table->unsignedSmallInteger('outbox_id')->nullable()->index();
             $table->foreign('outbox_id')->references('id')->on('outboxes');
+
+            $table->unsignedSmallInteger('email_ongoing_run_id')->nullable()->index();
+            $table->foreign('email_ongoing_run_id')->references('id')->on('email_ongoing_runs');
+
+
             $table->unsignedInteger('email_id')->nullable()->index();
             $table->foreign('email_id')->references('id')->on('emails');
             $table->unsignedInteger('snapshot_id')->nullable()->index();
@@ -31,7 +36,7 @@ return new class () extends Migration {
 
 
             $table->string('state')->index();
-            $table->string('type')->index();
+            //  $table->string('type')->index();
 
 
             $table->dateTimeTz('scheduled_at')->nullable();
