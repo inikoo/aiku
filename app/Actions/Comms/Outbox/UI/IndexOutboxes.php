@@ -15,6 +15,7 @@ use App\Actions\OrgAction;
 use App\Http\Resources\Mail\OutboxResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
+use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
 use App\Models\Fulfilment\Fulfilment;
@@ -47,7 +48,7 @@ class IndexOutboxes extends OrgAction
         ]);
     }
 
-    public function handle(Shop|Organisation|PostRoom|Website|Fulfilment $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Shop|Organisation|PostRoom|OrgPostRoom|Website|Fulfilment $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
@@ -71,6 +72,8 @@ class IndexOutboxes extends OrgAction
             $queryBuilder->where('outboxes.website_id', $parent->id);
         } elseif (class_basename($parent) == 'Fulfilment') {
             $queryBuilder->where('outboxes.fulfilment_id', $parent->id);
+        } elseif (class_basename($parent) == 'OrgPostRoom') {
+            $queryBuilder->where('outboxes.org_post_room_id', $parent->id);
         } else {
             $queryBuilder->where('outboxes.organisation_id', $parent->id);
         }
@@ -145,7 +148,7 @@ class IndexOutboxes extends OrgAction
 
 
             ]
-        )->table($this->tableStructure($this->parent));
+        )->table($this->tableStructure($this->parent, prefix: 'outboxes'));
     }
 
     /** @noinspection PhpUnusedParameterInspection */

@@ -14,6 +14,7 @@ use App\Http\Resources\Mail\MailshotResource;
 use App\InertiaTable\InertiaTable;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\Mailshot;
+use App\Models\Comms\OrgPostRoom;
 use App\Models\Comms\Outbox;
 use App\Models\Comms\PostRoom;
 use App\Models\SysAdmin\Organisation;
@@ -31,9 +32,9 @@ class IndexMailshots extends OrgAction
     use HasUIMailshots;
     use HasCatalogueAuthorisation;
 
-    public Outbox|PostRoom|Organisation $parent;
+    public Outbox|PostRoom|OrgPostRoom|Organisation $parent;
 
-    public function handle(Outbox|PostRoom|Organisation $parent, $prefix = null): LengthAwarePaginator
+    public function handle(Outbox|PostRoom|OrgPostRoom|Organisation $parent, $prefix = null): LengthAwarePaginator
     {
         $globalSearch = AllowedFilter::callback('global', function ($query, $value) {
             $query->where(function ($query) use ($value) {
