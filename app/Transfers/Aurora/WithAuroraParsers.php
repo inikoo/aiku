@@ -746,6 +746,21 @@ trait WithAuroraParsers
         return $mailshot;
     }
 
+    public function parseEmailBulkRun($sourceId): ?EmailBulkRun
+    {
+        if (!$sourceId) {
+            return null;
+        }
+
+        $emailBulkRun = EmailBulkRun::where('source_id', $sourceId)->first();
+        if (!$emailBulkRun) {
+            $sourceData = explode(':', $sourceId);
+            $emailBulkRun   = FetchAuroraEmailBulkRuns::run($this->organisationSource, $sourceData[1]);
+        }
+
+        return $emailBulkRun;
+    }
+
     public function parseProspect($sourceId): ?Prospect
     {
         if (!$sourceId) {

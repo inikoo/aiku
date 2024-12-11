@@ -33,10 +33,12 @@ class StoreEmailOngoingRun extends OrgAction
         data_set($modelData, 'organisation_id', $outbox->organisation_id);
         data_set($modelData, 'shop_id', $outbox->shop_id);
 
+        data_set($modelData, 'type', $outbox->code->value);
+
 
         $emailOngoingRun = DB::transaction(function () use ($outbox, $modelData) {
             /** @var EmailOngoingRun $emailOngoingRun */
-            $emailOngoingRun = $outbox->emailOngoingRuns()->create($modelData);
+            $emailOngoingRun = $outbox->emailOngoingRun()->create($modelData);
             $emailOngoingRun->stats()->create();
             $emailOngoingRun->intervals()->create();
 
@@ -60,9 +62,7 @@ class StoreEmailOngoingRun extends OrgAction
 
     public function rules(): array
     {
-        $rules = [
-            'subject'           => ['required', 'string', 'max:255'],
-        ];
+        $rules = [];
 
         if (!$this->strict) {
             $rules = $this->noStrictStoreRules($rules);

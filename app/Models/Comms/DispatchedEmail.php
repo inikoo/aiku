@@ -61,6 +61,7 @@ use Illuminate\Support\Facades\Auth;
  * @property-read \App\Models\Comms\Mailshot|null $mailshot
  * @property-read \App\Models\SysAdmin\Organisation $organisation
  * @property-read \App\Models\Comms\Outbox|null $outbox
+ * @property-read Model|\Eloquent $parent
  * @property-read Model|\Eloquent|null $recipient
  * @property-read \App\Models\Catalogue\Shop|null $shop
  * @method static \Illuminate\Database\Eloquent\Builder<static>|DispatchedEmail newModelQuery()
@@ -138,6 +139,11 @@ class DispatchedEmail extends Model
     public function emailCopy(): HasOne
     {
         return $this->hasOne(EmailCopy::class);
+    }
+
+    public function parent(): MorphTo
+    {
+        return $this->morphTo();
     }
 
 

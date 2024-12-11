@@ -68,11 +68,14 @@ class StoreOutbox extends OrgAction
     public function rules(): array
     {
         $rules = [
-            'code'    => ['required', Rule::enum(OutboxCodeEnum::class)],
-            'type'    => ['required', Rule::enum(OutboxTypeEnum::class)],
-            'state'   => ['required', Rule::enum(OutboxStateEnum::class)],
-            'builder' => ['nullable', Rule::enum(OutboxBuilderEnum::class)],
-            'name'    => ['required', 'max:250', 'string'],
+            'code'       => ['required', Rule::enum(OutboxCodeEnum::class)],
+            'type'       => ['required', Rule::enum(OutboxTypeEnum::class)],
+            'state'      => ['required', Rule::enum(OutboxStateEnum::class)],
+            'builder'    => ['nullable', Rule::enum(OutboxBuilderEnum::class)],
+            'name'       => ['required', 'max:250', 'string'],
+            'model_type' => ['nullable', Rule::in('Mailshot', 'EmailOngoingRun', 'EmailBulkRun')],
+
+
         ];
         if (!$this->strict) {
             $rules = $this->noStrictStoreRules($rules);
@@ -86,7 +89,6 @@ class StoreOutbox extends OrgAction
         $this->asAction       = true;
         $this->strict         = $strict;
         $this->hydratorsDelay = $hydratorsDelay;
-
 
         $this->initialisation($orgPostRoom->organisation, $modelData);
 

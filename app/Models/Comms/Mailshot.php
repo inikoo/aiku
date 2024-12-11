@@ -22,6 +22,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -158,9 +159,9 @@ class Mailshot extends Model implements Auditable
         return $this->hasOne(MailshotStats::class);
     }
 
-    public function dispatchedEmails(): HasMany
+    public function dispatchedEmails(): MorphMany
     {
-        return $this->hasMany(DispatchedEmail::class);
+        return $this->morphMany(DispatchedEmail::class, 'parent');
     }
 
     public function email(): MorphOne

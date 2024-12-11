@@ -69,6 +69,7 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::ABANDONED_CART,
             OutboxCodeEnum::REORDER_REMINDER => OutboxTypeEnum::MARKETING_NOTIFICATION,
             OutboxCodeEnum::TEST => OutboxTypeEnum::TEST,
+
             OutboxCodeEnum::NEW_CUSTOMER,
             OutboxCodeEnum::DELIVERY_NOTE_DISPATCHED,
             OutboxCodeEnum::DELIVERY_NOTE_UNDISPATCHED,
@@ -207,13 +208,6 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::NEWSLETTER,
             OutboxCodeEnum::INVITE,
             OutboxCodeEnum::TEST,
-            OutboxCodeEnum::NEW_CUSTOMER,
-            OutboxCodeEnum::NEW_ORDER,
-            OutboxCodeEnum::DELIVERY_NOTE_DISPATCHED,
-            OutboxCodeEnum::DELIVERY_NOTE_UNDISPATCHED,
-            OutboxCodeEnum::INVOICE_DELETED,
-
-
             => OutboxStateEnum::ACTIVE,
             default => OutboxStateEnum::IN_PROCESS
         };
@@ -228,6 +222,40 @@ enum OutboxCodeEnum: string
             OutboxCodeEnum::INVOICE_DELETED,
             OutboxCodeEnum::NEW_ORDER
             => OutboxBuilderEnum::BLADE->value,
+            default => null
+        };
+    }
+
+    public function modelType(): ?string
+    {
+        return match ($this) {
+            OutboxCodeEnum::NEW_CUSTOMER,
+            OutboxCodeEnum::DELIVERY_NOTE_DISPATCHED,
+            OutboxCodeEnum::DELIVERY_NOTE_UNDISPATCHED,
+            OutboxCodeEnum::INVOICE_DELETED,
+            OutboxCodeEnum::NEW_ORDER,
+            OutboxCodeEnum::DELIVERY_CONFIRMATION,
+            OutboxCodeEnum::ORDER_CONFIRMATION,
+            OutboxCodeEnum::PASSWORD_REMINDER,
+            OutboxCodeEnum::REGISTRATION,
+            OutboxCodeEnum::REGISTRATION_APPROVED,
+            OutboxCodeEnum::REGISTRATION_REJECTED,
+            OutboxCodeEnum::RENTAL_AGREEMENT,
+            OutboxCodeEnum::PALLET_DELIVERY_PROCESSED,
+            OutboxCodeEnum::PALLET_RETURN_DISPATCHED,
+            => 'EmailOngoingRun',
+            OutboxCodeEnum::MARKETING,
+            OutboxCodeEnum::NEWSLETTER,
+            OutboxCodeEnum::INVITE,
+            => 'Mailshot',
+            OutboxCodeEnum::BASKET_LOW_STOCK,
+            OutboxCodeEnum::BASKET_REMINDER_1,
+            OutboxCodeEnum::BASKET_REMINDER_2,
+            OutboxCodeEnum::BASKET_REMINDER_3,
+            OutboxCodeEnum::ABANDONED_CART,
+            OutboxCodeEnum::REORDER_REMINDER,
+            OutboxCodeEnum::OOS_NOTIFICATION,
+            => 'EmailBulkRun',
             default => null
         };
     }

@@ -11,8 +11,9 @@ namespace App\Actions\Comms\EmailOngoingRun;
 use App\Actions\OrgAction;
 use App\Actions\Traits\Rules\WithNoStrictRules;
 use App\Actions\Traits\WithActionUpdate;
-use App\Enums\Comms\EmailBulkRun\EmailBulkRunStateEnum;
+use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunStatusEnum;
 use App\Models\Comms\EmailBulkRun;
+use App\Models\Comms\EmailOngoingRun;
 use Illuminate\Validation\Rule;
 use Lorisleiva\Actions\ActionRequest;
 
@@ -22,9 +23,9 @@ class UpdateEmailOngoingRun extends OrgAction
     use WithNoStrictRules;
 
 
-    public function handle(EmailBulkRun $emailRun, array $modelData): EmailBulkRun
+    public function handle(EmailOngoingRun $emailOngoingRun, array $modelData): EmailOngoingRun
     {
-        return $this->update($emailRun, $modelData, ['data']);
+        return $this->update($emailOngoingRun, $modelData, ['data']);
     }
 
     public function authorize(ActionRequest $request): bool
@@ -32,14 +33,21 @@ class UpdateEmailOngoingRun extends OrgAction
         if ($this->asAction) {
             return true;
         }
+
         return false;
     }
 
     public function rules(): array
     {
         $rules = [
-            'subject'           => ['sometimes','required', 'string', 'max:255'],
-            'state'             => ['required', Rule::enum(EmailBulkRunStateEnum::class)],
+            'subject'  => ['sometimes', 'required', 'string', 'max:255'],
+            'status'   => ['required', Rule::enum(EmailOngoingRunStatusEnum::class)],
+            'email_id' => [
+                'required',
+                Rule::exists('emails', 'id')->where(function ($query) {
+                    $query->where('shop_id', $this->shop->id);
+                })
+            ],
         ];
 
         if (!$this->strict) {
@@ -49,22 +57,22 @@ class UpdateEmailOngoingRun extends OrgAction
         return $rules;
     }
 
-    public function action(EmailBulkRun $emailRun, array $modelData, int $hydratorsDelay = 0, bool $strict = true): EmailBulkRun
+    public function action(EmailOngoingRun $emailOngoingRun, array $modelData, int $hydratorsDelay = 0, bool $strict = true): EmailOngoingRun
     {
-        $this->strict = $strict;
+        $this->strict         = $strict;
         $this->asAction       = true;
         $this->hydratorsDelay = $hydratorsDelay;
-        $this->initialisationFromShop($emailRun->shop, $modelData);
+        $this->initialisationFromShop($emailOngoingRun->shop, $modelData);
 
-        return $this->handle($emailRun, $this->validatedData);
+        return $this->handle($emailOngoingRun, $this->validatedData);
     }
-    public function asController(EmailBulkRun $emailRun, ActionRequest $request): EmailBulkRun
+
+    public function asController(EmailBulkRun $emailOngoingRun, ActionRequest $request): EmailOngoingRun
     {
-        $this->initialisationFromShop($emailRun->shop, $request);
+        $this->initialisationFromShop($emailOngoingRun->shop, $request);
 
-        return $this->handle($emailRun, $this->validatedData);
+        return $this->handle($emailOngoingRun, $this->validatedData);
     }
-
 
 
 }

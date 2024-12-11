@@ -43,6 +43,8 @@ use Spatie\Sluggable\SlugOptions;
  * @property string $slug
  * @property OutboxCodeEnum $code
  * @property OutboxTypeEnum $type
+ * @property string|null $model_type
+ * @property int|null $model_id
  * @property string $name
  * @property OutboxBuilderEnum|null $builder current default builder for future emails
  * @property OutboxStateEnum $state
@@ -53,7 +55,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property array $sources
  * @property-read Collection<int, \App\Models\Comms\DispatchedEmail> $dispatchedEmails
  * @property-read Collection<int, \App\Models\Comms\EmailBulkRun> $emailBulkRuns
- * @property-read Collection<int, \App\Models\Comms\EmailOngoingRun> $emailOngoingRuns
+ * @property-read \App\Models\Comms\EmailOngoingRun|null $emailOngoingRun
  * @property-read \App\Models\Comms\EmailTemplate|null $emailTemplate
  * @property-read Collection<int, \App\Models\Comms\Email> $emails
  * @property-read Fulfilment|null $fulfilment
@@ -155,9 +157,9 @@ class Outbox extends Model
         return $this->hasMany(EmailBulkRun::class);
     }
 
-    public function emailOngoingRuns(): HasMany
+    public function emailOngoingRun(): HasOne
     {
-        return $this->hasMany(EmailOngoingRun::class);
+        return $this->hasOne(EmailOngoingRun::class);
     }
 
     public function mailshots(): HasMany

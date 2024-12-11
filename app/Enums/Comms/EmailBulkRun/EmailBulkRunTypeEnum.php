@@ -22,6 +22,7 @@ enum EmailBulkRunTypeEnum: string
     case ABANDONED_CART = 'abandoned_cart';
     case REORDER_REMINDER = 'reorder_reminder';
     case OOS_NOTIFICATION = 'oos_notification';
+    case INVITE = 'invite';
 
 
 }

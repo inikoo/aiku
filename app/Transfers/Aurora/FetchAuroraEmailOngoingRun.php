@@ -17,15 +17,15 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
 {
     protected function parseModel(): void
     {
-        if (in_array($this->auroraModelData->{'Email Campaign Type'}, ['GR Reminder', 'OOS Notification'])) {
+        if (!in_array($this->auroraModelData->{'Email Campaign Type Code'}, ['Newsletter', 'Marketing','Invite Full Mailshot','Invite'])) {
             return;
         }
 
-        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Email Campaign Store Key'});
+        $shop = $this->parseShop($this->organisation->id.':'.$this->auroraModelData->{'Email Campaign Type Store Key'});
 
-        //enum('InProcess','SetRecipients','ComposingEmail','Ready','Scheduled','Sending','Sent','Cancelled','Stopped')
-        $state = match ($this->auroraModelData->{'Email Campaign State'}) {
-            'Scheduled','Ready' => EmailBulkRunStateEnum::SCHEDULED,
+        //enum('Active','Suspended','InProcess')
+        $state = match ($this->auroraModelData->{'Email Campaign Type Status'}) {
+            'Scheduled','Ready' => EmailOngoingStateEnum::SCHEDULED,
             'Sending' => EmailBulkRunStateEnum::SENDING,
             'Sent' => EmailBulkRunStateEnum::SENT,
             'Cancelled' => EmailBulkRunStateEnum::CANCELLED,
@@ -92,7 +92,7 @@ class FetchAuroraEmailOngoingRun extends FetchAurora
     protected function fetchData($id): object|null
     {
         return DB::connection('aurora')
-            ->table('Email Campaign Dimension')
-            ->where('Email Campaign Key', $id)->first();
+            ->table('Email Campaign Type Dimension')
+            ->where('Email Campaign Type Key', $id)->first();
     }
 }
