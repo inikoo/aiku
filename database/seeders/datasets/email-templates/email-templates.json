@@ -110,7 +110,6 @@
   {
     "outboxes": [
       "marketing"
-      
     ],
     "name": "New Year Sale",
     "content": "new_year_sale.json",
@@ -179,7 +178,7 @@
   },
   {
     "outboxes": [
-      "delivery_note_dispatched"
+      "Delivery note dispatched"
     ],
     "name": "Delivery note dispatched",
     "content": "delivery_note_dispatched.blade.php",
@@ -190,7 +189,7 @@
   },
   {
     "outboxes": [
-      "delivery_note_undispatched"
+      "Delivery note undispatched"
     ],
     "name": "Delivery note undispatched",
     "content": "delivery_note_undispatched.blade.php",
