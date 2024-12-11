@@ -12,6 +12,7 @@ use App\Enums\Helpers\Snapshot\SnapshotBuilderEnum;
 use App\Enums\Helpers\Snapshot\SnapshotScopeEnum;
 use App\Enums\Helpers\Snapshot\SnapshotStateEnum;
 use App\Http\Resources\Web\SlideResource;
+use App\Models\Traits\InGroup;
 use App\Models\Web\Slide;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +25,7 @@ use Illuminate\Support\Arr;
  * App\Models\Helpers\Snapshot
  *
  * @property int $id
+ * @property int $group_id
  * @property SnapshotScopeEnum $scope
  * @property string|null $publisher_type
  * @property int|null $publisher_id
@@ -43,6 +45,10 @@ use Illuminate\Support\Arr;
  * @property string|null $recyclable_tag
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property string|null $fetched_at
+ * @property string|null $last_fetched_at
+ * @property string|null $source_id
+ * @property-read \App\Models\SysAdmin\Group $group
  * @property-read Model|\Eloquent|null $parent
  * @property-read Model|\Eloquent|null $publisher
  * @property-read \Illuminate\Database\Eloquent\Collection<int, Slide> $slides
@@ -54,6 +60,8 @@ use Illuminate\Support\Arr;
  */
 class Snapshot extends Model
 {
+    use InGroup;
+
     protected $dateFormat = 'Y-m-d H:i:s P';
     protected array $dates = ['published_at', 'published_until'];
 

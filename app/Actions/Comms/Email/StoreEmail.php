@@ -46,6 +46,8 @@ class StoreEmail extends OrgAction
                 'state'           => Arr::pull($modelData, 'snapshot_state'),
                 'recyclable'      => Arr::pull($modelData, 'snapshot_recyclable'),
                 'first_commit'    => Arr::pull($modelData, 'snapshot_first_commit'),
+                'source_id'       => Arr::pull($modelData, 'snapshot_source_id'),
+                'fetched_at'      => Arr::get($modelData, 'fetched_at')
             ];
 
             if ($publishedAt = Arr::pull($modelData, 'snapshot_published_at')) {
@@ -108,11 +110,13 @@ class StoreEmail extends OrgAction
         if (!$this->strict) {
             $rules['builder']               = ['sometimes', 'required', Rule::enum(EmailBuilderEnum::class)];
             $rules['layout']                = ['sometimes', 'required', 'array'];
-            $rules['compiled_layout']       = ['sometimes', 'string'];
+            $rules['compiled_layout']       = ['sometimes', 'nullable', 'string'];
             $rules['snapshot_state']        = ['sometimes', 'required', Rule::enum(SnapshotStateEnum::class)];
-            $rules['snapshot_published_at'] = ['sometimes', 'required', 'date'];
+            $rules['snapshot_published_at'] = ['sometimes', 'nullable', 'date'];
             $rules['snapshot_recyclable']   = ['sometimes', 'required', 'boolean'];
             $rules['snapshot_first_commit'] = ['sometimes', 'required', 'boolean'];
+            $rules['snapshot_source_id']    = ['sometimes', 'required', 'string'];
+
 
             $rules = $this->noStrictStoreRules($rules);
         }

@@ -35,6 +35,8 @@ class StoreWebsiteSnapshot extends OrgAction
                 )
             )
         );
+        data_set($modelData, 'group_id', $website->group_id);
+
 
         return DB::transaction(function () use ($website, $modelData) {
 
