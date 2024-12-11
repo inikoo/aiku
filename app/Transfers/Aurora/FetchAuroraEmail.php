@@ -32,7 +32,7 @@ class FetchAuroraEmail extends FetchAurora
         if ($this->auroraModelData->{'Email Template Scope'} == 'EmailCampaign' or $this->auroraModelData->{'Email Template Scope'} == 'Mailshot') {
             $emailCampaignData = DB::connection('aurora')->table('Email Campaign Dimension')->where('Email Campaign Key', $this->auroraModelData->{'Email Template Scope Key'})->first();
             if (!$emailCampaignData) {
-                dd('xxx2');
+
 
                 return;
             }
@@ -69,8 +69,6 @@ class FetchAuroraEmail extends FetchAurora
                 $parent = $emailRun;
             }
         } elseif ($this->auroraModelData->{'Email Template Scope'} == 'EmailCampaignType') {
-            $emailCampaignTypeData = DB::connection('aurora')->table('Email Campaign Type Dimension')->where('Email Campaign Type Key', $this->auroraModelData->{'Email Template Scope Key'})->first();
-            dd('xxx');
 
             return;
         }

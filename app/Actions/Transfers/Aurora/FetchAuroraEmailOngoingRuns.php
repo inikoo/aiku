@@ -17,7 +17,6 @@ use App\Enums\Comms\EmailOngoingRun\EmailOngoingRunStatusEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Models\Comms\EmailOngoingRun;
 use App\Transfers\SourceOrganisationService;
-use Arr;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 
@@ -79,7 +78,7 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
                 dd('This can not happen');
             }
 
-           // dd($emailOngoingRun);
+            // dd($emailOngoingRun);
 
             $email = StoreEmail::make()->action(
                 $emailOngoingRun,
@@ -90,7 +89,7 @@ class FetchAuroraEmailOngoingRuns extends FetchAuroraAction
             );
         } else {
 
-            if($email->snapshot->fetched_at) {
+            if ($email->snapshot->fetched_at) {
                 data_forget($emailOngoingRunData, 'snapshot.fetched_at');
             } else {
                 data_forget($emailOngoingRunData, 'snapshot.last_fetched_at');

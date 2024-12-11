@@ -37,28 +37,22 @@ class StoreDispatchedEmail extends OrgAction
         data_set($modelData, 'organisation_id', $parent->organisation_id);
         data_set($modelData, 'shop_id', $parent->shop_id);
 
-        if (class_basename($parent) == 'Mailshot') {
-            $outbox = $parent->outbox;
-            data_set($modelData, 'outbox_id', $parent->outbox_id);
-        } else {
-            $outbox = $parent;
-        }
+        data_set($modelData, 'outbox_id', $parent->outbox_id);
 
 
-
-        data_set(
-            $modelData,
-            'type',
-            match ($outbox->type) {
-                OutboxTypeEnum::NEWSLETTER => DispatchedEmailTypeEnum::NEWSLETTER,
-                OutboxTypeEnum::MARKETING => DispatchedEmailTypeEnum::MARKETING,
-                OutboxTypeEnum::MARKETING_NOTIFICATION => DispatchedEmailTypeEnum::MARKETING_NOTIFICATION,
-                OutboxTypeEnum::CUSTOMER_NOTIFICATION => DispatchedEmailTypeEnum::CUSTOMER_NOTIFICATION,
-                OutboxTypeEnum::COLD_EMAIL => DispatchedEmailTypeEnum::COLD_EMAIL,
-                OutboxTypeEnum::USER_NOTIFICATION => DispatchedEmailTypeEnum::USER_NOTIFICATION,
-                OutboxTypeEnum::TEST => DispatchedEmailTypeEnum::TEST,
-            }
-        );
+        //        data_set(
+        //            $modelData,
+        //            'type',
+        //            match ($parent->outbox->type) {
+        //                OutboxTypeEnum::NEWSLETTER => DispatchedEmailTypeEnum::NEWSLETTER,
+        //                OutboxTypeEnum::MARKETING => DispatchedEmailTypeEnum::MARKETING,
+        //                OutboxTypeEnum::MARKETING_NOTIFICATION => DispatchedEmailTypeEnum::MARKETING_NOTIFICATION,
+        //                OutboxTypeEnum::CUSTOMER_NOTIFICATION => DispatchedEmailTypeEnum::CUSTOMER_NOTIFICATION,
+        //                OutboxTypeEnum::COLD_EMAIL => DispatchedEmailTypeEnum::COLD_EMAIL,
+        //                OutboxTypeEnum::USER_NOTIFICATION => DispatchedEmailTypeEnum::USER_NOTIFICATION,
+        //                OutboxTypeEnum::TEST => DispatchedEmailTypeEnum::TEST,
+        //            }
+        //        );
 
 
         data_set($modelData, 'recipient_type', class_basename($recipient));

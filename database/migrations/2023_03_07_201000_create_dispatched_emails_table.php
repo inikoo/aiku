@@ -29,7 +29,6 @@ return new class () extends Migration {
 
             $table->unsignedInteger('email_address_id')->nullable();
             $table->foreign('email_address_id')->references('id')->on('email_addresses');
-            $table->string('type')->index();
             $table->string('provider')->index();
             $table->string('provider_dispatch_id')->nullable();
             $table->string('recipient_type')->nullable();

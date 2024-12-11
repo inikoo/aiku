@@ -14,9 +14,7 @@ use App\Enums\Comms\DispatchedEmail\DispatchedEmailStateEnum;
 use App\Enums\Comms\Mailshot\MailshotStateEnum;
 use App\Enums\Comms\Mailshot\MailshotTypeEnum;
 use App\Enums\Comms\Outbox\OutboxCodeEnum;
-use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Models\Comms\Mailshot;
-use App\Models\Comms\Outbox;
 use App\Models\CRM\Prospect;
 use Illuminate\Support\Facades\DB;
 use Str;
@@ -80,7 +78,7 @@ class FetchAuroraDispatchedEmail extends FetchAurora
 
         if (!$parent) {
             return;
-          //  dd($this->auroraModelData);
+            //  dd($this->auroraModelData);
         }
 
 
