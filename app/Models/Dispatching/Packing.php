@@ -9,6 +9,7 @@
 namespace App\Models\Dispatching;
 
 use App\Enums\Dispatching\Packing\PackingEngineEnum;
+use App\Enums\Dispatching\Packing\PackingStateEnum;
 use App\Models\SysAdmin\User;
 use App\Models\Traits\InShop;
 use Illuminate\Database\Eloquent\Model;
@@ -24,14 +25,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $delivery_note_id
  * @property int $delivery_note_item_id
  * @property int|null $picking_id
- * @property bool $status 0: todo, 1: done
- * @property bool $is_blocked
+ * @property PackingStateEnum $state
  * @property string|null $quantity_packed
  * @property int|null $packer_id
  * @property PackingEngineEnum $engine
  * @property array $data
- * @property string|null $packed_at
- * @property string|null $picking_blocked_at
+ * @property string|null $queued_at
+ * @property string|null $packing_at
+ * @property string|null $packing_blocked_at
  * @property string|null $done_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -51,8 +52,9 @@ class Packing extends Model
     use InShop;
 
     protected $casts = [
-        'data'              => 'array',
-        'engine'            => PackingEngineEnum::class,
+        'data'   => 'array',
+        'engine' => PackingEngineEnum::class,
+        'state'  => PackingStateEnum::class
     ];
 
     protected $guarded = [];

@@ -29,6 +29,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int $number_orders_state_submitted
  * @property int $number_orders_state_in_warehouse
  * @property int $number_orders_state_handling
+ * @property int $number_orders_state_handling_blocked
  * @property int $number_orders_state_packed
  * @property int $number_orders_state_finalised
  * @property int $number_orders_state_dispatched
