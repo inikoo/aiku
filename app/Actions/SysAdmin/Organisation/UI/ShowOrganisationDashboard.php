@@ -173,8 +173,6 @@ class ShowOrganisationDashboard extends OrgAction
                                         ],
                                         'all' => [
                                             'amount'     => $shop->salesIntervals->sales_all,
-                                            'percentage' => $this->calculatePercentageIncrease($shop->salesIntervals->sales_all, $shop->salesIntervals->sales_all_ly),
-                                            'difference' => $shop->salesIntervals->sales_all - $shop->salesIntervals->sales_all_ly
                                         ],
                                     ],
                     ];
