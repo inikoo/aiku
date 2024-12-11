@@ -33,7 +33,7 @@ class ShowGroupDashboard extends OrgAction
                         return $organisation->salesIntervals->refunds_ytd ?? 0;
                     }),
                     'total_sales' => $group->organisations->sum(function ($organisation) {
-                        return $organisation->salesIntervals->org_amount_ytd ?? 0;
+                        return $organisation->salesIntervals->sales_org_currency_ytd ?? 0;
                     }),
                 ],
                 'qtd' => [
@@ -44,7 +44,7 @@ class ShowGroupDashboard extends OrgAction
                         return $organisation->salesIntervals->refunds_qtd ?? 0;
                     }),
                     'total_sales' => $group->organisations->sum(function ($organisation) {
-                        return $organisation->salesIntervals->org_amount_qtd ?? 0;
+                        return $organisation->salesIntervals->sales_org_currency_qtd ?? 0;
                     }),
                 ],
                 'mtd' => [
@@ -55,7 +55,7 @@ class ShowGroupDashboard extends OrgAction
                         return $organisation->salesIntervals->refunds_mtd ?? 0;
                     }),
                     'total_sales' => $group->organisations->sum(function ($organisation) {
-                        return $organisation->salesIntervals->org_amount_mtd ?? 0;
+                        return $organisation->salesIntervals->sales_org_currency_mtd ?? 0;
                     }),
                 ],
                 'wtd' => [
@@ -66,7 +66,7 @@ class ShowGroupDashboard extends OrgAction
                         return $organisation->salesIntervals->refunds_wtd ?? 0;
                     }),
                     'total_sales' => $group->organisations->sum(function ($organisation) {
-                        return $organisation->salesIntervals->org_amount_wtd ?? 0;
+                        return $organisation->salesIntervals->sales_org_currency_wtd ?? 0;
                     }),
                 ],
                 'lm' => [
@@ -77,7 +77,7 @@ class ShowGroupDashboard extends OrgAction
                         return $organisation->salesIntervals->refunds_lm ?? 0;
                     }),
                     'total_sales' => $group->organisations->sum(function ($organisation) {
-                        return $organisation->salesIntervals->org_amount_lm ?? 0;
+                        return $organisation->salesIntervals->sales_org_currency_lm ?? 0;
                     }),
                 ],
                 'lw' => [
@@ -88,7 +88,7 @@ class ShowGroupDashboard extends OrgAction
                         return $organisation->salesIntervals->refunds_lw ?? 0;
                     }),
                     'total_sales' => $group->organisations->sum(function ($organisation) {
-                        return $organisation->salesIntervals->org_amount_lw ?? 0;
+                        return $organisation->salesIntervals->sales_org_currency_lw ?? 0;
                     }),
                 ],
                 'yda' => [
@@ -99,7 +99,7 @@ class ShowGroupDashboard extends OrgAction
                         return $organisation->salesIntervals->refunds_yda ?? 0;
                     }),
                     'total_sales' => $group->organisations->sum(function ($organisation) {
-                        return $organisation->salesIntervals->org_amount_yda ?? 0;
+                        return $organisation->salesIntervals->sales_org_currency_yda ?? 0;
                     }),
                 ],
                 'tdy' => [
@@ -110,7 +110,7 @@ class ShowGroupDashboard extends OrgAction
                         return $organisation->salesIntervals->refunds_tdy ?? 0;
                     }),
                     'total_sales' => $group->organisations->sum(function ($organisation) {
-                        return $organisation->salesIntervals->org_amount_tdy ?? 0;
+                        return $organisation->salesIntervals->sales_org_currency_tdy ?? 0;
                     }),
                 ],
                 '1y' => [
@@ -121,7 +121,7 @@ class ShowGroupDashboard extends OrgAction
                         return $organisation->salesIntervals->refunds_1y ?? 0;
                     }),
                     'total_sales' => $group->organisations->sum(function ($organisation) {
-                        return $organisation->salesIntervals->org_amount_1y ?? 0;
+                        return $organisation->salesIntervals->sales_org_currency_1y ?? 0;
                     }),
                 ],
                 '1q' => [
@@ -132,7 +132,7 @@ class ShowGroupDashboard extends OrgAction
                         return $organisation->salesIntervals->refunds_1q ?? 0;
                     }),
                     'total_sales' => $group->organisations->sum(function ($organisation) {
-                        return $organisation->salesIntervals->org_amount_1q ?? 0;
+                        return $organisation->salesIntervals->sales_org_currency_1q ?? 0;
                     }),
                 ],
                 '1m' => [
@@ -143,7 +143,7 @@ class ShowGroupDashboard extends OrgAction
                         return $organisation->salesIntervals->refunds_1m ?? 0;
                     }),
                     'total_sales' => $group->organisations->sum(function ($organisation) {
-                        return $organisation->salesIntervals->org_amount_1m ?? 0;
+                        return $organisation->salesIntervals->sales_org_currency_1m ?? 0;
                     }),
                 ],
                 '1w' => [
@@ -154,7 +154,7 @@ class ShowGroupDashboard extends OrgAction
                         return $organisation->salesIntervals->refunds_1w ?? 0;
                     }),
                     'total_sales' => $group->organisations->sum(function ($organisation) {
-                        return $organisation->salesIntervals->org_amount_1w ?? 0;
+                        return $organisation->salesIntervals->sales_org_currency_1w ?? 0;
                     }),
                 ],
                 'all' => [
@@ -183,69 +183,64 @@ class ShowGroupDashboard extends OrgAction
                     $responseData['interval_percentages'] = [
                             'sales' => [
                                         'ytd' => [
-                                            'amount'     => $organisation->salesIntervals->org_amount_ytd,
-                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_ytd, $organisation->salesIntervals->org_amount_ytd_ly),
-                                            'difference' => $organisation->salesIntervals->org_amount_ytd - $organisation->salesIntervals->org_amount_ytd_ly
+                                            'amount'     => $organisation->salesIntervals->sales_org_currency_ytd,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->sales_org_currency_ytd, $organisation->salesIntervals->sales_org_currency_ytd_ly),
+                                            'difference' => $organisation->salesIntervals->sales_org_currency_ytd - $organisation->salesIntervals->sales_org_currency_ytd_ly
                                         ],
                                         'qtd' => [
-                                            'amount'     => $organisation->salesIntervals->org_amount_qtd,
-                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_qtd, $organisation->salesIntervals->org_amount_qtd_ly),
-                                            'difference' => $organisation->salesIntervals->org_amount_qtd - $organisation->salesIntervals->org_amount_qtd_ly
+                                            'amount'     => $organisation->salesIntervals->sales_org_currency_qtd,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->sales_org_currency_qtd, $organisation->salesIntervals->sales_org_currency_qtd_ly),
+                                            'difference' => $organisation->salesIntervals->sales_org_currency_qtd - $organisation->salesIntervals->sales_org_currency_qtd_ly
                                         ],
                                         'mtd' => [
-                                            'amount'     => $organisation->salesIntervals->org_amount_mtd,
-                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_mtd, $organisation->salesIntervals->org_amount_mtd_ly),
-                                            'difference' => $organisation->salesIntervals->org_amount_mtd - $organisation->salesIntervals->org_amount_mtd_ly
+                                            'amount'     => $organisation->salesIntervals->sales_org_currency_mtd,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->sales_org_currency_mtd, $organisation->salesIntervals->sales_org_currency_mtd_ly),
+                                            'difference' => $organisation->salesIntervals->sales_org_currency_mtd - $organisation->salesIntervals->sales_org_currency_mtd_ly
                                         ],
                                         'wtd' => [
-                                            'amount'     => $organisation->salesIntervals->org_amount_wtd,
-                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_wtd, $organisation->salesIntervals->org_amount_wtd_ly),
-                                            'difference' => $organisation->salesIntervals->org_amount_wtd - $organisation->salesIntervals->org_amount_wtd_ly
+                                            'amount'     => $organisation->salesIntervals->sales_org_currency_wtd,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->sales_org_currency_wtd, $organisation->salesIntervals->sales_org_currency_wtd_ly),
+                                            'difference' => $organisation->salesIntervals->sales_org_currency_wtd - $organisation->salesIntervals->sales_org_currency_wtd_ly
                                         ],
                                         'lm' => [
-                                            'amount'     => $organisation->salesIntervals->org_amount_lm,
-                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_lm, $organisation->salesIntervals->org_amount_lm_ly),
-                                            'difference' => $organisation->salesIntervals->org_amount_lm - $organisation->salesIntervals->org_amount_lm_ly
+                                            'amount'     => $organisation->salesIntervals->sales_org_currency_lm,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->sales_org_currency_lm, $organisation->salesIntervals->sales_org_currency_lm_ly),
+                                            'difference' => $organisation->salesIntervals->sales_org_currency_lm - $organisation->salesIntervals->sales_org_currency_lm_ly
                                         ],
                                         'lw' => [
-                                            'amount'     => $organisation->salesIntervals->org_amount_lw,
-                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_lw, $organisation->salesIntervals->org_amount_lw_ly),
-                                            'difference' => $organisation->salesIntervals->org_amount_lw - $organisation->salesIntervals->org_amount_lw_ly
+                                            'amount'     => $organisation->salesIntervals->sales_org_currency_lw,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->sales_org_currency_lw, $organisation->salesIntervals->sales_org_currency_lw_ly),
+                                            'difference' => $organisation->salesIntervals->sales_org_currency_lw - $organisation->salesIntervals->sales_org_currency_lw_ly
                                         ],
                                         'yda' => [
-                                            'amount'     => $organisation->salesIntervals->org_amount_yda,
-                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_yda, $organisation->salesIntervals->org_amount_yda_ly),
-                                            'difference' => $organisation->salesIntervals->org_amount_yda - $organisation->salesIntervals->org_amount_yda_ly
+                                            'amount'     => $organisation->salesIntervals->sales_org_currency_yda,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->sales_org_currency_yda, $organisation->salesIntervals->sales_org_currency_yda_ly),
+                                            'difference' => $organisation->salesIntervals->sales_org_currency_yda - $organisation->salesIntervals->sales_org_currency_yda_ly
                                         ],
                                         'tdy' => [
-                                            'amount'     => $organisation->salesIntervals->org_amount_tdy,
-                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_tdy, $organisation->salesIntervals->org_amount_tdy_ly),
-                                            'difference' => $organisation->salesIntervals->org_amount_tdy - $organisation->salesIntervals->org_amount_tdy_ly
+                                            'amount'     => $organisation->salesIntervals->sales_org_currency_tdy,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->sales_org_currency_tdy, $organisation->salesIntervals->sales_org_currency_tdy_ly),
+                                            'difference' => $organisation->salesIntervals->sales_org_currency_tdy - $organisation->salesIntervals->sales_org_currency_tdy_ly
                                         ],
                                         '1y' => [
-                                            'amount'     => $organisation->salesIntervals->org_amount_1y,
-                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_1y, $organisation->salesIntervals->org_amount_1y_ly),
-                                            'difference' => $organisation->salesIntervals->org_amount_1y - $organisation->salesIntervals->org_amount_1y_ly
+                                            'amount'     => $organisation->salesIntervals->sales_org_currency_1y,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->sales_org_currency_1y, $organisation->salesIntervals->sales_org_currency_1y_ly),
+                                            'difference' => $organisation->salesIntervals->sales_org_currency_1y - $organisation->salesIntervals->sales_org_currency_1y_ly
                                         ],
                                         '1q' => [
-                                            'amount'     => $organisation->salesIntervals->org_amount_1q,
-                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_1q, $organisation->salesIntervals->org_amount_1q_ly),
-                                            'difference' => $organisation->salesIntervals->org_amount_1q - $organisation->salesIntervals->org_amount_1q_ly
+                                            'amount'     => $organisation->salesIntervals->sales_org_currency_1q,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->sales_org_currency_1q, $organisation->salesIntervals->sales_org_currency_1q_ly),
+                                            'difference' => $organisation->salesIntervals->sales_org_currency_1q - $organisation->salesIntervals->sales_org_currency_1q_ly
                                         ],
                                         '1m' => [
-                                            'amount'     => $organisation->salesIntervals->org_amount_1m,
-                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_1m, $organisation->salesIntervals->org_amount_1m_ly),
-                                            'difference' => $organisation->salesIntervals->org_amount_1m - $organisation->salesIntervals->org_amount_1m_ly
+                                            'amount'     => $organisation->salesIntervals->sales_org_currency_1m,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->sales_org_currency_1m, $organisation->salesIntervals->sales_org_currency_1m_ly),
+                                            'difference' => $organisation->salesIntervals->sales_org_currency_1m - $organisation->salesIntervals->sales_org_currency_1m_ly
                                         ],
                                         '1w' => [
-                                            'amount'     => $organisation->salesIntervals->org_amount_1w,
-                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_1w, $organisation->salesIntervals->org_amount_1w_ly),
-                                            'difference' => $organisation->salesIntervals->org_amount_1w - $organisation->salesIntervals->org_amount_1w_ly
-                                        ],
-                                        'all' => [
-                                            'amount'     => $organisation->salesIntervals->org_amount_all,
-                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->org_amount_all, $organisation->salesIntervals->org_amount_all_ly),
-                                            'difference' => $organisation->salesIntervals->org_amount_all - $organisation->salesIntervals->org_amount_all_ly
+                                            'amount'     => $organisation->salesIntervals->sales_org_currency_1w,
+                                            'percentage' => $this->calculatePercentageIncrease($organisation->salesIntervals->sales_org_currency_1w, $organisation->salesIntervals->sales_org_currency_1w_ly),
+                                            'difference' => $organisation->salesIntervals->sales_org_currency_1w - $organisation->salesIntervals->sales_org_currency_1w_ly
                                         ],
                                     ],
                         'invoices' => [

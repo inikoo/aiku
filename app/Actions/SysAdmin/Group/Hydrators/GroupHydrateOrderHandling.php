@@ -1,0 +1,139 @@
+<?php
+/*
+ * author Arya Permana - Kirin
+ * created on 11-12-2024-14h-28m
+ * github: https://github.com/KirinZero0
+ * copyright 2024
+*/
+
+namespace App\Actions\SysAdmin\Group\Hydrators;
+
+use App\Actions\Traits\WithEnumStats;
+use App\Enums\Discounts\Offer\OfferStateEnum;
+use App\Enums\Dispatching\DeliveryNote\DeliveryNoteStateEnum;
+use App\Enums\Dispatching\Packing\PackingStateEnum;
+use App\Enums\Dispatching\Picking\PickingStateEnum;
+use App\Enums\Ordering\Order\OrderStateEnum;
+use App\Models\Discounts\Offer;
+use App\Models\SysAdmin\Group;
+use App\Models\SysAdmin\Organisation;
+use Carbon\Carbon;
+use Illuminate\Queue\Middleware\WithoutOverlapping;
+use Lorisleiva\Actions\Concerns\AsAction;
+
+class GroupHydrateOrderHandling
+{
+    use AsAction;
+    use WithEnumStats;
+
+    private Group $group;
+
+    public function __construct(Group $group)
+    {
+        $this->group = $group;
+    }
+
+    public function getJobMiddleware(): array
+    {
+        return [(new WithoutOverlapping($this->group->id))->dontRelease()];
+    }
+
+    public function handle(Group $group): void
+    {
+        $stats = [
+            'number_orders_state_creating'                      => $group->orders()->where('state', OrderStateEnum::CREATING)->count(),
+            'orders_state_creating_amount_grp_currency'         => $group->orders()->where('state', OrderStateEnum::CREATING)->sum('grp_net_amount'),
+
+            'number_orders_state_submitted'                     => $group->orders()->where('state', OrderStateEnum::SUBMITTED)->count(),
+            'orders_state_submitted_amount_grp_currency'        => $group->orders()->where('state', OrderStateEnum::SUBMITTED)->sum('grp_net_amount'),
+
+            'number_orders_state_submitted_paid'                => $group->orders()->where('state', OrderStateEnum::SUBMITTED)
+                                                                                        ->whereColumn('payment_amount', '>=', 'total_amount')
+                                                                                        ->count(),
+            'orders_state_submitted_paid_amount_grp_currency'   => $group->orders()->where('state', OrderStateEnum::SUBMITTED)
+                                                                                        ->whereColumn('payment_amount', '>=', 'total_amount')
+                                                                                        ->sum('grp_net_amount'),
+
+            'number_orders_state_submitted_not_paid'                => $group->orders()->where('state', OrderStateEnum::SUBMITTED)
+                                                                                            ->where('payment_amount', 0)
+                                                                                            ->count(),
+            'orders_state_submitted_not_paid_amount_grp_currency'   => $group->orders()->where('state', OrderStateEnum::SUBMITTED)
+                                                                                            ->where('payment_amount', 0)
+                                                                                            ->sum('grp_net_amount'),
+
+            'number_orders_state_in_warehouse'                 => $group->orders()->where('state', OrderStateEnum::IN_WAREHOUSE)->count(),
+            'orders_state_in_warehouse_amount_grp_currency'    => $group->orders()->where('state', OrderStateEnum::IN_WAREHOUSE)->sum('grp_net_amount'),
+
+            'number_orders_state_handling'                      => $group->orders()->where('state', OrderStateEnum::HANDLING)->count(),
+            'orders_state_handling_amount_grp_currency'         => $group->orders()->where('state', OrderStateEnum::CREATING)->sum('grp_net_amount'),
+
+            'number_orders_state_handling_blocked'                      => $group->orders()->where('state', OrderStateEnum::HANDLING_BLOCKED)->count(),
+            'orders_state_handling_blocked_amount_grp_currency'         => $group->orders()->where('state', OrderStateEnum::HANDLING_BLOCKED)->sum('grp_net_amount'),
+
+            'number_orders_state_packed'                        => $group->orders()->where('state', OrderStateEnum::PACKED)->count(),
+            'orders_state_packed_amount_grp_currency'           => $group->orders()->where('state', OrderStateEnum::PACKED)->sum('grp_net_amount'),
+
+            'number_orders_state_finalised'                      => $group->orders()->where('state', OrderStateEnum::FINALISED)->count(),
+            'orders_state_finalised_amount_grp_currency'         => $group->orders()->where('state', OrderStateEnum::FINALISED)->sum('grp_net_amount'),
+
+            'number_orders_packed_today'                => $group->orders()->whereDate('packed_at', Carbon::today())->count(),
+            'orders_packed_today_amount_grp_currency'   => $group->orders()->whereDate('packed_at', Carbon::today())->sum('grp_net_amount'),
+
+            'number_orders_finalised_today'                 => $group->orders()->whereDate('finalised_at', Carbon::today())->count(),
+            'orders_finalised_today_amount_grp_currency'    => $group->orders()->whereDate('finalised_at', Carbon::today())->sum('grp_net_amount'),
+
+            'number_orders_dispatched_today'                 => $group->orders()->whereDate('dispatched_at', Carbon::today())->count(),
+            'orders_dispatched_today_amount_grp_currency'    => $group->orders()->whereDate('dispatched_at', Carbon::today())->sum('grp_net_amount'),
+
+            'number_delivery_notes_state_queued'            => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::QUEUED)->count(),
+            'weight_delivery_notes_state_queued'            => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::QUEUED)->sum('weight'),
+            'number_items_delivery_notes_state_queued'      => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::QUEUED)->with('deliveryNoteItems')
+                                                                                            ->get()
+                                                                                            ->sum(fn ($deliveryNote) => $deliveryNote->deliveryNoteItems->count()),
+
+            'number_delivery_notes_state_handling'          => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::HANDLING)->count(),
+            'weight_delivery_notes_state_handling'          => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::HANDLING)->sum('weight'),
+            'number_items_delivery_notes_state_handling'    => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::HANDLING)->with('deliveryNoteItems')
+                                                                                            ->get()
+                                                                                            ->sum(fn ($deliveryNote) => $deliveryNote->deliveryNoteItems->count()),
+
+            'number_delivery_notes_state_handling_blocked'          => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::HANDLING_BLOCKED)->count(),
+            'weight_delivery_notes_state_handling_blocked'          => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::HANDLING_BLOCKED)->sum('weight'),
+            'number_items_delivery_notes_state_handling_blocked'    => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::HANDLING_BLOCKED)->with('deliveryNoteItems')
+                                                                                            ->get()
+                                                                                            ->sum(fn ($deliveryNote) => $deliveryNote->deliveryNoteItems->count()),
+
+            'number_delivery_notes_state_packed'          => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::PACKED)->count(),
+            'weight_delivery_notes_state_packed'          => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::PACKED)->sum('weight'),
+            'number_items_delivery_notes_state_packed'    => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::PACKED)->with('deliveryNoteItems')
+                                                                                            ->get()
+                                                                                            ->sum(fn ($deliveryNote) => $deliveryNote->deliveryNoteItems->count()),
+
+            'number_delivery_notes_state_finalised'          => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::FINALISED)->count(),
+            'weight_delivery_notes_state_finalised'          => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::FINALISED)->sum('weight'),
+            'number_items_delivery_notes_state_finalised'    => $group->deliveryNotes()->where('state', DeliveryNoteStateEnum::FINALISED)->with('deliveryNoteItems')
+                                                                                            ->get()
+                                                                                            ->sum(fn ($deliveryNote) => $deliveryNote->deliveryNoteItems->count()),
+
+            'number_delivery_notes_dispatched_today'          => $group->deliveryNotes()->whereDate('dispatched_at', Carbon::today())->count(),
+            'weight_delivery_notes_dispatched_today'          => $group->deliveryNotes()->whereDate('dispatched_at', Carbon::today())->sum('weight'),
+            'number_items_delivery_notes_dispatched_today'    => $group->deliveryNotes()->whereDate('dispatched_at', Carbon::today())->with('deliveryNoteItems')
+                                                                                            ->get()
+                                                                                            ->sum(fn ($deliveryNote) => $deliveryNote->deliveryNoteItems->count()),
+            
+            'number_pickings_state_queued'              => $group->pickings()->where('state', PickingStateEnum::QUEUED)->count(),
+            'number_pickings_state_picking'             => $group->pickings()->where('state', PickingStateEnum::PICKING)->count(),
+            'number_pickings_state_picking_blocked'     => $group->pickings()->where('state', PickingStateEnum::PICKING_BLOCKED)->count(),
+            'number_pickings_done_today'                => $group->pickings()->whereDate('done_at', Carbon::today())->count(),
+            
+            'number_packings_state_queued'              => $group->packings()->where('state', PackingStateEnum::QUEUED)->count(),
+            'number_packings_state_packing'             => $group->packings()->where('state', PackingStateEnum::PACKING)->count(),
+            'number_packings_state_packing_blocked'     => $group->packings()->where('state', PackingStateEnum::PACKING_BLOCKED)->count(),
+            'number_packings_done_today'                => $group->packings()->whereDate('done_at', Carbon::today())->count(),
+        ];
+
+        $group->orderHandlingStats()->update($stats);
+    }
+
+
+}

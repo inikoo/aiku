@@ -333,6 +333,28 @@ test('can show fulfilments website workshop (footer)', function () {
 });
 
 
+test('UI index websites in organisation', function () {
+    $response = get(
+        route(
+            'grp.org.websites.index',
+            [
+                $this->organisation->slug,
+            ]
+        )
+    );
+    $response->assertInertia(function (AssertableInertia $page) {
+        $page
+            ->component('Org/Web/Websites')
+            ->has('title')
+            ->has('breadcrumbs', 2)
+            ->has(
+                "pageHead",
+                fn (AssertableInertia $page) => $page->where("title", "websites")->etc()
+            )
+            ->has('data');
+    });
+});
+
 test('index banner', function () {
     $response = get(
         route(
