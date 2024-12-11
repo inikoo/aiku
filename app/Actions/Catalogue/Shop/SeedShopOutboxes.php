@@ -24,6 +24,9 @@ class SeedShopOutboxes
     use AsAction;
     use WithOutboxBuilder;
 
+    /**
+     * @throws \Throwable
+     */
     public function handle(Shop $shop): void
     {
         foreach (OutboxCodeEnum::cases() as $case) {

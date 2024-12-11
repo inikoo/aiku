@@ -23,10 +23,7 @@ class UpdateEmail extends OrgAction
 
     public function handle(Email $email, array $modelData): Email
     {
-        $email = $this->update($email, $modelData, ['data']);
-
-
-        return $email;
+        return $this->update($email, $modelData, ['data']);
     }
 
     public function authorize(ActionRequest $request): bool
