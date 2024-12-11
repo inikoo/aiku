@@ -12,11 +12,11 @@ namespace App\Actions\Comms\OrgPostRoom\UI;
 use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\Comms\Outbox\UI\IndexOutboxes;
 use App\Actions\OrgAction;
+use App\Enums\Comms\PostRoom\OrgPostRoomsTabsEnum;
 use App\Enums\Comms\PostRoom\PostRoomsTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OrgPostRoomResource;
 use App\Http\Resources\Mail\OutboxResource;
-use App\Http\Resources\Mail\PostRoomResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\OrgPostRoom;
 use App\Models\SysAdmin\Organisation;
@@ -47,7 +47,7 @@ class ShowOrgPostRoom extends OrgAction
 
     public function inShop(Organisation $organisation, Shop $shop, OrgPostRoom $orgPostRoom, ActionRequest $request): OrgPostRoom
     {
-        $this->initialisationFromShop($shop, $request);
+        $this->initialisationFromShop($shop, $request)->withTab(OrgPostRoomsTabsEnum::values());
 
         return $this->handle($orgPostRoom);
     }
@@ -74,26 +74,26 @@ class ShowOrgPostRoom extends OrgAction
                 ],
                 'tabs' => [
                     'current'    => $this->tab,
-                    'navigation' => PostRoomsTabsEnum::navigation(),
+                    'navigation' => OrgPostRoomsTabsEnum::navigation(),
                 ],
                 // TODO: Overview <-- is. a dashbpard
                 // PostRoomsTabsEnum::OVERVIEW->value => $this->tab == PostRoomsTabsEnum::OVERVIEW->value ?
-                //     fn () => PostRoomResource::collection($postRoom)
-                //     : Inertia::lazy(fn () => PostRoomResource::collection($postRoom)),
+                //     fn () => PostRoomResource::collection($orgPostRoom)
+                //     : Inertia::lazy(fn () => PostRoomResource::collection($orgPostRoom)),
 
-                PostRoomsTabsEnum::OUTBOXES->value => $this->tab == PostRoomsTabsEnum::OUTBOXES->value ?
-                    fn () => OutboxResource::collection(IndexOutboxes::run($this->parent, PostRoomsTabsEnum::OUTBOXES->value))
-                    : Inertia::lazy(fn () => OutboxResource::collection(IndexOutboxes::run($this->parent, PostRoomsTabsEnum::OUTBOXES->value))),
+                OrgPostRoomsTabsEnum::OUTBOXES->value => $this->tab == OrgPostRoomsTabsEnum::OUTBOXES->value ?
+                    fn () => OutboxResource::collection(IndexOutboxes::run($orgPostRoom, OrgPostRoomsTabsEnum::OUTBOXES->value))
+                    : Inertia::lazy(fn () => OutboxResource::collection(IndexOutboxes::run($orgPostRoom, OrgPostRoomsTabsEnum::OUTBOXES->value))),
 
-                PostRoomsTabsEnum::MAILSHOTS->value => $this->tab == PostRoomsTabsEnum::MAILSHOTS->value ?
-                    fn () => MailshotResource::collection(IndexMailshots::run($this->parent))
-                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($this->parent))),
+                OrgPostRoomsTabsEnum::MAILSHOTS->value => $this->tab == OrgPostRoomsTabsEnum::MAILSHOTS->value ?
+                    fn () => MailshotResource::collection(IndexMailshots::run($orgPostRoom))
+                    : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($orgPostRoom))),
 
                 'data'   => OrgPostRoomResource::make($orgPostRoom)
             ]
         )
-        ->table(IndexOutboxes::make()->tableStructure(parent:$this->parent, prefix: 'outboxes'))
-        ->table(IndexMailshots::make()->tableStructure(parent:$this->parent, prefix: 'mailshots'));
+        ->table(IndexOutboxes::make()->tableStructure(parent:$orgPostRoom, prefix: OrgPostRoomsTabsEnum::OUTBOXES->value))
+        ->table(IndexMailshots::make()->tableStructure(parent:$orgPostRoom, prefix: OrgPostRoomsTabsEnum::MAILSHOTS->value));
     }
 
     public function jsonResponse(OrgPostRoom $orgPostRoom): OrgPostRoomResource
