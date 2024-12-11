@@ -110,6 +110,7 @@
   {
     "outboxes": [
       "marketing"
+      
     ],
     "name": "New Year Sale",
     "content": "new_year_sale.json",
