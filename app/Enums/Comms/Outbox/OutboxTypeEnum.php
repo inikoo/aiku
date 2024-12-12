@@ -47,7 +47,7 @@ enum OutboxTypeEnum: string
             ],
             OutboxTypeEnum::MARKETING->value    => [
                 'tooltip' => __(OutboxTypeEnum::MARKETING->value),
-                'icon'    => 'fas fa-exclamation-circle',
+                'icon'    => 'fas fa-circle',
                 'class'   => 'text-orange-500',
                 'color'   => 'orange'
             ],
