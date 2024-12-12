@@ -64,16 +64,23 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
 
 
         $showTopNs = Arr::get($modelData, 'showTopNs') ?? 'visits';
-        $rumAnalyticsTopNsPromise = async(fn () => ['data' => [], 'errors' => null]);
-        $rumAnalyticsTimeseriesPromise = async(fn () => ['data' => [], 'errors' => null]);
+        $rumAnalyticsTopNsPromise = async(fn () => []);
+        $rumAnalyticsTimeseriesPromise = async(fn () => []);
+        $rumWebVitalsPromise = async(fn () => []);
         if ($showTopNs) {
             switch ($showTopNs) {
                 case 'performance':
                     $rumAnalyticsTopNsPromise = async(fn () => $this->getRumPerfAnalyticsTopNs($modelData));
                     break;
-                    // case 'webVitals':
-                    //     $rumAnalyticsTopNsPromise = async(fn () => $this->getRumWebVitalsTopNs($modelData));
-                    //     break;
+                case 'webVitals':
+                    $rumAnalyticsTopNsPromise = async(fn () => $this->getRumWebVitalsTop($modelData));
+                    $section = ['lcp', 'fid', 'inp' ,'cls'];
+                    $rumWebVitalsPromise = [];
+                    foreach ($section as $key) {
+                        data_set($modelData, 'section', $key);
+                        $rumWebVitalsPromise[$key] = async(fn () => $this->getRumWebVitals($modelData));
+                    }
+                    break;
                 case 'pageViews':
                 case 'visits':
                     $rumAnalyticsTopNsPromise = async(fn () => $this->getRumAnalyticsTopNs($modelData));
@@ -85,15 +92,21 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
         $rumSparklinePromise = async(fn () => $this->getRumSparkline($modelData));
         $zonePromise = async(fn () => $this->getZone($modelData));
 
-        [$rumAnalyticsTopNs, $rumSparkline, $rumAnalyticsTimeseriesPromise, $zone] = await([$rumAnalyticsTopNsPromise,$rumSparklinePromise, $rumAnalyticsTimeseriesPromise, $zonePromise]);
+        [$rumAnalyticsTopNs, $rumSparkline, $rumAnalyticsTimeseries, $zone] = await([$rumAnalyticsTopNsPromise,$rumSparklinePromise, $rumAnalyticsTimeseriesPromise, $zonePromise]);
+        $rumWebVitals = [];
+        foreach ($rumWebVitalsPromise as $key => $promise) {
+            [$webVital] = await([$promise]);
+            $rumWebVitals[$key] = $webVital;
+        }
 
-        $data = [
+        $data = array_filter([
             'rumAnalyticsTopNs' => $rumAnalyticsTopNs,
             'rumSparkline' => $rumSparkline,
-            'rumAnalyticsTimeseries' => $rumAnalyticsTimeseriesPromise, // if performance, return empty array. count field -> for pageViews and sum.visits field -> for visits
+            'rumAnalyticsTimeseries' => $rumAnalyticsTimeseries,
+            'rumWebVitals' => $rumWebVitals,
             'zone' => $zone,
-        ];
-
+        ]);
+        dd($data);
         // cache()->put($cacheKey, $data, $cacheTTL);
 
         return $data;
@@ -110,6 +123,9 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
             case 'performance':
                 data_set($modelData, 'filter', $partialFilterPerfAnalytics);
                 return $this->getRumPerfAnalyticsTopNs($modelData);
+                // case 'webVitals':
+                //     $rumAnalyticsTopNsPromise = async(fn () => $this->getRumWebVitalsTop($modelData));
+                //     break;
             case 'pageViews':
             case 'visits':
                 $rumAnalyticsTopNsPromise = async(fn () => $this->getRumAnalyticsTopNs($modelData));
@@ -170,6 +186,17 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
                 'required_with:partialShowTopNs',
                 'in:p50,p75,p90,p99,avg'
             ],
+            'partialWebVitals' => [
+                'sometimes',
+                'string',
+                'required_with:partialShowTopNs',
+                'in:lcp,inp,fid,cls'
+            ],
+            'partialWebVitalsData' => [
+                'sometimes',
+                'string',
+                'in:url,browser,os,country,element'
+            ],
         ];
     }
 
@@ -208,25 +235,25 @@ class GetWebsiteCloudflareAnalytics extends OrgAction
     //  */
     // public function asCommand($command): int
     // {
-    //     if ($command->argument("website")) {
-    //         try {
-    //             /** @var Website $website */
-    //             $website = Website::where("slug", $command->argument("website"))->firstOrFail();
-    //         } catch (Exception) {
-    //             $command->error("Website not found");
-    //             exit();
-    //         }
+    //     // if ($command->argument("website")) {
+    //     //     try {
+    //     //         /** @var Website $website */
+    //     //         $website = Website::where("slug", $command->argument("website"))->firstOrFail();
+    //     //     } catch (Exception) {
+    //     //         $command->error("Website not found");
+    //     //         exit();
+    //     //     }
 
-    //         $this->action($website, []);
+    //     //     $this->action($website, []);
 
-    //         $command->line("Website ".$website->slug." fetched");
+    //     //     $command->line("Website ".$website->slug." fetched");
 
-    //     } else {
-    //         foreach (Website::orderBy('id')->get() as $website) {
-    //             $command->line("Website ".$website->slug." fetched");
-    //             $this->action($website, []);
-    //         }
-    //     }
+    //     // } else {
+    //     //     foreach (Website::orderBy('id')->get() as $website) {
+    //     //         $command->line("Website ".$website->slug." fetched");
+    //     //         $this->action($website, []);
+    //     //     }
+    //     // }
 
 
     //     return 0;

@@ -33,41 +33,41 @@ trait WithCloudflareQueryGraphql
             $orderBy = 'date_ASC';
         }
         $query = <<<GQL
-        query Viewer {
-            viewer {
-                zones(filter: { zoneTag: "$zoneTag" }) {
-                    totals: $groupsFunction(
-                        limit: 10000
-                        filter: { {$timeField}_geq: "$since", {$timeField}_lt: "$until" }
-                    ) {
-                        uniq {
-                            uniques
-                        }
-                    }
-                    zones: $groupsFunction(
-                        orderBy: [$orderBy]
-                        limit: 10000
-                        filter: { {$timeField}_geq: "$since", {$timeField}_lt: "$until" }
-                    ) {
-                        dimensions {
-                            timeslot: $timeField
-                        }
-                        uniq {
-                            uniques
-                        }
-                        sum {
-                            browserMap {
-                                pageViews
-                                key: uaBrowserFamily
+            query Viewer {
+                viewer {
+                    zones(filter: { zoneTag: "$zoneTag" }) {
+                        totals: $groupsFunction(
+                            limit: 10000
+                            filter: { {$timeField}_geq: "$since", {$timeField}_lt: "$until" }
+                        ) {
+                            uniq {
+                                uniques
                             }
-                            pageViews
-                            requests
+                        }
+                        zones: $groupsFunction(
+                            orderBy: [$orderBy]
+                            limit: 10000
+                            filter: { {$timeField}_geq: "$since", {$timeField}_lt: "$until" }
+                        ) {
+                            dimensions {
+                                timeslot: $timeField
+                            }
+                            uniq {
+                                uniques
+                            }
+                            sum {
+                                browserMap {
+                                    pageViews
+                                    key: uaBrowserFamily
+                                }
+                                pageViews
+                                requests
+                            }
                         }
                     }
                 }
             }
-        }
-    GQL;
+        GQL;
 
         return $this->getCloudflareAnalytics($modelData, $query);
     }
@@ -84,12 +84,8 @@ trait WithCloudflareQueryGraphql
             return [];
         }
 
-        $order = 'count_DESC';
-        if ($show === 'visits') {
-            $order = 'sum_visits_DESC';
-        }
+        $order = $show === 'visits' ? 'sum_visits_DESC' : 'count_DESC';
 
-        // Define the filter as a variable
         $filter = <<<FILTER
             {
                 AND: [
@@ -100,7 +96,37 @@ trait WithCloudflareQueryGraphql
             }
         FILTER;
 
-        // Return the query
+        $dimensions = [
+            'topReferers' => 'refererHost',
+            'topPaths' => 'requestPath',
+            'topHosts' => 'requestHost',
+            'topBrowsers' => 'userAgentBrowser',
+            'topOSs' => 'userAgentOS',
+            'topDeviceTypes' => 'deviceType',
+            'countries' => 'countryName'
+        ];
+
+        $dimensionsQuery = implode("\n", array_map(function ($key, $value) use ($filter, $order) {
+            return <<<GQL
+            $key: rumPageloadEventsAdaptiveGroups(
+                filter: $filter, 
+                limit: 15, 
+                orderBy: [$order]
+            ) {
+                count
+                avg {
+                    sampleInterval
+                }
+                sum {
+                    visits
+                }
+                dimensions {
+                    metric: $value
+                }
+            }
+            GQL;
+        }, array_keys($dimensions), $dimensions));
+
         $query = <<<GQL
             query Viewer {
                 viewer {
@@ -114,118 +140,7 @@ trait WithCloudflareQueryGraphql
                                 visits
                             }
                         }
-                        topReferers: rumPageloadEventsAdaptiveGroups(
-                            filter: $filter, 
-                            limit: 15, 
-                            orderBy: [$order]
-                        ) {
-                            count
-                            avg {
-                                sampleInterval
-                            }
-                            sum {
-                                visits
-                            }
-                            dimensions {
-                                metric: refererHost
-                            }
-                        }
-                        topPaths: rumPageloadEventsAdaptiveGroups(
-                            filter: $filter, 
-                            limit: 15, 
-                            orderBy: [$order]
-                        ) {
-                            count
-                            avg {
-                                sampleInterval
-                            }
-                            sum {
-                                visits
-                            }
-                            dimensions {
-                                metric: requestPath
-                            }
-                        }
-                        topHosts: rumPageloadEventsAdaptiveGroups(
-                            filter: $filter, 
-                            limit: 15, 
-                            orderBy: [$order]
-                        ) {
-                            count
-                            avg {
-                                sampleInterval
-                            }
-                            sum {
-                                visits
-                            }
-                            dimensions {
-                                metric: requestHost
-                            }
-                        }
-                        topBrowsers: rumPageloadEventsAdaptiveGroups(
-                            filter: $filter, 
-                            limit: 15, 
-                            orderBy: [$order]
-                        ) {
-                            count
-                            avg {
-                                sampleInterval
-                            }
-                            sum {
-                                visits
-                            }
-                            dimensions {
-                                metric: userAgentBrowser
-                            }
-                        }
-                        topOSs: rumPageloadEventsAdaptiveGroups(
-                            filter: $filter, 
-                            limit: 15, 
-                            orderBy: [$order]
-                        ) {
-                            count
-                            avg {
-                                sampleInterval
-                            }
-                            sum {
-                                visits
-                            }
-                            dimensions {
-                                metric: userAgentOS
-                            }
-                        }
-                        topDeviceTypes: rumPageloadEventsAdaptiveGroups(
-                            filter: $filter, 
-                            limit: 15, 
-                            orderBy: [$order]
-                        ) {
-                            count
-                            avg {
-                                sampleInterval
-                            }
-                            sum {
-                                visits
-                            }
-                            dimensions {
-                                metric: deviceType
-                            }
-                        }
-                        countries: rumPageloadEventsAdaptiveGroups(
-                            filter: $filter, 
-                            limit: 200, 
-                            orderBy: [$order]
-                        ) {
-                            count
-                            avg {
-                                sampleInterval
-                            }
-                            sum {
-                                visits
-                            }
-                            dimensions {
-                                metric: countryName
-                            }
-                        }
+                        $dimensionsQuery
                     }
                 }
             }
@@ -254,161 +169,81 @@ trait WithCloudflareQueryGraphql
 
         $filter = <<<FILTER
             {
-                AND: [
-                    { datetime_geq: "$since", datetime_leq: "$until" },
-                    { OR: [{ siteTag: "$siteTag" }] },
-                    { bot: 0 }
-                ]
+            AND: [
+                { datetime_geq: "$since", datetime_leq: "$until" },
+                { OR: [{ siteTag: "$siteTag" }] },
+                { bot: 0 }
+            ]
             }
         FILTER;
+
+        $metrics = [
+            'pageLoadTime',
+            'dnsTime',
+            'connectionTime',
+            'requestTime',
+            'responseTime',
+            'pageRenderTime',
+            'loadEventTime',
+            'firstPaint',
+            'firstContentfulPaint'
+        ];
+
+        $metricsQuery = implode("\n", array_map(function ($metric) use ($pageLoadFilterVal) {
+            return "$metric: $metric$pageLoadFilterVal";
+        }, $metrics));
+
+        $dimensions = [
+            'countries' => 'countryName',
+            'topReferers' => 'refererHost',
+            'topPaths' => 'requestPath',
+            'topHosts' => 'requestHost',
+            'topBrowsers' => 'userAgentBrowser',
+            'topOSs' => 'userAgentOS',
+            'topDeviceTypes' => 'deviceType'
+        ];
+
+        $dimensionsQuery = implode("\n", array_map(function ($key, $value) use ($filter, $order, $pageLoadAggregation, $pageLoadFilterVal) {
+            return <<<GQL
+            $key: rumPerformanceEventsAdaptiveGroups(
+                filter: $filter
+                limit: 15
+                orderBy: [$order]
+            ) {
+                count
+                avg {
+                sampleInterval
+                }
+                aggregation: $pageLoadAggregation {
+                pageLoadTime: pageLoadTime$pageLoadFilterVal
+                }
+                dimensions {
+                metric: $value
+                }
+            }
+            GQL;
+        }, array_keys($dimensions), $dimensions));
 
         $query = <<<GQL
         query Viewer {
             viewer {
                 accounts(filter: { accountTag: "$accountTag" }) {
-                total: rumPerformanceEventsAdaptiveGroups(filter: $filter, limit: 1) {
-                    count
-                    aggregation: $pageLoadAggregation {
-                    pageLoadTime: pageLoadTime$pageLoadFilterVal
-                    dnsTime: dnsTime$pageLoadFilterVal
-                    connectionTime: connectionTime$pageLoadFilterVal
-                    requestTime: requestTime$pageLoadFilterVal
-                    responseTime: responseTime$pageLoadFilterVal
-                    pageRenderTime: pageRenderTime$pageLoadFilterVal
-                    loadEventTime: loadEventTime$pageLoadFilterVal
-                    firstPaint: firstPaint$pageLoadFilterVal
-                    firstContentfulPaint: firstContentfulPaint$pageLoadFilterVal
+                    total: rumPerformanceEventsAdaptiveGroups(filter: $filter, limit: 1) {
+                        count
+                        aggregation: $pageLoadAggregation {
+                            $metricsQuery
+                        }
                     }
-                }
-                series: rumPerformanceEventsAdaptiveGroups(limit: 5000, filter: $filter) {
+                    series: rumPerformanceEventsAdaptiveGroups(limit: 5000, filter: $filter) {
                     dimensions {
-                    datetimeFifteenMinutes
+                        {$this->getDimensionTime($since, $until)}
                     }
                     count
-                    aggregation: $pageLoadAggregation {
-                    pageLoadTime: pageLoadTime$pageLoadFilterVal
-                    dnsTime: dnsTime$pageLoadFilterVal
-                    connectionTime: connectionTime$pageLoadFilterVal
-                    requestTime: requestTime$pageLoadFilterVal
-                    responseTime: responseTime$pageLoadFilterVal
-                    pageRenderTime: pageRenderTime$pageLoadFilterVal
-                    loadEventTime: loadEventTime$pageLoadFilterVal
-                    firstPaint: firstPaint$pageLoadFilterVal
-                    firstContentfulPaint: firstContentfulPaint$pageLoadFilterVal
+                        aggregation: $pageLoadAggregation {
+                            $metricsQuery
+                        }
                     }
-                }
-                countries: rumPerformanceEventsAdaptiveGroups(
-                    filter: $filter
-                    limit: 200
-                    orderBy: [$order]
-                ) {
-                    count
-                    avg {
-                        sampleInterval
-                    }
-                    aggregation: $pageLoadAggregation {
-                        pageLoadTime: pageLoadTime$pageLoadFilterVal
-                    }
-                    dimensions {
-                        metric: countryName
-                    }
-                }
-                topReferers: rumPerformanceEventsAdaptiveGroups(
-                    filter: $filter
-                    limit: 15
-                    orderBy: [$order]
-                ) {
-                    count
-                    avg {
-                        sampleInterval
-                    }
-                    aggregation: $pageLoadAggregation {
-                        pageLoadTime: pageLoadTime$pageLoadFilterVal
-                    }
-                    dimensions {
-                        metric: refererHost
-                    }
-                }
-                topPaths: rumPerformanceEventsAdaptiveGroups(
-                    filter: $filter
-                    limit: 15
-                    orderBy: [$order]
-                ) {
-                    count
-                    avg {
-                        sampleInterval
-                    }
-                    aggregation: $pageLoadAggregation {
-                        pageLoadTime: pageLoadTime$pageLoadFilterVal
-                    }
-                    dimensions {
-                        metric: requestPath
-                    }
-                }
-                topHosts: rumPerformanceEventsAdaptiveGroups(
-                    filter: $filter
-                    limit: 15
-                    orderBy: [$order]
-                ) {
-                    count
-                    avg {
-                        sampleInterval
-                    }
-                    aggregation: $pageLoadAggregation {
-                        pageLoadTime: pageLoadTime$pageLoadFilterVal
-                    }
-                    dimensions {
-                        metric: requestHost
-                    }
-                }
-                topBrowsers: rumPerformanceEventsAdaptiveGroups(
-                    filter: $filter
-                    limit: 15
-                    orderBy: [$order]
-                ) {
-                    count
-                    avg {
-                        sampleInterval
-                    }
-                    aggregation: $pageLoadAggregation {
-                        pageLoadTime: pageLoadTime$pageLoadFilterVal
-                    }
-                    dimensions {
-                        metric: userAgentBrowser
-                    }
-                }
-                topOSs: rumPerformanceEventsAdaptiveGroups(
-                    filter: $filter
-                    limit: 15
-                    orderBy: [$order]
-                ) {
-                    count
-                    avg {
-                        sampleInterval
-                    }
-                    aggregation: $pageLoadAggregation {
-                        pageLoadTime: pageLoadTime$pageLoadFilterVal
-                    }
-                    dimensions {
-                        metric: userAgentOS
-                    }
-                }
-                topDeviceTypes: rumPerformanceEventsAdaptiveGroups(
-                    filter: $filter
-                    limit: 15
-                    orderBy: [$order]
-                ) {
-                    count
-                    avg {
-                    sampleInterval
-                    }
-                    aggregation: $pageLoadAggregation {
-                        pageLoadTime: pageLoadTime$pageLoadFilterVal
-                    }
-                    dimensions {
-                        metric: deviceType
-                    }
-                }
+                    $dimensionsQuery
                 }
             }
         }
@@ -416,6 +251,11 @@ trait WithCloudflareQueryGraphql
 
         return $this->getCloudflareAnalytics($modelData, $query);
 
+    }
+
+    private function getDimensionTime($since, $until)
+    {
+        return $this->isDate($since) && $this->isDate($until) ? 'datetimeHour' : 'datetimeFifteenMinutes';
     }
 
     public function getRumSparkline($modelData): array
@@ -429,12 +269,6 @@ trait WithCloudflareQueryGraphql
             return [];
         }
 
-        $dimension = 'datetimeFifteenMinutes';
-
-        if ($this->isDate($since) && $this->isDate($until)) {
-            $dimension = 'datetimeHour';
-        }
-
         $filter = <<<FILTER
         {
             AND: [
@@ -445,116 +279,49 @@ trait WithCloudflareQueryGraphql
         }
         FILTER;
 
+        $metrics = [
+            'visits' => 'rumPageloadEventsAdaptiveGroups',
+            'pageviews' => 'rumPageloadEventsAdaptiveGroups',
+            'performance' => 'rumPerformanceEventsAdaptiveGroups',
+            'totalPerformance' => 'rumPerformanceEventsAdaptiveGroups',
+            'lcp' => 'rumWebVitalsEventsAdaptiveGroups',
+            'inp' => 'rumWebVitalsEventsAdaptiveGroups',
+            'fid' => 'rumWebVitalsEventsAdaptiveGroups',
+            'cls' => 'rumWebVitalsEventsAdaptiveGroups',
+            'visitsDelta' => 'rumPageloadEventsAdaptiveGroups',
+            'pageviewsDelta' => 'rumPageloadEventsAdaptiveGroups',
+            'performanceDelta' => 'rumPerformanceEventsAdaptiveGroups'
+        ];
+
+        $metricsQuery = implode("\n", array_map(function ($key, $value) use ($filter, $since, $until) {
+            $aggregation = $key === 'performance' || $key === 'totalPerformance' || $key === 'performanceDelta' ? 'quantiles { pageLoadTime: pageLoadTimeP50 }' : '';
+            $sum = in_array($key, ['visits', 'visitsDelta']) ? 'sum { visits }' : '';
+            $count = in_array($key, ['pageviews', 'pageviewsDelta', 'performanceDelta']) ? 'count' : '';
+            $avg = 'avg { sampleInterval }';
+            $dimensions = "dimensions { ts: {$this->getDimensionTime($since, $until)} }";
+
+            return <<<GQL
+            $key: $value(limit: 5000, filter: $filter) {
+                $count
+                $sum
+                $avg
+                $aggregation
+                $dimensions
+            }
+            GQL;
+        }, array_keys($metrics), $metrics));
+
         $query = <<<GQL
         query Viewer {
             viewer {
                 accounts(filter: {accountTag: "$accountTag"}) {
-                    visits: rumPageloadEventsAdaptiveGroups(limit: 5000, filter: $filter) {
-                        sum {
-                            visits
-                        }
-                        avg {
-                            sampleInterval
-                        }
-                        dimensions {
-                            ts: $dimension
-                        }
-                    }
-                    pageviews: rumPageloadEventsAdaptiveGroups(limit: 5000, filter: $filter) {
-                        count
-                        avg {
-                            sampleInterval
-                        }
-                        dimensions {
-                            ts: $dimension
-                        }
-                    }
-                    performance: rumPerformanceEventsAdaptiveGroups(limit: 5000, filter: $filter) {
-                        count
-                        aggregation: quantiles {
-                            pageLoadTime: pageLoadTimeP50
-                        }
-                        avg {
-                            sampleInterval
-                        }
-                        dimensions {
-                            ts: $dimension
-                        }
-                    }
-                    totalPerformance: rumPerformanceEventsAdaptiveGroups(limit: 1, filter: $filter) {
-                        aggregation: quantiles {
-                            pageLoadTime: pageLoadTimeP50
-                        }
-                    }
-                    lcp: rumWebVitalsEventsAdaptiveGroups(filter: $filter, limit: 1) {
-                        count
-                        sum {
-                            lcpTotal
-                            lcpGood
-                            lcpNeedsImprovement
-                            lcpPoor
-                        }
-                        avg {
-                            sampleInterval
-                        }
-                    }
-                    inp: rumWebVitalsEventsAdaptiveGroups(filter: $filter, limit: 1) {
-                        count
-                        sum {
-                            inpTotal
-                            inpGood
-                            inpNeedsImprovement
-                            inpPoor
-                        }
-                        avg {
-                            sampleInterval
-                        }
-                    }
-                    fid: rumWebVitalsEventsAdaptiveGroups(filter: $filter, limit: 1) {
-                        count
-                        sum {
-                            fidTotal
-                            fidGood
-                            fidNeedsImprovement
-                            fidPoor
-                        }
-                        avg {
-                            sampleInterval
-                        }
-                    }
-                    cls: rumWebVitalsEventsAdaptiveGroups(filter: $filter, limit: 1) {
-                        count
-                        sum {
-                            clsTotal
-                            clsGood
-                            clsNeedsImprovement
-                            clsPoor
-                        }
-                        avg {
-                            sampleInterval
-                        }
-                    }
-                    visitsDelta: rumPageloadEventsAdaptiveGroups(limit: 1, filter: $filter) {
-                        sum {
-                            visits
-                        }
-                    }
-                    pageviewsDelta: rumPageloadEventsAdaptiveGroups(limit: 1, filter: $filter) {
-                        count
-                    }
-                    performanceDelta: rumPerformanceEventsAdaptiveGroups(limit: 1, filter: $filter) {
-                        count
-                        aggregation: quantiles {
-                            pageLoadTime: pageLoadTimeP50
-                        }
-                    }
+                    $metricsQuery
                 }
             }
         }
         GQL;
 
         return $this->getCloudflareAnalytics($modelData, $query);
-
     }
 
     public function getRumAnalyticsTimeseries($modelData): array
@@ -573,7 +340,6 @@ trait WithCloudflareQueryGraphql
         $metricFilter = Arr::get($modelData, 'filter') ?? 'all';
         $metric = $getMetric[$metricFilter] != '' ? "metric: {$getMetric[$metricFilter]}" : "";
 
-        // $filterData = '';
         $filterData = Arr::get($modelData, 'filterData') ?? '';
         if ($filterData) {
             $data = explode(',', trim($filterData));
@@ -581,13 +347,9 @@ trait WithCloudflareQueryGraphql
             foreach ($data as $d) {
                 $filterData .= "{ {$getMetric[$metricFilter]}: \"$d\" },";
             }
-            // remove , from last array
             $filterData = rtrim($filterData, ',');
             $filterData .= '] }';
         }
-        // dd($filterData);
-        // $filterData = Arr::get($modelData, 'filterData') ?? '';
-        // dd($filterData);
 
         $siteTag = Arr::get($modelData, 'siteTag');
         $accountTag = Arr::get($modelData, 'accountTag');
@@ -596,12 +358,6 @@ trait WithCloudflareQueryGraphql
 
         if (!$siteTag || !$accountTag) {
             return [];
-        }
-
-        $dimension = 'datetimeFifteenMinutes';
-
-        if ($this->isDate($since) && $this->isDate($until)) {
-            $dimension = 'datetimeHour';
         }
 
         $filter = <<<FILTER
@@ -628,7 +384,7 @@ trait WithCloudflareQueryGraphql
                             visits
                         }
                         dimensions {
-                            ts: $dimension
+                            ts: {$this->getDimensionTime($since, $until)}
                             $metric
                         }
                     }
@@ -640,7 +396,208 @@ trait WithCloudflareQueryGraphql
         return $this->getCloudflareAnalytics($modelData, $query);
     }
 
-    private function getCloudflareAnalytics(array $modelData, string $query, $try = 3): array
+    public function getRumWebVitalsTop($modelData): ?array
+    {
+        $siteTag = Arr::get($modelData, 'siteTag');
+        $accountTag = Arr::get($modelData, 'accountTag');
+        $since = Arr::get($modelData, 'since') ?? Date::now()->subDay()->toIso8601String();
+        $until = Arr::get($modelData, 'until') ?? Date::now()->toIso8601String();
+
+        if (!$siteTag || !$accountTag) {
+            return null;
+        }
+
+        $filter = <<<FILTER
+        {
+            AND: [
+                { datetime_geq: "$since", datetime_leq: "$until" },
+                { OR: [{ siteTag: "$siteTag" }] },
+                { bot: 0 }
+            ]
+        }
+        FILTER;
+
+        $debugFilters = [
+            'lcp' => '{ largestContentfulPaint_neq: -1, largestContentfulPaint_gt: 2500000, largestContentfulPaintElement_neq: "", largestContentfulPaintObjectHost_neq: "", largestContentfulPaintObjectPath_neq: "" }',
+            'fid' => '{ firstInputDelay_neq: -1, firstInputDelay_gt: 100000, firstInputDelayElement_neq: "", firstInputDelayName_neq: "" }',
+            'cls' => '{ cumulativeLayoutShift_neq: -1, cumulativeLayoutShift_gt: 0.1, cumulativeLayoutShiftElement_neq: "" }'
+        ];
+
+        $metrics = ['lcp', 'inp', 'fid', 'cls'];
+        $queries = [];
+
+        foreach ($metrics as $metric) {
+            $queries[] = <<<GQL
+            $metric: rumWebVitalsEventsAdaptiveGroups(filter: $filter, limit: 1) {
+                count
+                sum {
+                    {$metric}Total
+                    {$metric}Good
+                    {$metric}NeedsImprovement
+                    {$metric}Poor
+                }
+                avg {
+                    sampleInterval
+                }
+            }
+            GQL;
+
+            if (isset($debugFilters[$metric])) {
+                $queries[] = <<<GQL
+                {$metric}DebugView: rumWebVitalsEventsAdaptiveGroups(filter: {$debugFilters[$metric]}, orderBy: [count_DESC], limit: 15) {
+                    sum {
+                        {$metric}Total
+                        {$metric}Good
+                        {$metric}NeedsImprovement
+                        {$metric}Poor
+                    }
+                    dimensions {
+                        {$metric}Element
+                        requestScheme
+                        requestHost
+                        requestPath
+                    }
+                    aggregation: quantiles {
+                        {$metric}P50
+                        {$metric}P75
+                        {$metric}P90
+                        {$metric}P99
+                    }
+                }
+                GQL;
+            }
+        }
+
+        $query = <<<GQL
+        query Viewer {
+            viewer {
+                accounts(filter: {accountTag: "$accountTag"}) {
+                    total: rumWebVitalsEventsAdaptiveGroups(filter: $filter, limit: 1) {
+                        count
+                        aggregation: quantiles {
+                            largestContentfulPaintP50
+                            largestContentfulPaintP75
+                            largestContentfulPaintP90
+                            largestContentfulPaintP99
+                            interactionToNextPaintP50
+                            interactionToNextPaintP75
+                            interactionToNextPaintP90
+                            interactionToNextPaintP99
+                            firstInputDelayP50
+                            firstInputDelayP75
+                            firstInputDelayP90
+                            firstInputDelayP99
+                            cumulativeLayoutShiftP50
+                            cumulativeLayoutShiftP75
+                            cumulativeLayoutShiftP90
+                            cumulativeLayoutShiftP99
+                        }
+                    }
+                    lcpSeries: rumWebVitalsEventsAdaptiveGroups(filter: $filter, limit: 5000) {
+                        dimensions {
+                            {$this->getDimensionTime($since, $until)}
+                        }
+                        count
+                        aggregation: quantiles {
+                            largestContentfulPaintP50
+                            largestContentfulPaintP75
+                            largestContentfulPaintP90
+                            largestContentfulPaintP99
+                        }
+                    }
+                    {$queries[0]}
+                    {$queries[1]}
+                    {$queries[2]}
+                    {$queries[3]}
+                    {$queries[4]}
+                    {$queries[5]}
+                    {$queries[6]}
+                    {$queries[7]}
+                }
+            }
+        }
+        GQL;
+
+        return $this->getCloudflareAnalytics($modelData, $query);
+    }
+
+    public function getRumWebVitals($modelData): ?array
+    {
+
+        $sectionDimension = [
+            'lcp' => 'largestContentfulPaintPath',
+            'inp' => '',
+            'fid' => 'firstInputDelayPath',
+            'cls' => 'cumulativeLayoutShiftPath',
+        ];
+
+        $filterDataDimensionMap = [
+            'url' => 'requestHost',
+            'browser' => 'userAgentBrowser',
+            'os' => 'userAgentOS',
+            'country' => 'countryName',
+            'element' => 'largestContentfulPaintElement',
+        ];
+
+        $section = Arr::get($modelData, 'section') ?? 'lcp';
+        $filterData = Arr::get($modelData, 'filterData');
+
+        if ($section === 'inp') {
+            if ($filterData == 'element') {
+                $filterData = 'country';
+            } else {
+                $filterData = $filterData ?? 'browser';
+            }
+        }
+        $filterData = $filterData ?? 'url';
+        $siteTag = Arr::get($modelData, 'siteTag');
+        $accountTag = Arr::get($modelData, 'accountTag');
+        $since = Arr::get($modelData, 'since') ?? Date::now()->subDay()->toIso8601String();
+        $until = Arr::get($modelData, 'until') ?? Date::now()->toIso8601String();
+
+        if (!$siteTag || !$accountTag) {
+            return null;
+        }
+
+        $filter = <<<FILTER
+        {
+            AND: [
+                { datetime_geq: "$since", datetime_leq: "$until" },
+                { OR: [{ siteTag: "$siteTag" }] },
+                { bot: 0 }
+            ]
+        }
+        FILTER;
+
+        $query = <<<GQL
+        query Viewer {
+            viewer {
+                accounts(filter: {accountTag: "$accountTag"}) {
+                    rumWebVitalsEventsAdaptiveGroups(filter: $filter, limit: 15, orderBy: [sum_{$section}Total_DESC]) {
+                        count
+                        sum {
+                            {$section}Total
+                            {$section}Good
+                            {$section}NeedsImprovement
+                            {$section}Poor
+                        }
+                        dimensions {
+                            {$sectionDimension[$section]}
+                            {$filterDataDimensionMap[$filterData]}
+                        }
+                        avg {
+                            sampleInterval
+                        }
+                    }
+                }
+            }
+        }
+        GQL;
+
+        return $this->getCloudflareAnalytics($modelData, $query);
+    }
+
+    private function getCloudflareAnalytics(array $modelData, string $query, $try = 3): ?array
     {
         $apiToken = Arr::get($modelData, "apiToken");
 
@@ -666,203 +623,4 @@ trait WithCloudflareQueryGraphql
 
         return $response->json();
     }
-
-
-
-    // public function getQueryWebVitals($modelData): ?string{
-    //     $siteTag = Arr::get($modelData, 'siteTag');
-    //     $accountTag = Arr::get($modelData, 'accountTag');
-    //     $since = Arr::get($modelData, 'since') ?? Date::now()->subDay()->toIso8601String();
-    //     $until = Arr::get($modelData, 'until') ?? Date::now()->toIso8601String();
-
-    //     if (!$siteTag || !$accountTag) {
-    //         return null;
-    //     }
-
-    //     return <<<GQL
-    //     query Viewer {
-    //         viewer {
-    //             accounts(filter: {accountTag: $accountTag}) {
-    //             total: rumWebVitalsEventsAdaptiveGroups(filter: $filter, limit: 1) {
-    //                 count
-    //                 aggregation: quantiles {
-    //                 largestContentfulPaintP50
-    //                 largestContentfulPaintP75
-    //                 largestContentfulPaintP90
-    //                 largestContentfulPaintP99
-    //                 interactionToNextPaintP50
-    //                 interactionToNextPaintP75
-    //                 interactionToNextPaintP90
-    //                 interactionToNextPaintP99
-    //                 firstInputDelayP50
-    //                 firstInputDelayP75
-    //                 firstInputDelayP90
-    //                 firstInputDelayP99
-    //                 cumulativeLayoutShiftP50
-    //                 cumulativeLayoutShiftP75
-    //                 cumulativeLayoutShiftP90
-    //                 cumulativeLayoutShiftP99
-    //                 __typename
-    //                 }
-    //                 __typename
-    //             }
-    //             lcp: rumWebVitalsEventsAdaptiveGroups(filter: $lcpFilter, limit: 1) {
-    //                 count
-    //                 sum {
-    //                 lcpTotal
-    //                 lcpGood
-    //                 lcpNeedsImprovement
-    //                 lcpPoor
-    //                 __typename
-    //                 }
-    //                 avg {
-    //                 sampleInterval
-    //                 __typename
-    //                 }
-    //                 __typename
-    //             }
-    //             lcpSeries: rumWebVitalsEventsAdaptiveGroups(filter: $lcpFilter, limit: 5000) {
-    //                 dimensions {
-    //                 datetimeFifteenMinutes
-    //                 __typename
-    //                 }
-    //                 count
-    //                 aggregation: quantiles {
-    //                 largestContentfulPaintP50
-    //                 largestContentfulPaintP75
-    //                 largestContentfulPaintP90
-    //                 largestContentfulPaintP99
-    //                 __typename
-    //                 }
-    //                 __typename
-    //             }
-    //             lcpDebugView: rumWebVitalsEventsAdaptiveGroups(filter: $lcpDebugFilter, orderBy: [count_DESC], limit: 15) {
-    //                 sum {
-    //                 lcpTotal
-    //                 lcpGood
-    //                 lcpNeedsImprovement
-    //                 lcpPoor
-    //                 __typename
-    //                 }
-    //                 dimensions {
-    //                 largestContentfulPaintElement
-    //                 largestContentfulPaintObjectScheme
-    //                 largestContentfulPaintObjectHost
-    //                 largestContentfulPaintObjectPath
-    //                 requestScheme
-    //                 requestHost
-    //                 requestPath
-    //                 __typename
-    //                 }
-    //                 aggregation: quantiles {
-    //                 largestContentfulPaintP50
-    //                 largestContentfulPaintP75
-    //                 largestContentfulPaintP90
-    //                 largestContentfulPaintP99
-    //                 __typename
-    //                 }
-    //                 __typename
-    //             }
-    //             inp: rumWebVitalsEventsAdaptiveGroups(filter: $inpFilter, limit: 1) {
-    //                 count
-    //                 sum {
-    //                 inpTotal
-    //                 inpGood
-    //                 inpNeedsImprovement
-    //                 inpPoor
-    //                 __typename
-    //                 }
-    //                 avg {
-    //                 sampleInterval
-    //                 __typename
-    //                 }
-    //                 __typename
-    //             }
-    //             fid: rumWebVitalsEventsAdaptiveGroups(filter: $fidFilter, limit: 1) {
-    //                 count
-    //                 sum {
-    //                 fidTotal
-    //                 fidGood
-    //                 fidNeedsImprovement
-    //                 fidPoor
-    //                 __typename
-    //                 }
-    //                 avg {
-    //                 sampleInterval
-    //                 __typename
-    //                 }
-    //                 __typename
-    //             }
-    //             fidDebugView: rumWebVitalsEventsAdaptiveGroups(filter: $fidDebugFilter, orderBy: [count_DESC], limit: 15) {
-    //                 sum {
-    //                 fidTotal
-    //                 fidGood
-    //                 fidNeedsImprovement
-    //                 fidPoor
-    //                 __typename
-    //                 }
-    //                 dimensions {
-    //                 firstInputDelayElement
-    //                 firstInputDelayName
-    //                 requestScheme
-    //                 requestHost
-    //                 requestPath
-    //                 __typename
-    //                 }
-    //                 aggregation: quantiles {
-    //                 firstInputDelayP50
-    //                 firstInputDelayP75
-    //                 firstInputDelayP90
-    //                 firstInputDelayP99
-    //                 __typename
-    //                 }
-    //                 __typename
-    //             }
-    //             cls: rumWebVitalsEventsAdaptiveGroups(filter: $clsFilter, limit: 1) {
-    //                 count
-    //                 sum {
-    //                 clsTotal
-    //                 clsGood
-    //                 clsNeedsImprovement
-    //                 clsPoor
-    //                 __typename
-    //                 }
-    //                 avg {
-    //                 sampleInterval
-    //                 __typename
-    //                 }
-    //                 __typename
-    //             }
-    //             clsDebugView: rumWebVitalsEventsAdaptiveGroups(filter: $clsDebugFilter, orderBy: [count_DESC], limit: 15) {
-    //                 sum {
-    //                 clsTotal
-    //                 clsGood
-    //                 clsNeedsImprovement
-    //                 clsPoor
-    //                 __typename
-    //                 }
-    //                 dimensions {
-    //                 cumulativeLayoutShiftElement
-    //                 cumulativeLayoutShiftPath
-    //                 requestScheme
-    //                 requestHost
-    //                 requestPath
-    //                 __typename
-    //                 }
-    //                 aggregation: quantiles {
-    //                 cumulativeLayoutShiftP50
-    //                 cumulativeLayoutShiftP75
-    //                 cumulativeLayoutShiftP90
-    //                 cumulativeLayoutShiftP99
-    //                 __typename
-    //                 }
-    //                 __typename
-    //             }
-    //             __typename
-    //             }
-    //             __typename
-    //         }
-    //     }
-    //     GQL;
-    // }
 }
