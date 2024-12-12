@@ -23,8 +23,6 @@ const props = defineProps<{
 
 const openTemplates = ref(false)
 
-console.log(props)
-
 </script>
 
 

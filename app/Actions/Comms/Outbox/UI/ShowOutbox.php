@@ -90,7 +90,7 @@ class ShowOutbox extends OrgAction
 
 
             return Inertia::render(
-                'Mail/OutboxWorkshop',
+                'Mail/Outbox',
                 [
                     'title'       => __('Set up your outbox'),
                     'breadcrumbs' => $this->getBreadcrumbs(
