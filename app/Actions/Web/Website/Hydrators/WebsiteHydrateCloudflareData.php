@@ -23,7 +23,7 @@ class WebsiteHydrateCloudflareData
     use AsAction;
     private Website $website;
     private Collection $siteList;
-    private string $apiToken;
+    private ?string $apiToken;
     private Collection $zoneAccountTag;
 
     public function __construct(Website $website)
@@ -84,7 +84,6 @@ class WebsiteHydrateCloudflareData
 
     public function asCommand($command)
     {
-        // dd('kena');
         $webSlug = $command->argument('website', 'Website slug');
 
         if ($webSlug) {
@@ -95,9 +94,9 @@ class WebsiteHydrateCloudflareData
             $this->handle($website);
         } else {
             $websites = Website::all();
-            foreach ($websites as $website) {
+            $command->withProgressBar($websites, function ($website) {
                 $this->handle($website);
-            }
+            });
         }
     }
 
@@ -135,7 +134,6 @@ class WebsiteHydrateCloudflareData
 
     private function getAnalyticsList(string $accountId, $try = 3): Collection
     {
-        print("getAnalyticsList\n");
         try {
             $urlCLoudflareResAnalytic = "https://api.cloudflare.com/client/v4/accounts/{$accountId}/rum/site_info/list";
             $resultAnalytic = Http::timeout(10)->withHeaders([
