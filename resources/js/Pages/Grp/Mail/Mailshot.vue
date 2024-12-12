@@ -5,7 +5,7 @@ import Tabs from "@/Components/Navigation/Tabs.vue"
 
 import { useTabChange } from "@/Composables/tab-change"
 import { capitalize } from "@/Composables/capitalize"
-import { computed, defineAsyncComponent, ref } from 'vue'
+import { computed, ref } from 'vue'
 import type { Component } from 'vue'
 import EmailPreview from '@/Components/Showcases/Org/Mailshot/EmailPreview.vue'
 
@@ -13,6 +13,10 @@ import TableHistories from "@/Components/Tables/Grp/Helpers/TableHistories.vue"
 import { PageHeading as TSPageHeading } from '@/types/PageHeading'
 import { Tabs as TSTabs } from '@/types/Tabs'
 import MailshotShowcase from '@/Components/Showcases/Org/Mailshot/MailshotShowcase.vue'
+
+import { faEnvelope } from '@fas'
+import { library } from "@fortawesome/fontawesome-svg-core";
+library.add(faEnvelope)
 
 // import FileShowcase from '@/xxxxxxxxxxxx'
 
@@ -23,6 +27,8 @@ const props = defineProps<{
     showcase?: string
     email_preview : Object
 }>()
+
+console.log(props)
 
 const currentTab = ref(props.tabs.current)
 const handleTabUpdate = (tabSlug: string) => useTabChange(tabSlug, currentTab)
