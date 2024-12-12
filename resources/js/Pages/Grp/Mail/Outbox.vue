@@ -16,6 +16,7 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { faInboxOut, faMailBulk, faRabbitFast } from "@fal";
 import TableMailshots from "@/Components/Tables/TableMailshots.vue";
 import OutboxShowcase from "@/Components/Showcases/Grp/OutboxShowcase.vue";
+import TableEmailBulkRuns from "@/Components/Tables/TableEmailBulkRuns.vue";
 
 library.add(faInboxOut, faMailBulk, faRabbitFast);
 
@@ -25,6 +26,7 @@ const props = defineProps<{
   tabs: TSTabs
   history: {}
   mailshots: {}
+  email_bulk_runs: {}
   showcase: any
 }>();
 
@@ -36,7 +38,8 @@ const component = computed(() => {
   const components: Component = {
     history: TableHistories,
     mailshots: TableMailshots,
-    showcase: OutboxShowcase
+    showcase: OutboxShowcase,
+    email_bulk_runs: TableEmailBulkRuns
   };
 
   return components[currentTab.value];

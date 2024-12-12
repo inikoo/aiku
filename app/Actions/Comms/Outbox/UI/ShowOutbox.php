@@ -8,6 +8,7 @@
 
 namespace App\Actions\Comms\Outbox\UI;
 
+use App\Actions\Comms\EmailBulkRun\UI\IndexEmailBulkRuns;
 use App\Actions\Comms\Mailshot\UI\IndexMailshots;
 use App\Actions\OrgAction;
 use App\Actions\Web\HasWorkshopAction;
@@ -15,6 +16,7 @@ use App\Enums\Comms\Email\EmailBuilderEnum;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
 use App\Enums\Comms\Outbox\OutboxTypeEnum;
 use App\Enums\UI\Mail\OutboxTabsEnum;
+use App\Http\Resources\Mail\EmailBulkRunsResource;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OutboxesResource;
 use App\Models\Catalogue\Shop;
@@ -96,7 +98,6 @@ class ShowOutbox extends OrgAction
                 dd('Error this should be set up already in the seeder');
             }
 
-
             return Inertia::render(
                 'Mail/Outbox',
                 [
@@ -124,9 +125,13 @@ class ShowOutbox extends OrgAction
                         fn () => GetOutboxShowcase::run($outbox)
                         : Inertia::lazy(fn () => GetOutboxShowcase::run($outbox)),
 
+                        OutboxTabsEnum::EMAIL_BULK_RUNS->value => $this->tab == OutboxTabsEnum::EMAIL_BULK_RUNS->value ?
+                    fn () => EmailBulkRunsResource::collection(IndexEmailBulkRuns::run($outbox))
+                    : Inertia::lazy(fn () => EmailBulkRunsResource::collection(IndexEmailBulkRuns::run($outbox))),
+
 
                 ]
-            );
+            )->table(IndexEmailBulkRuns::make()->tableStructure(parent:$outbox, prefix: OutboxTabsEnum::EMAIL_BULK_RUNS->value));
 
 
         }
@@ -181,14 +186,19 @@ class ShowOutbox extends OrgAction
                     fn () => GetOutboxShowcase::run($outbox)
                     : Inertia::lazy(fn () => GetOutboxShowcase::run($outbox)),
 
-                    OutboxTabsEnum::MAILSHOTS->value => $this->tab == OutboxTabsEnum::MAILSHOTS->value ?
+                OutboxTabsEnum::MAILSHOTS->value => $this->tab == OutboxTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($outbox))
                     : Inertia::lazy(fn () => MailshotResource::collection(IndexMailshots::run($outbox))),
+
+                OutboxTabsEnum::EMAIL_BULK_RUNS->value => $this->tab == OutboxTabsEnum::EMAIL_BULK_RUNS->value ?
+                    fn () => EmailBulkRunsResource::collection(IndexEmailBulkRuns::run($outbox))
+                    : Inertia::lazy(fn () => EmailBulkRunsResource::collection(IndexEmailBulkRuns::run($outbox))),
 
 
 
             ]
-        )->table(IndexMailshots::make()->tableStructure(parent:$outbox, prefix: OutboxTabsEnum::MAILSHOTS->value));
+        )->table(IndexEmailBulkRuns::make()->tableStructure(parent:$outbox, prefix: OutboxTabsEnum::EMAIL_BULK_RUNS->value))
+        ->table(IndexMailshots::make()->tableStructure(parent:$outbox, prefix: OutboxTabsEnum::MAILSHOTS->value));
     }
 
 
