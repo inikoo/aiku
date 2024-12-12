@@ -46,7 +46,7 @@ use Spatie\Sluggable\SlugOptions;
  * @property string|null $model_type
  * @property int|null $model_id
  * @property string $name
- * @property OutboxBuilderEnum|null $builder current default builder for future emails
+ * @property EmailBuilderEnum|null $builder current default builder for future emails
  * @property OutboxStateEnum $state
  * @property array $data
  * @property \Illuminate\Support\Carbon|null $created_at
