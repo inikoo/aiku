@@ -41,19 +41,24 @@ class FetchAuroraInvoiceTransaction extends FetchAurora
             }
 
 
+            $quantity = $this->auroraModelData->{'Delivery Note Quantity'};
+            if ($this->auroraModelData->{'Order Transaction Product Type'} == 'Service') {
+                $quantity = $this->auroraModelData->{'Order Quantity'};
+            }
+
             $taxCategory = $this->parseTaxCategory($this->auroraModelData->{'Order Transaction Tax Category Key'});
 
             $this->parsedData['transaction'] = [
                 'order_id'        => $orderId,
                 'tax_category_id' => $taxCategory->id,
-                'quantity'        => $this->auroraModelData->{'Delivery Note Quantity'},
-                'gross_amount' => $this->auroraModelData->{'Order Transaction Gross Amount'},
-                'net_amount'   => $this->auroraModelData->{'Order Transaction Amount'},
-                'grp_exchange' => $invoice->grp_exchange,
-                'org_exchange' => $invoice->org_exchange,
+                'quantity'        => $quantity,
+                'gross_amount'    => $this->auroraModelData->{'Order Transaction Gross Amount'},
+                'net_amount'      => $this->auroraModelData->{'Order Transaction Amount'},
+                'grp_exchange'    => $invoice->grp_exchange,
+                'org_exchange'    => $invoice->org_exchange,
                 'fetched_at'      => now(),
                 'last_fetched_at' => now(),
-                'source_id' => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'},
+                'source_id'       => $this->organisation->id.':'.$this->auroraModelData->{'Order Transaction Fact Key'},
 
             ];
         } else {
