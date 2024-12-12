@@ -54,7 +54,6 @@ class OutboxHydrateIntervals
             'lw' => [$now->copy()->subWeek()->startOfWeek(), $now->copy()->subWeek()->endOfWeek()],
             'ld' => [$now->copy()->subDay()->startOfDay(), $now->copy()->subDay()->endOfDay()],
 
-            'all_ly' => [$now->copy()->subYear()->startOfYear(), $now->copy()->subYear()->endOfYear()],
             '1y_ly' => [$now->copy()->subYears(2), $now->copy()->subYear()],
             '1q_ly' => [$now->copy()->subYear()->subMonths(3), $now->copy()->subYear()],
             '1m_ly' => [$now->copy()->subYear()->subMonth(), $now->copy()->subYear()],

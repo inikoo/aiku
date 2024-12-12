@@ -16,7 +16,7 @@ use App\Enums\Comms\PostRoom\OrgPostRoomsTabsEnum;
 use App\Enums\Comms\PostRoom\PostRoomsTabsEnum;
 use App\Http\Resources\Mail\MailshotResource;
 use App\Http\Resources\Mail\OrgPostRoomResource;
-use App\Http\Resources\Mail\OutboxResource;
+use App\Http\Resources\Mail\OutboxesResource;
 use App\Models\Catalogue\Shop;
 use App\Models\Comms\OrgPostRoom;
 use App\Models\SysAdmin\Organisation;
@@ -82,8 +82,8 @@ class ShowOrgPostRoom extends OrgAction
                 //     : Inertia::lazy(fn () => PostRoomResource::collection($orgPostRoom)),
 
                 OrgPostRoomsTabsEnum::OUTBOXES->value => $this->tab == OrgPostRoomsTabsEnum::OUTBOXES->value ?
-                    fn () => OutboxResource::collection(IndexOutboxes::run($orgPostRoom, OrgPostRoomsTabsEnum::OUTBOXES->value))
-                    : Inertia::lazy(fn () => OutboxResource::collection(IndexOutboxes::run($orgPostRoom, OrgPostRoomsTabsEnum::OUTBOXES->value))),
+                    fn () => OutboxesResource::collection(IndexOutboxes::run($orgPostRoom, OrgPostRoomsTabsEnum::OUTBOXES->value))
+                    : Inertia::lazy(fn () => OutboxesResource::collection(IndexOutboxes::run($orgPostRoom, OrgPostRoomsTabsEnum::OUTBOXES->value))),
 
                 OrgPostRoomsTabsEnum::MAILSHOTS->value => $this->tab == OrgPostRoomsTabsEnum::MAILSHOTS->value ?
                     fn () => MailshotResource::collection(IndexMailshots::run($orgPostRoom))

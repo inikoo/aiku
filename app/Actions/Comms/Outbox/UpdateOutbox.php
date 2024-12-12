@@ -11,7 +11,7 @@ namespace App\Actions\Comms\Outbox;
 use App\Actions\OrgAction;
 use App\Actions\Traits\WithActionUpdate;
 use App\Enums\Comms\Outbox\OutboxStateEnum;
-use App\Http\Resources\Mail\OutboxResource;
+use App\Http\Resources\Mail\OutboxesResource;
 use App\Models\Comms\Outbox;
 use App\Models\SysAdmin\Organisation;
 use App\Rules\IUnique;
@@ -79,8 +79,8 @@ class UpdateOutbox extends OrgAction
     }
 
 
-    public function jsonResponse(Outbox $outbox): OutboxResource
+    public function jsonResponse(Outbox $outbox): OutboxesResource
     {
-        return new OutboxResource($outbox);
+        return new OutboxesResource($outbox);
     }
 }

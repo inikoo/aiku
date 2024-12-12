@@ -31,11 +31,11 @@ class HydrateOutbox extends HydrateModel
 
     }
 
-    public string $commandSignature = 'hydrate:outboxes {slugs?*}';
+    public string $commandSignature = 'hydrate:outboxes {organisations?*} {--s|slugs=} ';
 
     protected function getModel(string $slug): Outbox
     {
-        return Outbox::where('slug', $slug)->first();
+        return Outbox::where('id', $slug)->first();
     }
 
     protected function getAllModels(): Collection
