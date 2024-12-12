@@ -41,13 +41,13 @@ enum OutboxTypeEnum: string
         return [
             OutboxTypeEnum::NEWSLETTER->value => [
                 'tooltip' => __(OutboxTypeEnum::NEWSLETTER->value),
-                'icon'    => 'fal fa-circle-notch',
+                'icon'    => 'fal fa-circle',
                 'class'   => 'text-lime-500',
                 'color'   => 'lime'
             ],
             OutboxTypeEnum::MARKETING->value    => [
                 'tooltip' => __(OutboxTypeEnum::MARKETING->value),
-                'icon'    => 'fas fa-exclamation-circle',
+                'icon'    => 'fas fa-circle',
                 'class'   => 'text-orange-500',
                 'color'   => 'orange'
             ],
