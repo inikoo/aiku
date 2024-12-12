@@ -205,7 +205,7 @@ class ShowOutbox extends OrgAction
                     'type'   => 'simple',
                     'simple' => [
                         'route' => $routeParameters,
-                        'label' => $outbox->code,
+                        'label' => $outbox->name,
                     ],
                     'suffix' => $suffix
                 ],
